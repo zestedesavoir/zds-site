@@ -7,7 +7,7 @@ import os
 
 import factory
 
-from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
+from models import PublishableContent, Container, Extract, ContentReaction,\
     Validation
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -32,12 +32,12 @@ content_light = u'Un contenu light pour quand ce n\'est pas vraiment ça qui est
 
 
 class BigTutorialFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tutorial
+    FACTORY_FOR = PublishableContent
 
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(
         lambda n: 'Description du Tutoriel No{0}'.format(n))
-    type = 'BIG'
+    type = 'TUTORIAL'
     create_at = datetime.now()
     introduction = 'introduction.md'
     conclusion = 'conclusion.md'
@@ -79,12 +79,12 @@ class BigTutorialFactory(factory.DjangoModelFactory):
 
 
 class MiniTutorialFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tutorial
+    FACTORY_FOR = PublishableContent
 
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(
         lambda n: 'Description du Tutoriel No{0}'.format(n))
-    type = 'MINI'
+    type = 'TUTORIAL'
     create_at = datetime.now()
     introduction = 'introduction.md'
     conclusion = 'conclusion.md'
@@ -130,7 +130,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
 
 class PartFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Part
+    FACTORY_FOR = Container
 
     title = factory.Sequence(lambda n: 'Ma partie No{0}'.format(n))
 
@@ -138,7 +138,7 @@ class PartFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         light = kwargs.pop('light', False)
         part = super(PartFactory, cls)._prepare(create, **kwargs)
-        tutorial = kwargs.pop('tutorial', None)
+        parent = kwargs.pop('tutorial', None)
 
         real_content = content
         if light:
@@ -154,20 +154,20 @@ class PartFactory(factory.DjangoModelFactory):
         part.conclusion = os.path.join(part.get_phy_slug(), 'conclusion.md')
         part.save()
 
-        f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
+        f = open(os.path.join(parent.get_path(), part.introduction), "w")
         f.write(real_content.encode('utf-8'))
         f.close()
         repo.index.add([part.introduction])
-        f = open(os.path.join(tutorial.get_path(), part.conclusion), "w")
+        f = open(os.path.join(parent.get_path(), part.conclusion), "w")
         f.write(real_content.encode('utf-8'))
         f.close()
         repo.index.add([part.conclusion])
 
-        if tutorial:
-            tutorial.save()
+        if parent:
+            parent.save()
 
-            man = export_tutorial(tutorial)
-            f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
+            man = export_tutorial(parent)
+            f = open(os.path.join(parent.get_path(), 'manifest.json'), "w")
             f.write(
                 json_writer.dumps(
                     man,
@@ -179,15 +179,15 @@ class PartFactory(factory.DjangoModelFactory):
 
         cm = repo.index.commit("Init Part")
 
-        if tutorial:
-            tutorial.sha_draft = cm.hexsha
-            tutorial.save()
+        if parent:
+            parent.sha_draft = cm.hexsha
+            parent.save()
 
         return part
 
 
 class ChapterFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Chapter
+    FACTORY_FOR = Container
 
     title = factory.Sequence(lambda n: 'Mon Chapitre No{0}'.format(n))
 
@@ -196,8 +196,7 @@ class ChapterFactory(factory.DjangoModelFactory):
 
         light = kwargs.pop('light', False)
         chapter = super(ChapterFactory, cls)._prepare(create, **kwargs)
-        tutorial = kwargs.pop('tutorial', None)
-        part = kwargs.pop('part', None)
+        parent = kwargs.pop('part', None)
 
         real_content = content
         if light:
@@ -207,53 +206,37 @@ class ChapterFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
-        if tutorial:
-            chapter.introduction = ''
-            chapter.conclusion = ''
-            tutorial.save()
-            repo = Repo(tutorial.get_path())
-
-            man = export_tutorial(tutorial)
-            f = open(os.path.join(tutorial.get_path(), 'manifest.json'), "w")
-            f.write(
-                json_writer.dumps(
-                    man,
-                    indent=4,
-                    ensure_ascii=False).encode('utf-8'))
-            f.close()
-            repo.index.add(['manifest.json'])
-
-        elif part:
+        if parent:
             chapter.introduction = os.path.join(
-                part.get_phy_slug(),
+                parent.get_phy_slug(),
                 chapter.get_phy_slug(),
                 'introduction.md')
             chapter.conclusion = os.path.join(
-                part.get_phy_slug(),
+                parent.get_phy_slug(),
                 chapter.get_phy_slug(),
                 'conclusion.md')
             chapter.save()
             f = open(
                 os.path.join(
-                    part.tutorial.get_path(),
+                    parent.tutorial.get_path(),
                     chapter.introduction),
                 "w")
             f.write(real_content.encode('utf-8'))
             f.close()
             f = open(
                 os.path.join(
-                    part.tutorial.get_path(),
+                    parent.tutorial.get_path(),
                     chapter.conclusion),
                 "w")
             f.write(real_content.encode('utf-8'))
             f.close()
-            part.tutorial.save()
-            repo = Repo(part.tutorial.get_path())
+            parent.tutorial.save()
+            repo = Repo(parent.tutorial.get_path())
 
-            man = export_tutorial(part.tutorial)
+            man = export_tutorial(parent.tutorial)
             f = open(
                 os.path.join(
-                    part.tutorial.get_path(),
+                    parent.parent.get_path(),
                     'manifest.json'),
                 "w")
             f.write(
@@ -268,15 +251,11 @@ class ChapterFactory(factory.DjangoModelFactory):
 
         cm = repo.index.commit("Init Chapter")
 
-        if tutorial:
-            tutorial.sha_draft = cm.hexsha
-            tutorial.save()
-            chapter.tutorial = tutorial
-        elif part:
-            part.tutorial.sha_draft = cm.hexsha
-            part.tutorial.save()
-            part.save()
-            chapter.part = part
+        if parent:
+            parent.parent.sha_draft = cm.hexsha
+            parent.parent.save()
+            parent.save()
+            chapter.parent = parent
 
         return chapter
 
@@ -289,14 +268,14 @@ class ExtractFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
-        chapter = kwargs.pop('chapter', None)
-        if chapter:
-            if chapter.tutorial:
-                chapter.tutorial.sha_draft = 'EXTRACT-AAAA'
-                chapter.tutorial.save()
-            elif chapter.part:
-                chapter.part.tutorial.sha_draft = 'EXTRACT-AAAA'
-                chapter.part.tutorial.save()
+        container = kwargs.pop('container', None)
+        if container:
+            if container.parent is PublishableContent:
+                container.parent.sha_draft = 'EXTRACT-AAAA'
+                container.parent.save()
+            elif container.parent.parent is PublishableContent:
+                container.parent.parent.sha_draft = 'EXTRACT-AAAA'
+                container.parent.parent.tutorial.save()
 
         return extract
 
