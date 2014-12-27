@@ -52,7 +52,7 @@ from zds.forum.models import Forum, Topic
 from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import Category, Licence, CommentLike, CommentDislike, \
-    SubCategory
+    SubCategory, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.paginator import paginator_range
@@ -111,6 +111,29 @@ def render_chapter_form(chapter):
         return \
             EmbdedChapterForm({"introduction": chapter.get_introduction(),
                                "conclusion": chapter.get_conclusion()})
+
+
+class TutorialWithHelp(TutorialList):
+    """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
+    for more documentation, have a look to ZEP 03 specification (fr)"""
+    context_object_name = 'tutorials'
+    template_name = 'tutorial/help.html'
+
+    def get_queryset(self):
+        """get only tutorial that need help and handle filtering if asked"""
+        query_set = PublishableContent.objects.exclude(Q(helps_count=0) and Q(sha_beta=''))
+        try:
+            type_filter = self.request.GET.get('type')
+            query_set = query_set.filter(helps_title__in=[type_filter])
+        except KeyError:
+            # if no filter, no need to change
+            pass
+        return query_set
+    def get_context_data(self, **kwargs):
+        """Add all HelpWriting objects registered to the context so that the template can use it"""
+        context = super(TutorialWithHelp, self).get_context_data(**kwargs)
+        context['helps'] = HelpWriting.objects.all()
+        return context
 
 
 class DisplayContent(DetailView):
@@ -354,6 +377,10 @@ class DisplayOnlineContent(DisplayContent):
         context['last_note_pk'] = last_note_pk
         context['pages'] = paginator_range(page_nbr, paginator.num_pages)
         context['nb'] = page_nbr
+
+
+class DisplayOnlineArticle(DisplayOnlineContent):
+    type = "ARTICLE"
 
 
 # Staff actions.
