@@ -13,8 +13,8 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
@@ -244,8 +244,8 @@ def new(request):
 
         if "preview" in request.POST:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = TopicForm(initial={"title": request.POST["title"],
                                           "subtitle": request.POST["subtitle"],
@@ -485,8 +485,8 @@ def answer(request):
             form.helper.form_action = reverse("zds.forum.views.answer") \
                 + "?sujet=" + str(g_topic.pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, "forum/post/new.html", {
                     "text": data["text"],
@@ -664,8 +664,8 @@ def edit_post(request):
 
         if "preview" in request.POST:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 if g_topic:
                     form = TopicForm(initial={"title": request.POST["title"],

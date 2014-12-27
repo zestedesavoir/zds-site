@@ -13,8 +13,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
@@ -153,8 +153,8 @@ def new(request):
         # If the client is using the "preview" button
         if 'preview' in request.POST:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = PrivateTopicForm(request.user.username,
                                         initial={
@@ -296,8 +296,8 @@ def answer(request):
         # Using the « preview button », the « more » button or new post
         if 'preview' in data or newpost:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = PrivatePostForm(g_topic, request.user, initial={
                     'text': data['text']
@@ -452,8 +452,8 @@ def edit_post(request):
         # Using the preview button
         if 'preview' in data:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = PrivatePostForm(g_topic, request.user, initial={
                     'text': data['text']
