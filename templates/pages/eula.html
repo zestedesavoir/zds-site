@@ -45,12 +45,12 @@
             Vous pouvez joindre l’association via l’adresse e-mail : <a href="{{app.site.association.email}}">{{app.site.association.email}}</a>.
         </p>
     {% endif %}
-    {% if app.hosting %}
+    {% if app.site.hosting %}
         <p>
-            Le site est hébergé par {{app.hosting.name}} dont le siège social est situé {{app.hosting.address}}.
+            Le site est hébergé par {{app.site.hosting.name}} dont le siège social est situé {{app.site.hosting.address}}.
         </p>
     {% endif %}
-    {% if app.cnil %}
+    {% if app.site.cnil %}
         <p>
             Le site est enregistré auprès de la CNIL sous le numéro {{app.site.cnil}}.
         </p>
@@ -298,6 +298,10 @@
 
     <h3>12. Droit applicable et juridiction compétente</h3>
     <p>
-        La législation française s'applique au présent contrat. Il est fait attribution exclusive de juridiction aux tribunaux compétents de Vendée.
+        La législation française s'applique au présent contrat.
+    </p>
+    <h3>13. Origine des CGU</h3>
+    <p>
+        Les CGU proviennent en très grande partie de <a href="http://zestedesavoir.com/pages/cgu/">Zeste de Savoir</a>.
     </p>
 {% endblock %}

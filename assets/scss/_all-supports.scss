@@ -219,13 +219,13 @@
 
         &:first-child {
             border-top: 0 !important;
-            border-bottom: 1px solid #274a5a;
+            border-bottom: 1px solid $secondary;
         }
 
         &:hover,
         &:focus {
             color: #95d7f5;
-            background-color: #274a5a;
+            background-color: $header-hover;
             border-top: 1px solid $header-hover;
         }
     }
@@ -1233,7 +1233,7 @@
                 line-height: 3.8rem;
                 color: $primary;
                 font-weight: normal;
-                border-bottom: 1px solid #F8AD32;
+                border-bottom: 1px solid $secondary;
                 margin-top: 0;
             }
 
