@@ -175,6 +175,13 @@ class UpdatePasswordMember(UpdateMember):
 
 class UpdateUsernameEmailMember(UpdateMember):
 
+    def post(self, request, *args, **kwargs):
+        form = ChangeUserForm(request.POST)
+        if form.is_valid():
+            return self.form_valid(request, form)
+        else:
+            return render_template(self.template_name, {"form": form})
+
     def get_form(self, form_class):
         return ChangeUserForm(self.request.POST)
 
@@ -186,7 +193,7 @@ class UpdateUsernameEmailMember(UpdateMember):
                 profile.user.email = form.data["email_new"]
 
     def get_success_url(self):
-        profile = self.get_object();
+        profile = self.get_object()
         return profile.get_absolute_url()
 
 

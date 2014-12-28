@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os
-
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import serializers
 
+from zds.member.commons import ProfileUsernameUpdate, ProfileEmailUpdate
 from zds.member.models import Profile
-from zds.settings import SITE_ROOT
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -39,7 +36,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                   'last_visit', 'date_joined')
 
 
-class ProfileUpdateSerializer(serializers.ModelSerializer):
+class ProfileUpdateSerializer(serializers.ModelSerializer, ProfileUsernameUpdate, ProfileEmailUpdate):
     """
     Serializers of a profile object used to update a member.
     """
@@ -72,45 +69,10 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    def validate_username(self, value):
-        """
-        Checks about the username.
-        """
+    def result(self, result=None):
+        if result is None:
+            return self.instance.user.username
+        return result
 
-        msg = None
-        if value:
-            if value.strip() == '':
-                msg = _(u'Le nom d\'utilisateur ne peut-être vide')
-            elif User.objects.filter(username=value).count() > 0:
-                msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
-            # Forbid the use of comma in the username
-            elif "," in value:
-                msg = _(u'Le nom d\'utilisateur ne peut contenir de virgules')
-            elif value != value.strip():
-                msg = _(u'Le nom d\'utilisateur ne peut commencer/finir par des espaces')
-            if msg is not None:
-                raise serializers.ValidationError(msg)
-            return value
-        return self.instance.user.username
-
-    def validate_email(self, value):
-        """
-        Checks about the email.
-        """
-
-        if value:
-            msg = None
-            # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
-                for provider in fh:
-                    if provider.strip() in value:
-                        msg = _(u'Utilisez un autre fournisseur d\'adresses courriel.')
-                        break
-
-            # Check that the email is unique
-            if User.objects.filter(email=value).count() > 0:
-                msg = _(u'Votre adresse courriel est déjà utilisée')
-            if msg is not None:
-                raise serializers.ValidationError(msg)
-            return value
-        return self.instance.user.email
+    def throw_error(self, key=None, message=None):
+        raise serializers.ValidationError(message)

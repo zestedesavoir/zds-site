@@ -6,16 +6,17 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
+
+from zds.member.commons import ProfileUsernameUpdate, ProfileEmailUpdate
 from zds.member.models import Profile, listing, KarmaNote
 from zds.settings import SITE_ROOT
-
 from zds.utils.forms import CommonLayoutModalText
-from django.utils.translation import ugettext_lazy as _
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -93,7 +94,7 @@ class LoginForm(forms.Form):
         )
 
 
-class RegisterForm(forms.Form):
+class RegisterForm(forms.Form, ProfileUsernameUpdate, ProfileEmailUpdate):
     email = forms.EmailField(
         label=_(u'Adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
@@ -157,22 +158,9 @@ class RegisterForm(forms.Form):
 
         # Check that the user doesn't exist yet
         username = cleaned_data.get('username')
+        self.validate_username(username)
 
         if username is not None:
-            if username.strip() == '':
-                msg = _(u'Le nom d\'utilisateur ne peut être vide')
-                self._errors['username'] = self.error_class([msg])
-            elif User.objects.filter(username=username).count() > 0:
-                msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
-                self._errors['username'] = self.error_class([msg])
-            # Forbid the use of comma in the username
-            elif "," in username:
-                msg = _(u'Le nom d\'utilisateur ne peut contenir de virgules')
-                self._errors['username'] = self.error_class([msg])
-            elif username != username.strip():
-                msg = _(u'Le nom d\'utilisateur ne peut commencer/finir par des espaces')
-                self._errors['username'] = self.error_class([msg])
-
             # Check that password != username
             if password == username:
                 msg = _(u'Le mot de passe doit être différent du pseudo')
@@ -183,22 +171,15 @@ class RegisterForm(forms.Form):
                     del cleaned_data['password_confirm']
 
         email = cleaned_data.get('email')
-        if email:
-            # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT,
-                                   'forbidden_email_providers.txt'), 'r') as fh:
-                for provider in fh:
-                    if provider.strip() in email:
-                        msg = _(u'Utilisez un autre fournisseur d\'adresses courriel.')
-                        self._errors['email'] = self.error_class([msg])
-                        break
-
-            # Check that the email is unique
-            if User.objects.filter(email=email).count() > 0:
-                msg = _(u'Votre adresse courriel est déjà utilisée')
-                self._errors['email'] = self.error_class([msg])
+        self.validate_email(email)
 
         return cleaned_data
+
+    def result(self, result=None):
+        return result
+
+    def throw_error(self, key=None, message=None):
+        self._errors[key] = self.error_class([message])
 
 
 class MiniProfileForm(forms.Form):
@@ -317,7 +298,7 @@ class ProfileForm(MiniProfileForm):
 
 
 # to update email/username
-class ChangeUserForm(forms.Form):
+class ChangeUserForm(forms.Form, ProfileUsernameUpdate, ProfileEmailUpdate):
 
     username_new = forms.CharField(
         label=_(u'Nouveau pseudo'),
@@ -360,37 +341,21 @@ class ChangeUserForm(forms.Form):
     def clean(self):
         cleaned_data = super(ChangeUserForm, self).clean()
 
-        # Check that the password and it's confirmation match
         username_new = cleaned_data.get('username_new')
+        if username_new is not None and not username_new.strip() == '':
+            self.validate_username(username_new)
+
         email_new = cleaned_data.get('email_new')
-
-        if username_new is not None:
-            if username_new != '':
-                if User.objects.filter(username=username_new.strip()).count() >= 1:
-                    self._errors['username_new'] = self.error_class(
-                        [_(u'Ce nom d\'utilisateur est déjà utilisé')])
-                elif username_new != username_new.strip():
-                    msg = _(u'Le nom d\'utilisateur ne peut commencer/finir par des espaces')
-                    self._errors['username_new'] = self.error_class([msg])
-                # Forbid the use of comma in the username
-                elif "," in username_new:
-                    msg = _(u'Le nom d\'utilisateur ne peut contenir de virgules')
-                    self._errors['username_new'] = self.error_class([msg])
-
-        if email_new is not None:
-            if email_new.strip() != '':
-                if User.objects.filter(email=email_new).count() >= 1:
-                    self._errors['email_new'] = self.error_class([_(u'Votre adresse courriel est déjà utilisée')])
-                else:
-                    # Chech if email provider is authorized
-                    with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
-                        for provider in fh:
-                            if provider.strip() in email_new:
-                                msg = _(u'Utilisez un autre fournisseur d\'adresses mail.')
-                                self._errors['email_new'] = self.error_class([msg])
-                                break
+        if email_new is not None and not email_new.strip() == '':
+            self.validate_email(email_new)
 
         return cleaned_data
+
+    def result(self, result=None):
+        return result
+
+    def throw_error(self, key=None, message=None):
+        self._errors[key] = self.error_class([message])
 
 
 # to update a password
