@@ -5,13 +5,13 @@
 {% load interventions %}
 {% load topbar %}
 {% load thumbnail %}
-
-
 {% load i18n %}
 
 
 
 {% block body_class %}home content-cols{% endblock %}
+
+
 
 {% block pre_content %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
@@ -30,6 +30,7 @@
     {% else %}
         <section class="home-quote home-full-description">
             <div class="home-wrapper">
+                <img src="{% static "images/clem-home.png" %}" alt="" width="214" height="209">
                 <div class="home-full-description-text">
                     <h2>{{app.site.slogan}}</h2>
 
@@ -39,17 +40,12 @@
 
                     <p>
                     {% blocktrans with site_name=app.site.litteral_name %}
-                        {{ site_name }} est le premier et le seul site communautaire francophone d'architecture sur Minecraft. Son objectif est de réunir toutes les équipes et tous les joueurs francophones qui s'intéressent à l'architecture dans Minecraft. Le site est garanti gratuit et sans publicité.
+                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
                     {% endblocktrans %}
                     </p>
                     <p>
                     {% blocktrans %}
-                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication. Un forum est mis à disposition aux membres.
-                    {% endblocktrans %}
-                    </p>
-                    <p>
-                    {% blocktrans %}
-                        De nombreuses autres fonctionnalités devraient voir le jour assez rapidement. N'hésitez pas à venir nous donner votre avis !
+                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
                     {% endblocktrans %}
                     </p>
                     {% if app.site.association %}
@@ -71,7 +67,7 @@
             <label for="search-box-field">
                 {% trans "Tu cherches quelque chose" %} ?
             </label>
-            <input type="text" name="q" placeholder="Exemples : Architecture, Concours, Build, Événements, ..." id="search-box-field">
+            <input type="text" name="q" placeholder="Exemples : HTML, Java, PHP, Jeux Vidéos, Mathématiques, ..." id="search-box-field">
             <button type="submit" class="ico-after search-submit" title='{% trans "Lancer la recherche" %}'>
                 {% trans "OK" %}
             </button>

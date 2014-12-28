@@ -292,19 +292,27 @@ LOCALE_PATHS = (
 
 ZDS_APP = {
     'site': {
-        'name': u"DansTonCube",
-        'litteral_name': u"DansTonCube",
-        'slogan': u"Le site de la communauté francophone des architectes sur Minecraft",
-        'abbr': u"dtc",
+        'name': u"ZesteDeSavoir",
+        'litteral_name': u"Zeste de Savoir",
+        'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
+        'abbr': u"zds",
         'url': u"http://127.0.0.1:8000",
-        'dns': u"danstoncube.fr",
-        'email_contact': u"contact@danstoncube.fr",
-        'email_noreply': u"noreply@danstoncube.fr",
-        'repository': u"https://github.com/DansTonCubeFr/danstoncube.fr",
+        'dns': u"zestedesavoir.com",
+        'email_contact': u"communication@zestedesavoir.com",
+        'email_noreply': u"noreply@zestedesavoir.com",
+        'repository': u"https://github.com/zestedesavoir/zds-site",
         'short_description': u"",
-        'long_description': u"DansTonCube est un site communautaire visant à regrouper tous les architectes "
-                            U"francophones sur le jeu vidéo Minecraft. C'est un lieu d'échanges et de convivialité.",
-        'year': u"2015",
+        'long_description': u"Zeste de Savoir est un site de partage de connaissances "
+                            u"sur lequel vous trouverez des tutoriels de tous niveaux, "
+                            u"des articles et des forums d'entraide animés par et pour "
+                            u"la communauté.",
+        'year': u"2014",
+        'association': {
+            'name': u"Zeste de Savoir",
+            'fee': u"30 €",
+            'email': u"association@zestedesavoir.com",
+            'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
+        },
         'licenses': {
             'logo': {
                 'code': u"CC-BY",
@@ -313,7 +321,7 @@ ZDS_APP = {
                                u"Partage dans les Mêmes Conditions 4.0 International.",
                 'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
                 'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
-                'author': u"TODO"
+                'author': u"MaxRoyo"
             },
             'cookies': {
                 'code': u"CC-BY",
@@ -325,22 +333,22 @@ ZDS_APP = {
             'source': {
                 'code': u"GPL v3",
                 'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
-                'provider_name': u"Zeste de Savoir",
-                'provider_url': u"https://github.com/zestedesavoir/zds-site",
+                'provider_name': u"Progdupeupl",
+                'provider_url': u"http://progdupeu.pl",
             },
-            'licence_info_title': u'TODO',
-            'licence_info_link': u'TODO'
+            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+            'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
         },
 	'social': {
-            'facebook': u'TODO',
-            'twitter': u'TODO',
-            'googleplus': u'TODO'
+            'facebook': u'https://www.facebook.com/ZesteDeSavoir',
+            'twitter': u'https://twitter.com/ZesteDeSavoir',
+            'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
         },
-        'cnil': u"TODO",
+        'cnil': u"1771020",
     },
     'member': {
         'bot_account': u"admin",
