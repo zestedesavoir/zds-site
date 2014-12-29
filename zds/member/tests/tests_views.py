@@ -46,6 +46,25 @@ class MemberTests(TestCase):
             position_in_category=1)
         self.staff = StaffProfileFactory().user
 
+    def test_list_members(self):
+        """To test the listing of the members."""
+
+        # test pagination page doesn't exist
+        result = self.client.post(
+            reverse('zds.member.views.index') +
+            u'?page=1534',
+            follow=False
+        )
+        self.assertEqual(404, result.status_code)
+
+        # test pagination page not an integer
+        result = self.client.post(
+            reverse('zds.member.views.index') +
+            u'?page=abcd',
+            follow=False
+        )
+        self.assertEqual(404, result.status_code)
+
     def test_login(self):
         """To test user login."""
         user = ProfileFactory()
