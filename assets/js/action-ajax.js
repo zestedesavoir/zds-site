@@ -122,6 +122,10 @@
                 $editor.val($editor.val() + data.text + "\n\n\n");
             }
         });
+
+        // scroll to the textarea
+        $("html, body").animate({ scrollTop: $(".md-editor").offset().top }, 500);
+
         e.stopPropagation();
         e.preventDefault();
     });
