@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import os
+import uuid
 
+from datetime import datetime, timedelta
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.mail import EmailMultiAlternatives
+from django.template import Context
+from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
 
+from zds.member.models import Profile, TokenRegister
 from zds.settings import SITE_ROOT
 
 
-class Updater():
+class Validator():
 
     def result(self, result=None):
         raise NotImplementedError('`result()` must be implemented.')
@@ -17,7 +24,7 @@ class Updater():
         raise NotImplementedError('`throw_error()` must be implemented.')
 
 
-class ProfileUsernameUpdate(Updater):
+class ProfileUsernameValidator(Validator):
 
     def validate_username(self, value):
         """
@@ -41,7 +48,7 @@ class ProfileUsernameUpdate(Updater):
         return self.result()
 
 
-class ProfileEmailUpdate(Updater):
+class ProfileEmailValidator(Validator):
 
     def validate_email(self, value):
         """
@@ -65,3 +72,57 @@ class ProfileEmailUpdate(Updater):
             return self.result(value)
 
         return self.result()
+
+
+class ProfileCreate():
+
+    def create_profile(self, data):
+        user = User.objects.create_user(data.get("username"),
+                                        data.get("email"),
+                                        data.get("password"))
+        user.set_password(data.get("password"))
+        user.is_active = False
+        user.backend = "django.contrib.auth.backends.ModelBackend"
+        profile = Profile(user=user,
+                          show_email=False,
+                          show_sign=True,
+                          hover_or_click=True,
+                          email_for_answer=False)
+        return profile
+
+    def save_profile(self, profile):
+        profile.save()
+        profile.user.save()
+
+    def generate_token(self, user):
+        uuid_token = str(uuid.uuid4())
+        date_end = datetime.now() + timedelta(days=0,
+                                              hours=1,
+                                              minutes=0,
+                                              seconds=0)
+        token = TokenRegister(user=user,
+                              token=uuid_token,
+                              date_end=date_end)
+        token.save()
+        return token
+
+    def send_email(self, token, user):
+        subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
+        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                      settings.ZDS_APP['site']['email_noreply'])
+        message_html = get_template("email/register/confirm.html").render(Context(
+            {"username": user.username,
+             "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+             "site_name": settings.ZDS_APP['site']['name'],
+             "site_url": settings.ZDS_APP['site']['url']}))
+        message_txt = get_template("email/register/confirm.txt") .render(Context(
+            {"username": user.username,
+             "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+             "site_name": settings.ZDS_APP['site']['name'],
+             "site_url": settings.ZDS_APP['site']['url']}))
+        msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
+        msg.attach_alternative(message_html, "text/html")
+        try:
+            msg.send()
+        except:
+            pass

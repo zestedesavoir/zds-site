@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from zds.member.commons import ProfileUsernameUpdate, ProfileEmailUpdate
+from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator, \
+    ProfileCreate
 from zds.member.models import Profile
 
 
@@ -16,6 +17,32 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'is_active', 'date_joined')
+
+class UserCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator, ProfileEmailValidator):
+    """
+    Serializers of a user object to create one.
+    """
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'password')
+        write_only_fields = ('password')
+        read_only_fields = ('id')
+
+    def create(self, validated_data):
+        profile = self.create_profile(validated_data)
+        self.save_profile(profile)
+        token = self.generate_token(profile.user)
+        self.send_email(token, profile.user)
+        return profile.user
+
+    def result(self, result=None):
+        if result is None:
+            return self.instance.user.username
+        return result
+
+    def throw_error(self, key=None, message=None):
+        raise serializers.ValidationError(message)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -36,7 +63,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                   'last_visit', 'date_joined')
 
 
-class ProfileUpdateSerializer(serializers.ModelSerializer, ProfileUsernameUpdate, ProfileEmailUpdate):
+class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameValidator, ProfileEmailValidator):
     """
     Serializers of a profile object used to update a member.
     """

@@ -13,9 +13,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden
 
-from zds.member.commons import ProfileUsernameUpdate, ProfileEmailUpdate
+from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator
 from zds.member.models import Profile, listing, KarmaNote
-from zds.settings import SITE_ROOT
 from zds.utils.forms import CommonLayoutModalText
 
 # Max password length for the user.
@@ -94,7 +93,7 @@ class LoginForm(forms.Form):
         )
 
 
-class RegisterForm(forms.Form, ProfileUsernameUpdate, ProfileEmailUpdate):
+class RegisterForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
     email = forms.EmailField(
         label=_(u'Adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
@@ -298,7 +297,7 @@ class ProfileForm(MiniProfileForm):
 
 
 # to update email/username
-class ChangeUserForm(forms.Form, ProfileUsernameUpdate, ProfileEmailUpdate):
+class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
 
     username_new = forms.CharField(
         label=_(u'Nouveau pseudo'),

@@ -30,6 +30,7 @@ from zds.gallery.forms import ImageAsAvatarForm
 from zds.article.models import Article
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
+from zds.member.commons import ProfileCreate
 from zds.tutorial.models import Tutorial
 from zds.utils.mps import send_mp
 from zds.utils.tokens import generate_token
@@ -96,10 +97,11 @@ class UpdateMember(UpdateView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+
         if form.is_valid():
             return self.form_valid(request, form)
-        else:
-            return render_template(self.template_name, {"form": form})
+
+        return render(request, self.template_name, {"form": form})
 
     def form_valid(self, request, form):
         profile = self.get_object()
@@ -193,7 +195,7 @@ class UpdateUsernameEmailMember(UpdateMember):
         return profile.get_absolute_url()
 
 
-class RegisterView(CreateView):
+class RegisterView(CreateView, ProfileCreate):
     """Create a profile."""
     form_class = RegisterForm
     template_name = 'member/register/index.html'
@@ -202,10 +204,10 @@ class RegisterView(CreateView):
         return get_object_or_404(Profile, user=self.request.user)
 
     def get_form(self, form_class):
-        return RegisterForm()
+        return form_class()
 
     def post(self, request, *args, **kwargs):
-        form = RegisterForm(request.POST)
+        form = self.form_class(request.POST)
 
         if form.is_valid():
             return self.form_valid(request, form)
@@ -213,64 +215,13 @@ class RegisterView(CreateView):
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, request, form):
-        profile = self.create_profile(form, request)
+        profile = self.create_profile(form.data)
+        profile.last_ip_address = get_client_ip(request)
         self.save_profile(profile)
         token = self.generate_token(profile.user)
         self.send_email(token, profile.user)
 
         return render(request, self.get_success_template())
-
-    def create_profile(self, form, request):
-        username = form.data["username"]
-        email = form.data["email"]
-        password = form.data["password"]
-        user = User.objects.create_user(username, email, password)
-        user.is_active = False
-        user.backend = "django.contrib.auth.backends.ModelBackend"
-        profile = Profile(user=user,
-                          show_email=False,
-                          show_sign=True,
-                          hover_or_click=True,
-                          email_for_answer=False)
-        profile.last_ip_address = get_client_ip(request)
-        return profile
-
-    def save_profile(self, profile):
-        profile.save()
-        profile.user.save()
-
-    def generate_token(self, user):
-        uuid_token = str(uuid.uuid4())
-        date_end = datetime.now() + timedelta(days=0,
-                                              hours=1,
-                                              minutes=0,
-                                              seconds=0)
-        token = TokenRegister(user=user,
-                              token=uuid_token,
-                              date_end=date_end)
-        token.save()
-        return token
-
-    def send_email(self, token, user):
-        subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
-        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                      settings.ZDS_APP['site']['email_noreply'])
-        message_html = get_template("email/register/confirm.html").render(Context(
-            {"username": user.username,
-             "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-             "site_name": settings.ZDS_APP['site']['name'],
-             "site_url": settings.ZDS_APP['site']['url']}))
-        message_txt = get_template("email/register/confirm.txt") .render(Context(
-            {"username": user.username,
-             "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-             "site_name": settings.ZDS_APP['site']['name'],
-             "site_url": settings.ZDS_APP['site']['url']}))
-        msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
-        msg.attach_alternative(message_html, "text/html")
-        try:
-            msg.send()
-        except:
-            pass
 
     def get_success_template(self):
         return 'member/register/success.html'
