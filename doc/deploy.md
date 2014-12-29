@@ -14,12 +14,13 @@ Contrôle des process | Supervisor
 Surveillance | Munin
 
 ## Paramètres spécifiques
+
  | Pré-prod | Prod
 ---|---|---
 Nom | preprod.zestedesavoir.com | zestedesavoir.com
-IPv4 | `178.32.53.245` | -
-IPv6 | `176.31.187.88` | `2001:41d0:52:100::b4f`
-Login | _Demande privée_ | _Demande privée_
+IPv4 | `46.105.246.77` | `176.31.187.88`
+IPv6 | x | `2001:41d0:52:100::b4f`
+Identifiant | _Demande privée_ | _Demande privée_
 Mot de passe | _Demande privée_ | _Demande privée_
 
 # Premier déploiement
