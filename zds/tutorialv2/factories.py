@@ -7,6 +7,7 @@ import os
 import factory
 
 from models import PublishableContent, Container, Extract, ContentReaction,\
+from zds.utils import slugify
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 
@@ -24,7 +25,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
-        path = publishable_content.get_path()
+        path = publishable_content.get_repo_path()
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
@@ -33,9 +34,9 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         introduction = 'introduction.md'
         conclusion = 'conclusion.md'
         versioned_content = VersionedContent(None,
-                                             publishable_content.pk,
                                              publishable_content.type,
-                                             publishable_content.title)
+                                             publishable_content.title,
+                                             slugify(publishable_content.title))
         versioned_content.introduction = introduction
         versioned_content.conclusion = conclusion
 
@@ -64,16 +65,17 @@ class ContainerFactory(factory.Factory):
     FACTORY_FOR = Container
 
     title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n+1))
-    pk = factory.Sequence(lambda n: n+1)
+    slug = ''
 
     @classmethod
     def _prepare(cls, create, **kwargs):
         db_object = kwargs.pop('db_object', None)
         container = super(ContainerFactory, cls)._prepare(create, **kwargs)
-        container.parent.add_container(container)
+        container.parent.add_container(container, generate_slug=True)
 
         path = container.get_path()
         repo = Repo(container.top_container().get_path())
+        top_container = container.top_container()
 
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
@@ -81,16 +83,15 @@ class ContainerFactory(factory.Factory):
         container.introduction = os.path.join(container.get_path(relative=True), 'introduction.md')
         container.conclusion = os.path.join(container.get_path(relative=True), 'conclusion.md')
 
-        f = open(os.path.join(parent.get_path(), part.introduction), "w")
+        f = open(os.path.join(top_container.get_path(), container.introduction), "w")
         f.write(text_content.encode('utf-8'))
         f.close()
-        repo.index.add([container.introduction])
-        f = open(os.path.join(parent.get_path(), part.conclusion), "w")
+        f = open(os.path.join(top_container.get_path(), container.conclusion), "w")
         f.write(text_content.encode('utf-8'))
         f.close()
-        repo.index.add([container.conclusion])
+        repo.index.add([container.introduction, container.conclusion])
 
-        if parent:
+        top_container.dump_json()
             parent.save()
         repo.index.add(['manifest.json'])
 
@@ -107,16 +108,15 @@ class ExtractFactory(factory.Factory):
     FACTORY_FOR = Extract
 
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n+1))
-    pk = factory.Sequence(lambda n: n+1)
+    slug = ''
 
     @classmethod
     def _prepare(cls, create, **kwargs):
         db_object = kwargs.pop('db_object', None)
         extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
-        extract.container.add_extract(extract)
+        extract.container.add_extract(extract, generate_slug=True)
 
         extract.text = extract.get_path(relative=True)
-
         top_container = extract.container.top_container()
         repo = Repo(top_container.get_path())
         f = open(extract.get_path(), 'w')

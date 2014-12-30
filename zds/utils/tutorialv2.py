@@ -8,8 +8,8 @@ def export_extract(extract):
     :return: dictionary containing the information
     """
     dct = OrderedDict()
-    dct['obj_type'] = 'extract'
-    dct['pk'] = extract.pk
+    dct['object'] = 'extract'
+    dct['slug'] = extract.slug
     dct['title'] = extract.title
     dct['text'] = extract.text
     return dct
@@ -22,8 +22,8 @@ def export_container(container):
     :return: dictionary containing the information
     """
     dct = OrderedDict()
-    dct['obj_type'] = "container"
-    dct['pk'] = container.pk
+    dct['object'] = "container"
+    dct['slug'] = container.slug
     dct['title'] = container.title
     dct['introduction'] = container.introduction
     dct['conclusion'] = container.conclusion

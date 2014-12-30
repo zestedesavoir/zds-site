@@ -152,7 +152,7 @@ class DisplayContent(DetailView):
 
     def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
         dictionary["tutorial"] = content
-        dictionary["path"] = content.get_path()
+        dictionary["path"] = content.get_repo_path()
         dictionary["slug"] = slugify(dictionary["title"])
         dictionary["position_in_tutorial"] = cpt_p
 
@@ -167,7 +167,7 @@ class DisplayContent(DetailView):
 
     def compatibility_chapter(self, content, repo, sha, dictionary):
         """enable compatibility with old version of mini tutorial and chapter implementations"""
-        dictionary["path"] = content.get_path()
+        dictionary["path"] = content.get_repo_path()
         dictionary["type"] = self.type
         dictionary["pk"] = Container.objects.get(parent=content).pk  # TODO : find better name
         dictionary["intro"] = get_blob(repo.commit(sha).tree, "introduction.md")
@@ -175,7 +175,7 @@ class DisplayContent(DetailView):
         cpt = 1
         for ext in dictionary["extracts"]:
             ext["position_in_chapter"] = cpt
-            ext["path"] = content.get_path()
+            ext["path"] = content.get_repo_path()
             ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
             cpt += 1
 
@@ -233,7 +233,7 @@ class DisplayContent(DetailView):
 
         # Find the good manifest file
 
-        repo = Repo(content.get_path())
+        repo = Repo(content.get_repo_path())
 
         # Load the tutorial.
 
@@ -293,7 +293,7 @@ class DisplayDiff(DetailView):
             if not self.request.user.has_perm("tutorial.change_tutorial"):
                 raise PermissionDenied
         # open git repo and find diff between displayed version and head
-        repo = Repo(context[self.context_object_name].get_path())
+        repo = Repo(context[self.context_object_name].get_repo_path())
         current_version_commit = repo.commit(sha)
         diff_with_head = current_version_commit.diff("HEAD~1")
         context["path_add"] = diff_with_head.iter_change_type("A")
@@ -319,7 +319,7 @@ class DisplayOnlineContent(DisplayContent):
 
     def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
         dictionary["tutorial"] = content
-        dictionary["path"] = content.get_path()
+        dictionary["path"] = content.get_repo_path()
         dictionary["slug"] = slugify(dictionary["title"])
         dictionary["position_in_tutorial"] = cpt_p
 
@@ -522,7 +522,7 @@ def history(request, tutorial_pk, tutorial_slug):
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
 
-    repo = Repo(tutorial.get_path())
+    repo = Repo(tutorial.get_repo_path())
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter("time"), reverse=True)
     return render(request, "tutorial/tutorial/history.html",
@@ -1162,7 +1162,7 @@ def add_tutorial(request):
             tutorial.save()
             maj_repo_tuto(
                 request,
-                new_slug_path=tutorial.get_path(),
+                new_slug_path=tutorial.get_repo_path(),
                 tuto=tutorial,
                 introduction=data["introduction"],
                 conclusion=data["conclusion"],
@@ -1198,8 +1198,8 @@ def edit_tutorial(request):
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
-    introduction = os.path.join(tutorial.get_path(), "introduction.md")
-    conclusion = os.path.join(tutorial.get_path(), "conclusion.md")
+    introduction = os.path.join(tutorial.get_repo_path(), "introduction.md")
+    conclusion = os.path.join(tutorial.get_repo_path(), "conclusion.md")
     if request.method == "POST":
         form = TutorialForm(request.POST, request.FILES)
         if form.is_valid():
@@ -1221,7 +1221,7 @@ def edit_tutorial(request):
                                            "last_hash": compute_hash([introduction, conclusion]),
                                            "new_version": True
                                        })
-            old_slug = tutorial.get_path()
+            old_slug = tutorial.get_repo_path()
             tutorial.title = data["title"]
             tutorial.description = data["description"]
             if "licence" in data and data["licence"] != "":
@@ -1332,7 +1332,7 @@ def view_part(
 
     # find the good manifest file
 
-    repo = Repo(tutorial.get_path())
+    repo = Repo(tutorial.get_repo_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
@@ -1344,7 +1344,7 @@ def view_part(
         if part_pk == str(part["pk"]):
             find = True
             part["tutorial"] = tutorial
-            part["path"] = tutorial.get_path()
+            part["path"] = tutorial.get_repo_path()
             part["slug"] = slugify(part["title"])
             part["position_in_tutorial"] = cpt_p
             part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
@@ -1352,7 +1352,7 @@ def view_part(
             cpt_c = 1
             for chapter in part["chapters"]:
                 chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
+                chapter["path"] = tutorial.get_repo_path()
                 chapter["slug"] = slugify(chapter["title"])
                 chapter["type"] = "BIG"
                 chapter["position_in_part"] = cpt_c
@@ -1361,7 +1361,7 @@ def view_part(
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
                     ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
+                    ext["path"] = tutorial.get_repo_path()
                     cpt_e += 1
                 cpt_c += 1
             final_part = part
@@ -1677,7 +1677,7 @@ def view_chapter(
 
     # find the good manifest file
 
-    repo = Repo(tutorial.get_path())
+    repo = Repo(tutorial.get_repo_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
@@ -1701,7 +1701,7 @@ def view_chapter(
         part["tutorial"] = tutorial
         for chapter in part["chapters"]:
             chapter["part"] = part
-            chapter["path"] = tutorial.get_path()
+            chapter["path"] = tutorial.get_repo_path()
             chapter["slug"] = slugify(chapter["title"])
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
@@ -1719,7 +1719,7 @@ def view_chapter(
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
                     ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
+                    ext["path"] = tutorial.get_repo_path()
                     ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
                     cpt_e += 1
             chapter_tab.append(chapter)
@@ -2371,9 +2371,9 @@ def upload_images(images, tutorial):
     # download images
 
     zfile = zipfile.ZipFile(images, "a")
-    os.makedirs(os.path.abspath(os.path.join(tutorial.get_path(), "images")))
+    os.makedirs(os.path.abspath(os.path.join(tutorial.get_repo_path(), "images")))
     for i in zfile.namelist():
-        ph_temp = os.path.abspath(os.path.join(tutorial.get_path(), i))
+        ph_temp = os.path.abspath(os.path.join(tutorial.get_repo_path(), i))
         try:
             data = zfile.read(i)
             fp = open(ph_temp, "wb")
@@ -2763,7 +2763,7 @@ def maj_repo_part(
     msg=None,
 ):
 
-    repo = Repo(part.tutorial.get_path())
+    repo = Repo(part.tutorial.get_repo_path())
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
@@ -2781,19 +2781,19 @@ def maj_repo_part(
             msg = _(u"Création de la partie «{}» {} {}").format(part.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
         index.add([part.get_phy_slug()])
-        man_path = os.path.join(part.tutorial.get_path(), "manifest.json")
+        man_path = os.path.join(part.tutorial.get_repo_path(), "manifest.json")
         part.tutorial.dump_json(path=man_path)
         index.add(["manifest.json"])
         if introduction is not None:
             intro = open(os.path.join(new_slug_path, "introduction.md"), "w")
             intro.write(smart_str(introduction).strip())
             intro.close()
-            index.add([os.path.join(part.get_path(relative=True), "introduction.md")])
+            index.add([os.path.join(part.get_repo_path(relative=True), "introduction.md")])
         if conclusion is not None:
             conclu = open(os.path.join(new_slug_path, "conclusion.md"), "w")
             conclu.write(smart_str(conclusion).strip())
             conclu.close()
-            index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
+            index.add([os.path.join(part.get_repo_path(relative=True), "conclusion.md"
                                     )])
     aut_user = str(request.user.pk)
     aut_email = str(request.user.email)
@@ -2862,10 +2862,10 @@ def maj_repo_chapter(
     # update manifest
 
     if chapter.tutorial:
-        man_path = os.path.join(chapter.tutorial.get_path(), "manifest.json")
+        man_path = os.path.join(chapter.tutorial.get_repo_path(), "manifest.json")
         chapter.tutorial.dump_json(path=man_path)
     else:
-        man_path = os.path.join(chapter.part.tutorial.get_path(),
+        man_path = os.path.join(chapter.part.tutorial.get_repo_path(),
                                 "manifest.json")
         chapter.part.tutorial.dump_json(path=man_path)
     index.add(["manifest.json"])
@@ -2927,14 +2927,14 @@ def maj_repo_extract(
         ext = open(new_slug_path, "w")
         ext.write(smart_str(text).strip())
         ext.close()
-        index.add([extract.get_path(relative=True)])
+        index.add([extract.get_repo_path(relative=True)])
 
     # update manifest
     if chap.tutorial:
-        man_path = os.path.join(chap.tutorial.get_path(), "manifest.json")
+        man_path = os.path.join(chap.tutorial.get_repo_path(), "manifest.json")
         chap.tutorial.dump_json(path=man_path)
     else:
-        man_path = os.path.join(chap.part.tutorial.get_path(), "manifest.json")
+        man_path = os.path.join(chap.part.tutorial.get_repo_path(), "manifest.json")
         chap.part.tutorial.dump_json(path=man_path)
 
     index.add(["manifest.json"])
