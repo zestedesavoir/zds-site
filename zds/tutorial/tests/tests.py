@@ -1045,8 +1045,8 @@ class BigTutorialTests(TestCase):
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
                 'msg_commit': u"Mise à jour de la partie",
-                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
-                                           os.path.join(p2.tutorial.get_path(), p2.conclusion)])
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_repo_path(), p2.introduction),
+                                           os.path.join(p2.tutorial.get_repo_path(), p2.conclusion)])
             },
             follow=True)
         self.assertContains(response=result, text=u"Partie 2 : edition de titre")
@@ -1063,8 +1063,8 @@ class BigTutorialTests(TestCase):
                 'conclusion': u"Edition de conlusion",
                 'msg_commit': u"Mise à jour du chapitre",
                 "last_hash": compute_hash([
-                    os.path.join(c3.get_path(), "introduction.md"),
-                    os.path.join(c3.get_path(), "conclusion.md")])
+                    os.path.join(c3.get_repo_path(), "introduction.md"),
+                    os.path.join(c3.get_repo_path(), "conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 3 : edition de titre")
@@ -1081,8 +1081,8 @@ class BigTutorialTests(TestCase):
                 'introduction': u"Expérimentation : seconde edition d'introduction",
                 'conclusion': u"C'est terminé : seconde edition de conlusion",
                 'msg_commit': u"2nd Màj de la partie 2",
-                "last_hash": compute_hash([os.path.join(p2.tutorial.get_path(), p2.introduction),
-                                           os.path.join(p2.tutorial.get_path(), p2.conclusion)])
+                "last_hash": compute_hash([os.path.join(p2.tutorial.get_repo_path(), p2.introduction),
+                                           os.path.join(p2.tutorial.get_repo_path(), p2.conclusion)])
             },
             follow=True)
         self.assertContains(response=result, text=u"Partie 2 : seconde edition de titre")
@@ -1099,8 +1099,8 @@ class BigTutorialTests(TestCase):
                 'conclusion': u"Edition de conlusion",
                 'msg_commit': u"MàJ du chapitre 2",
                 "last_hash": compute_hash([
-                    os.path.join(c2.get_path(), "introduction.md"),
-                    os.path.join(c2.get_path(), "conclusion.md")])
+                    os.path.join(c2.get_repo_path(), "introduction.md"),
+                    os.path.join(c2.get_repo_path(), "conclusion.md")])
             },
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 2 : edition de titre")
@@ -1114,7 +1114,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Agrume",
-                "last_hash": compute_hash([os.path.join(e2.get_path())])
+                "last_hash": compute_hash([os.path.join(e2.get_repo_path())])
             },
             follow=True)
         self.assertContains(response=result, text=u"Extrait 2 : edition de titre")
@@ -1561,8 +1561,8 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         p1 = Part.objects.last()
-        hash = compute_hash([os.path.join(p1.tutorial.get_path(), p1.introduction),
-                             os.path.join(p1.tutorial.get_path(), p1.conclusion)])
+        hash = compute_hash([os.path.join(p1.tutorial.get_repo_path(), p1.introduction),
+                             os.path.join(p1.tutorial.get_repo_path(), p1.conclusion)])
         self.client.post(
             reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
             {
@@ -1594,8 +1594,8 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         c1 = Chapter.objects.last()
-        hash = compute_hash([os.path.join(c1.get_path(), "introduction.md"),
-                             os.path.join(c1.get_path(), "conclusion.md")])
+        hash = compute_hash([os.path.join(c1.get_repo_path(), "introduction.md"),
+                             os.path.join(c1.get_repo_path(), "conclusion.md")])
         self.client.post(
             reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
             {
@@ -2571,8 +2571,8 @@ class BigTutorialTests(TestCase):
                 'introduction': u"Expérimentation : edition d'introduction",
                 'conclusion': u"C'est terminé : edition de conlusion",
                 'msg_commit': u"Changement de la partie",
-                "last_hash": compute_hash([os.path.join(part.tutorial.get_path(), part.introduction),
-                                           os.path.join(part.tutorial.get_path(), part.conclusion)])
+                "last_hash": compute_hash([os.path.join(part.tutorial.get_repo_path(), part.introduction),
+                                           os.path.join(part.tutorial.get_repo_path(), part.conclusion)])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -2609,8 +2609,8 @@ class BigTutorialTests(TestCase):
                 'conclusion': u"Edition de conlusion",
                 'msg_commit': u"MàJ du chapitre 2 : le respect des agrumes sur ZdS",
                 "last_hash": compute_hash([
-                    os.path.join(chapter.get_path(), "introduction.md"),
-                    os.path.join(chapter.get_path(), "conclusion.md")])
+                    os.path.join(chapter.get_repo_path(), "introduction.md"),
+                    os.path.join(chapter.get_repo_path(), "conclusion.md")])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -2641,7 +2641,7 @@ class BigTutorialTests(TestCase):
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"On ne torture pas les agrumes !",
-                "last_hash": compute_hash([os.path.join(extract.get_path())])
+                "last_hash": compute_hash([os.path.join(extract.get_repo_path())])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -3027,7 +3027,7 @@ class MiniTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         intro_path = os.path.join(tuto.get_path(), "introduction.md")
-        extract_path = Extract.objects.first().get_path()
+        extract_path = Extract.objects.first().get_repo_path()
         self.assertNotEqual(intro_path, extract_path)
         self.assertTrue(os.path.isfile(intro_path))
         self.assertTrue(os.path.isfile(extract_path))
@@ -3051,7 +3051,7 @@ class MiniTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(Extract.objects.all().count(), 1)
         ccl_path = os.path.join(tuto.get_path(), "conclusion.md")
-        extract_path = Extract.objects.first().get_path()
+        extract_path = Extract.objects.first().get_repo_path()
         self.assertNotEqual(ccl_path, extract_path)
         self.assertTrue(os.path.isfile(ccl_path))
         self.assertTrue(os.path.isfile(extract_path))
@@ -3987,7 +3987,7 @@ class MiniTutorialTests(TestCase):
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Edition d'introduction",
-                "last_hash": compute_hash([e2.get_path()])
+                "last_hash": compute_hash([e2.get_repo_path()])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -4450,7 +4450,7 @@ class MiniTutorialTests(TestCase):
             {
                 'title': u"Un autre titre",
                 'text': u"j'ai changé d'avis, je vais mettre un sapin synthétique",
-                "last_hash": compute_hash([extract.get_path()])
+                "last_hash": compute_hash([extract.get_repo_path()])
             },
             follow=True)
         self.assertEqual(result.status_code, 200)

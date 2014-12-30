@@ -47,7 +47,7 @@ class BigTutorialFactory(factory.DjangoModelFactory):
 
         light = kwargs.pop('light', False)
         tuto = super(BigTutorialFactory, cls)._prepare(create, **kwargs)
-        path = tuto.get_path()
+        path = tuto.get_repo_path()
         real_content = content
         if light:
             real_content = content_light
@@ -97,7 +97,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
         if light:
             real_content = content_light
-        path = tuto.get_path()
+        path = tuto.get_repo_path()
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
@@ -144,8 +144,8 @@ class PartFactory(factory.DjangoModelFactory):
         if light:
             real_content = content_light
 
-        path = part.get_path()
-        repo = Repo(part.tutorial.get_path())
+        path = part.get_repo_path()
+        repo = Repo(part.tutorial.get_repo_path())
 
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
@@ -202,7 +202,7 @@ class ChapterFactory(factory.DjangoModelFactory):
         real_content = content
         if light:
             real_content = content_light
-        path = chapter.get_path()
+        path = chapter.get_repo_path()
 
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
@@ -235,25 +235,25 @@ class ChapterFactory(factory.DjangoModelFactory):
             chapter.save()
             f = open(
                 os.path.join(
-                    part.tutorial.get_path(),
+                    part.tutorial.get_repo_path(),
                     chapter.introduction),
                 "w")
             f.write(real_content.encode('utf-8'))
             f.close()
             f = open(
                 os.path.join(
-                    part.tutorial.get_path(),
+                    part.tutorial.get_repo_path(),
                     chapter.conclusion),
                 "w")
             f.write(real_content.encode('utf-8'))
             f.close()
             part.tutorial.save()
-            repo = Repo(part.tutorial.get_path())
+            repo = Repo(part.tutorial.get_repo_path())
 
             man = export_tutorial(part.tutorial)
             f = open(
                 os.path.join(
-                    part.tutorial.get_path(),
+                    part.tutorial.get_repo_path(),
                     'manifest.json'),
                 "w")
             f.write(
