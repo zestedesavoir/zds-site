@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 from rest_framework import permissions
+
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """

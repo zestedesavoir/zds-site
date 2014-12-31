@@ -210,6 +210,8 @@ THUMBNAIL_ALIASES = {
 }
 
 REST_FRAMEWORK = {
+    # If the pagination isn't specify in the API, its configuration is
+    # specified here.
     'PAGINATE_BY': 10,                 # Default to 10
     'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
     'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
@@ -221,6 +223,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.OAuth2Authentication',
     )
+}
+
+REST_FRAMEWORK_EXTENSIONS = {
+    # If the cache isn't specify in the API, the time of the cache
+    # is specified here in seconds.
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
 
 if (DEBUG):

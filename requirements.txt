@@ -26,3 +26,4 @@ easy-thumbnails==2.2
 djangorestframework==3.0.2
 django-filter==0.8
 django-oauth2-provider==0.2.6.1
+drf-extensions==0.2.6

@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email', 'is_active', 'date_joined')
 
+
 class UserCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator, ProfileEmailValidator):
     """
     Serializers of a user object to create one.

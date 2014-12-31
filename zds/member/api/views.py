@@ -2,6 +2,8 @@
 
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework_extensions.cache.decorators import cache_response
+from rest_framework_extensions.etag.decorators import etag
 
 from zds.member.api.serializers import UserSerializer, UserCreateSerializer, \
     ProfileSerializer, ProfileValidatorSerializer
@@ -16,6 +18,8 @@ class MemberListAPI(ListCreateAPIView):
 
     queryset = Profile.objects.all_members_ordered_by_date_joined()
 
+    @etag()
+    @cache_response()
     def get(self, request, *args, **kwargs):
         self.serializer_class = UserSerializer
         return self.list(request, *args, **kwargs)
@@ -25,7 +29,6 @@ class MemberListAPI(ListCreateAPIView):
         return self.create(request, *args, **kwargs)
 
 
-
 class MemberDetailAPI(RetrieveUpdateAPIView):
     """
     Displays or updates details of a member.
@@ -33,10 +36,13 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
 
     queryset = Profile.objects.all()
 
+    @etag()
+    @cache_response()
     def get(self, request, *args, **kwargs):
         self.serializer_class = ProfileSerializer
         return self.retrieve(request, *args, **kwargs)
 
+    @etag(rebuild_after_method_evaluation=True)
     def put(self, request, *args, **kwargs):
         self.serializer_class = ProfileValidatorSerializer
         self.permissions = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
