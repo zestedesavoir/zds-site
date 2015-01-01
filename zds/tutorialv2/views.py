@@ -92,6 +92,7 @@ class ArticleList(ListView):
     def get_context_data(self, **kwargs):
         context = super(ArticleList, self).get_context_data(**kwargs)
         context['tag'] = self.tag
+        # TODO in database, the information concern the draft, so we have to make stuff here !
         return context
 
 
@@ -100,7 +101,7 @@ class TutorialList(ArticleList):
 
     context_object_name = 'tutorials'
     type = "TUTORIAL"
-    template_name = 'tutorial/index.html'
+    template_name = 'tutorialv2/index.html'
 
 
 def render_chapter_form(chapter):
@@ -119,7 +120,7 @@ class TutorialWithHelp(TutorialList):
     """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
     for more documentation, have a look to ZEP 03 specification (fr)"""
     context_object_name = 'tutorials'
-    template_name = 'tutorial/help.html'
+    template_name = 'tutorialv2/help.html'
 
     def get_queryset(self):
         """get only tutorial that need help and handle filtering if asked"""
@@ -141,15 +142,19 @@ class TutorialWithHelp(TutorialList):
         context['helps'] = HelpWriting.objects.all()
         return context
 
+# TODO ArticleWithHelp
+
 
 class DisplayContent(DetailView):
     """Base class that can show any content in any state, by default it shows offline tutorials"""
 
     model = PublishableContent
-    template_name = 'tutorial/view.html'
+    template_name = 'tutorialv2/view.html'
     type = "TUTORIAL"
-    is_public = False
+    online = False
+    sha = None
 
+    # TODO compatibility should be performed into class `PublishableContent.load_version()` !
     def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
         dictionary["tutorial"] = content
         dictionary["path"] = content.get_repo_path()
@@ -181,7 +186,7 @@ class DisplayContent(DetailView):
 
     def get_forms(self, context, content):
         """get all the auxiliary forms about validation, js fiddle..."""
-        validation = Validation.objects.filter(tutorial__pk=content.pk)\
+        validation = Validation.objects.filter(content__pk=content.pk)\
             .order_by("-date_proposition")\
             .first()
         form_js = ActivJsForm(initial={"js_support": content.js_support})
@@ -200,19 +205,20 @@ class DisplayContent(DetailView):
         context["formValid"] = form_valid
         context["formReject"] = form_reject,
 
-    def get_object(self):
-        return get_object_or_404(PublishableContent, pk=self.kwargs['content_pk'])
+    def get_object(self, queryset=None):
+        return get_object_or_404(PublishableContent, slug=self.kwargs['content_slug'])
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
+        # TODO: handling public version !
 
         context = super(DisplayContent, self).get_context_data(**kwargs)
-        content = context[self.context_object_name]
+        content = context['object']
+
         # Retrieve sha given by the user. This sha must to be exist. If it doesn't
         # exist, we take draft version of the content.
-
         try:
-            sha = self.request.GET.get("version")
+            sha = self.request.GET["version"]
         except KeyError:
             if self.sha is not None:
                 sha = self.sha
@@ -220,40 +226,16 @@ class DisplayContent(DetailView):
                 sha = content.sha_draft
 
         # check that if we ask for beta, we also ask for the sha version
-        is_beta = (sha == content.sha_beta and content.in_beta())
-        # check that if we ask for public version, we also ask for the sha version
-        is_online = (sha == content.sha_public and content.in_public())
-        # Only authors of the tutorial and staff can view tutorial in offline.
+        is_beta = content.is_beta(sha)
 
-        if self.request.user not in content.authors.all() and not is_beta and not is_online:
+        if self.request.user not in content.authors.all() and not is_beta:
             # if we are not author of this content or if we did not ask for beta
             # the only members that can display and modify the tutorial are validators
             if not self.request.user.has_perm("tutorial.change_tutorial"):
                 raise PermissionDenied
 
-        # Find the good manifest file
-
-        repo = Repo(content.get_repo_path())
-
-        # Load the tutorial.
-
-        mandata = content.load_json_for_public(sha)
-        content.load_dic(mandata, sha)
-        content.load_introduction_and_conclusion(mandata, sha, sha == content.sha_public)
-        children_tree = {}
-
-        if 'chapter' in mandata:
-            # compatibility with old "Mini Tuto"
-            self.compatibility_chapter(content, repo, sha, mandata["chapter"])
-            children_tree = mandata['chapter']
-        elif 'parts' in mandata:
-            # compatibility with old "big tuto".
-            parts = mandata["parts"]
-            cpt_p = 1
-            for part in parts:
-                self.compatibility_parts(content, repo, sha, part, cpt_p)
-                cpt_p += 1
-            children_tree = parts
+        # load versioned file
+        versioned_tutorial = content.load_version(sha)
 
         # check whether this tuto support js fiddle
         if content.js_support:
@@ -261,8 +243,7 @@ class DisplayContent(DetailView):
         else:
             is_js = ""
         context["is_js"] = is_js
-        context["tutorial"] = mandata  # TODO : change to "content"
-        context["children"] = children_tree
+        context["tutorial"] = versioned_tutorial
         context["version"] = sha
         self.get_forms(context, content)
 
