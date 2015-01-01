@@ -357,7 +357,7 @@ class VersionedContent(Container):
     type = ''
     licence = None
 
-    slug_pool = []
+    slug_pool = {}
 
     # Metadata from DB :
     sha_draft = None
@@ -390,7 +390,7 @@ class VersionedContent(Container):
         self.type = _type
         self.repository = Repo(self.get_path())
 
-        self.slug_pool = ['introduction', 'conclusion', slug]  # forbidden slugs
+        self.slug_pool = {'introduction': 1, 'conclusion': 1, slug: 1}  # forbidden slugs
 
     def __unicode__(self):
         return self.title
@@ -399,7 +399,7 @@ class VersionedContent(Container):
         """
         :return: the url to access the tutorial when offline
         """
-        return reverse('zds.tutorialv2.views.view_tutorial', args=[self.slug])
+        return reverse('view-tutorial-url', args=[self.slug])
 
     def get_absolute_url_online(self):
         """
@@ -429,13 +429,16 @@ class VersionedContent(Container):
         :param title: title from which the slug is generated (with `slugify()`)
         :return: the unique slug
         """
-        new_slug = slugify(title)
-        if new_slug in self.slug_pool:
-            num = 1
-            while new_slug + '-' + str(num) in self.slug_pool:
-                num += 1
-            new_slug = new_slug + '-' + str(num)
-        self.slug_pool.append(new_slug)
+        base = slugify(title)
+        try:
+            n = self.slug_pool[base]
+        except KeyError:
+            new_slug = base
+            self.slug_pool[base] = 0
+        else:
+            new_slug = base + '-' + str(n)
+        self.slug_pool[base] += 1
+        self.slug_pool[new_slug] = 1
         return new_slug
 
     def add_slug_to_pool(self, slug):
@@ -443,10 +446,12 @@ class VersionedContent(Container):
         Add a slug to the slug pool to be taken into account when generate a unique slug
         :param slug: the slug to add
         """
-        if slug not in self.slug_pool:
-            self.slug_pool.append(slug)
+        try:
+            self.slug_pool[slug]  # test access
+        except KeyError:
+            self.slug_pool[slug] = 1
         else:
-            raise Exception('slug {} already in the slug pool !'.format(slug))
+            raise Exception('slug "{}" already in the slug pool !'.format(slug))
 
     def get_path(self, relative=False):
         """
@@ -502,8 +507,10 @@ def fill_containers_from_json(json_sub, parent):
         for child in json_sub['children']:
             if child['object'] == 'container':
                 new_container = Container(child['title'], child['slug'])
-                new_container.introduction = child['introduction']
-                new_container.conclusion = child['conclusion']
+                if 'introduction' in child:
+                    new_container.introduction = child['introduction']
+                if 'conclusion' in child:
+                    new_container.conclusion = child['conclusion']
                 parent.add_container(new_container)
                 if 'children' in child:
                     fill_containers_from_json(child, new_container)
@@ -533,6 +540,7 @@ class PublishableContent(models.Model):
         verbose_name_plural = 'Contenus'
 
     title = models.CharField('Titre', max_length=80)
+    slug = models.SlugField(max_length=80)
     description = models.CharField('Description', max_length=200)
     source = models.CharField('Source', max_length=200)
     authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
@@ -630,6 +638,30 @@ class PublishableContent(models.Model):
         """
         return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
+    def is_beta(self, sha):
+        """
+        Is this version of the content the beta version ?
+        :param sha: version
+        :return: `True` if the tutorial is in beta, `False` otherwise
+        """
+        return self.in_beta() and sha == self.sha_beta
+
+    def is_validation(self, sha):
+        """
+        Is this version of the content the validation version ?
+        :param sha: version
+        :return: `True` if the tutorial is in validation, `False` otherwise
+        """
+        return self.in_validation() and sha == self.sha_validation
+
+    def is_public(self, sha):
+        """
+        Is this version of the content the published version ?
+        :param sha: version
+        :return: `True` if the tutorial is in public, `False` otherwise
+        """
+        return self.in_public() and sha == self.sha_public
+
     def is_article(self):
         """
         :return: `True` if article, `False` otherwise
@@ -666,16 +698,19 @@ class PublishableContent(models.Model):
         versioned = VersionedContent(sha, self.type, json['title'], json['slug'])
         if 'version' in json and json['version'] == 2:
             # fill metadata :
-            versioned.description = json['description']
+            if 'description' in json:
+                versioned.description = json['description']
             if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
                 versioned.type = json['type']
             else:
                 versioned.type = self.type
             if 'licence' in json:
-                versioned.licence = Licence.objects.filter(code=data['licence']).first()
+                versioned.licence = Licence.objects.filter(code=json['licence']).first()
             # TODO must default licence be enforced here ?
-            versioned.introduction = json['introduction']
-            versioned.conclusion = json['conclusion']
+            if 'introduction' in json:
+                versioned.introduction = json['introduction']
+            if 'conclusion' in json:
+                versioned.conclusion = json['conclusion']
             # then, fill container with children
             fill_containers_from_json(json, versioned)
             self.insert_data_in_versioned(versioned)
@@ -703,9 +738,9 @@ class PublishableContent(models.Model):
             setattr(versioned, fn, getattr(self, fn))
 
         # general information
-        versioned.is_beta = self.in_beta() and self.sha_beta == versioned.current_version
-        versioned.is_validation = self.in_validation() and self.sha_validation == versioned.current_version
-        versioned.is_public = self.in_public() and self.sha_public == versioned.current_version
+        versioned.is_beta = self.is_beta(versioned.current_version)
+        versioned.is_validation = self.is_validation(versioned.current_version)
+        versioned.is_public = self.is_public(versioned.current_version)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)

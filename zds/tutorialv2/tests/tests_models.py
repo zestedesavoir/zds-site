@@ -92,7 +92,6 @@ class ContentTests(TestCase):
         new_extract_2 = ExtractFactory(title='aa', container=new_chapter_2, db_object=self.tuto)
         self.assertNotEqual(new_extract_2.slug, new_extract_1.slug)
         self.assertNotEqual(new_extract_2.slug, new_chapter_1.slug)
-        print(versioned.get_json())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
