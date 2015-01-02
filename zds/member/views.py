@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 from datetime import datetime, timedelta
 import uuid
 
@@ -14,29 +15,28 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
+from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
-from zds.utils.models import Comment
-from zds.mp.models import PrivatePost, PrivateTopic
-from zds.gallery.models import UserGallery
+from django.views.generic import ListView, DetailView, UpdateView, CreateView
 
-from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
-    ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm, PromoteMemberForm, KarmaForm
+from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm, \
+    ForgotPasswordForm, NewPasswordForm, OldTutoForm, PromoteMemberForm, KarmaForm
 from models import Profile, TokenForgotPassword, Ban, TokenRegister, logout_user, KarmaNote
-from zds.gallery.forms import ImageAsAvatarForm
+
 from zds.article.models import Article
+from zds.gallery.forms import ImageAsAvatarForm
+from zds.gallery.models import UserGallery
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate
+from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorial.models import Tutorial
+from zds.utils.models import Comment
 from zds.utils.mps import send_mp
 from zds.utils.tokens import generate_token
-from django.utils.translation import ugettext as _
-
-from django.views.generic import ListView, DetailView, UpdateView, CreateView
 
 
 class MemberList(ListView):
@@ -50,7 +50,9 @@ class MemberList(ListView):
 
 
 class MemberDetail(DetailView):
+
     """Displays details about a profile."""
+
     context_object_name = 'usr'
     model = User
     template_name = 'member/profile.html'
@@ -70,11 +72,14 @@ class MemberDetail(DetailView):
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
         context['form'] = OldTutoForm(profile)
+
         return context
 
 
 class UpdateMember(UpdateView):
+
     """Updates a profile."""
+
     form_class = ProfileForm
     template_name = 'member/settings/profile.html'
 
@@ -83,17 +88,19 @@ class UpdateMember(UpdateView):
 
     def get_form(self, form_class):
         profile = self.get_object()
-
-        return form_class(initial={
-            "biography": profile.biography,
-            "site": profile.site,
-            "avatar_url": profile.avatar_url,
-            "show_email": profile.show_email,
-            "show_sign": profile.show_sign,
-            "hover_or_click": profile.hover_or_click,
-            "email_for_answer": profile.email_for_answer,
-            "sign": profile.sign
+        form = form_class(initial={
+            'biography': profile.biography,
+            'site': profile.site,
+            'avatar_url': profile.avatar_url,
+            'show_email': profile.show_email,
+            'show_sign': profile.show_sign,
+            'hover_or_click': profile.hover_or_click,
+            'email_for_answer': profile.email_for_answer,
+            'sign': profile.sign
             })
+
+        return form
+
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -101,29 +108,25 @@ class UpdateMember(UpdateView):
         if form.is_valid():
             return self.form_valid(request, form)
 
-        return render(request, self.template_name, {"form": form})
+        return render(request, self.template_name, {'form': form})
 
     def form_valid(self, request, form):
         profile = self.get_object()
-
         self.update_profile(profile, form)
-
         self.save_profile(profile)
 
         return HttpResponseRedirect(self.get_success_url())
 
     def update_profile(self, profile, form):
-        profile.biography = form.data["biography"]
-        profile.site = form.data["site"]
-        profile.show_email = "show_email" \
-                             in form.cleaned_data.get("options")
-        profile.show_sign = "show_sign" in form.cleaned_data.get("options")
-        profile.hover_or_click = "hover_or_click" \
-                                 in form.cleaned_data.get("options")
-        profile.email_for_answer = "email_for_answer" \
-                                   in form.cleaned_data.get("options")
-        profile.avatar_url = form.data["avatar_url"]
-        profile.sign = form.data["sign"]
+        cleaned_data_options = form.cleaned_data.get('options')
+        profile.biography = form.data['biography']
+        profile.site = form.data['site']
+        profile.show_email = 'show_email' in cleaned_data_options
+        profile.show_sign = 'show_sign' in cleaned_data_options
+        profile.hover_or_click = 'hover_or_click' in cleaned_data_options
+        profile.email_for_answer = 'email_for_answer' in cleaned_data_options
+        profile.avatar_url = form.data['avatar_url']
+        profile.sign = form.data['sign']
 
     def get_success_url(self):
         return reverse('update-member')
@@ -132,71 +135,84 @@ class UpdateMember(UpdateView):
         try:
             profile.save()
             profile.user.save()
-        except:
+        except: # TODO ajouter l'exception
             messages.error(self.request, self.get_error_message())
-            return redirect(reverse("zds.member.views.settings_profile"))
+            return redirect(reverse('zds.member.views.settings_profile'))
         messages.success(self.request, self.get_success_message())
 
     def get_success_message(self):
-        return _(u"Le profil a correctement été mis à jour.")
+        return _(u'Le profil a correctement été mis à jour.')
 
     def get_error_message(self):
-        return _(u"Une erreur est survenue.")
+        return _(u'Une erreur est survenue.')
 
 
 class UpdateAvatarMember(UpdateMember):
+
+    """TODO"""
+
     form_class = ImageAsAvatarForm
 
     def get_success_url(self):
         profile = self.get_object()
-        return reverse("member-detail", args=[profile.user.username])
+
+        return reverse('member-detail', args=[profile.user.username])
 
     def get_form(self, form_class):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
-        profile.avatar_url = form.data["avatar_url"]
+        profile.avatar_url = form.data['avatar_url']
 
     def get_success_message(self):
-        return _(u"L'avatar a correctement été mis à jour.")
+        return _(u'L\'avatar a correctement été mis à jour.')
 
 
 class UpdatePasswordMember(UpdateMember):
+
+    """TODO"""
+
     form_class = ChangePasswordForm
 
     def get_form(self, form_class):
         return form_class(self.request.user, self.request.POST)
 
     def update_profile(self, profile, form):
-        profile.user.set_password(form.data["password_new"])
+        profile.user.set_password(form.data['password_new'])
 
     def get_success_message(self):
-        return _(u"Le mot de passe a correctement été mis à jour.")
+        return _(u'Le mot de passe a correctement été mis à jour.')
 
     def get_success_url(self):
         return reverse('update-password-member')
 
 
 class UpdateUsernameEmailMember(UpdateMember):
+
+    """TODO"""
+
     form_class = ChangeUserForm
 
     def get_form(self, form_class):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
-        if form.data["username_new"]:
-            profile.user.username = form.data["username_new"]
-        elif form.data["email_new"]:
-            if form.data["email_new"].strip() != "":
-                profile.user.email = form.data["email_new"]
+        if form.data['username_new']:
+            profile.user.username = form.data['username_new']
+        elif form.data['email_new']:
+            if form.data['email_new'].strip() != '':
+                profile.user.email = form.data['email_new']
 
     def get_success_url(self):
         profile = self.get_object()
+
         return profile.get_absolute_url()
 
 
 class RegisterView(CreateView, ProfileCreate):
+
     """Create a profile."""
+
     form_class = RegisterForm
     template_name = 'member/register/index.html'
 
@@ -229,8 +245,10 @@ class RegisterView(CreateView, ProfileCreate):
 
 @login_required
 def warning_unregister(request):
-    """displays a warning page showing what will happen when user unregisters"""
-    return render(request, "member/settings/unregister.html", {"user": request.user})
+    """
+    Displays a warning page showing what will happen when user unregisters.
+    """
+    return render(request, 'member/settings/unregister.html', {'user': request.user})
 
 
 @login_required
