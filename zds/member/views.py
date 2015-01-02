@@ -18,6 +18,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, UpdateView, CreateView
@@ -83,6 +84,11 @@ class UpdateMember(UpdateView):
     form_class = ProfileForm
     template_name = 'member/settings/profile.html'
 
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(UpdateMember, self).dispatch(*args, **kwargs)
+
     def get_object(self):
         return get_object_or_404(Profile, user=self.request.user)
 
@@ -135,9 +141,9 @@ class UpdateMember(UpdateView):
         try:
             profile.save()
             profile.user.save()
-        except: # TODO ajouter l'exception
+        except Profile.DoesNotExist:
             messages.error(self.request, self.get_error_message())
-            return redirect(reverse('zds.member.views.settings_profile'))
+            return redirect(reverse('update-member'))
         messages.success(self.request, self.get_success_message())
 
     def get_success_message(self):
@@ -149,7 +155,7 @@ class UpdateMember(UpdateView):
 
 class UpdateAvatarMember(UpdateMember):
 
-    """TODO"""
+    """Update avatar of a user logged."""
 
     form_class = ImageAsAvatarForm
 
@@ -170,7 +176,7 @@ class UpdateAvatarMember(UpdateMember):
 
 class UpdatePasswordMember(UpdateMember):
 
-    """TODO"""
+    """User's settings about his password."""
 
     form_class = ChangePasswordForm
 
@@ -189,7 +195,7 @@ class UpdatePasswordMember(UpdateMember):
 
 class UpdateUsernameEmailMember(UpdateMember):
 
-    """TODO"""
+    """User's settings about his username and email."""
 
     form_class = ChangeUserForm
 
