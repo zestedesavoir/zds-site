@@ -415,11 +415,13 @@ def edit(request):
             messages.success(request,
                              u"Le sujet {0} est désormais verrouillé."
                              .format(g_topic.title))
-        if "sticky" in data:
-            g_topic.is_sticky = data["sticky"] == "true"
-            messages.success(request,
-                             u"Le sujet {0} est désormais épinglé."
-                             .format(g_topic.title))
+        if 'sticky' in data:
+            if data['sticky'] == 'true':
+                g_topic.is_sticky = True
+                messages.success(request, _(u'Le sujet « {0} » est désormais épinglé.').format(g_topic.title))
+            else:
+                g_topic.is_sticky = False
+                messages.success(request, _(u'Le sujet « {0} » n\'est désormais plus épinglé.').format(g_topic.title))
         if "move" in data:
             try:
                 forum_pk = int(request.POST["move_target"])
