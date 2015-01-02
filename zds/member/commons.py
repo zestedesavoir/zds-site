@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime, timedelta
 import os
 import uuid
 
-from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
@@ -17,6 +17,10 @@ from zds.settings import SITE_ROOT
 
 class Validator():
 
+    """
+    TODO
+    """
+
     def result(self, result=None):
         raise NotImplementedError('`result()` must be implemented.')
 
@@ -26,11 +30,19 @@ class Validator():
 
 class ProfileUsernameValidator(Validator):
 
+    """
+    TODO
+    """
+
     def validate_username(self, value):
         """
         Checks about the username.
-        """
 
+        :param value: TODO faire une description du paramètre
+        :type value: TODO le type du paramètre `value`
+        :return: TODO faire une description de ce que retourne la fonction
+        :rtype: le type de ce qui est renvoyé
+        """
         msg = None
         if value:
             if value.strip() == '':
@@ -53,8 +65,12 @@ class ProfileEmailValidator(Validator):
     def validate_email(self, value):
         """
         Checks about the email.
-        """
 
+        :param value: TODO faire une description du paramètre
+        :type value: TODO le type du paramètre `value`
+        :return: TODO faire une description de ce que retourne la fonction
+        :rtype: le type de ce qui est renvoyé
+        """
         if value:
             msg = None
             # Chech if email provider is authorized
@@ -68,7 +84,7 @@ class ProfileEmailValidator(Validator):
             if User.objects.filter(email=value).count() > 0:
                 msg = _(u'Votre adresse courriel est déjà utilisée')
             if msg is not None:
-                self.throw_error("email", msg)
+                self.throw_error('email', msg)
             return self.result(value)
 
         return self.result()
@@ -77,52 +93,78 @@ class ProfileEmailValidator(Validator):
 class ProfileCreate():
 
     def create_profile(self, data):
-        user = User.objects.create_user(data.get("username"),
-                                        data.get("email"),
-                                        data.get("password"))
-        user.set_password(data.get("password"))
+        """
+        TODO
+
+        :param data: TODO
+        :type data: TODO
+        :return: the member profile (TODO améliorer cette description)
+        :rtype: QuerySet
+        """
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+        user = User.objects.create_user(username, email, password)
+        user.set_password(password)
         user.is_active = False
-        user.backend = "django.contrib.auth.backends.ModelBackend"
-        profile = Profile(user=user,
-                          show_email=False,
-                          show_sign=True,
-                          hover_or_click=True,
-                          email_for_answer=False)
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        profile = Profile(user=user, show_email=False, show_sign=True, hover_or_click=True, email_for_answer=False)
         return profile
 
     def save_profile(self, profile):
+        """
+        Save the profile of a member.
+
+        :param profile: The profile of a member.
+        :type data: QuerySet
+        :return: nothing
+        :rtype: None
+        """
         profile.save()
         profile.user.save()
 
     def generate_token(self, user):
+        """
+        Generate a token for member registration.
+
+        :param user: An User object.
+        :type user: User object
+        :return: A token object
+        :rtype: Token object
+        """
         uuid_token = str(uuid.uuid4())
-        date_end = datetime.now() + timedelta(days=0,
-                                              hours=1,
-                                              minutes=0,
-                                              seconds=0)
-        token = TokenRegister(user=user,
-                              token=uuid_token,
-                              date_end=date_end)
+        date_end = datetime.now() + timedelta(hours=1)
+        token = TokenRegister(user=user, token=uuid_token, date_end=date_end)
         token.save()
         return token
 
     def send_email(self, token, user):
-        subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
-        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+        """
+        Send an email with a confirmation a registration wich contain a link for registration validation.
+
+        :param token: The token for registration validation.
+        :type token: Token Object
+        :param user: The user just registred.
+        :type user: User object
+        :return: nothing
+        :rtype: None
+        """
+        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['abbr'])
+        from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                       settings.ZDS_APP['site']['email_noreply'])
-        message_html = get_template("email/register/confirm.html").render(Context(
-            {"username": user.username,
-             "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-             "site_name": settings.ZDS_APP['site']['name'],
-             "site_url": settings.ZDS_APP['site']['url']}))
-        message_txt = get_template("email/register/confirm.txt") .render(Context(
-            {"username": user.username,
-             "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-             "site_name": settings.ZDS_APP['site']['name'],
-             "site_url": settings.ZDS_APP['site']['url']}))
+        template_context = Context(
+            {
+                'username': user.username,
+                'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+                'site_name': settings.ZDS_APP['site']['name'],
+                'site_url': settings.ZDS_APP['site']['url']
+            }
+        )
+        message_html = get_template('email/register/confirm.html').render(template_context)
+        message_txt = get_template('email/register/confirm.txt') .render(template_context)
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
-        msg.attach_alternative(message_html, "text/html")
+        msg.attach_alternative(message_html, 'text/html')
         try:
             msg.send()
-        except:
+        except: # TODO rajouter l'exception
             pass
