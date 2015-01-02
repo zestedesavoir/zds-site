@@ -195,6 +195,12 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun tutoriel disponible." %}
+                                                    </li>
+                                                </ul>
                                             {% endfor %}
                                         {% endwith %}
                                     </ul>
@@ -227,6 +233,12 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun forum disponible." %}
+                                                    </li>
+                                                </ul>
                                             {% endfor %}
                                             {% if top.tags %}
                                             <li>
