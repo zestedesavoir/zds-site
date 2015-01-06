@@ -3789,10 +3789,12 @@ def help_tutorial(request):
     if type is not None:
         aide = get_object_or_404(HelpWriting, slug=type)
         tutos = Tutorial.objects.filter(helps=aide) \
+                                .order_by('pubdate', '-update') \
                                 .all()
     else:
         tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
                                 .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+                                .order_by('pubdate', '-total', '-update') \
                                 .all()
 
     # Paginator
