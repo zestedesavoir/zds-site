@@ -40,10 +40,10 @@ def index(request):
     if request.method == 'POST':
         if 'delete' in request.POST:
             liste = request.POST.getlist('items')
-            topics = PrivateTopic.objects.filter(pk__in=liste)\
+            topics = PrivateTopic.objects.filter(pk__in=liste) \
                 .filter(
-                    Q(participants__in=[request.user])
-                    | Q(author=request.user))
+                Q(participants__in=[request.user])
+                | Q(author=request.user))
 
             for topic in topics:
                 if topic.participants.all().count() == 0:
@@ -56,9 +56,9 @@ def index(request):
                     topic.participants.remove(request.user)
                     topic.save()
 
-    privatetopics = PrivateTopic.objects\
-        .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
-        .select_related("author", "participants")\
+    privatetopics = PrivateTopic.objects \
+        .filter(Q(participants__in=[request.user]) | Q(author=request.user)) \
+        .select_related("author", "participants") \
         .distinct().order_by('-last_message__pubdate').all()
 
     # Paginator
@@ -100,8 +100,8 @@ def topic(request, topic_pk, topic_slug):
         if never_privateread(g_topic):
             mark_read(g_topic)
 
-    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk)\
-        .order_by('position_in_topic')\
+    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk) \
+        .order_by('position_in_topic') \
         .all()
 
     last_post_pk = g_topic.last_message.pk
@@ -189,10 +189,8 @@ def new(request):
                 ctrl.append(p)
 
             # user add only himself
-            if (len(ctrl) < 1
-                    and len(list_part) == 1
-                    and list_part[0] == request.user.username):
-                errors = form._errors.setdefault("participants", ErrorList())
+            if len(ctrl) < 1 and len(list_part) == 1 and list_part[0] == request.user.username:
+                errors = form._errors.setdefault("participants", ErrorList())  # TODO: use mutators instead of _errors
                 errors.append(_(u'Vous êtes déjà auteur du message'))
                 if tried_unauthorized_member:
                     errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
@@ -204,17 +202,17 @@ def new(request):
                 errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
             else:
                 p_topic = send_mp(request.user,
-                              ctrl,
-                              data['title'],
-                              data['subtitle'],
-                              data['text'],
-                              True,
-                              False)
+                                  ctrl,
+                                  data['title'],
+                                  data['subtitle'],
+                                  data['text'],
+                                  True,
+                                  False)
 
                 return redirect(p_topic.get_absolute_url())
             return render(request, 'mp/topic/new.html', {
-                    'form': form,
-                })
+                'form': form,
+            })
         else:
             return render(request, 'mp/topic/new.html', {
                 'form': form,
@@ -359,15 +357,13 @@ def answer(request):
                                 .render(
                                     Context({
                                         'username': part.username,
-                                        'url': settings.ZDS_APP['site']['url']
-                                        + post.get_absolute_url(),
+                                        'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
                                         'author': request.user.username
                                     }))
                             message_txt = get_template('email/mp/new.txt').render(
                                 Context({
                                     'username': part.username,
-                                    'url': settings.ZDS_APP['site']['url']
-                                    + post.get_absolute_url(),
+                                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
                                     'author': request.user.username
                                 }))
 
