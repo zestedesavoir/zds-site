@@ -285,19 +285,24 @@ Afin d'aider les auteurs de tutoriels à rédiger ces derniers, des options lors
 - Besoin d'aide pour illustrer
 - Désir d'abandonner le tutoriel et recherche d'un repreneur
 
-L'ensemble des tutoriels à la recherche d'aide est visible via la page "help.html" (template dans le fichier `templates/tutorial/tutorial/help.html`). Cette page génère un tableau récapitulatif de toutes les demandes d'aides pour les différents tutoriels et des filtres peuvent être appliqués. Toutes les données servant à peupler ce tableau sont renvoyées via la méthode `help_tutorial` dans le fichier `zds/tutorial/views.py`. Cette méthode peut prendre en compte un argument en GET nommé `type` désignant le filtre à appliquer. Cet argument représente le slug d'une des options de la liste précédentes.
-En cas d'absence du paramètre, tout les tutoriels ayant au moins une demande d'aide d'activées ou en bêta sont renvoyé au template.
-De nouveau type de demande d'aide peuvent-être rajouté via l'interface d'administration Django dans la classe `Utils.HelpWriting`.
+L'ensemble des tutoriels à la recherche d'aide est visible via la page "/tutoriels/aides/". Cette page génère un tableau récapitulatif de toutes les demandes d'aides pour les différents tutoriels et des filtres peuvent être appliqués.
 
-Les fixtures d'aides
-++++++++++++++++++++
+Il est également possible **pour tout membre qui n'est pas auteur du tutoriel consulté** de signaler une erreur, en employant le bouton prévu à cet effet et situé en bas d'une page du tutoriel (il est également présent en bas d'un chapitre, s'il s'agit d'un big-tutoriel).
 
-Quelques données de test sont présentes dans le fichier `fixtures/aide_tuto_media.yaml`. En chargeant ces dernières, un tuto peut alors être modifié pour recevoir des demandes d'aides (en allant les sélectionner dans la liste à cet effet lors de l'édition du tuto).
-Pour chaque données de test, il faut aussi passer par l'interface d'administration Django pour ajouter les images relatives à ces aides (limites techniques du chargement automatique). Quatres illustrations sont présentes dans le dossier de fixtures correspondant aux quatres aides présentes dans les fixtures.
 
-Pour charger ces fixtures, il ne faut pas utiliser la routine habituelle `manage.py loaddata`. En effet, les demandes d'aide ont besoin d'être liées à des images.
-C'est pourquoi, nous utilisons la factory `zds.utils.factories.HelpWritingFactory` pour mettre en place ces fixtures.
-Le code sera donc `python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml`.
+   .. figure:: images/warn-typo-button.png
+      :align: center
+
+      Bouton permentant de signaler une erreur
+
+Ce bouton est disponible sur la version publiée ou en bêta d'un tutoriel. Cliquer sur celui-ci ouvre une boite de dialogue :
+
+   .. figure:: images/warn-typo-dial.png
+      :align: center
+
+      Boite de dialogue permetant de signaler à l'auteur une erreur qu'il aurait commise
+
+Le message ne peut pas être vide, mais n'hésitez pas à être précis et a donner des détails. Cliquer sur "Envoyer" envera un message privé aux auteurs du tutoriels, reprenant votre message. Vous participerez également à la conversation, afin que les auteurs puissent vous demander plus de détails le cas échéant.
 
 L'aspect technique
 ==================
@@ -368,13 +373,19 @@ Ainsi, pour lire un tutoriel public, on a juste besoin de lire les fichiers html
 Et si un auteur a besoin d'aide ?
 +++++++++++++++++++++++++++++++++
 
-Afin d'aider les auteurs de tutoriels à rédiger ces derniers, des options lors de la création/édition de ce dernier sont disponibles. L'auteur peut ainsi faire aisément une demande d'aide pour les compétences suivantes (liste non exhaustive) :
+Afin d'aider les auteurs de tutoriels à rédiger ces derniers, des options lors de la création/édition de ce dernier sont disponibles. L'auteur peut ainsi faire aisément une demande d'aide. La liste des compétences `est reprise ci-dessus <#l-entraide>`_.
 
-- Besoin d'aide à l'écriture
-- Besoin d'aide à la correction/relecture
-- Besoin d'aide pour illustrer
-- Désir d'abandonner le tutoriel et recherche d'un repreneur
-
-L'ensemble des tutoriels à la recherche d'aide est visible via la page "help.html" (template dans le fichier `templates/tutorial/tutorial/help.html`). Cette page génère un tableau récapitulatif de toutes les demandes d'aides pour les différents tutoriels et des filtres peuvent être appliqués. Toutes les données servant à peupler ce tableau sont renvoyées via la méthode `help_tutorial` dans le fichier `zds/tutorial/views.py`. Cette méthode peut prendre en compte un argument en GET nommé type désignant le filtre à appliquer. Cet argument représente le slug d'une des options de la liste précédentes.
+L'ensemble des tutoriels à la recherche d'aide est visible via la page "help.html" (template dans le fichier ``templates/tutorial/tutorial/help.html``). Cette page génère un tableau récapitulatif de toutes les demandes d'aides pour les différents tutoriels et des filtres peuvent être appliqués. Toutes les données servant à peupler ce tableau sont renvoyées via la méthode ``help_tutorial()`` dans le fichier ``zds/tutorial/views.py``. Cette méthode peut prendre en compte un argument en GET nommé type désignant le filtre à appliquer. Cet argument représente le slug d'une des options de la liste précédentes.
 En cas d'absence du paramètre, tout les tutoriels ayant au moins une demande d'aide d'activées ou en bêta sont renvoyé au template.
-De nouveau type de demande d'aide peuvent-être rajouté via l'interface d'administration Django dans la classe `Utils.HelpWriting`.
+De nouveau type de demande d'aide peuvent-être rajouté via l'interface d'administration Django dans la classe ``Utils.HelpWriting``.
+
+Quelques données de test sont présentes dans le fichier ``fixtures/aide_tuto_media.yaml``. En chargeant ces dernières, un tuto peut alors être modifié pour recevoir des demandes d'aides (en allant les sélectionner dans la liste à cet effet lors de l'édition du tuto).
+Pour chaque données de test, il faut aussi passer par l'interface d'administration Django pour ajouter les images relatives à ces aides (limites techniques du chargement automatique). Quatres illustrations sont présentes dans le dossier de fixtures correspondant aux quatres aides présentes dans les fixtures.
+
+Pour charger ces fixtures, il ne faut pas utiliser la routine habituelle ``manage.py loaddata``. En effet, les demandes d'aide ont besoin d'être liées à des images.
+C'est pourquoi, nous utilisons la factory ``zds.utils.factories.HelpWritingFactory`` pour mettre en place ces fixtures.
+Le code sera donc
+
+.. sourcecode:: bash
+
+    python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml

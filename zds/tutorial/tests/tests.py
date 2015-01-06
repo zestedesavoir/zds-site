@@ -20,6 +20,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib import messages
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -2637,6 +2638,174 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertNotEqual(Tutorial.objects.get(pk=self.bigtuto.pk), time_0)
 
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in tutorial
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es nul'
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            {
+                'explication': u'ceci est un test',
+                'version_tutorial': self.bigtuto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': self.bigtuto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.bigtuto.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"chapter", self.chapter1_1.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': self.bigtuto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.chapter1_1.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # induce a change and put in beta :
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(self.chapter1_1.pk),
+            {
+                'title': u'Un nouveau titre d\'extrait',
+                'text': u'I do not fear computers. I fear the lack of them. (I. Asimov)'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
+        response = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': self.bigtuto.pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial in beta version
+        sha_beta = Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': sha_beta
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta(),
+                      sent_pm.last_message.text)  # beta url is in message !
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"chapter", self.chapter1_1.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': sha_beta
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url()+'?version='+sha_beta,
+                      sent_pm.last_message.text)  # public url is in message
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
             shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
@@ -4278,6 +4447,128 @@ class MiniTutorialTests(TestCase):
             follow=True)
         self.assertEqual(result.status_code, 200)
         self.assertNotEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in tutorial
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es nul'
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            {
+                'explication': u'ceci est un test',
+                'version_tutorial': self.minituto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': self.minituto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.minituto.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # induce a change and put in beta :
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(self.chapter.pk),
+            {
+                'title': u'Un nouveau titre d\'extrait',
+                'text': u'Linux is like sex, it\'s better when it\'s free (L. Torvald)'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        response = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': self.minituto.pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial in beta version
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': Tutorial.objects.get(pk=self.minituto.pk).sha_beta
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta(),
+                      sent_pm.last_message.text)  # beta url is in message !
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):

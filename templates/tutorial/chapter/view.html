@@ -51,6 +51,10 @@
         {% include "tutorial/includes/chapter.part.html" %}
         {% include "tutorial/includes/chapter_pager.part.html" with position="bottom" %}
     {% endwith %}
+
+    {%  if tutorial.is_beta %}
+        {% include "tutorial/includes/warn_typo.part.html" with obj_type="chapter" obj_pk=chapter.pk version_tutorial=tutorial.sha_beta %}
+    {% endif %}
 {% endblock %}
 
 

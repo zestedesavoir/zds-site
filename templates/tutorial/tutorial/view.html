@@ -142,6 +142,10 @@
             {% trans "Il n'y a pas de conclusion" %}.
         </p>
     {% endif %}
+
+    {% if tutorial.is_beta %}
+        {% include "tutorial/includes/warn_typo.part.html" with obj_type="tutorial" obj_pk=tutorial.pk version_tutorial=tutorial.sha_beta %}
+    {% endif %}
 {% endblock %}
 
 
