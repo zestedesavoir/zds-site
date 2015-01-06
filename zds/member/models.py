@@ -141,9 +141,12 @@ class Profile(models.Model):
     def get_draft_tutos(self):
         """Tutorial in draft."""
         return Tutorial.objects.filter(
-            authors__in=[
-                self.user],
-            sha_draft__isnull=False).all()
+            authors__in=[self.user],
+            sha_draft__isnull=False,
+            sha_beta__isnull=True,
+            sha_validation__isnull=True,
+            sha_public__isnull=True,
+        ).all()
 
     def get_public_tutos(self):
         """Tutorial in public."""

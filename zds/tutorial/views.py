@@ -33,8 +33,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q, Count
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -755,7 +755,7 @@ def modify_tutorial(request):
                                  )
                 else:
                     msg_up = \
-                        (_(u'Bonjour, !\n\n'
+                        (_(u'Bonjour à tous !\n\n'
                            u'La beta du tutoriel a été mise à jour.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
@@ -778,6 +778,55 @@ def modify_tutorial(request):
                 lock_topic(topic)
                 send_post(topic, msg)
             messages.info(request, _(u"La BETA sur ce tutoriel a bien été désactivée."))
+
+            return redirect(tutorial.get_absolute_url())
+
+        # user want to remove his article from the validation
+        elif 'unvalidate' in request.POST:
+
+            author = request.user
+
+            validation = Validation.objects.filter(tutorial__pk=tutorial_pk).first()
+            validator = validation.validator
+
+            # remove sha_validation
+            tutorial.sha_validation = None
+            tutorial.pubdate = None
+            tutorial.save()
+
+            # check if a validator have already reserv it
+            if validator:
+
+                # check if the user add a comment
+                if request.POST['comment']:
+                    comment = request.POST['comment']
+                else:
+                    comment = u'Pas de raison évoquée.'
+
+                # send a private message to the validator
+                msg = (
+                    u'Bonjour **{0}**,\n\n'
+                    u'Le tutoriel **{1}** que tu avais réservé vient d\'être retiré de la validation par **{2}**. Les '
+                    u'raisons évoqués sont les suivantes :\n\n'
+                    u'> {3}'.format(
+                        validator,
+                        tutorial.title,
+                        author.username,
+                        comment)
+                )
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    [validator],
+                    u'Suppression de la validation du tutoriel « {0} »'.format(tutorial.title),
+                    '',
+                    msg,
+                    True,
+                    direct=False,
+                )
+
+            # delete the validation object
+            validation.delete()
 
             return redirect(tutorial.get_absolute_url())
 
@@ -1079,7 +1128,6 @@ def add_tutorial(request):
             # add create date
 
             tutorial.create_at = datetime.now()
-            tutorial.pubdate = datetime.now()
 
             # Creating the gallery
 
@@ -2640,6 +2688,7 @@ def import_tuto(request):
             if form_archive.is_valid():
                 (check, reason) = import_archive(request)
                 if not check:
+                    form = ImportForm()
                     messages.error(request, reason)
                 else:
                     messages.success(request, reason)
@@ -2737,6 +2786,8 @@ def maj_repo_part(
 
     repo = Repo(part.tutorial.get_path())
     index = repo.index
+    # update the tutorial last edit date
+    part.tutorial.update = datetime.now()
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = _(u"Suppresion de la partie : «{}»").format(part.title)
@@ -2798,9 +2849,13 @@ def maj_repo_chapter(
     if chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.tutorial.get_phy_slug()))
         ph = None
+        # update the tutorial last edit date
+        chapter.tutorial.update = datetime.now()
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
+        # update the tutorial last edit date
+        chapter.part.tutorial.update = datetime.now()
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
@@ -2875,9 +2930,14 @@ def maj_repo_extract(
     if extract.chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.tutorial.update = datetime.now()
+
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.part.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.part.tutorial.update = datetime.now()
     index = repo.index
 
     chap = extract.chapter
@@ -3302,7 +3362,9 @@ def answer(request):
 
     if request.method == "POST":
         data = request.POST
-        newnote = last_note_pk != int(data["last_note"])
+
+        if not request.is_ajax():
+            newnote = last_note_pk != int(data["last_note"])
 
         # Using the « preview button », the « more » button or new note
 
@@ -3310,8 +3372,8 @@ def answer(request):
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, "tutorial/comment/new.html", {
                     "tutorial": tutorial,
@@ -3355,6 +3417,7 @@ def answer(request):
         # Using the quote button
 
         if "cite" in request.GET:
+            resp = {}
             note_cite_pk = request.GET["cite"]
             note_cite = Note.objects.get(pk=note_cite_pk)
             if not note_cite.is_visible:
@@ -3368,6 +3431,10 @@ def answer(request):
                 note_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 note_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = NoteForm(tutorial, request.user, initial={"text": text})
         return render(request, "tutorial/comment/new.html", {
@@ -3492,8 +3559,8 @@ def edit_note(request):
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request,
                               "tutorial/comment/edit.html",
@@ -3726,18 +3793,17 @@ def help_tutorial(request):
                                 .all()
 
     # Paginator
-    paginator = Paginator(tutos, settings.ZDS_APP['forum']['topics_per_page'])
-    page = request.GET.get('page')
+    paginator = Paginator(tutos, settings.ZDS_APP['tutorial']['helps_per_page'])
 
+    # Get the `page` argument (if empty `page = 1` by default)
+    page = request.GET.get('page', 1)
+
+    # Check if `page` is correct (integer and exists)
     try:
-        shown_tutos = paginator.page(page)
         page = int(page)
-    except PageNotAnInteger:
-        shown_tutos = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_tutos = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        shown_tutos = paginator.page(page)
+    except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
+        raise Http404
 
     aides = HelpWriting.objects.all()
 

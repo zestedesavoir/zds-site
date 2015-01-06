@@ -82,13 +82,19 @@
             {% for title, subcats in categories.items %}
                 <h4 class="mobile-menu-link">{{ title }}</h4>
                 <ul>
-                    {% for subcat in subcats %}
+                    {% for subcat,slug in subcats %}
                         <li>
-                            <a href="{{ subcat.get_absolute_url_tutorial }}" class="mobile-menu-link mobile-menu-sublink">
-                                {{ subcat.title }}
+                            <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                                {{  subcat }}
                             </a>
                         </li>
                     {% endfor %}
+                </ul>
+            {% empty %}
+                <ul>
+                    <li>
+                        {% trans "Aucune catégorie disponible." %}
+                    </li>
                 </ul>
             {% endfor %}
         {% endwith %}

@@ -1106,15 +1106,12 @@
             width: 50px;
             height: 50px;
         }
-
-        &:not(.subtitle):not(:first-child) {
-            margin-top: 50px;
-        }
     }
 
     .license {
         float: right;
-        margin-top: -45px;
+        margin: 0;
+        margin-top: 10px;
     }
 
     .subtitle {
@@ -1310,6 +1307,10 @@
     }
 }
 
+.tutorial-list {
+  margin: 0 0 12px 0;
+}
+
 .tutorial-list article,
 .main .article-content .tutorial-list article {
     min-height: 60px;
@@ -1344,6 +1345,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        clear: none;
     }
     a {
         text-decoration: none;
@@ -1393,6 +1395,10 @@
         &.no-illu {
             margin-left: 0;
         }
+    }
+
+    .tutorial-help{
+      margin: 12px 0 0 0;
     }
 
     .tutorial-help img.light {
@@ -2488,6 +2494,10 @@ table {
             }
             .date {
                 line-height: 32px;
+
+                .long-date {
+                    display: none;
+                }
             }
         }
 
@@ -3264,8 +3274,8 @@ form.topic-message {
         }
     }
     &.modal-big {
-        height: 300px;
-        margin: -150px auto 0;
+        height: 320px;
+        margin: -160px auto 0;
     }
 }
 .enable-mobile-menu #modals-overlay {

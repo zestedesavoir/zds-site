@@ -19,18 +19,18 @@
 
 
 {% block headline %}
+    {% if tutorial.licence %}
+        <p class="license">
+            {{ tutorial.licence }}
+        </p>
+    {% endif %}
+
     <h1 {% if chapter.image %}class="illu"{% endif %}>
         {% if chapter.image %}
             <img src="{{ chapter.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
         {{ chapter.title }}
     </h1>
-
-    {% if tutorial.licence %}
-        <p class="license">
-            {{ tutorial.licence }}
-        </p>
-    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' %}
 

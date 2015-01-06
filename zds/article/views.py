@@ -25,8 +25,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -427,6 +427,8 @@ def maj_repo_article(
         action=None,
         msg=None,):
 
+    article.update = datetime.now()
+
     if action == 'del':
         shutil.rmtree(old_slug_path)
     else:
@@ -800,6 +802,60 @@ def modify(request):
 
             return redirect(redirect_url)
 
+        # user want to remove his article from the validation
+        elif 'unvalidate' in request.POST:
+
+            redirect_url = reverse('zds.article.views.view', args=[
+                article.pk,
+                article.slug
+            ])
+
+            author = request.user
+
+            validation = Validation.objects.filter(article__pk=article_pk).first()
+            validator = validation.validator
+
+            # remove sha_validation
+            article.sha_validation = None
+            article.pubdate = None
+            article.save()
+
+            # check if a validator have already reserv it
+            if validator:
+
+                # check if the user add a comment
+                if request.POST['comment']:
+                    comment = request.POST['comment']
+                else:
+                    comment = u'Pas de raison évoquée.'
+
+                # send a private message to the validator
+                msg = (
+                    u'Bonjour **{0}**,\n\n'
+                    u'L\'article **{1}** que tu avais réservé vient d\'être retiré de la validation par **{2}**. Les r'
+                    u'aisons évoqués sont les suivantes :\n\n'
+                    u'> {3}'.format(
+                        validator,
+                        article.title,
+                        author.username,
+                        comment)
+                )
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    [validator],
+                    u'Suppression de la validation de l\'article « {0} »'.format(article.title),
+                    '',
+                    msg,
+                    True,
+                    direct=False,
+                )
+
+            # delete the validation object
+            validation.delete()
+
+            return redirect(redirect_url)
+
     return redirect(article.get_absolute_url())
 
 
@@ -1011,17 +1067,20 @@ def answer(request):
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
-        newreaction = last_reaction_pk != int(data['last_reaction'])
+
+        if not request.is_ajax():
+            newreaction = last_reaction_pk != int(data['last_reaction'])
 
         # Using the « preview button », the « more » button or new reaction
         if 'preview' in data or newreaction:
-            form = ReactionForm(article, request.user, initial={
-                'text': data['text']
-            })
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
+                form = ReactionForm(article, request.user, initial={
+                    'text': data['text']
+                })
+
                 return render(request, 'article/reaction/new.html', {
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
@@ -1065,6 +1124,7 @@ def answer(request):
 
         # Using the quote button
         if 'cite' in request.GET:
+            resp = {}
             reaction_cite_pk = request.GET['cite']
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
             if not reaction_cite.is_visible:
@@ -1078,6 +1138,10 @@ def answer(request):
                 reaction_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 reaction_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
@@ -1215,8 +1279,8 @@ def edit_reaction(request):
                 '?message=' + \
                 str(reaction_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, 'article/reaction/edit.html', {
                     'reaction': reaction,
