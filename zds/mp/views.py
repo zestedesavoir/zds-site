@@ -551,8 +551,6 @@ def add_participant(request):
                 _(u'Le membre a bien été ajouté à la conversation.'))
     except (KeyError, ObjectDoesNotExist):
         messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou est injoignable.'))
-        messages.warning(
             request, u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.')
 
     return redirect(reverse('zds.mp.views.topic', args=[
