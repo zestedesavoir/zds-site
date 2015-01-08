@@ -716,7 +716,7 @@ def modify(request):
                 article.slug
             ])
 
-            author_username = request.POST['author']
+            author_username = request.POST['author'].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
