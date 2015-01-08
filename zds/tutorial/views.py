@@ -570,13 +570,14 @@ def modify_tutorial(request):
                 tutorial.pk,
                 tutorial.slug,
             ])
-            author_username = request.POST["author"]
+            author_username = request.POST["author"].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
                 if author.profile.is_private():
                     raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
             tutorial.authors.add(author)
             tutorial.save()
