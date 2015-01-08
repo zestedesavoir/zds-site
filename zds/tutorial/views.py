@@ -577,7 +577,7 @@ def modify_tutorial(request):
                 if author.profile.is_private():
                     raise User.DoesNotExist
             except User.DoesNotExist:
-                messages.error(request, "Utilisateur inexistant ou introuvable.")
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
             tutorial.authors.add(author)
             tutorial.save()
