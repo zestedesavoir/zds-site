@@ -7,8 +7,11 @@ from rest_framework_extensions.etag.decorators import etag
 
 from zds.member.api.serializers import UserSerializer, UserCreateSerializer, \
     ProfileSerializer, ProfileValidatorSerializer
+from zds.member.api.permissions import IsOwnerOrReadOnly
+from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
+from zds.member.commons import TemporaryReadingOnlySanction, ReadingOnlySanction, \
+    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction
 from zds.member.models import Profile
-from .permissions import IsOwnerOrReadOnly
 
 
 class MemberListAPI(ListCreateAPIView):
@@ -47,3 +50,35 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
         self.serializer_class = ProfileValidatorSerializer
         self.permissions = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
         return self.update(request, *args, **kwargs)
+
+
+class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
+    """
+    Updates a member for his can_write attribute.
+    """
+
+    def get_state_instance(self, request):
+        if request.method == 'POST':
+            if "ls-jrs" in request.POST:
+                return TemporaryReadingOnlySanction(request.POST)
+            else:
+                return ReadingOnlySanction(request.POST)
+        elif request.method == 'DELETE':
+            return DeleteReadingOnlySanction(request.POST)
+        raise ValueError('Method {0} is not supported in this route of the API.'.format(request.method))
+
+
+class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
+    """
+    Updates a member for his can_read attribute.
+    """
+
+    def get_state_instance(self, request):
+        if request.method == 'POST':
+            if "ban-jrs" in request.POST:
+                return TemporaryBanSanction(request.POST)
+            else:
+                return BanSanction(request.POST)
+        elif request.method == 'DELETE':
+            return DeleteBanSanction(request.POST)
+        raise ValueError('Method {0} is not supported in this route of the API.'.format(request.method))

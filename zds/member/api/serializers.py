@@ -104,3 +104,16 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
+
+
+class ProfileSanctionSerializer(serializers.ModelSerializer):
+    """
+    Serializers of a profile object to set the user in reading only access.
+    """
+
+    username = serializers.CharField(source='user.username', required=False, allow_blank=True)
+    email = serializers.EmailField(source='user.email', required=False, allow_blank=True)
+
+    class Meta:
+        model = Profile
+        fields = ('id', 'username', 'email', 'can_write', 'end_ban_write', 'can_read', 'end_ban_read')
