@@ -78,7 +78,7 @@ class MemberTests(TestCase):
                 'username': 'firm1',
                 'password': 'flavour',
                 'password_confirm': 'flavour',
-                'email': 'firm1@zestedesavoir.com'
+                'email': 'firm1@zestedesavoir.com',
                 'enable_tls': True},
             follow=False)
 
