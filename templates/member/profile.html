@@ -457,7 +457,7 @@
                                     Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
                                 {% endblocktrans %}
                             </p>
-                            <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
                             <input type="number" name="ls-jrs" class="expand" placeholder="Durée de la lecture seule, en jours" min="1">
                             {% csrf_token %}
                             <button type="submit" name="ls-temp">
@@ -511,7 +511,7 @@
                                     Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em> ?
                                 {% endblocktrans %}
                             </p>
-                            <input type="text" name="ban-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="text" name="ban-text" class="expand" placeholder="Spam, Troll, etc.">
                             <input type="number" name="ban-jrs" class="expand" placeholder="Durée du bannissement, en jours" min="1">
                             {% csrf_token %}
                             <button type="submit" name="ban-temp">

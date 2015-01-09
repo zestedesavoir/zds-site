@@ -59,7 +59,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
 
     def get_state_instance(self, request):
         if request.method == 'POST':
-            if "ls-jrs" in request.POST:
+            if 'ls-jrs' in request.POST:
                 return TemporaryReadingOnlySanction(request.POST)
             else:
                 return ReadingOnlySanction(request.POST)
@@ -75,7 +75,7 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
 
     def get_state_instance(self, request):
         if request.method == 'POST':
-            if "ban-jrs" in request.POST:
+            if 'ban-jrs' in request.POST:
                 return TemporaryBanSanction(request.POST)
             else:
                 return BanSanction(request.POST)

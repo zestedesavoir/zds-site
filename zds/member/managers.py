@@ -5,14 +5,13 @@ from django.db import models
 
 
 class ProfileManager(models.Manager):
-
     """
     Custom profile manager.
     """
 
     def all_members_ordered_by_date_joined(self):
         """
-        Get all members ordered by date joined.
+        Gets all members ordered by date joined.
 
         :return: All members ordered by date joined
         :rtype: QuerySet
@@ -21,7 +20,7 @@ class ProfileManager(models.Manager):
 
     def all_old_tutos_from_site_du_zero(self, profile):
         """
-        Get all tutorials from Site du Zéro for a member if exist.
+        Gets all tutorials from Site du Zéro for a member if exist.
 
         :param profile: the profile of a member
         :type profile: QuerySet
@@ -34,5 +33,5 @@ class ProfileManager(models.Manager):
             olds = profile.sdz_tutorial.strip().split(':')
         else:
             olds = []
-        old_tutos =  [get_info_old_tuto(old) for old in olds]
+        old_tutos = [get_info_old_tuto(old) for old in olds]
         return old_tutos

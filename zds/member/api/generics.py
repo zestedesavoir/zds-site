@@ -12,9 +12,8 @@ from zds.member.models import Profile
 
 
 class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
-
     """
-    Generics view used by the API about sanctions.
+    Generic view used by the API about sanctions.
     """
 
     queryset = Profile.objects.all()
@@ -32,10 +31,8 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
         try:
             ban = state.get_sanction(request.user, instance.user)
         except ValueError:
-            return Response({
-                                'status': 'Bad request',
-                                'message': 'Sanction could not be applied with received data.'
-                            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({u'detail': u'Sanction could not be applied with received data.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         state.apply_sanction(instance, ban)
         msg = state.get_message_sanction() \
@@ -60,10 +57,8 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
         try:
             ban = state.get_sanction(request.user, instance.user)
         except ValueError:
-            return Response({
-                                'status': 'Bad request',
-                                'message': 'Sanction could not be applied with received data.'
-                            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({u'detail': u'Sanction could not be applied with received data.'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         state.apply_sanction(instance, ban)
         msg = state.get_message_sanction() \

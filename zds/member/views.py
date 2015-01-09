@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
@@ -25,14 +25,15 @@ from django.views.generic import ListView, DetailView, UpdateView, CreateView
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm, \
     ForgotPasswordForm, NewPasswordForm, OldTutoForm, PromoteMemberForm, KarmaForm
-from models import Profile, TokenForgotPassword, Ban, TokenRegister, logout_user, KarmaNote
+from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
-from zds.member.commons import ProfileCreate
+from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
+    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Comment
@@ -106,7 +107,6 @@ class UpdateMember(UpdateView):
             })
 
         return form
-
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -345,6 +345,7 @@ def unregister(request):
     return redirect(reverse("zds.pages.views.home"))
 
 
+@require_POST
 @can_write_and_read_now
 @login_required
 @transaction.atomic
@@ -352,98 +353,36 @@ def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
-    if request.method == "POST":
-        ban = Ban()
-        ban.moderator = request.user
-        ban.user = profile.user
-        ban.pubdate = datetime.now()
-        if "ls" in request.POST:
-            profile.can_write = False
-            ban.type = _(u"Lecture Seule")
-            ban.text = request.POST["ls-text"]
-            detail = (_(u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                      u'commentaires d\'articles et de tutoriels.'))
-        if "ls-temp" in request.POST:
-            ban.type = _(u"Lecture Seule Temporaire")
-            ban.text = request.POST["ls-temp-text"]
-            profile.can_write = False
-            profile.end_ban_write = datetime.now() \
-                + timedelta(days=int(request.POST["ls-jrs"]), hours=0,
-                            minutes=0, seconds=0)
-            detail = (_(u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                      u'commentaires d\'articles et de tutoriels pendant {0} jours.')
-                      .format(request.POST["ls-jrs"]))
-        if "ban-temp" in request.POST:
-            ban.type = _(u"Ban Temporaire")
-            ban.text = request.POST["ban-temp-text"]
-            profile.can_read = False
-            profile.end_ban_read = datetime.now() \
-                + timedelta(days=int(request.POST["ban-jrs"]), hours=0,
-                            minutes=0, seconds=0)
-            detail = (_(u'Vous ne pouvez plus vous connecter sur {} '
-                      u'pendant {} jours.').format(settings.ZDS_APP['site']['litteral_name'],
-                                                   request.POST["ban-jrs"]))
-            logout_user(profile.user.username)
 
-        if "ban" in request.POST:
-            ban.type = _(u"Ban définitif")
-            ban.text = request.POST["ban-text"]
-            profile.can_read = False
-            detail = _(u"vous ne pouvez plus vous "
-                       u"connecter sur {}.").format(settings.ZDS_APP['site']['litteral_name'])
-            logout_user(profile.user.username)
-        if "un-ls" in request.POST:
-            ban.type = _(u"Autorisation d'écrire")
-            ban.text = request.POST["unls-text"]
-            profile.can_write = True
-            detail = (_(u'Vous pouvez désormais poster sur les forums, dans les '
-                      u'commentaires d\'articles et tutoriels.'))
-        if "un-ban" in request.POST:
-            ban.type = _(u"Autorisation de se connecter")
-            ban.text = request.POST["unban-text"]
-            profile.can_read = True
-            detail = _(u"vous pouvez désormais vous connecter sur le site.")
-        profile.save()
-        ban.save()
+    if 'ls' in request.POST:
+        state = ReadingOnlySanction(request.POST)
+    elif 'ls-temp' in request.POST:
+        state = TemporaryReadingOnlySanction(request.POST)
+    elif 'ban' in request.POST:
+        state = BanSanction(request.POST)
+    elif 'ban-temp' in request.POST:
+        state = TemporaryBanSanction(request.POST)
+    elif 'un-ls' in request.POST:
+        state = DeleteReadingOnlySanction(request.POST)
+    else:
+        # un-ban
+        state = DeleteBanSanction(request.POST)
 
-        # send register message
+    try:
+        ban = state.get_sanction(request.user, profile.user)
+    except ValueError:
+        raise HttpResponseBadRequest
 
-        if "un-ls" in request.POST or "un-ban" in request.POST:
-            msg = _(u'Bonjour **{0}**,\n\n'
-                    u'**Bonne Nouvelle**, la sanction qui '
-                    u'pesait sur vous a été levée par **{1}**.\n\n'
-                    u'Ce qui signifie que {2}\n\n'
-                    u'Le motif de votre sanction est :\n\n'
-                    u'> {3}\n\n'
-                    u'Cordialement, L\'équipe {4}.')\
-                .format(ban.user,
-                        ban.moderator,
-                        detail,
-                        ban.text,
-                        settings.ZDS_APP['site']['litteral_name'])
-        else:
-            msg = _(u'Bonjour **{0}**,\n\n'
-                    u'Vous avez été santionné par **{1}**.\n\n'
-                    u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
-                    u'Le motif de votre sanction est :\n\n'
-                    u'> {4}\n\n'
-                    u'Cordialement, L\'équipe {5}.')\
-                .format(ban.user,
-                        ban.moderator,
-                        ban.type,
-                        detail,
-                        ban.text,
-                        settings.ZDS_APP['site']['litteral_name'])
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            [ban.user],
-            ban.type,
-            _("Sanction"),
-            msg,
-            True,
-            direct=True,
-        )
+    state.apply_sanction(profile, ban)
+    msg = state.get_message_sanction() \
+        .format(ban.user,
+                ban.moderator,
+                ban.type,
+                state.get_detail(),
+                ban.text,
+                settings.ZDS_APP['site']['litteral_name'])
+
+    state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())
 
 

@@ -337,7 +337,7 @@ class MemberTests(TestCase):
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ls_temp.user.id}), {
                 'ls-temp': '', 'ls-jrs': 10,
-                'ls-temp-text': 'Texte de test pour LS TEMP'},
+                'ls-text': u'Texte de test pour LS TEMP'},
             follow=False)
         user = Profile.objects.get(
             id=user_ls_temp.id)    # Refresh profile from DB
@@ -347,8 +347,8 @@ class MemberTests(TestCase):
         self.assertIsNotNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Lecture Seule Temporaire')
-        self.assertEqual(ban.text, 'Texte de test pour LS TEMP')
+        self.assertEqual(ban.type, u'Lecture Seule Temporaire')
+        self.assertEqual(ban.text, u'Texte de test pour LS TEMP')
         self.assertEquals(len(mail.outbox), 3)
 
         # Test: BAN
@@ -357,7 +357,7 @@ class MemberTests(TestCase):
             reverse(
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ban.user.id}), {
-                'ban': '', 'ban-text': 'Texte de test pour BAN'}, follow=False)
+                'ban': '', 'ban-text': u'Texte de test pour BAN'}, follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertTrue(user.can_write)
@@ -366,7 +366,7 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban définitif')
-        self.assertEqual(ban.text, 'Texte de test pour BAN')
+        self.assertEqual(ban.text, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 4)
 
         # Test: un-BAN
@@ -375,7 +375,7 @@ class MemberTests(TestCase):
                 'zds.member.views.modify_profile', kwargs={
                     'user_pk': user_ban.user.id}),
             {'un-ban': '',
-             'unban-text': 'Texte de test pour BAN'},
+             'unban-text': u'Texte de test pour BAN'},
             follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
@@ -384,8 +384,8 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Autorisation de se connecter')
-        self.assertEqual(ban.text, 'Texte de test pour BAN')
+        self.assertEqual(ban.type, u'Autorisation de se connecter')
+        self.assertEqual(ban.text, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
 
         # Test: BAN temp
@@ -394,7 +394,7 @@ class MemberTests(TestCase):
             reverse('zds.member.views.modify_profile',
                     kwargs={'user_pk': user_ban_temp.user.id}),
             {'ban-temp': '', 'ban-jrs': 10,
-             'ban-temp-text': 'Texte de test pour BAN TEMP'},
+             'ban-text': u'Texte de test pour BAN TEMP'},
             follow=False)
         user = Profile.objects.get(
             id=user_ban_temp.id)    # Refresh profile from DB
@@ -404,8 +404,8 @@ class MemberTests(TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Ban Temporaire')
-        self.assertEqual(ban.text, 'Texte de test pour BAN TEMP')
+        self.assertEqual(ban.type, u'Ban Temporaire')
+        self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 
     def test_nonascii(self):

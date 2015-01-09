@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import os
 import uuid
 
-from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
@@ -12,16 +11,14 @@ from django.shortcuts import get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.utils.translation import ugettext_lazy as _
-
 from zds.member.models import Profile, TokenRegister, Ban, logout_user
 from zds.settings import SITE_ROOT
 from zds.utils.mps import send_mp
 
 
 class Validator():
-
     """
-    TODO
+    Super class must be extend by classes which wants validate a model field.
     """
 
     def result(self, result=None):
@@ -32,19 +29,18 @@ class Validator():
 
 
 class ProfileUsernameValidator(Validator):
-
     """
-    TODO
+    Validates username field of a profile.
     """
 
     def validate_username(self, value):
         """
         Checks about the username.
 
-        :param value: TODO faire une description du paramètre
-        :type value: TODO le type du paramètre `value`
-        :return: TODO faire une description de ce que retourne la fonction
-        :rtype: le type de ce qui est renvoyé
+        :param value: username value
+        :type value: string
+        :return: username value
+        :rtype: string
         """
         msg = None
         if value:
@@ -64,15 +60,18 @@ class ProfileUsernameValidator(Validator):
 
 
 class ProfileEmailValidator(Validator):
+    """
+    Validates email field of a profile.
+    """
 
     def validate_email(self, value):
         """
         Checks about the email.
 
-        :param value: TODO faire une description du paramètre
-        :type value: TODO le type du paramètre `value`
-        :return: TODO faire une description de ce que retourne la fonction
-        :rtype: le type de ce qui est renvoyé
+        :param value: email value
+        :type value: string
+        :return: email value
+        :rtype: string
         """
         if value:
             msg = None
@@ -94,15 +93,14 @@ class ProfileEmailValidator(Validator):
 
 
 class ProfileCreate():
-
     def create_profile(self, data):
         """
-        TODO
+        Creates a profile inactive in the database.
 
-        :param data: TODO
-        :type data: TODO
-        :return: the member profile (TODO améliorer cette description)
-        :rtype: QuerySet
+        :param data: Array about an user.
+        :type data: array
+        :return: instance of a profile inactive
+        :rtype: Profile object
         """
         username = data.get('username')
         email = data.get('email')
@@ -116,10 +114,10 @@ class ProfileCreate():
 
     def save_profile(self, profile):
         """
-        Save the profile of a member.
+        Saves the profile of a member.
 
         :param profile: The profile of a member.
-        :type data: QuerySet
+        :type data: Profile object
         :return: nothing
         :rtype: None
         """
@@ -128,7 +126,7 @@ class ProfileCreate():
 
     def generate_token(self, user):
         """
-        Generate a token for member registration.
+        Generates a token for member registration.
 
         :param user: An User object.
         :type user: User object
@@ -143,11 +141,11 @@ class ProfileCreate():
 
     def send_email(self, token, user):
         """
-        Send an email with a confirmation a registration wich contain a link for registration validation.
+        Sends an email with a confirmation a registration which contain a link for registration validation.
 
         :param token: The token for registration validation.
         :type token: Token Object
-        :param user: The user just registred.
+        :param user: The user just registered.
         :type user: User object
         :return: nothing
         :rtype: None
@@ -164,17 +162,16 @@ class ProfileCreate():
             }
         )
         message_html = get_template('email/register/confirm.html').render(template_context)
-        message_txt = get_template('email/register/confirm.txt') .render(template_context)
+        message_txt = get_template('email/register/confirm.txt').render(template_context)
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
         msg.attach_alternative(message_html, 'text/html')
         try:
             msg.send()
-        except: # TODO rajouter l'exception
+        except:  # TODO rajouter l'exception
             pass
 
 
 class MemberSanctionState(object):
-
     """
     Super class of the enumeration to know which sanction it is.
     """
@@ -298,7 +295,6 @@ class MemberSanctionState(object):
 
 
 class ReadingOnlySanction(MemberSanctionState):
-
     """
     State of the sanction reading only.
     """
@@ -321,7 +317,6 @@ class ReadingOnlySanction(MemberSanctionState):
 
 
 class TemporaryReadingOnlySanction(MemberSanctionState):
-
     """
     State of the sanction reading only temporary.
     """
@@ -339,15 +334,13 @@ class TemporaryReadingOnlySanction(MemberSanctionState):
 
     def apply_sanction(self, profile, ban):
         day = int(self.array_infos.get("ls-jrs"))
-        profile.end_ban_write = datetime.now() \
-                                 + timedelta(days=day, hours=0, minutes=0, seconds=0)
+        profile.end_ban_write = datetime.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
         profile.can_write = False
         profile.save()
         ban.save()
 
 
 class DeleteReadingOnlySanction(MemberSanctionState):
-
     """
     State of the un-sanction reading only.
     """
@@ -368,8 +361,8 @@ class DeleteReadingOnlySanction(MemberSanctionState):
         profile.save()
         ban.save()
 
-class BanSanction(MemberSanctionState):
 
+class BanSanction(MemberSanctionState):
     """
     State of the sanction ban.
     """
@@ -381,7 +374,7 @@ class BanSanction(MemberSanctionState):
         return self.array_infos.get('ban-text', '')
 
     def get_detail(self):
-        return _(u"vous ne pouvez plus vous connecter sur {0}.")\
+        return _(u"vous ne pouvez plus vous connecter sur {0}.") \
             .format(settings.ZDS_APP['site']['litteral_name'])
 
     def apply_sanction(self, profile, ban):
@@ -393,7 +386,6 @@ class BanSanction(MemberSanctionState):
 
 
 class TemporaryBanSanction(MemberSanctionState):
-
     """
     State of the sanction ban temporary.
     """
@@ -411,8 +403,7 @@ class TemporaryBanSanction(MemberSanctionState):
 
     def apply_sanction(self, profile, ban):
         day = int(self.array_infos.get("ban-jrs"))
-        profile.end_ban_read = datetime.now() \
-                                 + timedelta(days=day, hours=0, minutes=0, seconds=0)
+        profile.end_ban_read = datetime.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
         profile.can_read = False
         profile.save()
         ban.save()
@@ -420,7 +411,6 @@ class TemporaryBanSanction(MemberSanctionState):
 
 
 class DeleteBanSanction(MemberSanctionState):
-
     """
     State of the un-sanction ban.
     """
