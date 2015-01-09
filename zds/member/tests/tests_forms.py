@@ -31,7 +31,8 @@ class LoginFormTest(TestCase):
         data = {
             'username': 'Tester',
             'password': 'hostel77',
-            'remember': True
+            'remember': True,
+            'enable_tls': True
         }
         form = LoginForm(data=data)
         self.assertTrue(form.is_valid())
@@ -64,7 +65,8 @@ class RegisterFormTest(TestCase):
             'email': 'test@gmail.com',
             'username': 'ZeTester',
             'password': 'ZePassword',
-            'password_confirm': 'ZePassword'
+            'password_confirm': 'ZePassword',
+            'enable_tls': True
         }
         form = RegisterForm(data=data)
         self.assertTrue(form.is_valid())
