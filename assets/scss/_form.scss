@@ -285,10 +285,10 @@
         border-radius: 50%;
     }
     input[type=radio]:checked {
-        @include sprite-pos($radio);
+        @include sprite-position($radio);
     }
     input[type=checkbox]:checked {
-        @include sprite-pos($check);
+        @include sprite-position($check);
     }
 
 

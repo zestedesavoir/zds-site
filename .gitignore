@@ -19,11 +19,11 @@ base.db
 /node_modules
 /dist
 /.tmp
-# Générés par Compass
-/assets/images/sprite*.png
-/assets/.sass-css
-/assets/bower_components
+/npm-debug.log
+# Générés par gulp
 /assets/scss/_sprite.scss
+/assets/scss/vendors
+/assets/js/vendors
 
 #############
 ## Python

@@ -240,9 +240,9 @@
                     left: 13px;
                     height: 22px;
                     width: 22px;
-                    background-image: $sprite;
+                    @include sprite();
                     background-repeat: no-repeat;
-                    @include sprite-pos($menu);
+                    @include sprite-position($menu);
                 }
             }
         }

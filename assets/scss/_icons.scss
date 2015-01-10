@@ -13,101 +13,101 @@
 .ico-after {
     &.view {
         &:after {
-            @include sprite-pos($view);
+            @include sprite-position($view);
         }
         &.blue:after {
-            @include sprite-pos($view-blue);
+            @include sprite-position($view-blue);
         }
     }
     &.edit:after {
-        @include sprite-pos($edit);
+        @include sprite-position($edit);
     }
     &.alert:after {
-        @include sprite-pos($alert);
+        @include sprite-position($alert);
     }
     &.cite:after {
-        @include sprite-pos($cite);
+        @include sprite-position($cite);
     }
 
     &.tick {
         &:after {
-            @include sprite-pos($tick);
+            @include sprite-position($tick);
         }
         &.green:after {
-            @include sprite-pos($tick-green);
+            @include sprite-position($tick-green);
         }
     }
 
     &.unread {
         &:after {
-            @include sprite-pos($unread);
+            @include sprite-position($unread);
         }
     }
 
     &.upvote {
         &:after {
-            @include sprite-pos($thumb-up);
+            @include sprite-position($thumb-up);
         }
         &.voted:after {
-            @include sprite-pos($thumb-up-voted);
+            @include sprite-position($thumb-up-voted);
         }
     }
     &.downvote {
         &:after {
-            @include sprite-pos($thumb-down);
+            @include sprite-position($thumb-down);
         }
         &.voted:after {
-            @include sprite-pos($thumb-down-voted);
+            @include sprite-position($thumb-down-voted);
         }
     }
 
     &.lock {
         &:after {
-            @include sprite-pos($lock);
+            @include sprite-position($lock);
         }
         &.blue:after {
-            @include sprite-pos($lock-blue);
+            @include sprite-position($lock-blue);
         }
     }
     &.cross {
         &:after {
-            @include sprite-pos($cross);
+            @include sprite-position($cross);
         }
         &.blue:after {
-            @include sprite-pos($cross-blue);
+            @include sprite-position($cross-blue);
         }
         &.red:after {
-            @include sprite-pos($cross-red);
+            @include sprite-position($cross-red);
         }
         &.white:after {
-            @include sprite-pos($cross-white);
+            @include sprite-position($cross-white);
         }
     }
     &.pin {
         &:after {
-            @include sprite-pos($pin);
+            @include sprite-position($pin);
         }
         &.blue:after {
-            @include sprite-pos($pin-blue);
+            @include sprite-position($pin-blue);
         }
     }
     &.arrow-right {
         &:after {
-            @include sprite-pos($arrow-right);
+            @include sprite-position($arrow-right);
         }
         &.blue:after {
-            @include sprite-pos($arrow-right-blue);
+            @include sprite-position($arrow-right-blue);
         }
     }
     &.star {
         &:after {
-            @include sprite-pos($star);
+            @include sprite-position($star);
         }
         &.yellow:after {
-            @include sprite-pos($star-yellow);
+            @include sprite-position($star-yellow);
         }
         &.blue:after {
-            @include sprite-pos($star-blue);
+            @include sprite-position($star-blue);
         }
     }
 }
@@ -121,289 +121,289 @@
         &.online,
         &.view {
             &:after {
-                @include sprite-pos($view, true);
+                @include sprite-position($view);
             }
             &.blue:after {
-                @include sprite-pos($view-blue, true);
+                @include sprite-position($view-blue);
             }
             &.light:after {
-                @include sprite-pos($view-light, true);
+                @include sprite-position($view-light);
             }
         }
         &.hide {
             &:after {
-                @include sprite-pos($hide, true);
+                @include sprite-position($hide);
             }
             &.blue:after {
-                @include sprite-pos($hide-blue, true);
+                @include sprite-position($hide-blue);
             }
             &.light:after {
-                @include sprite-pos($hide-light, true);
+                @include sprite-position($hide-light);
             }
         }
         &.edit {
             &:after {
-                @include sprite-pos($edit, true);
+                @include sprite-position($edit);
             }
             &.blue:after {
-                @include sprite-pos($edit-blue, true);
+                @include sprite-position($edit-blue);
             }
             &.light:after {
-                @include sprite-pos($edit-light, true);
+                @include sprite-position($edit-light);
             }
         }
         &.alert {
             &:after {
-                @include sprite-pos($alert, true);
+                @include sprite-position($alert);
             }
             &.blue:after {
-                @include sprite-pos($alert-blue, true);
+                @include sprite-position($alert-blue);
             }
             &.light:after {
-                @include sprite-pos($alert-light, true);
+                @include sprite-position($alert-light);
             }
         }
         &.cite {
             &:after {
-                @include sprite-pos($cite, true);
+                @include sprite-position($cite);
             }
             &.blue:after {
-                @include sprite-pos($cite-blue, true);
+                @include sprite-position($cite-blue);
             }
             &.light:after {
-                @include sprite-pos($cite-light, true);
+                @include sprite-position($cite-light);
             }
         }
 
         &.email {
             &:after {
-                @include sprite-pos($email, true);
+                @include sprite-position($email);
             }
             &.blue:after {
-                @include sprite-pos($email-blue, true);
+                @include sprite-position($email-blue);
             }
             &.light:after {
-                @include sprite-pos($email-light, true);
+                @include sprite-position($email-light);
             }
         }
 
         &.tick {
             &:after {
-                @include sprite-pos($tick, true);
+                @include sprite-position($tick);
             }
             &.green:after {
-                @include sprite-pos($tick-green, true);
+                @include sprite-position($tick-green);
             }
             &.light:after {
-                @include sprite-pos($tick-light, true);
+                @include sprite-position($tick-light);
             }
         }
 
         &.unread {
             &:after {
-                @include sprite-pos($unread, true);
+                @include sprite-position($unread);
             }
         }
 
         &.upvote {
             &:after {
-                @include sprite-pos($thumb-up, true);
+                @include sprite-position($thumb-up);
             }
             &.voted:after {
-                @include sprite-pos($thumb-up-voted, true);
+                @include sprite-position($thumb-up-voted);
             }
         }
         &.downvote {
             &:after {
-                @include sprite-pos($thumb-down, true);
+                @include sprite-position($thumb-down);
             }
             &.voted:after {
-                @include sprite-pos($thumb-down-voted, true);
+                @include sprite-position($thumb-down-voted);
             }
         }
 
         &.lock {
             &:after {
-                @include sprite-pos($lock, true);
+                @include sprite-position($lock);
             }
             &.blue:after {
-                @include sprite-pos($lock-blue, true);
+                @include sprite-position($lock-blue);
             }
             &.light:after {
-                @include sprite-pos($lock-light, true);
+                @include sprite-position($lock-light);
             }
         }
 
         &.more {
             &:after {
-                @include sprite-pos($more, true);
+                @include sprite-position($more);
             }
             &.blue:after {
-                @include sprite-pos($more-blue, true);
+                @include sprite-position($more-blue);
             }
             &.light:after {
-                @include sprite-pos($more-light, true);
+                @include sprite-position($more-light);
             }
         }
         &.cross {
             &:after {
-                @include sprite-pos($cross, true);
+                @include sprite-position($cross);
             }
             &.blue:after {
-                @include sprite-pos($cross-blue, true);
+                @include sprite-position($cross-blue);
             }
             &.red:after {
-                @include sprite-pos($cross-red, true);
+                @include sprite-position($cross-red);
             }
             &.light:after {
-                @include sprite-pos($cross-light, true);
+                @include sprite-position($cross-light);
             }
             &.white:after {
-                @include sprite-pos($cross-white, true);
+                @include sprite-position($cross-white);
             }
         }
         &.pin {
             &:after {
-                @include sprite-pos($pin, true);
+                @include sprite-position($pin);
             }
             &.blue:after {
-                @include sprite-pos($pin-blue, true);
+                @include sprite-position($pin-blue);
             }
             &.light:after {
-                @include sprite-pos($pin-light, true);
+                @include sprite-position($pin-light);
             }
         }
         &.beta {
             &:after {
-                @include sprite-pos($beta, true);
+                @include sprite-position($beta);
             }
             &.blue:after {
-                @include sprite-pos($beta-blue, true);
+                @include sprite-position($beta-blue);
             }
             &.light:after {
-                @include sprite-pos($beta-light, true);
+                @include sprite-position($beta-light);
             }
         }
         &.gear {
             &:after {
-                @include sprite-pos($gear, true);
+                @include sprite-position($gear);
             }
             &.blue:after {
-                @include sprite-pos($gear-blue, true);
+                @include sprite-position($gear-blue);
             }
             &.light:after {
-                @include sprite-pos($gear-light, true);
+                @include sprite-position($gear-light);
             }
         }
         &.help {
             &:after {
-                @include sprite-pos($help, true);
+                @include sprite-position($help);
             }
             &.blue:after {
-                @include sprite-pos($help-blue, true);
+                @include sprite-position($help-blue);
             }
             &.light:after {
-                @include sprite-pos($help-light, true);
+                @include sprite-position($help-light);
             }
         }
         // TODO : faire une vraie icône offline
         &.offline,
         &.arrow-right {
             &:after {
-                @include sprite-pos($arrow-right, true);
+                @include sprite-position($arrow-right);
             }
             &.blue:after {
-                @include sprite-pos($arrow-right-blue, true);
+                @include sprite-position($arrow-right-blue);
             }
             &.light:after {
-                @include sprite-pos($arrow-right-light, true);
+                @include sprite-position($arrow-right-light);
             }
         }
         &.arrow-left {
             &:after {
-                @include sprite-pos($arrow-left, true);
+                @include sprite-position($arrow-left);
             }
             &.blue:after {
-                @include sprite-pos($arrow-left-blue, true);
+                @include sprite-position($arrow-left-blue);
             }
             &.light:after {
-                @include sprite-pos($arrow-left-light, true);
+                @include sprite-position($arrow-left-light);
             }
         }
         &.move {
             &:after {
-                @include sprite-pos($move, true);
+                @include sprite-position($move);
             }
             &.blue:after {
-                @include sprite-pos($move-blue, true);
+                @include sprite-position($move-blue);
             }
             &.light:after {
-                @include sprite-pos($move-light, true);
+                @include sprite-position($move-light);
             }
         }
         &.star {
             &:after {
-                @include sprite-pos($star, true);
+                @include sprite-position($star);
             }
             &.yellow:after {
-                @include sprite-pos($star-yellow, true);
+                @include sprite-position($star-yellow);
             }
             &.blue:after {
-                @include sprite-pos($star-blue, true);
+                @include sprite-position($star-blue);
             }
             &.light:after {
-                @include sprite-pos($star-light, true);
+                @include sprite-position($star-light);
             }
         }
 
         &.download {
             &:after {
-                @include sprite-pos($download, true);
+                @include sprite-position($download);
             }
             &.blue:after {
-                @include sprite-pos($download-blue, true);
+                @include sprite-position($download-blue);
             }
             &.light:after {
-                @include sprite-pos($download-light, true);
+                @include sprite-position($download-light);
             }
         }
 
         &.import {
             &:after {
-                @include sprite-pos($import, true);
+                @include sprite-position($import);
             }
             &.blue:after {
-                @include sprite-pos($import-blue, true);
+                @include sprite-position($import-blue);
             }
             &.light:after {
-                @include sprite-pos($import-light, true);
+                @include sprite-position($import-light);
             }
         }
 
         &.history {
             &:after {
-                @include sprite-pos($history, true);
+                @include sprite-position($history);
             }
             &.blue:after {
-                @include sprite-pos($history-blue, true);
+                @include sprite-position($history-blue);
             }
             &.light:after {
-                @include sprite-pos($history-light, true);
+                @include sprite-position($history-light);
             }
         }
 
         &.rss {
             &:after {
-                @include sprite-pos($rss, true);
+                @include sprite-position($rss);
             }
             &.blue:after {
-                @include sprite-pos($rss-blue, true);
+                @include sprite-position($rss-blue);
             }
             &.orange:after {
-                @include sprite-pos($rss-orange, true);
+                @include sprite-position($rss-orange);
             }
             &.light:after {
-                @include sprite-pos($rss-light, true);
+                @include sprite-position($rss-light);
             }
         }
 
@@ -411,57 +411,57 @@
         // Social
         &.facebook {
             &:after {
-                @include sprite-pos($facebook, true);
+                @include sprite-position($facebook);
             }
             &.blue:after {
-                @include sprite-pos($facebook-blue, true);
+                @include sprite-position($facebook-blue);
             }
             &.light:after {
-                @include sprite-pos($facebook-light, true);
+                @include sprite-position($facebook-light);
             }
         }
         &.twitter {
             &:after {
-                @include sprite-pos($twitter, true);
+                @include sprite-position($twitter);
             }
             &.blue:after {
-                @include sprite-pos($twitter-blue, true);
+                @include sprite-position($twitter-blue);
             }
             &.light:after {
-                @include sprite-pos($twitter-light, true);
+                @include sprite-position($twitter-light);
             }
         }
         &.github {
             &:after {
-                @include sprite-pos($github, true);
+                @include sprite-position($github);
             }
             &.blue:after {
-                @include sprite-pos($github-blue, true);
+                @include sprite-position($github-blue);
             }
             &.light:after {
-                @include sprite-pos($github-light, true);
+                @include sprite-position($github-light);
             }
         }
         &.google-plus {
             &:after {
-                @include sprite-pos($google-plus, true);
+                @include sprite-position($google-plus);
             }
             &.blue:after {
-                @include sprite-pos($google-plus-blue, true);
+                @include sprite-position($google-plus-blue);
             }
             &.light:after {
-                @include sprite-pos($google-plus-light, true);
+                @include sprite-position($google-plus-light);
             }
         }
         &.foursquare {
             &:after {
-                @include sprite-pos($foursquare, true);
+                @include sprite-position($foursquare);
             }
             &.blue:after {
-                @include sprite-pos($foursquare-blue, true);
+                @include sprite-position($foursquare-blue);
             }
             &.light:after {
-                @include sprite-pos($foursquare-light, true);
+                @include sprite-position($foursquare-light);
             }
         }
     }
