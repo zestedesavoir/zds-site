@@ -26,21 +26,13 @@ class UserCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUs
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
+        fields = ('username', 'email', 'password')
         write_only_fields = ('password')
-        read_only_fields = ('id')
 
     def create(self, validated_data):
         profile = self.create_profile(validated_data)
         self.save_profile(profile)
-        token = self.generate_token(profile.user)
-        self.send_email(token, profile.user)
         return profile.user
-
-    def result(self, result=None):
-        if result is None:
-            return self.instance.user.username
-        return result
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
@@ -96,11 +88,6 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
         instance.user.save()
         instance.save()
         return instance
-
-    def result(self, result=None):
-        if result is None:
-            return self.instance.user.username
-        return result
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)

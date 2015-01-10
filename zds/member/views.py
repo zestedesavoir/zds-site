@@ -33,7 +33,7 @@ from zds.gallery.models import UserGallery
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
-    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction
+    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Comment
@@ -215,7 +215,7 @@ class UpdateUsernameEmailMember(UpdateMember):
         return profile.get_absolute_url()
 
 
-class RegisterView(CreateView, ProfileCreate):
+class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
     """Create a profile."""
 

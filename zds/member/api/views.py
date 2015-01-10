@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
+from rest_framework.response import Response
 
 from zds.member.api.serializers import UserSerializer, UserCreateSerializer, \
     ProfileSerializer, ProfileValidatorSerializer
 from zds.member.api.permissions import IsOwnerOrReadOnly
 from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
 from zds.member.commons import TemporaryReadingOnlySanction, ReadingOnlySanction, \
-    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction
+    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, \
+    ProfileCreate, TokenGenerator
 from zds.member.models import Profile
 
 
-class MemberListAPI(ListCreateAPIView):
+class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     """
     Displays the list of registered users or create one.
     """
@@ -29,7 +32,14 @@ class MemberListAPI(ListCreateAPIView):
 
     def post(self, request, *args, **kwargs):
         self.serializer_class = UserCreateSerializer
-        return self.create(request, *args, **kwargs)
+        self.permissions = (AllowAny,)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        token = self.generate_token(user)
+        self.send_email(token, user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class MemberDetailAPI(RetrieveUpdateAPIView):

@@ -21,9 +21,6 @@ class Validator():
     Super class must be extend by classes which wants validate a model field.
     """
 
-    def result(self, result=None):
-        raise NotImplementedError('`result()` must be implemented.')
-
     def throw_error(self, key=None, message=None):
         raise NotImplementedError('`throw_error()` must be implemented.')
 
@@ -55,8 +52,7 @@ class ProfileUsernameValidator(Validator):
                 msg = _(u'Le nom d\'utilisateur ne peut commencer/finir par des espaces')
             if msg is not None:
                 self.throw_error("username", msg)
-            return self.result(value)
-        return self.result()
+        return value
 
 
 class ProfileEmailValidator(Validator):
@@ -87,9 +83,7 @@ class ProfileEmailValidator(Validator):
                 msg = _(u'Votre adresse courriel est déjà utilisée')
             if msg is not None:
                 self.throw_error('email', msg)
-            return self.result(value)
-
-        return self.result()
+        return value
 
 
 class ProfileCreate():
@@ -124,6 +118,8 @@ class ProfileCreate():
         profile.save()
         profile.user.save()
 
+
+class TokenGenerator():
     def generate_token(self, user):
         """
         Generates a token for member registration.
