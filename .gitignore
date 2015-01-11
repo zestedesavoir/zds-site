@@ -16,11 +16,12 @@ base.db
 
 /apache-solr
 
+/.tmp
+
+# Front files
 /node_modules
 /dist
-/.tmp
 /npm-debug.log
-# Générés par gulp
 /assets/scss/_sprite.scss
 /assets/scss/vendors
 /assets/js/vendors
