@@ -218,6 +218,11 @@ gulp.task("watch", function() {
 });
 
 /**
+ * Tests
+ */
+gulp.task("test", ["jshint"]);
+
+/**
  * CI builds
  */
 gulp.task("travis", ["test", "build"]);
