@@ -218,7 +218,16 @@ REST_FRAMEWORK = {
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.OAuth2Authentication',
-    )
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.XMLParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.XMLRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
 }
 
 REST_FRAMEWORK_EXTENSIONS = {
