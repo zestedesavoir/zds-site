@@ -73,11 +73,6 @@ class LoginForm(forms.Form):
         initial=True,
     )
 
-    enable_tls = forms.BooleanField(
-        label=_(u'Session chiffrée (TLS)'),
-        initial=True
-    )
-
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -89,7 +84,6 @@ class LoginForm(forms.Form):
             Field('username'),
             Field('password'),
             Field('remember'),
-            Field('enable_tls'),
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton(_(u'Se connecter'), type='submit'),
@@ -128,11 +122,6 @@ class RegisterForm(forms.Form):
         widget=forms.PasswordInput
     )
 
-    enable_tls = forms.BooleanField(
-        label=_(u'Activer le chiffrement (TLS) lors de l\'inscription'),
-        initial=True
-    )
-
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -145,7 +134,6 @@ class RegisterForm(forms.Form):
             Field('password'),
             Field('password_confirm'),
             Field('email'),
-            Field('enable_tls'),
             ButtonHolder(
                 Submit('submit', _(u'Valider mon inscription')),
             ))

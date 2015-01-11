@@ -78,8 +78,7 @@ class MemberTests(TestCase):
                 'username': 'firm1',
                 'password': 'flavour',
                 'password_confirm': 'flavour',
-                'email': 'firm1@zestedesavoir.com',
-                'enable_tls': True},
+                'email': 'firm1@zestedesavoir.com'},
             follow=False)
 
         self.assertEqual(result.status_code, 200)
