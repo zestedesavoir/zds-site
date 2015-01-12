@@ -1,0 +1,4 @@
+{{ object.get_text }}
+{{ object.title }}
+{{ object.description }}
+{{ object.pubdate }}

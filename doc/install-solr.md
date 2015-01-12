@@ -18,7 +18,7 @@ Avant toute chose soyez-sûr d'avoir [Java](http://www.java.com/fr/download/win8
 
 Ajoutez le dossier contenant java à votre PATH : dans "Ordinateur", clic droit puis "Proprétés", ouvrez les "propriétés avancées" puis cliquez sur "Variables d'environnement".
 
-Téléchargez [l'archive Solr](http://apache.crihan.fr/dist/lucene/solr/4.9.0/solr-4.9.0.zip). Décompressez-la.
+Téléchargez [l'archive Solr](http://apache.crihan.fr/dist/lucene/solr/4.9.1/solr-4.9.1.zip). Décompressez-la.
 
 # Procédure commune
 
