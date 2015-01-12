@@ -74,17 +74,16 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
         """
         Update and return an existing `Profile` instance, given the validated data.
         """
-
-        instance.user.username = validated_data.get('user').get('username', instance.user.username)
-        instance.user.email = validated_data.get('user').get('email', instance.user.email)
-        instance.site = validated_data.get('site', instance.site)
-        instance.avatar_url = validated_data.get('avatar_url', instance.avatar_url)
-        instance.biography = validated_data.get('biography', instance.biography)
-        instance.sign = validated_data.get('sign', instance.sign)
-        instance.show_email = validated_data.get('show_email', instance.show_email)
-        instance.show_sign = validated_data.get('show_sign', instance.show_sign)
-        instance.hover_or_click = validated_data.get('hover_or_click', instance.hover_or_click)
-        instance.email_for_answer = validated_data.get('email_for_answer', instance.email_for_answer)
+        instance.user.username = validated_data.get('user').get('username', instance.user.username) or instance.user.username
+        instance.user.email = validated_data.get('user').get('email', instance.user.email) or instance.user.email
+        instance.site = validated_data.get('site', instance.site) or instance.site
+        instance.avatar_url = validated_data.get('avatar_url', instance.avatar_url) or instance.avatar_url
+        instance.biography = validated_data.get('biography', instance.biography) or instance.biography
+        instance.sign = validated_data.get('sign', instance.sign) or instance.sign
+        instance.show_email = validated_data.get('show_email', instance.show_email) or instance.show_email
+        instance.show_sign = validated_data.get('show_sign', instance.show_sign) or instance.show_sign
+        instance.hover_or_click = validated_data.get('hover_or_click', instance.hover_or_click) or instance.hover_or_click
+        instance.email_for_answer = validated_data.get('email_for_answer', instance.email_for_answer) or instance.email_for_answer
         instance.user.save()
         instance.save()
         return instance

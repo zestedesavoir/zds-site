@@ -18,7 +18,7 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSanctionSerializer
-    permissions = (IsAuthenticated, IsAdminUser)
+    permission_classes = (IsAuthenticated, IsAdminUser)
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()

@@ -32,7 +32,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
 
     def post(self, request, *args, **kwargs):
         self.serializer_class = UserCreateSerializer
-        self.permissions = (AllowAny,)
+        self.permission_classes = (AllowAny,)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -58,7 +58,7 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
     @etag(rebuild_after_method_evaluation=True)
     def put(self, request, *args, **kwargs):
         self.serializer_class = ProfileValidatorSerializer
-        self.permissions = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+        self.permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
         return self.update(request, *args, **kwargs)
 
 
