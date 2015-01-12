@@ -3,7 +3,6 @@
 from django.conf.urls import patterns, url
 
 import feeds
-import views
 
 
 urlpatterns = patterns('',
