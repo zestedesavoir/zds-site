@@ -16,14 +16,15 @@ base.db
 
 /apache-solr
 
+/.tmp
+
+# Front files
 /node_modules
 /dist
-/.tmp
-# Générés par Compass
-/assets/images/sprite*.png
-/assets/.sass-css
-/assets/bower_components
+/npm-debug.log
 /assets/scss/_sprite.scss
+/assets/scss/vendors
+/assets/js/vendors
 
 #############
 ## Python

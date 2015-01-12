@@ -134,7 +134,7 @@
     width: 100%;
     max-width: 240px;
     height: 60px;
-    background-image: url('../images/logo.png') no-repeat center center;
+    background: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
 
     &:hover,
@@ -329,16 +329,16 @@
                 margin: -11px 0 0 -11px;
 
                 &.ico-messages {
-                    @include sprite-pos($messages);
+                    @include sprite-position($messages);
                 }
                 &.ico-notifs {
-                    @include sprite-pos($notifications);
+                    @include sprite-position($notifications);
                 }
                 &.ico-alerts {
-                    @include sprite-pos($alerts);
+                    @include sprite-position($alerts);
                 }
                 &.ico-params {
-                    @include sprite-pos($params);
+                    @include sprite-position($params);
                 }
             }
 
@@ -558,9 +558,9 @@
                 top: 12px;
                 left: 50%;
                 margin-left: -8px;
-                height: 16px;
-                width: 16px;
-                @include sprite-pos($search);
+                height: 17px;
+                width: 17px;
+                @include sprite-position($search);
             }
         }
     }
@@ -1093,10 +1093,10 @@
             }
         }
         &.ico-articles:after {
-            @include sprite-pos($articles);
+            @include sprite-position($articles);
         }
         &.ico-tutorials:after {
-            @include sprite-pos($tutorials);
+            @include sprite-position($tutorials);
         }
 
         &.illu img {
@@ -1301,7 +1301,7 @@
             &:after {
                 top: 9px;
                 left: 12px;
-                @include sprite-pos($search);
+                @include sprite-position($search);
             }
         }
     }
@@ -2050,28 +2050,28 @@
                 background: #daeaee;
 
                 &.ico-after:after {
-                    @include sprite-pos($information);
+                    @include sprite-position($information);
                 }
             }
             &.question {
                 background: #e2daee;
 
                 &.ico-after:after {
-                    @include sprite-pos($question);
+                    @include sprite-position($question);
                 }
             }
             &.error {
                 background: #eedada;
 
                 &.ico-after:after {
-                    @include sprite-pos($error);
+                    @include sprite-position($error);
                 }
             }
             &.warning {
                 background: #eee7da;
 
                 &.ico-after:after {
-                    @include sprite-pos($warning);
+                    @include sprite-position($warning);
                 }
             }
         }

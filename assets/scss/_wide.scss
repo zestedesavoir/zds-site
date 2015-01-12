@@ -161,9 +161,9 @@
                     content: " ";
                     height: 30px;
                     width: 15px;
-                    background-image: $sprite;
+                    @include sprite();
                     background-repeat: no-repeat;
-                    @include sprite-pos($ariane);
+                    @include sprite-position($ariane);
                     opacity: .2;
                 }
             }
