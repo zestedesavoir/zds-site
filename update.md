@@ -98,6 +98,7 @@ Tout est déjà prêt dans les fixtures dédiées à cela :
 ```
 python load_factory_data.py fixtures/advanced/aide_tuto_media.yaml
 ```
+
 Actions à faire pour mettre en prod la version : v1.5
 =====================================================
 
@@ -111,3 +112,10 @@ Il faudra donc :
 1. créer le groupe "bot"
 2. vérifier que `settings.ZDS_APP['member']['bot_group']` vaut bien `"bot"`
 3. Aller dans l'interface d'administration pour ajouter les comptes auteur externe et anonyme au groupe bot
+
+npm
+---
+
+Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lancer la commande `sudo npm install -g npm`.
+
+Faire pointer nginx sur `static/` au lieu de `dist/`.
