@@ -354,6 +354,7 @@ ZDS_APP = {
         'bot_account': u"admin",
         'anonymous_account': u"anonymous",
         'external_account': u"external",
+        'bot_group': u'bot',
         'members_per_page': 100,
     },
     'gallery': {
