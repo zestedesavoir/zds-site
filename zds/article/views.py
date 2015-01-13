@@ -41,6 +41,7 @@ from zds.utils.models import SubCategory, Category, CommentLike, \
 from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
+from django.utils.translation import ugettext as _
 
 from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
@@ -723,7 +724,7 @@ def modify(request):
                 if author.profile.is_private():
                     raise User.DoesNotExist
             except User.DoesNotExist:
-                messages.error(request, u'Utilisateur inexistant ou introuvable.')
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
 
             article.authors.add(author)

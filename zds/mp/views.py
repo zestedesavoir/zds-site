@@ -193,13 +193,13 @@ def new(request):
                 errors = form._errors.setdefault("participants", ErrorList())  # TODO: use mutators instead of _errors
                 errors.append(_(u'Vous êtes déjà auteur du message'))
                 if tried_unauthorized_member:
-                    errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                    errors.append(_(u'Vous avez tenté d\'ajouter un utilisateur injoignable.'))
                 return render(request, 'mp/topic/new.html', {
                     'form': form,
                 })
             if tried_unauthorized_member:
                 errors = form._errors.setdefault("participants", ErrorList())
-                errors.append(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
+                errors.append(_(u'Vous avez tenté d\'ajouter un utilisateur injoignable.'))
             else:
                 p_topic = send_mp(request.user,
                                   ctrl,
@@ -551,7 +551,7 @@ def add_participant(request):
                 _(u'Le membre a bien été ajouté à la conversation.'))
     except (KeyError, ObjectDoesNotExist):
         messages.warning(
-            request, u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.')
+            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.'))
 
     return redirect(reverse('zds.mp.views.topic', args=[
         ptopic.pk,
