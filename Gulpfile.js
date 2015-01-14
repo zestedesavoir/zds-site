@@ -112,6 +112,11 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
       sass: sourceDir + sassDir,
       imagePath: sourceDir + imagesDir
     }))
+    .on("error", $.notify.onError({
+      title: "SASS Error",
+      message: "<%= error.message %>"
+    }))
+    .on("error", function() { this.emit("end"); })
     .pipe($.autoprefixer(autoprefixerConfig), { cascade: true })
     .pipe($.size({ title: "Stylesheet" }))
     .pipe(gulp.dest(destDir + "css/"))
@@ -196,6 +201,7 @@ gulp.task("merge-scripts", ["vendors", "scripts"], function() {
     .pipe($.concat("all.js"))
     .pipe($.size({ title: "Scripts (all)" }))
     .pipe(gulp.dest(destDir + scriptsDir))
+    .pipe($.rename({ suffix: ".min" }))
     .pipe($.uglify())
     .pipe($.size({ title: "Scripts (all, minified)" }))
     .pipe(gulp.dest(destDir + scriptsDir));
