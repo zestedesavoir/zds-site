@@ -117,7 +117,7 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
       message: "<%= error.message %>"
     }))
     .on("error", function() { this.emit("end"); })
-    .pipe($.autoprefixer(autoprefixerConfig), { cascade: true })
+    .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
     .pipe($.size({ title: "Stylesheet" }))
     .pipe(gulp.dest(destDir + "css/"))
     .pipe($.rename({ suffix: ".min" }))
@@ -197,7 +197,7 @@ gulp.task("jshint", function() {
  * Merge vendors and app scripts
  */
 gulp.task("merge-scripts", ["vendors", "scripts"], function() {
-  return gulp.src(destDir + scriptsDir + "{vendors,main}.js")
+  return gulp.src([destDir + scriptsDir + "vendors.js", destDir + scriptsDir + "main.js"])
     .pipe($.concat("all.js"))
     .pipe($.size({ title: "Scripts (all)" }))
     .pipe(gulp.dest(destDir + scriptsDir))

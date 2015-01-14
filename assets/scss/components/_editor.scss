@@ -1,7 +1,3 @@
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Interface
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
 .zform-toolbar {
     margin: 0;
     padding: 2px;
@@ -65,7 +61,7 @@
     button {
         &:hover,
         &:focus {
-            border-bottom-color: lighten($primary, 20%);
+            border-bottom-color: lighten($color-primary, 20%);
             outline: none;
             background-color: #EEE;
         }
@@ -274,7 +270,7 @@ div.zform-popup {
     }
     .btn-submit,
     [type=submit] {
-        color: $primary;
+        color: $color-primary;
         font-weight: bold;
     }
     .btn-cancel {

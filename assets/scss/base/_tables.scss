@@ -1,0 +1,56 @@
+table {
+    margin: 15px 0;
+    border-top: 1px solid #DDD;
+
+    thead {
+        background: #DDD;
+        color: $color-primary;
+    }
+    th, td {
+        text-align: left;
+        padding: 5px 15px 5px 7px;
+        border-right: 1px solid #DDD;
+
+        &:first-child {
+            border-left: 1px solid #DDD;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+
+    tbody tr {
+        background: #FDFDFD;
+        border-bottom: 1px solid #DDD;
+
+        &:nth-child(2n+1) {
+            background: #F7F7F7;
+        }
+    }
+
+    &.fullwidth {
+        width: 100%;
+    }
+
+    &.diff {
+        tbody tr {
+            border-bottom: none;
+            font-family : $font-monospace;
+            background: #FFF;
+            line-height: 1em;
+            .diff_next {
+                display: none;
+            }
+            td.diff_header {
+                padding : 5px;
+            }
+        }
+    }
+}
+
+.diff_delta {
+    overflow: scroll;
+    width: 100%;
+    font-size : 0.9em;
+}

@@ -1,11 +1,3 @@
-/* ===== Zeste de Savoir ====================================================
-   Form style
-   ---------------------------------
-   Author: Alex-D / Alexandre Demode
-   ========================================================================== */
-
-
-
 .content-container,
 #modals {
     form {
@@ -150,38 +142,38 @@
     [type=submit],
     .btn-submit {
         color: #FFF;
-        background: $upvote;
+        background: $color-success;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($upvote, 7%);
+            background: lighten($color-success, 7%);
         }
 
         &.disabled.submitted {
-            color: $upvote;
+            color: $color-success;
 
             .line-loading {
-                background: $upvote;
+                background: $color-success;
             }
         }
     }
     .btn-cancel {
-        background: $downvote;
+        background: $color-danger;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($downvote, 7%);
+            background: lighten($color-danger, 7%);
         }
 
         &.disabled.submitted {
-            color: $downvote;
+            color: $color-danger;
 
             .line-loading {
-                background: $downvote;
+                background: $color-danger;
             }
         }
     }
@@ -311,7 +303,15 @@
     }
 }
 
-
+@media only screen and #{$media-wide} {
+    .content-container,
+    #modals {
+        form.content-wrapper {
+            margin: 0;
+            width: 100%;
+        }
+    }
+}
 
 
 @keyframes lineLoading {

@@ -1,11 +1,3 @@
-/* ===== Zeste de Savoir ====================================================
-   Override for high pixel ratio screens : HD icons
-   ---------------------------------
-   Author: Alex-D / Alexandre Demode
-   ========================================================================== */
-
-
-// Temporary active @2x on all screens
 @media only screen and (-webkit-min-device-pixel-ratio: 1.3),
        only screen and (min--moz-device-pixel-ratio: 1.3),
        only screen and (-o-min-device-pixel-ratio: 4/3),
@@ -25,12 +17,12 @@
     }
 }
 
-@media only screen and (-webkit-min-device-pixel-ratio: 1.3) and (max-width: 959px),
-       only screen and (min--moz-device-pixel-ratio: 1.3) and (max-width: 959px),
-       only screen and (-o-min-device-pixel-ratio: 4/3) and (max-width: 959px),
-       only screen and (min-device-pixel-ratio: 1.3) and (max-width: 959px),
-       only screen and (min-resolution: 192dpi) and (max-width: 959px),
-       only screen and (min-resolution: 2dppx) and (max-width: 959px) {
+@media only screen and (-webkit-min-device-pixel-ratio: 1.3) and #{$media-mobile-tablet},
+       only screen and (min--moz-device-pixel-ratio: 1.3) and #{$media-mobile-tablet},
+       only screen and (-o-min-device-pixel-ratio: 4/3) and #{$media-mobile-tablet},
+       only screen and (min-device-pixel-ratio: 1.3) and #{$media-mobile-tablet},
+       only screen and (min-resolution: 192dpi) and #{$media-mobile-tablet},
+       only screen and (min-resolution: 2dppx) and #{$media-mobile-tablet} {
 
     .js.enable-mobile-menu .mobile-menu-hide .page-container .mobile-menu-btn:after {
         @include sprite-retina();
