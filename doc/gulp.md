@@ -39,7 +39,7 @@ sudo ln -s /usr/bin/nodejs /usr/bin/node
 Une version récente de Node.js se trouve dans les dépôts *wheezy-backport*, *jessie* et *sid*. Sur ces versions de Debian, l'installation peut se faire de cette manière :
 
 ````shell
-sudo apt-get install node
+sudo apt-get install nodejs
 ````
 
 #### Fedora / CentOS / RHEL
@@ -55,7 +55,7 @@ sudo yum install -y nodejs
 
 Il faut simplement lancer cette commande : 
 
-````
+````shell
 pacman -S nodejs
 ````
 
@@ -63,7 +63,7 @@ pacman -S nodejs
 
 Une installation via `pkg` devrait suffire :
 
-````
+````shell
 pkg install node
 ````
 
@@ -71,9 +71,9 @@ pkg install node
 
 *Les instructions pour installer Node.js sur les distributions CentOS, RHEL, FreeBSD et OpenBSD sont issues du lien juste en dessous et n'ont pas été testées.*
 
-Les instructions détaillées pour toutes les distributions se trouvent dans la [documentation officielle (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager).
+Les **instructions détaillées** pour toutes les distributions se trouvent dans la [**documentation officielle** (en anglais)](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager).
 
-Pour vérifier que Node.js est installé (et que vous avez la bonne version) :
+Pour vérifier que Node.js et npm sont installés (et que vous avez les bonnes versions) :
 
 ````shell
 node -v
@@ -88,7 +88,7 @@ Vous devez avoir une version de Node.js > 0.10.x et de npm > 2.x.x. Si votre ver
 
 Pour npm, il suffit de le mettre à jour avec cette commande :
 
-````
+````shell
 sudo npm install -g npm
 ````
 
@@ -172,14 +172,20 @@ dist/
 
 ## Utilisation de Gulp
 
-Gulp se lance avec `npm run-script gulp [tâche]` où `[tâche]` est la tâche à lancer. Les différentes tâches sont :
+Gulp se lance avec `npm run gulp -- [tâche]` où `[tâche]` est la tâche à lancer. Les différentes tâches sont :
 
  - `clean`: Nettoie le dossier `dist/`
  - `build`: Compile tout (CSS, JS, et images)
  - `test`: Lance les tests (JSHint, ...)
  - `watch`: Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement; `Ctrl+C` pour arrêter)
 
-Si vous voulez utiliser directement la commande `gulp [tâche]` au lieu de `npm run-script gulp [tâche]`, il vous faut lancer cette commande avec les droits administrateurs :
+Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
+
+-----
+
+Pour information, la commande `npm run` est un raccourci de la commande `npm run-script`, donc les deux commandes sont identiques !
+
+Si vous voulez utiliser directement la commande `gulp [tâche]` au lieu de `npm run gulp -- [tâche]`, il vous faut lancer cette commande avec les droits administrateurs :
 
 ````shell
 sudo npm install -g gulp bower
@@ -187,22 +193,19 @@ sudo npm install -g gulp bower
 
 # Nettoyage des outils
 
-## Nettoyage de npm
+## Nettoyage de npm et suppression des dépendances
 
-Pour nettoyer npm, il vous suffit de lancer ces commandes dans votre environnement :
+Pour nettoyer npm (et supprimer les dépendances), il vous suffit de lancer ces commandes dans votre environnement :
 
 ````shell
 sudo rm -rI ~/.npm
 rm -rI node_modules/
 ````
 
-## Nettoyage des fichiers CSS et Javascript
+## Suppression des fichiers CSS et Javascript
 
-Toujours dans votre environnement :
+Toujours dans votre environnement, vous pouver supprimer les fichiers générés par cette commande :
 
 ````shell
 rm -rI dist/
-rm -rI gulp-cache/
 ````
-
-Il vous faudra peut-être aussi vider le cache de votre navigateur pour être sûr de repartir à zéro.

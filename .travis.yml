@@ -59,12 +59,12 @@ install:
   - travis_retry pip install coveralls
   - travis_retry pip install MySQL-python
 
-  # NodeJS + NPM stuff
+  # Node.js + npm stuff
   - sudo apt-get -y install nodejs
   - travis_retry npm install
 
 script:
-  - npm run-script travis
+  - npm run travis
   - coverage run --source='.' manage.py test
   - flake8 --exclude=migrations,urls.py,settings.py,settings_prod.py,settings_test.py --max-line-length=120 zds
 
