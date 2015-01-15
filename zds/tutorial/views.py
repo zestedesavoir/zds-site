@@ -3784,15 +3784,17 @@ def help_tutorial(request):
     """fetch all tutorials that needs help"""
 
     # Retrieve type of the help. Default value is any help
-    type = request.GET.get('type', None)
+    filterslug = request.GET.get('type', None)
 
-    if type is not None:
-        aide = get_object_or_404(HelpWriting, slug=type)
+    if filterslug is not None:
+        aide = get_object_or_404(HelpWriting, slug=filterslug)
         tutos = Tutorial.objects.filter(helps=aide) \
+                                .order_by('pubdate', '-update') \
                                 .all()
     else:
         tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
                                 .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+                                .order_by('pubdate', '-total', '-update') \
                                 .all()
 
     # Paginator
