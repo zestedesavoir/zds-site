@@ -3784,10 +3784,10 @@ def help_tutorial(request):
     """fetch all tutorials that needs help"""
 
     # Retrieve type of the help. Default value is any help
-    type = request.GET.get('type', None)
+    filterslug = request.GET.get('type', None)
 
-    if type is not None:
-        aide = get_object_or_404(HelpWriting, slug=type)
+    if filterslug is not None:
+        aide = get_object_or_404(HelpWriting, slug=filterslug)
         tutos = Tutorial.objects.filter(helps=aide) \
                                 .order_by('pubdate', '-update') \
                                 .all()
