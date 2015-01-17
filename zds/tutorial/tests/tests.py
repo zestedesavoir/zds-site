@@ -67,31 +67,36 @@ class BigTutorialTests(TestCase):
         self.bigtuto.licence = self.licence
         self.bigtuto.save()
 
-        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
-        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2)
-        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3)
+        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1, light=True)
+        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2, light=True)
+        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3, light=True)
 
         self.chapter1_1 = ChapterFactory(
             part=self.part1,
             position_in_part=1,
-            position_in_tutorial=1)
+            position_in_tutorial=1,
+            light=True)
         self.chapter1_2 = ChapterFactory(
             part=self.part1,
             position_in_part=2,
-            position_in_tutorial=2)
+            position_in_tutorial=2,
+            light=True)
         self.chapter1_3 = ChapterFactory(
             part=self.part1,
             position_in_part=3,
-            position_in_tutorial=3)
+            position_in_tutorial=3,
+            light=True)
 
         self.chapter2_1 = ChapterFactory(
             part=self.part2,
             position_in_part=1,
-            position_in_tutorial=4)
+            position_in_tutorial=4,
+            light=True)
         self.chapter2_2 = ChapterFactory(
             part=self.part2,
             position_in_part=2,
-            position_in_tutorial=5)
+            position_in_tutorial=5,
+            light=True)
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
@@ -2852,7 +2857,8 @@ class MiniTutorialTests(TestCase):
 
         self.chapter = ChapterFactory(
             tutorial=self.minituto,
-            position_in_tutorial=1)
+            position_in_tutorial=1,
+            light=True)
 
         self.staff = StaffProfileFactory().user
 
