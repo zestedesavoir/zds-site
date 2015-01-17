@@ -306,7 +306,7 @@ ZDS_APP = {
                             u"sur lequel vous trouverez des tutoriels de tous niveaux, "
                             u"des articles et des forums d'entraide animés par et pour "
                             u"la communauté.",
-        'year': u"2014",
+        'year': u"2015",
         'association': {
             'name': u"Zeste de Savoir",
             'fee': u"30 €",
