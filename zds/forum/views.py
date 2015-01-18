@@ -776,7 +776,11 @@ def useful_post(request):
             raise PermissionDenied
     post.is_useful = not post.is_useful
     post.save()
-    return redirect(post.get_absolute_url())
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps(post.is_useful), content_type='application/json')
+    else:
+        return redirect(post.get_absolute_url())
 
 
 @can_write_and_read_now

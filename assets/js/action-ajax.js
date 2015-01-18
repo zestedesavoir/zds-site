@@ -153,4 +153,35 @@
         e.stopPropagation();
         e.preventDefault();
     });
+    $(".message-karma").on("click", "button", function(e){
+        var $button = $(this),
+            $form = $button.parents("form:first"),
+            $message = $form.parents("article"),
+            $usefulText = $message.find(".message-helpful"),
+            csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            data: {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken
+            },
+            success: function(useful){
+                if(useful) {
+                    $message.addClass("helpful");
+                    $button.addClass("green");
+                    $usefulText.removeClass("hidden");
+                }
+                else {
+                    $message.removeClass("helpful");
+                    $button.removeClass("green");
+                    $usefulText.addClass("hidden");
+                }
+                $button.blur();
+            }
+        });
+
+        e.stopPropagation();
+        e.preventDefault();
+    });
 })(jQuery);

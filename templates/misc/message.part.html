@@ -164,11 +164,10 @@
                     {% trans "Reprise du dernier message de la page précédente" %}
                 </p>
             {% endif %}
-            {% if message.is_useful and not is_creator %}
-                <p class="message-helpful tick ico-after green">
-                    {% trans "Cette réponse a aidé l'auteur du sujet" %}
-                </p>
-            {% endif %}
+
+            <p class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}">
+                {% trans "Cette réponse a aidé l'auteur du sujet" %}
+            </p>
 
             {% if message.is_visible != False %}
                 <div itemprop="text">
