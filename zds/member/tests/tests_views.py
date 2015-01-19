@@ -42,8 +42,12 @@ class MemberTests(TestCase):
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory()
         settings.ZDS_APP['member']['bot_account'] = self.mas.user.username
-        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
-        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.anonymous = UserFactory(
+            username=settings.ZDS_APP["member"]["anonymous_account"],
+            password="anything")
+        self.external = UserFactory(
+            username=settings.ZDS_APP["member"]["external_account"],
+            password="anything")
         self.category1 = CategoryFactory(position=1)
         self.forum11 = ForumFactory(
             category=self.category1,
@@ -51,46 +55,86 @@ class MemberTests(TestCase):
         self.staff = StaffProfileFactory().user
 
     def test_list_members(self):
-        """To test the listing of the members."""
+        """
+        To test the listing of the members with and without page parameter.
+        """
 
-        # test pagination page doesn't exist
-        result = self.client.post(
-            reverse('zds.member.views.index') +
+        # list of members.
+        result = self.client.get(
+            reverse('member-list'),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # list of members with page parameter.
+        result = self.client.get(
+            reverse('member-list') + u'?page=1',
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # page which doesn't exist.
+        result = self.client.get(
+            reverse('member-list') +
             u'?page=1534',
             follow=False
         )
-        self.assertEqual(404, result.status_code)
+        self.assertEqual(result.status_code, 404)
 
-        # test pagination page not an integer
-        result = self.client.post(
-            reverse('zds.member.views.index') +
+        # page parameter isn't an integer.
+        result = self.client.get(
+            reverse('member-list') +
             u'?page=abcd',
             follow=False
         )
-        self.assertEqual(404, result.status_code)
+        self.assertEqual(result.status_code, 404)
 
-    def test_login(self):
-        """To test user login."""
-        user = ProfileFactory()
+    def test_details_member(self):
+        """
+        To test details of a member given.
+        """
 
-        result = self.client.post(
-            reverse('zds.member.views.login_view'),
-            {'username': user.user.username,
-             'password': 'hostel',
-             'remember': 'remember'},
-            follow=False)
-        # bad password then no redirection
+        # details of a staff user.
+        result = self.client.get(
+            reverse('member-detail', args=[self.staff.username]),
+            follow=False
+        )
         self.assertEqual(result.status_code, 200)
 
+        # details of an unknown user.
+        result = self.client.get(
+            reverse('member-detail', args=['unknown_user']),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 404)
+
+    def test_login(self):
+        """
+        To test user login.
+        """
+        user = ProfileFactory()
+
+        # login a user. Good password then redirection to the homepage.
         result = self.client.post(
             reverse('zds.member.views.login_view'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        # good password then redirection to the homepage
         self.assertRedirects(result, reverse('zds.pages.views.home'))
 
+        # login failed with bad password then no redirection
+        # (status_code equals 200 and not 302).
+        result = self.client.post(
+            reverse('zds.member.views.login_view'),
+            {'username': user.user.username,
+             'password': 'hostel',
+             'remember': 'remember'},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # login a user. Good password and next parameter then
+        # redirection to the "next" page.
         result = self.client.post(
             reverse('zds.member.views.login_view')
             + '?next=' + reverse('zds.gallery.views.gallery_list'),
@@ -98,20 +142,25 @@ class MemberTests(TestCase):
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        # good password and ?next= then redirection to the "next" page
         self.assertRedirects(result, reverse('zds.gallery.views.gallery_list'))
 
+        # check if the login form will redirect if there is
+        # a next parameter.
         self.client.logout()
-        result = self.client.get(reverse('zds.member.views.login_view')
-                                 + '?next=' + reverse('zds.gallery.views.gallery_list'))
-        # check if the login form will redirect if there is a ?next=
-        self.assertContains(result, reverse('zds.member.views.login_view')
+        result = self.client.get(
+            reverse('zds.member.views.login_view')
+            + '?next=' + reverse('zds.gallery.views.gallery_list'))
+        self.assertContains(result,
+                            reverse('zds.member.views.login_view')
                             + '?next=' + reverse('zds.gallery.views.gallery_list'),
                             count=1)
 
     def test_register(self):
-        """To test user registration."""
+        """
+        To test user registration.
+        """
 
+        # register a new user.
         result = self.client.post(
             reverse('create-member'),
             {
@@ -120,35 +169,42 @@ class MemberTests(TestCase):
                 'password_confirm': 'flavour',
                 'email': 'firm1@zestedesavoir.com'},
             follow=False)
-
         self.assertEqual(result.status_code, 200)
 
-        # check email has been sent
+        # check email has been sent.
         self.assertEquals(len(mail.outbox), 1)
 
-        # clic on the link which has been sent in mail
+        # check if the new user is well inactive.
         user = User.objects.get(username='firm1')
         self.assertFalse(user.is_active)
 
+        # make a request on the link which has been sent in mail to
+        # confirm the registration.
         token = TokenRegister.objects.get(user=user)
         result = self.client.get(
             settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
             follow=False)
-
         self.assertEqual(result.status_code, 200)
+
+        # check a new email has been sent at the new user.
         self.assertEquals(len(mail.outbox), 2)
 
+        # check if the new user is active.
         self.assertTrue(User.objects.get(username='firm1').is_active)
 
     def test_unregister(self):
-        """Tests that unregistering user is working"""
+        """
+        To test that unregistering user is working.
+        """
 
-        # test not logged user can't unregister
+        # test not logged user can't unregister.
         self.client.logout()
         result = self.client.post(
             reverse('zds.member.views.unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        # test logged user can register.
         user = ProfileFactory()
         login_check = self.client.login(
             username=user.user.username,
@@ -159,6 +215,9 @@ class MemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
+
+        # Attach a user at tutorials, articles, topics and private topics. After that,
+        # unregister this user and check that he is well removed in all contents.
         user = ProfileFactory()
         user2 = ProfileFactory()
         aloneGallery = GalleryFactory()
@@ -195,7 +254,6 @@ class MemberTests(TestCase):
         publishedArticle2.authors.add(user.user)
         publishedArticle2.authors.add(user2.user)
         publishedArticle2.save()
-
         writingArticleAlone = ArticleFactory()
         writingArticleAlone.authors.add(user.user)
         writingArticleAlone.save()
@@ -286,7 +344,9 @@ class MemberTests(TestCase):
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
 
     def test_sanctions(self):
-        """Test various sanctions."""
+        """
+        Test various sanctions.
+        """
 
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -339,8 +399,7 @@ class MemberTests(TestCase):
                 'ls-temp': '', 'ls-jrs': 10,
                 'ls-text': u'Texte de test pour LS TEMP'},
             follow=False)
-        user = Profile.objects.get(
-            id=user_ls_temp.id)    # Refresh profile from DB
+        user = Profile.objects.get(id=user_ls_temp.id)   # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
         self.assertFalse(user.can_write)
         self.assertTrue(user.can_read)
@@ -416,9 +475,11 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_promote_interface(self):
-        """Test promotion interface"""
+        """
+        Test promotion interface.
+        """
 
-        # create users (one regular and one staff and superuser)
+        # create users (one regular, one staff and one superuser)
         tester = ProfileFactory()
         staff = StaffProfileFactory()
         tester.user.is_active = False
@@ -430,7 +491,7 @@ class MemberTests(TestCase):
         group = Group.objects.create(name="DummyGroup_1")
         groupbis = Group.objects.create(name="DummyGroup_2")
 
-        # create Forums, Posts and subscribe member to them
+        # create Forums, Posts and subscribe member to them.
         category1 = CategoryFactory(position=1)
         forum1 = ForumFactory(
             category=category1,
@@ -543,7 +604,9 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 403)  # forbidden !
 
     def test_filter_member_ip(self):
-        """Test filter member by ip"""
+        """
+        Test filter member by ip.
+        """
 
         # create users (one regular and one staff and superuser)
         tester = ProfileFactory()
@@ -585,6 +648,9 @@ class MemberTests(TestCase):
         self.assertEqual(len(result.context['members']), 2)
 
     def test_modify_user_karma(self):
+        """
+        To test karma of a user modified by a staff user.
+        """
         tester = ProfileFactory()
         staff = StaffProfileFactory()
 
