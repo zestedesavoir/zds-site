@@ -795,9 +795,14 @@ def forgot_password(request):
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/forgot_password/confirm.html").render(Context(
-                {"username": usr.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
+                {"username": usr.username,
+                 "site_name": settings.ZDS_APP['site']['name'],
+                 "site_url": settings.ZDS_APP['site']['url'],
+                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
-                {"username": usr.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
+                {"username": usr.username,
+                 "site_name": settings.ZDS_APP['site']['name'],
+                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [usr.email])
             msg.attach_alternative(message_html, "text/html")
