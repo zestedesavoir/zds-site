@@ -99,7 +99,7 @@ class PagesMemberTests(TestCase):
                 'adresse': '42 rue du savoir, appartement 42, 75000 Paris, France',
                 'justification': 'Parce que l\'assoc est trop swag !',
                 'username': self.user1.username,
-                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('member-detail',
                                                                          kwargs={'user_name': self.user1.username})
             },
             follow=False)

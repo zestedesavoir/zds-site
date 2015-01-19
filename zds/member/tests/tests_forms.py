@@ -24,8 +24,9 @@ stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
 
 
 class LoginFormTest(TestCase):
-
-    """ Check the form to login """
+    """
+    Check the form to login.
+    """
 
     def test_valid_login_form(self):
         data = {
@@ -56,8 +57,9 @@ class LoginFormTest(TestCase):
 
 
 class RegisterFormTest(TestCase):
-
-    """ Check the registering form """
+    """
+    Check the registering form.
+    """
 
     def test_valid_register_form(self):
         data = {
@@ -195,8 +197,9 @@ class RegisterFormTest(TestCase):
 
 
 class MiniProfileFormTest(TestCase):
-
-    """ Check the miniprofile form """
+    """
+    Check the miniprofile form.
+    """
 
     def setUp(self):
         self.user1 = ProfileFactory()
@@ -243,8 +246,9 @@ class MiniProfileFormTest(TestCase):
 
 
 class ProfileFormTest(TestCase):
-
-    """ Check the form is working (and that's all) """
+    """
+    Check the form is working (and that's all).
+    """
 
     def test_valid_profile_form(self):
         data = {}
@@ -253,8 +257,9 @@ class ProfileFormTest(TestCase):
 
 
 class ChangeUserFormTest(TestCase):
-
-    """ Check the user pseudo/email """
+    """
+    Check the user pseudo/email.
+    """
 
     def setUp(self):
         self.user1 = ProfileFactory()
@@ -355,8 +360,9 @@ class ChangeUserFormTest(TestCase):
 
 
 class ChangePasswordFormTest(TestCase):
-
-    """ Check the form to change the password """
+    """
+    Check the form to change the password.
+    """
 
     def setUp(self):
         self.user1 = ProfileFactory()
@@ -421,8 +427,9 @@ class ChangePasswordFormTest(TestCase):
 
 
 class ForgotPasswordFormTest(TestCase):
-
-    """ Check the form to ask for a new password """
+    """
+    Check the form to ask for a new password.
+    """
 
     def setUp(self):
         self.user1 = ProfileFactory()
@@ -450,8 +457,9 @@ class ForgotPasswordFormTest(TestCase):
 
 
 class NewPasswordFormTest(TestCase):
-
-    """ Check the form to input the new password """
+    """
+    Check the form to input the new password.
+    """
 
     def setUp(self):
         self.user1 = ProfileFactory()
@@ -501,7 +509,9 @@ class NewPasswordFormTest(TestCase):
 
 
 class KarmaFormTest(TestCase):
-    """ Check the form to impact the karma of a user """
+    """
+    Check the form to impact the karma of a user.
+    """
 
     def setUp(self):
         self.user = ProfileFactory()
