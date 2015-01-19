@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -16,7 +15,7 @@ class ProfileManager(models.Manager):
         :return: All members ordered by date joined
         :rtype: QuerySet
         """
-        return User.objects.order_by('-date_joined').all()
+        return super(ProfileManager, self).get_queryset().order_by('-user__date_joined').all()
 
     def all_old_tutos_from_site_du_zero(self, profile):
         """

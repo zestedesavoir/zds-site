@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User
-
 from rest_framework import serializers
 
 from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator, \
@@ -9,41 +7,49 @@ from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator, 
 from zds.member.models import Profile
 
 
-class UserSerializer(serializers.ModelSerializer):
+class ProfileListSerializer(serializers.ModelSerializer):
     """
     Serializers of a user object.
     """
 
+    username = serializers.CharField(source='user.username')
+    is_active = serializers.BooleanField(source='user.is_active')
+    date_joined = serializers.DateTimeField(source='user.date_joined')
+
     class Meta:
-        model = User
-        fields = ('id', 'username', 'is_active', 'date_joined')
+        model = Profile
+        fields = ('pk', 'username', 'is_active', 'date_joined')
 
 
-class UserCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator, ProfileEmailValidator):
+class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
+                              ProfileEmailValidator):
     """
     Serializers of a user object to create one.
     """
 
+    username = serializers.CharField(source='user.username')
+    email = serializers.EmailField(source='user.email')
+    password = serializers.CharField(source='user.password')
+
     class Meta:
-        model = User
-        fields = ('username', 'email', 'password')
+        model = Profile
+        fields = ('pk', 'username', 'email', 'password')
         write_only_fields = ('password')
 
     def create(self, validated_data):
-        profile = self.create_profile(validated_data)
+        profile = self.create_profile(validated_data.get('user'))
         self.save_profile(profile)
-        return profile.user
+        return profile
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileDetailSerializer(serializers.ModelSerializer):
     """
     Serializers of a profile object.
     """
 
-    id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
     email = serializers.EmailField(source='user.email')
     is_active = serializers.BooleanField(source='user.is_active')
@@ -51,7 +57,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'show_email', 'email', 'is_active',
+        fields = ('pk', 'username', 'show_email', 'email', 'is_active',
                   'site', 'avatar_url', 'biography', 'sign', 'email_for_answer',
                   'last_visit', 'date_joined')
 
@@ -61,7 +67,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         """
         show_email = kwargs.pop('show_email', False)
 
-        super(ProfileSerializer, self).__init__(*args, **kwargs)
+        super(ProfileDetailSerializer, self).__init__(*args, **kwargs)
 
         if not show_email:
             # Drop email field.
@@ -78,7 +84,7 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
 
     class Meta:
         model = Profile
-        fields = ('username', 'email', 'site', 'avatar_url', 'biography',
+        fields = ('pk', 'username', 'email', 'site', 'avatar_url', 'biography',
                   'sign', 'show_email', 'show_sign', 'hover_or_click',
                   'email_for_answer')
 
@@ -117,4 +123,4 @@ class ProfileSanctionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'email', 'can_write', 'end_ban_write', 'can_read', 'end_ban_read')
+        fields = ('pk', 'username', 'email', 'can_write', 'end_ban_write', 'can_read', 'end_ban_read')

@@ -47,7 +47,9 @@ class MemberList(ListView):
 
     context_object_name = 'members'
     paginate_by = settings.ZDS_APP['member']['members_per_page']
-    queryset = Profile.objects.all_members_ordered_by_date_joined()
+    # TODO When User will be no more used, you can make this request with
+    # Profile.objects.all_members_ordered_by_date_joined()
+    queryset = User.objects.order_by('-date_joined').all()
     template_name = 'member/index.html'
 
 

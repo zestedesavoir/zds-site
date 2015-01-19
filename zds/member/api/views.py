@@ -8,8 +8,8 @@ from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework.response import Response
 
-from zds.member.api.serializers import UserSerializer, UserCreateSerializer, \
-    ProfileSerializer, ProfileValidatorSerializer
+from zds.member.api.serializers import ProfileListSerializer, ProfileCreateSerializer, \
+    ProfileDetailSerializer, ProfileValidatorSerializer
 from zds.member.api.permissions import IsOwnerOrReadOnly
 from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
 from zds.member.commons import TemporaryReadingOnlySanction, ReadingOnlySanction, \
@@ -42,17 +42,17 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         self.permission_classes = (AllowAny,)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        token = self.generate_token(user)
-        self.send_email(token, user)
+        profile = serializer.save()
+        token = self.generate_token(profile.user)
+        self.send_email(token, profile.user)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return UserSerializer
+            return ProfileListSerializer
         elif self.request.method == 'POST':
-            return UserCreateSerializer
+            return ProfileCreateSerializer
 
 
 class MemberDetailAPI(RetrieveUpdateAPIView):
@@ -68,7 +68,9 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
         """
         Gets a user given by its identifier.
         """
-        return self.retrieve(request, *args, **kwargs)
+        profile = self.get_object()
+        serializer = self.get_serializer(profile, show_email=profile.show_email)
+        return Response(serializer.data)
 
     @etag(rebuild_after_method_evaluation=True)
     def put(self, request, *args, **kwargs):
@@ -80,14 +82,9 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return ProfileSerializer
+            return ProfileDetailSerializer
         elif self.request.method == 'PUT':
             return ProfileValidatorSerializer
-
-    def retrieve(self, request, *args, **kwargs):
-        profile = self.get_object()
-        serializer = self.get_serializer(profile, show_email=profile.show_email)
-        return Response(serializer.data)
 
 
 class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
