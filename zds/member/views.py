@@ -754,9 +754,15 @@ def register_view(request):
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/register/confirm.html").render(Context(
-                {"username": user.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
+                {"username": user.username,
+                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+                 "site_name": settings.ZDS_APP['site']['name'],
+                 "site_url": settings.ZDS_APP['site']['url']}))
             message_txt = get_template("email/register/confirm.txt") .render(Context(
-                {"username": user.username, "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
+                {"username": user.username,
+                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+                 "site_name": settings.ZDS_APP['site']['name'],
+                 "site_url": settings.ZDS_APP['site']['url']}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                          [user.email])
             msg.attach_alternative(message_html, "text/html")
@@ -940,10 +946,13 @@ def generate_token_account(request):
     message_html = get_template("email/register/confirm.html"
                                 ) \
         .render(Context({"username": token.user.username,
+                         "site_url": settings.ZDS_APP['site']['url'],
+                         "site_name": settings.ZDS_APP['site']['name'],
                          "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
     message_txt = get_template("email/register/confirm.txt"
                                ) \
         .render(Context({"username": token.user.username,
+                         "site_name": settings.ZDS_APP['site']['name'],
                          "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
     msg = EmailMultiAlternatives(subject, message_txt, from_email,
                                  [token.user.email])
