@@ -30,29 +30,23 @@ class UserGalleryTest(TestCase):
 
         self.assertEqual(result, self.user_gallery.__unicode__())
 
-    def test_is_write(self):
+    def test_can_write(self):
         self.user_gallery.mode = 'W'
 
-        self.assertTrue(self.user_gallery.is_write())
-        self.assertFalse(self.user_gallery.is_read())
+        self.assertTrue(self.user_gallery.can_write())
+        self.assertFalse(self.user_gallery.can_read())
 
-    def test_is_read(self):
+    def test_can_read(self):
         self.user_gallery.mode = 'R'
 
-        self.assertFalse(self.user_gallery.is_write())
-        self.assertTrue(self.user_gallery.is_read())
+        self.assertFalse(self.user_gallery.can_write())
+        self.assertTrue(self.user_gallery.can_read())
 
     def test_get_images(self):
         self.assertEqual(2, len(self.user_gallery.get_images()))
 
         self.assertEqual(self.image1, self.user_gallery.get_images()[0])
         self.assertEqual(self.image2, self.user_gallery.get_images()[1])
-
-    def test_get_gallery(self):
-        gallery_results = self.user_gallery.get_gallery(self.profile.user)
-
-        self.assertEqual(1, len(gallery_results))
-        self.assertEqual(self.gallery, gallery_results[0])
 
 
 class ImageTest(TestCase):

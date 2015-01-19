@@ -190,7 +190,7 @@ def edit_image(request, gal_pk, img_pk):
     try:
         gal_mode = UserGallery.objects.get(user=request.user, gallery=gal)
         assert gal_mode is not None
-        if not gal_mode.is_write() and request.method != "GET":
+        if not gal_mode.can_write() and request.method != "GET":
             raise PermissionDenied
     except (AssertionError, ObjectDoesNotExist):
         raise PermissionDenied
@@ -261,7 +261,7 @@ def delete_image(request):
         assert gal_mode is not None
 
         # Only allow RW users to modify images
-        if not gal_mode.is_write():
+        if not gal_mode.can_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -290,7 +290,7 @@ def new_image(request, gal_pk):
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
         assert gal_mode is not None
-        if not gal_mode.is_write():
+        if not gal_mode.can_write():
             raise PermissionDenied
     except:
         raise PermissionDenied
@@ -332,7 +332,7 @@ def import_image(request, gal_pk):
     try:
         gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
         assert gal_mode is not None
-        if not gal_mode.is_write():
+        if not gal_mode.can_write():
             raise PermissionDenied
     except:
         raise PermissionDenied

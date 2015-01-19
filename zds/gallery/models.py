@@ -37,6 +37,7 @@ def image_path(instance, filename):
 
 
 class UserGallery(models.Model):
+    """A gallery of images created by a user."""
 
     class Meta:
         verbose_name = 'Galeries de l\'utilisateur'
@@ -60,7 +61,7 @@ class UserGallery(models.Model):
         """
         return u'Galerie « {0} » envoyée par {1}'.format(self.gallery, self.user)
 
-    def is_write(self):
+    def can_write(self):
         """
         Check if user can write in the gallery.
 
@@ -69,7 +70,7 @@ class UserGallery(models.Model):
         """
         return self.mode == GALLERY_WRITE
 
-    def is_read(self):
+    def can_read(self):
         """
         Check if user can read in the gallery.
 
@@ -86,16 +87,6 @@ class UserGallery(models.Model):
         :rtype: QuerySet
         """
         return Image.objects.filter(gallery=self.gallery).order_by('update').all()
-
-    def get_gallery(self, user):
-        """
-        TODO
-
-        :return: TODO
-        :rtype: QuerySet
-        """
-        return Gallery.objects.filter(pk=self.gallery.pk).all()
-
 
 class Image(models.Model):
 
