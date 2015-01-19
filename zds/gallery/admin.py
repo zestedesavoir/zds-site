@@ -21,7 +21,7 @@ class ImageAdmin(admin.ModelAdmin):
 
 class UserGalleryAdmin(admin.ModelAdmin):
 
-    """Representation of UserGallery) model in the admin interface."""
+    """Representation of UserGallery model in the admin interface."""
 
     list_display = ('user', 'gallery', 'mode')
 

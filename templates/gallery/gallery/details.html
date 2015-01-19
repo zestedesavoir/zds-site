@@ -47,7 +47,7 @@
                 </li>
             {% endfor %}
 
-            {% if gallery_mode.is_write %}
+            {% if gallery_mode.can_write %}
                 <li>
                     <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
                     <div id="add-user-modal" class="modal modal-big">
@@ -63,7 +63,7 @@
         {% csrf_token %}
 
         {% if gallery.get_images %}
-            {% if gallery_mode.is_write %}
+            {% if gallery_mode.can_write %}
                 <button class="btn btn-cancel" name="delete_multi">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
 
@@ -94,7 +94,7 @@
                 <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
             </div>
 
-            {% if gallery_mode.is_write %}
+            {% if gallery_mode.can_write %}
                 <button class="btn btn-cancel" name="delete_multi" tabindex="-1">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
 
@@ -104,7 +104,7 @@
         {% else %}
             <p>
                 {% trans "Aucune image" %}. <br>
-                {% if gallery_mode.is_write %}
+                {% if gallery_mode.can_write %}
                     {% url "zds.gallery.views.new_image" gallery.pk as new_img_url %}
                     {% blocktrans %}
                         Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent !
@@ -118,7 +118,7 @@
 
 
 {% block sidebar_actions %}
-    {% if gallery_mode.is_write %}
+    {% if gallery_mode.can_write %}
         <div class="mobile-menu-bloc" data-title="Actions">
             <h3>{% trans "Actions" %}</h3>
             <ul>
