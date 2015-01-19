@@ -153,7 +153,7 @@
         e.stopPropagation();
         e.preventDefault();
     });
-    $(".message-karma").on("click", "button", function(e){
+    $(".topic-message").on("click", "button.tick", function(e){
         var $button = $(this),
             $form = $button.parents("form:first"),
             $message = $form.parents("article"),
@@ -167,16 +167,9 @@
                 "csrfmiddlewaretoken": csrfmiddlewaretoken
             },
             success: function(useful){
-                if(useful) {
-                    $message.addClass("helpful");
-                    $button.addClass("green");
-                    $usefulText.removeClass("hidden");
-                }
-                else {
-                    $message.removeClass("helpful");
-                    $button.removeClass("green");
-                    $usefulText.addClass("hidden");
-                }
+                $message.toggleClass("helpful");
+                $button.toggleClass("green");
+                $usefulText.toggleClass("hidden");
                 $button.blur();
             }
         });
