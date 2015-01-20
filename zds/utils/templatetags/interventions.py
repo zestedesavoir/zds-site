@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 import time
 
 from django import template
-from django.db.models import Q, F
+from django.db.models import F
 
 from zds.article.models import Reaction, ArticleRead
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, TopicRead
-from zds.mp.models import PrivateTopic, PrivateTopicRead
+from zds.mp.models import PrivateTopic
 from zds.tutorial.models import Note, TutorialRead
 from zds.utils.models import Alert
 
