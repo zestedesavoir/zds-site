@@ -78,7 +78,6 @@ urlpatterns = patterns('',
                        url(r'^forums/', include('zds.forum.urls')),
                        url(r'^mp/', include('zds.mp.urls')),
                        url(r'^membres/', include('zds.member.urls')),
-                       url(r'^api/membres/', include('zds.member.api.urls')),
                        url(r'^admin/', include(admin.site.urls)),
                        url(r'^pages/', include('zds.pages.urls')),
                        url(r'^galerie/', include('zds.gallery.urls')),
@@ -87,11 +86,17 @@ urlpatterns = patterns('',
                        url('', include('social.apps.django_app.urls', namespace='social')),
                        url('', include('django.contrib.auth.urls', namespace='auth')),
                        ('^munin/', include('munin.urls')),
-                       url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
 
                        url(r'^$', 'zds.pages.views.home'),
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# API
+urlpatterns += patterns('',
+                        url(r'^api/', include('rest_framework_swagger.urls')),
+                        url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+                        url(r'^api/membres/', include('zds.member.api.urls')),
+                        )
 
 # SiteMap URLs
 urlpatterns += patterns('django.contrib.sitemaps.views',

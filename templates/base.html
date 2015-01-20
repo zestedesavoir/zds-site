@@ -562,6 +562,7 @@
                 </ul>
 
                 <ul class="links">
+                    <li><a href="{% url "django.swagger.base.view" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}

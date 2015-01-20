@@ -27,11 +27,15 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     @etag()
     @cache_response()
     def get(self, request, *args, **kwargs):
-        self.serializer_class = UserSerializer
+        """
+        Lists all users in the system.
+        """
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.serializer_class = UserCreateSerializer
+        """
+        Registers a new user in the system. The user must confirm its registration.
+        """
         self.permission_classes = (AllowAny,)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -40,6 +44,12 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         self.send_email(token, user)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return UserSerializer
+        elif self.request.method == 'POST':
+            return UserCreateSerializer
 
 
 class MemberDetailAPI(RetrieveUpdateAPIView):
@@ -52,20 +62,42 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
     @etag()
     @cache_response()
     def get(self, request, *args, **kwargs):
-        self.serializer_class = ProfileSerializer
+        """
+        Gets a user given by its identifier.
+        """
         return self.retrieve(request, *args, **kwargs)
 
     @etag(rebuild_after_method_evaluation=True)
     def put(self, request, *args, **kwargs):
-        self.serializer_class = ProfileValidatorSerializer
+        """
+        Updates a user given by its identifier.
+        """
         self.permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
         return self.update(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ProfileSerializer
+        elif self.request.method == 'PUT':
+            return ProfileValidatorSerializer
 
 
 class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
     """
     Updates a member for his can_write attribute.
     """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Applies a read only sanction at a user given.
+        """
+        return super(MemberDetailReadingOnly, self).post(request, args, kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Removes a read only sanction at a user given.
+        """
+        return super(MemberDetailReadingOnly, self).delete(request, args, kwargs)
 
     def get_state_instance(self, request):
         if request.method == 'POST':
@@ -82,6 +114,18 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
     """
     Updates a member for his can_read attribute.
     """
+
+    def post(self, request, *args, **kwargs):
+        """
+        Applies a ban sanction at a user given.
+        """
+        return super(MemberDetailBan, self).post(request, args, kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Removes a ban sanction at a user given.
+        """
+        return super(MemberDetailBan, self).delete(request, args, kwargs)
 
     def get_state_instance(self, request):
         if request.method == 'POST':
