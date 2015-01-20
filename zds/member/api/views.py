@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from rest_framework import filters
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
@@ -23,6 +24,8 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     """
 
     queryset = Profile.objects.all_members_ordered_by_date_joined()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('^username',)
 
     @etag()
     @cache_response()
