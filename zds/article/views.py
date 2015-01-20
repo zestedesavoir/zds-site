@@ -480,7 +480,11 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    try:
+        article_id = int(request.GET["article"])
+    except (KeyError, ValueError):
+        raise Http404
+    article = get_object_or_404(Article, pk=article_id)
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
