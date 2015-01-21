@@ -35,18 +35,18 @@
 
 
 {% block headline %}
+    {% if article.licence %}
+        <span class="license" itemprop="license">
+            {{ article.licence }}
+        </span>
+    {% endif %}
+
     <h1 {% if article.image %}class="illu"{% endif %}>
         {% if article.image %}
             <img src="{{article.image.article_illu.url }}" alt="">
         {% endif %}
         {% trans "Historique de" %} "{{ article.title }}"
     </h1>
-    
-    {% if article.licence %}
-        <span class="license" itemprop="license">
-            {{ article.licence }}
-        </span>
-    {% endif %}
 
     {% if article.description %}
         <h2 class="subtitle">
@@ -70,7 +70,7 @@
             {{ article.pubdate|format_date }}
         </time>
     </span>
-    
+
     <div class="authors">
         <span class="authors-label">{% trans "Contributeur" %}{{ article.authors.all|pluralize }} : </span>
         <ul>

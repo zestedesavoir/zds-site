@@ -19,18 +19,18 @@
 
 
 {% block headline %}
+    {% if tutorial.licence %}
+        <span class="license">
+            {{ tutorial.licence }}
+        </span>
+    {% endif %}
+
     <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {% trans "Historique de" %} "{{ tutorial.title }}"
     </h1>
-
-    {% if tutorial.licence %}
-        <span class="license">
-            {{ tutorial.licence }}
-        </span>
-    {% endif %}
 
     <h2 class="subtitle">
         {{ tutorial.description }}
