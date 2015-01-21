@@ -269,9 +269,10 @@
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
+                                    {% with total_topics=topics.total %}
                                         <a href="{% url "zds.mp.views.index" %}" class="ico-link">
-                                            {% if unread_topics|length > 0 %}
-                                                <span class="notif-count">{{ unread_topics|length }}</span>
+                                            {% if total_topics > 0 %}
+                                                <span class="notif-count">{{ total_topics }}</span>
                                             {% endif %}
                                             <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
                                         </a>
@@ -297,7 +298,7 @@
                                                     {% endwith %}
                                                 {% endfor %}
 
-                                                {% if unread_topics|length = 0 %}
+                                                {% if total_topics = 0 %}
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucun nouveau message" %}
                                                     </li>
@@ -307,6 +308,7 @@
                                                 {% trans "Tous les messages" %}
                                             </a>
                                         </div>
+                                    {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
                                 </div>
