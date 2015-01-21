@@ -16,7 +16,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'is_active', 'date_joined')
 
 
 class UserCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator, ProfileEmailValidator):
@@ -54,6 +54,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'show_email', 'email', 'is_active',
                   'site', 'avatar_url', 'biography', 'sign', 'email_for_answer',
                   'last_visit', 'date_joined')
+
+    def __init__(self, *args, **kwargs):
+        """
+        Create the serializer with or without email field, depending on the show_email argument.
+        """
+        show_email = kwargs.pop('show_email', False)
+
+        super(ProfileSerializer, self).__init__(*args, **kwargs)
+
+        if not show_email:
+            # Drop email field.
+            self.fields.pop('email')
 
 
 class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameValidator, ProfileEmailValidator):

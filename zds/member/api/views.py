@@ -81,6 +81,11 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
         elif self.request.method == 'PUT':
             return ProfileValidatorSerializer
 
+    def retrieve(self, request, *args, **kwargs):
+        profile = self.get_object()
+        serializer = self.get_serializer(profile, show_email=profile.show_email)
+        return Response(serializer.data)
+
 
 class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
     """
