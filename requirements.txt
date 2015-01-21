@@ -2,6 +2,7 @@
 pysolr==3.2.0
 pygments==2.0.1
 python-social-auth==0.1.26
+django-debug-toolbar==1.2.2
 
 # Explicit dependencies (references in code)
 django==1.6.10
