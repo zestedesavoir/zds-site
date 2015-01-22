@@ -1,6 +1,6 @@
-======================
-Installation sous OS X
-======================
+=================================
+Installation du backend sous OS X
+=================================
 
 Pour installer une version locale de ZdS sur OS X, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -53,13 +53,10 @@ Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation d
   export CPPFLAGS=-Qunused-arguments
 
 
-Front ou Back ?
-===============
+Installation des outils front-end
+=================================
 
-Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources `ici <http://zestedesavoir.com/static/pack.zip>`_
-Il faudra l'extraire dans le dossier ``dist/`` à la racine de votre projet.
-
-Si vous comptez contribuer au front-end, rendez-vous sur la documentation dédiée.
+Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
 
 Installation de toutes les dépendances
 ======================================

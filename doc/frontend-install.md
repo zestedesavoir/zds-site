@@ -125,7 +125,7 @@ assets/
 │   ├── favicon.ico
 │   ├── favicon.png
 │   ├── logo@2x.png
-|   ├── logo.png
+│   ├── logo.png
 │   ...
 ├── js/
 │   ├── accessibility-links.js
