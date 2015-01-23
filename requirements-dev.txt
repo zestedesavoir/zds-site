@@ -2,4 +2,4 @@ PyYAML==3.11
 flake8==2.2.5
 autopep8==1.0.4
 sphinx==1.2.3
-faker==0.0.4
+fake-factory==0.4.2

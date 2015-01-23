@@ -6,6 +6,11 @@ language: python
 python:
   - 2.7
 
+env:
+  - TEST_APP="-e back_mysql zds.tutorial"
+  - TEST_APP="-e back_mysql zds.article zds.forum zds.member zds.utils zds.gallery zds.mp zds.pages"
+  - TEST_APP="-e front"
+
 notifications:
   irc:
     channels:
@@ -55,18 +60,15 @@ install:
   - sudo apt-get --reinstall install -qq language-pack-fr
 
   # Python dependencies
-  - travis_retry pip install -r requirements.txt -r requirements-dev.txt
   - travis_retry pip install coveralls
-  - travis_retry pip install MySQL-python
+  - travis_retry pip install tox
 
   # Node.js + npm stuff
   - sudo apt-get -y install nodejs
   - travis_retry npm install
 
 script:
-  - npm run travis
-  - coverage run --source='.' manage.py test
-  - flake8 --exclude=migrations,urls.py,settings.py,settings_prod.py,settings_test.py --max-line-length=120 zds
+  - tox $TEST_APP
 
 after_success:
   - coveralls
