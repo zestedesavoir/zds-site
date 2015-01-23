@@ -21,6 +21,7 @@ Installation de virtualenv
 
 .. sourcecode:: bash
 
+    pip install tox
     pip install virtualenv
     pip install virtualenvwrapper
     mkdir ~/.virtualenvs

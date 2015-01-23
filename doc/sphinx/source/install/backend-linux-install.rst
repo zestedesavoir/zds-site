@@ -15,7 +15,7 @@ Assurez vous que les dépendances suivantes soient résolues :
 - python2.7
 - python-dev : ``apt-get install python-dev``
 - easy_install : ``apt-get install python-setuptools``
-- pip : ``easy_install pip``
+- pip : ``easy_install pip tox``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
@@ -28,7 +28,7 @@ Ou, en une ligne,
 .. sourcecode:: bash
 
     apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
-    easy_install pip
+    easy_install pip tox
 
 Installation et configuration de `virtualenv`
 ============================================
@@ -102,7 +102,7 @@ restera propre et lisible au cours du temps !
 
     #!/bin/sh
     
-    flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds
+    tox -e flake8
     
     # Store tests result
     RESULT=$?
