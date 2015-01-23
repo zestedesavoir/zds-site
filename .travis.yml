@@ -68,7 +68,6 @@ install:
 
 script:
   - tox $TEST_APP
-  - tox -e flake8
 
 after_success:
   - coveralls

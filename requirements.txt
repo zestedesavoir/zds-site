@@ -2,7 +2,6 @@
 pysolr==3.2.0
 pygments==2.0.1
 python-social-auth==0.1.26
-django-debug-toolbar==1.2.2
 
 # Explicit dependencies (references in code)
 django==1.6.10
@@ -19,6 +18,6 @@ pygal==1.5.1
 factory-boy==2.4.1
 pygeoip==0.3.2
 pillow==2.7.0
-gitpython==0.3.5
+https://github.com/zestedesavoir/GitPython/archive/0.3.2-RC2.zip
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.4.1-zds.12.zip
 easy-thumbnails==2.2

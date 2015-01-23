@@ -17,11 +17,11 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='zds',
-    version='1.3',
+    version='1.6',
     packages=['zds'],
     include_package_data=True,
     license='GPLv3',
-    description='Site internet communautaire codé à l\'aide du framework Django 1.6 et de Python 2.7.',
+    description='Community Website implemented with Django framework and Python 2.',
     long_description=README,
     url='https://github.com/zestedesavoir/zds-site',
     classifiers=[
@@ -33,7 +33,6 @@ setup(
         'Programming Language :: Python',
         # Replace these appropriately if you are stuck on Python 2.
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
