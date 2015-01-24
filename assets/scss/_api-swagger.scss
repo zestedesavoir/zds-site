@@ -83,13 +83,16 @@
             list-style: none;
         }
         h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
-            text-decoration: none;
-        }
-        h1 a:hover, h2 a:hover, h3 a:hover, h4 a:hover, h5 a:hover, h6 a:hover {
-            text-decoration: underline;
-        }
-        h1 span.divider, h2 span.divider, h3 span.divider, h4 span.divider, h5 span.divider, h6 span.divider {
-            color: #aaaaaa;
+            a {
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+            span.divider {
+                color: #aaaaaa;
+            }
         }
         a {
             color: #547f00;
@@ -154,24 +157,6 @@
         .info_description {
             padding-bottom: 10px;
             font-size: 15px;
-        }
-        .markdown {
-            ol li, ul li {
-                padding: 3px 0px;
-                line-height: 1.4em;
-                color: #333333;
-            }
-        }
-        form.formtastic fieldset.inputs ol li {
-            &.string input, &.url input, &.numeric input {
-                display: block;
-                padding: 4px;
-                width: auto;
-                clear: both;
-            }
-            &.string input.title, &.url input.title, &.numeric input.title {
-                font-size: 1.3em;
-            }
         }
         table.fullwidth {
             width: 100%;
@@ -265,6 +250,11 @@
                 background-color: #f0f0f0;
                 color: black;
                 padding: 1px 3px;
+            }
+            ol li, ul li {
+                padding: 3px 0px;
+                line-height: 1.4em;
+                color: #333333;
             }
         }
         .required {
@@ -380,6 +370,17 @@
                     font-size: 0.9em;
                     margin: 0;
                 }
+                &.string, &.url, &.numeric {
+                    input {
+                        display: block;
+                        padding: 4px;
+                        width: auto;
+                        clear: both;
+                        &.title {
+                            font-size: 1.3em;
+                        }
+                    }
+                }
             }
             &.buttons {
                 margin: 0;
@@ -418,11 +419,13 @@
             font-size: 0.9em;
             li.resource {
                 border-bottom: 1px solid #dddddd;
-                &:hover div.heading h2 a, &.active div.heading h2 a {
-                    color: black;
-                }
-                &:hover div.heading ul.options li a, &.active div.heading ul.options li a {
-                    color: #555555;
+                &:hover, &:active {
+                    div.heading h2 a {
+                        color: black;
+                    }
+                    ul.options li a {
+                        color: #555555;
+                    }
                 }
                 &:last-child {
                     border-bottom: none;
@@ -784,12 +787,17 @@
                                 }
                             }
                         }
-                        &.get div.content, &.post div.content, &.head div.content, &.put div.content, &.patch div.content, &.delete div.content {
-                            border-top: none;
-                        }
-                        &.get div.heading ul.options li:last-child, &.post div.heading ul.options li:last-child, &.head div.heading ul.options li:last-child, &.put div.heading ul.options li:last-child, &.patch div.heading ul.options li:last-child, &.delete div.heading ul.options li:last-child, &.get div.heading ul.options li.last, &.post div.heading ul.options li.last, &.head div.heading ul.options li.last, &.put div.heading ul.options li.last, &.patch div.heading ul.options li.last, &.delete div.heading ul.options li.last {
-                            padding-right: 0;
-                            border-right: none;
+                        &.get, &.post, &.head, &.put, &.patch, &.delete {
+                            div.content {
+                                border-top: none;
+                            }
+
+                            div.heading ul.options li {
+                                &:last-child, &:last {
+                                    padding-right: 0;
+                                    border-right: none;
+                                }
+                            }
                         }
                     }
                     ul.options li {
@@ -965,39 +973,31 @@
         background: url(../images/explorer_icons.png) no-repeat;
     }
 
+    .ic-info, .ic-warning, .ic-error {
+        width: 18px;
+        margin-top: -7px;
+        margin-left: 4px;
+    }
     .ic-info {
         background-position: 0 0;
-        width: 18px;
-        margin-top: -7px;
-        margin-left: 4px;
     }
-
     .ic-warning {
         background-position: -60px 0;
-        width: 18px;
-        margin-top: -7px;
-        margin-left: 4px;
     }
-
     .ic-error {
         background-position: -30px 0;
-        width: 18px;
-        margin-top: -7px;
-        margin-left: 4px;
     }
 
+    .ic-on, .ic-off {
+        width: 58px;
+        margin-top: -4px;
+        cursor: pointer;
+    }
     .ic-off {
         background-position: -90px 0;
-        width: 58px;
-        margin-top: -4px;
-        cursor: pointer;
     }
-
     .ic-on {
         background-position: -160px 0;
-        width: 58px;
-        margin-top: -4px;
-        cursor: pointer;
     }
 
     #header {
