@@ -193,7 +193,7 @@
                     <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
                     	{% csrf_token %}
                         <p>
-                            {% trans "Êtes-vous certains de vouloir dépublier le tutoriel" %} "<em>{{ tutorial.title }}</em>".
+                            {% trans "Êtes-vous certains de vouloir dépublier le tutoriel" %} « <em>{{ tutorial.title }}</em> » ?
                         </p>
                         <button type="submit">
                             {% trans "Confirmer" %}
