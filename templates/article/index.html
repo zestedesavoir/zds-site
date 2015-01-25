@@ -1,5 +1,6 @@
 {% extends "article/base.html" %}
 {% load i18n %}
+{% load topbar %}
 
 
 {% block title %}
@@ -60,4 +61,57 @@
             {% endif %}
         {% endblock %}
     </section>
+{% endblock %}
+
+
+{% block sidebar %}
+    <aside class="sidebar accordeon mobile-menu-bloc"
+           data-title="Catégories de tutoriels"
+    >
+        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau tutoriel" %}
+        </a>
+
+        <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="new-btn ico-after help blue">
+            {% trans "Aider les auteurs" %}
+        </a>
+
+        <h3>{% blocktrans %} Catégories <span class="wide">des articles</span> {% endblocktrans %}</h3>
+
+        {% with categories='.'|top_categories_article %}
+            {% for title, subcats in categories.items %}
+                <h4 class="mobile-menu-link">{{ title }}</h4>
+                <ul>
+                    {% for subcat,slug in subcats %}
+                        <li>
+                            <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                                {{  subcat }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% empty %}
+                <ul>
+                    <li>
+                        {% trans "Aucune catégorie disponible." %}
+                    </li>
+                </ul>
+            {% endfor %}
+        {% endwith %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+            <h3>{% trans "Flux" %}</h3>
+            <ul>
+                <li>
+                    <a href="{% url "tutorial-feed-rss" %}" class="ico-after rss blue">
+                        {% trans "Nouveaux tutoriels (RSS)" %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "tutorial-feed-atom" %}" class="ico-after rss blue">
+                        {% trans "Nouveaux tutoriels (ATOM)" %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
 {% endblock %}
