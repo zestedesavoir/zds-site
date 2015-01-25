@@ -41,6 +41,7 @@ install:
   - sudo apt-get install texlive-xetex
   - sudo apt-get install texlive-lang-french
   - sudo apt-get install texlive-latex-extra
+  - sudo apt-get install libgeoip-dev
 
   # Add fonts
   - sudo wget -P /usr/share/fonts/truetype https://www.dropbox.com/s/ema28tjn52960mq/Merriweather.zip
