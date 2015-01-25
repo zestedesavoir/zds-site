@@ -197,14 +197,6 @@ class Comment(models.Model):
         max_length=80,
         default='')
 
-    def get_like_count(self):
-        """Gets number of like for the post."""
-        return CommentLike.objects.filter(comments__pk=self.pk).count()
-
-    def get_dislike_count(self):
-        """Gets number of dislike for the post."""
-        return CommentDislike.objects.filter(comments__pk=self.pk).count()
-
     def update_content(self, text):
         self.text = text
         self.text_html = emarkdown(self.text)
