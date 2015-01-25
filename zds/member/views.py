@@ -20,7 +20,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
-from zds.utils.models import Comment
+from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.gallery.models import UserGallery
 import json
@@ -139,6 +139,15 @@ def unregister(request):
                 article.authors.add(external)
             article.authors.remove(current)
             article.save()
+    # comments likes / dislikes
+    for like in CommentLike.objects.filter(user=current):
+        like.comments.like -= 1
+        like.comments.save()
+        like.delete()
+    for dislike in CommentDislike.objects.filter(user=current):
+        dislike.comments.dislike -= 1
+        dislike.comments.save()
+        dislike.delete()
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author=current):
         message.author = anonymous
