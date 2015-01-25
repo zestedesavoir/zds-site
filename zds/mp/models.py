@@ -13,20 +13,20 @@ from django.core.urlresolvers import reverse
 
 class PrivateTopic(models.Model):
 
-    """Topic private, containing private posts."""
+    """
+    Topic private, containing private posts.
+    """
+
     class Meta:
         verbose_name = 'Message privé'
         verbose_name_plural = 'Messages privés'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=130)
     subtitle = models.CharField('Sous-titre', max_length=200)
-
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='author', db_index=True)
-    participants = models.ManyToManyField(User, verbose_name='Participants',
-                                          related_name='participants', db_index=True)
-    last_message = models.ForeignKey('PrivatePost', null=True,
-                                     related_name='last_message',
+    author = models.ForeignKey(User, verbose_name='Auteur',  related_name='author', db_index=True)
+    participants = models.ManyToManyField(User, verbose_name='Participants',  related_name='participants',
+                                          db_index=True)
+    last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
 
