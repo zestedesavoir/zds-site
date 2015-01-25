@@ -161,6 +161,35 @@ Issue #1455 Django 1.7
 python manage.py migrate --fake easy_thumbnails
 ```
 
-Le reste l'est aussi mais il est incapable de le détecter tout seul pour cette app.
+Le reste l'est aussi mais Django est incapable de le détecter tout seul pour cette app.
 
 Désinstaller south: `pip uninstall south`. La MAJ de Django de la 1.6 à la 1.7 sera faite par le script (via la mise à jour des _requirements_).
+
+Déploiement de Django 1.7
+-------------------------
+
+_(A priori spécifique à zestedesavoir.com, mais ça peut aider selon l'installation qui est faite du site)_
+
+1. Le fichier `unicorn_start` est inutile et peut être supprimé.
+2. La conf `gunicorn_config.py` peut être pas mal simplifiée. **Exemple** de fichier qui fonctionne sur une application Django 1.7, à adapter à la config réelle :
+
+```
+command = '/opt/zdsenv/bin/gunicorn'
+pythonpath = '/opt/zedsenv/ZesteDeSavoir/zds'
+bind = '127.0.0.1:8001'
+workers = 7
+user = 'zds'
+group = 'zds'
+errorlog = '/opt/zdsenv/logs/gunicorn_error.log'
+loglevel = 'info'
+```
+
+3. Mettre à jour la configuration supervisor pour utiliser la bonne manière de lancer Gunicorn.  **Exemple** de fichier qui fonctionne sur une application Django 1.7, à adapter à la config réelle :
+
+```
+[program:zds]
+directory = /opt/zdsenv/
+command = /opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
+stdout_logfile = /opt/zdsenv/logs/supervisor_stdout.log
+stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
+```
