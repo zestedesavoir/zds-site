@@ -95,7 +95,7 @@ def top_categories_tuto(user):
 
 
 @register.filter('top_categories_article')
-def top_categories_tuto(user):
+def top_categories_article(user):
     """
         Get all the categories and their related subcategories
         associed with an existing articles. The result is sorted
