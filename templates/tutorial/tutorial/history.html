@@ -57,14 +57,17 @@
             {% for log in logs %}
                 <tr>
                     <td>
-                        {% if tutorial.sha_validation = log.newhexsha %}
-                            {% trans "Validation" %}
+                        {% if tutorial.sha_public == log.newhexsha %}
+                            {% trans "En ligne" %}
                         {% endif %}
-                        {% if tutorial.sha_beta = log.newhexsha %}
-                            {% trans "Beta" %}
+                        {% if tutorial.sha_validation == log.newhexsha %}
+                            {% trans "En validation" %}
                         {% endif %}
-                        {% if tutorial.sha_draft = log.newhexsha %}
-                            {% trans "Draft" %}
+                        {% if tutorial.sha_beta == log.newhexsha %}
+                            {% trans "En bêta" %}
+                        {% endif %}
+                        {% if tutorial.sha_draft == log.newhexsha %}
+                            {% trans "Brouillon" %}
                         {% endif %}
                     </td>
                     <td>
@@ -90,7 +93,7 @@
                         {% endwith %}
                     </td>
                     <td>
-                        {% if not tutorial.sha_beta = log.newhexsha %}
+                        {% if not tutorial.sha_beta == log.newhexsha %}
                             <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
                                 {% if not tutorial.sha_beta %}
                                     {% trans "Activer" %}
