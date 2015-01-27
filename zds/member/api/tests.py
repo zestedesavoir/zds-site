@@ -636,6 +636,153 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+class MemberDetailBanAPITest(APITestCase):
+    def setUp(self):
+        self.mas = ProfileFactory()
+        settings.ZDS_APP['member']['bot_account'] = self.mas.user.username
+
+        self.profile = ProfileFactory()
+        self.staff = StaffProfileFactory()
+        clientOAuth2 = create_oauth2_client(self.staff.user)
+        self.clientAuthenticated = APIClient()
+        authenticate_client(self.clientAuthenticated, clientOAuth2, self.staff.user.username, 'hostel77')
+
+    def test_apply_ban_at_a_member(self):
+        """
+        Applies a ban sanction at a member given by a staff user.
+        """
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertFalse(response.data.get('can_read'))
+
+    def test_apply_temporary_ban_at_a_member(self):
+        """
+        Applies a temporary ban sanction at a member given by a staff user.
+        """
+        data = {
+            'ban-jrs': 1
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertFalse(response.data.get('can_read'))
+        self.assertIsNotNone(response.data.get('end_ban_read'))
+
+    def test_apply_ban_at_a_member_with_justification(self):
+        """
+        Applies a ban sanction at a member given by a staff user with a justification.
+        """
+        data = {
+            'ban-text': 'You are a bad boy!'
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertFalse(response.data.get('can_read'))
+
+    def test_apply_ban_at_a_member_not_exist(self):
+        """
+        Applies a ban sanction at a member given but not present in the database.
+        """
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_apply_ban_at_a_member_with_unauthenticated_client(self):
+        """
+        Tries to apply a ban sanction at a member with a user isn't authenticated.
+        """
+        client = APIClient()
+        response = client.post(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_apply_ban_at_a_member_without_permissions(self):
+        """
+        Tries to apply a ban sanction at a member with a user isn't authenticated.
+        """
+        clientOAuth2 = create_oauth2_client(self.profile.user)
+        clientAuthenticated = APIClient()
+        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+
+        response = clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_remove_ban_at_a_member(self):
+        """
+        Removes a ban sanction at a member given by a staff user.
+        """
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertTrue(response.data.get('can_read'))
+
+    def test_remove_temporary_ban_at_a_member(self):
+        """
+        Removes a temporary ban sanction at a member given by a staff user.
+        """
+        data = {
+            'ban-jrs': 1
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertTrue(response.data.get('can_read'))
+        self.assertIsNone(response.data.get('end_ban_read'))
+
+    def test_remove_ban_at_a_member_with_justification(self):
+        """
+        Removes a ban sanction at a member given by a staff user with a justification.
+        """
+        data = {
+            'ban-text': 'You are a bad boy!'
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertTrue(response.data.get('can_read'))
+
+    def test_remove_ban_at_a_member_not_exist(self):
+        """
+        Removes a ban sanction at a member given but not present in the database.
+        """
+        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_remove_ban_at_a_member_with_unauthenticated_client(self):
+        """
+        Tries to remove a ban sanction at a member with a user isn't authenticated.
+        """
+        client = APIClient()
+        response = client.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_remove_ban_at_a_member_without_permissions(self):
+        """
+        Tries to remove a ban sanction at a member with a user isn't authenticated.
+        """
+        clientOAuth2 = create_oauth2_client(self.profile.user)
+        clientAuthenticated = APIClient()
+        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+
+        response = clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
 def create_oauth2_client(user):
     client = Client.objects.create(user=user,
                                    name='zds',
