@@ -464,7 +464,7 @@
 
                         {% else %} {# Not logged #}
                             <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}">{% trans "Connexion" %}</a>
-                            <a href="{% url "create-member" %}">{% trans "Inscription" %}</a>
+                            <a href="{% url "register-member" %}">{% trans "Inscription" %}</a>
                         {% endif %}
                     </div>
                 </div>

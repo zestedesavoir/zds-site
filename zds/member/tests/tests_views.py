@@ -162,7 +162,7 @@ class MemberTests(TestCase):
 
         # register a new user.
         result = self.client.post(
-            reverse('create-member'),
+            reverse('register-member'),
             {
                 'username': 'firm1',
                 'password': 'flavour',

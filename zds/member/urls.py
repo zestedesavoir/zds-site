@@ -38,7 +38,7 @@ urlpatterns = patterns('',
                         #membership
                        url(r'^connexion/$', 'zds.member.views.login_view'),
                        url(r'^deconnexion/$', 'zds.member.views.logout_view'),
-                       url(r'^inscription/$', RegisterView.as_view(), name='create-member'),
+                       url(r'^inscription/$', RegisterView.as_view(), name='register-member'),
                        url(r'^reinitialisation/$', 'zds.member.views.forgot_password'),
                        url(r'^new_password/$', 'zds.member.views.new_password'),
                        url(r'^activation/$', 'zds.member.views.active_account'),
