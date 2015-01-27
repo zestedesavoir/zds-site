@@ -275,9 +275,9 @@ class MemberDetailAPITest(APITestCase):
         self.client = APIClient()
         self.profile = ProfileFactory()
 
-        clientOAuth2 = self.create_oauth2_client(self.profile.user)
+        clientOAuth2 = create_oauth2_client(self.profile.user)
         self.clientAuthenticated = APIClient()
-        self.authenticate_client(self.clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+        authenticate_client(self.clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
 
     def test_detail_of_a_member(self):
         """
@@ -488,22 +488,170 @@ class MemberDetailAPITest(APITestCase):
         response = self.client.delete(reverse('api-member-detail', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def create_oauth2_client(self, user):
-        client = Client.objects.create(user=user,
-                                       name='zds',
-                                       url='zestedesavoir.com',
-                                       client_type=1)
-        client.save()
-        return client
 
-    def authenticate_client(self, client, clientAuth, username, password):
-        response = client.post('/oauth2/access_token', {
-            'client_id': clientAuth.client_id,
-            'client_secret': clientAuth.client_secret,
-            'username': username,
-            'password': password,
-            'grant_type': 'password'
-        })
+class MemberDetailReadingOnlyAPITest(APITestCase):
+    def setUp(self):
+        self.mas = ProfileFactory()
+        settings.ZDS_APP['member']['bot_account'] = self.mas.user.username
+
+        self.profile = ProfileFactory()
+        self.staff = StaffProfileFactory()
+        clientOAuth2 = create_oauth2_client(self.staff.user)
+        self.clientAuthenticated = APIClient()
+        authenticate_client(self.clientAuthenticated, clientOAuth2, self.staff.user.username, 'hostel77')
+
+    def test_apply_read_only_at_a_member(self):
+        """
+        Applies a read only sanction at a member given by a staff user.
+        """
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        access_token = AccessToken.objects.get(user__username=username)
-        self.clientAuthenticated.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(access_token))
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertFalse(response.data.get('can_write'))
+
+    def test_apply_temporary_read_only_at_a_member(self):
+        """
+        Applies a temporary read only sanction at a member given by a staff user.
+        """
+        data = {
+            'ls-jrs': 1
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertFalse(response.data.get('can_write'))
+        self.assertIsNotNone(response.data.get('end_ban_write'))
+
+    def test_apply_read_only_at_a_member_with_justification(self):
+        """
+        Applies a read only sanction at a member given by a staff user with a justification.
+        """
+        data = {
+            'ls-text': 'You are a bad boy!'
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertFalse(response.data.get('can_write'))
+
+    def test_apply_read_only_at_a_member_not_exist(self):
+        """
+        Applies a read only sanction at a member given but not present in the database.
+        """
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_apply_read_only_at_a_member_with_unauthenticated_client(self):
+        """
+        Tries to apply a read only sanction at a member with a user isn't authenticated.
+        """
+        client = APIClient()
+        response = client.post(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_apply_read_only_at_a_member_without_permissions(self):
+        """
+        Tries to apply a read only sanction at a member with a user isn't authenticated.
+        """
+        clientOAuth2 = create_oauth2_client(self.profile.user)
+        clientAuthenticated = APIClient()
+        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+
+        response = clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_remove_read_only_at_a_member(self):
+        """
+        Removes a read only sanction at a member given by a staff user.
+        """
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertTrue(response.data.get('can_write'))
+
+    def test_remove_temporary_read_only_at_a_member(self):
+        """
+        Removes a temporary read only sanction at a member given by a staff user.
+        """
+        data = {
+            'ls-jrs': 1
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertTrue(response.data.get('can_write'))
+        self.assertIsNone(response.data.get('end_ban_write'))
+
+    def test_remove_read_only_at_a_member_with_justification(self):
+        """
+        Removes a read only sanction at a member given by a staff user with a justification.
+        """
+        data = {
+            'ls-text': 'You are a bad boy!'
+        }
+        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), self.profile.user.username)
+        self.assertEqual(response.data.get('email'), self.profile.user.email)
+        self.assertTrue(response.data.get('can_write'))
+
+    def test_remove_read_only_at_a_member_not_exist(self):
+        """
+        Removes a read only sanction at a member given but not present in the database.
+        """
+        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_remove_read_only_at_a_member_with_unauthenticated_client(self):
+        """
+        Tries to remove a read only sanction at a member with a user isn't authenticated.
+        """
+        client = APIClient()
+        response = client.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_remove_read_only_at_a_member_without_permissions(self):
+        """
+        Tries to remove a read only sanction at a member with a user isn't authenticated.
+        """
+        clientOAuth2 = create_oauth2_client(self.profile.user)
+        clientAuthenticated = APIClient()
+        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+
+        response = clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+def create_oauth2_client(user):
+    client = Client.objects.create(user=user,
+                                   name='zds',
+                                   url='zestedesavoir.com',
+                                   client_type=1)
+    client.save()
+    return client
+
+
+def authenticate_client(client, clientAuth, username, password):
+    client.post('/oauth2/access_token', {
+        'client_id': clientAuth.client_id,
+        'client_secret': clientAuth.client_secret,
+        'username': username,
+        'password': password,
+        'grant_type': 'password'
+    })
+    access_token = AccessToken.objects.get(user__username=username)
+    client.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(access_token))

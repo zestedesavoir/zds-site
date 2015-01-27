@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, DestroyAPIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from zds.member.api.permissions import IsStaffUser
 from zds.member.api.serializers import ProfileSanctionSerializer
 from zds.member.models import Profile
 
@@ -18,7 +18,7 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSanctionSerializer
-    permission_classes = (IsAuthenticated, IsAdminUser)
+    permission_classes = (IsAuthenticated, IsStaffUser)
 
     def post(self, request, *args, **kwargs):
         return self.process_request(request)
