@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from provider.oauth2.models import AccessToken, Client
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
@@ -251,9 +252,258 @@ class MemberListAPITest(APITestCase):
         self.assertIsNotNone(token)
 
     def test_member_list_url_with_put_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
         response = self.client.put(reverse('api-member-list'))
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_member_list_url_with_delete_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
+        response = self.client.delete(reverse('api-member-list'))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
         for user in xrange(0, number_of_users):
             ProfileFactory()
+
+
+class MemberDetailAPITest(APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.profile = ProfileFactory()
+
+        clientOAuth2 = self.create_oauth2_client(self.profile.user)
+        self.clientAuthenticated = APIClient()
+        self.authenticate_client(self.clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+
+    def test_detail_of_a_member(self):
+        """
+        Gets all information about a user.
+        """
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.profile.pk, response.data.get('pk'))
+        self.assertEqual(self.profile.user.username, response.data.get('username'))
+        self.assertEqual(self.profile.user.is_active, response.data.get('is_active'))
+        self.assertEqual(self.profile.site, response.data.get('site'))
+        self.assertEqual(self.profile.avatar_url, response.data.get('avatar_url'))
+        self.assertEqual(self.profile.biography, response.data.get('biography'))
+        self.assertEqual(self.profile.sign, response.data.get('sign'))
+        self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
+        self.assertIsNotNone(response.data.get('date_joined'))
+        self.assertFalse(response.data.get('show_email'))
+        self.assertIsNone(response.data.get('email'))
+
+    def test_detail_of_a_member_who_accepts_to_show_his_email(self):
+        """
+        Gets all information about a user and his email when the user accepts it.
+        """
+        self.profile.show_email = True
+        self.profile.save()
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('show_email'))
+        self.assertEqual(self.profile.user.email, response.data.get('email'))
+
+    def test_detail_of_a_member_not_present(self):
+        """
+        Gets an error when the user isn't present in the database.
+        """
+        response = self.client.get(reverse('api-member-detail', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_member_details_without_any_change(self):
+        """
+        Updates a member but without any changes.
+        """
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.profile.pk, response.data.get('pk'))
+        self.assertEqual(self.profile.user.username, response.data.get('username'))
+        self.assertEqual(self.profile.site, response.data.get('site'))
+        self.assertEqual(self.profile.avatar_url, response.data.get('avatar_url'))
+        self.assertEqual(self.profile.biography, response.data.get('biography'))
+        self.assertEqual(self.profile.sign, response.data.get('sign'))
+        self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
+        self.assertFalse(response.data.get('show_email'))
+        self.assertEqual(self.profile.user.email, response.data.get('email'))
+
+    def test_update_member_details_not_exist(self):
+        """
+        Tries to update a member who doesn't exist in the database.
+        """
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_member_details_with_a_problem_in_authentication(self):
+        """
+        Tries to update a member with a authentication not valid.
+        """
+        response = self.client.put(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_member_details_without_permissions(self):
+        """
+        Tries to update information about a member when the user isn't the target user.
+        """
+        another = ProfileFactory()
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[another.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_member_details_username(self):
+        """
+        Updates username of a member given.
+        """
+        data = {
+            'username': 'Clem'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('username'), data.get('username'))
+
+    def test_update_member_details_email(self):
+        """
+        Updates email of a member given.
+        """
+        data = {
+            'email': 'clem@zestedesavoir.com'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('email'), data.get('email'))
+
+    def test_update_member_details_with_email_malformed(self):
+        """
+        Gets an error when the user try to update a member given with an email malformed.
+        """
+        data = {
+            'email': 'wrong email'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_member_details_site(self):
+        """
+        Updates site of a member given.
+        """
+        data = {
+            'site': 'www.zestedesavoir.com'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('site'), data.get('site'))
+
+    def test_update_member_details_avatar(self):
+        """
+        Updates url of the member's avatar given.
+        """
+        data = {
+            'avatar_url': 'www.zestedesavoir.com'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('avatar_url'), data.get('avatar_url'))
+
+    def test_update_member_details_biography(self):
+        """
+        Updates biography of a member given.
+        """
+        data = {
+            'biography': 'It is my awesome biography.'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('biography'), data.get('biography'))
+
+    def test_update_member_details_sign(self):
+        """
+        Updates sign of a member given.
+        """
+        data = {
+            'sign': 'It is my awesome sign.'
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('sign'), data.get('sign'))
+
+    def test_update_member_details_show_email(self):
+        """
+        Updates show email of a member given.
+        """
+        data = {
+            'show_email': True
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('show_email'), data.get('show_email'))
+
+    def test_update_member_details_show_sign(self):
+        """
+        Updates show sign of a member given.
+        """
+        data = {
+            'show_sign': True
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('show_sign'), data.get('show_sign'))
+
+    def test_update_member_details_hover_or_click(self):
+        """
+        Updates hover or click of a member given.
+        """
+        data = {
+            'hover_or_click': True
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('hover_or_click'), data.get('hover_or_click'))
+
+    def test_update_member_details_email_for_answer(self):
+        """
+        Updates email for answer of a member given.
+        """
+        data = {
+            'email_for_answer': True
+        }
+        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('email_for_answer'), data.get('email_for_answer'))
+
+    def test_member_detail_url_with_post_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
+        response = self.client.post(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_member_detail_url_with_delete_method(self):
+        """
+        Gets an error when the user try to make a request with a method not allowed.
+        """
+        response = self.client.delete(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def create_oauth2_client(self, user):
+        client = Client.objects.create(user=user,
+                                       name='zds',
+                                       url='zestedesavoir.com',
+                                       client_type=1)
+        client.save()
+        return client
+
+    def authenticate_client(self, client, clientAuth, username, password):
+        response = client.post('/oauth2/access_token', {
+            'client_id': clientAuth.client_id,
+            'client_secret': clientAuth.client_secret,
+            'username': username,
+            'password': password,
+            'grant_type': 'password'
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        access_token = AccessToken.objects.get(user__username=username)
+        self.clientAuthenticated.credentials(HTTP_AUTHORIZATION='Bearer {}'.format(access_token))
