@@ -40,7 +40,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         Registers a new user in the system. The user must confirm its registration.
         """
         self.permission_classes = (AllowAny,)
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data)
         serializer.is_valid(raise_exception=True)
         profile = serializer.save()
         token = self.generate_token(profile.user)
