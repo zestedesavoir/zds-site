@@ -94,7 +94,7 @@ STATICFILES_FINDERS = (
 FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
+SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
