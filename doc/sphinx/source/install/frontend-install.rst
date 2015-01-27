@@ -2,7 +2,7 @@
 Installation du frontend
 ========================
 
-Vous voulez nous aider au développement du frontend ? Installez Node.JS et npm grâce aux instructions qui suivent !
+Vous voulez nous aider au développement du frontend ? Installez Node.js et npm grâce aux instructions qui suivent !
 
 Installation de Node.js et npm
 ==============================
@@ -37,7 +37,7 @@ Mais il est possible d'avoir une version un peu plus récente avec :
     sudo apt-get update
     sudo apt-get install nodejs
 
-Certaines dépendances utilisent ``node`` au lieu de ``nodejs`, pour y remédier :
+Certaines dépendances utilisent ``node`` au lieu de ``nodejs``, pour y remédier :
 
 .. sourcecode:: bash
 
@@ -84,7 +84,7 @@ Une installation via ``pkg`` devrait suffire :
 
 *Les instructions pour installer Node.js sur les distributions CentOS, RHEL, FreeBSD et OpenBSD sont issues du lien juste en dessous et n'ont pas été testées.*
 
-Les **instructions détaillées** pour toutes les distributions se trouvent dans la `**documentation officielle** (en anglais) <https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager>`_.
+Les **instructions détaillées** pour toutes les distributions se trouvent dans la `documentation officielle (en anglais) <https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager>`_.
 
 Pour vérifier que Node.js et npm sont installés (et que vous avez les bonnes versions) :
 
@@ -189,7 +189,7 @@ Utilisation de Gulp
 
 Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer. Les différentes tâches sont :
 
- - ``clean`` : Nettoie le dossier ``dist/`
+ - ``clean`` : Nettoie le dossier ``dist/``
  - ``build`` : Compile tout (SCSS, JS et images)
  - ``test`` : Lance les tests (grâce à JSHint)
  - ``watch`` : Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement ; ``Ctrl+C`` pour arrêter)
@@ -198,9 +198,9 @@ Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pa
 
 -----
 
-Pour information, la commande ``npm run`` est un raccourci de la commande ``npm run-script`, donc les deux commandes sont identiques !
+Pour information, la commande ``npm run`` est un raccourci de la commande ``npm run-script``, donc les deux commandes sont identiques !
 
-Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``npm run gulp -- [tâche]`, il vous faut lancer cette commande avec les droits administrateurs :
+Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``npm run gulp -- [tâche]``, il vous faut lancer cette commande avec les droits administrateurs :
 
 .. sourcecode:: bash
 
@@ -218,7 +218,7 @@ Il vous suffit pour cela de lancer la commande :
 
     npm uninstall
 
-Si ça ne fonctionne pas, vous pouvez le faire manuellement grâce à ``rm -rI node_modules/`.
+Si ça ne fonctionne pas, vous pouvez le faire manuellement grâce à ``rm -rI node_modules/``.
 
 Désinstaller les dépendances inutilisées
 ----------------------------------------
