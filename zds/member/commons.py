@@ -43,13 +43,13 @@ class ProfileUsernameValidator(Validator):
         if value:
             if value.strip() == '':
                 msg = _(u'Le nom d\'utilisateur ne peut-être vide')
-            elif User.objects.filter(username=value).count() > 0:
-                msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
             # Forbid the use of comma in the username
             elif "," in value:
                 msg = _(u'Le nom d\'utilisateur ne peut contenir de virgules')
             elif value != value.strip():
                 msg = _(u'Le nom d\'utilisateur ne peut commencer/finir par des espaces')
+            elif User.objects.filter(username=value).count() > 0:
+                msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
             if msg is not None:
                 self.throw_error("username", msg)
         return value
@@ -89,7 +89,7 @@ class ProfileEmailValidator(Validator):
 class ProfileCreate():
     def create_profile(self, data):
         """
-        Creates a profile inactive in the database.
+        Creates an inactive profile in the database.
 
         :param data: Array about an user.
         :type data: array
@@ -147,8 +147,8 @@ class TokenGenerator():
         :rtype: None
         """
         subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['abbr'])
-        from_email = '{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
-                                      settings.ZDS_APP['site']['email_noreply'])
+        from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
+                                       settings.ZDS_APP['site']['email_noreply'])
         template_context = Context(
             {
                 'username': user.username,
