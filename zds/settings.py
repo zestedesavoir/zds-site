@@ -239,6 +239,15 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
 }
 
+SWAGGER_SETTINGS = {
+    'enabled_methods': [
+        'get',
+        'post',
+        'put',
+        'delete'
+    ]
+}
+
 if (DEBUG):
     INSTALLED_APPS += (
         'debug_toolbar',
