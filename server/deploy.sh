@@ -48,7 +48,7 @@ git checkout -b $1
 # Front commands
 source /usr/local/nvm/nvm.sh
 # Update packages
-npm update --production
+npm install --production
 # Remove unused packages
 npm prune --production
 # Clean the front stuff
