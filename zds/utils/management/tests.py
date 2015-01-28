@@ -13,15 +13,11 @@ from zds.member.factories import ProfileFactory
 
 class CommandsTestCase(TestCase):
     def test_load_fixtures(self):
-        """
-        Test load many fixtures.
-        """
 
         args = []
         opts = {}
         call_command('load_fixtures', *args, **opts)
 
-        # Some Asserts.
         self.assertTrue(User.objects.count() > 0)
         self.assertTrue(Permission.objects.count() > 0)
         self.assertTrue(Profile.objects.count() > 0)
