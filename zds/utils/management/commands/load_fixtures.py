@@ -228,7 +228,9 @@ def load_topics(cli, size, fake):
                         topic.is_sticky = True
                     nb_rand_tags = random.randint(0, 5)
                     for k in range(0, nb_rand_tags):
-                        topic.tags.add(random.randint(1, nb_tags))
+                        my_t = Tag.objects.filter(pk=random.randint(1, nb_tags)).first()
+                        if my_t is not None:
+                            topic.tags.add(my_t)
                     topic.title = fake.text(max_nb_chars=80)
                     topic.subtitle = fake.text(max_nb_chars=200)
                     topic.save()
@@ -430,7 +432,7 @@ def load_tutorials(cli, size, fake):
             else:
                 # big tutorials
                 for i in range(0, nb_tutos):
-                    tuto = BigTutorialFactory(title=fake.text(max_nb_chars=200),
+                    tuto = BigTutorialFactory(title=fake.text(max_nb_chars=80),
                                               description=fake.sentence(nb_words=15, variable_nb_words=True))
                     tuto.authors.add(profiles[i % nb_users].user)
                     tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
@@ -439,18 +441,18 @@ def load_tutorials(cli, size, fake):
                     for j in range(0, nb_part):
                         parts.append(PartFactory(tutorial=tutorials[i],
                                                  position_in_tutorial=j,
-                                                 title=fake.text(max_nb_chars=200)))
+                                                 title=fake.text(max_nb_chars=80)))
                         nb_chap = randint(0, nb_avg_chapters_in_tuto * 2)
                         for k in range(0, nb_chap):
                             chapters.append(ChapterFactory(part=parts[j],
                                                            position_in_part=k,
                                                            position_in_tutorial=j * k,
-                                                           title=fake.text(max_nb_chars=200)))
+                                                           title=fake.text(max_nb_chars=80)))
                             nb_ext = randint(0, nb_avg_extracts_in_tuto * 2)
                             for l in range(0, nb_ext):
                                 ExtractFactory(chapter=chapters[k],
                                                position_in_chapter=l,
-                                               title=fake.text(max_nb_chars=200))
+                                               title=fake.text(max_nb_chars=80))
                     if i < int(nb_tutos * percent_tutos_validation_with_validator):
                         validator = staffs[random.randint(0, nb_staffs-1)]
                         v = TValidation(tutorial=tuto,
@@ -490,7 +492,7 @@ def load_tutorials(cli, size, fake):
 
                 # Mini tutorials
                 for i in range(0, nb_tutos):
-                    tuto = MiniTutorialFactory(title=fake.text(max_nb_chars=200),
+                    tuto = MiniTutorialFactory(title=fake.text(max_nb_chars=80),
                                                description=fake.sentence(nb_words=15, variable_nb_words=True))
                     tuto.authors.add(profiles[i % nb_users].user)
                     tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
@@ -500,7 +502,7 @@ def load_tutorials(cli, size, fake):
                     for l in range(0, nb_ext):
                         ExtractFactory(chapter=chap,
                                        position_in_chapter=l,
-                                       title=fake.text(max_nb_chars=200))
+                                       title=fake.text(max_nb_chars=80))
                     if i < int(nb_tutos * percent_tutos_validation_with_validator):
                         validator = staffs[random.randint(0, nb_staffs-1)]
                         v = TValidation(tutorial=tuto,
@@ -581,7 +583,7 @@ def load_articles(cli, size, fake):
                                  u"Vous devez rajouter les staffs dans vos fixtures (staff)")
             else:
                 for i in range(0, nb_arts):
-                    art = ArticleFactory(title=fake.text(max_nb_chars=200),
+                    art = ArticleFactory(title=fake.text(max_nb_chars=80),
                                          description=fake.sentence(nb_words=15, variable_nb_words=True))
                     art.authors.add(profiles[i % nb_users].user)
                     art.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
