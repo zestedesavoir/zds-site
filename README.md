@@ -33,9 +33,9 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zes
 
 ### Installation d'une version locale de ZdS
 
-- [Intallation du backend sur Windows](http://zds-site.readthedocs.org/fr/latest/install/backend-windows-install.html)
-- [Intallation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
-- [Intallation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
+- [Installation du backend sur Windows](http://zds-site.readthedocs.org/fr/latest/install/backend-windows-install.html)
+- [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
+- [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
 - [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
 - [Installation de Solr](doc/install-solr.md) pour gérer la recherche
 
