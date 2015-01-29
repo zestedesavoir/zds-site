@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
@@ -62,7 +62,7 @@ class MemberDetail(DetailView):
     model = User
     template_name = 'member/profile.html'
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         return get_object_or_404(User, username=self.kwargs['user_name'])
 
     def get_context_data(self, **kwargs):
@@ -93,7 +93,7 @@ class UpdateMember(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(UpdateMember, self).dispatch(*args, **kwargs)
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
     def get_form(self, form_class):
@@ -115,16 +115,16 @@ class UpdateMember(UpdateView):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            return self.form_valid(request, form)
+            return self.form_valid(form)
 
         return render(request, self.template_name, {'form': form})
 
-    def form_valid(self, request, form):
+    def form_valid(self, form):
         profile = self.get_object()
         self.update_profile(profile, form)
         self.save_profile(profile)
 
-        return HttpResponseRedirect(self.get_success_url())
+        return super(UpdateMember, self).form_valid(form)
 
     def update_profile(self, profile, form):
         cleaned_data_options = form.cleaned_data.get('options')
@@ -225,7 +225,7 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     form_class = RegisterForm
     template_name = 'member/register/index.html'
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
     def get_form(self, form_class):
@@ -235,18 +235,18 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-            return self.form_valid(request, form)
+            return self.form_valid(form)
 
         return render(request, self.template_name, {'form': form})
 
-    def form_valid(self, request, form):
+    def form_valid(self, form):
         profile = self.create_profile(form.data)
-        profile.last_ip_address = get_client_ip(request)
+        profile.last_ip_address = get_client_ip(self.request)
         self.save_profile(profile)
         token = self.generate_token(profile.user)
         self.send_email(token, profile.user)
 
-        return render(request, self.get_success_template())
+        return render(self.request, self.get_success_template())
 
     def get_success_template(self):
         return 'member/register/success.html'

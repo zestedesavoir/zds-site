@@ -16,7 +16,7 @@ from zds.settings import SITE_ROOT
 from zds.utils.mps import send_mp
 
 
-class Validator():
+class Validator(object):
     """
     Super class must be extend by classes which wants validate a model field.
     """
@@ -86,7 +86,7 @@ class ProfileEmailValidator(Validator):
         return value
 
 
-class ProfileCreate():
+class ProfileCreate(object):
     def create_profile(self, data):
         """
         Creates an inactive profile in the database.
@@ -119,7 +119,7 @@ class ProfileCreate():
         profile.user.save()
 
 
-class TokenGenerator():
+class TokenGenerator(object):
     def generate_token(self, user):
         """
         Generates a token for member registration.
@@ -163,7 +163,7 @@ class TokenGenerator():
         msg.attach_alternative(message_html, 'text/html')
         try:
             msg.send()
-        except:  # TODO rajouter l'exception
+        except Exception:
             pass
 
 
