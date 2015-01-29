@@ -1,7 +1,11 @@
-Configuration des serveurs
-==========================
+========================================
+Configuration des serveurs de production
+========================================
 
-Zeste de Savoir est installe en 1 tiers (sur un seul serveur donc).
+Zeste de Savoir est installé en 1 tiers (sur un seul serveur donc).
+
+Paramètres
+==========
 
 Paramètres généraux
 -------------------
@@ -26,9 +30,9 @@ Paramètres spécifiques
 ----------------------
 
 +----------------+-----------------------------+-----------------------------+
-| Pré-prod       | Prod                        |
+|                | Préproduction               | Production                  |
 +================+=============================+=============================+
-| Nom            | preprod.zestedesavoir.com   | zestedesavoir.com           |
+| Nom            | beta.zestedesavoir.com      | zestedesavoir.com           |
 +----------------+-----------------------------+-----------------------------+
 | IPv4           | ``46.105.246.77``           | ``176.31.187.88``           |
 +----------------+-----------------------------+-----------------------------+
@@ -42,7 +46,12 @@ Paramètres spécifiques
 Premier déploiement
 ===================
 
-Toute la procédure suppose un dépoiement dans ``/opt/zdsenv``.
+Toute la procédure suppose un déploiement dans ``/opt/zdsenv``.
+
+Utilisateur local
+-----------------
+
+Zeste de Savoir tourne sous l'utilisateur **zds** et le groupe **root**.
 
 Installation des outils
 -----------------------
@@ -58,13 +67,11 @@ Clone du repo et configuration de prod
 -  ``mkdir tutoriels-private``
 -  ``mkdir tutoriels-public``
 -  ``mkdir articles-data``
--  ``touch zds/settings_prod.py``
 -  ``vim zds/settings_prod.py``
 
-On édite le fichier de manière à rajouter les infos spécifiques au
-serveur courant. Par exemple :
+On édite le fichier de manière à rajouter les infos spécifiques au serveur courant. Par exemple :
 
-.. code:: text
+.. code:: python
 
     DEBUG = False
 
@@ -87,22 +94,14 @@ serveur courant. Par exemple :
 Installation de l'application de base
 -------------------------------------
 
-Suivre `l'installation complète sous Linux <install-linux.md>`__ en
-tenant compte des subtilités suivantes :
+Suivre `l'installation complète sous Linux <backend-linux-install.html>`__ en tenant compte des subtilités suivantes :
 
--  Installer `les outils front <gulp.md>`__ (l'installation rapide
-   suffit)
+-  Installer `les outils front <frontend-install.md>`__
 -  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
--  Installer toutes les dépendances requises à l'étape *"Aller plus
-   loin"*
+-  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
 
 Outils spécifiques à un serveur de run
 --------------------------------------
-
-Utilisateur local
-~~~~~~~~~~~~~~~~~
-
-Zeste de Savoir tourne sous l'utilisateur **zds** et le groupe **root**.
 
 Gunicorn
 ~~~~~~~~
@@ -111,7 +110,7 @@ Installer Gunicorn dans le virtualenv.
 
 Dans ``/opt/zdsenv/unicorn_start`` :
 
-.. code:: shell
+.. code:: bash
 
     #!/bin/bash
 
@@ -146,9 +145,7 @@ Dans ``/opt/zdsenv/unicorn_start`` :
 Nginx
 ~~~~~
 
-Installer nginx. Sous Debian, la configuration est splittée par site.
-Pour Zeste de Savoir elle se fait dans
-``/etc/nginx/sites-available/zestedesavoir`` :
+Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zeste de Savoir, elle se fait dans ``/etc/nginx/sites-available/zestedesavoir`` :
 
 .. code:: text
 
@@ -175,19 +172,6 @@ Pour Zeste de Savoir elle se fait dans
         access_log /opt/zdsenv/logs/nginx-access.log;
         error_log /opt/zdsenv/logs/nginx-error.log;
 
-        location /author-files/ {
-            index index.html index.php;
-            alias /home/zds/tutos_sdzv3/script/;
-            include php.fast.conf;
-        }
-
-        location /roundcube/{
-            index index.html index.php;
-            alias /opt/roundcube/;
-            #autoindex on;
-            include php.fast.conf;
-        }
-
         location = /robots.txt {
             alias /opt/zdsenv/ZesteDeSavoir/robots.txt ;
         }
@@ -196,12 +180,8 @@ Pour Zeste de Savoir elle se fait dans
             alias /opt/zdsenv/lib/python2.7/site-packages/django/contrib/admin/static/admin/;
         }
 
-        location /stats/ {
-            alias /opt/zdsenv/stats/;
-        }
-
         location /static/ {
-            alias /opt/zdsenv/ZesteDeSavoir/dist/;
+            alias /opt/zdsenv/ZesteDeSavoir/static/;
             expires 1d;
             add_header Pragma public;
             add_header Cache-Control "public, must-revalidate, proxy-revalidate";
@@ -212,18 +192,6 @@ Pour Zeste de Savoir elle se fait dans
             expires 1d;
             add_header Pragma public;
             add_header Cache-Control "public, must-revalidate, proxy-revalidate";
-        }
-
-        location /teasing/ {
-               #### proxy_pass http://176.31.187.88:8001/teasing/;
-                proxy_set_header X-Forwarded-Host $server_name;
-                proxy_set_header X-Forwaded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header REMOTE_ADDR $remote_addr;
-                add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
-                proxy_pass http://zdsappserver/teasing/;
-
-
         }
 
         location / {
@@ -260,7 +228,7 @@ Pour Zeste de Savoir elle se fait dans
 Solr
 ~~~~
 
-**???**
+`Voir la documentation de Solr <install-solr.html>`.
 
 Supervisor
 ~~~~~~~~~~
@@ -272,9 +240,7 @@ Créer deux configurations :
 Configuration ZdS
 ^^^^^^^^^^^^^^^^^
 
-La conf dans ``/etc/supervisor/conf.d/zds.conf`` permet de lancer Solr à
-l'aide de ``supervisorctl start zds`` et l'arrêter avec
-``supervisorctl stop zds``.
+La conf dans ``/etc/supervisor/conf.d/zds.conf`` permet de lancer Solr à l'aide de ``supervisorctl start zds`` et l'arrêter avec ``supervisorctl stop zds``.
 
 .. code:: text
 
@@ -287,14 +253,11 @@ l'aide de ``supervisorctl start zds`` et l'arrêter avec
 Configuration Solr
 ^^^^^^^^^^^^^^^^^^
 
-La conf dans ``/etc/supervisor/conf.d/solr.conf`` permet de lancer Solr
-à l'aide de ``supervisorctl start solr`` et l'arrêter avec
-``supervisorctl stop solr``.
+La conf dans ``/etc/supervisor/conf.d/solr.conf`` permet de lancer Solr à l'aide de ``supervisorctl start solr`` et l'arrêter avec ``supervisorctl stop solr``.
 
 .. code:: text
 
     [program:solr]
-    directory=/opt/zdsenv/ZesteDeSavoir/apache-solr/example
     command=java -jar start.jar
     autostart=true
     autorestart=true
@@ -309,14 +272,9 @@ Configuration générale
 
 Installer le noeud Munin : ``apt-get install munin-node``.
 
-On obtient les suggestions de plugins à installer avec
-``munin-node-configure --suggest`` et les commandes à lancer pour les
-activer via ``munin-node-configure --shell``.
+On obtient les suggestions de plugins à installer avec ``munin-node-configure --suggest`` et les commandes à lancer pour les activer via ``munin-node-configure --shell``.
 
-Pour l'instant le serveur de graphe est fourni par SpaceFox et `est
-visible ici <http://munin.kisai.info>`__. Seul SpaceFox peut mettre à
-jour cette configuration. Le serveur de graphe accède au serveur en SSH
-avec cette clé publique :
+Pour l'instant le serveur de graphe est fourni par SpaceFox et `est visible ici <http://munin.kisai.info>`__. Seul SpaceFox peut mettre à jour cette configuration. Le serveur de graphe accède au serveur en SSH avec cette clé publique :
 
 .. code:: text
 
@@ -327,7 +285,7 @@ Configuration spécifique à ZdS
 
 Créer les liens vers le plugin Django-Munin :
 
-.. code:: shell
+.. code:: bash
 
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_active_sessions
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_active_users
@@ -340,8 +298,7 @@ Créer les liens vers le plugin Django-Munin :
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_total_tutorials
     ln -s /usr/share/munin/plugins/django.py /etc/munin/plugins/zds_total_users
 
-Ajouter les métriques suivantes au fichier
-``/etc/munin/plugin-conf.d/munin-node`` :
+Ajouter les métriques suivantes au fichier ``/etc/munin/plugin-conf.d/munin-node`` :
 
 .. code:: text
 
@@ -388,60 +345,107 @@ Ajouter les métriques suivantes au fichier
 Mise à jour d'une instance existante
 ====================================
 
-::
+`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/server/deploy.sh>` ! ;)
 
-    cd /opt/zdsenv
-    source bin/activate
-    cd ZesteDeSavoir
+Personnalisation d'une instance
+===============================
 
-Arrêt de l'application
-----------------------
+Il est possible de personnaliser ZdS pour n'importe quel site communautaire de partage. Un ensemble de paramètres est disponible dans le fichier ``settings.py`` via un dictionnaire. Vous pourrez donc écraser ces variables par défaut dans votre fichier ``settings_prod.py``. Le dictionnaire de variables relatives au site est donc le suivant :
 
-``sudo supervisorctl stop zds``
+.. sourcecode:: python
 
-Mise à jour de l'application
-----------------------------
-
-Mise à jour du code :
-
-``git pull``
-
-Migration de la BDD :
-
-``python manage.py migrate``
-
-MAJ des statics :
-
-Sous le compte **zds** :
-
-::
-
-    source /usr/local/nvm/nvm.sh
-    gulp clean
-    gulp build
-
-Modification du ``settings_prod.py`` :
-
-Si un utilisateur anonyme et un utilisateur permettant de récupérer les
-tutoriels venant de l'extérieur existent déjà, configurez les constantes
-``ZDS_APP.member['anonymous_account']`` et
-``ZDS_APP.member['external_account']`` pour que ces dernières aient pour
-valeur le pseudo desdits utilisateurs. Si vous désirez que ces
-utilisateurs soient injoignables soyez sûrs qu'ils sont enregistrés dans
-le groupe ``bot`` qui devra être concordant avec le paramètre
-\`ZDS\_APP.member['bot\_group'].
-
-Sinon, utilisez au choix le shell django ou bien
-
-::
-
-    python manage.py loaddata fixtures/users.py #crée aussi un utilisateur admin, staff et user, donc utilisez cette commande avec précaution.
-
-Réindexation Solr :
-
-``python manage.py rebuild_index``
-
-Redémarrage de l'application
-----------------------------
-
-``sudo supervisorctl start zds``
+    ZDS_APP = {
+        'site': {
+            'name': u"ZesteDeSavoir",
+            'litteral_name': u"Zeste de Savoir",
+            'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
+            'abbr': u"zds",
+            'url': u"http://127.0.0.1:8000",
+            'dns': u"zestedesavoir.com",
+            'email_contact': u"communication@zestedesavoir.com",
+            'email_noreply': u"noreply@zestedesavoir.com",
+            'repository': u"https://github.com/zestedesavoir/zds-site",
+            'short_description': u"",
+            'long_description': u"Zeste de Savoir est un site de partage de connaissances "
+                                u"sur lequel vous trouverez des tutoriels de tous niveaux, "
+                                u"des articles et des forums d'entraide animés par et pour "
+                                u"la communauté.",
+            'year': u"2014",
+            'association': {
+                'name': u"Zeste de Savoir",
+                'fee': u"30 €",
+                'email': u"association@zestedesavoir.com",
+                'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
+            },
+            'licenses': {
+                'logo': {
+                    'code': u"CC-BY",
+                    'title': u"Creative Commons License",
+                    'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - "
+                                u"Partage dans les Mêmes Conditions 4.0 International.",
+                    'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
+                    'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
+                    'author': u"MaxRoyo"
+                },
+                'cookies': {
+                    'code': u"CC-BY",
+                    'title': u"Licence Creative Commons",
+                    'description': u"licence Creative Commons Attribution 4.0 International",
+                    'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
+                    'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/"
+                },
+                'source': {
+                    'code': u"GPL v3",
+                    'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
+                    'provider_name': u"Progdupeupl",
+                    'provider_url': u"http://progdupeu.pl",
+                },
+                'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+                'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
+            },
+            'hosting': {
+                'name': u"OVH",
+                'address': u"2 rue Kellermann - 59100 Roubaix - France"
+            },
+            'social': {
+                'facebook': u'https://www.facebook.com/ZesteDeSavoir',
+                'twitter': u'https://twitter.com/ZesteDeSavoir',
+                'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
+            },
+            'cnil': u"1771020",
+        },
+        'member': {
+            'bot_account': u"admin",
+            'anonymous_account': u"anonymous",
+            'external_account': u"external",
+            'bot_group': u'bot',
+            'members_per_page': 100,
+        },
+        'gallery': {
+            'image_max_size': 1024 * 1024,
+        },
+        'article': {
+            'home_number': 5,
+            'repo_path': os.path.join(SITE_ROOT, 'articles-data')
+        },
+        'tutorial': {
+            'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
+            'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
+            'default_license_pk': 7,
+            'home_number': 5,
+            'helps_per_page': 20
+        },
+        'forum': {
+            'posts_per_page': 21,
+            'topics_per_page': 21,
+            'spam_limit_seconds': 60 * 15,
+            'spam_limit_participant': 2,
+            'followed_topics_per_page': 21,
+            'beta_forum_id': 1,
+            'max_post_length': 1000000,
+            'top_tag_max': 5,
+        },
+        'paginator':{
+            'folding_limit': 4
+        }
+    }

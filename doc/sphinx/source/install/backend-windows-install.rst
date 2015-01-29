@@ -1,6 +1,6 @@
-=====================================================
-Installation du backend sous **Windows 7, 8** et plus
-=====================================================
+====================================
+Installation du backend sous Windows
+====================================
 
 Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -15,7 +15,8 @@ Prérequis
 - `Téléchargez et installez Python 2.7 <https://www.python.org/download/releases/2.7/>`_
 - Installez setuptools : Démarrez `Powershell <http://fr.wikipedia.org/wiki/Windows_PowerShell>`_ **en mode administrateur** et lancez la commande suivante : ``(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -``
 - Redémarrez Powershell
-- Installez pip : ``easy_install pip tox``
+- Installez pip : ``easy_install pip``
+- Installez tox : ``pip install tox``
 - Désactivez la sécurité sur les script powershell ``Set-ExecutionPolicy RemoteSigned``
 - Installez Virtualenv avec les commandes suivante : 
     - ``pip install virtualenv``

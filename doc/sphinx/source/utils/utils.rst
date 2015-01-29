@@ -16,6 +16,5 @@ Pour préciser le tutoriel à regenerer, il suffit de rajouter l'argument ``id=1
 .. toctree::
    :maxdepth: 2
 
-   translate
    templatetags
    context_processors

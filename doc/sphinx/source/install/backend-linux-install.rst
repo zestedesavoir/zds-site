@@ -15,7 +15,8 @@ Assurez vous que les dépendances suivantes soient résolues :
 - python2.7
 - python-dev : ``apt-get install python-dev``
 - easy_install : ``apt-get install python-setuptools``
-- pip : ``easy_install pip tox``
+- pip : ``easy_install pip``
+- tox : ``pip install tox``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
@@ -31,7 +32,7 @@ Ou, en une ligne,
     easy_install pip tox
 
 Installation et configuration de `virtualenv`
-============================================
+=============================================
 
 (cette étape n'est pas obligatoire, mais fortement conseillée)
 

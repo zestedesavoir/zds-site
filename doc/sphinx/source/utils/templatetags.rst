@@ -1,4 +1,4 @@
-
+===================================
 Elements de templates personnalisés
 ===================================
 
@@ -9,25 +9,27 @@ La majorité de ces modules proposent aussi des fonctions proposant les même fo
 Python.
 
 append_to_get
--------------
+=============
 
 L'élément ``append_to_get`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
-``module/toto``, le code de template suivant ::
+``module/toto``, le code de template suivant :
 
     {% load append_to_get %}
     <a href="{% append_to_get key1=var1,key2=var2 %}">Mon lien</a>
 
-produira le code suivant ::
+produira le code suivant :
+
+.. sourcecode:: html
 
     <a href="module/toto?key1=1&key2=2">Mon lien</a>
 
 si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``
 
 captureas
----------
+=========
 
 L'élément ``captureas`` permet de demander d'effectuer le rendu d'un bloc de template et de stocker son contenu dans
-une variable. Ainsi le code suivant ::
+une variable. Ainsi le code suivant :
 
     {% load captureas %}
     {% captureas var2 %}
@@ -40,42 +42,42 @@ ne produit rien en sortie mais affecte le résultat du bloc entre les éléments
 ``{% endcaptureas %}``, soit ``0123456789``, dans la variable de template ``var2``
 
 date
-----
+====
 
 Plusieurs filtres sont disponible dans ce module.
 
 format_date
-+++++++++++
+-----------
 
-Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur le site::
+Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur le site :
 
     {% load date %}
     {{ date | format_date}}
 
 tooltip_date
-++++++++++++
+------------
 
 Ce filtre effectue la même chose que ``format_date`` mais à destination des ``tooltip``.
 
 humane_time
-+++++++++++
+-----------
 
-Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisible. Ainsi ::
+Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisible. Ainsi :
 
     {% load date %}
     {{ date_epoch | humane_time}}
 
-sera rendu ::
+sera rendu :
 
     01 Jan 1970, 01:00:42
 
 Si le contenu de ``date_epoch`` etait de ``42``.
 
 emarkdown
----------
+=========
 
 Markdown vers HTML
-++++++++++++++++++
+------------------
 
 Permet de rendre un texte markdown en HTML :
 
@@ -85,7 +87,7 @@ Permet de rendre un texte markdown en HTML :
 
 
 Markdown vers Markdown
-++++++++++++++++++++++
+----------------------
 
 Ces élements sont utilisés dans le cadre de la transformation du markdown avant d'être traité par ``Pandoc`` lors de la
 génération des fichiers PDF et EPUB des tutos :
@@ -104,7 +106,7 @@ Ces templatetags sont principalement fondés sur https://github.com/morninj/djan
 obfuscate
 +++++++++
 
-L'email va être encodé avec des caractères ASCII pour le protéger des bots ::
+L'email va être encodé avec des caractères ASCII pour le protéger des bots :
 
     {% load email_obfuscator %}
     {{ 'your@email.com'|obfuscate }}
@@ -113,8 +115,8 @@ L'email va être encodé avec des caractères ASCII pour le protéger des bots :
 obfuscate_mailto
 ++++++++++++++++
 
-Ce templatetag ajoute en plus un `mailto`. Il prend un paramètre optionnel qui permet d'avoir un text personnalisé dans
-la balise <a> ::
+Ce templatetag ajoute en plus un ``mailto``. Il prend un paramètre optionnel qui permet d'avoir un text personnalisé dans
+la balise <a> :
 
     {% load email_obfuscator %}
     {{ 'your@email.com'|obfuscate_mailto:"my custom text" }}
@@ -125,18 +127,18 @@ la balise <a> ::
 obfuscate_mailto_top_subject
 ++++++++++++++++++++++++++++
 
-Identique sur le fonctionnement à `obfuscate_mailto`, ce templatetag ajoute en plus un sujet (qui remplace le champ
-pouvant être inséré entre les balises <a> et </a>) ainsi que `target="_top"`.
+Identique sur le fonctionnement à ``obfuscate_mailto``, ce templatetag ajoute en plus un sujet (qui remplace le champ
+pouvant être inséré entre les balises ``<a>`` et ``</a>``) ainsi que ``target="_top"``.
 
 Il est utilisé sur la page « Contact ».
 
-Exemple ::
+Exemple :
 
     {% load email_obfuscator %}
     {{ 'association@zestedesavoir.com'|obfuscate_mailto_top_subject:"Contact communication" }}
 
 
 autres
-------
+======
 
 **TODO**

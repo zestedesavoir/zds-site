@@ -1,12 +1,12 @@
-=============
+===
 API
-=============
+===
 
 Informations générales
 ======================
 
 En-têtes possibles
------------------
+------------------
 
 - ``Accept`` : L'API accepte plusieurs rendus, à savoir le ``JSON`` (par défaut) et l'``XML``. Toutes les requêtes peuvent donc renvoyer un résultat dans ces deux formats.
 - ``Content-Type`` : L'API accepte plusieurs parsers, à savoir le ``JSON`` (par défaut), l'``XML``, le formulaire et le multi part (``x-www-form-urlencoded``).
@@ -49,13 +49,12 @@ L'authentification se base sur l'utilisation d'access token et de refresh token 
 
 .. sourcecode:: json
 
-{
-  "access_token": "<your-access-token>",
-  "scope": "read",
-  "expires_in": 86399,
-  "refresh_token": "<your-refresh-token>"
-}
-
+    {
+    "access_token": "<your-access-token>",
+    "scope": "read",
+    "expires_in": 86399,
+    "refresh_token": "<your-refresh-token>"
+    }
 
 1. L'utilisateur se log pour la première fois grâce à un client à l'API.
 2. Le serveur lui renvoi son access token avec son expiration et son refresh token sans expiration.
