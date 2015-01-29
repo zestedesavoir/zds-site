@@ -453,9 +453,13 @@ ZDS_APP = {
         'default_license_pk': 7,
         'home_number': 5,
         'helps_per_page': 20,
-        'max_tree_depth': 3,
         'content_per_page': 50,
         'feed_length': 5
+    },
+    'content': {
+        'repo_private_path': os.path.join(SITE_ROOT, 'contents-private'),
+        'repo_public_path': os.path.join(SITE_ROOT, 'contents-public'),
+        'max_tree_depth': 3
     },
     'forum': {
         'posts_per_page': 21,

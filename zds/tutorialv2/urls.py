@@ -1,12 +1,12 @@
 # coding: utf-8
 
-from django.conf.urls import patterns, url
-
-from . import views
-from . import feeds
-from .views import *
+from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
+                       url(r'^contenus/', include('zds.tutorialv2.url.url_contents', namespace='content'))
+)
+
+"""urlpatterns = patterns('',
                        # viewing articles
                        url(r'^articles/$', ArticleList.as_view(), name="index-article"),
                        url(r'^articles/flux/rss/$', feeds.LastArticlesFeedRSS(), name='article-feed-rss'),
@@ -136,4 +136,4 @@ urlpatterns = patterns('',
                        url(r'^aides/$',
                            TutorialWithHelp.as_view()),
                        )
-
+"""

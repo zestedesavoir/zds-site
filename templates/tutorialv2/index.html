@@ -1,0 +1,56 @@
+{% extends "tutorialv2/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Mes contenus" %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tutorials">
+            {% block headline %}
+                {% trans "Mes contenus" %}
+            {% endblock %}
+        </h2>
+
+        {% if tutorials %}
+            <h3>{% trans "Mes tutoriels" %}</h3>
+            <div class="tutorial-list clearfix">
+                {% for tutorial in tutorials %}
+                    {% include "tutorialv2/includes/content_item.part.html" with content=tutorial %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if articles %}
+            <h3>{% trans "Mes articles" %}</h3>
+            <div class="tutorial-list clearfix">
+                {% for article in articles %}
+                    {% include "tutorialv2/includes/content_item.part.html" with content=article %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if not articles and not tutorials %}
+            <p>{% trans "Vous n'avez encore créé aucun contenu" %}</p>
+        {% endif %}
+    </section>
+{% endblock %}
+
+
+
+{% block sidebar_new %}
+    <a href="{% url "content:create" %}" class="new-btn ico-after more blue">
+        {% trans "Nouveau contenu" %}
+    </a>
+{% endblock %}

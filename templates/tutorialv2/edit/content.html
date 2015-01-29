@@ -1,0 +1,40 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Éditer le contenu" %}
+{% endblock %}
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Éditer le contenu" %}</li>
+{% endblock %}
+
+{% block headline %}
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% trans "Éditer" %} : {{ content.title }}
+    </h1>
+{% endblock %}
+
+{% block headline_sub %}
+   {{ content.description }}
+{% endblock %}
+
+
+{% block content %}
+    {% if new_version %}
+        <p class="ico-after warning">
+            {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
+        </p>
+    {% endif %}
+    {% crispy form %}
+{% endblock %}

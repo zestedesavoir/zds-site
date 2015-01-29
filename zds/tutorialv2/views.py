@@ -25,6 +25,7 @@ import tempfile
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -40,9 +41,9 @@ from django.views.decorators.http import require_POST
 from git import Repo, Actor
 from lxml import etree
 
-from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
+from forms import ContentForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
-from models import PublishableContent, Container, Extract, Validation, ContentReaction  # , ContentRead
+from models import PublishableContent, Container, Extract, Validation, ContentReaction, init_new_repo
 from utils import never_read, mark_read
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
@@ -60,9 +61,333 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, get_sep, get_text_is_empty, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView, DetailView  # , UpdateView
+from django.views.generic import ListView, DetailView, FormView, DeleteView
 # until we completely get rid of these, import them :
 from zds.tutorial.models import Tutorial, Chapter, Part
+from zds.tutorial.forms import TutorialForm
+
+
+class ListContent(ListView):
+    """
+    Displays the list of offline contents (written by user)
+    """
+    context_object_name = 'contents'
+    template_name = 'tutorialv2/index.html'
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        """rewrite this method to ensure decoration"""
+        return super(ListContent, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        """
+        Filter the content to obtain the list of content written by current user
+        :return: list of articles
+        """
+        query_set = PublishableContent.objects.all().filter(authors__in=[self.request.user])
+        return query_set
+
+    def get_context_data(self, **kwargs):
+        """Separate articles and tutorials"""
+        context = super(ListContent, self).get_context_data(**kwargs)
+        context['articles'] = []
+        context['tutorials'] = []
+        for content in self.get_queryset():
+            versioned = content.load_version()
+            if content.type == 'ARTICLE':
+                context['articles'].append(versioned)
+            else:
+                context['tutorials'].append(versioned)
+        return context
+
+
+class CreateContent(FormView):
+    template_name = 'tutorialv2/create/content.html'
+    model = PublishableContent
+    form_class = ContentForm
+    content = None
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        """rewrite this method to ensure decoration"""
+        return super(CreateContent, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        # create the object:
+        self.content = PublishableContent()
+        self.content.title = form.cleaned_data['title']
+        self.content.description = form.cleaned_data["description"]
+        self.content.type = form.cleaned_data["type"]
+        self.content.licence = form.cleaned_data["licence"]
+
+        self.content.creation_date = datetime.now()
+
+        # Creating the gallery
+        gal = Gallery()
+        gal.title = form.cleaned_data["title"]
+        gal.slug = slugify(form.cleaned_data["title"])
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # Attach user to gallery
+        userg = UserGallery()
+        userg.gallery = gal
+        userg.mode = "W"  # write mode
+        userg.user = self.request.user
+        userg.save()
+        self.content.gallery = gal
+
+        # create image:
+        if "image" in self.request.FILES:
+            img = Image()
+            img.physical = self.request.FILES["image"]
+            img.gallery = gal
+            img.title = self.request.FILES["image"]
+            img.slug = slugify(self.request.FILES["image"])
+            img.pubdate = datetime.now()
+            img.save()
+            self.content.image = img
+
+        self.content.save()
+
+        # We need to save the tutorial before changing its author list since it's a many-to-many relationship
+        self.content.authors.add(self.request.user)
+
+        # Add subcategories on tutorial
+        for subcat in form.cleaned_data["subcategory"]:
+            self.content.subcategory.add(subcat)
+
+        # Add helps if needed
+        for helpwriting in form.cleaned_data["helps"]:
+            self.content.helps.add(helpwriting)
+
+        self.content.save()
+
+        # create a new repo :
+        init_new_repo(self.content,
+                      form.cleaned_data['introduction'],
+                      form.cleaned_data['conclusion'],
+                      form.cleaned_data['msg_commit'])
+
+        return super(CreateContent, self).form_valid(form)
+
+    def get_success_url(self):
+        if self.content:
+            return reverse('content:view', args=[self.content.pk, self.content.slug])
+        else:
+            return reverse('content:index')
+
+
+class DisplayContent(DetailView):
+    """Base class that can show any content in any state"""
+
+    model = PublishableContent
+    template_name = 'tutorialv2/view/content.html'
+    online = False
+    sha = None
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        """rewrite this method to ensure decoration"""
+        return super(DisplayContent, self).dispatch(*args, **kwargs)
+
+    def get_forms(self, context, content):
+        """get all the auxiliary forms about validation, js fiddle..."""
+        validation = Validation.objects.filter(content__pk=content.pk)\
+            .order_by("-date_proposition")\
+            .first()
+        form_js = ActivJsForm(initial={"js_support": content.js_support})
+
+        if content.source:
+            form_ask_validation = AskValidationForm(initial={"source": content.source})
+            form_valid = ValidForm(initial={"source": content.source})
+        else:
+            form_ask_validation = AskValidationForm()
+            form_valid = ValidForm()
+        form_reject = RejectForm()
+
+        context["validation"] = validation
+        context["formAskValidation"] = form_ask_validation
+        context["formJs"] = form_js
+        context["formValid"] = form_valid
+        context["formReject"] = form_reject,
+
+    def get_object(self, queryset=None):
+        # TODO : check slug ?
+        return get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        """Show the given tutorial if exists."""
+
+        context = super(DisplayContent, self).get_context_data(**kwargs)
+        content = context['object']
+
+        # Retrieve sha given by the user. This sha must to be exist. If it doesn't
+        # exist, we take draft version of the content.
+        try:
+            sha = self.request.GET["version"]
+        except KeyError:
+            if self.sha is not None:
+                sha = self.sha
+            else:
+                sha = content.sha_draft
+
+        # check that if we ask for beta, we also ask for the sha version
+        is_beta = content.is_beta(sha)
+
+        if self.request.user not in content.authors.all() and not is_beta:
+            # if we are not author of this content or if we did not ask for beta
+            # the only members that can display and modify the tutorial are validators
+            if not self.request.user.has_perm("tutorial.change_tutorial"):
+                raise PermissionDenied
+
+        # check if slug is good:
+        if self.kwargs['slug'] != content.slug:
+            raise Http404
+
+        # load versioned file
+        versioned_tutorial = content.load_version(sha)
+
+        # check whether this tuto support js fiddle
+        if content.js_support:
+            is_js = "js"
+        else:
+            is_js = ""
+        context["is_js"] = is_js
+        context["content"] = versioned_tutorial
+        context["version"] = sha
+        self.get_forms(context, content)
+
+        return context
+
+
+class EditContent(FormView):
+    template_name = 'tutorialv2/edit/content.html'
+    model = PublishableContent
+    form_class = ContentForm
+    content = None
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        """rewrite this method to ensure decoration"""
+        return super(EditContent, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        # TODO: check slug ?
+        return get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+
+    def get_initial(self):
+        """rewrite function to pre-populate form"""
+        context = self.get_context_data()
+        versioned = context['content']
+        initial = super(EditContent, self).get_initial()
+
+        initial['title'] = versioned.title
+        initial['description'] = versioned.description
+        initial['type'] = versioned.type
+        initial['introduction'] = versioned.get_introduction()
+        initial['conclusion'] = versioned.get_conclusion()
+        initial['licence'] = versioned.licence
+        initial['subcategory'] = self.content.subcategory.all()
+        initial['helps'] = self.content.helps.all()
+
+        return initial
+
+    def get_context_data(self, **kwargs):
+        self.content = self.get_object()
+        context = super(EditContent, self).get_context_data(**kwargs)
+        context['content'] = self.content.load_version()
+
+        return context
+
+    def form_valid(self, form):
+        # TODO: tutorial <-> article
+        context = self.get_context_data()
+        versioned = context['content']
+
+        # first, update DB (in order to get a new slug if needed)
+        self.content.title = form.cleaned_data['title']
+        self.content.description = form.cleaned_data["description"]
+        self.content.licence = form.cleaned_data["licence"]
+
+        self.content.update_date = datetime.now()
+
+        # update gallery and image:
+        gal = Gallery.objects.filter(pk=self.content.gallery.pk)
+        gal.update(title=self.content.title)
+        gal.update(slug=slugify(self.content.title))
+        gal.update(update=datetime.now())
+
+        if "image" in self.request.FILES:
+            img = Image()
+            img.physical = self.request.FILES["image"]
+            img.gallery = self.content.gallery
+            img.title = self.request.FILES["image"]
+            img.slug = slugify(self.request.FILES["image"])
+            img.pubdate = datetime.now()
+            img.save()
+            self.content.image = img
+
+        self.content.save()
+
+        # now, update the versioned information
+        versioned.description = form.cleaned_data['description']
+        versioned.licence = form.cleaned_data['licence']
+
+        sha = versioned.repo_update_top_container(form.cleaned_data['title'],
+                                                  self.content.slug,
+                                                  form.cleaned_data['introduction'],
+                                                  form.cleaned_data['conclusion'],
+                                                  form.cleaned_data['msg_commit'])
+
+        # update relationships :
+        self.content.sha_draft = sha
+
+        self.content.subcategory.clear()
+        for subcat in form.cleaned_data["subcategory"]:
+            self.content.subcategory.add(subcat)
+
+        self.content.helps.clear()
+        for help in form.cleaned_data["helps"]:
+            self.content.helps.add(help)
+
+        self.content.save()
+
+        return super(EditContent, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('content:view', args=[self.content.pk, self.content.slug])
+
+
+class DeleteContent(DeleteView):
+    model = PublishableContent
+    template_name = None
+    http_method_names = [u'delete', u'post']
+    object = None
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        """rewrite this method to ensure decoration"""
+        return super(DeleteContent, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        # TODO: check slug ?
+        qs = super(DeleteContent, self).get_queryset()
+        return qs.filter(pk=self.kwargs['pk'])
+
+    def delete(self, request, *args, **kwargs):
+        """rewrite delete() function to ensure repository deletion"""
+        self.object = self.get_object()
+        self.object.repo_delete()
+
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('content:index')
 
 
 class ArticleList(ListView):
@@ -104,18 +429,6 @@ class TutorialList(ArticleList):
     template_name = 'tutorialv2/index.html'
 
 
-def render_chapter_form(chapter):
-    if chapter.part:
-        return ChapterForm({"title": chapter.title,
-                            "introduction": chapter.get_introduction(),
-                            "conclusion": chapter.get_conclusion()})
-    else:
-
-        return \
-            EmbdedChapterForm({"introduction": chapter.get_introduction(),
-                               "conclusion": chapter.get_conclusion()})
-
-
 class TutorialWithHelp(TutorialList):
     """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
     for more documentation, have a look to ZEP 03 specification (fr)"""
@@ -143,111 +456,6 @@ class TutorialWithHelp(TutorialList):
         return context
 
 # TODO ArticleWithHelp
-
-
-class DisplayContent(DetailView):
-    """Base class that can show any content in any state, by default it shows offline tutorials"""
-
-    model = PublishableContent
-    template_name = 'tutorialv2/view.html'
-    type = "TUTORIAL"
-    online = False
-    sha = None
-
-    # TODO compatibility should be performed into class `PublishableContent.load_version()` !
-    def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
-        dictionary["tutorial"] = content
-        dictionary["path"] = content.get_repo_path()
-        dictionary["slug"] = slugify(dictionary["title"])
-        dictionary["position_in_tutorial"] = cpt_p
-
-        cpt_c = 1
-        for chapter in dictionary["chapters"]:
-            chapter["part"] = dictionary
-            chapter["slug"] = slugify(chapter["title"])
-            chapter["position_in_part"] = cpt_c
-            chapter["position_in_tutorial"] = cpt_c * cpt_p
-            self.compatibility_chapter(content, repo, sha, chapter)
-            cpt_c += 1
-
-    def compatibility_chapter(self, content, repo, sha, dictionary):
-        """enable compatibility with old version of mini tutorial and chapter implementations"""
-        dictionary["path"] = content.get_repo_path()
-        dictionary["type"] = self.type
-        dictionary["pk"] = Container.objects.get(parent=content).pk  # TODO : find better name
-        dictionary["intro"] = get_blob(repo.commit(sha).tree, "introduction.md")
-        dictionary["conclu"] = get_blob(repo.commit(sha).tree, "conclusion.md")
-        cpt = 1
-        for ext in dictionary["extracts"]:
-            ext["position_in_chapter"] = cpt
-            ext["path"] = content.get_repo_path()
-            ext["txt"] = get_blob(repo.commit(sha).tree, ext["text"])
-            cpt += 1
-
-    def get_forms(self, context, content):
-        """get all the auxiliary forms about validation, js fiddle..."""
-        validation = Validation.objects.filter(content__pk=content.pk)\
-            .order_by("-date_proposition")\
-            .first()
-        form_js = ActivJsForm(initial={"js_support": content.js_support})
-
-        if content.source:
-            form_ask_validation = AskValidationForm(initial={"source": content.source})
-            form_valid = ValidForm(initial={"source": content.source})
-        else:
-            form_ask_validation = AskValidationForm()
-            form_valid = ValidForm()
-        form_reject = RejectForm()
-
-        context["validation"] = validation
-        context["formAskValidation"] = form_ask_validation
-        context["formJs"] = form_js
-        context["formValid"] = form_valid
-        context["formReject"] = form_reject,
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(PublishableContent, slug=self.kwargs['content_slug'])
-
-    def get_context_data(self, **kwargs):
-        """Show the given tutorial if exists."""
-        # TODO: handling public version !
-
-        context = super(DisplayContent, self).get_context_data(**kwargs)
-        content = context['object']
-
-        # Retrieve sha given by the user. This sha must to be exist. If it doesn't
-        # exist, we take draft version of the content.
-        try:
-            sha = self.request.GET["version"]
-        except KeyError:
-            if self.sha is not None:
-                sha = self.sha
-            else:
-                sha = content.sha_draft
-
-        # check that if we ask for beta, we also ask for the sha version
-        is_beta = content.is_beta(sha)
-
-        if self.request.user not in content.authors.all() and not is_beta:
-            # if we are not author of this content or if we did not ask for beta
-            # the only members that can display and modify the tutorial are validators
-            if not self.request.user.has_perm("tutorial.change_tutorial"):
-                raise PermissionDenied
-
-        # load versioned file
-        versioned_tutorial = content.load_version(sha)
-
-        # check whether this tuto support js fiddle
-        if content.js_support:
-            is_js = "js"
-        else:
-            is_js = ""
-        context["is_js"] = is_js
-        context["tutorial"] = versioned_tutorial
-        context["version"] = sha
-        self.get_forms(context, content)
-
-        return context
 
 
 class DisplayDiff(DetailView):
@@ -282,10 +490,6 @@ class DisplayDiff(DetailView):
         context["path_del"] = diff_with_head.iter_change_type("D")
         context["path_maj"] = diff_with_head.iter_change_type("M")
         return context
-
-
-class DisplayArticle(DisplayContent):
-    type = "ARTICLE"
 
 
 class DisplayOnlineContent(DisplayContent):
@@ -397,6 +601,18 @@ class DisplayOnlineContent(DisplayContent):
 
 class DisplayOnlineArticle(DisplayOnlineContent):
     type = "ARTICLE"
+
+
+def render_chapter_form(chapter):
+    if chapter.part:
+        return ChapterForm({"title": chapter.title,
+                            "introduction": chapter.get_introduction(),
+                            "conclusion": chapter.get_conclusion()})
+    else:
+
+        return \
+            EmbdedChapterForm({"introduction": chapter.get_introduction(),
+                               "conclusion": chapter.get_conclusion()})
 
 
 # Staff actions.

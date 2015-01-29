@@ -28,6 +28,8 @@ from zds.utils.tutorialv2 import export_content
 from zds.settings import ZDS_APP
 from zds.utils.models import HelpWriting
 
+from uuslug import uuslug
+
 
 TYPE_CHOICES = (
     ('TUTORIAL', 'Tutoriel'),
@@ -66,6 +68,7 @@ class Container:
     position_in_parent = 1
     children = []
     children_dict = {}
+    slug_pool = {}
 
     # TODO: thumbnails ?
 
@@ -77,6 +80,8 @@ class Container:
 
         self.children = []  # even if you want, do NOT remove this line
         self.children_dict = {}
+
+        self.slug_pool = {'introduction': 1, 'conclusion': 1}  # forbidden slugs
 
     def __unicode__(self):
         return u'<Conteneur \'{}\'>'.format(self.title)
@@ -130,18 +135,50 @@ class Container:
             current = current.parent
         return current
 
+    def get_unique_slug(self, title):
+        """
+        Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
+        "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
+        :param title: title from which the slug is generated (with `slugify()`)
+        :return: the unique slug
+        """
+        base = slugify(title)
+        try:
+            n = self.slug_pool[base]
+        except KeyError:
+            new_slug = base
+            self.slug_pool[base] = 0
+        else:
+            new_slug = base + '-' + str(n)
+        self.slug_pool[base] += 1
+        self.slug_pool[new_slug] = 1
+        return new_slug
+
+    def add_slug_to_pool(self, slug):
+        """
+        Add a slug to the slug pool to be taken into account when generate a unique slug
+        :param slug: the slug to add
+        """
+        try:
+            self.slug_pool[slug]  # test access
+        except KeyError:
+            self.slug_pool[slug] = 1
+        else:
+            raise Exception('slug "{}" already in the slug pool !'.format(slug))
+
     def add_container(self, container, generate_slug=False):
         """
         Add a child Container, but only if no extract were previously added and tree depth is < 2.
+        Note: this function will also raise an Exception if article, because it cannot contain child container
         :param container: the new container
         :param generate_slug: if `True`, ask the top container an unique slug for this object
         """
         if not self.has_extracts():
-            if self.get_tree_depth() < ZDS_APP['tutorial']['max_tree_depth']:
+            if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] and self.top_container().type != 'ARTICLE':
                 if generate_slug:
-                    container.slug = self.top_container().get_unique_slug(container.title)
+                    container.slug = self.get_unique_slug(container.title)
                 else:
-                    self.top_container().add_slug_to_pool(container.slug)
+                    self.add_slug_to_pool(container.slug)
                 container.parent = self
                 container.position_in_parent = self.get_last_child_position() + 1
                 self.children.append(container)
@@ -149,8 +186,7 @@ class Container:
             else:
                 raise InvalidOperationError("Cannot add another level to this content")
         else:
-            raise InvalidOperationError("Can't add a container if this container contains extracts.")
-        # TODO: limitation if article ?
+            raise InvalidOperationError("Can't add a container if this container already contains extracts.")
 
     def add_extract(self, extract, generate_slug=False):
         """
@@ -160,18 +196,20 @@ class Container:
         """
         if not self.has_sub_containers():
             if generate_slug:
-                extract.slug = self.top_container().get_unique_slug(extract.title)
+                extract.slug = self.get_unique_slug(extract.title)
             else:
-                self.top_container().add_slug_to_pool(extract.slug)
+                self.add_slug_to_pool(extract.slug)
             extract.container = self
             extract.position_in_parent = self.get_last_child_position() + 1
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
+        else:
+            raise InvalidOperationError("Can't add an extract if this container already contains containers.")
 
     def update_children(self):
         """
         Update the path for introduction and conclusion for the container and all its children. If the children is an
-        extract, update the path to the text instead. This function is useful when `self.pk` or `self.title` has
+        extract, update the path to the text instead. This function is useful when `self.slug` has
         changed.
         Note : this function does not account for a different arrangement of the files.
         """
@@ -214,18 +252,6 @@ class Container:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
                             self.introduction)
 
-    def get_introduction_online(self):
-        """
-        Get introduction content of the public version
-        :return: the introduction
-        """
-        path = self.top_container().get_prod_path() + self.introduction + '.html'
-        if os.path.exists(path):
-            intro = open(path)
-            intro_content = intro.read()
-            intro.close()
-            return intro_content.decode('utf-8')
-
     def get_conclusion(self):
         """
         :return: the conclusion from the file in `self.conclusion`
@@ -234,17 +260,48 @@ class Container:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
                             self.conclusion)
 
-    def get_conclusion_online(self):
+    def repo_update(self, title, introduction, conclusion, commit_message=''):
         """
-        Get conclusion content of the public version
-        :return: the conclusion
+        Update the container information and commit them into the repository
+        :param title: the new title
+        :param introduction: the new introduction text
+        :param conclusion: the new conclusion text
+        :param commit_message: commit message that will be used instead of the default one
+        :return : commit sha
         """
-        path = self.top_container().get_prod_path() + self.conclusion + '.html'
-        if os.path.exists(path):
-            conclusion = open(path)
-            conclusion_content = conclusion.read()
-            conclusion.close()
-            return conclusion_content.decode('utf-8')
+
+        # update title
+        if title != self.title:
+            self.title = title
+            if self.get_tree_depth() > 0:  # if top container, slug is generated from DB, so already changed
+                self.slug = self.top_container().get_unique_slug(title)
+                self.update_children()
+                # TODO : and move() !!!
+
+        # update introduction and conclusion
+        if self.introduction is None:
+            self.introduction = self.get_path(relative=True) + 'introduction.md'
+        if self.conclusion is None:
+            self.conclusion = self.get_path(relative=True) + 'conclusion.md'
+
+        path = self.top_container().get_path()
+        f = open(os.path.join(path, self.introduction), "w")
+        f.write(introduction.encode('utf-8'))
+        f.close()
+        f = open(os.path.join(path, self.conclusion), "w")
+        f.write(conclusion.encode('utf-8'))
+        f.close()
+
+        self.top_container().dump_json()
+
+        repo = self.top_container().repository
+        repo.index.add(['manifest.json', self.introduction, self.conclusion])
+
+        if commit_message == '':
+            commit_message = u'Mise à jour de « ' + self.title + u' »'
+        cm = repo.index.commit(commit_message)
+
+        return cm.hexsha
 
     # TODO:
     # - get_absolute_url_*() stuffs (harder than it seems, because they cannot be written in a recursive way)
@@ -311,14 +368,6 @@ class Extract:
         """
         return os.path.join(self.container.get_path(relative=relative), self.slug) + '.md'
 
-    def get_prod_path(self):
-        """
-        Get the physical path to the public version of a specific version of the extract.
-        :return: physical path
-        """
-        return os.path.join(self.container.get_prod_path(), self.slug) + '.md.html'
-        # TODO: should this function exists ? (there will be no public version of a text, all in parent container)
-
     def get_text(self):
         """
         :return: versioned text
@@ -360,6 +409,7 @@ class VersionedContent(Container):
     slug_pool = {}
 
     # Metadata from DB :
+    pk = 0
     sha_draft = None
     sha_beta = None
     sha_public = None
@@ -390,8 +440,6 @@ class VersionedContent(Container):
         self.type = _type
         self.repository = Repo(self.get_path())
 
-        self.slug_pool = {'introduction': 1, 'conclusion': 1, slug: 1}  # forbidden slugs
-
     def __unicode__(self):
         return self.title
 
@@ -399,7 +447,7 @@ class VersionedContent(Container):
         """
         :return: the url to access the tutorial when offline
         """
-        return reverse('view-tutorial-url', args=[self.slug])
+        return reverse('content:view', args=[self.pk, self.slug])
 
     def get_absolute_url_online(self):
         """
@@ -422,37 +470,6 @@ class VersionedContent(Container):
         """
         return reverse('zds.tutorialv2.views.modify_tutorial') + '?tutorial={0}'.format(self.slug)
 
-    def get_unique_slug(self, title):
-        """
-        Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
-        "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
-        :param title: title from which the slug is generated (with `slugify()`)
-        :return: the unique slug
-        """
-        base = slugify(title)
-        try:
-            n = self.slug_pool[base]
-        except KeyError:
-            new_slug = base
-            self.slug_pool[base] = 0
-        else:
-            new_slug = base + '-' + str(n)
-        self.slug_pool[base] += 1
-        self.slug_pool[new_slug] = 1
-        return new_slug
-
-    def add_slug_to_pool(self, slug):
-        """
-        Add a slug to the slug pool to be taken into account when generate a unique slug
-        :param slug: the slug to add
-        """
-        try:
-            self.slug_pool[slug]  # test access
-        except KeyError:
-            self.slug_pool[slug] = 1
-        else:
-            raise Exception('slug "{}" already in the slug pool !'.format(slug))
-
     def get_path(self, relative=False):
         """
         Get the physical path to the draft version of the Content.
@@ -462,15 +479,14 @@ class VersionedContent(Container):
         if relative:
             return ''
         else:
-            # get the full path (with tutorial/article before it)
-            return os.path.join(settings.ZDS_APP[self.type.lower()]['repo_path'], self.slug)
+            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
 
     def get_prod_path(self):
         """
         Get the physical path to the public version of the content
         :return: physical path
         """
-        return os.path.join(settings.ZDS_APP[self.type.lower()]['repo_public_path'], self.slug)
+        return os.path.join(settings.ZDS_APP['contents']['repo_public_path'], self.slug)
 
     def get_json(self):
         """
@@ -494,6 +510,28 @@ class VersionedContent(Container):
         json_data.write(self.get_json().encode('utf-8'))
         json_data.close()
 
+    def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message=''):
+        """
+        Update the top container information and commit them into the repository.
+        Note that this is slightly different from the `repo_update()` function, because slug is generated using DB
+        :param title: the new title
+        :param slug: the new slug, according to title (choose using DB!!)
+        :param introduction: the new introduction text
+        :param conclusion: the new conclusion text
+        :param commit_message: commit message that will be used instead of the default one
+        :return : commit sha
+        """
+
+        if slug != self.slug:
+            # move repository
+            old_path = self.get_path()
+            self.slug = slug
+            new_path = self.get_path()
+            shutil.move(old_path, new_path)
+            self.repository = Repo(new_path)
+
+        return self.repo_update(title, introduction, conclusion, commit_message)
+
 
 def fill_containers_from_json(json_sub, parent):
     """
@@ -501,25 +539,99 @@ def fill_containers_from_json(json_sub, parent):
     :param json_sub: dictionary from "manifest.json"
     :param parent: the container to fill
     """
-    # TODO should be static function of `VersionedContent`
-    # TODO should implement fallbacks
+    # TODO should be static function of `VersionedContent` ?!?
     if 'children' in json_sub:
         for child in json_sub['children']:
             if child['object'] == 'container':
-                new_container = Container(child['title'], child['slug'])
+                slug = ''
+                try:
+                    slug = child['slug']
+                except KeyError:
+                    pass
+                new_container = Container(child['title'], slug)
                 if 'introduction' in child:
                     new_container.introduction = child['introduction']
                 if 'conclusion' in child:
                     new_container.conclusion = child['conclusion']
-                parent.add_container(new_container)
+                parent.add_container(new_container, generate_slug=(slug != ''))
                 if 'children' in child:
                     fill_containers_from_json(child, new_container)
             elif child['object'] == 'extract':
-                new_extract = Extract(child['title'], child['slug'])
+                slug = ''
+                try:
+                    slug = child['slug']
+                except KeyError:
+                    pass
+                new_extract = Extract(child['title'], slug)
                 new_extract.text = child['text']
-                parent.add_extract(new_extract)
+                parent.add_extract(new_extract, generate_slug=(slug != ''))
             else:
                 raise Exception('Unknown object type'+child['object'])
+
+
+def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=''):
+    """
+    Create a new repository in `settings.ZDS_APP['contents']['private_repo']` to store the files for a new content.
+    Note that `db_object.sha_draft` will be set to the good value
+    :param db_object: `PublishableContent` (WARNING: should have a valid `slug`, so previously saved)
+    :param introduction_text: introduction from form
+    :param conclusion_text: conclusion from form
+    :param commit_message : set a commit message instead of the default one
+    :return: `VersionedContent` object
+    """
+    # TODO: should be a static function of an object (I don't know which one yet)
+
+    # create directory
+    path = db_object.get_repo_path()
+    print(path)
+    if not os.path.isdir(path):
+        os.makedirs(path, mode=0o777)
+
+    introduction = 'introduction.md'
+    conclusion = 'conclusion.md'
+    versioned_content = VersionedContent(None,
+                                         db_object.type,
+                                         db_object.title,
+                                         db_object.slug)
+
+    # fill some information that are missing :
+    versioned_content.licence = db_object.licence
+    versioned_content.description = db_object.description
+    versioned_content.introduction = introduction
+    versioned_content.conclusion = conclusion
+
+    # init repo:
+    Repo.init(path, bare=False)
+    repo = Repo(path)
+
+    # fill intro/conclusion:
+    f = open(os.path.join(path, introduction), "w")
+    f.write(introduction_text.encode('utf-8'))
+    f.close()
+    f = open(os.path.join(path, conclusion), "w")
+    f.write(conclusion_text.encode('utf-8'))
+    f.close()
+
+    versioned_content.dump_json()
+
+    # commit change:
+    if commit_message == '':
+        commit_message = u'Création du contenu'
+    repo.index.add(['manifest.json', introduction, conclusion])
+    cm = repo.index.commit(commit_message)
+
+    # update sha:
+    db_object.sha_draft = cm.hexsha
+    db_object.sha_beta = None
+    db_object.sha_public = None
+    db_object.sha_validation = None
+
+    db_object.save()
+
+    versioned_content.current_version = cm.hexsha
+    versioned_content.repository = repo
+
+    return versioned_content
 
 
 class PublishableContent(models.Model):
@@ -540,7 +652,7 @@ class PublishableContent(models.Model):
         verbose_name_plural = 'Contenus'
 
     title = models.CharField('Titre', max_length=80)
-    slug = models.SlugField(max_length=80)
+    slug = models.CharField('Slug', max_length=80)
     description = models.CharField('Description', max_length=200)
     source = models.CharField('Source', max_length=200)
     authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
@@ -598,6 +710,13 @@ class PublishableContent(models.Model):
     def __unicode__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        """
+        Rewrite the `save()` function to handle slug uniqueness
+        """
+        self.slug = uuslug(self.title, instance=self, max_length=80)
+        super(PublishableContent, self).save(*args, **kwargs)
+
     def get_repo_path(self, relative=False):
         """
         Get the path to the tutorial repository
@@ -608,7 +727,7 @@ class PublishableContent(models.Model):
             return ''
         else:
             # get the full path (with tutorial/article before it)
-            return os.path.join(settings.ZDS_APP[self.type.lower()]['repo_path'], self.slug)
+            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
 
     def in_beta(self):
         """
@@ -697,20 +816,27 @@ class PublishableContent(models.Model):
         # create and fill the container
         versioned = VersionedContent(sha, self.type, json['title'], json['slug'])
         if 'version' in json and json['version'] == 2:
+
             # fill metadata :
             if 'description' in json:
                 versioned.description = json['description']
-            if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
-                versioned.type = json['type']
+
+            if 'type' in json:
+                if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
+                    versioned.type = json['type']
             else:
                 versioned.type = self.type
+
             if 'licence' in json:
                 versioned.licence = Licence.objects.filter(code=json['licence']).first()
-            # TODO must default licence be enforced here ?
+            else:
+                versioned.licence = Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
+
             if 'introduction' in json:
                 versioned.introduction = json['introduction']
             if 'conclusion' in json:
                 versioned.conclusion = json['conclusion']
+
             # then, fill container with children
             fill_containers_from_json(json, versioned)
             self.insert_data_in_versioned(versioned)
@@ -728,6 +854,7 @@ class PublishableContent(models.Model):
         """
 
         fns = [
+            'pk',
             'have_markdown', 'have_html', 'have_pdf', 'have_epub', 'in_beta', 'in_validation', 'in_public',
             'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source', 'sha_draft',
             'sha_beta', 'sha_validation', 'sha_public'
@@ -741,12 +868,6 @@ class PublishableContent(models.Model):
         versioned.is_beta = self.is_beta(versioned.current_version)
         versioned.is_validation = self.is_validation(versioned.current_version)
         versioned.is_public = self.is_public(versioned.current_version)
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
-        # TODO ensure unique slug here !!
-
-        super(PublishableContent, self).save(*args, **kwargs)
 
     def get_note_count(self):
         """
@@ -859,18 +980,17 @@ class PublishableContent(models.Model):
         """
         return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".epub"))
 
-    def delete_entity_and_tree(self):
+    def repo_delete(self):
         """
         Delete the entities and their filesystem counterparts
         """
         shutil.rmtree(self.get_repo_path(), False)
-        Validation.objects.filter(tutorial=self).delete()
+        Validation.objects.filter(content=self).delete()
 
         if self.gallery is not None:
             self.gallery.delete()
         if self.in_public():
             shutil.rmtree(self.get_prod_path())
-        self.delete()
 
 
 class ContentReaction(Comment):
