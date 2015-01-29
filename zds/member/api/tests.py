@@ -299,12 +299,23 @@ class MemberDetailAPITest(APITestCase):
 
     def test_detail_of_a_member_who_accepts_to_show_his_email(self):
         """
-        Gets all information about a user and his email when the user accepts it.
+        Gets all information about a user but not his email because the request isn't authenticated.
         """
         self.profile.show_email = True
         self.profile.save()
 
         response = self.client.get(reverse('api-member-detail', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data.get('email'))
+
+    def test_detail_of_a_member_who_accepts_to_show_his_email_with_authenticated_request(self):
+        """
+        Gets all information about a user and his email.
+        """
+        self.profile.show_email = True
+        self.profile.save()
+
+        response = self.clientAuthenticated.get(reverse('api-member-detail', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('show_email'))
         self.assertEqual(self.profile.user.email, response.data.get('email'))

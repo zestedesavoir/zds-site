@@ -66,10 +66,11 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
         Create the serializer with or without email field, depending on the show_email argument.
         """
         show_email = kwargs.pop('show_email', False)
+        is_authenticated = kwargs.pop('is_authenticated', False)
 
         super(ProfileDetailSerializer, self).__init__(*args, **kwargs)
 
-        if not show_email:
+        if not show_email or not is_authenticated:
             # Drop email field.
             self.fields.pop('email')
 

@@ -92,12 +92,19 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
         Gets a user given by its identifier.
         ---
 
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: false
+              paramType: header
         responseMessages:
             - code: 404
               message: Not found
         """
         profile = self.get_object()
-        serializer = self.get_serializer(profile, show_email=profile.show_email)
+        serializer = self.get_serializer(profile,
+                                         show_email=profile.show_email,
+                                         is_authenticated=self.request.user.is_authenticated())
         return Response(serializer.data)
 
     @etag(rebuild_after_method_evaluation=True)
