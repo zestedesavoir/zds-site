@@ -10,6 +10,7 @@ Sommaire:
    :maxdepth: 2
 
    introduction
+   workflow/workflow.rst
    tutorial/tutorial.rst
    member/member.rst
    member/private_message.rst

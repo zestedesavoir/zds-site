@@ -35,11 +35,11 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zes
 
 ### Installation d'une version locale de ZdS
 
-- [Installation du backend sur Windows](http://zds-site.readthedocs.org/fr/latest/install/backend-windows-install.html)
-- [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
-- [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
+- [Intallation du backend sur Windows](http://zds-site.readthedocs.org/fr/latest/install/backend-windows-install.html)
+- [Intallation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
+- [Intallation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
 - [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
-- [Installation de Solr](doc/install-solr.md) pour gérer la recherche
+- [Installation de Solr](http://zds-site.readthedocs.org/fr/latest/install/install-solr.html) pour gérer la recherche
 
 
 ### Mettre à jour votre version locale de ZdS
@@ -94,9 +94,9 @@ Vous trouverez tout sur [la page dédiée de la documentation](CONTRIBUTING.md)
 
 ## En savoir plus
 
-- [Comment déployer ZDS sur un serveur de production ?](doc/deploy.md)
+- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploiement-production.html)
 - [Comment contribuer et conseils de développement](CONTRIBUTING.md)
 - [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
-- [Les détails du workflow utilisé sur Zeste de Savoir](doc/workflow.md)
+- [Les détails du workflow utilisé sur Zeste de Savoir](http://zds-site.readthedocs.org/fr/latest/workflow/workflow.html)
 
 Zeste de Savoir est basé sur un fork de [Progdupeu.pl](http://progdupeu.pl) ([Dépôt Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/)).
