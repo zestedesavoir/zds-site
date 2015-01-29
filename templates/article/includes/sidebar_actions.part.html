@@ -82,34 +82,14 @@
                 <li class="inactive">
                     <span class="ico-after tick disabled">{% trans "En attente de validation" %}</span>
                 </li>
-                <li>
-                    <a href="#ask-unvalidation" class="open-modal ico-after cross red">
-                        {% trans "Retirer de la validation" %}
-                    </a>
-                </li>
             {% endif %}
             <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="ask-validation">
-                <textarea name="comment" rows="3" placeholder="{% trans "Vos commentaires de validation" %}"></textarea>
+                <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"></textarea>
 
                 <input type="hidden" name="article" value="{{ article.pk }}">
                 <input type="hidden" name="version" value="{{ version }}">
                 {% csrf_token %}
                 <button type="submit" name="pending">
-                    {% trans "Confirmer" %}
-                </button>
-            </form>
-            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-big" id="ask-unvalidation">
-                {% if not validation.is_pending %}
-                    {% blocktrans with validator=validation.validator %}
-                        <p>Vous allez retirer ce tutoriel de la validation cependant un validateur ({{ validator }}) l'a déjà réservé.</p>
-                    {% endblocktrans %}
-                {% endif %}
-                <textarea name="comment" rows="3" placeholder="{% trans "Vos commentaires" %}"></textarea>
-
-                <input type="hidden" name="article" value="{{ article.pk }}">
-                <input type="hidden" name="version" value="{{ version }}">
-                {% csrf_token %}
-                <button type="submit" name="unvalidate">
                     {% trans "Confirmer" %}
                 </button>
             </form>
