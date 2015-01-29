@@ -228,9 +228,9 @@ def load_topics(cli, size, fake):
                         topic.is_sticky = True
                     nb_rand_tags = random.randint(0, 5)
                     for k in range(0, nb_rand_tags):
-                        my_t = Tag.objects.filter(pk=random.randint(1, nb_tags)).first()
-                        if my_t is not None:
-                            topic.tags.add(my_t)
+                        my_random_tag = Tag.objects.filter(pk=random.randint(1, nb_tags)).first()
+                        if my_random_tag:
+                            topic.tags.add(my_random_tag)
                     topic.title = fake.text(max_nb_chars=80)
                     topic.subtitle = fake.text(max_nb_chars=200)
                     topic.save()
