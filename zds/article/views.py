@@ -480,7 +480,11 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    try:
+        article_id = int(request.GET["article"])
+    except (KeyError, ValueError):
+        raise Http404
+    article = get_object_or_404(Article, pk=article_id)
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
@@ -803,60 +807,6 @@ def modify(request):
                 True,
                 direct=False,
             )
-
-            return redirect(redirect_url)
-
-        # user want to remove his article from the validation
-        elif 'unvalidate' in request.POST:
-
-            redirect_url = reverse('zds.article.views.view', args=[
-                article.pk,
-                article.slug
-            ])
-
-            author = request.user
-
-            validation = Validation.objects.filter(article__pk=article_pk).first()
-            validator = validation.validator
-
-            # remove sha_validation
-            article.sha_validation = None
-            article.pubdate = None
-            article.save()
-
-            # check if a validator have already reserv it
-            if validator:
-
-                # check if the user add a comment
-                if request.POST['comment']:
-                    comment = request.POST['comment']
-                else:
-                    comment = u'Pas de raison évoquée.'
-
-                # send a private message to the validator
-                msg = (
-                    u'Bonjour **{0}**,\n\n'
-                    u'L\'article **{1}** que tu avais réservé vient d\'être retiré de la validation par **{2}**. Les r'
-                    u'aisons évoqués sont les suivantes :\n\n'
-                    u'> {3}'.format(
-                        validator,
-                        article.title,
-                        author.username,
-                        comment)
-                )
-                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                send_mp(
-                    bot,
-                    [validator],
-                    u'Suppression de la validation de l\'article « {0} »'.format(article.title),
-                    '',
-                    msg,
-                    True,
-                    direct=False,
-                )
-
-            # delete the validation object
-            validation.delete()
 
             return redirect(redirect_url)
 

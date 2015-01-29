@@ -16,11 +16,12 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.settings import SITE_ROOT
 
 
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(
-    REPO_ARTICLE_PATH=os.path.join(
-        SITE_ROOT,
-        'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class LastArticlesFeedRSSTest(TestCase):
 
     def setUp(self):

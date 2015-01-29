@@ -1,6 +1,6 @@
-=======================
-Installation sous Linux
-=======================
+==================================
+Installation du backend sous Linux
+==================================
 
 Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
@@ -30,7 +30,7 @@ Ou, en une ligne,
     apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
     easy_install pip
 
-Instalation et configuration de `virtualenv`
+Installation et configuration de `virtualenv`
 ============================================
 
 (cette étape n'est pas obligatoire, mais fortement conseillée)
@@ -52,13 +52,10 @@ Pour sortir de votre environnement : ``deactive``
 
 Une documentation plus complète de cet outil `est disponible ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
 
-Front ou Back ?
-===============
+Installation des outils front-end
+=================================
 
-Si vous ne comptez qu'au back-end du site, téléchargez le zip des ressources `ici <http://zestedesavoir.com/static/pack.zip>`_
-Il faudra l'extraire dans le dossier ``dist/`` à la racine de votre projet.
-
-Si vous comptez contribuer au front-end, rendez-vous sur [la documentation dédiée](gulp.md).
+Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
 
 Lancer ZdS
 ==========

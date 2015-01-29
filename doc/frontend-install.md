@@ -1,4 +1,6 @@
-# Installation des outils
+# Installation du frontend
+
+Vous voulez nous aider au développement du frontend ? Installez Node.JS et npm grâce aux instructions qui suivent !
 
 ## Installation de Node.js et npm
 
@@ -82,7 +84,7 @@ npm -v
 2.1.7
 ````
 
-Vous devez avoir une version de Node.js > 0.10.x et de npm > 2.x.x. Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
+**Vous devez avoir une version de Node.js > 0.10.x et de npm > 2.x.x.** Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
 
 ## Mise à jour de Node.js et npm
 
@@ -94,50 +96,47 @@ sudo npm install -g npm
 
 Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devrait fonctionner.
 
-## Installation des dépendances (Gulp et Bower entre autres)
+## Installation des dépendances npm
 
-L'installation de Gulp et Bower se fait via npm, dans le répertoire du projet :
+L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet :
 
 ````shell
 npm install
 ````
 
-Cela installera les dépendances des tâches Gulp, et les différentes bibliothèques (jQuery, Modernizr...) via Bower.
-
 # Utilisation des outils
+
+Vous avez installé les outils ? Voilà comment on s'en sert dans notre projet !
 
 ## Présentation de Gulp
 
 Gulp est un outil permettant d'automatiser les tâches liées au front. Dans notre cas, il permet de :
 
 - Vérifier la syntaxe Javascript
-- Minifier les fichiers Javascript et les rassembler en un fichier
-- Compiler les fichiers SCSS, pour les transformer CSS
-- Compresser les images
+- Minimiser les fichiers Javascript et les rassembler en un fichier
+- Compiler les fichiers SCSS pour les transformer CSS
+- Compresser les images et créer un sprite
 
 Il y a, à la racine du projet, un dossier `assets/` (contenant les sources JS et SCSS non minimisées, ainsi que les images) qui ressemble à ça :
 
 ````shell
 assets/
-├── bower_components
-│   ├── jquery
-│   └── modernizr
-│   ...
-├── images
+├── images/
 │   ├── favicon.ico
 │   ├── favicon.png
 │   ├── logo@2x.png
+│   ├── logo.png
 │   ...
-├── js
+├── js/
 │   ├── accessibility-links.js
 │   ├── data-click.js
 │   ...
-├── scss
+├── scss/
 │   ├── main.scss
 │   ├── _mobile.scss
 │   ├── _mobile-tablet.scss
 │   ...
-└── smileys
+└── smileys/
     ├── ange.png
     ├── angry.gif
     ...
@@ -175,9 +174,9 @@ dist/
 Gulp se lance avec `npm run gulp -- [tâche]` où `[tâche]` est la tâche à lancer. Les différentes tâches sont :
 
  - `clean`: Nettoie le dossier `dist/`
- - `build`: Compile tout (CSS, JS, et images)
- - `test`: Lance les tests (JSHint, ...)
- - `watch`: Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement; `Ctrl+C` pour arrêter)
+ - `build`: Compile tout (SCSS, JS et images)
+ - `test`: Lance les tests (grâce à JSHint)
+ - `watch`: Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement ; `Ctrl+C` pour arrêter)
 
 Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
 
@@ -188,24 +187,25 @@ Pour information, la commande `npm run` est un raccourci de la commande `npm run
 Si vous voulez utiliser directement la commande `gulp [tâche]` au lieu de `npm run gulp -- [tâche]`, il vous faut lancer cette commande avec les droits administrateurs :
 
 ````shell
-sudo npm install -g gulp bower
+sudo npm install -g gulp
 ````
 
 # Nettoyage des outils
 
-## Nettoyage de npm et suppression des dépendances
+## Désinstaller les dépendances
 
-Pour nettoyer npm (et supprimer les dépendances), il vous suffit de lancer ces commandes dans votre environnement :
+Il vous suffit pour cela de lancer la commande :
 
 ````shell
-sudo rm -rI ~/.npm
-rm -rI node_modules/
+npm uninstall
 ````
 
-## Suppression des fichiers CSS et Javascript
+Si ça ne fonctionne pas, vous pouvez le faire manuellement grâce à `rm -rI node_modules/`.
 
-Toujours dans votre environnement, vous pouver supprimer les fichiers générés par cette commande :
+## Désinstaller les dépendances inutilisées
+
+Il y a une commande toute faite pour ça :
 
 ````shell
-rm -rI dist/
+npm prune
 ````

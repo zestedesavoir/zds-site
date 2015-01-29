@@ -160,7 +160,7 @@ class RegisterForm(forms.Form):
 
         if username is not None:
             if username.strip() == '':
-                msg = _(u'Le nom d\'utilisateur ne peut-être vide')
+                msg = _(u'Le nom d\'utilisateur ne peut être vide')
                 self._errors['username'] = self.error_class([msg])
             elif User.objects.filter(username=username).count() > 0:
                 msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
