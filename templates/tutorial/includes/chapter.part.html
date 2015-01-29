@@ -4,7 +4,7 @@
 
 
 {% with extracts=chapter.extracts %}
-    {% if not chapter.type = 'MINI' %}
+    {% if not chapter.type == 'MINI' %}
         {% if chapter.intro and chapter.intro != None %}
             {{ chapter.intro|emarkdown:is_js }}
         {% elif not tutorial.is_beta %}
@@ -16,14 +16,22 @@
 
     <hr />
 
-    {% if not extracts %}
+
+    {% if extracts %}
+        <ul>
+            {% for extract in extracts %}
+                <li>
+                    <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
+                        {{ extract.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
         <p class="ico-after warning">
             {% trans "Il n'y a aucun extrait" %}.
         </p>
     {% endif %}
-
-
-
     {% for extract in extracts %}
         <h2 id="{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
             <a href="#{{ extract.position_in_chapter }}-{{ extract.title|slugify }}">
@@ -103,7 +111,7 @@
 
     <hr />
 
-    {% if not chapter.type = 'MINI' %}
+    {% if not chapter.type == 'MINI' %}
         {% if chapter.conclu and chapter.conclu != None %}
             {{ chapter.conclu|emarkdown:is_js }}
         {% elif not tutorial.is_beta %}
