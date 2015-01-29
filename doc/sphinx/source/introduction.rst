@@ -79,3 +79,4 @@ Si vous voulez installer et démarrer une instance locale de ZdS, vous devez cli
    install/backend-os-x-install
    install/backend-linux-install
    install/frontend-install
+   install/fixtures

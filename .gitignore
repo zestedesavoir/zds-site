@@ -57,6 +57,9 @@ htmlcov/
 #Mr Developer
 .mr.developer.cfg
 
+#tox
+.tox/
+
 
 #################
 ## Eclipse
