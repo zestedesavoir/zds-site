@@ -10,14 +10,14 @@ from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
-from zds.tutorial.models import Tutorial, TYPE_CHOICES, HelpWriting
+from zds.tutorialv2.models import PublishableContent, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
 
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label=_(u'Titre'),
-        max_length=Tutorial._meta.get_field('title').max_length,
+        max_length=PublishableContent._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -39,11 +39,11 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
-class TutorialForm(FormWithTitle):
+class ContentForm(FormWithTitle):
 
     description = forms.CharField(
         label=_(u'Description'),
-        max_length=Tutorial._meta.get_field('description').max_length,
+        max_length=PublishableContent._meta.get_field('description').max_length,
         required=False,
     )
 
@@ -123,7 +123,7 @@ class TutorialForm(FormWithTitle):
     )
 
     def __init__(self, *args, **kwargs):
-        super(TutorialForm, self).__init__(*args, **kwargs)
+        super(ContentForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -414,7 +414,7 @@ class ImportArchiveForm(forms.Form):
 
     tutorial = forms.ModelChoiceField(
         label=_(u"Tutoriel vers lequel vous souhaitez importer votre archive"),
-        queryset=Tutorial.objects.none(),
+        queryset=PublishableContent.objects.none(),
         required=True
     )
 
@@ -423,7 +423,7 @@ class ImportArchiveForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.fields['tutorial'].queryset = Tutorial.objects.filter(authors__in=[user])
+        self.fields['tutorial'].queryset = PublishableContent.objects.filter(authors__in=[user])
 
         self.helper.layout = Layout(
             Field('file'),

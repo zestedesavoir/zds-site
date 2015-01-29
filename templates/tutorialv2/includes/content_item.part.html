@@ -1,0 +1,31 @@
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+
+<article>
+    <a href="
+        {% if type == 'public' and content.in_public %}
+            {{ content.get_absolute_url_online }}
+        {% elif type == 'beta' and content.in_beta %}
+            {{ content.get_absolute_url_beta }}
+        {% else %}
+            {{ content.get_absolute_url }}
+        {% endif %}
+    ">
+        <img src="{{ content.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
+        <div class="tutorial-infos">
+            <h3>{{ content.title }}</h3>
+
+            <span class="article-metadata">
+                {% if content.subcategory.all %}
+                    {% for category in content.subcategory.all %}
+                        {{ category.title }}
+                    {% endfor %}
+                {% else %}
+                    {% trans "Aucune catégorie" %}
+                {% endif %}
+                - {% trans "Créé" %} {{ content.creation_date|format_date }}
+            </span>
+        </div>
+    </a>
+</article>

@@ -1,0 +1,206 @@
+{% extends "tutorialv2/base.html" %}
+{% load emarkdown %}
+{% load repo_reader %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+{% load roman %}
+{% load i18n %}
+
+
+{% block title %}
+    {{ content.title }}
+{% endblock %}
+
+
+{% if user in content.authors.all or perms.content.change_content %}
+    {% block breadcrumb_base %}
+        <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+    {% endblock %}
+{% endif %}
+
+
+{% block breadcrumb %}
+    <li>{{ content.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if content.licence %}
+        <p class="license">
+            {{ content.licence }}
+        </p>
+    {% endif %}
+
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {{ content.title }}
+    </h1>
+
+    {% if content.description %}
+        <h2 class="subtitle">
+            {{ content.description }}
+        </h2>
+    {% endif %}
+
+    {% if user in content.authors.all or perms.content.change_content %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
+    {% else %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+    {% endif %}
+
+    {% if user in content.authors.all or perms.content.change_content %}
+        {% if content.in_validation %}
+            {% if validation.version == version %}
+                {% if validation.is_pending %}
+                    <p class="content-wrapper alert-box alert">
+                        {% trans "Ce tutoriel est en attente d'un validateur" %}
+                    </p>
+                {% elif validation.is_pending_valid %}
+                    <p class="content-wrapper alert-box info">
+                        {% trans "Le tutoriel est en cours de validation par" %}
+                        {% include "misc/member_item.part.html" with member=validation.validator %}
+                    </p>
+                {% endif %}
+                {% if validation.comment_authors %}
+                    <div class="content-wrapper comment-author">
+                        <p>
+                            {% trans "Le message suivant a été laissé à destination des validateurs" %} :
+                        </p>
+
+                        <blockquote>
+                            {{ validation.comment_authors|emarkdown }}
+                        </blockquote>
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if validation.is_pending %}
+                    <p class="content-wrapper alert-box alert">
+                        <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
+                            {% trans "Une autre version de ce tutoriel" %}</a>
+                        {% trans "est en attente d'un validateur" %}
+                    </p>
+                {% elif validation.is_pending_valid %}
+                    <p class="content-wrapper alert-box info">
+                        <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
+                            {% trans "Une autre version de ce tutoriel" %}</a>
+                        {% trans "est en cours de validation par" %}
+                        {% include "misc/member_item.part.html" with member=validation.validator %}
+                    </p>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+    {% if content.is_beta %}
+        <div class="content-wrapper">
+            <div class="alert-box warning">
+                {% blocktrans %}
+                    Cette version est en <strong>"BÊTA"</strong> !
+                {% endblocktrans %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+    {% if content.get_introduction and content.get_introduction != "None" %}
+        {{ content.get_introduction|emarkdown:is_js }}
+    {% elif not content.is_beta %}
+        <p class="ico-after warning">
+            {% trans "Il n'y a pas d'introduction" %}.
+        </p>
+    {% endif %}
+
+
+
+    <hr />
+
+    {% for child in content.childreen %}
+        {# include stuff #}
+    {% empty %}
+        <p class="ico-after warning">
+            {% trans "Ce contenu est actuelement vide" %}.
+        </p>
+    {% endfor %}
+
+    <hr />
+
+    {% if content.get_conclusion and content.get_conclusion != "None" %}
+        {{ content.get_conclusion|emarkdown:is_js }}
+    {% elif not content.is_beta %}
+        <p class="ico-after warning">
+            {% trans "Il n'y a pas de conclusion" %}.
+        </p>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_new %}
+    {% if user in content.authors.all or perms.content.change_content %}
+        {% if content.sha_draft == version %}
+            <a href="{% url "content:edit" content.pk content.slug %}" class="ico-after edit blue new-btn">
+                {% trans "Éditer" %}
+            </a>
+
+        {% else %}
+            <a href="{{ content.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+                {% trans "Version brouillon" %}
+            </a>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    {% if user in content.authors.all or perms.content.change_content %}
+        {# other action (valid, beta, ...) #}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if perms.content.change_content %}
+        {#  more actions ?!? #}
+    {% endif %}
+
+    {#  include "content/includes/summary.part.html" #}
+
+    {% if user in content.authors.all or perms.content.change_content %}
+         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+            <h3>{% trans "Suppression" %}</h3>
+            <ul>
+                {% if not content.in_public %}
+                    <li>
+                        <a href="#delete-content" class="open-modal ico-after cross red">
+                            {% trans "Supprimer le contenu" %}
+                        </a>
+                        <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-medium">
+                        	{% csrf_token %}
+                            <p>
+                                {% blocktrans with content_title=content.title %}
+                                    Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ».
+                                {% endblocktrans %}
+                            </p>
+                            <button type="submit">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="inactive">
+                        <span class="ico-after cross disabled">
+                            {% trans "Impossible, car publié" %}
+                        </span>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
