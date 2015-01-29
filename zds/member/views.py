@@ -21,7 +21,7 @@ from django.template.loader import get_template
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView, UpdateView, CreateView
+from django.views.generic import DetailView, UpdateView, CreateView
 
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm, \
     ForgotPasswordForm, NewPasswordForm, OldTutoForm, PromoteMemberForm, KarmaForm
@@ -38,10 +38,11 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Comment
 from zds.utils.mps import send_mp
+from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
 
 
-class MemberList(ListView):
+class MemberList(ZdSPagingListView):
 
     """Displays the list of registered users."""
 

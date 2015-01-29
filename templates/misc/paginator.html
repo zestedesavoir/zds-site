@@ -19,17 +19,39 @@
             </li>
         {% endif %}
 
-        {% for page_nb in page_obj.paginator.page_range %}
-            <li>
-                <a  {% ifnotequal page_nb page_obj.number %}
-                        href="?page={{ page_nb }}{{ full_anchor }}"
-                    {% else %}
-                        class="current"
-                    {% endifnotequal %}
-                >
-                    {{ page_nb }}
-                </a>
-            </li>
+        {% for page_nb in pages %}
+            {% if page_nb %}
+                <li>
+                    <a  {% ifnotequal page_nb page_obj.number %}
+                            href="?page={{ page_nb }}{{ full_anchor }}"
+                        {% else %}
+                            class="current"
+                        {% endifnotequal %}
+                    >
+                        {{ page_nb }}
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="#pagination-{{ position }}" class="open-modal">...</a>
+                    <form action="." method="get" class="modal modal-small" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page" %}...'>
+                        {% for key,val in request.GET.iterlists %}
+                            {% if key != "page" %}
+                                {% for v in val %}
+                                    <input type="hidden" name="{{ key }}" value="{{ v }}">
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                        <p>
+                            {% trans "Indiquez la page à laquelle vous souhaitez vous rendre" %}.
+                        </p>
+                        <input type="number" name="page" min="1" max="{{ pages|last }}">
+                        <button type="submit">
+                            {% trans "Aller à la page" %}
+                        </button>
+                    </form>
+                </li>
+            {% endif %}
         {% endfor %}
 
         {% if page_obj.has_next %}
