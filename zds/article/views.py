@@ -302,8 +302,8 @@ def new(request):
 def edit(request):
     """Edit article identified by given GET parameter."""
     try:
-        article_pk = request.GET['article']
-    except KeyError:
+        article_pk = int(request.GET['article'])
+    except (KeyError, ValueError):
         raise Http404
 
     article = get_object_or_404(Article, pk=article_pk)
@@ -480,7 +480,10 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    try:
+        article = get_object_or_404(Article, pk=int(request.GET['article']))
+    except (KeyError, ValueError):
+        raise Http404
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
@@ -875,10 +878,8 @@ def list_validation(request):
 
     # Get subcategory to filter validations.
     try:
-        subcategory = get_object_or_404(
-            Category,
-            pk=request.GET['subcategory'])
-    except (KeyError, Http404):
+        subcategory = get_object_or_404(Category, pk=int(request.GET['subcategory']))
+    except (KeyError, ValueError, Http404):
         subcategory = None
 
     # Orphan validation. There aren't validator attached to the validations.
@@ -935,10 +936,8 @@ def history_validation(request, article_pk):
 
     # Get subcategory to filter validations.
     try:
-        subcategory = get_object_or_404(
-            Category,
-            pk=request.GET['subcategory'])
-    except (KeyError, Http404):
+        subcategory = get_object_or_404(Category, pk=int(request.GET['subcategory']))
+    except (KeyError, ValueError, Http404):
         subcategory = None
 
     if subcategory is None:
@@ -1043,8 +1042,8 @@ def mep(article, sha):
 def answer(request):
     """Adds an answer from a user to an article."""
     try:
-        article_pk = request.GET['article']
-    except KeyError:
+        article_pk = int(request.GET['article'])
+    except (KeyError, ValueError):
         raise Http404
 
     # Retrieve current article.
@@ -1131,7 +1130,10 @@ def answer(request):
         # Using the quote button
         if 'cite' in request.GET:
             resp = {}
-            reaction_cite_pk = request.GET['cite']
+            try:
+                reaction_cite_pk = int(request.GET['cite'])
+            except ValueError:
+                raise Http404
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
             if not reaction_cite.is_visible:
                 raise PermissionDenied
@@ -1224,8 +1226,8 @@ def edit_reaction(request):
     """Edit the given user's reaction."""
 
     try:
-        reaction_pk = request.GET['message']
-    except KeyError:
+        reaction_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
 
@@ -1327,8 +1329,8 @@ def like_reaction(request):
     """Like a reaction."""
 
     try:
-        reaction_pk = request.GET['message']
-    except KeyError:
+        reaction_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
 
     resp = {}
@@ -1375,8 +1377,8 @@ def dislike_reaction(request):
     """Dislike a reaction."""
 
     try:
-        reaction_pk = request.GET['message']
-    except KeyError:
+        reaction_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
     resp = {}
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
