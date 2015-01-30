@@ -19,6 +19,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from datetime import datetime
 from git.repo import Repo
+from django.core.exceptions import PermissionDenied
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
@@ -166,6 +167,25 @@ class Container:
         else:
             raise Exception('slug "{}" already in the slug pool !'.format(slug))
 
+    def can_add_container(self):
+        """
+        :return: True if this container accept child container, false otherwise
+        """
+        if not self.has_extracts():
+            if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth']-1:
+                if self.top_container().type != 'ARTICLE':
+                    return True
+        return False
+
+    def can_add_extract(self):
+        """
+        :return: True if this container accept child extract, false otherwise
+        """
+        if not self.has_sub_containers():
+            if self.get_tree_depth() <= ZDS_APP['content']['max_tree_depth']:
+                return True
+        return False
+
     def add_container(self, container, generate_slug=False):
         """
         Add a child Container, but only if no extract were previously added and tree depth is < 2.
@@ -173,20 +193,17 @@ class Container:
         :param container: the new container
         :param generate_slug: if `True`, ask the top container an unique slug for this object
         """
-        if not self.has_extracts():
-            if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] and self.top_container().type != 'ARTICLE':
-                if generate_slug:
-                    container.slug = self.get_unique_slug(container.title)
-                else:
-                    self.add_slug_to_pool(container.slug)
-                container.parent = self
-                container.position_in_parent = self.get_last_child_position() + 1
-                self.children.append(container)
-                self.children_dict[container.slug] = container
+        if self.can_add_container():
+            if generate_slug:
+                container.slug = self.get_unique_slug(container.title)
             else:
-                raise InvalidOperationError("Cannot add another level to this content")
+                self.add_slug_to_pool(container.slug)
+            container.parent = self
+            container.position_in_parent = self.get_last_child_position() + 1
+            self.children.append(container)
+            self.children_dict[container.slug] = container
         else:
-            raise InvalidOperationError("Can't add a container if this container already contains extracts.")
+            raise InvalidOperationError("Cannot add another level to this container")
 
     def add_extract(self, extract, generate_slug=False):
         """
@@ -194,7 +211,7 @@ class Container:
         :param extract: the new extract
         :param generate_slug: if `True`, ask the top container an unique slug for this object
         """
-        if not self.has_sub_containers():
+        if self.can_add_extract():
             if generate_slug:
                 extract.slug = self.get_unique_slug(extract.title)
             else:
@@ -213,6 +230,7 @@ class Container:
         changed.
         Note : this function does not account for a different arrangement of the files.
         """
+        # TODO : path comparison instead of pure rewritring ?
         self.introduction = os.path.join(self.get_path(relative=True), "introduction.md")
         self.conclusion = os.path.join(self.get_path(relative=True), "conclusion.md")
         for child in self.children:
@@ -244,6 +262,42 @@ class Container:
             base = self.parent.get_prod_path()
         return os.path.join(base, self.slug)
 
+    def get_absolute_url(self):
+        """
+        :return: url to access the container
+        """
+        return self.top_container().get_absolute_url() + self.get_path(relative=True) + '/'
+
+    def get_edit_url(self):
+        """
+        :return: url to edit the container
+        """
+        slugs = [self.slug]
+        parent = self.parent
+        while parent is not None:
+            slugs.append(parent.slug)
+            parent = parent.parent
+        slugs.reverse()
+        args = [self.top_container().pk]
+        args.extend(slugs)
+
+        return reverse('content:edit-container', args=args)
+
+    def get_delete_url(self):
+        """
+        :return: url to edit the container
+        """
+        slugs = [self.slug]
+        parent = self.parent
+        while parent is not None:
+            slugs.append(parent.slug)
+            parent = parent.parent
+        slugs.reverse()
+        args = [self.top_container().pk]
+        args.extend(slugs)
+
+        return reverse('content:delete', args=args)
+
     def get_introduction(self):
         """
         :return: the introduction from the file in `self.introduction`
@@ -270,19 +324,26 @@ class Container:
         :return : commit sha
         """
 
+        repo = self.top_container().repository
+
         # update title
         if title != self.title:
             self.title = title
             if self.get_tree_depth() > 0:  # if top container, slug is generated from DB, so already changed
+                old_path = self.get_path(relative=True)
                 self.slug = self.top_container().get_unique_slug(title)
+                new_path = self.get_path(relative=True)
+                repo.index.move([old_path, new_path])
+
+                # update manifest
                 self.update_children()
-                # TODO : and move() !!!
 
         # update introduction and conclusion
+        rel_path = self.get_path(relative=True)
         if self.introduction is None:
-            self.introduction = self.get_path(relative=True) + 'introduction.md'
+            self.introduction = os.path.join(rel_path, 'introduction.md')
         if self.conclusion is None:
-            self.conclusion = self.get_path(relative=True) + 'conclusion.md'
+            self.conclusion = os.path.join(rel_path, 'conclusion.md')
 
         path = self.top_container().get_path()
         f = open(os.path.join(path, self.introduction), "w")
@@ -293,8 +354,6 @@ class Container:
         f.close()
 
         self.top_container().dump_json()
-
-        repo = self.top_container().repository
         repo.index.add(['manifest.json', self.introduction, self.conclusion])
 
         if commit_message == '':
@@ -303,9 +362,110 @@ class Container:
 
         return cm.hexsha
 
-    # TODO:
-    # - get_absolute_url_*() stuffs (harder than it seems, because they cannot be written in a recursive way)
-    # - the `maj_repo_*()` stuffs should probably be into the model ?
+    def repo_add_container(self, title, introduction, conclusion, commit_message=''):
+        """
+        :param title: title of the new container
+        :param introduction: text of its introduction
+        :param conclusion: text of its conclusion
+        :param commit_message: commit message that will be used instead of the default one
+        :return: commit sha
+        """
+        subcontainer = Container(title)
+
+        # can a subcontainer be added ?
+        try:
+            self.add_container(subcontainer, generate_slug=True)
+        except Exception:
+            raise PermissionDenied
+
+        # create directory
+        repo = self.top_container().repository
+        path = self.top_container().get_path()
+        rel_path = subcontainer.get_path(relative=True)
+        os.makedirs(os.path.join(path, rel_path), mode=0o777)
+
+        repo.index.add([rel_path])
+
+        # create introduction and conclusion
+        subcontainer.introduction = os.path.join(rel_path, 'introduction.md')
+        subcontainer.conclusion = os.path.join(rel_path, 'conclusion.md')
+
+        f = open(os.path.join(path, subcontainer.introduction), "w")
+        f.write(introduction.encode('utf-8'))
+        f.close()
+        f = open(os.path.join(path, subcontainer.conclusion), "w")
+        f.write(conclusion.encode('utf-8'))
+        f.close()
+
+        # commit
+        self.top_container().dump_json()
+        repo.index.add(['manifest.json', subcontainer.introduction, subcontainer.conclusion])
+
+        if commit_message == '':
+            commit_message = u'Création du conteneur « ' + title + u' »'
+        cm = repo.index.commit(commit_message)
+
+        return cm.hexsha
+
+    def repo_add_extract(self, title, text, commit_message=''):
+        """
+        :param title: title of the new extract
+        :param text: text of the new extract
+        :param commit_message: commit message that will be used instead of the default one
+        :return: commit sha
+        """
+        extract = Extract(title)
+
+        # can an extract be added ?
+        try:
+            self.add_extract(extract, generate_slug=True)
+        except Exception:
+            raise PermissionDenied
+
+        # create text
+        repo = self.top_container().repository
+        path = self.top_container().get_path()
+
+        extract.text = extract.get_path(relative=True)
+        f = open(os.path.join(path, extract.text), "w")
+        f.write(text.encode('utf-8'))
+        f.close()
+
+        # commit
+        self.top_container().dump_json()
+        repo.index.add(['manifest.json', extract.text])
+
+        if commit_message == '':
+            commit_message = u'Création de l\'extrait « ' + title + u' »'
+        cm = repo.index.commit(commit_message)
+
+        return cm.hexsha
+
+    def repo_delete(self, commit_message=''):
+        """
+        :param commit_message: commit message used instead of default one if provided
+        :return: commit sha
+        """
+        path = self.get_path(relative=True)
+        repo = self.top_container().repository
+        repo.index.remove([path], r=True)
+        shutil.rmtree(self.get_path())  # looks like removing from git is not enough !!
+
+        # now, remove from manifest
+        # work only if slug is correct
+        top = self.top_container()
+        top.children_dict.pop(self.slug)
+        top.children.pop(top.children.index(self))
+
+        # commit
+        top.dump_json()
+        repo.index.add(['manifest.json'])
+
+        if commit_message == '':
+            commit_message = u'Suppression du conteneur « {} »'.format(self.title)
+        cm = repo.index.commit(commit_message)
+
+        return cm.hexsha
 
 
 class Extract:
@@ -318,14 +478,14 @@ class Extract:
     title = ''
     slug = ''
     container = None
-    position_in_container = 1
+    position_in_parent = 1
     text = None
 
-    def __init__(self, title, slug='', container=None, position_in_container=1):
+    def __init__(self, title, slug='', container=None, position_in_parent=1):
         self.title = title
         self.slug = slug
         self.container = container
-        self.position_in_container = position_in_container
+        self.position_in_parent = position_in_parent
 
     def __unicode__(self):
         return u'<Extrait \'{}\'>'.format(self.title)
@@ -336,8 +496,8 @@ class Extract:
         """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url(),
-            self.position_in_container,
-            slugify(self.title)
+            self.position_in_parent,
+            self.slug
         )
 
     def get_absolute_url_online(self):
@@ -346,8 +506,8 @@ class Extract:
         """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url_online(),
-            self.position_in_container,
-            slugify(self.title)
+            self.position_in_parent,
+            self.slug
         )
 
     def get_absolute_url_beta(self):
@@ -356,9 +516,39 @@ class Extract:
         """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url_beta(),
-            self.position_in_container,
-            slugify(self.title)
+            self.position_in_parent,
+            self.slug
         )
+
+    def get_edit_url(self):
+        """
+        :return: url to edit the extract
+        """
+        slugs = [self.slug]
+        parent = self.container
+        while parent is not None:
+            slugs.append(parent.slug)
+            parent = parent.parent
+        slugs.reverse()
+        args = [self.container.top_container().pk]
+        args.extend(slugs)
+
+        return reverse('content:edit-extract', args=args)
+
+    def get_delete_url(self):
+        """
+        :return: url to delete the extract
+        """
+        slugs = [self.slug]
+        parent = self.container
+        while parent is not None:
+            slugs.append(parent.slug)
+            parent = parent.parent
+        slugs.reverse()
+        args = [self.container.top_container().pk]
+        args.extend(slugs)
+
+        return reverse('content:delete', args=args)
 
     def get_path(self, relative=False):
         """
@@ -377,16 +567,69 @@ class Extract:
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
                 self.text)
 
-    def get_text_online(self):
+    def repo_update(self, title, text, commit_message=''):
         """
-        :return: public text of the extract
+        :param title: new title of the extract
+        :param text: new text of the extract
+        :param commit_message: commit message that will be used instead of the default one
+        :return: commit sha
         """
-        path = self.container.top_container().get_prod_path() + self.text + '.html'
-        if os.path.exists(path):
-            txt = open(path)
-            txt_content = txt.read()
-            txt.close()
-            return txt_content.decode('utf-8')
+
+        repo = self.container.top_container().repository
+
+        if title != self.title:
+            # get a new slug
+            old_path = self.get_path(relative=True)
+            self.title = title
+            self.slug = self.container.get_unique_slug(title)
+            new_path = self.get_path(relative=True)
+            # move file
+            repo.index.move([old_path, new_path])
+
+        # edit text
+        path = self.container.top_container().get_path()
+
+        self.text = self.get_path(relative=True)
+        f = open(os.path.join(path, self.text), "w")
+        f.write(text.encode('utf-8'))
+        f.close()
+
+        # commit
+        self.container.top_container().dump_json()
+        repo.index.add(['manifest.json', self.text])
+
+        if commit_message == '':
+            commit_message = u'Modification de l\'extrait « {} », situé dans le conteneur « {} »'\
+                .format(self.title, self.container.title)
+        cm = repo.index.commit(commit_message)
+
+        return cm.hexsha
+
+    def repo_delete(self, commit_message=''):
+        """
+        :param commit_message: commit message used instead of default one if provided
+        :return: commit sha
+        """
+        path = self.get_path(relative=True)
+        repo = self.container.top_container().repository
+        repo.index.remove([path])
+        os.remove(self.get_path())  # looks like removing from git is not enough
+
+        # now, remove from manifest
+        # work only if slug is correct!!
+        top = self.container
+        top.children_dict.pop(self.slug, None)
+        top.children.pop(top.children.index(self))
+
+        # commit
+        top.top_container().dump_json()
+        repo.index.add(['manifest.json'])
+
+        if commit_message == '':
+            commit_message = u'Suppression de l\'extrait « {} »'.format(self.title)
+        cm = repo.index.commit(commit_message)
+
+        return cm.hexsha
 
 
 class VersionedContent(Container):
@@ -464,12 +707,6 @@ class VersionedContent(Container):
         else:
             return self.get_absolute_url()
 
-    def get_edit_url(self):
-        """
-        :return: the url to edit the tutorial
-        """
-        return reverse('zds.tutorialv2.views.modify_tutorial') + '?tutorial={0}'.format(self.slug)
-
     def get_path(self, relative=False):
         """
         Get the physical path to the draft version of the Content.
@@ -486,7 +723,7 @@ class VersionedContent(Container):
         Get the physical path to the public version of the content
         :return: physical path
         """
-        return os.path.join(settings.ZDS_APP['contents']['repo_public_path'], self.slug)
+        return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
 
     def get_json(self):
         """

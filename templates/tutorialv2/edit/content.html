@@ -7,10 +7,6 @@
     {% trans "Éditer le contenu" %}
 {% endblock %}
 
-{% block breadcrumb_base %}
-    <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
-{% endblock %}
-
 {% block breadcrumb %}
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
     <li>{% trans "Éditer le contenu" %}</li>

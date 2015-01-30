@@ -12,13 +12,6 @@
 {% endblock %}
 
 
-{% if user in content.authors.all or perms.content.change_content %}
-    {% block breadcrumb_base %}
-        <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
-    {% endblock %}
-{% endif %}
-
-
 {% block breadcrumb %}
     <li>{{ content.title }}</li>
 {% endblock %}
@@ -119,8 +112,8 @@
 
     <hr />
 
-    {% for child in content.childreen %}
-        {# include stuff #}
+    {% for child in content.children %}
+        {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
         <p class="ico-after warning">
             {% trans "Ce contenu est actuelement vide" %}.
@@ -146,6 +139,18 @@
             <a href="{% url "content:edit" content.pk content.slug %}" class="ico-after edit blue new-btn">
                 {% trans "Éditer" %}
             </a>
+
+            {%  if content.can_add_container %}
+                <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more blue new-btn">
+                    {% trans "Ajouter un conteneur" %}
+                </a>
+            {% endif %}
+
+            {%  if content.can_add_extract %}
+                <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more blue new-btn">
+                    {% trans "Ajouter un extrait" %}
+                </a>
+             {%  endif %}
 
         {% else %}
             <a href="{{ content.get_absolute_url }}" class="ico-after arrow-right blue new-btn">

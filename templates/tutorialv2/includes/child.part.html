@@ -1,0 +1,42 @@
+{% load emarkdown %}
+{% load i18n %}
+
+
+<h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+    <a href="{{ child.get_absolute_url }}">
+        {{ child.title }}
+    </a>
+</h2>
+
+{% if user in content.authors.all or perms.tutorial.change_tutorial %}
+    <div class="actions-title">
+        <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
+            {% trans "Éditer" %}
+        </a>
+
+        {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
+    </div>
+{% endif %}
+
+{% if child.text %}
+    {# child is an extract #}
+
+    {{ child.get_text|emarkdown }}
+
+{% else %}
+    {# child is a container #}
+
+    {% if child.children %}
+        <ol>
+            {%  for subchild in child.children %}
+            <li>
+                <a href="{{ subchild.get_absolute_url }}">{{ subchild.title }}</a>
+            </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p class="ico-after warning">
+            {% trans "Ce conteneur est actuelement vide" %}.
+        </p>
+    {% endif %}
+{% endif %}

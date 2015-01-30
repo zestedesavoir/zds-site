@@ -1,0 +1,39 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Editer un conteneur" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    {%  if container.parent.parent %}
+        <li><a href="{{ container.parent.parent.get_absolute_url }}">{{ container.parent.parent.title }}</a></li>
+    {% endif %}
+
+    {%  if container.parent %}
+        <li><a href="{{ container.parent.get_absolute_url }}">{{ container.parent.title }}</a></li>
+    {% endif %}
+
+    <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
+
+    <li>{% trans "Editer le conteneur" %}</li>
+{% endblock %}
+
+{% block headline %}
+    <h1>
+        {% trans "Éditer" %} : {{ container.title }}
+    </h1>
+{% endblock %}
+
+
+
+{% block content %}
+    {% if new_version %}
+        <p class="ico-after warning">
+            {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
+        </p>
+    {% endif %}
+    {% crispy form %}
+{% endblock %}
