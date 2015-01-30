@@ -4,7 +4,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Fieldset, Submit, Field, \
+from crispy_forms.layout import HTML, Layout, Submit, Field, \
     ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
@@ -157,7 +157,7 @@ class ContentForm(FormWithTitle):
                 disabled=True)
 
 
-class PartForm(FormWithTitle):
+class ContainerForm(FormWithTitle):
 
     introduction = forms.CharField(
         label=_(u"Introduction"),
@@ -191,7 +191,7 @@ class PartForm(FormWithTitle):
     )
 
     def __init__(self, *args, **kwargs):
-        super(PartForm, self).__init__(*args, **kwargs)
+        super(ContainerForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -206,122 +206,8 @@ class PartForm(FormWithTitle):
                 StrictButton(
                     _(u'Valider'),
                     type='submit'),
-                StrictButton(
-                    _(u'Ajouter et continuer'),
-                    type='submit',
-                    name='submit_continue'),
             )
         )
-
-
-class ChapterForm(FormWithTitle):
-
-    image = forms.ImageField(
-        label=_(u'Selectionnez le logo du tutoriel '
-                u'(max. {0} Ko)').format(str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
-        required=False
-    )
-
-    introduction = forms.CharField(
-        label=_(u'Introduction'),
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
-            }
-        )
-    )
-
-    conclusion = forms.CharField(
-        label=_(u'Conclusion'),
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
-            }
-        )
-    )
-
-    msg_commit = forms.CharField(
-        label=_(u"Message de suivi"),
-        max_length=80,
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Un résumé de vos ajouts et modifications')
-            }
-        )
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(ChapterForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('image'),
-            Field('introduction', css_class='md-editor'),
-            Field('conclusion', css_class='md-editor'),
-            Field('msg_commit'),
-            Hidden('last_hash', '{{ last_hash }}'),
-            ButtonHolder(
-                StrictButton(
-                    _(u'Valider'),
-                    type='submit'),
-                StrictButton(
-                    _(u'Ajouter et continuer'),
-                    type='submit',
-                    name='submit_continue'),
-            ))
-
-
-class EmbdedChapterForm(forms.Form):
-    introduction = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-
-    image = forms.ImageField(
-        label=_(u'Sélectionnez une image'),
-        required=False)
-
-    conclusion = forms.CharField(
-        required=False,
-        widget=forms.Textarea
-    )
-
-    msg_commit = forms.CharField(
-        label=_(u'Message de suivi'),
-        max_length=80,
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Un résumé de vos ajouts et modifications')
-            }
-        )
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Fieldset(
-                _(u'Contenu'),
-                Field('image'),
-                Field('introduction', css_class='md-editor'),
-                Field('conclusion', css_class='md-editor'),
-                Field('msg_commit'),
-                Hidden('last_hash', '{{ last_hash }}'),
-            ),
-            ButtonHolder(
-                Submit('submit', _(u'Valider'))
-            )
-        )
-        super(EmbdedChapterForm, self).__init__(*args, **kwargs)
 
 
 class ExtractForm(FormWithTitle):

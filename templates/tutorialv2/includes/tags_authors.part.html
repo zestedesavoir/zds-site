@@ -13,11 +13,11 @@
 
 
 
-{% if content.update %}
+{% if content.update_date %}
     <span class="pubdate">
         {% trans "Dernière mise à jour" %} :
-        <time datetime="{{ content.update|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
-            {{ content.update|format_date }}
+        <time datetime="{{ content.update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ content.update_date|format_date }}
         </time>
     </span>
 {% endif %}
