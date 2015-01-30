@@ -211,10 +211,10 @@ class MemberTests(TestCase):
         editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
         editedAnswer.editor = user.user
         editedAnswer.save()
-        upvotedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=4)
-        upvotedAnswer.like += 1
-        upvotedAnswer.save()
-        CommentLike.objects.create(user=user.user, comments=upvotedAnswer)
+        upvoted_answer = PostFactory(topic=answeredTopic, author=user2.user, position=4)
+        upvoted_answer.like += 1
+        upvoted_answer.save()
+        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
 
         privateTopic = PrivateTopicFactory(author=user.user)
         privateTopic.participants.add(user2.user)
@@ -291,7 +291,7 @@ class MemberTests(TestCase):
         self.assertEquals(sharedGallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
         self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(Post.objects.filter(pk=upvotedAnswer.id).first().like, 0)
+        self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
     def test_sanctions(self):
         """Test various sanctions."""
