@@ -95,6 +95,46 @@ génération des fichiers PDF et EPUB des tutos :
 - ``decale_header_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
 
 
+email_obfuscator
+----------------
+
+Ces templatetags sont principalement fondés sur https://github.com/morninj/django-email-obfuscator.
+
+
+obfuscate
++++++++++
+
+L'email va être encodé avec des caractères ASCII pour le protéger des bots ::
+
+    {% load email_obfuscator %}
+    {{ 'your@email.com'|obfuscate }}
+
+
+obfuscate_mailto
+++++++++++++++++
+
+Ce templatetag ajoute en plus un `mailto`. Il prend un paramètre optionnel qui permet d'avoir un text personnalisé dans
+la balise <a> ::
+
+    {% load email_obfuscator %}
+    {{ 'your@email.com'|obfuscate_mailto:"my custom text" }}
+    #returns '<a href="mailto:your@email.com">my custom text</a>' as an encoded string like
+    #<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#121;&#111;&#117;&#114;&#64;&#101;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">my custom text</a>
+
+
+obfuscate_mailto_top_subject
+++++++++++++++++++++++++++++
+
+Identique sur le fonctionnement à `obfuscate_mailto`, ce templatetag ajoute en plus un sujet (qui remplace le champ
+pouvant être inséré entre les balises <a> et </a>) ainsi que `target="_top"`.
+
+Il est utilisé sur la page « Contact ».
+
+Exemple ::
+
+    {% load email_obfuscator %}
+    {{ 'association@zestedesavoir.com'|obfuscate_mailto_top_subject:"Contact communication" }}
+
 
 autres
 ------

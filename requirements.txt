@@ -8,7 +8,6 @@ django==1.6.10
 coverage==3.7.1
 south==1.0.1
 django-crispy-forms==1.4.0
-git+https://github.com/morninj/django-email-obfuscator.git#egg=email_obfuscator
 django-haystack==2.3.1
 django-model-utils==2.2
 django-munin==0.1.5
