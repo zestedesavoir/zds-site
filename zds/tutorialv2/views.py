@@ -111,7 +111,6 @@ class CreateContent(FormView):
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
     def dispatch(self, *args, **kwargs):
-        """rewrite this method to ensure decoration"""
         return super(CreateContent, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
@@ -190,7 +189,6 @@ class DisplayContent(DetailView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        """rewrite this method to ensure decoration"""
         return super(DisplayContent, self).dispatch(*args, **kwargs)
 
     def get_forms(self, context, content):
@@ -212,11 +210,13 @@ class DisplayContent(DetailView):
         context["formAskValidation"] = form_ask_validation
         context["formJs"] = form_js
         context["formValid"] = form_valid
-        context["formReject"] = form_reject,
+        context["formReject"] = form_reject
 
     def get_object(self, queryset=None):
-        # TODO : check slug ?
-        return get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if obj.slug != self.kwargs['slug']:
+            raise Http404
+        return obj
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -242,10 +242,6 @@ class DisplayContent(DetailView):
             # the only members that can display and modify the tutorial are validators
             if not self.request.user.has_perm("tutorial.change_tutorial"):
                 raise PermissionDenied
-
-        # check if slug is good:
-        if self.kwargs['slug'] != content.slug:
-            raise Http404
 
         # load versioned file
         versioned_tutorial = content.load_version(sha)
@@ -276,8 +272,10 @@ class EditContent(FormView):
         return super(EditContent, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
-        # TODO: check slug ?
-        return get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if obj.slug != self.kwargs['slug']:
+            raise Http404
+        return obj
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
@@ -374,10 +372,11 @@ class DeleteContent(DeleteView):
         """rewrite this method to ensure decoration"""
         return super(DeleteContent, self).dispatch(*args, **kwargs)
 
-    def get_queryset(self):
-        # TODO: check slug ?
-        qs = super(DeleteContent, self).get_queryset()
-        return qs.filter(pk=self.kwargs['pk'])
+    def get_object(self, queryset=None):
+        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if obj.slug != self.kwargs['slug']:
+            raise Http404
+        return obj
 
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""
