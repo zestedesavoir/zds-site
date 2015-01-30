@@ -830,7 +830,8 @@ class PublishableContent(models.Model):
             if 'licence' in json:
                 versioned.licence = Licence.objects.filter(code=json['licence']).first()
             else:
-                versioned.licence = Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
+                versioned.licence = \
+                    Licence.objects.filter(pk=settings.ZDS_APP['tutorial']['default_license_pk']).first()
 
             if 'introduction' in json:
                 versioned.introduction = json['introduction']
