@@ -62,6 +62,11 @@ hr.clearfix {
     border: none;
 }
 
+.unstyled-list {
+  list-style: none;
+  padding-left: 0;
+}
+
 // Hidden on mobile
 .screen,
 .wide {
