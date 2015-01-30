@@ -82,9 +82,9 @@ Cela va créer plusieurs entitées :
 
 [Voir la documentation en ligne](http://zds-site.readthedocs.org).
 
-La documentation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site. Les sources se trouvent [ici](doc/sphinx/source/).
+La documentation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site. Les sources se trouvent [ici](doc/source/).
 
-Pour générer la documentation en local, rendez-vous dans le répertoire `zds-site/doc/sphinx` depuis votre terminal, et lancez la commande `make html`. Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/sphinx/build/html/index.html`
+Pour générer la documentation en local, rendez-vous dans le répertoire `zds-site/doc/` depuis votre terminal, et lancez la commande `make html`. Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/build/html/index.html`
 
 
 ### Conseils de développement

@@ -14,7 +14,7 @@ Sommaire
 .. toctree::
    :maxdepth: 2
 
-   introduction
+   install
    workflow/workflow.rst
    tutorial/tutorial.rst
    member/member.rst
