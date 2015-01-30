@@ -784,8 +784,8 @@ def forgot_password(request):
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             data = form.data
-            username = data["username"]
-            usr = get_object_or_404(User, username=username)
+            email = data["email"]
+            usr = get_object_or_404(User, email=email)
 
             # Generate a valid token during one hour.
 

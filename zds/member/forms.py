@@ -479,9 +479,9 @@ class ChangePasswordForm(forms.Form):
 
 # Reset the password
 class ForgotPasswordForm(forms.Form):
-    username = forms.CharField(
-        label=_(u'Nom d\'utilisateur'),
-        max_length=User._meta.get_field('username').max_length,
+    email = forms.CharField(
+        label=_(u'Adresse de courriel'),
+        max_length=User._meta.get_field('email').max_length,
         required=True
     )
 
@@ -492,7 +492,7 @@ class ForgotPasswordForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('username'),
+            Field('email'),
             ButtonHolder(
                 StrictButton(_(u'Envoyer'), type='submit'),
             )
@@ -502,11 +502,11 @@ class ForgotPasswordForm(forms.Form):
         cleaned_data = super(ForgotPasswordForm, self).clean()
 
         # Check that the password and it's confirmation match
-        username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
 
-        if User.objects.filter(username=username).count() == 0:
-            self._errors['username'] = self.error_class(
-                [_(u'Ce nom d\'utilisateur n\'existe pas')])
+        if User.objects.filter(email=email).count() == 0:
+            self._errors['email'] = self.error_class(
+                [_(u'Cette adresse n\'existe pas')])
 
         return cleaned_data
 
