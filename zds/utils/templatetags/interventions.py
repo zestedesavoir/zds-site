@@ -137,7 +137,7 @@ def interventions_privatetopics(user):
         '''
         select distinct t.*
         from mp_privatetopic t
-        inner join mp_privatetopic_participants p on p.privatetopic_id = t.id
+        left outer join mp_privatetopic_participants p on p.privatetopic_id = t.id
         left outer join mp_privatetopicread r on r.user_id = %s and r.privatepost_id = t.last_message_id
         where (t.author_id = %s or p.user_id = %s)
           and r.id is null
@@ -145,7 +145,8 @@ def interventions_privatetopics(user):
         [user.id, user.id, user.id])
 
     # "total" re-do the query, but there is no other way to get the length as __len__ is not available on raw queries.
-    return {'unread': privatetopics_unread, 'total': len(list(privatetopics_unread))}
+    topics = list(privatetopics_unread)
+    return {'unread': topics, 'total': len(topics)}
 
 
 @register.filter(name='alerts_list')
