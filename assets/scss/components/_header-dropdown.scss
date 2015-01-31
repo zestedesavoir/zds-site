@@ -86,10 +86,6 @@
 }
 
 @media only screen and #{$media-tablet} {
-    .header-menu-dropdown {
-        display: none !important;
-    }
-
     .dropdown {
         box-shadow: 0 5px 7px rgba(0, 0, 0, .3);
     }
@@ -170,5 +166,11 @@
             height: 50px;
             line-height: 50px;
         }
+    }
+}
+
+@media only screen and #{$media-wide} {
+    .dropdown {
+        top: 60px;
     }
 }
