@@ -42,8 +42,14 @@
                     {% trans "Inscrit" %} {{ usr.date_joined|format_date:True }}
                 </li>
                 <li>
-                    {% trans "Dernière visite sur le site" %} {{ profile.last_visit|format_date:True }}
+                    {% trans "Dernière visite sur le site" %} : 
+                        {% if profile.last_visit %}
+                            {{ profile.last_visit|format_date:True }}
+                        {% else %}
+                            {% trans "ne s'est jamais connecté(e)" %}
+                        {% endif %}
                 </li>
+
                 {% if perms.member.show_ip %}
                     <li>
                         {% trans "Dernière IP" %} : <a href="{% url "zds.member.views.member_from_ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
