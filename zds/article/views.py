@@ -10,7 +10,6 @@ except ImportError:
     except ImportError:
         import json as json_reader
 import json
-import json as json_writer
 import os
 import shutil
 import zipfile
@@ -1364,7 +1363,7 @@ def like_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
@@ -1412,7 +1411,7 @@ def dislike_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 

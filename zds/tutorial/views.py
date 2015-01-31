@@ -14,7 +14,6 @@ except ImportError:
     except ImportError:
         import json as json_reader
 import json
-import json as json_writer
 import shutil
 import re
 import zipfile
@@ -3626,7 +3625,7 @@ def like_note(request):
     resp["upvotes"] = note.like
     resp["downvotes"] = note.dislike
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
 
@@ -3669,7 +3668,7 @@ def dislike_note(request):
     resp["upvotes"] = note.like
     resp["downvotes"] = note.dislike
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
 
