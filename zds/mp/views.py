@@ -390,8 +390,8 @@ def answer(request):
         if 'cite' in request.GET:
             resp = {}
             try:
-                post_cite_pk = request.GET['cite']
-            except (KeyError, ValueError):
+                post_cite_pk = int(request.GET['cite'])
+            except ValueError:
                 raise Http404
             post_cite = get_object_or_404(PrivatePost, pk=post_cite_pk)
 
