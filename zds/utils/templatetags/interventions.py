@@ -152,24 +152,24 @@ def interventions_privatetopics(user):
 @register.filter(name='alerts_list')
 def alerts_list(user):
     total = []
-    alerts = Alert.objects.select_related("author").all().order_by('-pubdate')[:10]
+    alerts = Alert.objects.select_related('author').all().order_by('-pubdate')[:10]
     for alert in alerts:
         if alert.scope == Alert.FORUM:
-            post = Post.objects.select_related("topic").get(pk=alert.comment.pk)
+            post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
             total.append({'title': post.topic.title,
                           'url': post.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
         if alert.scope == Alert.ARTICLE:
-            reaction = Reaction.objects.select_related("article").get(pk=alert.comment.pk)
+            reaction = Reaction.objects.select_related('article').get(pk=alert.comment.pk)
             total.append({'title': reaction.article.title,
                           'url': reaction.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
         if alert.scope == Alert.TUTORIAL:
-            note = Note.objects.select_related("tutorial").get(pk=alert.comment.pk)
+            note = Note.objects.select_related('tutorial').get(pk=alert.comment.pk)
             total.append({'title': note.tutorial.title,
                           'url': note.get_absolute_url(),
                           'pubdate': alert.pubdate,
@@ -177,11 +177,3 @@ def alerts_list(user):
                           'text': alert.text})
 
     return total
-
-
-@register.filter(name='alerts_count')
-def alerts_count(user):
-    if user.is_authenticated():
-        return Alert.objects.count()
-    else:
-        return 0
