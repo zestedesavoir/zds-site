@@ -497,7 +497,7 @@ def load_tutorials(cli, size, fake):
                     tuto.authors.add(profiles[i % nb_users].user)
                     tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
                     tutorials.append(tuto)
-                    chap = ChapterFactory(tutorial=tutorials[j])
+                    chap = ChapterFactory(tutorial=tutorials[i])
                     nb_ext = randint(0, nb_avg_extracts_in_tuto * 2)
                     for l in range(0, nb_ext):
                         ExtractFactory(chapter=chap,
