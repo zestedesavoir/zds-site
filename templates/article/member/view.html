@@ -43,18 +43,18 @@
 
 
 {% block headline %}
+    {% if article.licence %}
+        <span class="license">
+            {{ article.licence }}
+        </span>
+    {% endif %}
+
     <h1 {% if article.image %}class="illu"{% endif %}>
         {% if article.image %}
             <img src="{{article.image.article_illu.url }}" alt="">
         {% endif %}
         {{ article.title }}
     </h1>
-
-    {% if article.licence %}
-        <span class="license">
-            {{ article.licence }}
-        </span>
-    {% endif %}
 
     {% if article.description %}
         <h2 class="subtitle">
@@ -72,14 +72,16 @@
         {% endfor %}
     </ul>
 
-    {% if article.sha_public %}
+    {% if article.update %}
         <span class="pubdate">
-            {% trans "Publié" %}
-            <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
-                {{ article.pubdate|format_date }}
+            {% trans "Dernière mise à jour" %} :
+            <time datetime="{{ article.update|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+                {{ article.update|format_date }}
             </time>
         </span>
     {% endif %}
+
+    {% include "misc/zen_button.part.html" %}
 
     <div class="authors">
         <span class="authors-label">{% trans "Contributeur" %}{{ authors.all|pluralize }} : </span>

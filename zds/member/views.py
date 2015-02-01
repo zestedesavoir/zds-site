@@ -47,10 +47,17 @@ def index(request):
 
     if request.is_ajax():
         q = request.GET.get('q', '')
+        try:
+            bot_group = Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])
+        except Group.DoesNotExist:
+            bot_group = Group()  # fallback if bot group not found
         if request.user.is_authenticated():
-            members = User.objects.filter(username__icontains=q).exclude(pk=request.user.pk)[:20]
+            members = User.objects.filter(username__icontains=q)\
+                .exclude(pk=request.user.pk)\
+                .exclude(groups__in=[bot_group])[:20]
         else:
-            members = User.objects.filter(username__icontains=q)[:20]
+            members = User.objects.filter(username__icontains=q)\
+                .exclude(groups__in=[bot_group])[:20]
         results = []
         for member in members:
             member_json = {}
@@ -66,19 +73,20 @@ def index(request):
 
     else:
         members = User.objects.order_by("-date_joined")
-        # Paginator
 
+        # Paginator
         paginator = Paginator(members, settings.ZDS_APP['member']['members_per_page'])
-        page = request.GET.get("page")
+
+        # Get the `page` argument (if empty `page = 1` by default)
+        page = request.GET.get("page", 1)
+
+        # Check if `page` is correct (integer and exists)
         try:
-            shown_members = paginator.page(page)
             page = int(page)
-        except PageNotAnInteger:
-            shown_members = paginator.page(1)
-            page = 1
-        except EmptyPage:
-            shown_members = paginator.page(paginator.num_pages)
-            page = paginator.num_pages
+            shown_members = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
+            raise Http404
+
         return render(request, "member/index.html", {
             "members": shown_members,
             "count": members.count(),
@@ -190,6 +198,16 @@ def details(request, user_name):
         bans = Ban.objects.filter(user=usr).order_by("-pubdate")
     except SiteProfileNotAvailable:
         raise Http404
+
+    if usr.profile.is_private():
+        form = OldTutoForm(profile)
+        return render(request, "member/profile.html", {
+            "usr": usr,
+            "profile": profile,
+            "form": form,
+            "karmaform": [],
+            "karmanotes": [],
+        })
 
     # refresh moderation chart
     if request.user.has_perm("member.change_profile"):
@@ -371,42 +389,67 @@ def tutorials(request):
     """Returns all tutorials of the authenticated user."""
 
     # The type indicate what the user would like to display. We can display
-    # public, draft or all user's tutorials.
+    # public, draft, beta, validate or all user's tutorials.
 
     try:
-        type = request.GET["type"]
+        state = request.GET['type']
     except KeyError:
-        type = None
+        state = None
+
+    # The sort indicate the order of tutorials.
+
+    try:
+        sort_tuto = request.GET['sort']
+    except KeyError:
+        sort_tuto = 'abc'
 
     # Retrieves all tutorials of the current user.
 
     profile = request.user.profile
-    if type == "draft":
+    if state == 'draft':
         user_tutorials = profile.get_draft_tutos()
-    elif type == "beta":
+    elif state == 'beta':
         user_tutorials = profile.get_beta_tutos()
-    elif type == "validate":
+    elif state == 'validate':
         user_tutorials = profile.get_validate_tutos()
-    elif type == "public":
+    elif state == 'public':
         user_tutorials = profile.get_public_tutos()
     else:
         user_tutorials = profile.get_tutos()
 
-    return render(request, "tutorial/member/index.html",
-                           {"tutorials": user_tutorials, "type": type})
+    # Order articles (abc by default)
+
+    if sort_tuto == 'creation':
+        pass  # nothing to do. Tutorials are already sort by creation date
+    elif sort_tuto == 'modification':
+        user_tutorials = user_tutorials.order_by('-update')
+    else:
+        user_tutorials = user_tutorials.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
+
+    return render(
+        request,
+        'tutorial/member/index.html',
+        {'tutorials': user_tutorials, 'type': state, 'sort': sort_tuto}
+    )
 
 
 @login_required
 def articles(request):
     """Returns all articles of the authenticated user."""
 
-    # The type indicate what the user would like to display. We can display
-    # public, draft or all user's articles.
+    # The type indicate what the user would like to display. We can display public, draft or all user's articles.
 
     try:
         state = request.GET['type']
     except KeyError:
         state = None
+
+    # The sort indicate the order of articles.
+
+    try:
+        sort_articles = request.GET['sort']
+    except KeyError:
+        sort_articles = 'abc'
 
     # Retrieves all articles of the current user.
 
@@ -420,7 +463,20 @@ def articles(request):
     else:
         user_articles = profile.get_articles()
 
-    return render(request, 'article/member/index.html', {'articles': user_articles, 'type': state})
+    # Order articles (abc by default)
+
+    if sort_articles == 'creation':
+        pass  # nothing to do. Articles are already sort by creation date
+    elif sort_articles == 'modification':
+        user_articles = user_articles.order_by('-update')
+    else:
+        user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
+
+    return render(
+        request,
+        'article/member/index.html',
+        {'articles': user_articles, 'type': type, 'sort': sort_articles}
+    )
 
 
 # settings for public profile

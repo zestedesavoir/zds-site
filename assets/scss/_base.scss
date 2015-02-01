@@ -93,8 +93,8 @@ a {
 }
 
 .ico {
-    background-image: $sprite;
     background-repeat: no-repeat;
+    @include sprite();
 }
 .ico-after {
     position: relative;
@@ -107,8 +107,8 @@ a {
         left: 0;
         width: 16px;
         height: 16px;
-        background-image: $sprite;
         background-repeat: no-repeat;
+        @include sprite();
     }
 }
 

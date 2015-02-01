@@ -13,12 +13,6 @@
  */
 $transition-duration: .15s;
 
-//$sprite: url("../images/sprite.png");
-$sprite2x: url("../images/sprite@2x.png");
-$sprite: $sprite2x;
-
-
-
 /**
  * Colors
  */
@@ -66,7 +60,7 @@ $font-monospace-active: "Source Code Pro", $font-monospace;
 /**
  * Import custom styles
  */
-@import "normalize";
+@import "vendors/normalize";
 @import "base";
 
 @import "all-supports";

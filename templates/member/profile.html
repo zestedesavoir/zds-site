@@ -210,7 +210,7 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
                 <h3>{% trans "Actions" %}</h3>
                 <ul>
-                    {% if usr != user %}
+                    {% if usr != user and not profile.is_private %}
                         <li>
                             <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
@@ -291,62 +291,64 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Activité" %}'>
         <h3>{% trans "Activité" %}</h3>
 
-        {% if profile.get_draft_tutos.count > 0 %}
-            <h4>{% trans "Tutoriels" %}</h4>
-            <ul>
-                {% if profile.get_public_tutos.count > 0 %}
-                    <li>
-                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
-                            {% trans "En ligne" %}
-                            <span class="count">{{ profile.get_public_tutos.count }}</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if profile.get_beta_tutos.count > 0 %}
-                    <li>
-                        <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
-                            {% trans "En version bêta" %}
-                            <span class="count">{{ profile.get_beta_tutos.count }}</span>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if profile.user == user %}
-                    {% if profile.get_validate_tutos.count > 0 %}
+        {% with draft_tutos_count=profile.get_draft_tutos.count public_tutos_count=profile.get_public_tutos.count beta_tutos_count=profile.get_beta_tutos.count validate_tutos_count=profile.get_validate_tutos.count %}
+            {% if public_tutos_count > 0 or beta_tutos_count > 0 or validate_tutos_count > 0 or draft_tutos_count > 0 %}
+                <h4>{% trans "Tutoriels" %}</h4>
+                <ul>
+                    {% if public_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "zds.member.views.tutorials" %}?type=validate">
-                                {% trans "En validation" %}
-                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
+                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
+                                {% trans "En ligne" %}
+                                <span class="count">{{ public_tutos_count }}</span>
                             </a>
                         </li>
                     {% endif %}
-                    {% if profile.get_draft_tutos.count > 0 %}
+                    {% if beta_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "zds.member.views.tutorials" %}?type=draft">
-                                {% trans "En rédaction" %}
-                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
+                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
+                                {% trans "En version bêta" %}
+                                <span class="count">{{ beta_tutos_count }}</span>
                             </a>
                         </li>
                     {% endif %}
-                {% else %}
-                    {% if profile.get_validate_tutos.count > 0 %}
-                        <li class="inactive">
-                            <span>
-                                {% trans "En validation" %}
-                                <span class="count">{{ profile.get_validate_tutos.count }}</span>
-                            </span>
-                        </li>
+                    {% if profile.user == user %}
+                        {% if validate_tutos_count > 0 %}
+                            <li>
+                                <a href="{% url "zds.member.views.tutorials" %}?type=validate">
+                                    {% trans "En validation" %}
+                                    <span class="count">{{ validate_tutos_count }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if draft_tutos_count > 0 %}
+                            <li>
+                                <a href="{% url "zds.member.views.tutorials" %}?type=draft">
+                                    {% trans "En rédaction" %}
+                                    <span class="count">{{ draft_tutos_count }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        {% if validate_tutos_count > 0 %}
+                            <li class="inactive">
+                                <span>
+                                    {% trans "En validation" %}
+                                    <span class="count">{{ validate_tutos_count }}</span>
+                                </span>
+                            </li>
+                        {% endif %}
+                        {% if draft_tutos_count > 0 %}
+                            <li class="inactive">
+                                <span>
+                                    {% trans "En rédaction" %}
+                                    <span class="count">{{ draft_tutos_count }}</span>
+                                </span>
+                            </li>
+                        {% endif %}
                     {% endif %}
-                    {% if profile.get_draft_tutos.count > 0 %}
-                        <li class="inactive">
-                            <span>
-                                {% trans "En rédaction" %}
-                                <span class="count">{{ profile.get_draft_tutos.count }}</span>
-                            </span>
-                        </li>
-                    {% endif %}
-                {% endif %}
-            </ul>
-        {% endif %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count %}
             {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 %}

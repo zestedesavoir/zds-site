@@ -33,8 +33,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q, Count
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -570,11 +570,14 @@ def modify_tutorial(request):
                 tutorial.pk,
                 tutorial.slug,
             ])
-            author_username = request.POST["author"]
+            author_username = request.POST["author"].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
             tutorial.authors.add(author)
             tutorial.save()
@@ -755,7 +758,7 @@ def modify_tutorial(request):
                                  )
                 else:
                     msg_up = \
-                        (_(u'Bonjour, !\n\n'
+                        (_(u'Bonjour à tous !\n\n'
                            u'La beta du tutoriel a été mise à jour.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
@@ -1079,7 +1082,6 @@ def add_tutorial(request):
             # add create date
 
             tutorial.create_at = datetime.now()
-            tutorial.pubdate = datetime.now()
 
             # Creating the gallery
 
@@ -2738,6 +2740,8 @@ def maj_repo_part(
 
     repo = Repo(part.tutorial.get_path())
     index = repo.index
+    # update the tutorial last edit date
+    part.tutorial.update = datetime.now()
     if action == "del":
         shutil.rmtree(old_slug_path)
         msg = _(u"Suppresion de la partie : «{}»").format(part.title)
@@ -2799,9 +2803,13 @@ def maj_repo_chapter(
     if chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.tutorial.get_phy_slug()))
         ph = None
+        # update the tutorial last edit date
+        chapter.tutorial.update = datetime.now()
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'], chapter.part.tutorial.get_phy_slug()))
         ph = os.path.join(chapter.part.get_phy_slug(), chapter.get_phy_slug())
+        # update the tutorial last edit date
+        chapter.part.tutorial.update = datetime.now()
     index = repo.index
     if action == "del":
         shutil.rmtree(old_slug_path)
@@ -2876,9 +2884,14 @@ def maj_repo_extract(
     if extract.chapter.tutorial:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.tutorial.update = datetime.now()
+
     else:
         repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
                                  extract.chapter.part.tutorial.get_phy_slug()))
+        # update the tutorial last edit date
+        extract.chapter.part.tutorial.update = datetime.now()
     index = repo.index
 
     chap = extract.chapter
@@ -3313,8 +3326,8 @@ def answer(request):
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, "tutorial/comment/new.html", {
                     "tutorial": tutorial,
@@ -3500,8 +3513,8 @@ def edit_note(request):
             form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
                 + "?message=" + str(note_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request,
                               "tutorial/comment/edit.html",
@@ -3612,34 +3625,141 @@ def dislike_note(request):
         return redirect(note.get_absolute_url())
 
 
+@login_required
+@require_POST
+def warn_typo(request, obj_type, obj_pk):
+    """Warn author(s) about a mistake in its (their) tutorial by sending him/her (them) a private message.
+    `obj` is ["tutorial"|"chapter"]"""
+
+    # need profile :
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # get tutorial (and object)
+    tutorial = None
+    chapter = None
+    if obj_type == 'tutorial':
+        tutorial = get_object_or_404(Tutorial, pk=obj_pk)
+    elif obj_type == 'chapter':
+        chapter = get_object_or_404(Chapter, pk=obj_pk)
+        if chapter.part:
+            tutorial = chapter.part.tutorial
+        else:
+            raise Http404  # normally, warn about mistake in chapter is only possible with big tutorials
+    else:
+        raise Http404  # unknown `obj_type`
+
+    # check if the warn is done on a public or beta version :
+    is_on_line = False
+    is_beta = False
+
+    if not request.POST['version_tutorial']:
+        raise Http404
+    else:
+        if tutorial.in_beta() and tutorial.sha_beta == request.POST['version_tutorial']:
+            is_beta = True
+        elif tutorial.on_line() and tutorial.sha_public == request.POST['version_tutorial']:
+            is_on_line = True
+        else:
+            raise Http404  # Mistake in draft version. Only possible for (non-author) admin, but useless
+
+    # then, fetch explanation :
+    explanation = ''
+    if 'explication' not in request.POST or request.POST['explication'] is None:
+        messages.error(request, _(u'Votre proposition de correction est vide'))
+    else:
+        explanation = request.POST['explication']
+        explanation = '\n'.join(['> '+line for line in explanation.split('\n')])
+
+        # is the user trying to send PM to himself ?
+        if request.user in tutorial.authors.all():
+            messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes auteur de ce tutoriel!'))
+        else:
+            # create message :
+            msg = ''
+            if is_on_line:
+                msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n').format(
+                    request.user.username,
+                    settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                    tutorial.title,
+                    settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online()
+                )
+                # special case of mistake in chapter :
+                if obj_type == 'chapter':
+                    msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                        chapter.title,
+                        settings.ZDS_APP['site']['url'] + chapter.get_absolute_url_online(),
+                        chapter.part.title,
+                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url_online()
+                    )
+            elif is_beta:
+                msg = _(u'[{}]({}) souhaite vous proposer une correction sur votre tutoriel en bêta [{}]({}).\n\n')\
+                    .format(request.user.username,
+                            settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                            tutorial.title,
+                            settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()
+                            )
+                # special case of mistake in chapter :
+                if obj_type == 'chapter':
+                    msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                        chapter.title,
+                        settings.ZDS_APP['site']['url'] + chapter.get_absolute_url()+'?version='+tutorial.sha_beta,
+                        chapter.part.title,
+                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url()+'?version='+tutorial.sha_beta
+                    )
+
+            msg += _(u'Voici son message :\n\n{}').format(explanation)
+
+            # send it :
+            send_mp(request.user,
+                    tutorial.authors.all(),
+                    _(u"Proposition de correction"),
+                    tutorial.title,
+                    msg,
+                    leave=False)
+            messages.success(request, _(u'Votre correction a bien été proposée !'))
+
+    # return to page :
+    if obj_type == 'tutorial':
+        if is_on_line:
+            return redirect(tutorial.get_absolute_url_online())
+        elif is_beta:
+            return redirect(tutorial.get_absolute_url_beta())
+    elif obj_type == 'chapter':
+        if is_on_line:
+            return redirect(chapter.get_absolute_url_online())
+        elif is_beta:
+            return redirect(chapter.get_absolute_url()+'?version='+tutorial.sha_beta)
+
+
 def help_tutorial(request):
     """fetch all tutorials that needs help"""
 
     # Retrieve type of the help. Default value is any help
-    type = request.GET.get('type', None)
+    filterslug = request.GET.get('type', None)
 
-    if type is not None:
-        aide = get_object_or_404(HelpWriting, slug=type)
+    if filterslug is not None:
+        aide = get_object_or_404(HelpWriting, slug=filterslug)
         tutos = Tutorial.objects.filter(helps=aide) \
+                                .order_by('pubdate', '-update') \
                                 .all()
     else:
         tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
                                 .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+                                .order_by('pubdate', '-total', '-update') \
                                 .all()
 
     # Paginator
     paginator = Paginator(tutos, settings.ZDS_APP['tutorial']['helps_per_page'])
-    page = request.GET.get('page')
 
+    # Get the `page` argument (if empty `page = 1` by default)
+    page = request.GET.get('page', 1)
+
+    # Check if `page` is correct (integer and exists)
     try:
-        shown_tutos = paginator.page(page)
         page = int(page)
-    except PageNotAnInteger:
-        shown_tutos = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_tutos = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        shown_tutos = paginator.page(page)
+    except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
+        raise Http404
 
     aides = HelpWriting.objects.all()
 

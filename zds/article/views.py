@@ -25,8 +25,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -41,6 +41,7 @@ from zds.utils.models import SubCategory, Category, CommentLike, \
 from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
+from django.utils.translation import ugettext as _
 
 from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
@@ -427,6 +428,8 @@ def maj_repo_article(
         action=None,
         msg=None,):
 
+    article.update = datetime.now()
+
     if action == 'del':
         shutil.rmtree(old_slug_path)
     else:
@@ -714,11 +717,14 @@ def modify(request):
                 article.slug
             ])
 
-            author_username = request.POST['author']
+            author_username = request.POST['author'].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
 
             article.authors.add(author)
@@ -947,8 +953,10 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
 
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
     return render(request, 'article/member/history.html', {
-        'article': article, 'logs': logs
+        'article': article, 'logs': logs, 'formJs': form_js
     })
 
 # Reactions at an article.
@@ -1018,8 +1026,8 @@ def answer(request):
         # Using the « preview button », the « more » button or new reaction
         if 'preview' in data or newreaction:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = ReactionForm(article, request.user, initial={
                     'text': data['text']
@@ -1223,8 +1231,8 @@ def edit_reaction(request):
                 '?message=' + \
                 str(reaction_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, 'article/reaction/edit.html', {
                     'reaction': reaction,

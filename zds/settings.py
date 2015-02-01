@@ -343,12 +343,18 @@ ZDS_APP = {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
         },
+	'social': {
+            'facebook': u'https://www.facebook.com/ZesteDeSavoir',
+            'twitter': u'https://twitter.com/ZesteDeSavoir',
+            'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
+        },
         'cnil': u"1771020",
     },
     'member': {
         'bot_account': u"admin",
         'anonymous_account': u"anonymous",
         'external_account': u"external",
+        'bot_group': u'bot',
         'members_per_page': 100,
     },
     'gallery': {

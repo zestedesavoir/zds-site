@@ -34,7 +34,10 @@
     $(document).ready(function(){
         addDocMD($(".md-editor"));
         $("#content").on("DOMNodeInserted", ".md-editor", function(e){
-            addDocMD($(e.target));
+            var $editor = $(e.target);
+            if($editor.next().hasClass("markdown-help") === false) {
+                addDocMD($editor);
+            }
         });
     });
 })(document, jQuery);

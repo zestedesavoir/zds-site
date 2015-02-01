@@ -1,0 +1,12 @@
+[run]
+source = zds
+branch = True
+
+[report]
+
+omit =
+    */tests/*
+    tests.py
+    */factories.py
+    */wsgi.py
+    */migrations/*

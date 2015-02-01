@@ -34,7 +34,7 @@
     <div class="authors">
         <span class="authors-label">{% trans "Galerie partagée avec" %} : </span>
         <ul>
-            {% for u in gallery.get_users %}
+            {% for u in gallery.get_linked_users %}
                 {% captureas info %}
                     {% if u.mode == 'R' %}
                         {% trans "Lecture" %}

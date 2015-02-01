@@ -45,17 +45,24 @@ git checkout $1
 # Create a branch with the same name - required to have version data in footer
 git checkout -b $1
 
-# Compute front stuff
+# Front commands
 source /usr/local/nvm/nvm.sh
-sudo npm -q update
-sudo npm -q update bower gulp -g
-gulp pack
+# Update packages
+npm install --production
+# Remove unused packages
+npm prune --production
+# Clean the front stuff
+npm run gulp -- clean
+# Build the front stuff
+npm run gulp -- build
 
 # Update application data
 source ../bin/activate
 pip install --upgrade --use-mirrors -r requirements.txt
 python manage.py migrate
 python manage.py compilemessages
+# Collect all static files from dist/ and python packages to static/
+python manage.py collectstatic
 deactivate
 
 # Restart zds

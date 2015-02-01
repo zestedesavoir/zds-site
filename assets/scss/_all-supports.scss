@@ -134,7 +134,7 @@
     width: 100%;
     max-width: 240px;
     height: 60px;
-    background-image: url('../images/logo.png') no-repeat center center;
+    background: url('../images/logo.png') no-repeat center center;
     background-size: 100% auto;
 
     &:hover,
@@ -329,16 +329,16 @@
                 margin: -11px 0 0 -11px;
 
                 &.ico-messages {
-                    @include sprite-pos($messages);
+                    @include sprite-position($messages);
                 }
                 &.ico-notifs {
-                    @include sprite-pos($notifications);
+                    @include sprite-position($notifications);
                 }
                 &.ico-alerts {
-                    @include sprite-pos($alerts);
+                    @include sprite-position($alerts);
                 }
                 &.ico-params {
-                    @include sprite-pos($params);
+                    @include sprite-position($params);
                 }
             }
 
@@ -558,9 +558,9 @@
                 top: 12px;
                 left: 50%;
                 margin-left: -8px;
-                height: 16px;
-                width: 16px;
-                @include sprite-pos($search);
+                height: 17px;
+                width: 17px;
+                @include sprite-position($search);
             }
         }
     }
@@ -1093,10 +1093,10 @@
             }
         }
         &.ico-articles:after {
-            @include sprite-pos($articles);
+            @include sprite-position($articles);
         }
         &.ico-tutorials:after {
-            @include sprite-pos($tutorials);
+            @include sprite-position($tutorials);
         }
 
         &.illu img {
@@ -1106,15 +1106,12 @@
             width: 50px;
             height: 50px;
         }
-
-        &:not(.subtitle):not(:first-child) {
-            margin-top: 50px;
-        }
     }
 
     .license {
         float: right;
-        margin-top: -45px;
+        margin: 0;
+        margin-top: 10px;
     }
 
     .subtitle {
@@ -1304,7 +1301,7 @@
             &:after {
                 top: 9px;
                 left: 12px;
-                @include sprite-pos($search);
+                @include sprite-position($search);
             }
         }
     }
@@ -2053,28 +2050,28 @@
                 background: #daeaee;
 
                 &.ico-after:after {
-                    @include sprite-pos($information);
+                    @include sprite-position($information);
                 }
             }
             &.question {
                 background: #e2daee;
 
                 &.ico-after:after {
-                    @include sprite-pos($question);
+                    @include sprite-position($question);
                 }
             }
             &.error {
                 background: #eedada;
 
                 &.ico-after:after {
-                    @include sprite-pos($error);
+                    @include sprite-position($error);
                 }
             }
             &.warning {
                 background: #eee7da;
 
                 &.ico-after:after {
-                    @include sprite-pos($warning);
+                    @include sprite-position($warning);
                 }
             }
         }
@@ -2497,6 +2494,10 @@ table {
             }
             .date {
                 line-height: 32px;
+
+                .long-date {
+                    display: none;
+                }
             }
         }
 
@@ -3081,32 +3082,62 @@ form.topic-message {
     font-size: 14px;
     font-size: 1.4rem;
 
-    p {
-        float: left;
+    .wrapper {
+        display: flex;
+    }
+
+    .copyright {
         color: #EEE;
         margin: 0;
     }
 
     ul {
         list-style: none;
-        float: right;
         margin: 0;
         padding: 0;
 
-        li {
+        &.links li {
             display: inline-block;
             margin-left: 25px;
+
+            a {
+                text-decoration: none;
+                color: #EEE;
+                border-bottom: 1px solid transparent;
+
+                &:hover,
+                &:focus {
+                    border-bottom-color: $secondary;
+                }
+            }
         }
-    }
 
-    a {
-        text-decoration: none;
-        color: #EEE;
-        border-bottom: 1px solid transparent;
+        &.social {
+            flex: 1;
+            text-align: center;
 
-        &:hover,
-        &:focus {
-            border-bottom-color: $secondary;
+            li {
+                margin: -2px 10px;
+                display: inline-block;
+
+                a {
+                    display: block;
+                    height: 16px;
+                    width: 16px;
+
+                    &:after {
+                        opacity: 0.6;
+                    }
+
+                    &:hover {
+                        border-bottom-color: transparent;
+
+                        &:after {
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -3243,8 +3274,8 @@ form.topic-message {
         }
     }
     &.modal-big {
-        height: 300px;
-        margin: -150px auto 0;
+        height: 320px;
+        margin: -160px auto 0;
     }
 }
 .enable-mobile-menu #modals-overlay {

@@ -126,6 +126,10 @@
                         <span>{{ help.title }}</span>
                     </a>
                 </li>
+            {% empty %}
+                <li>
+                    {% trans "Aucun besoin disponible." %}
+                </li>
             {% endfor %}
             {% if request.GET.type %}
                 <li>

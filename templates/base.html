@@ -195,6 +195,12 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun tutoriel disponible." %}
+                                                    </li>
+                                                </ul>
                                             {% endfor %}
                                         {% endwith %}
                                     </ul>
@@ -227,6 +233,12 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun forum disponible." %}
+                                                    </li>
+                                                </ul>
                                             {% endfor %}
                                             {% if top.tags %}
                                             <li>
@@ -257,9 +269,10 @@
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
+                                    {% with total_topics=topics.total %}
                                         <a href="{% url "zds.mp.views.index" %}" class="ico-link">
-                                            {% if unread_topics|length > 0 %}
-                                                <span class="notif-count">{{ unread_topics|length }}</span>
+                                            {% if total_topics > 0 %}
+                                                <span class="notif-count">{{ total_topics }}</span>
                                             {% endif %}
                                             <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
                                         </a>
@@ -285,7 +298,7 @@
                                                     {% endwith %}
                                                 {% endfor %}
 
-                                                {% if unread_topics|length = 0 %}
+                                                {% if total_topics = 0 %}
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucun nouveau message" %}
                                                     </li>
@@ -295,6 +308,7 @@
                                                 {% trans "Tous les messages" %}
                                             </a>
                                         </div>
+                                    {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
                                 </div>
@@ -526,20 +540,33 @@
 
         <footer class="page-footer">
             <div class="wrapper">
-                <p>
+                <p class="copyright">
                     {{app.site.litteral_name}} &bull; {{app.site.year}}
                     <span class="version">
                         &bull; {% trans "Version" %} : <a href="{{git_version.url}}">{{git_version.name}}</a>
                     </span>
                 </p>
-                <ul>
+
+                <ul class="social">
+                    {% if app.site.social.facebook %}
+                        <li><a href="{{app.site.social.facebook}}" title="Aimez notre page Facebook" class="btn ico-after facebook light btn-facebook btn-holder"></a></li>
+                    {% endif %}
+                    {% if app.site.social.twitter %}
+                        <li><a href="{{app.site.social.twitter}}" title="Suivez-nous sur Twitter" class="btn ico-after twitter light btn-twitter btn-holder"></a></li>
+                    {% endif %}
+                    {% if app.site.social.googleplus %}
+                        <li><a href="{{app.site.social.googleplus}}" title="Retrouvez-nous sur Google+" class="btn ico-after google-plus light btn-google-plus btn-holder"></a></li>
+		    {% endif %}
+                </ul>
+
+                <ul class="links">
                     <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}
                         <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
-                    {% endif %}
-                    {% if user.is_authenticated %}
-                        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+                        {% endif %}
                     {% endif %}
                     <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
                 </ul>

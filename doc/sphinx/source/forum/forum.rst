@@ -74,3 +74,28 @@ Il existe actuellement 3 filtres pour filtrer les sujets dans un forum :
 * Sujets sans réponse (`noanswer`)
 
 Il suffit d'ajouter `?filter=<filtre>` à l'URL en remplaçant `<filtre>` par un des 3 filtre ci-dessus.
+
+Suivre un sujet
+===============
+
+Être notifié sur le site lui même
+---------------------------------
+
+Nous permettons à nos membres de "suivre" un sujet directement sur le site. "Suivre un sujet", cela signifie que, lorsqu'un nouveau message est posté sur ce sujet, l'icône de notification nous en informe.
+
+Dès lors vous pourrez par un simple clic allé au dernier message non lu.
+
+Pour repérer qu'un message est lu ou pas, nous utilisons côté backend la classe `̀zds.forum.models.TopicRead`` qui retient la date de dernière lecture du topic.
+De la même manière nous utilisons la classe ``zds.forum.models.TopicFollowed`` pour retenir le fait que vous suivez ou non un sujet.
+
+Pour suivre un sujet, deux méthodes sont envisageables :
+
+- Y participer : dès que vous y inscrivez une réponse, vous suivez le sujet.
+- Cliquer sur "Suivre le sujet" dans la sidebar.
+
+Pour cesser de suivre un sujet, et ne plus être notifier de son activité, vous pouvez :
+
+- Vous rendre sur le topic et cliquer sur "Ne plus suivre" en haut de la sidebar.
+- Vous rendre sur n'importe quelle page du forum, survoler le titre du sujet et cliquer sur la croix qui apparaît alors.
+
+En effectuant ces actions vous cessez de suivre le sujet, l'instance de TopicFollowed qui était associée à votre suivi est supprimée définitivement. Cela a pour effet que vous pourrez à nouveau suivre le sujet dans le future si vous le désirez.

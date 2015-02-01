@@ -13,12 +13,13 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, get_object_or_404, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
+from django.core.exceptions import ObjectDoesNotExist
 
 from zds.utils import slugify
 from zds.utils.mps import send_mp
@@ -39,10 +40,10 @@ def index(request):
     if request.method == 'POST':
         if 'delete' in request.POST:
             liste = request.POST.getlist('items')
-            topics = PrivateTopic.objects.filter(pk__in=liste)\
+            topics = PrivateTopic.objects.filter(pk__in=liste) \
                 .filter(
-                    Q(participants__in=[request.user])
-                    | Q(author=request.user))
+                Q(participants__in=[request.user])
+                | Q(author=request.user))
 
             for topic in topics:
                 if topic.participants.all().count() == 0:
@@ -55,9 +56,9 @@ def index(request):
                     topic.participants.remove(request.user)
                     topic.save()
 
-    privatetopics = PrivateTopic.objects\
-        .filter(Q(participants__in=[request.user]) | Q(author=request.user))\
-        .select_related("author", "participants")\
+    privatetopics = PrivateTopic.objects \
+        .filter(Q(participants__in=[request.user]) | Q(author=request.user)) \
+        .select_related("author", "participants") \
         .distinct().order_by('-last_message__pubdate').all()
 
     # Paginator
@@ -99,8 +100,8 @@ def topic(request, topic_pk, topic_slug):
         if never_privateread(g_topic):
             mark_read(g_topic)
 
-    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk)\
-        .order_by('position_in_topic')\
+    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk) \
+        .order_by('position_in_topic') \
         .all()
 
     last_post_pk = g_topic.last_message.pk
@@ -153,8 +154,8 @@ def new(request):
         # If the client is using the "preview" button
         if 'preview' in request.POST:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = PrivateTopicForm(request.user.username,
                                         initial={
@@ -171,7 +172,7 @@ def new(request):
 
         if form.is_valid():
             data = form.data
-
+            tried_unauthorized_member = False
             # Retrieve all participants of the MP.
             ctrl = []
             list_part = data['participants'].split(",")
@@ -183,28 +184,35 @@ def new(request):
                 # We don't the author of the MP.
                 if request.user == p:
                     continue
+                if p.profile.is_private():
+                    tried_unauthorized_member = True
                 ctrl.append(p)
 
             # user add only himself
-            if (len(ctrl) < 1
-                    and len(list_part) == 1
-                    and list_part[0] == request.user.username):
-                errors = form._errors.setdefault("participants", ErrorList())
+            if len(ctrl) < 1 and len(list_part) == 1 and list_part[0] == request.user.username:
+                errors = form._errors.setdefault("participants", ErrorList())  # TODO: use mutators instead of _errors
                 errors.append(_(u'Vous êtes déjà auteur du message'))
+                if tried_unauthorized_member:
+                    errors.append(_(u'Vous avez tenté d\'ajouter un utilisateur injoignable.'))
                 return render(request, 'mp/topic/new.html', {
                     'form': form,
                 })
+            if tried_unauthorized_member:
+                errors = form._errors.setdefault("participants", ErrorList())
+                errors.append(_(u'Vous avez tenté d\'ajouter un utilisateur injoignable.'))
+            else:
+                p_topic = send_mp(request.user,
+                                  ctrl,
+                                  data['title'],
+                                  data['subtitle'],
+                                  data['text'],
+                                  True,
+                                  False)
 
-            p_topic = send_mp(request.user,
-                              ctrl,
-                              data['title'],
-                              data['subtitle'],
-                              data['text'],
-                              True,
-                              False)
-
-            return redirect(p_topic.get_absolute_url())
-
+                return redirect(p_topic.get_absolute_url())
+            return render(request, 'mp/topic/new.html', {
+                'form': form,
+            })
         else:
             return render(request, 'mp/topic/new.html', {
                 'form': form,
@@ -257,7 +265,7 @@ def edit(request):
 
     if request.POST['username']:
         u = get_object_or_404(User, username=request.POST['username'])
-        if not request.user == u:
+        if not request.user == u and not u.profile.is_private():
             g_topic.participants.add(u)
             g_topic.save()
 
@@ -296,8 +304,8 @@ def answer(request):
         # Using the « preview button », the « more » button or new post
         if 'preview' in data or newpost:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = PrivatePostForm(g_topic, request.user, initial={
                     'text': data['text']
@@ -349,15 +357,13 @@ def answer(request):
                                 .render(
                                     Context({
                                         'username': part.username,
-                                        'url': settings.ZDS_APP['site']['url']
-                                        + post.get_absolute_url(),
+                                        'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
                                         'author': request.user.username
                                     }))
                             message_txt = get_template('email/mp/new.txt').render(
                                 Context({
                                     'username': part.username,
-                                    'url': settings.ZDS_APP['site']['url']
-                                    + post.get_absolute_url(),
+                                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
                                     'author': request.user.username
                                 }))
 
@@ -452,8 +458,8 @@ def edit_post(request):
         # Using the preview button
         if 'preview' in data:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = PrivatePostForm(g_topic, request.user, initial={
                     'text': data['text']
@@ -529,6 +535,8 @@ def add_participant(request):
     try:
         # user_pk or user_username ?
         part = User.objects.get(username__exact=request.POST['user_pk'])
+        if part.profile.is_private():
+            raise ObjectDoesNotExist
         if part.pk == ptopic.author.pk or part in ptopic.participants.all():
             messages.warning(
                 request,
@@ -541,12 +549,9 @@ def add_participant(request):
             messages.success(
                 request,
                 _(u'Le membre a bien été ajouté à la conversation.'))
-    except KeyError:
+    except (KeyError, ObjectDoesNotExist):
         messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
-    except:
-        messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.'))
 
     return redirect(reverse('zds.mp.views.topic', args=[
         ptopic.pk,

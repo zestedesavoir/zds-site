@@ -120,13 +120,6 @@ class Forum(models.Model):
             else:
                 return False
 
-    def is_read(self):
-        """Checks if there are topics never read in the forum."""
-        for current_topic in Topic.objects.filter(forum=self).all():
-            if never_read(current_topic):
-                return False
-        return True
-
 
 class Topic(models.Model):
 
