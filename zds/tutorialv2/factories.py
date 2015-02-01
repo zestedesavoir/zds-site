@@ -6,7 +6,7 @@ import os
 
 import factory
 
-from models import PublishableContent, Container, Extract, ContentReaction,\
+from zds.tutorialv2.models import PublishableContent, Validation, VersionedContent, ContentReaction, Container, Extract
 from zds.utils import slugify
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -20,7 +20,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
     description = factory.Sequence(lambda n: 'Description du Tutoriel No{0}'.format(n))
     type = 'TUTORIAL'
-    type = 'TUTORIAL'
+    creation_date = datetime.now()
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -29,8 +29,6 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
-    FACTORY_FOR = PublishableContent
-    type = 'TUTORIAL'
         introduction = 'introduction.md'
         conclusion = 'conclusion.md'
         versioned_content = VersionedContent(None,
@@ -92,7 +90,6 @@ class ContainerFactory(factory.Factory):
         repo.index.add([container.introduction, container.conclusion])
 
         top_container.dump_json()
-            parent.save()
         repo.index.add(['manifest.json'])
 
         cm = repo.index.commit("Add container")
@@ -106,7 +103,6 @@ class ContainerFactory(factory.Factory):
 
 class ExtractFactory(factory.Factory):
     FACTORY_FOR = Extract
-
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n+1))
     slug = ''
 
@@ -177,5 +173,3 @@ class LicenceFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
         return licence
-
-    FACTORY_FOR = PublishableContent

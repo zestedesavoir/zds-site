@@ -1,8 +1,40 @@
 # coding: utf-8
+from django.http import Http404
 
-from zds.tutorialv2.models import PublishableContent, ContentRead
+from zds.tutorialv2.models import PublishableContent, ContentRead, Container
 from zds import settings
 from zds.utils import get_current_user
+
+
+def search_container_or_404(base_content, kwargs_array):
+    """
+    :param base_content: the base Publishable content we will use to retrieve the container
+    :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys
+    :return: the Container object we were searching for
+    :raise Http404 if no suitable container is found
+    """
+    container = None
+    if 'parent_container_slug' in kwargs_array:
+            try:
+                container = base_content.children_dict[kwargs_array['parent_container_slug']]
+            except KeyError:
+                raise Http404
+            else:
+                if not isinstance(container, Container):
+                    raise Http404
+
+    # if extract is at depth 2 or 3 we get its direct parent container
+    if 'container_slug' in kwargs_array:
+        try:
+            container = container.children_dict[kwargs_array['container_slug']]
+        except KeyError:
+            raise Http404
+        else:
+            if not isinstance(container, Container):
+                raise Http404
+    if container is None:
+        raise Http404
+    return container
 
 
 def get_last_tutorials():
