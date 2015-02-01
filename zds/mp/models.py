@@ -50,7 +50,9 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object URL
         :rtype: str
         """
-        return reverse('zds.mp.views.topic', kwargs={'topic_pk': self.pk, 'topic_slug': slugify(self.title)})
+        return reverse('zds.mp.views.topic',
+                       args=[self.pk, slugify(self.title)]
+        )
 
     def get_post_count(self):
         """
@@ -81,7 +83,7 @@ class PrivateTopic(models.Model):
 
     def first_post(self):
         """
-        Get the firstanswer in the PrivateTopic written by topic's author, if exists.
+        Get the first answer in the PrivateTopic written by topic's author, if exists.
 
         :return: PrivateTopic object first answer (PrivatePost)
         :rtype: PrivatePost object or None
@@ -95,7 +97,7 @@ class PrivateTopic(models.Model):
         """
         Get the last PrivatePost the user has read.
 
-        :param user: The user is reading the PrivateTopic
+        :param user: The user is reading the PrivateTopic. If None, the current user is used.
         :type user: User object
         :return: last PrivatePost read
         :rtype: PrivatePost object or None
@@ -119,7 +121,7 @@ class PrivateTopic(models.Model):
         """
         Get the first PrivatePost the user has unread.
 
-        :param user: The user is reading the PrivateTopic
+        :param user: The user is reading the PrivateTopic. If None, the current user is used.
         :type user: User object
         :return: first PrivatePost unread
         :rtype: PrivatePost object or None
@@ -155,7 +157,7 @@ class PrivateTopic(models.Model):
         """
         Check if an user has never read the current PrivateTopic.
 
-        :param user: an user as Django User object
+        :param user: an user as Django User object. If None, the current user is used.
         :type user: User object
         :return: True if the PrivateTopic was never read
         :rtype: bool
@@ -172,8 +174,8 @@ class PrivatePost(models.Model):
     """A private post written by an user."""
 
     class Meta:
-        verbose_name = 'Sujet privé'
-        verbose_name_plural = 'Sujets privés'
+        verbose_name = 'Réponse à un message privé'
+        verbose_name_plural = 'Réponses à un message privé'
 
     privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
@@ -236,7 +238,7 @@ def never_privateread(privatetopic, user=None):
 
     :param privatetopic: a PrivateTopic to check
     :type privatetopic: PrivateTopic object
-    :param user: an user as Django User object
+    :param user: an user as Django User object. If None, the current user is used
     :type user: User object
     :return: True if the PrivateTopic was never read
     :rtype: bool
@@ -256,7 +258,7 @@ def mark_read(privatetopic, user=None):
 
     :param privatetopic: a PrivateTopic to check
     :type privatetopic: PrivateTopic object
-    :param user: an user as Django User object
+    :param user: an user as Django User object. If None, the current user is used
     :type user: User object
     :return: nothing is returned
     :rtype: None
