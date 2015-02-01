@@ -1,11 +1,14 @@
 # coding: utf-8
 from django.test import TestCase
 
-from zds.member.factories import ProfileFactory
+from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, \
     MiniProfileForm, ProfileForm, ChangeUserForm, \
     ChangePasswordForm, ForgotPasswordForm, NewPasswordForm, \
     KarmaForm
+
+from django.conf import settings
+from datetime import datetime, timedelta
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
 stringof129chars = u'http://www.01234567890123456789123456789' \
@@ -24,7 +27,6 @@ stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
 
 
 class LoginFormTest(TestCase):
-
     """ Check the form to login """
 
     def test_valid_login_form(self):
@@ -56,7 +58,6 @@ class LoginFormTest(TestCase):
 
 
 class RegisterFormTest(TestCase):
-
     """ Check the registering form """
 
     def test_valid_register_form(self):
@@ -195,7 +196,6 @@ class RegisterFormTest(TestCase):
 
 
 class MiniProfileFormTest(TestCase):
-
     """ Check the miniprofile form """
 
     def setUp(self):
@@ -243,7 +243,6 @@ class MiniProfileFormTest(TestCase):
 
 
 class ProfileFormTest(TestCase):
-
     """ Check the form is working (and that's all) """
 
     def test_valid_profile_form(self):
@@ -253,7 +252,6 @@ class ProfileFormTest(TestCase):
 
 
 class ChangeUserFormTest(TestCase):
-
     """ Check the user pseudo/email """
 
     def setUp(self):
@@ -355,7 +353,6 @@ class ChangeUserFormTest(TestCase):
 
 
 class ChangePasswordFormTest(TestCase):
-
     """ Check the form to change the password """
 
     def setUp(self):
@@ -421,36 +418,89 @@ class ChangePasswordFormTest(TestCase):
 
 
 class ForgotPasswordFormTest(TestCase):
-
     """ Check the form to ask for a new password """
 
     def setUp(self):
         self.user1 = ProfileFactory()
+        self.user_non_ascii = NonAsciiProfileFactory()
 
-    def test_valid_forgot_password_form(self):
+    def test_too_many_try_forgot_password_form(self):
+        profile = self.user1.user.profile
+        profile.request_password_reset = settings.ZDS_APP["member"]["request_password_reset_by_day"]
+        profile.last_password_reset = datetime.today()
+        profile.save()
+
         data = {
-            'username': self.user1.user.username
+            'username_email': self.user1.user.username
+        }
+        form = ForgotPasswordForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_accept_too_many_try_after_period_of_time_forgot_password_form(self):
+        profile = self.user1.user.profile
+        profile.request_password_reset = settings.ZDS_APP["member"]["request_password_reset_by_day"]
+        profile.last_password_reset = \
+            datetime.today() + timedelta(days=settings.ZDS_APP["member"]["request_password_day"]) + 1
+
+        profile.save()
+
+        data = {
+            'username_email': self.user1.user.username
+        }
+        form = ForgotPasswordForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_valid_username_and_forgot_password_form(self):
+        data = {
+            'username_email': self.user1.user.username
+        }
+        form = ForgotPasswordForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_valid_email_and_forgot_password_form(self):
+        data = {
+            'username_email': self.user1.user.email
         }
         form = ForgotPasswordForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_empty_name_forgot_password_form(self):
         data = {
-            'username': ''
+            'username_email': ''
         }
         form = ForgotPasswordForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_name_forgot_password_form(self):
         data = {
-            'username': "John Doe"
+            'username_email': "John Doe"
+        }
+        form = ForgotPasswordForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_unknow_email_forgot_password_form(self):
+        data = {
+            'username_email': "JohnDoe@gmail.com"
+        }
+        form = ForgotPasswordForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_valid_non_ascii_forgot_password_form(self):
+        data = {
+            'username_email': self.user_non_ascii.user.username
+        }
+        form = ForgotPasswordForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_incorrect_username_non_ascii_forgot_password_form(self):
+        data = {
+            'username_email': "àèê@*~_…‰%`"
         }
         form = ForgotPasswordForm(data=data)
         self.assertFalse(form.is_valid())
 
 
 class NewPasswordFormTest(TestCase):
-
     """ Check the form to input the new password """
 
     def setUp(self):

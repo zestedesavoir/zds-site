@@ -7,7 +7,6 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 # INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
-
 ADMINS = (
     ('user', 'mail'),
 )
@@ -343,7 +342,7 @@ ZDS_APP = {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
         },
-	'social': {
+    'social': {
             'facebook': u'https://www.facebook.com/ZesteDeSavoir',
             'twitter': u'https://twitter.com/ZesteDeSavoir',
             'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
@@ -356,6 +355,8 @@ ZDS_APP = {
         'external_account': u"external",
         'bot_group': u'bot',
         'members_per_page': 100,
+        'request_password_reset_by_day': 3,  # How many request are we limited by period of time for a password recovery
+        'request_password_day': 1            # How many day do we wait to recover the right to ask for a password
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
