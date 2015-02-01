@@ -7,4 +7,5 @@ ignore-paths:
     - doc
 ignore-patterns:
     - manage.py
-    
+uses:
+    - django
