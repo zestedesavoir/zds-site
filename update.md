@@ -111,7 +111,7 @@ Il faudra donc :
 
 1. créer le groupe "bot"
 2. vérifier que `settings.ZDS_APP['member']['bot_group']` vaut bien `"bot"`
-3. Aller dans l'interface d'administration pour ajouter les comptes auteur externe et anonyme au groupe bot
+3. Aller dans l'interface de promotion des utilisateurs pour ajouter les comptes auteur externe et anonyme au groupe bot
 
 npm
 ---

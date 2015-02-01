@@ -280,6 +280,10 @@
         border: 1px solid #BBB;
         background: #FCFCFC;
         transition: none;
+
+        &:checked {
+            @include sprite();
+        }
     }
     input[type=radio] {
         border-radius: 50%;

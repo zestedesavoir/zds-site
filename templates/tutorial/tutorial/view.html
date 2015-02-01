@@ -336,30 +336,10 @@
             <li class="inactive">
                 <span class="ico-after tick disabled">{% trans "En attente de validation" %}</span>
             </li>
-            <li>
-                <a href="#ask-unvalidation" class="open-modal ico-after cross red">
-                    {% trans "Retirer de la validation" %}
-                </a>
-            </li>
         {% endif %}
         <div id="ask-validation" class="modal modal-big">
             {% crispy formAskValidation %}
         </div>
-            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-big" id="ask-unvalidation">
-                {% if not validation.is_pending %}
-                    {% blocktrans with validator=validation.validator %}
-                        <p>Vous allez retirer ce tutoriel de la validation cependant un validateur ({{ validator }}) l'a déjà réservé.</p>
-                    {% endblocktrans %}
-                {% endif %}
-                <textarea name="comment" rows="3" placeholder="{% trans "Vos commentaires" %}"></textarea>
-
-                <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
-                <input type="hidden" name="version" value="{{ version }}">
-                {% csrf_token %}
-                <button type="submit" name="unvalidate">
-                    {% trans "Confirmer" %}
-                </button>
-            </form>
     {% endif %}
 {% endblock %}
 

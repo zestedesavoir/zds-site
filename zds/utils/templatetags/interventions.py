@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 import time
 
 from django import template
-from django.db.models import Q, F
+from django.db.models import F
 
 from zds.article.models import Reaction, ArticleRead
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, TopicRead
-from zds.mp.models import PrivateTopic, PrivateTopicRead
+from zds.mp.models import PrivateTopic
 from zds.tutorial.models import Note, TutorialRead
 from zds.utils.models import Alert
 
@@ -131,22 +131,22 @@ def interventions_topics(user):
 @register.filter('interventions_privatetopics')
 def interventions_privatetopics(user):
 
-    topics_never_read = list(PrivateTopicRead.objects
-                             .filter(user=user)
-                             .filter(privatepost=F('privatetopic__last_message')).all())
+    # Raw query because ORM doesn't seems to allow this kind of "left outer join" clauses.
+    # Parameters = list with 3x the same ID because SQLite backend doesn't allow map parameters.
+    privatetopics_unread = PrivateTopic.objects.raw(
+        '''
+        select distinct t.*
+        from mp_privatetopic t
+        left outer join mp_privatetopic_participants p on p.privatetopic_id = t.id
+        left outer join mp_privatetopicread r on r.user_id = %s and r.privatepost_id = t.last_message_id
+        where (t.author_id = %s or p.user_id = %s)
+          and r.id is null
+        order by t.pubdate desc''',
+        [user.id, user.id, user.id])
 
-    tnrs = []
-    for tnr in topics_never_read:
-        tnrs.append(tnr.privatetopic.pk)
-
-    privatetopics_unread = PrivateTopic.objects\
-        .filter(Q(author=user) | Q(participants__in=[user]))\
-        .exclude(pk__in=tnrs)\
-        .select_related("privatetopic")\
-        .order_by("-pubdate")\
-        .distinct()
-
-    return {'unread': privatetopics_unread}
+    # "total" re-do the query, but there is no other way to get the length as __len__ is not available on raw queries.
+    topics = list(privatetopics_unread)
+    return {'unread': topics, 'total': len(topics)}
 
 
 @register.filter(name='alerts_list')

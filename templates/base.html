@@ -268,39 +268,40 @@
                                 {# MESSAGERIE PRIVEE #}
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
-                                        {% with unread_topics=topics.unread %}
-                                            <a href="{% url "zds.mp.views.index" %}" class="ico-link">
-                                                {% if unread_topics|length > 0 %}
-                                                    <span class="notif-count">{{ unread_topics|length }}</span>
-                                                {% endif %}
-                                                <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
-                                            </a>
+                                    {% with unread_topics=topics.unread %}
+                                    {% with total_topics=topics.total %}
+                                        <a href="{% url "zds.mp.views.index" %}" class="ico-link">
+                                            {% if total_topics > 0 %}
+                                                <span class="notif-count">{{ total_topics }}</span>
+                                            {% endif %}
+                                            <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
+                                        </a>
 
-                                            <div class="dropdown">
-                                                <span class="dropdown-title">{% trans "Messagerie privée" %}</span>
-                                                <ul class="dropdown-list">
-                                                    {% for topic in unread_topics %}
-                                                        {% with last_answer=topic.get_last_answer %}
-                                                        <li>
-                                                            {% if last_answer == None %}
-                                                                {% set topic.last_read_post as last_answer %}
-                                                            {% endif %}
-                                                            <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                                {% with p=last_answer.author.profile %}
-                                                                    <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
-                                                                {% endwith %}
-                                                                <span class="username">{{ last_answer.author.username }}</span>
-                                                                <span class="date">{{ last_answer.pubdate|format_date:True|capfirst }}</span>
-                                                                <span class="topic">{{ topic.title }}</span>
-                                                            </a>
-                                                        </li>
-                                                        {% endwith %}
-                                                    {% endfor %}
+                                        <div class="dropdown">
+                                            <span class="dropdown-title">{% trans "Messagerie privée" %}</span>
+                                            <ul class="dropdown-list">
+                                                {% for topic in unread_topics %}
+                                                    {% with last_answer=topic.get_last_answer %}
+                                                    <li>
+                                                        {% if last_answer = None %}
+                                                            {% set topic.last_read_post as last_answer %}
+                                                        {% endif %}
+                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
+                                                            {% with p=last_answer.author.profile %}
+                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                            {% endwith %}
+                                                            <span class="username">{{ last_answer.author.username }}</span>
+                                                            <span class="date">{{ last_answer.pubdate|format_date:True|capfirst }}</span>
+                                                            <span class="topic">{{ topic.title }}</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endwith %}
+                                                {% endfor %}
 
-                                                    {% if unread_topics|length == 0 %}
-                                                        <li class="dropdown-empty-message">
-                                                            {% trans "Aucun nouveau message" %}
-                                                        </li>
+                                                {% if total_topics = 0 %}
+                                                    <li class="dropdown-empty-message">
+                                                        {% trans "Aucun nouveau message" %}
+                                                    </li>
                                                     {% endif %}
                                                 </ul>
                                                 <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
@@ -308,6 +309,7 @@
                                                 </a>
                                             </div>
                                         {% endwith %}
+                                    {% endwith %}
                                     {% endwith %}
                                 </div>
 

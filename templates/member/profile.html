@@ -216,7 +216,7 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
                 <h3>{% trans "Actions" %}</h3>
                 <ul>
-                    {% if usr != user %}
+                    {% if usr != user and not profile.is_private %}
                         <li>
                             <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}

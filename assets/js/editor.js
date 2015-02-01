@@ -579,7 +579,8 @@
     "use strict";
 
     $(".md-editor").on("keydown", function(e){
-        if(e.ctrlKey && e.which === 13){
+        // the message is submitted if the user is pressing Ctrl and Enter and isn't pressing Alt, Shift and Super
+        if(e.ctrlKey && e.which === 13 && !e.altKey && !e.shiftKey && !e.metaKey){
             $(".message-submit > button[name=answer]").click();
         }
     });
