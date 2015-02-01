@@ -24,14 +24,14 @@ L'inscription se fait via l'interface utilisateur.
 -  Le lien de désinscription est accessible via paramètres (``/membres/parametres/profil/``) puis “Se désinscrire” dans la barre
    latérale (``/membres/desinscrire/avertissement/``) :
 
-   .. figure:: images/desinscription-1.png
+   .. figure:: images/member/desinscription-1.png
       :align:   center
 
       Position du lien de désinscription dans les paramètres du membre (``/membres/parametres/profil/``)
 
 -  Le lien mène alors vers une page expliquant les conséquences de sa  désinscription. Il peut alors poursuivre via un bouton en bas de celle-ci :
 
-   .. figure:: images/desinscription-2.png
+   .. figure:: images/member/desinscription-2.png
       :align:   center
 
       Bouton de confirmation
@@ -39,7 +39,7 @@ L'inscription se fait via l'interface utilisateur.
 
 -  Le clic sur le bouton rouge ouvre une boite modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription :
 
-   .. figure:: images/desinscription-3.png
+   .. figure:: images/member/desinscription-3.png
       :align:   center
 
       La dernière étape

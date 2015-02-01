@@ -15,12 +15,12 @@ Sommaire
    :maxdepth: 2
 
    install
-   workflow/workflow.rst
-   tutorial/tutorial.rst
-   member/member.rst
-   member/private_message.rst
-   forum/forum.rst
-   gallery/gallery.rst
-   article/article.rst
-   api/api.rst
-   utils/utils.rst
+   workflow
+   tutorial
+   member
+   private-message
+   forum
+   gallery
+   article
+   api
+   utils

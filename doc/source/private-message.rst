@@ -9,14 +9,14 @@ ZDS fournit un module de messagerie privée qui vous permet de communiquer avec 
 
 Vous pouvez accéder au module de message privé à tout moment en cliquant sur l'icône :
 
-   .. figure:: images/icone-mp.png
+   .. figure:: images/private_message/icone-mp.png
       :align:   center
 
       Icône d'accès au module de message privé
 
 Lors de l'envoi du message privé, vous avez accès à cette interface :
 
-   .. figure:: images/interface-mp.png
+   .. figure:: images/private_message/interface-mp.png
       :align:   center
 
       Interface de rédaction d'un message privé
@@ -33,7 +33,7 @@ Une fois le message envoyé, tous les destinataires reçoivent un mail. Aucun au
 
 Tout participant à la discussion verra l'icône du module notifier l'arrivée d'un message privé :
 
-   .. figure:: images/icone-mp-new.png
+   .. figure:: images/private_message/icone-mp-new.png
       :align:   center
 
       Un nouveau message privé est arrivé

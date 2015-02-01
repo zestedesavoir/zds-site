@@ -91,4 +91,4 @@ Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils Lat
 Ajouter un hook de pre-commit a git pour tester flake
 -----------------------------------------------------
 
-.. include:: git_pre-hook.rst
+.. include:: includes/git-pre-hook.rst

@@ -6,11 +6,6 @@ Si vous voulez installer et démarrer une instance locale de ZdS, vous devez cli
 
 .. toctree::
    :maxdepth: 2
+   :glob:
 
-   install/backend-windows-install
-   install/backend-os-x-install
-   install/backend-linux-install
-   install/frontend-install
-   install/install-solr
-   install/fixtures
-   install/deploy-in-production
+   install/*
