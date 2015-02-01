@@ -43,6 +43,15 @@ class Profile(models.Model):
         blank=True,
         null=True)
 
+    last_password_reset = models.DateTimeField(
+        'Date de la dernière tentative de réinitilisation du mot de passe',
+        null=True,
+        blank=True)
+
+    request_password_reset = models.IntegerField(
+        'Nombre de demmande de réinitilisation de mot de passe',
+        default=0)
+
     site = models.CharField('Site internet', max_length=128, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
                                      default=False)

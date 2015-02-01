@@ -6,6 +6,8 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -17,6 +19,8 @@ from zds.settings import SITE_ROOT
 from zds.utils.forms import CommonLayoutModalText
 from django.utils.translation import ugettext_lazy as _
 
+from datetime import datetime, timedelta
+
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
@@ -25,7 +29,6 @@ MIN_PASSWORD_LENGTH = 6
 
 
 class OldTutoForm(forms.Form):
-
     id = forms.ChoiceField(
         label=_(u'Ancien Tutoriel'),
         required=True,
@@ -273,7 +276,7 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', _(u"Afficher les signatures")),
             ('hover_or_click', _(u"Cochez pour dérouler les menus au survol")),
             ('email_for_answer', _(u'Recevez un courriel lorsque vous '
-             u'recevez une réponse à un message privé')),
+                                   u'recevez une réponse à un message privé')),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -318,7 +321,6 @@ class ProfileForm(MiniProfileForm):
 
 # to update email/username
 class ChangeUserForm(forms.Form):
-
     username_new = forms.CharField(
         label=_(u'Nouveau pseudo'),
         max_length=User._meta.get_field('username').max_length,
@@ -479,9 +481,8 @@ class ChangePasswordForm(forms.Form):
 
 # Reset the password
 class ForgotPasswordForm(forms.Form):
-    email = forms.CharField(
-        label=_(u'Adresse de courriel'),
-        max_length=User._meta.get_field('email').max_length,
+    username_email = forms.CharField(
+        label=_(u'Nom d\'utilisateur ou adresse de courriel'),
         required=True
     )
 
@@ -492,7 +493,7 @@ class ForgotPasswordForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('email'),
+            Field('username_email'),
             ButtonHolder(
                 StrictButton(_(u'Envoyer'), type='submit'),
             )
@@ -502,11 +503,26 @@ class ForgotPasswordForm(forms.Form):
         cleaned_data = super(ForgotPasswordForm, self).clean()
 
         # Check that the password and it's confirmation match
-        email = cleaned_data.get('email')
+        username_email = cleaned_data.get('username_email')
 
-        if User.objects.filter(email=email).count() == 0:
-            self._errors['email'] = self.error_class(
-                [_(u'Cette adresse n\'existe pas')])
+        user = User.objects.filter(Q(username=username_email) | Q(email=username_email)).select_related()
+
+        if len(user) != 1:
+            self._errors['username_email'] = self.error_class(
+                [_(u'Cette adresse ou ce nom d\'utilisateur n\'existe pas')])
+        else:
+            profile = user[0].profile
+
+            # Check if the user is authorized to ask for a password request. The business rule is to have a limitation
+            # on the request by day.
+            if profile.request_password_reset == settings.ZDS_APP['member']['request_password_reset_by_day']:
+                if profile.last_password_reset + timedelta(days=settings.ZDS_APP["member"]["request_password_day"]) > \
+                        datetime.today():
+
+                    self._errors['username_email'] = self.error_class(
+                        [_(u'Vous avez dépassé le nombre de demande de réinitialisation.'
+                            u'Veuillez patienter {0} jour(s).')
+                            .format(settings.ZDS_APP["member"]["request_password_day"])])
 
         return cleaned_data
 

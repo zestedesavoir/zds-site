@@ -784,16 +784,18 @@ def forgot_password(request):
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
             data = form.data
-            email = data["email"]
-            usr = get_object_or_404(User, email=email)
+            username_email = data["username_email"]
+
+            # Get the user info
+            user = User.objects.filter(Q(email=username_email) | Q(username=username_email)).select_related()
+            if len(user) != 1:
+                raise Http404
+            user = user[0]
 
             # Generate a valid token during one hour.
-
             uuid_token = str(uuid.uuid4())
-            date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
-                                                  seconds=0)
-            token = TokenForgotPassword(user=usr, token=uuid_token,
-                                        date_end=date_end)
+            date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0, seconds=0)
+            token = TokenForgotPassword(user=user, token=uuid_token, date_end=date_end)
             token.save()
 
             # send email
@@ -801,18 +803,29 @@ def forgot_password(request):
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             message_html = get_template("email/forgot_password/confirm.html").render(Context(
-                {"username": usr.username,
+                {"username": user.username,
                  "site_name": settings.ZDS_APP['site']['name'],
                  "site_url": settings.ZDS_APP['site']['url'],
                  "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
-                {"username": usr.username,
+                {"username": user.username,
                  "site_name": settings.ZDS_APP['site']['name'],
                  "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
             msg = EmailMultiAlternatives(subject, message_txt, from_email,
-                                         [usr.email])
+                                         [user.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
+
+            # Add one more request to the user
+            profile = user.profile
+            if profile.request_password_reset < settings.ZDS_APP['member']['request_password_reset_by_day']:
+                profile.request_password_reset += 1
+            else:
+                profile.request_password_reset = 0
+
+            profile.last_password_reset = datetime.today()
+            profile.save()
+
             return render(request, "member/forgot_password/success.html")
         else:
             return render(request, "member/forgot_password/index.html",

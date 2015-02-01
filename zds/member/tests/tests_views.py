@@ -14,7 +14,7 @@ from zds.settings import SITE_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.member.models import Profile, KarmaNote
+from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory, PublishedMiniTutorial
@@ -284,6 +284,36 @@ class MemberTests(TestCase):
         self.assertEquals(aloneGallery.get_linked_users().count(), 1)
         self.assertEquals(sharedGallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
+
+    def test_forgot_password(self):
+        """Test if we can recover a user password"""
+
+        # Test: Nominal scenario, the user ask for a password and we get it
+        result = self.client.post(
+            reverse('zds.member.views.forgot_password'),
+            {
+                'username_email': 'firm1'
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has been sent
+        self.assertEquals(len(mail.outbox), 1)
+
+        # clic on the link which has been sent in mail
+        user = User.objects.get(username='firm1')
+        self.assertEqual(user.profile.request_password_reset, 1)
+
+        token = TokenForgotPassword.objects.get(user=user)
+        result = self.client.get(
+            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+
+        self.assertTrue(user.profile.request_password_reset, 1)
 
     def test_sanctions(self):
         """Test various sanctions."""
@@ -677,3 +707,4 @@ class MemberTests(TestCase):
             rmtree(settings.ZDS_APP['article']['repo_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             rmtree(settings.MEDIA_ROOT)
+
