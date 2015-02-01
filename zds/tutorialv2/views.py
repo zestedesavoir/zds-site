@@ -202,7 +202,12 @@ class DisplayContent(DetailView):
         context["formReject"] = form_reject
 
     def get_object(self, queryset=None):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        query_set = PublishableContent.objects\
+            .select_related("licence")\
+            .prefetch_related("authors")\
+            .filter(pk=self.kwargs["pk"])
+
+        obj = query_set.first()
         if obj.slug != self.kwargs['slug']:
             raise Http404
         return obj
@@ -657,6 +662,7 @@ class EditExtract(FormView):
         return super(EditExtract, self).dispatch(*args, **kwargs)
 
     def get_object(self):
+        """get the PublishableContent object that the user asked. We double check pk and slug"""
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
         if obj.slug != self.kwargs['slug']:
             raise Http404
@@ -668,7 +674,7 @@ class EditExtract(FormView):
         context['content'] = self.content.load_version()
         container = context['content']
 
-        # get the extract:
+        # if the extract is at a depth of 3 we get the first parent container
         if 'parent_container_slug' in self.kwargs:
             try:
                 container = container.children_dict[self.kwargs['parent_container_slug']]
@@ -678,6 +684,7 @@ class EditExtract(FormView):
                 if not isinstance(container, Container):
                     raise Http404
 
+        # if extract is at depth 2 or 3 we get its direct parent container
         if 'container_slug' in self.kwargs:
             try:
                 container = container.children_dict[self.kwargs['container_slug']]
@@ -830,6 +837,7 @@ class ArticleList(ListView):
             .exclude(sha_public='')
         if self.tag is not None:
             query_set = query_set.filter(subcategory__in=[self.tag])
+
         return query_set.order_by('-pubdate')
 
     def get_context_data(self, **kwargs):
