@@ -171,7 +171,7 @@
 
 
 {% block sidebar_blocks %}
-    {% if can_edit and not user in content.authors.all %}
+    {% if perms.tutorial.change_tutorial %}
         {#  more actions only for validators?!? #}
     {% endif %}
 
