@@ -42,7 +42,7 @@ from git import Repo
 from forms import ContentForm, ContainerForm, \
     ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
 from models import PublishableContent, Container, Extract, Validation, ContentReaction, init_new_repo
-from utils import never_read, mark_read
+from utils import never_read, mark_read, search_container_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -56,7 +56,6 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, DetailView, FormView, DeleteView
-from zds.tutorial.models import Tutorial, Chapter, Part
 
 
 class ListContent(ListView):
@@ -488,28 +487,7 @@ class DisplayContainer(DetailView):
         context['content'] = content.load_version(sha)
         container = context['content']
 
-        # get the container:
-        if 'parent_container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['parent_container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-
-        if 'container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-        else:
-            raise Http404
-
-        context['container'] = container
+        context['container'] = search_container_or_404(container, self.kwargs)
 
         return context
 
@@ -537,25 +515,7 @@ class EditContainer(FormView):
         container = context['content']
 
         # get the container:
-        if 'parent_container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['parent_container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-
-        if 'container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-        else:
-            raise Http404
+        container = search_container_or_404(container, self.kwargs)
 
         context['container'] = container
 
@@ -614,26 +574,7 @@ class CreateExtract(FormView):
         context['content'] = self.content.load_version()
         container = context['content']
 
-        # get the container:
-        if 'parent_container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['parent_container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-
-        if 'container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-
-        context['container'] = container
+        context['container'] = search_container_or_404(container, self.kwargs)
 
         return context
 
@@ -679,26 +620,7 @@ class EditExtract(FormView):
         container = context['content']
 
         # if the extract is at a depth of 3 we get the first parent container
-        if 'parent_container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['parent_container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-
-        # if extract is at depth 2 or 3 we get its direct parent container
-        if 'container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-        else:
-            raise Http404
+        container = search_container_or_404(container, self.kwargs)
 
         extract = None
         if 'extract_slug' in self.kwargs:
@@ -767,24 +689,7 @@ class DeleteContainerOrExtract(DeleteView):
         context['content'] = self.content.load_version()
         container = context['content']
 
-        # get the extract:
-        if 'parent_container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['parent_container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-
-        if 'container_slug' in self.kwargs:
-            try:
-                container = container.children_dict[self.kwargs['container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
+        container = search_container_or_404(container, self.kwargs)
 
         to_delete = None
         if 'object_slug' in self.kwargs:
@@ -1405,8 +1310,6 @@ def ask_validation(request):
     return redirect(tutorial.get_absolute_url())
 
 
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
 def find_tuto(request, pk_user):
     try:
         type = request.GET["type"]
