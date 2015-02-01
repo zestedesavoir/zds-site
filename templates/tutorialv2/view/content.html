@@ -38,13 +38,13 @@
         </h2>
     {% endif %}
 
-    {% if user in content.authors.all or perms.content.change_content %}
+    {% if user.user in content.authors.all %}
         {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
     {% else %}
         {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
     {% endif %}
 
-    {% if user in content.authors.all or perms.content.change_content %}
+    {% if can_edit %}
         {% if content.in_validation %}
             {% if validation.version == version %}
                 {% if validation.is_pending %}
@@ -134,7 +134,7 @@
 
 
 {% block sidebar_new %}
-    {% if user in content.authors.all or perms.content.change_content %}
+    {% if can_edit %}
         {% if content.sha_draft == version %}
             <a href="{% url "content:edit" content.pk content.slug %}" class="ico-after edit blue new-btn">
                 {% trans "Éditer" %}
@@ -163,7 +163,7 @@
 
 
 {% block sidebar_actions %}
-    {% if user in content.authors.all or perms.content.change_content %}
+    {% if can_edit %}
         {# other action (valid, beta, ...) #}
     {% endif %}
 {% endblock %}
@@ -171,13 +171,13 @@
 
 
 {% block sidebar_blocks %}
-    {% if perms.content.change_content %}
-        {#  more actions ?!? #}
+    {% if can_edit and not user in content.authors.all %}
+        {#  more actions only for validators?!? #}
     {% endif %}
 
     {#  include "content/includes/summary.part.html" #}
 
-    {% if user in content.authors.all or perms.content.change_content %}
+    {% if can_edit %}
          <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
             <h3>{% trans "Suppression" %}</h3>
             <ul>
