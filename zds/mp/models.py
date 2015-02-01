@@ -51,8 +51,7 @@ class PrivateTopic(models.Model):
         :rtype: str
         """
         return reverse('zds.mp.views.topic',
-                       args=[self.pk, slugify(self.title)]
-        )
+                       args=[self.pk, slugify(self.title)])
 
     def get_post_count(self):
         """
