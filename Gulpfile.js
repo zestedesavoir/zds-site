@@ -15,7 +15,7 @@ var sourceDir = "assets/",
     imagesDir = "images/",
     scriptsDir = "js/",
     vendorsDir = "vendors/",
-    sprite2xDir = "sprite@2x/",
+    spriteDir = "sprite/",
     vendorsCSS = ["node_modules/normalize.css/normalize.css"],
     vendorsJS = ["node_modules/jquery/dist/jquery.js"],
     autoprefixerConfig = ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"]
@@ -147,7 +147,7 @@ gulp.task("errors", ["clean-errors"], function() {
  * Generates Sprite files (SASS + image)
  */
 gulp.task("sprite", function() {
-  return gulp.src(sourceDir + imagesDir + sprite2xDir + "*")
+  return gulp.src(sourceDir + imagesDir + spriteDir + "*")
     .pipe(sprite({
       name: "sprite",
       style: "_sprite.scss",
