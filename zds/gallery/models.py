@@ -88,6 +88,7 @@ class UserGallery(models.Model):
         """
         return Image.objects.filter(gallery=self.gallery).order_by('update').all()
 
+
 class Image(models.Model):
 
     class Meta:
