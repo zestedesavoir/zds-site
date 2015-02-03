@@ -1,0 +1,40 @@
+.avatar {
+    height: 60px;
+    width: 60px;
+    background-color: #FFF;
+}
+
+.badge {
+    display: block;
+    width: 60px;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    text-transform: uppercase;
+    color: #EEE;
+    text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
+    background: #777;
+
+    &.staff {
+        background: $color-success;
+    }
+}
+
+.member-card {
+    .member-avatar {
+        float: left;
+        width: 60px;
+    }
+    .member-infos {
+        float: left;
+        list-style: none;
+        margin: 0;
+        padding-left: 15px;
+    }
+}
+
+.member-social {
+    list-style: none;
+    margin: 15px 0 0;
+    padding: 0;
+}
