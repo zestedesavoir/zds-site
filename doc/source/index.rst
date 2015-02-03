@@ -24,3 +24,4 @@ Sommaire
    article
    api
    utils
+   design

@@ -132,57 +132,10 @@ Gulp est un outil permettant d'automatiser les tâches liées au front. Dans not
 - Compiler les fichiers SCSS pour les transformer CSS
 - Compresser les images et créer un sprite
 
-Il y a, à la racine du projet, un dossier ``assets/`` (contenant les sources JS et SCSS non minimisées, ainsi que les images) qui ressemble à ça :
+.. note::
 
-.. sourcecode:: bash
-
-    assets/
-    ├── images/
-    │   ├── favicon.ico
-    │   ├── favicon.png
-    │   ├── logo@2x.png
-    │   ├── logo.png
-    │   ...
-    ├── js/
-    │   ├── accessibility-links.js
-    │   ├── data-click.js
-    │   ...
-    ├── scss/
-    │   ├── main.scss
-    │   ├── _mobile.scss
-    │   ├── _mobile-tablet.scss
-    │   ...
-    └── smileys/
-        ├── ange.png
-        ├── angry.gif
-        ...
-
-Après le passage de Gulp, toujours à la racine du projet, est créé un dossier ``dist/`` (contenant des fichiers optimisés pour la production) qui est similaire à ça :
-
-.. sourcecode:: bash
-
-    dist/
-    ├── css
-    │   ├── main.css # Tout le CSS compilé...
-    │   └── main.min.css # ...et minimisé
-    ├── images # Toutes les images optimisées
-    │   ├── favicon.ico
-    │   ├── favicon.png
-    │   ├── logo@2x.png
-    │   ...
-    ├── js
-    │   ├── all.min.js # Tout le JS minimisé
-    │   ├── main.js # Tout le JS customisé...
-    │   ├── main.min.js # ...et minimisé
-    │   ├── vendors # Toutes les bibliothèques non-minimisées
-    │   │   ├── jquery.js
-    │   │   └── modernizr.js
-    │   ├── vendors.js # Toutes les bibliothèques rassemblées...
-    │   └── vendors.min.js # ...et minimisées
-    └── smileys
-        ├── ange.png
-        ├── angry.gif
-        ...
+    Vous voulez en savoir plus ?
+    Venez `ici <../design.html>`_ ! ;)
 
 Utilisation de Gulp
 -------------------
