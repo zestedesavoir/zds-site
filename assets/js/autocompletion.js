@@ -66,7 +66,7 @@
         },
 
         handleInput: function(e){
-            if(e && (e.which === 38 || e.which === 40 || e.which === 13)){ 
+            if(e && (e.which === 38 || e.which === 40 || e.which === 13)){
                 e.preventDefault();
                 e.stopPropagation();
             }
@@ -86,8 +86,8 @@
             } else {
                 this.fetchUsers(search)
                     .done(function(data){
-                        self.updateCache(data);
-                        self.updateDropdown(self.sortList(data, search));
+                        self.updateCache(data.results);
+                        self.updateDropdown(self.sortList(data.results, search));
                     })
                     .fail(function(){
                         console.error("[Autocompletition] Something went wrong...");
@@ -128,29 +128,29 @@
             if(this.options.type === "multiple") {
                 var lastComma = input.lastIndexOf(",");
                 if(lastComma !== -1){
-                    input = input.substr(0, lastComma + 2) + completion.value + ", ";
+                    input = input.substr(0, lastComma) + ", " + completion.username + ", ";
                     this.$input.val(input);
                 } else {
-                    this.$input.val(completion.value + ", ");
+                    this.$input.val(completion.username + ", ");
                 }
             }
             else {
-                this.$input.val(completion.value);
+                this.$input.val(completion.username);
             }
 
-            this._lastAutocomplete = completion.value;
+            this._lastAutocomplete = completion.username;
+	    this.selected = -1; // Deselect properly
         },
 
         updateCache: function(data){
             for(var i = 0; i < data.length; i++){
-                this.cache[data[i].value] = data[i];
+                this.cache[data[i].username] = data[i];
             }
         },
 
         extractWords: function(input){
-            //input = input.replace(/ /g, ","); // Replace space with comas
             var words = $.grep(
-                $.map(input.split(","), $.trim),  // Remove empty
+                $.map(input.split(","), $.trim), // Remove empty
                 function(e){
                     return e === "" || e === undefined;
                 },
@@ -180,14 +180,14 @@
             return $.grep(
                 this.cache,
                 function(e){
-                    return e.value.match(regexp);
+                    return e.username.match(regexp);
                 }
             );
         },
 
         getFromCache: function(id){
             for(var i in this.cache){
-                if(parseInt(this.cache[i].id) === parseInt(id))
+                if(parseInt(this.cache[i].pk) === parseInt(id))
                     return this.cache[i];
             }
             return false;
@@ -195,7 +195,7 @@
 
         filterData: function(data, exclude){
             return data.filter(function(e){
-                return exclude.indexOf(e.value) === -1;
+                return exclude.indexOf(e.username) === -1;
             });
         },
 
@@ -215,9 +215,9 @@
 
             var $list = $("<ul>"), $el, selected = false;
             for(var i in list){
-                $el = $("<li>").text(list[i].value);
-                $el.attr("data-autocomplete-id", list[i].id);
-                if(list[i].id === this.selected){
+                $el = $("<li>").text(list[i].username);
+                $el.attr("data-autocomplete-id", list[i].pk);
+                if(list[i].pk === this.selected){
                     $el.addClass("active");
                     selected = true;
                 }
@@ -236,7 +236,7 @@
             var bestMatches = [], otherMatches = [];
 
             for(var i = 0; i < list.length; i++) {
-                if(list[i].value.indexOf(search) === 0) {
+                if(list[i].username.indexOf(search) === 0) {
                     bestMatches.push(list[i]);
                 }
                 else {
@@ -245,7 +245,7 @@
             }
 
             var sortFn = function(a, b) {
-                var valueA = a.value.toLowerCase(), valueB = b.value.toLowerCase();
+                var valueA = a.username.toLowerCase(), valueB = b.username.toLowerCase();
                 if (valueA < valueB)
                     return -1 ;
                 if (valueA > valueB)
@@ -285,7 +285,7 @@
     $.fn.autocomplete = function(options) {
         var defaults = {
             type: "single", // single|multiple|mentions
-            url: "/membres/?q=%s",
+            url: "/api/membres/?search=%s",
             limit: 4
         };
 
