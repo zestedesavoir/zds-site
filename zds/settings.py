@@ -1,7 +1,9 @@
 # coding: utf-8
 
 import os
+
 from django.utils.translation import gettext_lazy as _
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -204,7 +206,7 @@ THUMBNAIL_ALIASES = {
     },
 }
 
-if (DEBUG):
+if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
@@ -336,14 +338,15 @@ ZDS_APP = {
                 'provider_name': u"Progdupeupl",
                 'provider_url': u"http://progdupeu.pl",
             },
-            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
+                                  u'ences-sur-zeste-de-savoir/',
             'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
         },
-	'social': {
+        'social': {
             'facebook': u'https://www.facebook.com/ZesteDeSavoir',
             'twitter': u'https://twitter.com/ZesteDeSavoir',
             'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
@@ -381,7 +384,7 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
     },
-    'paginator':{
+    'paginator': {
         'folding_limit': 4
     }
 }

@@ -190,7 +190,7 @@ class ArchiveImageForm(forms.Form):
 class UpdateImageForm(ImageForm):
 
     def __init__(self, *args, **kwargs):
-        super(ImageForm, self).__init__(*args, **kwargs)
+        super(UpdateImageForm, self).__init__(*args, **kwargs)
 
         self.fields['physical'].required = False
 

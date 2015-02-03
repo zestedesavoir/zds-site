@@ -9,8 +9,7 @@ except ImportError:
         import simplejson as json_reader
     except ImportError:
         import json as json_reader
-import json
-import json as json_writer
+import json as json_writter
 import os
 import shutil
 import zipfile
@@ -1097,7 +1096,7 @@ def answer(request):
 
             if request.is_ajax():
                 resp["text"] = text
-                return HttpResponse(json.dumps(resp), content_type='application/json')
+                return HttpResponse(json_writter.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
@@ -1314,7 +1313,7 @@ def like_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
@@ -1362,7 +1361,7 @@ def dislike_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
