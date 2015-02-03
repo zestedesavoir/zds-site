@@ -383,8 +383,8 @@ def edit(request):
     """Edit the given topic."""
 
     try:
-        topic_pk = request.POST["topic"]
-    except KeyError:
+        topic_pk = request.POST['topic']
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     if "page" in request.POST:

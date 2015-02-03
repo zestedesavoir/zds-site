@@ -276,8 +276,8 @@ def edit(request):
 def answer(request):
     """Adds an answer from an user to a topic."""
     try:
-        topic_pk = request.GET['sujet']
-    except KeyError:
+        topic_pk = int(request.GET['sujet'])
+    except (KeyError, ValueError):
         raise Http404
 
     # Retrieve current topic.
