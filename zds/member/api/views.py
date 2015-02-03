@@ -25,7 +25,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
 
     queryset = Profile.objects.all_members_ordered_by_date_joined()
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('^user__username',)
+    search_fields = ('user__username',)
 
     @etag()
     @cache_response()
