@@ -441,7 +441,7 @@
                                 <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
                                     {% csrf_token %}
                                     <p>
-                                        {% trans "La validation de ce tutoriel est actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certains de vouloir le retirer" %} ?
+                                        {% trans "La validation de ce tutoriel est actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
                                     </p>
                                     <button type="submit">
                                         {% trans "Confirmer" %}
