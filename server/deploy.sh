@@ -62,7 +62,7 @@ pip install --upgrade --use-mirrors -r requirements.txt
 python manage.py migrate
 python manage.py compilemessages
 # Collect all static files from dist/ and python packages to static/
-python manage.py collectstatic
+python manage.py collectstatic --noinput
 deactivate
 
 # Restart zds
