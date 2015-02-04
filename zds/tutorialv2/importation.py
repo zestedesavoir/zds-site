@@ -148,6 +148,7 @@ class ImportMarkdownView(FormView):
                 userg.user = self.request.user
                 userg.save()
                 content.gallery = gal
+                content.authors.add(self.request.user)
             man_licence = Licence.objects.filter(title=man["licence"])
             if man_licence is not None:
                 content.licence
