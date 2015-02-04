@@ -5,7 +5,7 @@ API
 Informations générales
 ======================
 
-Headers possibles
+En-têtes possibles
 -----------------
 
 - ``Accept`` : L'API accepte plusieurs rendus, à savoir le ``JSON`` (par défaut) et l'``XML``. Toutes les requêtes peuvent donc renvoyer un résultat dans ces deux formats.
@@ -36,7 +36,7 @@ L'authentification est du type OAuth2 (dont la spécification du protocole est d
 
 Son fonctionnement est le suivant :
 
-- Chaque client de l'API s'inscrit en tant qu'application tierce.
+- Chaque client de l'API s'inscrit en tant qu'application tierce en faisant une requête auprès d'un administrateur puisqu'une page d'inscription n'existe pas encore.
 - A la fin de l'inscription, le système devra renvoyer une ``ZDS_AUTH_KEY`` et une ``ZDS_AUTH_SECRET`` au développeur.
 - Lorsqu'un membre veut se logguer au site via un client externe, le client devra donc envoyer à l'API :
     - le login : login de l'utilisateur sur le site.
@@ -47,7 +47,7 @@ Son fonctionnement est le suivant :
 
 L'authentification se base sur l'utilisation d'access token et de refresh token :
 
-.. sourcecode:: none
+.. sourcecode:: json
 
 {
   "access_token": "<your-access-token>",

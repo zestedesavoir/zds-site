@@ -42,8 +42,8 @@ class MemberListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-member-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), 10)
-        self.assertEqual(len(response.data.get('results')), 10)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -55,7 +55,7 @@ class MemberListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-member-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), 11)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -119,9 +119,7 @@ class MemberListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-member-list') + '?search=firmstaff')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), 1)
-        self.assertIsNone(response.data.get('next'))
-        self.assertIsNone(response.data.get('previous'))
+        self.assertTrue(response.data.get('count') > 0)
 
     def test_search_without_results_in_list_of_users(self):
         """
@@ -180,12 +178,65 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('username'))
 
+    def test_register_new_user_with_username_empty(self):
+        """
+        Tries to register a new user in the database with an username empty.
+        """
+        data = {
+            'username': '',
+            'email': 'clem@zestedesavoir.com',
+            'password': 'azerty'
+        }
+        response = self.client.post(reverse('api-member-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNotNone(response.data.get('username'))
+
+    def test_register_new_user_with_comma_in_username(self):
+        """
+        Tries to register a new user in the database with comma in username.
+        """
+        data = {
+            'username': 'Cle,m',
+            'email': 'clem@zestedesavoir.com',
+            'password': 'azerty'
+        }
+        response = self.client.post(reverse('api-member-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNotNone(response.data.get('username'))
+
+    def test_register_new_user_with_username_start_and_end_with_space(self):
+        """
+        Tries to register a new user in the database with space at the start
+        and end of the username.
+        """
+        data = {
+            'username': ' Clem ',
+            'email': 'clem@zestedesavoir.com',
+            'password': 'azerty'
+        }
+        response = self.client.post(reverse('api-member-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNotNone(response.data.get('username'))
+
     def test_register_new_user_without_email(self):
         """
         Tries to register a new user in the database without an email.
         """
         data = {
             'username': 'Clem',
+            'password': 'azerty'
+        }
+        response = self.client.post(reverse('api-member-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNotNone(response.data.get('email'))
+
+    def test_register_new_user_with_forbidden_email(self):
+        """
+        Gets an error when the user tries to register a new user with a forbidden email.
+        """
+        data = {
+            'username': 'Clem',
+            'email': 'clem@yopmail.com',
             'password': 'azerty'
         }
         response = self.client.post(reverse('api-member-list'), data)
