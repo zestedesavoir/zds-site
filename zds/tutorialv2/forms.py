@@ -298,7 +298,7 @@ class ImportMarkdownForm(forms.Form):
         required=True
     )
 
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(ImportMarkdownForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
