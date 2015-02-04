@@ -174,6 +174,13 @@ class ImportMarkdownView(FormView):
                 with open(join(versioned.get_path(), file), "w") as content_file:
                     content_file.write(zip_file.read(file))
             repo.index.add([join(versioned.get_path(), file)])
+
+        man["title"] = content.title
+        man["slug"] = content.slug
+        json_data = json_reader.dumps(man, indent=4, ensure_ascii=False).encode('utf-8')
+        with open(join(versioned.get_path(), "manifest.json"), "w") as manfile:
+            manfile.write(json_data)
+
         # Todo: use commit message from form
         commit = repo.index.commit("Importation")
         content.sha_draft = commit.hexsha
