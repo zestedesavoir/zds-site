@@ -1,0 +1,26 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Importer un tutoriel" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans "Importer un tutoriel" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>
+        {% trans "Importer un tutoriel" %}
+    </h1>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}
