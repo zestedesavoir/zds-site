@@ -95,7 +95,7 @@ class Article(models.Model):
 
     def delete_entity_and_tree(self):
         """deletes the entity and its filesystem counterpart"""
-        shutil.rmtree(self.get_path(), 0)
+        shutil.rmtree(self.get_path(), False)
         Validation.objects.filter(article=self).delete()
         if self.on_line():
             shutil.rmtree(self.get_prod_path())
@@ -133,7 +133,7 @@ class Article(models.Model):
         else:
             return os.path.join(settings.ZDS_APP['article']['repo_path'], self.get_phy_slug())
 
-    def load_json(self, path=None, online=False):
+    def load_json(self, path=None):
         if path is None:
             man_path = os.path.join(self.get_path(), 'manifest.json')
         else:

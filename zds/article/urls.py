@@ -2,8 +2,7 @@
 
 from django.conf.urls import patterns, url
 
-import feeds
-import views
+from zds.article import feeds
 
 
 urlpatterns = patterns('',

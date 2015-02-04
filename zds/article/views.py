@@ -84,7 +84,7 @@ def index(request):
 @login_required
 def view(request, article_pk, article_slug):
     """Show the given offline article if exists."""
-    article = get_object_or_404(Article, pk=article_pk)
+    article = get_object_or_404(Article, pk=article_pk, slug=article_slug)
 
     # Only authors of the article and staff can view article in offline.
     if request.user not in article.authors.all():
@@ -104,6 +104,7 @@ def view(request, article_pk, article_slug):
     # Load the article.
     try:
         manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
+    # TODO : add the exception
     except:
         sha = article.sha_draft
         manifest = get_blob(repo.commit(sha).tree, 'manifest.json')
@@ -135,7 +136,7 @@ def view(request, article_pk, article_slug):
 
 def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
-    article = get_object_or_404(Article, pk=article_pk)
+    article = get_object_or_404(Article, pk=article_pk, slug=article_slug)
 
     # article is not online = 404
     if not article.on_line():
@@ -192,7 +193,7 @@ def view_online(request, article_pk, article_slug):
     if page_nbr != 1:
         # Show the last reaction of the previous page
         last_page = paginator.page(page_nbr - 1).object_list
-        last_reaction = (last_page)[len(last_page) - 1]
+        last_reaction = last_page[len(last_page) - 1]
         res.append(last_reaction)
 
     for reaction in reactions:
@@ -435,35 +436,32 @@ def maj_repo_article(
         if action == 'maj':
             if old_slug_path != new_slug_path:
                 shutil.move(old_slug_path, new_slug_path)
-                repo = Repo(new_slug_path)
+                Repo(new_slug_path)
             msg = u"Modification de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
         elif action == 'add':
             os.makedirs(new_slug_path, mode=0o777)
-            repo = Repo.init(new_slug_path, bare=False)
+            Repo.init(new_slug_path, bare=False)
             msg = u"Création de l'article «{}» {} {}".format(article.title, get_sep(msg), get_text_is_empty(msg))\
                 .strip()
 
         repo = Repo(new_slug_path)
-        index = repo.index
+        repo_index = repo.index
 
         man_path = os.path.join(new_slug_path, 'manifest.json')
         article.dump_json(path=man_path)
-        index.add(['manifest.json'])
+        repo_index.add(['manifest.json'])
 
         txt = open(os.path.join(new_slug_path, 'text.md'), "w")
         txt.write(smart_str(text).strip())
         txt.close()
-        index.add(['text.md'])
+        repo_index.add(['text.md'])
 
         aut_user = str(request.user.pk)
         aut_email = str(request.user.email)
         if aut_email is None or aut_email.strip() == "":
             aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
-        com = index.commit(msg,
-                           author=Actor(aut_user, aut_email),
-                           committer=Actor(aut_user, aut_email)
-                           )
+        com = repo_index.commit(msg, author=Actor(aut_user, aut_email), committer=Actor(aut_user, aut_email))
         article.sha_draft = com.hexsha
         article.save()
 
@@ -691,7 +689,6 @@ def modify(request):
 
             if old_validator is not None:
                 validation.validator = old_validator
-                validation.date_reserve
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 msg = \
                     (u'Bonjour {0},\n\n'
@@ -721,7 +718,6 @@ def modify(request):
             ])
 
             author_username = request.POST['author'].strip()
-            author = None
             try:
                 author = User.objects.get(username=author_username)
                 if author.profile.is_private():
@@ -818,9 +814,9 @@ def list_validation(request):
     """Display articles list in validation."""
     # Retrieve type of the validation. Default value is all validations.
     try:
-        type = request.GET['type']
+        type_ = request.GET['type']
     except KeyError:
-        type = None
+        type_ = None
 
     # Get subcategory to filter validations.
     try:
@@ -831,7 +827,7 @@ def list_validation(request):
         subcategory = None
 
     # Orphan validation. There aren't validator attached to the validations.
-    if type == 'orphan':
+    if type_ == 'orphan':
         if subcategory is None:
             validations = Validation.objects \
                 .filter(validator__isnull=True, status='PENDING') \
@@ -845,7 +841,7 @@ def list_validation(request):
                 .all()
 
     # Reserved validation. There are a validator attached to the validations.
-    elif type == 'reserved':
+    elif type_ == 'reserved':
         if subcategory is None:
             validations = Validation.objects \
                 .filter(validator__isnull=False, status='RESERVED') \
@@ -1023,6 +1019,7 @@ def answer(request):
     if request.method == 'POST':
         data = request.POST
 
+        newreaction = None
         if not request.is_ajax():
             newreaction = last_reaction_pk != int(data['last_reaction'])
 
@@ -1291,7 +1288,7 @@ def like_reaction(request):
             like = CommentLike()
             like.user = user
             like.comments = reaction
-            reaction.like = reaction.like + 1
+            reaction.like += 1
             reaction.save()
             like.save()
             if CommentDislike.objects.filter(user__pk=user.pk,
@@ -1300,13 +1297,13 @@ def like_reaction(request):
                 CommentDislike.objects.filter(
                     user__pk=user.pk,
                     comments__pk=reaction_pk).all().delete()
-                reaction.dislike = reaction.dislike - 1
+                reaction.dislike -= 1
                 reaction.save()
         else:
             CommentLike.objects.filter(
                 user__pk=user.pk,
                 comments__pk=reaction_pk).all().delete()
-            reaction.like = reaction.like - 1
+            reaction.like -= 1
             reaction.save()
 
     resp['upvotes'] = reaction.like
@@ -1339,7 +1336,7 @@ def dislike_reaction(request):
             dislike = CommentDislike()
             dislike.user = user
             dislike.comments = reaction
-            reaction.dislike = reaction.dislike + 1
+            reaction.dislike += 1
             reaction.save()
             dislike.save()
             if CommentLike.objects.filter(user__pk=user.pk,
@@ -1348,13 +1345,13 @@ def dislike_reaction(request):
                 CommentLike.objects.filter(
                     user__pk=user.pk,
                     comments__pk=reaction_pk).all().delete()
-                reaction.like = reaction.like - 1
+                reaction.like -= 1
                 reaction.save()
         else:
             CommentDislike.objects.filter(
                 user__pk=user.pk,
                 comments__pk=reaction_pk).all().delete()
-            reaction.dislike = reaction.dislike - 1
+            reaction.dislike -= 1
             reaction.save()
 
     resp['upvotes'] = reaction.like
@@ -1369,5 +1366,5 @@ def dislike_reaction(request):
 
 
 def deprecated_view_redirect(request, article_pk, article_slug):
-    article = get_object_or_404(Article, pk=article_pk)
+    article = get_object_or_404(Article, pk=article_pk, slug=article_slug)
     return redirect(article.get_absolute_url(), permanent=True)
