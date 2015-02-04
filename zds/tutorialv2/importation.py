@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -115,7 +116,10 @@ class ImportMarkdownView(FormView):
 
         if 'pk' not in self.kwargs:
             return None
-        return get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if self.request.user not in obj.authors.all():
+            raise PermissionDenied
+        return obj
 
     def form_valid(self, form):
 
