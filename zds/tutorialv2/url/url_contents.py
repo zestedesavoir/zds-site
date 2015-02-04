@@ -4,6 +4,7 @@ from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract
+from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
                        url(r'^$', ListContent.as_view(), name='index'),
@@ -76,4 +77,7 @@ urlpatterns = patterns('',
 
                        url(r'^supprimer/(?P<pk>\d+)/(?P<slug>.+)/$', DeleteContent.as_view(), name='delete'),
 
+                       # markdown import
+                       url(r'^importer/archive/nouveau/$', ImportMarkdownView.as_view(), name="import_new_archive"),
+                       url(r'^importer/archive/(?P<pk>\d+)/$', ImportMarkdownView.as_view(), name="update_with_archive")
                        )
