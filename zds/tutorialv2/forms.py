@@ -291,25 +291,18 @@ class ImportForm(forms.Form):
                 self._errors['images'] = self.error_class([msg])
 
 
-class ImportArchiveForm(forms.Form):
+class ImportMarkdownForm(forms.Form):
 
     file = forms.FileField(
         label=_(u"Sélectionnez l'archive de votre tutoriel"),
         required=True
     )
 
-    tutorial = forms.ModelChoiceField(
-        label=_(u"Tutoriel vers lequel vous souhaitez importer votre archive"),
-        queryset=PublishableContent.objects.none(),
-        required=True
-    )
-
     def __init__(self, user, *args, **kwargs):
-        super(ImportArchiveForm, self).__init__(*args, **kwargs)
+        super(ImportMarkdownForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.fields['tutorial'].queryset = PublishableContent.objects.filter(authors__in=[user])
 
         self.helper.layout = Layout(
             Field('file'),
