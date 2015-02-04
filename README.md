@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/zestedesavoir/zds-site.svg?branch=dev)](https://travis-ci.org/zestedesavoir/zds-site)
 [![Coverage Status](https://coveralls.io/repos/zestedesavoir/zds-site/badge.png?branch=dev)](https://coveralls.io/r/zestedesavoir/zds-site?branch=dev)
-[![Licence GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
-[![Documentation Status](https://readthedocs.org/projects/zds-site/badge/?version=latest)](https://readthedocs.org/projects/zds-site/?badge=latest)
+[![Code Health](https://landscape.io/github/zestedesavoir/zds-site/dev/landscape.svg)](https://landscape.io/github/zestedesavoir/zds-site/dev)
+
 [![Requirements Status](https://requires.io/github/zestedesavoir/zds-site/requirements.svg?branch=dev)](https://requires.io/github/zestedesavoir/zds-site/requirements/?branch=dev)
 [![Dependency Status](https://david-dm.org/zestedesavoir/zds-site.svg)](https://david-dm.org/zestedesavoir/zds-site)
 
+[![Licence GPL](http://img.shields.io/badge/license-GPL-yellow.svg)](http://www.gnu.org/licenses/quick-guide-gplv3.fr.html)
+[![Documentation Status](https://readthedocs.org/projects/zds-site/badge/?version=latest)](https://readthedocs.org/projects/zds-site/?badge=latest)
 
 # Zeste de Savoir
 
@@ -33,9 +35,10 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zes
 
 ### Installation d'une version locale de ZdS
 
-- [Intallation sur Windows](doc/install-windows.md)
-- [Intallation sur Linux](doc/install-linux.md)
-- [Intallation sur OS X](doc/install-os-x.md)
+- [Installation du backend sur Windows](http://zds-site.readthedocs.org/fr/latest/install/backend-windows-install.html)
+- [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
+- [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
+- [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
 - [Installation de Solr](doc/install-solr.md) pour gérer la recherche
 
 

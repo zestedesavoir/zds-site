@@ -14,12 +14,13 @@ Contrôle des process | Supervisor
 Surveillance | Munin
 
 ## Paramètres spécifiques
+
  | Pré-prod | Prod
 ---|---|---
 Nom | preprod.zestedesavoir.com | zestedesavoir.com
-IPv4 | `178.32.53.245` | -
-IPv6 | `176.31.187.88` | `2001:41d0:52:100::b4f`
-Login | _Demande privée_ | _Demande privée_
+IPv4 | `46.105.246.77` | `176.31.187.88`
+IPv6 | x | `2001:41d0:52:100::b4f`
+Identifiant | _Demande privée_ | _Demande privée_
 Mot de passe | _Demande privée_ | _Demande privée_
 
 # Premier déploiement
@@ -371,8 +372,9 @@ gulp build
 Modification du `settings_prod.py` :
 
 Si un utilisateur anonyme et un utilisateur permettant de récupérer les tutoriels venant de l'extérieur
-existent déjà, configurez les constantes `ANONYMOUS_USER` et `EXTERNAL_USER` pour que ces dernières
+existent déjà, configurez les constantes `ZDS_APP.member['anonymous_account']` et `ZDS_APP.member['external_account']` pour que ces dernières
 aient pour valeur le pseudo desdits utilisateurs.
+Si vous désirez que ces utilisateurs soient injoignables soyez sûrs qu'ils sont enregistrés dans le groupe `bot` qui devra être concordant avec  le paramètre `ZDS_APP.member['bot_group'].
 
 Sinon, utilisez au choix le shell django ou bien
 

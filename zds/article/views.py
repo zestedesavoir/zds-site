@@ -9,8 +9,7 @@ except ImportError:
         import simplejson as json_reader
     except ImportError:
         import json as json_reader
-import json
-import json as json_writer
+import json as json_writter
 import os
 import shutil
 import zipfile
@@ -41,6 +40,7 @@ from zds.utils.models import SubCategory, Category, CommentLike, \
 from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
+from django.utils.translation import ugettext as _
 
 from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
@@ -479,7 +479,11 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    try:
+        article_id = int(request.GET["article"])
+    except (KeyError, ValueError):
+        raise Http404
+    article = get_object_or_404(Article, pk=article_id)
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
@@ -716,11 +720,14 @@ def modify(request):
                 article.slug
             ])
 
-            author_username = request.POST['author']
+            author_username = request.POST['author'].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
 
             article.authors.add(author)
@@ -949,8 +956,10 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
 
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
     return render(request, 'article/member/history.html', {
-        'article': article, 'logs': logs
+        'article': article, 'logs': logs, 'formJs': form_js
     })
 
 # Reactions at an article.
@@ -1087,7 +1096,7 @@ def answer(request):
 
             if request.is_ajax():
                 resp["text"] = text
-                return HttpResponse(json.dumps(resp), content_type='application/json')
+                return HttpResponse(json_writter.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
@@ -1304,7 +1313,7 @@ def like_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
@@ -1352,7 +1361,7 @@ def dislike_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 

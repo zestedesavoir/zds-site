@@ -12,6 +12,7 @@ Sommaire:
    introduction
    tutorial/tutorial.rst
    member/member.rst
+   member/private_message.rst
    forum/forum.rst
    gallery/gallery.rst
    article/article.rst

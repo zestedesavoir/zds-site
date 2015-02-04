@@ -11,7 +11,9 @@
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
-            $otherThumb = $thumb.hasClass("downvote") ? $karma.find(".upvote") : $karma.find(".downvote");
+            $upvote = $karma.find(".upvote"),
+            $downvote = $karma.find(".downvote"),
+            $otherThumb = $thumb.hasClass("downvote") ? $upvote : $downvote;
 
         var message = $form.find("input[name=message]").val(),
             csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
@@ -25,18 +27,34 @@
                 "csrfmiddlewaretoken": csrfmiddlewaretoken
             },
             success: function(data){
+                // Update upvotes
                 if(data.upvotes > 0){
-                    $karma.find(".upvote").addClass("has-vote").text("+" + data.upvotes);
+                    $upvote.addClass("has-vote").text("+" + data.upvotes);
                 } else {
-                    $karma.find(".upvote").removeClass("has-vote").empty();
+                    $upvote.removeClass("has-vote").empty();
                 }
+                // Update downvotes
                 if(data.downvotes > 0){
-                    $karma.find(".downvote").addClass("has-vote").text("-" + data.downvotes);
+                    $downvote.addClass("has-vote").text("-" + data.downvotes);
                 } else {
-                    $karma.find(".downvote").removeClass("has-vote").empty();
+                    $downvote.removeClass("has-vote").empty();
                 }
+
+                // Show to the user what thumb is voted
                 $thumb.toggleClass("voted");
                 $otherThumb.removeClass("voted");
+
+                // Show to the user what thumb is the more voted
+                if(data.upvotes > data.downvotes) {
+                    $upvote.addClass("more-voted");
+                } else {
+                    $upvote.removeClass("more-voted");
+                }
+                if(data.downvotes > data.upvotes) {
+                    $downvote.addClass("more-voted");
+                } else {
+                    $downvote.removeClass("more-voted");
+                }
             }
         });
 

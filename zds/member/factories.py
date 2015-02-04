@@ -73,9 +73,7 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return 'My name is {0} and I i\'m the '
-        u'guy who kill the bad guys '.format(
-            self.user.username.lower())
+        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 
@@ -90,9 +88,7 @@ class StaffProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return 'My name is {0} and I i\'m the '
-        u'guy who kill the bad guys '.format(
-            self.user.username.lower())
+        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 

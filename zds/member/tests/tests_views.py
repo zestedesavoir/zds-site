@@ -27,10 +27,14 @@ from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 
 
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['tutorial']['repo_path'] = os.path.join(SITE_ROOT, 'tutoriels-private-test')
+overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(SITE_ROOT, 'tutoriels-public-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class MemberTests(TestCase):
 
     def setUp(self):
@@ -45,6 +49,25 @@ class MemberTests(TestCase):
             category=self.category1,
             position_in_category=1)
         self.staff = StaffProfileFactory().user
+
+    def test_list_members(self):
+        """To test the listing of the members."""
+
+        # test pagination page doesn't exist
+        result = self.client.post(
+            reverse('zds.member.views.index') +
+            u'?page=1534',
+            follow=False
+        )
+        self.assertEqual(404, result.status_code)
+
+        # test pagination page not an integer
+        result = self.client.post(
+            reverse('zds.member.views.index') +
+            u'?page=abcd',
+            follow=False
+        )
+        self.assertEqual(404, result.status_code)
 
     def test_login(self):
         """To test user login."""
@@ -646,12 +669,11 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 404)
 
     def tearDown(self):
-        Profile.objects.all().delete()
-        if os.path.isdir(settings.REPO_ARTICLE_PATH):
-            rmtree(settings.REPO_ARTICLE_PATH)
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
+            rmtree(settings.ZDS_APP['tutorial']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
+            rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
+        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
+            rmtree(settings.ZDS_APP['article']['repo_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             rmtree(settings.MEDIA_ROOT)
-        if os.path.isdir(settings.REPO_PATH):
-            rmtree(settings.REPO_PATH)
-        if os.path.isdir(settings.REPO_PATH_PROD):
-            rmtree(settings.REPO_PATH_PROD)

@@ -90,6 +90,12 @@
                         </li>
                     {% endfor %}
                 </ul>
+            {% empty %}
+                <ul>
+                    <li>
+                        {% trans "Aucune catégorie disponible." %}
+                    </li>
+                </ul>
             {% endfor %}
         {% endwith %}
         <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">

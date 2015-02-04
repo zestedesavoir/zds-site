@@ -10,3 +10,6 @@ omit =
     */factories.py
     */wsgi.py
     */migrations/*
+    */.tox/*
+    setup.py
+    *settings_test*

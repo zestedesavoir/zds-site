@@ -7,8 +7,8 @@ Il existe beaucoup de manières d'installer Solr. L'une des plus simples est d'u
 
 Avant toute chose soyez-sûr d'avoir Java (disponible dans les dépôts de votre distribution, ou [sur le site officiel](http://www.java.com/fr/download/manual.jsp#lin)).
 
-Téléchargez [l'archive Solr](http://apache.crihan.fr/dist/lucene/solr/4.9.0/solr-4.9.0.zip) ou entrez la commande
-`wget http://apache.crihan.fr/dist/lucene/solr/4.9.0/solr-4.9.0.zip`.
+Téléchargez [l'archive Solr](http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip) ou entrez la commande
+`wget http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip`.
 
 Puis décompressez l'archive avec `unzip solr-4.9.0.zip`.
 
@@ -18,7 +18,7 @@ Avant toute chose soyez-sûr d'avoir [Java](http://www.java.com/fr/download/win8
 
 Ajoutez le dossier contenant java à votre PATH : dans "Ordinateur", clic droit puis "Proprétés", ouvrez les "propriétés avancées" puis cliquez sur "Variables d'environnement".
 
-Téléchargez [l'archive Solr](http://apache.crihan.fr/dist/lucene/solr/4.9.0/solr-4.9.0.zip). Décompressez-la.
+Téléchargez [l'archive Solr](http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip). Décompressez-la.
 
 # Procédure commune
 

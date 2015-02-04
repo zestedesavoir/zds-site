@@ -34,6 +34,10 @@
                 <li>
                     {% include "misc/member_item.part.html" with avatar=True %}
                 </li>
+            {% empty %}
+                <li>
+                    {% trans "Aucun membre pour le moment." %}
+                </li>
             {% endfor %}
         </ul>
     </div>

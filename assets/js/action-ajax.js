@@ -122,6 +122,11 @@
                 $editor.val($editor.val() + data.text + "\n\n\n");
             }
         });
+
+        // scroll to the textarea and focus the textarea
+        $("html, body").animate({ scrollTop: $(".md-editor").offset().top }, 500);
+        $(".md-editor").focus();
+
         e.stopPropagation();
         e.preventDefault();
     });

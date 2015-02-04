@@ -18,6 +18,7 @@ from django.shortcuts import redirect, get_object_or_404, render, render_to_resp
 from django.template import Context
 from django.template.loader import get_template
 from django.views.decorators.http import require_POST
+from django.utils.translation import ugettext as _
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
@@ -414,11 +415,13 @@ def edit(request):
             messages.success(request,
                              u"Le sujet {0} est désormais verrouillé."
                              .format(g_topic.title))
-        if "sticky" in data:
-            g_topic.is_sticky = data["sticky"] == "true"
-            messages.success(request,
-                             u"Le sujet {0} est désormais épinglé."
-                             .format(g_topic.title))
+        if 'sticky' in data:
+            if data['sticky'] == 'true':
+                g_topic.is_sticky = True
+                messages.success(request, _(u'Le sujet « {0} » est désormais épinglé.').format(g_topic.title))
+            else:
+                g_topic.is_sticky = False
+                messages.success(request, _(u'Le sujet « {0} » n\'est désormais plus épinglé.').format(g_topic.title))
         if "move" in data:
             try:
                 forum_pk = int(request.POST["move_target"])
@@ -612,16 +615,20 @@ def edit_post(request):
     except KeyError:
         # problem in variable format
         raise Http404
+
     post = get_object_or_404(Post, pk=post_pk)
+
+    # check if the user can use this forum
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
-    g_topic = None
+
     if post.position <= 1:
         g_topic = get_object_or_404(Topic, pk=post.topic.pk)
+    else:
+        g_topic = None
 
     # Making sure the user is allowed to do that. Author of the post must to be
     # the user logged.
-
     if post.author != request.user \
             and not request.user.has_perm("forum.change_post") and "signal_message" \
             not in request.POST:
@@ -629,25 +636,29 @@ def edit_post(request):
     if post.author != request.user and request.method == "GET" \
             and request.user.has_perm("forum.change_post"):
         messages.warning(request,
-                         u'Vous éditez ce message en tant que '
-                         u'modérateur (auteur : {}). Soyez encore plus '
-                         u'prudent lors de l\'édition de celui-ci !'
+                         _(u'Vous éditez ce message en tant que '
+                           u'modérateur (auteur : {}). Soyez encore plus '
+                           u'prudent lors de l\'édition de celui-ci !')
                          .format(post.author.username))
+
     if request.method == "POST":
         if "delete_message" in request.POST:
             if post.author == request.user \
                     or request.user.has_perm("forum.change_post"):
                 post.alerts.all().delete()
                 post.is_visible = False
+
                 if request.user.has_perm("forum.change_post"):
                     post.text_hidden = request.POST["text_hidden"]
+
                 post.editor = request.user
-                messages.success(request, u"Le message est désormais masqué.")
-        if "show_message" in request.POST:
+
+                messages.success(request, _(u"Le message est désormais masqué."))
+        elif "show_message" in request.POST:
             if request.user.has_perm("forum.change_post"):
                 post.is_visible = True
                 post.text_hidden = ""
-        if "signal_message" in request.POST:
+        elif "signal_message" in request.POST:
             alert = Alert()
             alert.author = request.user
             alert.comment = post
@@ -655,14 +666,12 @@ def edit_post(request):
             alert.text = request.POST['signal_text']
             alert.pubdate = datetime.now()
             alert.save()
+
             messages.success(request,
-                             u'Une alerte a été envoyée '
-                             u'à l\'équipe concernant '
-                             u'ce message.')
-
-        # Using the preview button
-
-        if "preview" in request.POST:
+                             _(u'Une alerte a été envoyée '
+                               u'à l\'équipe concernant '
+                               u'ce message.'))
+        elif "preview" in request.POST:
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
@@ -684,14 +693,11 @@ def edit_post(request):
                     "text": request.POST["text"],
                     "form": form,
                 })
-
-        if "delete_message" not in request.POST and "signal_message" \
-                not in request.POST and "show_message" not in request.POST:
+        else:
             # The user just sent data, handle them
-
             if request.POST["text"].strip() != "":
-                # check if the form is valid
                 form = TopicForm(request.POST)
+
                 if not form.is_valid() and g_topic:
                     return render(request, "forum/post/edit.html", {
                         "post": post,
@@ -699,23 +705,23 @@ def edit_post(request):
                         "text": post.text,
                         "form": form,
                     })
+
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
                 post.update = datetime.now()
                 post.editor = request.user
 
             # Modifying the thread info
-
             if g_topic:
                 (tags, title) = get_tag_by_title(request.POST["title"])
                 g_topic.title = title
                 g_topic.subtitle = request.POST["subtitle"]
                 g_topic.save()
-                g_topic.tags.clear()
 
                 # add tags
-
+                g_topic.tags.clear()
                 g_topic.add_tags(tags)
+
         post.save()
         return redirect(post.get_absolute_url())
     else:
@@ -723,6 +729,7 @@ def edit_post(request):
             prefix = u""
             for tag in g_topic.tags.all():
                 prefix += u"[{0}]".format(tag.title)
+
             form = TopicForm(
                 initial={
                     "title": u"{0} {1}".format(
@@ -733,6 +740,7 @@ def edit_post(request):
         else:
             form = PostForm(post.topic, request.user,
                             initial={"text": post.text})
+
         form.helper.form_action = reverse("zds.forum.views.edit_post") \
             + "?message=" + str(post_pk)
         return render(request, "forum/post/edit.html", {
