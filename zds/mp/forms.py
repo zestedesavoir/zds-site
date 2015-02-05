@@ -76,7 +76,8 @@ class PrivateTopicForm(forms.Form):
         if participants is not None and participants.strip() != '':
             receivers = participants.strip().split(',')
             for receiver in receivers:
-                if User.objects.filter(username__exact=receiver.strip()).count() == 0 and receiver.strip() != '':
+                if User.objects.filter(username__exact=receiver.strip()).count() == 0 and receiver.strip() != '' \
+                        or receiver.strip() == '':
                     self._errors['participants'] = self.error_class(
                         [_(u'Un des participants saisi est introuvable')])
                 elif receiver.strip().lower() == self.username.lower():
