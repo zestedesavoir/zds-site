@@ -5,7 +5,7 @@ from django import template
 from django.contrib.auth.models import User
 
 from zds.member.models import Profile
-from zds.utils.models import Comment, CommentLike, CommentDislike
+from zds.utils.models import CommentLike, CommentDislike
 
 
 register = template.Library()
@@ -50,13 +50,9 @@ def state(user):
 
 @register.filter('liked')
 def liked(user, comment_pk):
-    comment = Comment.objects.get(pk=comment_pk)
-    return CommentLike.objects.filter(comments=comment, user=user) \
-                              .count() > 0
+    return CommentLike.objects.filter(comments__pk=comment_pk, user=user).exists()
 
 
 @register.filter('disliked')
 def disliked(user, comment_pk):
-    comment = Comment.objects.get(pk=comment_pk)
-    return CommentDislike.objects.filter(comments=comment, user=user) \
-                                 .count() > 0
+    return CommentDislike.objects.filter(comments__pk=comment_pk, user=user).exists()
