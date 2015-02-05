@@ -203,6 +203,12 @@
                                                 </ul>
                                             {% endfor %}
                                         {% endwith %}
+                                        <li>
+                                            <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="btn btn-grey">{% trans "Rédiger un tutoriel" %}</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="btn btn-grey">{% trans "Aider les auteurs" %}</a>
+                                        </li>
                                     </ul>
                                 </div>
                             </li>
