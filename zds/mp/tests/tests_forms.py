@@ -123,6 +123,17 @@ class PrivateTopicFormTest(TestCase):
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())
 
+    def test_invalid_topic_form_comma(self):
+        """ Cas when participants is only a comma """
+        data = {
+            'participants': ',',
+            'title': 'Test title',
+            'subtitle': 'Test subtitle',
+            'text': 'Test text'
+        }
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
+        self.assertFalse(form.is_valid())
+
 
 class PrivatePostFormTest(TestCase):
 
