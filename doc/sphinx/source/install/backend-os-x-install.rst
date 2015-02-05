@@ -21,9 +21,8 @@ Installation de virtualenv
 
 .. sourcecode:: bash
 
-    pip install tox
-    pip install virtualenv
-    pip install virtualenvwrapper
+    sudo port install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox
+
     mkdir ~/.virtualenvs
     echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
     echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
@@ -78,4 +77,18 @@ Aller plus loin
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 
 - Téléchagez et installez `BasicTex <http://www.tug.org/mactex/morepackages.html>`_
+
+.. sourcecode:: bash
+
+  sudo port install texlive-basic
+
 - Téléchargez et installez `Pandoc <https://github.com/jgm/pandoc/releases>`_
+
+.. sourcecode:: bash
+
+  sudo port install pandoc
+
+Ajouter un hook de pre-commit a git pour tester flake
+-----------------------------------------------------
+
+.. include:: git_pre-hook.rst
