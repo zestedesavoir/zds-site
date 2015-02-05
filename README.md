@@ -99,6 +99,4 @@ Vous trouverez tout sur [la page dédiée de la documentation](CONTRIBUTING.md)
 - [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
 - [Les détails du workflow utilisé sur Zeste de Savoir](http://zds-site.readthedocs.org/fr/latest/workflow.html)
 
------
-
-Zeste de Savoir est basé sur un fork de [progdupeu.pl](http://progdupeu.pl) ([voir le dépôt sur Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/)).
+Zeste de Savoir est basé sur un fork de [Progdupeupl](https://pdp.microjoe.org) ([voir le dépôt Git](http://git.microjoe.org/progdupeupl/)).
