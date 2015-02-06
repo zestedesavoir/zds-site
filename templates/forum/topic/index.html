@@ -175,7 +175,17 @@
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 
-            <button class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
+            <button
+                class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}"
+                type="submit" data-ajax-input="follow-topic"
+                data-content-on-click="
+                    {% if topic.is_followed %}
+                        {% trans "Suivre ce sujet" %}
+                    {% else %}
+                        {% trans "Ne plus suivre ce sujet" %}
+                    {% endif %}
+                "
+            >
                 {% if topic.is_followed %}
                     {% trans "Ne plus suivre ce sujet" %}
                 {% else %}
@@ -192,7 +202,17 @@
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="email ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button
+                class="email ico-after {% if not topic.is_email_followed %}blue{% endif %}"
+                type="submit" data-ajax-input="follow-topic-by-email"
+                data-content-on-click="
+                    {% if topic.is_email_followed %}
+                        {% trans "Être notifié par courriel" %}
+                    {% else %}
+                        {% trans "Ne plus être notifié par courriel" %}
+                    {% endif %}
+                "
+            >
                 {% if topic.is_email_followed %}
                     {% trans "Ne plus être notifié par courriel" %}
                 {% else %}

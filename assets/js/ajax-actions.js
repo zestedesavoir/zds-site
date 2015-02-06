@@ -79,10 +79,10 @@
     /**
      * Follow a topic
      */
-    $(".sidebar").on("click", ".follow", function(e){
+    $(".sidebar").on("click", "[data-ajax-input='follow-topic']", function(e){
         var $act = $(this),
             $form = $(this).parents("form:first"),
-            $email = $(this).parents("li:first").next().find(".email");
+            $email = $(this).parents("li:first").next().find("[data-ajax-input='follow-topic-by-email']");
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             topic = $form.find("input[name=topic]").val(),
@@ -101,14 +101,20 @@
             },
             success: function(data){
                 if(data.follow){
-                    $act.removeClass("blue").addClass("yellow").text("Ne plus suivre ce sujet");
                     $form.find("input[name=follow]").val(1);
                 } else {
-                    $act.removeClass("yellow").addClass("blue").text("Suivre ce sujet");
-                    $email.removeClass("blue").text("Être notifié par courriel");
+                    if($email.hasClass("blue") === false){
+                        $email.toggleText("content-on-click");
+                        $email.addClass("blue");
+
+                        $email.parents("form:first").find("input[name=email]").val(0);
+                    }
+
                     $form.find("input[name=follow]").val(0);
-                    $email.parents("form:first").find("input[name=email]").val(0);
                 }
+
+                $act.toggleText("content-on-click");
+                $act.toggleClass("blue yellow");
             }
         });
 
@@ -119,9 +125,9 @@
     /**
      * Be notify by email
      */
-    $(".sidebar").on("click", ".email", function(e){
+    $(".sidebar").on("click", "[data-ajax-input='follow-topic-by-email']", function(e){
         var $act = $(this),
-            $follow = $(this).parents("li:first").prev().find(".follow"),
+            $follow = $(this).parents("li:first").prev().find("[data-ajax-input='follow-topic']"),
             $form = $(this).parents("form:first");
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
@@ -141,14 +147,21 @@
             },
             success: function(data){
                 if(data.email){
-                    $act.addClass("blue").text("Ne plus être notifié par courriel");
-                    $follow.removeClass("blue").addClass("yellow").text("Ne plus suivre ce sujet");
+                    if($follow.hasClass("yellow") === false){
+                        $follow.toggleText("content-on-click");
+                        $follow.removeClass("blue");
+                        $follow.addClass("yellow");
+
+                        $follow.parents("form:first").find("input[name=follow]").val(1);
+                    }
+
                     $form.find("input[name=email]").val(1);
-                    $follow.parents("form:first").find("input[name=follow]").val(1);
                 } else {
-                    $act.removeClass("blue").text("Être notifié par courriel");
                     $form.find("input[name=email]").val(0);
                 }
+
+                $act.toggleText("content-on-click");
+                $act.toggleClass("blue");
             }
         });
         e.stopPropagation();
