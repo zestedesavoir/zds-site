@@ -41,7 +41,7 @@
         e.stopPropagation();
         e.preventDefault();
     });
-    $(".sidebar").on("click", ".email", function(e){
+    $(".sidebar").on("click", ".email-notification", function(e){
         var $act = $(this),
             $follow = $(this).parents("li:first").prev().find(".follow"),
             $form = $(this).parents("form:first");
