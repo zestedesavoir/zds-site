@@ -16,6 +16,7 @@ Sommaire:
    forum/forum.rst
    gallery/gallery.rst
    article/article.rst
+   api/api.rst
    utils/utils.rst
 
 

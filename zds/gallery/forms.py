@@ -216,7 +216,7 @@ class ImageAsAvatarForm(forms.Form):
         super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'clearfix'
-        self.helper.form_action = reverse('zds.member.views.update_avatar')
+        self.helper.form_action = reverse('update-avatar-member')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

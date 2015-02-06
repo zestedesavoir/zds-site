@@ -172,6 +172,10 @@ INSTALLED_APPS = (
     'haystack',
     'munin',
     'social.apps.django_app.default',
+    'rest_framework',
+    'rest_framework_swagger',
+    'provider',
+    'provider.oauth2',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -206,7 +210,45 @@ THUMBNAIL_ALIASES = {
     },
 }
 
-if DEBUG:
+REST_FRAMEWORK = {
+    # If the pagination isn't specify in the API, its configuration is
+    # specified here.
+    'PAGINATE_BY': 10,                 # Default to 10
+    'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
+    'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
+    # Active OAuth2 authentication.
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.OAuth2Authentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.XMLParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.XMLRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+}
+
+REST_FRAMEWORK_EXTENSIONS = {
+    # If the cache isn't specify in the API, the time of the cache
+    # is specified here in seconds.
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
+}
+
+SWAGGER_SETTINGS = {
+    'enabled_methods': [
+        'get',
+        'post',
+        'put',
+        'delete'
+    ]
+}
+
+if (DEBUG):
     INSTALLED_APPS += (
         'debug_toolbar',
     )
@@ -382,6 +424,7 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+        'home_number': 5,
     },
     'paginator': {
         'folding_limit': 4

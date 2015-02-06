@@ -35,10 +35,10 @@
             {% for alert in alerts %}
                 <tr>
                     <td>{{ alert.get_scope_display }}</td>
-                    <td><a href="{% url "zds.member.views.details" alert.author.username %}">{{ alert.author.username }}</a></td>
+                    <td><a href="{% url "member-detail" alert.author.username %}">{{ alert.author.username }}</a></td>
                     <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
                     <td class="wide"><a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a></td>
-                    <td><a href="{% url "zds.member.views.details" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, {% blocktrans with timing=alert.comment.pubdate|format_date%} posté le {{ timing }} {% endblocktrans %}</td>
+                    <td><a href="{% url "member-detail" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, {% blocktrans with timing=alert.comment.pubdate|format_date%} posté le {{ timing }} {% endblocktrans %}</td>
                 </tr>
             {% endfor %}
         </tbody>

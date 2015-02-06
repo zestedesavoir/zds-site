@@ -22,11 +22,11 @@
 
 {% block content %}
     <p>
-        {% trans "Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement" %} {{ count }} {% trans "membres" %}).
+        {% trans "Sur cette page vous pourrez trouver la liste des membres inscrits au site (actuellement" %} {{ members.count }} {% trans "membres" %}).
     </p>
 
 
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
     <div class="authors">
         <ul>
@@ -42,5 +42,5 @@
         </ul>
     </div>
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}

@@ -390,7 +390,7 @@
                                         {%  endwith %}
                                     {% endwith %}
                                 {% else %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -402,7 +402,7 @@
 
                             <div>
                                 {% with profile=user.profile %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
                                        title="{% blocktrans %}Mon compte{% endblocktrans %}"
@@ -422,7 +422,7 @@
 
                                     <ul class="dropdown-list">
                                         <li>
-                                            <a href="{% url "zds.member.views.details" user.username %}">{% trans "Mon profil" %}</a>
+                                            <a href="{% url "member-detail" user.username %}">{% trans "Mon profil" %}</a>
                                         </li>
                                         <li>
                                             <a href="{% url "zds.member.views.tutorials" %}">{% trans "Mes tutoriels" %}</a>
@@ -434,7 +434,7 @@
                                             <a href="{% url "zds.gallery.views.gallery_list" %}">{% trans "Galeries d'images" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "zds.member.views.settings_profile" %}">{% trans "Paramètres" %}</a>
+                                            <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                                         </li>
 
                                         {% if perms.tutorial.change_tutorial %}
@@ -464,7 +464,7 @@
 
                         {% else %} {# Not logged #}
                             <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}">{% trans "Connexion" %}</a>
-                            <a href="{% url "zds.member.views.register_view" %}">{% trans "Inscription" %}</a>
+                            <a href="{% url "register-member" %}">{% trans "Inscription" %}</a>
                         {% endif %}
                     </div>
                 </div>
@@ -562,6 +562,7 @@
                 </ul>
 
                 <ul class="links">
+                    <li><a href="{% url "django.swagger.base.view" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}

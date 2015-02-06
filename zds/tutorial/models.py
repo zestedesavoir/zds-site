@@ -25,6 +25,7 @@ from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
+from zds.tutorial.managers import TutorialManager
 
 
 TYPE_CHOICES = (
@@ -113,6 +114,8 @@ class Tutorial(models.Model):
     js_support = models.BooleanField('Support du Javascript', default=False)
 
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
+
+    objects = TutorialManager()
 
     def __unicode__(self):
         return self.title

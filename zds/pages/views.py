@@ -75,7 +75,7 @@ def assoc_subscribe(request):
                 'adresse': data['adresse'],
                 'justification': data['justification'],
                 'username': user.username,
-                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('member-detail',
                                                                          kwargs={'user_name': user.username})
             }
             # Send email

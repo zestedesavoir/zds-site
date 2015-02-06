@@ -91,6 +91,13 @@ urlpatterns = patterns('',
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# API
+urlpatterns += patterns('',
+                        url(r'^api/', include('rest_framework_swagger.urls')),
+                        url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+                        url(r'^api/membres/', include('zds.member.api.urls')),
+                        )
+
 # SiteMap URLs
 urlpatterns += patterns('django.contrib.sitemaps.views',
                         (r'^sitemap\.xml$',
