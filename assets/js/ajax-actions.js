@@ -6,6 +6,19 @@
     "use strict";
 
     /**
+     * Toggle the text of the element by the text of an attribute
+     * 
+     * @param {string} dataAttribute
+     */
+    $.fn.toggleText = function(dataAttribute){
+        var text = this.text(),
+            textToPut = this.data(dataAttribute);
+
+        this.text(textToPut);
+        this.data(dataAttribute, text);
+    };
+
+    /**
      * Karma of the messages
      */
     $(".topic-message").on("click", ".upvote, .downvote", function(e){
@@ -145,7 +158,7 @@
     /**
      * Mark a topic solved
      */
-    $(".sidebar").on("click", ".solve", function(e){
+    $(".sidebar").on("click", "[data-ajax-input='solve-topic']", function(e){
         var $act = $(this),
             $form = $(this).parents("form:first");
 
@@ -166,14 +179,14 @@
             },
             success: function(data){
                 if(data.solved){
-                    $act.removeClass("green").addClass("blue").text("Marquer comme non résolu");
                     $form.find("input[name=solved]").val(1);
-                    $(".alert-box").removeClass("empty", 1000);
                 } else {
-                    $act.removeClass("blue").addClass("green").text("Marquer comme résolu");
                     $form.find("input[name=solved]").val(0);
-                    $(".alert-box").addClass("empty", 1000);
                 }
+
+                $act.toggleText("content-on-click");
+                $act.toggleClass("green blue");
+                $("[data-ajax-output='solve-topic']").toggleClass("empty");
             }
         });
         e.stopPropagation();

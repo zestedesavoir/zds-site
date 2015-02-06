@@ -63,7 +63,10 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-        <div class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}">
+        <div 
+            class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
+            data-ajax-output="solve-topic"
+        >
             {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
     
@@ -143,7 +146,17 @@
                 <input type="hidden" name="solved" value="1">
                 {% csrf_token %}
 
-                <button class="solve ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
+                <button
+                    class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}"
+                    type="submit" data-ajax-input="solve-topic"
+                    data-content-on-click="
+                        {% if topic.is_solved %}
+                            {% trans "Marquer comme résolu" %}
+                        {% else %}
+                            {% trans "Marquer comme non résolu" %}
+                        {% endif %}
+                    "
+                >
                     {% if topic.is_solved %}
                         {% trans "Marquer comme non résolu" %}
                     {% else %}
