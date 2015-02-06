@@ -183,7 +183,7 @@
     /**
      * Cite a message
      */
-    $(".message-actions").on("click", ".cite", function(e){
+    $(".message-actions").on("click", "[data-ajax-input='cite-message']", function(e){
         var $act = $(this),
             $editor = $(".md-editor");
 
@@ -191,13 +191,13 @@
             url: $act.attr("href"),
             dataType: "json",
             success: function(data){
-                $editor.val($editor.val() + data.text + "\n\n\n");
+                $editor.val($editor.val() + data.text + "\n\n");
             }
         });
 
         // scroll to the textarea and focus the textarea
-        $("html, body").animate({ scrollTop: $(".md-editor").offset().top }, 500);
-        $(".md-editor").focus();
+        $("html, body").animate({ scrollTop: $editor.offset().top }, 500);
+        $editor.focus();
 
         e.stopPropagation();
         e.preventDefault();
