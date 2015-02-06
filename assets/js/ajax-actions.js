@@ -206,7 +206,7 @@
     /**
      * Preview the message
      */
-    $(".message-bottom").on("click", ".btn-grey", function(e){
+    $(".message-bottom").on("click", "[data-ajax-input='preview-message']", function(e){
         var $form = $(this).parents("form:first");
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             text = $form.find("textarea[name=text]").val(),

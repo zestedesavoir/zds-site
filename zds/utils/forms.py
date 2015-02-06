@@ -22,7 +22,8 @@ class CommonLayoutEditor(Layout):
                     _(u'Aperçu'),
                     type='submit',
                     name='preview',
-                    css_class='btn-grey'),
+                    css_class='btn-grey',
+                    data_ajax_input='preview-message'),
                 HTML("</div>"),
                 HTML("</div>"),
             )
