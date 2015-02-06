@@ -180,8 +180,8 @@
                     {% else %}
                         <li>
                             <a href="#unreservation" class="open-modal ico-after lock blue">
-                                {% blocktrans %}
-                                    Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
+                                {% blocktrans with valido=validation.validator.username %}
+                                    Réservé par <strong>{{ valido }}</strong>, le retirer
                                 {% endblocktrans %}
                             </a>
                             <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
