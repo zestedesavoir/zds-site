@@ -294,7 +294,7 @@ class ProfileForm(MiniProfileForm):
 # to update email/username
 class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
 
-    username_new = forms.CharField(
+    username = forms.CharField(
         label=_(u'Nouveau pseudo'),
         max_length=User._meta.get_field('username').max_length,
         min_length=1,
@@ -306,7 +306,7 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
         )
     )
 
-    email_new = forms.EmailField(
+    email = forms.EmailField(
         label=_(u'Nouvelle adresse courriel'),
         max_length=User._meta.get_field('email').max_length,
         required=False,
@@ -325,8 +325,8 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('username_new'),
-            Field('email_new'),
+            Field('username'),
+            Field('email'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
             ),
@@ -335,12 +335,12 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
     def clean(self):
         cleaned_data = super(ChangeUserForm, self).clean()
 
-        username_new = cleaned_data.get('username_new')
-        if username_new is not None and not username_new.strip() == '':
+        username_new = cleaned_data.get('username')
+        if username_new is not None:
             self.validate_username(username_new)
 
-        email_new = cleaned_data.get('email_new')
-        if email_new is not None and not email_new.strip() == '':
+        email_new = cleaned_data.get('email')
+        if email_new is not None:
             self.validate_email(email_new)
 
         return cleaned_data

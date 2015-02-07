@@ -51,7 +51,7 @@ class ProfileUsernameValidator(Validator):
             elif User.objects.filter(username=value).count() > 0:
                 msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
             if msg is not None:
-                self.throw_error("username", msg)
+                self.throw_error('username', msg)
         return value
 
 

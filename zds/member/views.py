@@ -124,7 +124,7 @@ class UpdateMember(UpdateView):
         self.update_profile(profile, form)
         self.save_profile(profile)
 
-        return super(UpdateMember, self).form_valid(form)
+        return redirect(self.get_success_url())
 
     def update_profile(self, profile, form):
         cleaned_data_options = form.cleaned_data.get('options')
@@ -206,11 +206,11 @@ class UpdateUsernameEmailMember(UpdateMember):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
-        if form.data['username_new']:
-            profile.user.username = form.data['username_new']
-        elif form.data['email_new']:
-            if form.data['email_new'].strip() != '':
-                profile.user.email = form.data['email_new']
+        if form.data['username']:
+            profile.user.username = form.data['username']
+        if form.data['email']:
+            if form.data['email'].strip() != '':
+                profile.user.email = form.data['email']
 
     def get_success_url(self):
         profile = self.get_object()
