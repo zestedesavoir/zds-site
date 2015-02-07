@@ -3,4 +3,5 @@ django-debug-toolbar==1.2.2
 flake8==2.2.5
 autopep8==1.0.4
 sphinx==1.2.3
+sphinx_rtd_theme==0.1.6
 fake-factory==0.4.2

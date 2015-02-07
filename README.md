@@ -12,10 +12,10 @@
 
 Site internet communautaire codé à l'aide du framework [Django](https://www.djangoproject.com/) 1.6 et de [Python](https://www.python.org/) 2.7.
 
-* Lien du site : [zestedesavoir](http://www.zestedesavoir.com)
+[Voir l'instance en ligne](https://zestedesavoir.com).
 
 
-## Fonctionnalités implementées
+## Fonctionnalités implémentées
 
 - Tutoriels
 - Articles
@@ -28,7 +28,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 
 ## Fonctionnalités à venir
 
-Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zestedesavoir/zds-site/issues).
+Elles sont reportées essentiellement dans le [*bugtraker*](https://github.com/zestedesavoir/zds-site/issues).
 
 
 ## Comment démarrer une instance de ZdS ?
@@ -39,12 +39,12 @@ Elles sont reportées essentiellement dans le [bugtraker](https://github.com/zes
 - [Installation du backend sur Linux](http://zds-site.readthedocs.org/fr/latest/install/backend-linux-install.html)
 - [Installation du backend sur OS X](http://zds-site.readthedocs.org/fr/latest/install/backend-os-x-install.html)
 - [Installation du frontend](http://zds-site.readthedocs.org/fr/latest/install/frontend-install.html)
-- [Installation de Solr](doc/install-solr.md) pour gérer la recherche
+- [Installation de Solr](http://zds-site.readthedocs.org/fr/latest/install/install-solr.html) pour gérer la recherche
 
 
 ### Mettre à jour votre version locale de ZdS
 
-Après avoir mis à jour votre dépot, vous devez executer les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
+Après avoir mis à jour votre dépôt, vous devez exécuter les commandes suivantes (depuis la racine de votre projet) pour mettre à jour les dépendances.
 
 ```console
 pip install --upgrade -r requirements.txt -r requirements-dev.txt
@@ -80,23 +80,25 @@ Cela va créer plusieurs entitées :
 
 ### La documentation complète
 
-En ligne : http://zds-site.readthedocs.org/
+[Voir la documentation en ligne](http://zds-site.readthedocs.org).
 
-La documentation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site. Les sources se trouvent [ici](doc/sphinx/source/).
+La documentation de ZdS est générée par Sphinx, et elle doit être mise à jour à chaque modification ou ajout d'une fonctionnalité du site. Les sources se trouvent [ici](doc/source/).
 
-Pour générer la documentation en local, rendez vous dans le répertoire `zds-site/doc/sphinx` depuis votre terminal, et lancez la commande `make html`. Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/sphinx/build/html/index.html`
+Pour générer la documentation en local, rendez-vous dans le répertoire `zds-site/doc/` depuis votre terminal, et lancez la commande `make html`. Vous pourrez ensuite la consulter en ouvrant le fichier `zds-site/doc/build/html/index.html`
 
 
-### Conseils de developpement
+### Conseils de développement
 
 Vous trouverez tout sur [la page dédiée de la documentation](CONTRIBUTING.md)
 
 
 ## En savoir plus
 
-- [Comment déployer ZDS sur un serveur de production ?](doc/deploy.md)
+- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploiement-production.html)
 - [Comment contribuer et conseils de développement](CONTRIBUTING.md)
 - [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
-- [Les détails du workflow utilisé sur Zeste de Savoir](doc/workflow.md)
+- [Les détails du workflow utilisé sur Zeste de Savoir](http://zds-site.readthedocs.org/fr/latest/workflow.html)
 
-Zeste de Savoir est basé sur un fork de [Progdupeu.pl](http://progdupeu.pl) ([Dépôt Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/)).
+-----
+
+Zeste de Savoir est basé sur un fork de [progdupeu.pl](http://progdupeu.pl) ([voir le dépôt sur Bitbucket](https://bitbucket.org/MicroJoe/progdupeupl/)).
