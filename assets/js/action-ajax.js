@@ -153,4 +153,28 @@
         e.stopPropagation();
         e.preventDefault();
     });
+    $(".topic-message").on("click", "button.tick", function(e){
+        var $button = $(this),
+            $form = $button.parents("form:first"),
+            $message = $form.parents("article"),
+            $usefulText = $message.find(".message-helpful"),
+            csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            data: {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken
+            },
+            success: function(useful){
+                $message.toggleClass("helpful");
+                $button.toggleClass("green");
+                $usefulText.toggleClass("hidden");
+                $button.blur();
+            }
+        });
+
+        e.stopPropagation();
+        e.preventDefault();
+    });
 })(jQuery);
