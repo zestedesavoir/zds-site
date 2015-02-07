@@ -168,7 +168,6 @@ INSTALLED_APPS = (
     'easy_thumbnails.optimize',
     'south',
     'crispy_forms',
-    'email_obfuscator',
     'haystack',
     'munin',
     'social.apps.django_app.default',
