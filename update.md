@@ -119,3 +119,16 @@ npm
 Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lancer la commande `sudo npm install -g npm`.
 
 Faire pointer nginx sur `static/` au lieu de `dist/`.
+
+
+Actions à faire pour mettre en prod la version : v1.6
+=====================================================
+
+Issue #1724
+-----------
+
+Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les fichier statiques :
+
+```python
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
+```
