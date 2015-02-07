@@ -30,24 +30,24 @@ def get_markdown_instance(inline=False, js_support=False):
     zdsext = ZdsExtension({"inline": inline, "emoticons": smileys, "js_support": js_support})
     # Generate parser
     md = markdown.Markdown(extensions=(zdsext,),
-                           safe_mode = 'escape',
+                           safe_mode='escape',
                            # Protect use of html by escape it
-                           inline = inline,
+                           inline=inline,
                            # Parse only inline content.
-                           enable_attributes = False,
+                           enable_attributes=False,
                            # Disable the conversion of attributes.
                            # This could potentially allow an
                            # untrusted user to inject JavaScript
                            # into documents.
-                           tab_length = 4,
+                           tab_length=4,
                            # Length of tabs in the source.
                            # This is the default value
-                           output_format = 'html5',
+                           output_format='html5',
                            # html5 output
                            # This is the default value
-                           smart_emphasis = True,
+                           smart_emphasis=True,
                            # Enable smart emphasis for underscore syntax
-                           lazy_ol = True,
+                           lazy_ol=True,
                            # Enable smart ordered list start support
                            )
     return md
