@@ -4,9 +4,11 @@ from rest_framework import filters
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
-from rest_framework.response import Response
+from rest_framework_extensions.key_constructor import bits
+from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
 from zds.member.api.serializers import ProfileListSerializer, ProfileCreateSerializer, \
     ProfileDetailSerializer, ProfileValidatorSerializer
@@ -18,6 +20,20 @@ from zds.member.commons import TemporaryReadingOnlySanction, ReadingOnlySanction
 from zds.member.models import Profile
 
 
+class PagingSearchListKeyConstructor(DefaultKeyConstructor):
+    pagination = bits.PaginationKeyBit()
+    search = bits.QueryParamsKeyBit(['search'])
+    list_sql_query = bits.ListSqlQueryKeyBit()
+    unique_view_id = bits.UniqueViewIdKeyBit()
+
+
+class DetailKeyConstructor(DefaultKeyConstructor):
+    format = bits.FormatKeyBit()
+    language = bits.LanguageKeyBit()
+    retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
+    unique_view_id = bits.UniqueViewIdKeyBit()
+
+
 class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     """
     Profile resource to list and register.
@@ -26,9 +42,10 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     queryset = Profile.objects.all_members_ordered_by_date_joined()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('user__username',)
+    list_key_func = PagingSearchListKeyConstructor()
 
-    @etag()
-    @cache_response()
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
         Lists all users in the system.
@@ -84,9 +101,10 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
     """
 
     queryset = Profile.objects.all()
+    obj_key_func = DetailKeyConstructor()
 
-    @etag()
-    @cache_response()
+    @etag(obj_key_func)
+    @cache_response(key_func=obj_key_func)
     def get(self, request, *args, **kwargs):
         """
         Gets a user given by its identifier.
@@ -107,7 +125,7 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
                                          is_authenticated=self.request.user.is_authenticated())
         return Response(serializer.data)
 
-    @etag(rebuild_after_method_evaluation=True)
+    @etag(obj_key_func, rebuild_after_method_evaluation=True)
     def put(self, request, *args, **kwargs):
         """
         Updates a user given by its identifier.
