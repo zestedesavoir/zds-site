@@ -140,7 +140,7 @@
                 /**
                  * Sidebar link variations / icons
                  */
-                &.unread {
+                &.unread, &.selected {
                     font-weight: bold;
                 }
 
