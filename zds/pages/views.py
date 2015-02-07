@@ -146,3 +146,8 @@ def alerts(request):
     return render(request, 'pages/alerts.html', {
         'alerts': alerts,
     })
+
+
+def custom_error_500(request):
+    """Custom view for 500 errors"""
+    return render(request, '500.html')
