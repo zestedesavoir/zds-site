@@ -26,7 +26,6 @@ from django.views.generic import DetailView, UpdateView, CreateView
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm, \
     ForgotPasswordForm, NewPasswordForm, OldTutoForm, PromoteMemberForm, KarmaForm
 from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
-
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
@@ -43,7 +42,6 @@ from zds.utils.tokens import generate_token
 
 
 class MemberList(ZdSPagingListView):
-
     """Displays the list of registered users."""
 
     context_object_name = 'members'
@@ -55,7 +53,6 @@ class MemberList(ZdSPagingListView):
 
 
 class MemberDetail(DetailView):
-
     """Displays details about a profile."""
 
     context_object_name = 'usr'
@@ -82,7 +79,6 @@ class MemberDetail(DetailView):
 
 
 class UpdateMember(UpdateView):
-
     """Updates a profile."""
 
     form_class = ProfileForm
@@ -107,7 +103,7 @@ class UpdateMember(UpdateView):
             'hover_or_click': profile.hover_or_click,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign
-            })
+        })
 
         return form
 
@@ -157,7 +153,6 @@ class UpdateMember(UpdateView):
 
 
 class UpdateAvatarMember(UpdateMember):
-
     """Update avatar of a user logged."""
 
     form_class = ImageAsAvatarForm
@@ -178,13 +173,20 @@ class UpdateAvatarMember(UpdateMember):
 
 
 class UpdatePasswordMember(UpdateMember):
-
     """User's settings about his password."""
 
     form_class = ChangePasswordForm
 
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.user, request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
     def get_form(self, form_class):
-        return form_class(self.request.user, self.request.POST)
+        return form_class(self.request.user)
 
     def update_profile(self, profile, form):
         profile.user.set_password(form.data['password_new'])
@@ -197,7 +199,6 @@ class UpdatePasswordMember(UpdateMember):
 
 
 class UpdateUsernameEmailMember(UpdateMember):
-
     """User's settings about his username and email."""
 
     form_class = ChangeUserForm
@@ -219,7 +220,6 @@ class UpdateUsernameEmailMember(UpdateMember):
 
 
 class RegisterView(CreateView, ProfileCreate, TokenGenerator):
-
     """Create a profile."""
 
     form_class = RegisterForm
@@ -328,7 +328,7 @@ def unregister(request):
     # - unpublished tutorials with only the unregistering member as an author
     # - unpublished articles with only the unregistering member as an author
     # - all category associated with those entites (have a look on article.delete_entity_and_tree
-    #   and tutorial.delete_entity_and_tree
+    # and tutorial.delete_entity_and_tree
     # So concerning galleries, we just have for us
     # - "personnal galleries" with only one owner (unregistering user)
     # - "personnal galleries" with more than one owner
@@ -587,8 +587,8 @@ def login_view(request):
     csrf_tk["form"] = form
     csrf_tk["next_page"] = next_page
     return render(request, "member/login.html",
-                           {"form": form,
-                            "csrf_tk": csrf_tk})
+                  {"form": form,
+                   "csrf_tk": csrf_tk})
 
 
 @login_required
@@ -629,7 +629,7 @@ def forgot_password(request):
                  "site_name": settings.ZDS_APP['site']['name'],
                  "site_url": settings.ZDS_APP['site']['url'],
                  "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-            message_txt = get_template("email/forgot_password/confirm.txt") .render(Context(
+            message_txt = get_template("email/forgot_password/confirm.txt").render(Context(
                 {"username": usr.username,
                  "site_name": settings.ZDS_APP['site']['name'],
                  "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
@@ -640,7 +640,7 @@ def forgot_password(request):
             return render(request, "member/forgot_password/success.html")
         else:
             return render(request, "member/forgot_password/index.html",
-                                   {"form": form})
+                          {"form": form})
     form = ForgotPasswordForm()
     return render(request, "member/forgot_password/index.html", {"form": form})
 
@@ -691,7 +691,7 @@ def active_account(request):
 
     if datetime.now() > token.date_end:
         return render(request, "member/register/token_failed.html",
-                               {"token": token})
+                      {"token": token})
     usr.is_active = True
     usr.save()
 
@@ -724,7 +724,7 @@ def active_account(request):
         u'En espérant que tu te plairas ici, '
         u'je te laisse maintenant faire un petit tour.'
         u'\n\n'
-        u'Clem\'')\
+        u'Clem\'') \
         .format(username=usr.username,
                 tutorials_url=settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
                 articles_url=settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
@@ -767,14 +767,12 @@ def generate_token_account(request):
     subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
     from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
-    message_html = get_template("email/register/confirm.html"
-                                ) \
+    message_html = get_template("email/register/confirm.html") \
         .render(Context({"username": token.user.username,
                          "site_url": settings.ZDS_APP['site']['url'],
                          "site_name": settings.ZDS_APP['site']['name'],
                          "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-    message_txt = get_template("email/register/confirm.txt"
-                               ) \
+    message_txt = get_template("email/register/confirm.txt") \
         .render(Context({"username": token.user.username,
                          "site_name": settings.ZDS_APP['site']['name'],
                          "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
@@ -961,10 +959,11 @@ def settings_promote(request, user_pk):
 
         return redirect(profile.get_absolute_url())
 
-    form = PromoteMemberForm(initial={'superuser': user.is_superuser,
-                                      'groups': user.groups.all(),
-                                      'activation': user.is_active
-                                      })
+    form = PromoteMemberForm(initial={
+        'superuser': user.is_superuser,
+        'groups': user.groups.all(),
+        'activation': user.is_active
+    })
     return render(request, 'member/settings/promote.html', {
         "usr": user,
         "profile": profile,

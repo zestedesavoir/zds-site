@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
@@ -15,6 +14,7 @@ from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator
 from zds.member.models import Profile, listing, KarmaNote
 from zds.utils.forms import CommonLayoutModalText
 
+
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
 MAX_PASSWORD_LENGTH = 76
@@ -23,7 +23,6 @@ MIN_PASSWORD_LENGTH = 6
 
 
 class OldTutoForm(forms.Form):
-
     id = forms.ChoiceField(
         label=_(u'Ancien Tutoriel'),
         required=True,
@@ -248,7 +247,7 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', _(u"Afficher les signatures")),
             ('hover_or_click', _(u"Cochez pour dérouler les menus au survol")),
             ('email_for_answer', _(u'Recevez un courriel lorsque vous '
-             u'recevez une réponse à un message privé')),
+                                   u'recevez une réponse à un message privé')),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -293,7 +292,6 @@ class ProfileForm(MiniProfileForm):
 
 # to update email/username
 class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
-
     username = forms.CharField(
         label=_(u'Nouveau pseudo'),
         max_length=User._meta.get_field('username').max_length,
@@ -355,21 +353,19 @@ class ChangePasswordForm(forms.Form):
         label=_(u'Nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
     )
 
     password_old = forms.CharField(
         label=_(u'Mot de passe actuel'),
-        max_length=MAX_PASSWORD_LENGTH,
-        min_length=MIN_PASSWORD_LENGTH,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
     )
 
     password_confirm = forms.CharField(
         label=_(u'Confirmer le nouveau mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
     )
 
     def __init__(self, user, *args, **kwargs):
