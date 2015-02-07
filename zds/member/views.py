@@ -112,6 +112,8 @@ class UpdateMember(UpdateView):
         return form
 
     def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
         form = self.form_class(request.POST)
 
         if form.is_valid():
@@ -120,7 +122,7 @@ class UpdateMember(UpdateView):
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
-        profile = self.get_object()
+        profile = self.object
         self.update_profile(profile, form)
         self.save_profile(profile)
 
