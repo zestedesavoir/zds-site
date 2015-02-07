@@ -25,6 +25,6 @@ easy-thumbnails==2.2
 # Api dependencies
 djangorestframework==3.0.2
 django-filter==0.8
-django-oauth2-provider==0.2.6.1
+django-oauth-toolkit==0.7.2
 drf-extensions==0.2.6
 django-rest-swagger==0.2.8

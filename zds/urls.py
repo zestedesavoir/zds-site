@@ -94,7 +94,7 @@ urlpatterns = patterns('',
 # API
 urlpatterns += patterns('',
                         url(r'^api/', include('rest_framework_swagger.urls')),
-                        url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+                        url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
                         url(r'^api/membres/', include('zds.member.api.urls')),
                         )
 

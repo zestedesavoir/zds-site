@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
-from provider.oauth2.models import AccessToken, Client
+from oauth2_provider.models import Application, AccessToken
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
@@ -846,16 +846,15 @@ class MemberDetailBanAPITest(APITestCase):
 
 
 def create_oauth2_client(user):
-    client = Client.objects.create(user=user,
-                                   name='zds',
-                                   url='zestedesavoir.com',
-                                   client_type=1)
+    client = Application.objects.create(user=user,
+                                        client_type=Application.CLIENT_CONFIDENTIAL,
+                                        authorization_grant_type=Application.GRANT_PASSWORD)
     client.save()
     return client
 
 
 def authenticate_client(client, clientAuth, username, password):
-    client.post('/oauth2/access_token', {
+    client.post('/oauth2/token/', {
         'client_id': clientAuth.client_id,
         'client_secret': clientAuth.client_secret,
         'username': username,
