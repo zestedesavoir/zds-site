@@ -49,6 +49,7 @@
                             type="submit"
                             name="preview"
                             class="btn-grey"
+                            data-ajax-input="preview-message"
                             {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
                         >
                             {% trans "Aperçu" %}
