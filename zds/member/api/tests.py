@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from oauth2_provider.models import Application, AccessToken
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -14,11 +13,6 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenRegister
 
 
-overrided_drf = settings.REST_FRAMEWORK
-overrided_drf['MAX_PAGINATE_BY'] = 20
-
-
-@override_settings(REST_FRAMEWORK=overrided_drf)
 class MemberListAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
