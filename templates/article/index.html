@@ -66,14 +66,10 @@
 
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-bloc"
-           data-title="Catégories de tutoriels"
+           data-title="Catégories des articles"
     >
-        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
-            {% trans "Nouveau tutoriel" %}
-        </a>
-
-        <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="new-btn ico-after help blue">
-            {% trans "Aider les auteurs" %}
+        <a href="{% url "zds.article.views.new" %}" class="new-btn ico-after more blue">
+            {% trans "Nouvel article" %}
         </a>
 
         <h3>{% blocktrans %} Catégories <span class="wide">des articles</span> {% endblocktrans %}</h3>
@@ -102,13 +98,13 @@
             <h3>{% trans "Flux" %}</h3>
             <ul>
                 <li>
-                    <a href="{% url "tutorial-feed-rss" %}" class="ico-after rss blue">
-                        {% trans "Nouveaux tutoriels (RSS)" %}
+                    <a href="{% url "article-feed-rss" %}" class="ico-after rss blue">
+                        {% trans "Nouveaux articles (RSS)" %}
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "tutorial-feed-atom" %}" class="ico-after rss blue">
-                        {% trans "Nouveaux tutoriels (ATOM)" %}
+                    <a href="{% url "article-feed-atom" %}" class="ico-after rss blue">
+                        {% trans "Nouveaux articles (ATOM)" %}
                     </a>
                 </li>
             </ul>
