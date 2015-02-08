@@ -25,6 +25,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
+from zds.utils.models import CommentLike
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -268,6 +269,11 @@ class MemberTests(TestCase):
         editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
         editedAnswer.editor = user.user
         editedAnswer.save()
+        upvoted_answer = PostFactory(topic=answeredTopic, author=user2.user, position=4)
+        upvoted_answer.like += 1
+        upvoted_answer.save()
+        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
+
         privateTopic = PrivateTopicFactory(author=user.user)
         privateTopic.participants.add(user2.user)
         privateTopic.save()
@@ -342,6 +348,8 @@ class MemberTests(TestCase):
         self.assertEquals(aloneGallery.get_linked_users().count(), 1)
         self.assertEquals(sharedGallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
     def test_sanctions(self):
         """
