@@ -1,9 +1,12 @@
 # coding: utf-8
 
 from collections import OrderedDict
+import itertools
+
 from django import template
 from django.conf import settings
-import itertools
+
+from zds.article.models import Article
 from zds.forum.models import Forum, Topic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import CategorySubCategory, Tag
@@ -75,6 +78,37 @@ def top_categories_tuto(user):
     catsubcats = CategorySubCategory.objects \
         .filter(is_main=True)\
         .filter(subcategory__in=subcats_tutos)\
+        .order_by('category__position', 'subcategory__title')\
+        .select_related('subcategory', 'category')\
+        .values('category__title', 'subcategory__title', 'subcategory__slug')\
+        .all()
+
+    for csc in catsubcats:
+        key = csc['category__title']
+
+        if key in cats:
+            cats[key].append((csc['subcategory__title'], csc['subcategory__slug']))
+        else:
+            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
+
+    return cats
+
+
+@register.filter('top_categories_article')
+def top_categories_article(user):
+    """
+        Get all the categories and their related subcategories
+        associed with an existing articles. The result is sorted
+        by alphabetic order.
+    """
+
+    # Ordered dict is use to keep order
+    cats = OrderedDict()
+
+    subcats_articles = Article.objects.values('subcategory').filter(sha_public__isnull=False).all()
+    catsubcats = CategorySubCategory.objects \
+        .filter(is_main=True)\
+        .filter(subcategory__in=subcats_articles)\
         .order_by('category__position', 'subcategory__title')\
         .select_related('subcategory', 'category')\
         .values('category__title', 'subcategory__title', 'subcategory__slug')\
