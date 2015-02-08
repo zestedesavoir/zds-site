@@ -343,6 +343,8 @@ ZDS_APP = {
         'email_contact': u"communication@zestedesavoir.com",
         'email_noreply': u"noreply@zestedesavoir.com",
         'repository': u"https://github.com/zestedesavoir/zds-site",
+        'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
+        'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
         'short_description': u"",
         'long_description': u"Zeste de Savoir est un site de partage de connaissances "
                             u"sur lequel vous trouverez des tutoriels de tous niveaux, "

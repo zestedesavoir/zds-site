@@ -117,3 +117,6 @@ if settings.SERVE:
                                 'django.views.static.serve',
                                 {'document_root': settings.MEDIA_ROOT}),
                             )
+
+# custom view for 500 errors
+handler500 = "zds.pages.views.custom_error_500"
