@@ -7,7 +7,7 @@
         {% trans "Ce sujet est verrouillé" %}.
     </div>
 {% elif not user.is_authenticated %}
-    <div class="alert-box warning alert-box-not-closable">
+    <div class="alert-box info alert-box-not-closable">
         {% trans "Vous devez être connecté pour pouvoir poster un message" %}. <br>
         <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}" class="btn alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
@@ -19,11 +19,11 @@
         </p>
     </div>
 {% elif topic.antispam %}
-    <div class="alert-box warning ico-after alert light">
+    <div class="alert-box ico-after light">
         {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood" %}.
     </div>
 {% elif topic.alone %}
-    <div class="alert-box warning cross light">
+    <div class="alert-box info cross light">
         {% trans "Vous êtes seul dans cette conversation" %}.
     </div>
 {% else %}
