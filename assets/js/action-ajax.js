@@ -99,11 +99,11 @@
                 if(data.solved){
                     $act.removeClass("green").addClass("blue").text("Marquer comme non résolu");
                     $form.find("input[name=solved]").val(1);
-                    $(".alert-box").removeClass("empty", 1000);
+                    $(".success.alert-box").removeClass("empty", 1000);
                 } else {
                     $act.removeClass("blue").addClass("green").text("Marquer comme résolu");
                     $form.find("input[name=solved]").val(0);
-                    $(".alert-box").addClass("empty", 1000);
+                    $(".success.alert-box").addClass("empty", 1000);
                 }
             }
         });
