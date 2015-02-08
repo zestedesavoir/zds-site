@@ -18,6 +18,7 @@ from django.http import HttpRequest
 
 from zds.article.models import Article
 from zds.forum.models import Post, Topic
+from zds.member.managers import ProfileManager
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
 
