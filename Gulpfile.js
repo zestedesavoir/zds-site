@@ -64,7 +64,10 @@ gulp.task("bundle", function() {
       .pipe($.streamify($.size({ title: "App file" })))
       .pipe(gulp.dest(destDir))
       .pipe($.rename({ suffix: ".min" }))
-      .pipe($.streamify($.uglify()))
+      .pipe($.streamify($.uglify().on('error', $.notify.onError({
+        title: "Javascript error",
+        message: "<%= error.message %>"
+      }))))
       .pipe($.streamify($.size({ title: "App file (minified)" })))
       .pipe(gulp.dest(destDir));
   }
@@ -99,7 +102,10 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
     .pipe(gulp.dest(destDir + scriptsDir))
     .pipe($.rename({ suffix: ".min" }))
     .pipe($.size({ title: "Scripts (vendors, minified)" }))
-    .pipe($.uglify())
+    .pipe($.uglify().on('error', $.notify.onError({
+      title: "Javascript error",
+      message: "<%= error.message %>"
+    })))
     .pipe(gulp.dest(destDir + scriptsDir));
 });
 
@@ -179,7 +185,10 @@ gulp.task("scripts", function() {
     .pipe($.size({ title: "Scripts" }))
     .pipe(gulp.dest(destDir + scriptsDir))
     .pipe($.rename({ suffix: ".min" }))
-    .pipe($.uglify())
+    .pipe($.uglify().on('error', $.notify.onError({
+      title: "Javascript error",
+      message: "<%= error.message %>"
+    })))
     .pipe($.size({ title: "Scripts (minified)" }))
     .pipe(gulp.dest(destDir + scriptsDir));
 });
@@ -202,7 +211,10 @@ gulp.task("merge-scripts", ["vendors", "scripts"], function() {
     .pipe($.size({ title: "Scripts (all)" }))
     .pipe(gulp.dest(destDir + scriptsDir))
     .pipe($.rename({ suffix: ".min" }))
-    .pipe($.uglify())
+    .pipe($.uglify().on('error', $.notify.onError({
+      title: "Javascript error",
+      message: "<%= error.message %>"
+    })))
     .pipe($.size({ title: "Scripts (all, minified)" }))
     .pipe(gulp.dest(destDir + scriptsDir));
 });
