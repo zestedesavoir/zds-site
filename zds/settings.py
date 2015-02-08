@@ -229,6 +229,14 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/hour',
+        'user': '2000/hour'
+    }
 }
 
 REST_FRAMEWORK_EXTENSIONS = {
