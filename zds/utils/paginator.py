@@ -17,7 +17,6 @@ class ZdSPagingListView(ListView):
         context_object_name = self.get_context_object_name(queryset)
         paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
         if page_size:
-            paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
             context = {
                 'paginator': paginator,
                 'page_obj': page,
