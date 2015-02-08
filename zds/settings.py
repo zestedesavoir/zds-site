@@ -376,7 +376,7 @@ ZDS_APP = {
                 'code': u"GPL v3",
                 'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
                 'provider_name': u"Progdupeupl",
-                'provider_url': u"http://progdupeu.pl",
+                'provider_url': u"http://pdp.microjoe.org",
             },
             'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
                                   u'ences-sur-zeste-de-savoir/',
