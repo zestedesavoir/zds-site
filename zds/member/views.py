@@ -22,10 +22,14 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView
-
-from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm, \
-    ForgotPasswordForm, NewPasswordForm, OldTutoForm, PromoteMemberForm, KarmaForm
-from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
+    ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
+    OldTutoForm, PromoteMemberForm, KarmaForm
+from zds.utils.models import Comment, CommentLike, CommentDislike
+import json
+import pygal
+from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
+    get_info_old_tuto, logout_user, KarmaNote
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
@@ -35,7 +39,6 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorial.models import Tutorial
-from zds.utils.models import Comment
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -298,6 +301,15 @@ def unregister(request):
                 article.authors.add(external)
             article.authors.remove(current)
             article.save()
+    # comments likes / dislikes
+    for like in CommentLike.objects.filter(user=current):
+        like.comments.like -= 1
+        like.comments.save()
+        like.delete()
+    for dislike in CommentDislike.objects.filter(user=current):
+        dislike.comments.dislike -= 1
+        dislike.comments.save()
+        dislike.delete()
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author=current):
         message.author = anonymous
