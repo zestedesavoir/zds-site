@@ -152,7 +152,7 @@ def interventions_privatetopics(user):
 @register.filter(name='alerts_list')
 def alerts_list(user):
     total = []
-    alerts = Alert.objects.select_related('author').all().order_by('-pubdate')[:10]
+    alerts = Alert.objects.select_related('author', 'comment').all().order_by('-pubdate')[:10]
     for alert in alerts:
         if alert.scope == Alert.FORUM:
             post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
