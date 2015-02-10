@@ -1061,6 +1061,9 @@ def followed_topics(request):
 
 
 def complete_topic(request):
+    if not request.GET.get('q', None):
+        return HttpResponse("{}", content_type='application/json')
+
     sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
 
     suggestions = {}
