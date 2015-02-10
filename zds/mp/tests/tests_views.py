@@ -148,7 +148,7 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         # create many subjects (at least two pages)
-        for i in range(1, settings.ZDS_APP['forum']['topics_per_page']+5):
+        for i in range(1, settings.ZDS_APP['forum']['topics_per_page'] + 5):
             topic = PrivateTopicFactory(author=self.profile1.user)
             topic.participants.add(self.profile2.user)
             PrivatePostFactory(
@@ -287,11 +287,12 @@ class TopicViewTest(TestCase):
         self.assertTrue(login_check)
 
         # create many subjects (at least two pages)
-        for i in range(1, settings.ZDS_APP['forum']['topics_per_page']+5):
+        post = None
+        for i in range(1, settings.ZDS_APP['forum']['topics_per_page'] + 5):
             post = PrivatePostFactory(
                 privatetopic=self.topic1,
                 author=self.profile1.user,
-                position_in_topic=i+2)
+                position_in_topic=i + 2)
 
         response = self.client.get(reverse('zds.mp.views.topic',
                                            kwargs={'topic_pk': self.topic1.pk,
@@ -715,20 +716,19 @@ class AnswerViewTest(TestCase):
     def test_unicode_title_answer(self):
         """To test unicode title."""
 
-        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
-                                           title=u'Title with accent àéè')
-        unicodeTopic.participants.add(self.profile2.user)
-        unicodePost = PrivatePostFactory(
-            privatetopic=unicodeTopic,
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title=u'Title with accent àéè')
+        unicode_topic.participants.add(self.profile2.user)
+        unicode_post = PrivatePostFactory(
+            privatetopic=unicode_topic,
             author=self.profile1.user,
             position_in_topic=1)
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet=' + str(unicodeTopic.pk),
+            + '?sujet=' + str(unicode_topic.pk),
             {
                 'text': 'answer',
-                'last_post': unicodePost.pk
+                'last_post': unicode_post.pk
             },
             follow=True
         )
@@ -737,20 +737,19 @@ class AnswerViewTest(TestCase):
     def test_unicode_subtitle_answer(self):
         """To test unicode subtitle."""
 
-        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
-                                           subtitle=u'Subtitle with accent àéè')
-        unicodeTopic.participants.add(self.profile2.user)
-        unicodePost = PrivatePostFactory(
-            privatetopic=unicodeTopic,
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle=u'Subtitle with accent àéè')
+        unicode_topic.participants.add(self.profile2.user)
+        unicode_post = PrivatePostFactory(
+            privatetopic=unicode_topic,
             author=self.profile1.user,
             position_in_topic=1)
 
         response = self.client.post(
             reverse('zds.mp.views.answer')
-            + '?sujet=' + str(unicodeTopic.pk),
+            + '?sujet=' + str(unicode_topic.pk),
             {
                 'text': 'answer',
-                'last_post': unicodePost.pk
+                'last_post': unicode_post.pk
             },
             follow=True
         )

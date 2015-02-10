@@ -9,7 +9,7 @@ class PrivatePostAdmin(admin.ModelAdmin):
 
     """Representation of PrivatePost model in the admin interface."""
 
-    list_display = ('privatetopic', 'author',  'pubdate', 'update', 'position_in_topic')
+    list_display = ('privatetopic', 'author', 'pubdate', 'update', 'position_in_topic')
 
 
 class PrivateTopicAdmin(admin.ModelAdmin):

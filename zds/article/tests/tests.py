@@ -130,7 +130,7 @@ class ArticleTests(TestCase):
         )
         # now that we have a first image, let's change it
 
-        oldAddress = self.article.image.name
+        old_address = self.article.image.name
         self.article.image = self.logo2
         self.article.save()
         self.assertEqual(
@@ -143,7 +143,7 @@ class ArticleTests(TestCase):
         )
         self.assertEqual(
             os.path.exists(
-                os.path.join(settings.MEDIA_ROOT, oldAddress)
+                os.path.join(settings.MEDIA_ROOT, old_address)
             ),
             False
         )
@@ -388,7 +388,7 @@ class ArticleTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_workflow_licence(self):
-        '''Ensure the behavior of licence on articles'''
+        """Ensure the behavior of licence on articles"""
 
         # create a new licence
         new_licence = LicenceFactory(code='CC_BY', title='Creative Commons BY')

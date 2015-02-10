@@ -220,58 +220,58 @@ class MemberTests(TestCase):
         # unregister this user and check that he is well removed in all contents.
         user = ProfileFactory()
         user2 = ProfileFactory()
-        aloneGallery = GalleryFactory()
-        UserGalleryFactory(gallery=aloneGallery, user=user.user)
-        sharedGallery = GalleryFactory()
-        UserGalleryFactory(gallery=sharedGallery, user=user.user)
-        UserGalleryFactory(gallery=sharedGallery, user=user2.user)
+        alone_gallery = GalleryFactory()
+        UserGalleryFactory(gallery=alone_gallery, user=user.user)
+        shared_gallery = GalleryFactory()
+        UserGalleryFactory(gallery=shared_gallery, user=user.user)
+        UserGalleryFactory(gallery=shared_gallery, user=user2.user)
         # first case : a published tutorial with only one author
-        publishedTutorialAlone = PublishedMiniTutorial(light=True)
-        publishedTutorialAlone.authors.add(user.user)
-        publishedTutorialAlone.save()
+        published_tutorial_alone = PublishedMiniTutorial(light=True)
+        published_tutorial_alone.authors.add(user.user)
+        published_tutorial_alone.save()
         # second case : a published tutorial with two authors
-        publishedTutorial2 = PublishedMiniTutorial(light=True)
-        publishedTutorial2.authors.add(user.user)
-        publishedTutorial2.authors.add(user2.user)
-        publishedTutorial2.save()
+        published_tutorial_2 = PublishedMiniTutorial(light=True)
+        published_tutorial_2.authors.add(user.user)
+        published_tutorial_2.authors.add(user2.user)
+        published_tutorial_2.save()
         # third case : a private tutorial with only one author
-        writingTutorialAlone = MiniTutorialFactory(light=True)
-        writingTutorialAlone.authors.add(user.user)
-        writingTutorialAlone.save()
-        writingTutorialAloneGallerPath = writingTutorialAlone.gallery.get_gallery_path()
-        writingTutorialAlonePath = writingTutorialAlone.get_path()
+        writing_tutorial_alone = MiniTutorialFactory(light=True)
+        writing_tutorial_alone.authors.add(user.user)
+        writing_tutorial_alone.save()
+        writing_tutorial_alone_galler_path = writing_tutorial_alone.gallery.get_gallery_path()
+        writing_tutorial_alone_path = writing_tutorial_alone.get_path()
         # fourth case : a private tutorial with at least two authors
-        writingTutorial2 = MiniTutorialFactory(light=True)
-        writingTutorial2.authors.add(user.user)
-        writingTutorial2.authors.add(user2.user)
-        writingTutorial2.save()
+        writing_tutorial_2 = MiniTutorialFactory(light=True)
+        writing_tutorial_2.authors.add(user.user)
+        writing_tutorial_2.authors.add(user2.user)
+        writing_tutorial_2.save()
         self.client.login(username=self.staff.username, password="hostel77")
         # same thing for articles
-        publishedArticleAlone = PublishedArticleFactory()
-        publishedArticleAlone.authors.add(user.user)
-        publishedArticleAlone.save()
-        publishedArticle2 = PublishedArticleFactory()
-        publishedArticle2.authors.add(user.user)
-        publishedArticle2.authors.add(user2.user)
-        publishedArticle2.save()
-        writingArticleAlone = ArticleFactory()
-        writingArticleAlone.authors.add(user.user)
-        writingArticleAlone.save()
-        writingArticle2 = ArticleFactory()
-        writingArticle2.authors.add(user.user)
-        writingArticle2.authors.add(user2.user)
-        writingArticle2.save()
+        published_article_alone = PublishedArticleFactory()
+        published_article_alone.authors.add(user.user)
+        published_article_alone.save()
+        published_article_2 = PublishedArticleFactory()
+        published_article_2.authors.add(user.user)
+        published_article_2.authors.add(user2.user)
+        published_article_2.save()
+        writing_article_alone = ArticleFactory()
+        writing_article_alone.authors.add(user.user)
+        writing_article_alone.save()
+        writing_article_2 = ArticleFactory()
+        writing_article_2.authors.add(user.user)
+        writing_article_2.authors.add(user2.user)
+        writing_article_2.save()
         # about posts and topics
-        authoredTopic = TopicFactory(author=user.user, forum=self.forum11)
-        answeredTopic = TopicFactory(author=user2.user, forum=self.forum11)
-        PostFactory(topic=answeredTopic, author=user.user, position=2)
-        editedAnswer = PostFactory(topic=answeredTopic, author=user.user, position=3)
-        editedAnswer.editor = user.user
-        editedAnswer.save()
-        privateTopic = PrivateTopicFactory(author=user.user)
-        privateTopic.participants.add(user2.user)
-        privateTopic.save()
-        PrivatePostFactory(author=user.user, privatetopic=privateTopic, position_in_topic=1)
+        authored_topic = TopicFactory(author=user.user, forum=self.forum11)
+        answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
+        PostFactory(topic=answered_topic, author=user.user, position=2)
+        edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
+        edited_answer.editor = user.user
+        edited_answer.save()
+        private_topic = PrivateTopicFactory(author=user.user)
+        private_topic.participants.add(user2.user)
+        private_topic.save()
+        PrivatePostFactory(author=user.user, privatetopic=private_topic, position_in_topic=1)
         login_check = self.client.login(
             username=user.user.username,
             password='hostel77')
@@ -280,67 +280,67 @@ class MemberTests(TestCase):
             reverse('zds.member.views.unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(publishedTutorialAlone.authors.count(), 1)
-        self.assertEqual(publishedTutorialAlone.authors.first().username,
+        self.assertEqual(published_tutorial_alone.authors.count(), 1)
+        self.assertEqual(published_tutorial_alone.authors.first().username,
                          settings.ZDS_APP["member"]["external_account"])
-        self.assertFalse(os.path.exists(writingTutorialAloneGallerPath))
-        self.assertEqual(publishedTutorial2.authors.count(), 1)
-        self.assertEqual(publishedTutorial2.authors
+        self.assertFalse(os.path.exists(writing_tutorial_alone_galler_path))
+        self.assertEqual(published_tutorial_2.authors.count(), 1)
+        self.assertEqual(published_tutorial_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])
                          .count(), 0)
-        self.assertIsNotNone(publishedTutorial2.get_prod_path())
-        self.assertTrue(os.path.exists(publishedTutorial2.get_prod_path()))
-        self.assertIsNotNone(publishedTutorialAlone.get_prod_path())
-        self.assertTrue(os.path.exists(publishedTutorialAlone.get_prod_path()))
+        self.assertIsNotNone(published_tutorial_2.get_prod_path())
+        self.assertTrue(os.path.exists(published_tutorial_2.get_prod_path()))
+        self.assertIsNotNone(published_tutorial_alone.get_prod_path())
+        self.assertTrue(os.path.exists(published_tutorial_alone.get_prod_path()))
         self.assertEqual(self.client.get(
             reverse('zds.tutorial.views.view_tutorial_online', args=[
-                    publishedTutorialAlone.pk,
-                    publishedTutorialAlone.slug]), follow=False).status_code, 200)
+                    published_tutorial_alone.pk,
+                    published_tutorial_alone.slug]), follow=False).status_code, 200)
         self.assertEqual(self.client.get(
             reverse('zds.tutorial.views.view_tutorial_online', args=[
-                    publishedTutorial2.pk,
-                    publishedTutorial2.slug]), follow=False).status_code, 200)
-        self.assertTrue(os.path.exists(publishedArticleAlone.get_path()))
+                    published_tutorial_2.pk,
+                    published_tutorial_2.slug]), follow=False).status_code, 200)
+        self.assertTrue(os.path.exists(published_article_alone.get_path()))
         self.assertEqual(self.client.get(
             reverse(
                 'zds.article.views.view_online',
                 args=[
-                    publishedArticleAlone.pk,
-                    publishedArticleAlone.slug]),
+                    published_article_alone.pk,
+                    published_article_alone.slug]),
             follow=True).status_code, 200)
         self.assertEqual(self.client.get(
             reverse(
                 'zds.article.views.view_online',
                 args=[
-                    publishedArticle2.pk,
-                    publishedArticle2.slug]),
+                    published_article_2.pk,
+                    published_article_2.slug]),
             follow=True).status_code, 200)
-        self.assertEqual(Tutorial.objects.filter(pk=writingTutorialAlone.pk).count(), 0)
-        self.assertEqual(writingTutorial2.authors.count(), 1)
-        self.assertEqual(writingTutorial2.authors
+        self.assertEqual(Tutorial.objects.filter(pk=writing_tutorial_alone.pk).count(), 0)
+        self.assertEqual(writing_tutorial_2.authors.count(), 1)
+        self.assertEqual(writing_tutorial_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])
                          .count(), 0)
-        self.assertEqual(publishedArticleAlone.authors.count(), 1)
-        self.assertEqual(publishedArticleAlone.authors
+        self.assertEqual(published_article_alone.authors.count(), 1)
+        self.assertEqual(published_article_alone.authors
                          .first().username, settings.ZDS_APP["member"]["external_account"])
-        self.assertEqual(publishedArticle2.authors.count(), 1)
-        self.assertEqual(publishedArticle2.authors
+        self.assertEqual(published_article_2.authors.count(), 1)
+        self.assertEqual(published_article_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
-        self.assertEqual(Article.objects.filter(pk=writingArticleAlone.pk).count(), 0)
-        self.assertEqual(writingArticle2.authors.count(), 1)
-        self.assertEqual(writingArticle2.authors
+        self.assertEqual(Article.objects.filter(pk=writing_article_alone.pk).count(), 0)
+        self.assertEqual(writing_article_2.authors.count(), 1)
+        self.assertEqual(writing_article_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(), 0)
-        self.assertFalse(os.path.exists(writingTutorialAlonePath))
-        self.assertIsNotNone(Topic.objects.get(pk=authoredTopic.pk))
-        self.assertIsNotNone(PrivateTopic.objects.get(pk=privateTopic.pk))
-        self.assertIsNotNone(Gallery.objects.get(pk=aloneGallery.pk))
-        self.assertEquals(aloneGallery.get_linked_users().count(), 1)
-        self.assertEquals(sharedGallery.get_linked_users().count(), 1)
+        self.assertFalse(os.path.exists(writing_tutorial_alone_path))
+        self.assertIsNotNone(Topic.objects.get(pk=authored_topic.pk))
+        self.assertIsNotNone(PrivateTopic.objects.get(pk=private_topic.pk))
+        self.assertIsNotNone(Gallery.objects.get(pk=alone_gallery.pk))
+        self.assertEquals(alone_gallery.get_linked_users().count(), 1)
+        self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
 
     def test_sanctions(self):

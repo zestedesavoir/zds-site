@@ -294,7 +294,7 @@ def reject_tutorial(request):
         tutorial.pubdate = None
         tutorial.save()
         messages.info(request, _(u"Le tutoriel a bien été refusé."))
-        comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
+        comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
         # send feedback
         msg = (
             _(u'Désolé, le zeste **{0}** n\'a malheureusement '
@@ -3667,7 +3667,7 @@ def warn_typo(request, obj_type, obj_pk):
         messages.error(request, _(u'Votre proposition de correction est vide'))
     else:
         explanation = request.POST['explication']
-        explanation = '\n'.join(['> '+line for line in explanation.split('\n')])
+        explanation = '\n'.join(['> ' + line for line in explanation.split('\n')])
 
         # is the user trying to send PM to himself ?
         if request.user in tutorial.authors.all():
@@ -3701,9 +3701,10 @@ def warn_typo(request, obj_type, obj_pk):
                 if obj_type == 'chapter':
                     msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
                         chapter.title,
-                        settings.ZDS_APP['site']['url'] + chapter.get_absolute_url()+'?version='+tutorial.sha_beta,
+                        settings.ZDS_APP['site']['url'] + chapter.get_absolute_url() + '?version=' + tutorial.sha_beta,
                         chapter.part.title,
-                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url()+'?version='+tutorial.sha_beta
+                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url() + '?version='
+                        + tutorial.sha_beta
                     )
 
             msg += _(u'Voici son message :\n\n{}').format(explanation)
@@ -3727,7 +3728,7 @@ def warn_typo(request, obj_type, obj_pk):
         if is_on_line:
             return redirect(chapter.get_absolute_url_online())
         elif is_beta:
-            return redirect(chapter.get_absolute_url()+'?version='+tutorial.sha_beta)
+            return redirect(chapter.get_absolute_url() + '?version=' + tutorial.sha_beta)
 
 
 def help_tutorial(request):

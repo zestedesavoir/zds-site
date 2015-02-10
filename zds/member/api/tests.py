@@ -326,9 +326,9 @@ class MemberDetailAPITest(APITestCase):
         self.client = APIClient()
         self.profile = ProfileFactory()
 
-        clientOAuth2 = create_oauth2_client(self.profile.user)
-        self.clientAuthenticated = APIClient()
-        authenticate_client(self.clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        self.client_authenticated = APIClient()
+        authenticate_client(self.client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
     def test_detail_of_a_member(self):
         """
@@ -366,7 +366,7 @@ class MemberDetailAPITest(APITestCase):
         self.profile.show_email = True
         self.profile.save()
 
-        response = self.clientAuthenticated.get(reverse('api-member-detail', args=[self.profile.pk]))
+        response = self.client_authenticated.get(reverse('api-member-detail', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('show_email'))
         self.assertEqual(self.profile.user.email, response.data.get('email'))
@@ -382,7 +382,7 @@ class MemberDetailAPITest(APITestCase):
         """
         Updates a member but without any changes.
         """
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]))
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.profile.pk, response.data.get('pk'))
         self.assertEqual(self.profile.user.username, response.data.get('username'))
@@ -398,7 +398,7 @@ class MemberDetailAPITest(APITestCase):
         """
         Tries to update a member who doesn't exist in the database.
         """
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[42]))
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_member_details_with_a_problem_in_authentication(self):
@@ -413,7 +413,7 @@ class MemberDetailAPITest(APITestCase):
         Tries to update information about a member when the user isn't the target user.
         """
         another = ProfileFactory()
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[another.pk]))
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[another.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_member_details_username(self):
@@ -423,7 +423,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'username': 'Clem'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), data.get('username'))
 
@@ -434,7 +434,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'email': 'clem@zestedesavoir.com'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('email'), data.get('email'))
 
@@ -445,7 +445,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'email': 'wrong email'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_member_details_site(self):
@@ -455,7 +455,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'site': 'www.zestedesavoir.com'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('site'), data.get('site'))
 
@@ -466,7 +466,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'avatar_url': 'www.zestedesavoir.com'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('avatar_url'), data.get('avatar_url'))
 
@@ -477,7 +477,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'biography': 'It is my awesome biography.'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('biography'), data.get('biography'))
 
@@ -488,7 +488,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'sign': 'It is my awesome sign.'
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('sign'), data.get('sign'))
 
@@ -499,7 +499,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'show_email': True
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_email'), data.get('show_email'))
 
@@ -510,7 +510,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'show_sign': True
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_sign'), data.get('show_sign'))
 
@@ -521,7 +521,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'hover_or_click': True
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('hover_or_click'), data.get('hover_or_click'))
 
@@ -532,7 +532,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'email_for_answer': True
         }
-        response = self.clientAuthenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('email_for_answer'), data.get('email_for_answer'))
 
@@ -558,15 +558,15 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
 
         self.profile = ProfileFactory()
         self.staff = StaffProfileFactory()
-        clientOAuth2 = create_oauth2_client(self.staff.user)
-        self.clientAuthenticated = APIClient()
-        authenticate_client(self.clientAuthenticated, clientOAuth2, self.staff.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.staff.user)
+        self.client_authenticated = APIClient()
+        authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, 'hostel77')
 
     def test_apply_read_only_at_a_member(self):
         """
         Applies a read only sanction at a member given by a staff user.
         """
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -579,7 +579,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-jrs': 1
         }
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -593,7 +593,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-text': 'You are a bad boy!'
         }
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -603,7 +603,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Applies a read only sanction at a member given but not present in the database.
         """
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[42]))
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_apply_read_only_at_a_member_with_unauthenticated_client(self):
@@ -618,21 +618,21 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Tries to apply a read only sanction at a member with a user isn't authenticated.
         """
-        clientOAuth2 = create_oauth2_client(self.profile.user)
-        clientAuthenticated = APIClient()
-        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        client_authenticated = APIClient()
+        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_remove_read_only_at_a_member(self):
         """
         Removes a read only sanction at a member given by a staff user.
         """
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -645,10 +645,10 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-jrs': 1
         }
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -662,10 +662,10 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-text': 'You are a bad boy!'
         }
-        response = self.clientAuthenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -675,7 +675,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Removes a read only sanction at a member given but not present in the database.
         """
-        response = self.clientAuthenticated.delete(reverse('api-member-read-only', args=[42]))
+        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_read_only_at_a_member_with_unauthenticated_client(self):
@@ -690,11 +690,11 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Tries to remove a read only sanction at a member with a user isn't authenticated.
         """
-        clientOAuth2 = create_oauth2_client(self.profile.user)
-        clientAuthenticated = APIClient()
-        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        client_authenticated = APIClient()
+        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = clientAuthenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
+        response = client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -705,15 +705,15 @@ class MemberDetailBanAPITest(APITestCase):
 
         self.profile = ProfileFactory()
         self.staff = StaffProfileFactory()
-        clientOAuth2 = create_oauth2_client(self.staff.user)
-        self.clientAuthenticated = APIClient()
-        authenticate_client(self.clientAuthenticated, clientOAuth2, self.staff.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.staff.user)
+        self.client_authenticated = APIClient()
+        authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, 'hostel77')
 
     def test_apply_ban_at_a_member(self):
         """
         Applies a ban sanction at a member given by a staff user.
         """
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -726,7 +726,7 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-jrs': 1
         }
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -740,7 +740,7 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-text': 'You are a bad boy!'
         }
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -750,7 +750,7 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Applies a ban sanction at a member given but not present in the database.
         """
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[42]))
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_apply_ban_at_a_member_with_unauthenticated_client(self):
@@ -765,21 +765,21 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Tries to apply a ban sanction at a member with a user isn't authenticated.
         """
-        clientOAuth2 = create_oauth2_client(self.profile.user)
-        clientAuthenticated = APIClient()
-        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        client_authenticated = APIClient()
+        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
+        response = client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_remove_ban_at_a_member(self):
         """
         Removes a ban sanction at a member given by a staff user.
         """
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        response = self.client_authenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -792,10 +792,10 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-jrs': 1
         }
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        response = self.client_authenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -809,10 +809,10 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-text': 'You are a bad boy!'
         }
-        response = self.clientAuthenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        response = self.client_authenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -822,7 +822,7 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Removes a ban sanction at a member given but not present in the database.
         """
-        response = self.clientAuthenticated.delete(reverse('api-member-ban', args=[42]))
+        response = self.client_authenticated.delete(reverse('api-member-ban', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_ban_at_a_member_with_unauthenticated_client(self):
@@ -837,11 +837,11 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Tries to remove a ban sanction at a member with a user isn't authenticated.
         """
-        clientOAuth2 = create_oauth2_client(self.profile.user)
-        clientAuthenticated = APIClient()
-        authenticate_client(clientAuthenticated, clientOAuth2, self.profile.user.username, 'hostel77')
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        client_authenticated = APIClient()
+        authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = clientAuthenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        response = client_authenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -853,10 +853,10 @@ def create_oauth2_client(user):
     return client
 
 
-def authenticate_client(client, clientAuth, username, password):
+def authenticate_client(client, client_auth, username, password):
     client.post('/oauth2/token/', {
-        'client_id': clientAuth.client_id,
-        'client_secret': clientAuth.client_secret,
+        'client_id': client_auth.client_id,
+        'client_secret': client_auth.client_secret,
         'username': username,
         'password': password,
         'grant_type': 'password'

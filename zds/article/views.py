@@ -537,7 +537,7 @@ def modify(request):
                 article.pubdate = None
                 article.save()
 
-                comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
+                comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
                 # send feedback
                 msg = (
                     u'Désolé, le zeste **{0}** '

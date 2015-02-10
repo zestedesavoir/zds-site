@@ -71,7 +71,7 @@ def load_member(cli, size, fake, root):
         profile.last_ip_address = fake.ipv4()
         profile.save()
         cpt += 1
-        sys.stdout.write(" User {}/{}  \r".format(i+1, nb_users))
+        sys.stdout.write(" User {}/{}  \r".format(i + 1, nb_users))
         sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -99,7 +99,7 @@ def load_staff(cli, size, fake, root):
         profile.last_ip_address = fake.ipv6()
         profile.save()
         cpt += 1
-        sys.stdout.write(" Staff {}/{}  \r".format(i+1, nb_staffs))
+        sys.stdout.write(" Staff {}/{}  \r".format(i + 1, nb_staffs))
         sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -127,9 +127,7 @@ def load_gallery(cli, size, fake):
                 for k in range(0, nb_images):
                     ImageFactory(gallery=gal)
                     sys.stdout.write(" User {}/{}  \tGallery {}/{}  \tImage {}/{}  \r".
-                                     format(i+1, nb_users,
-                                            j+1, nb_galleries,
-                                            k+1, nb_images))
+                                     format(i + 1, nb_users, j + 1, nb_galleries, k + 1, nb_images))
                     sys.stdout.flush()
         tps2 = time.time()
         cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -146,7 +144,7 @@ def load_categories_forum(cli, size, fake):
         cat = CategoryFactory(position=i + 1)
         cat.title = fake.word()
         cat.save()
-        sys.stdout.write(" Cat. {}/{}  \r".format(i+1, nb_categories))
+        sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
         sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -171,7 +169,7 @@ def load_forums(cli, size, fake):
             forum.title = fake.word()
             forum.subtitle = fake.sentence(nb_words=15, variable_nb_words=True)
             forum.save()
-            sys.stdout.write(" Forum {}/{}  \r".format(i+1, nb_forums))
+            sys.stdout.write(" Forum {}/{}  \r".format(i + 1, nb_forums))
             sys.stdout.flush()
         tps2 = time.time()
         cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -188,7 +186,7 @@ def load_tags(cli, size, fake):
         title = fake.word()
         t = Tag(title=title, slug=slugify(title))
         t.save()
-        sys.stdout.write(" Tag {}/{}  \r".format(i+1, nb_tags))
+        sys.stdout.write(" Tag {}/{}  \r".format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -234,7 +232,7 @@ def load_topics(cli, size, fake):
                     topic.title = fake.text(max_nb_chars=80)
                     topic.subtitle = fake.text(max_nb_chars=200)
                     topic.save()
-                    sys.stdout.write(" Topic {}/{}  \r".format(i+1, nb_topics))
+                    sys.stdout.write(" Topic {}/{}  \r".format(i + 1, nb_topics))
                     sys.stdout.flush()
                 tps2 = time.time()
                 cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -265,16 +263,14 @@ def load_posts(cli, size, fake):
                     if j == 0:
                         post = PostFactory(topic=topics[i], author=topics[i].author, position=1)
                     else:
-                        post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j+1)
+                        post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j + 1)
                     post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
                     post.text_html = emarkdown(post.text)
                     if int(nb * 0.3) > 0:
                         if j % int(nb * 0.3) == 0:
                             post.is_useful = True
                     post.save()
-                    sys.stdout.write(" Topic {}/{}  \tPost {}/{}  \r".
-                                     format(i+1, nb_topics,
-                                            j+1, nb))
+                    sys.stdout.write(" Topic {}/{}  \tPost {}/{}  \r".format(i + 1, nb_topics, j + 1, nb))
                     sys.stdout.flush()
             tps2 = time.time()
             cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -305,7 +301,7 @@ def load_categories_content(cli, size, fake):
                         slug=slugify(ttl))
         cat.save()
         categories.append(cat)
-        sys.stdout.write(" Cat. {}/{}  \r".format(i+1, nb_categories))
+        sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
@@ -315,13 +311,13 @@ def load_categories_content(cli, size, fake):
                           slug=slugify(ttl))
         cat.save()
         sub_categories.append(cat)
-        sys.stdout.write(" SubCat. {}/{}  \r".format(i+1, nb_sub_categories))
+        sys.stdout.write(" SubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
         h = CategorySubCategory(category=categories[i % nb_categories], subcategory=sub_categories[i], is_main=True)
         h.save()
-        sys.stdout.write(" CatSubCat. {}/{}  \r".format(i+1, nb_sub_categories))
+        sys.stdout.write(" CatSubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
     tps2 = time.time()
@@ -342,13 +338,11 @@ def load_comment_article(cli, size, fake):
     for i in range(0, nb_articles):
         nb = randint(0, nb_avg_posts * 2)
         for j in range(0, nb):
-            post = ReactionFactory(article=articles[i], author=profiles[j % nb_users].user, position=j+1)
+            post = ReactionFactory(article=articles[i], author=profiles[j % nb_users].user, position=j + 1)
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
-            sys.stdout.write(" Article {}/{}  \tComment {}/{}  \r".
-                             format(i+1, nb_articles,
-                                    j+1, nb))
+            sys.stdout.write(" Article {}/{}  \tComment {}/{}  \r".format(i + 1, nb_articles, j + 1, nb))
             sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -368,13 +362,11 @@ def load_comment_tutorial(cli, size, fake):
     for i in range(0, nb_tutorials):
         nb = randint(0, nb_avg_posts * 2)
         for j in range(0, nb):
-            post = NoteFactory(tutorial=tutorials[i], author=profiles[j % nb_users].user, position=j+1)
+            post = NoteFactory(tutorial=tutorials[i], author=profiles[j % nb_users].user, position=j + 1)
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
-            sys.stdout.write(" Tuto {}/{}  \tComment {}/{}  \r".
-                             format(i+1, nb_tutorials,
-                                    j+1, nb))
+            sys.stdout.write(" Tuto {}/{}  \tComment {}/{}  \r". format(i + 1, nb_tutorials, j + 1, nb))
             sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -435,7 +427,7 @@ def load_tutorials(cli, size, fake):
                     tuto = BigTutorialFactory(title=fake.text(max_nb_chars=80),
                                               description=fake.sentence(nb_words=15, variable_nb_words=True))
                     tuto.authors.add(profiles[i % nb_users].user)
-                    tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
+                    tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
                     tutorials.append(tuto)
                     nb_part = randint(0, nb_avg_parts_in_tuto * 2)
                     for j in range(0, nb_part):
@@ -454,7 +446,7 @@ def load_tutorials(cli, size, fake):
                                                position_in_chapter=l,
                                                title=fake.text(max_nb_chars=80))
                     if i < int(nb_tutos * percent_tutos_validation_with_validator):
-                        validator = staffs[random.randint(0, nb_staffs-1)]
+                        validator = staffs[random.randint(0, nb_staffs - 1)]
                         v = TValidation(tutorial=tuto,
                                         version=tuto.sha_draft,
                                         date_proposition=datetime.now(),
@@ -487,7 +479,7 @@ def load_tutorials(cli, size, fake):
                         v.save()
                         tuto.sha_public = tuto.sha_draft
                         tuto.save()
-                    sys.stdout.write(" Big Tuto {}/{}  \r".format(i+1, nb_tutos))
+                    sys.stdout.write(" Big Tuto {}/{}  \r".format(i + 1, nb_tutos))
                     sys.stdout.flush()
 
                 # Mini tutorials
@@ -495,7 +487,7 @@ def load_tutorials(cli, size, fake):
                     tuto = MiniTutorialFactory(title=fake.text(max_nb_chars=80),
                                                description=fake.sentence(nb_words=15, variable_nb_words=True))
                     tuto.authors.add(profiles[i % nb_users].user)
-                    tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
+                    tuto.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
                     tutorials.append(tuto)
                     chap = ChapterFactory(tutorial=tutorials[j])
                     nb_ext = randint(0, nb_avg_extracts_in_tuto * 2)
@@ -504,7 +496,7 @@ def load_tutorials(cli, size, fake):
                                        position_in_chapter=l,
                                        title=fake.text(max_nb_chars=80))
                     if i < int(nb_tutos * percent_tutos_validation_with_validator):
-                        validator = staffs[random.randint(0, nb_staffs-1)]
+                        validator = staffs[random.randint(0, nb_staffs - 1)]
                         v = TValidation(tutorial=tuto,
                                         version=tuto.sha_draft,
                                         date_proposition=datetime.now(),
@@ -537,7 +529,7 @@ def load_tutorials(cli, size, fake):
                         v.save()
                         tuto.sha_public = tuto.sha_draft
                         tuto.save()
-                    sys.stdout.write(" Mini Tuto {}/{}  \r".format(i+1, nb_tutos))
+                    sys.stdout.write(" Mini Tuto {}/{}  \r".format(i + 1, nb_tutos))
                     sys.stdout.flush()
 
                 tps2 = time.time()
@@ -586,11 +578,11 @@ def load_articles(cli, size, fake):
                     art = ArticleFactory(title=fake.text(max_nb_chars=80),
                                          description=fake.sentence(nb_words=15, variable_nb_words=True))
                     art.authors.add(profiles[i % nb_users].user)
-                    art.subcategory.add(sub_categories[random.randint(0, nb_sub_categories-1)])
+                    art.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
                     articles.append(art)
 
                     if i < int(nb_arts * percent_arts_validation_with_validator):
-                        validator = staffs[random.randint(0, nb_staffs-1)]
+                        validator = staffs[random.randint(0, nb_staffs - 1)]
                         v = AValidation(article=art,
                                         version=art.sha_draft,
                                         date_proposition=datetime.now(),
@@ -624,7 +616,7 @@ def load_articles(cli, size, fake):
                         art.sha_public = art.sha_draft
                         art.pubdate = datetime.now()
                         art.save()
-                    sys.stdout.write(" Article {}/{}  \r".format(i+1, nb_arts))
+                    sys.stdout.write(" Article {}/{}  \r".format(i + 1, nb_arts))
                     sys.stdout.flush()
 
                 tps2 = time.time()

@@ -336,11 +336,11 @@ def unregister(request):
     # he was alone so that gallery is not lost
     for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_linked_users().count() == 1:
-            anonymousGallery = UserGallery()
-            anonymousGallery.user = external
-            anonymousGallery.mode = "w"
-            anonymousGallery.gallery = gallery.gallery
-            anonymousGallery.save()
+            anonymous_gallery = UserGallery()
+            anonymous_gallery.user = external
+            anonymous_gallery.mode = "w"
+            anonymous_gallery.gallery = gallery.gallery
+            anonymous_gallery.save()
         gallery.delete()
 
     logout(request)
