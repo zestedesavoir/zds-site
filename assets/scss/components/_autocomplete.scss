@@ -21,7 +21,7 @@
                 list-style: none;
 
                 &.active, &:hover {
-                    background-color: lighten($primary, 10%);
+                    background-color: lighten($color-primary, 10%);
                     color: white;
                 }
             }
