@@ -18,6 +18,13 @@
 
 
 
+{%  block sidebar %}
+    {# Remove "Download" part #}
+    <aside class="sidebar summary mobile-menu-hide"></aside>
+{% endblock %}
+
+
+
 {% block headline %}
     {% if tutorial.licence %}
         <span class="license">
