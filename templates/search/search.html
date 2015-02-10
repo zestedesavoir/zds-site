@@ -41,7 +41,13 @@
     <aside class="sidebar mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
             <h3>{% trans "Filtrer les résultats" %}</h3>
-            {{ form.models }}
+            <ul id="searchfor">
+                {% for choice in form.models %}
+                    <li class="checkbox">
+                        {{ choice }}
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </aside>
 {% endblock %}
