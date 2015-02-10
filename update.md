@@ -133,6 +133,19 @@ Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les 
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
 ```
 
+
+Actions à faire pour mettre en prod la version : v1.7
+=====================================================
+
+Issue #2058
+-----------
+
+Rajouter ces lignes dans le `settings_prod.py` :
+
+```python
+ZDS_SITE['site']['googleAnalyticsID'] = 'UA-27730868-1'
+ZDS_SITE['site']['googleTagManagerID'] = 'GTM-WH7642'
+```
 Actions à faire pour mettre en prod la version : v1.6
 =====================================================
 
