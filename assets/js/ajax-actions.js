@@ -249,8 +249,12 @@
             },
             success: function(data){
                 $(".previsualisation").remove();
+
                 $(data).insertAfter($form);
-            },
+
+                if ($(data).find("mathjax").length > 0)
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+            }
         });
         e.stopPropagation();
         e.preventDefault();
