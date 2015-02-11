@@ -207,6 +207,22 @@
     });
 
     /**
+     * Mobile action
+     */
+    $("#mobile-menu").on("click", "[data-ajax-input]", function(e){
+        var dataAjaxInput = $(this).data("ajax-input");
+        var $button = $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']");
+
+        if ($button[0]) {
+            $(this).toggleText("content-on-click");
+            $button.click();
+
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    });
+
+    /**
      * Cite a message
      */
     $(".message-actions").on("click", "[data-ajax-input='cite-message']", function(e){
