@@ -1,4 +1,5 @@
 {% extends "member/base.html" %}
+
 {% load emarkdown %}
 {% load email_obfuscator %}
 {% load date %}
@@ -397,7 +398,7 @@
             {% endif %}
         {% endwith %}
 
-        {% if profile.get_post_count > 0 %}
+        {% if perms.member.change_post and profile.get_post_count_as_staff > 0 or profile.get_post_count > 0 %}
             <h4>{% trans "Forums" %}</h4>
             <ul>
                 <li>
@@ -409,7 +410,13 @@
                 <li>
                     <a href="{% url "zds.forum.views.find_post" usr.pk %}">
                         {% trans "Messages postés" %}
-                        <span class="count">{{ profile.get_post_count }}</span>
+                        <span class="count">
+                            {% if perms.member.change_post %}
+                                {{ profile.get_post_count_as_staff }}
+                            {% else %}
+                                {{ profile.get_post_count }}
+                            {% endif %}
+                        </span>
                     </a>
                 </li>
             </ul>
