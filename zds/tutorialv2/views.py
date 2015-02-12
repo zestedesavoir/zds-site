@@ -5,6 +5,8 @@ from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
+from zds.tutorialv2.forms import BetaForm
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -937,6 +939,44 @@ class DisplayOnlineContent(DisplayContent):
 class DisplayOnlineArticle(DisplayOnlineContent):
     type = "ARTICLE"
 
+
+class PutContentOnBeta(FormView):
+    model = PublishableContent
+    content = None
+    form_class = BetaForm
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        """rewrite this method to ensure decoration"""
+        return super(PutContentOnBeta, self).dispatch(*args, **kwargs)
+
+    def get_object(self):
+        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if obj.slug != self.kwargs['slug']:
+            raise Http404
+        if self.request.user not in obj.authors.all():
+            # Todo: find how to throw http 403
+            raise Http404
+        return obj
+
+    def form_valid(self, form):
+
+        self.content = self.get_object()
+        try:
+            self.content.load_version(self.request.POST['version'])
+
+            self.content.sha_beta = self.request.POST['version']
+            self.content.save()
+        except Exception:
+            # exception are raised if :
+            #     - we have a false version number
+            #     - we have a not supported manfile
+            pass
+        return super(PutContentOnBeta, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 # Staff actions.
 

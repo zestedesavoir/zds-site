@@ -311,6 +311,9 @@ class ImportMarkdownForm(forms.Form):
         )
 
 
+class BetaForm(forms.Form):
+    version = forms.HiddenInput()
+
 # Notes
 
 
