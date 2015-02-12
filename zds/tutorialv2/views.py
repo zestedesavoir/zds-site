@@ -5,7 +5,10 @@ from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
+from django.contrib.humanize.templatetags.humanize import naturaltime
+from zds.forum.models import Forum, Topic
 from zds.tutorialv2.forms import BetaForm
+from zds.utils.forums import send_post, unlock_topic, create_topic
 
 try:
     import ujson as json_reader
@@ -795,12 +798,35 @@ class TutorialWithHelp(TutorialList):
 # TODO ArticleWithHelp
 
 
+class DisplayHistory(DetailView):
+    """Display the whole modification history.
+    this class has no reason to be adapted to any content type"""
+    model = PublishableContent
+    template_name = "tutorialv2/view/history.html"
+    context_object_name = "tutorial"
+
+    def get_object(self, queryset=None):
+        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if self.request.user not in obj.authors.all():
+            raise Http404
+        return obj
+
+    def get_context_data(self, **kwargs):
+
+        context = super(DisplayHistory, self).get_context_data(**kwargs)
+        repo = Repo(context['tutorial'].get_repo_path())
+        logs = repo.head.reference.log()
+        logs = sorted(logs, key=attrgetter("time"), reverse=True)
+        context['logs'] = logs
+        return context
+
+
 class DisplayDiff(DetailView):
     """Display the difference between two version of a content.
     Reference is always HEAD and compared version is a GET query parameter named sha
     this class has no reason to be adapted to any content type"""
     model = PublishableContent
-    template_name = "tutorial/diff.html"
+    template_name = "tutorialv2/diff.html"
     context_object_name = "tutorial"
 
     def get_object(self, queryset=None):
@@ -973,6 +999,63 @@ class PutContentOnBeta(FormView):
             #     - we have a false version number
             #     - we have a not supported manfile
             pass
+        topic = Topic.objects.filter(key=self.content.pk, forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
+        msg = \
+            (_(u'Bonjour à tous,\n\n'
+               u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
+               u'J\'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
+               u'sur la forme, afin de proposer en validation un texte de qualité.'
+               u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
+               u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
+               u'\n\nMerci d\'avance pour votre aide').format(
+                   naturaltime(self.content.creation_date),
+                   self.content.title,
+                   settings.ZDS_APP['site']['url'] +
+                   reverse("content:view", args=[self.content.pk, self.content.slug])))
+        if topic is None:
+            forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
+
+            create_topic(author=self.request.user,
+                         forum=forum,
+                         title=_(u"[beta][tutoriel]{0}").format(self.content.title),
+                         subtitle=u"{}".format(self.content.description),
+                         text=msg,
+                         key=self.content.pk
+                         )
+            tp = Topic.objects.get(key=self.content.pk)
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            private_mp = \
+                (_(u'Bonjour {},\n\n'
+                   u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
+                   u'pourra le consulter afin de vous faire des retours '
+                   u'constructifs avant sa soumission en validation.\n\n'
+                   u'Un sujet dédié pour la beta de votre tutoriel a été '
+                   u'crée dans le forum et est accessible [ici]({})').format(
+                       self.request.user.username,
+                       self.content.title,
+                       settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
+            send_mp(
+                bot,
+                [self.request.user],
+                _(u"Tutoriel en beta : {0}").format(self.content.title),
+                "",
+                private_mp,
+                False,
+            )
+        else:
+            msg_up = \
+                (_(u'Bonjour,\n\n'
+                   u'La beta du {2} est de nouveau active.'
+                   u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                   u'\n\nMerci pour vos relectures').format(self.content.title,
+                                                            settings.ZDS_APP['site']['url']
+                                                            + reverse("content:view",
+                                                                      args=[self.content.pk,
+                                                                            self.content.slug]),
+                                                            self.content.type))
+            unlock_topic(topic, msg)
+            send_post(topic, msg_up)
+        self.content.save()
         return super(PutContentOnBeta, self).form_valid(form)
 
     def get_success_url(self):
@@ -1071,22 +1154,6 @@ def reservation(request, validation_pk):
             validation.content.get_absolute_url() +
             "?version=" + validation.version
         )
-
-
-@login_required
-def history(request, tutorial_pk, tutorial_slug):
-    """History of the tutorial."""
-
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
-    if request.user not in tutorial.authors.all():
-        if not request.user.has_perm("tutorial.change_tutorial"):
-            raise PermissionDenied
-
-    repo = Repo(tutorial.get_repo_path())
-    logs = repo.head.reference.log()
-    logs = sorted(logs, key=attrgetter("time"), reverse=True)
-    return render(request, "tutorial/tutorial/history.html",
-                           {"tutorial": tutorial, "logs": logs})
 
 
 @login_required
