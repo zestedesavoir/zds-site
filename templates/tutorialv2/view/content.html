@@ -202,7 +202,7 @@
                         <input type="hidden" name="update_beta">
                         <input type="hidden" name="version" value="{{ version }}">
                         <p>
-                            {% blocktrans with tutorial_title=tutorial.title %}
+                            {% blocktrans with tutorial_title=content.title %}
                             Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel
                             "<em>{{ tutorial_title }}</em>" dans la version que vous voyez actuellement ?
                             {% endblocktrans %}
@@ -229,7 +229,7 @@
                     <input type="hidden" name="desactiv_beta">
                     <input type="hidden" name="version" value="{{ version }}">
                     <p>
-                        {% blocktrans with tutorial_title=tutorial.title %}
+                        {% blocktrans with tutorial_title=content.title %}
                             Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta du tutoriel "<em>{{ tutorial_title }}</em>" ?
                         {% endblocktrans %}
                     </p>
@@ -239,6 +239,11 @@
                 </form>
             </li>
         {% endif %}
+         <li>
+            <a href="{% url "content:history" content.pk content.slug %}" class="ico-after history blue">
+                {% trans "Historique des versions" %}
+            </a>
+        </li>
     {% endif %}
 {% endblock %}
 
