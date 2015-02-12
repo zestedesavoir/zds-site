@@ -288,31 +288,64 @@
                     border-bottom-color: transparent;
                     background: none !important;
                     height: 32px;
-
+                }
+                span {
                     &.upvote,
                     &.downvote {
                         &:not(.has-vote) {
-                            text-indent: -9999px;
-                            width: 0;
-                        }
-                    }
-                    &.disabled {
-                        &,
-                        &:hover,
-                        &:focus {
-                            border-bottom-color: transparent;
-
-                            &:after {
-                                opacity: .25 !important;
-                            }
+                            border-bottom: none;
+                            opacity: .5;
                         }
                     }
                 }
-                span.upvote,
-                span.downvote {
+                button {
+                    // Disable transition for text-indent
+                    transition-property: opacity, border;
+
+                    &.voted:hover {
+                        &:after {
+                            opacity: .5;
+                        }
+                    }
+                }
+
+                .upvote,
+                .downvote {
+                    &:after {
+                        left: 10px;
+                    }
+                    &.voted:after {
+                        opacity: 1;
+                    }
+
+                    &:hover,
+                    &:focus {
+                        &:not(.more-voted) {
+                            border-bottom-color: transparent;
+                        }
+                    }
+
                     &:not(.has-vote) {
-                        border-bottom: none;
-                        opacity: .5;
+                        text-indent: -9999px;
+                        width: 0;
+                    }
+
+                    &.more-voted {
+                        font-weight: bold;
+                    }
+                }
+                .upvote {
+                    color: $color-success;
+
+                    &.more-voted {
+                        border-bottom-color: $color-success;
+                    }
+                }
+                .downvote {
+                    color: $color-danger;
+
+                    &.more-voted {
+                        border-bottom-color: $color-danger;
                     }
                 }
 
@@ -321,57 +354,17 @@
                     text-overflow: ellipsis;
                     white-space: nowrap;
 
-                    &:hover:not(.disabled),
-                    &:focus:not(.disabled) {
+                    &:hover,
+                    &:focus {
                         color: #555;
                         border-bottom-color: $color-success;
                     }
-                    &.active:not(.disabled) {
+                    &.active {
                         color: #48a200;
 
                         &:after {
                             opacity: 1;
                         }
-                    }
-                }
-                .upvote,
-                .downvote {
-                    &:after {
-                        left: 10px;
-                    }
-                }
-                .upvote {
-                    color: $color-success;
-
-                    &:hover:not(.disabled),
-                    &:focus:not(.disabled),
-                    &.more-voted {
-                        border-bottom-color: $color-success;
-                    }
-                    &:not(.has-vote){
-                        text-indent: -9999px;
-                        width: 0;
-                    }
-                }
-                .downvote {
-                    color: $color-danger;
-
-                    &:hover:not(.disabled),
-                    &:focus:not(.disabled),
-                    &.more-voted {
-                        border-bottom-color: $color-danger;
-                    }
-                }
-                .voted:after {
-                    opacity: 1;
-                }
-                .more-voted {
-                    font-weight: bold;
-                }
-                button.more-voted {
-                    &:hover,
-                    &:focus {
-                        border-bottom-color: transparent !important;
                     }
                 }
             }
@@ -475,18 +468,6 @@ form.topic-message {
     margin-top: 50px;
 }
 
-@media only screen and #{$media-tablet} {
-    .topic-message .message .message-bottom .message-karma {
-        a,
-        span {
-            &.upvote.has-vote,
-            &.downvote.has-vote {
-                padding-left: 27px;
-            }
-        }
-    }
-}
-
 @media only screen and #{$media-mobile-tablet} {
     .topic-message {
         padding: 20px 0;
@@ -566,14 +547,6 @@ form.topic-message {
                     top: 35px;
                     left: 7px;
 
-                    a,
-                    span {
-                        &:not(.has-vote){
-                            border-bottom-width: 1px !important;
-                            border-bottom-color: #D2D5D6;
-                        }
-                    }
-
                     .tick {
                         text-indent: -9999px;
                         margin-right: 1px;
@@ -587,10 +560,6 @@ form.topic-message {
                     .downvote {
                         padding: 0 7px;
                         text-align: center;
-
-                        &.has-vote {
-                            min-width: 30px;
-                        }
                     }
                 }
             }
@@ -667,18 +636,9 @@ form.topic-message {
         .message-actions a {
             width: 0px;
             text-indent: -9999px;
-        }
-        .message-actions a,
-        .message-karma a {
+
             &:after {
                 left: 12px !important;
-            }
-        }
-        .message-karma {
-            a,
-            span {
-                margin-right: 1px;
-                margin-left: 0;
             }
         }
         .message-submit {
