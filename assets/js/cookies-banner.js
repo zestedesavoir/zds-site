@@ -10,7 +10,7 @@
 
     function checkHasConsent(){
         if(document.cookie.indexOf("hasconsent=true") > -1){
-            $("#gtm").after(
+            $("head").append(
                 "<script>" +
                     "dataLayer = [{'gaTrackingId': 'UA-27730868-1'}];" +
                     "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':" +
