@@ -32,6 +32,9 @@ def search_container_or_404(base_content, kwargs_array):
         else:
             if not isinstance(container, Container):
                 raise Http404
+    else:
+        # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
+        return base_content
     if container is None:
         raise Http404
     return container
