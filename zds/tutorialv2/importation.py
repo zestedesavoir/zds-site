@@ -16,9 +16,9 @@ from zds.tutorialv2.models import PublishableContent, init_new_repo
 from zds.utils.models import Licence
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
-
+import shutil
 from os.path import isdir, join
-from os import makedirs
+from os import makedirs, walk, unlink
 import zipfile
 
 try:
@@ -179,6 +179,25 @@ class ImportMarkdownView(FormView):
                 with open(join(versioned.get_path(), file), "w") as content_file:
                     content_file.write(zip_file.read(file))
             repo.index.add([join(versioned.get_path(), file)])
+        to_be_removed = []
+        # search for a deleted element
+        for root, dirs, files in walk(versioned.get_path()):
+            # ignore git objects
+            if '.git' not in root:
+                # if one directory has been removed
+                if root + '/' not in zip_file.namelist():
+                    to_be_removed.append(root)
+                else:
+                    for file in files:
+                        # if one file has been removed
+                        if join(root, file) not in zip_file.namelist():
+                            to_be_removed.append(join(root, file))
+
+        for element in to_be_removed:
+            if isdir(join(versioned.get_path(), element)):
+                shutil.rmtree(join(versioned.get_path(), element))
+            else:
+                unlink(join(versioned.get_path(), element))
 
         man["title"] = content.title
         man["slug"] = content.slug
