@@ -114,6 +114,19 @@
                         left: 2px;
                     }
                 }
+
+                .icon {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    margin: 7px;
+                    line-height:30px;
+                    padding-left: 5px;
+                    &:after {
+                        top: 0px;
+                        left: 0px;
+                    }
+                }
             }
         }
         .mobile-menu-link {
@@ -153,6 +166,10 @@
             &.unread {
                 font-weight: bold;
                 color: #EEE;
+            }
+
+            img, span {
+                vertical-align: middle;
             }
 
             img {

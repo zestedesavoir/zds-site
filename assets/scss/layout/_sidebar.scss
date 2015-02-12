@@ -148,6 +148,19 @@
                     border-right: 7px solid transparent;
                 }
 
+                img, span {
+                    vertical-align: middle;
+                }
+
+                .icon {
+                    border-right: 7px solid transparent;
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    margin: 7px 5px;
+                    line-height:30px;
+                }
+
                 &.ico-after {
                     &:after {
                         top: 7px;
