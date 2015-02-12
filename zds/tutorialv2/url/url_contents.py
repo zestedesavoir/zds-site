@@ -3,7 +3,8 @@
 from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
-    CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract
+    CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
+    PutContentOnBeta
 from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
@@ -62,6 +63,11 @@ urlpatterns = patterns('',
                            name='edit-extract'),
 
                        url(r'^editer/(?P<pk>\d+)/(?P<slug>.+)/$', EditContent.as_view(), name='edit'),
+
+                       # beta
+
+                       url(r'^mettre-beta/(?P<pk>\d+)/(?P<slug>.+)/$', PutContentOnBeta.as_view(), name="put-beta"),
+
 
                        # delete:
                        url(r'^supprimer/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/'
