@@ -1070,7 +1070,12 @@ def complete_topic(request):
         if cpt > 5:
             break
         if 'Topic' in str(result.model) and result.object.is_solved:
-            suggestions[str(result.object.pk)] = (result.title, result.author, result.object.get_absolute_url())
+            suggestions[str(result.object.pk)] = {
+                'title': result.title,
+                'subtitle': result.subtitle,
+                'author': result.author,
+                'url': result.object.get_absolute_url()
+            }
             cpt += 1
 
     the_data = json.dumps(suggestions)

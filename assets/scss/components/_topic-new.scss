@@ -1,0 +1,28 @@
+#topic-result-container {
+	background-color: white;
+	border: 1px solid #d2d5d6;
+
+	ul {
+		list-style: none;
+		font-size: 12px;
+		padding: 0;
+		margin: 0;
+
+		li {
+			padding: 1px 10px;
+			border-bottom: solid 1px #CCC;
+
+			&.active, &:hover {
+				background-color: #d7d7d7;
+
+                &.neither {
+				    background-color: transparent;
+                }
+			}
+
+			&:last-child {
+				border-bottom: none;
+			}
+		}
+	}
+}
