@@ -140,7 +140,7 @@
                     <li>
                         <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="ico-after lock blue unread">
+                            <button type="submit" class="ico-after lock blue">
                                 {% trans "Réserver" %}
                             </button>
                         </form>
