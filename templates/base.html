@@ -131,11 +131,11 @@
 
         <div id="cookies-banner">
             <span>
-                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %}
+                {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez" %}
             </span>
-            <button id="reject-cookies">{% trans "ici" %}</button>.
-            <a href="/pages/cookies">{% trans "En savoir plus" %}</a>
-            <button id="accept-cookies">{% trans "OK" %}</button>
+            <button data-cookie-action="reject" id="reject-cookies">{% trans "cliquer ici." %}</button>.
+            <a data-cookie-action="undo" href="/pages/cookies">{% trans "En savoir plus" %}</a>
+            <button data-cookie-action="accept" id="accept-cookies">{% trans "OK" %}</button>
         </div>
 
         <div class="header-container">
