@@ -803,7 +803,7 @@ class DisplayHistory(DetailView):
     this class has no reason to be adapted to any content type"""
     model = PublishableContent
     template_name = "tutorialv2/view/history.html"
-    context_object_name = "tutorial"
+    context_object_name = "object"
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -814,10 +814,11 @@ class DisplayHistory(DetailView):
     def get_context_data(self, **kwargs):
 
         context = super(DisplayHistory, self).get_context_data(**kwargs)
-        repo = Repo(context['tutorial'].get_repo_path())
+        repo = Repo(context['object'].get_repo_path())
         logs = repo.head.reference.log()
         logs = sorted(logs, key=attrgetter("time"), reverse=True)
         context['logs'] = logs
+        context['content'] = context['object'].load_version()
         return context
 
 

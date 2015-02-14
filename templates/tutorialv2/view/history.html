@@ -1,4 +1,4 @@
-{% extends "tutorial/base.html" %}
+{% extends "tutorialv2/base.html" %}
 {% load profile %}
 {% load thumbnail %}
 {% load date %}
@@ -6,37 +6,39 @@
 
 
 {% block title %}
-    {% trans "Historique de" %} "{{ tutorial.title }}"
+    {% trans "Historique" %} "{{ content.title }}"
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
     <li>{% trans "Historique des modifications" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
-        {% if tutorial.image %}
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
-        {% endif %}
-        {% trans "Historique de" %} "{{ tutorial.title }}"
-    </h1>
-
-    {% if tutorial.licence %}
-        <span class="license">
-            {{ tutorial.licence }}
-        </span>
+    {% if content.licence %}
+        <p class="license">
+            {{ content.licence }}
+        </p>
     {% endif %}
 
-    <h2 class="subtitle">
-        {{ tutorial.description }}
-    </h2>
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {{ content.title }}
+    </h1>
 
-    {% include 'tutorial/includes/tags_authors.part.html' %}
+    {% if content.description %}
+        <h2 class="subtitle">
+            {{ content.description }}
+        </h2>
+    {% endif %}
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
 {% endblock %}
 
 
@@ -57,13 +59,13 @@
             {% for log in logs %}
                 <tr>
                     <td>
-                        {% if tutorial.sha_validation = log.newhexsha %}
+                        {% if content.sha_validation = log.newhexsha %}
                             {% trans "Validation" %}
                         {% endif %}
-                        {% if tutorial.sha_beta = log.newhexsha %}
+                        {% if content.sha_beta = log.newhexsha %}
                             {% trans "Beta" %}
                         {% endif %}
-                        {% if tutorial.sha_draft = log.newhexsha %}
+                        {% if content.sha_draft = log.newhexsha %}
                             {% trans "Draft" %}
                         {% endif %}
                     </td>
@@ -71,12 +73,12 @@
                         {{ log.time.0|humane_time }}
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >
+                        <a href="{% url "content:view" content.pk content.slug %}?version={{ log.newhexsha }}" >
                             {{ log.message }}
                         </a>
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >
+                        <a href="{% url "zds.tutorial.views.diff" content.pk content.slug %}?sha={{ log.newhexsha }}" >
                             {{ log.newhexsha|truncatechars:8 }}
                         </a>
                     </td>
@@ -90,29 +92,29 @@
                         {% endwith %}
                     </td>
                     <td>
-                        {% if not tutorial.sha_beta = log.newhexsha %}
+                        {% if not content.sha_beta = log.newhexsha %}
                             <a href="#activ-beta" class="open-modal">
-                                {% if not tutorial.sha_beta %}
+                                {% if not content.sha_beta %}
                                     {% trans "Activer" %}
                                 {% else %}
                                     {% trans "Mettre à jour" %}
                                 {% endif %}
                             </a>
-                            <form action="{% url "content:put-beta" tutorial.pk tutorial.slug %}" method="post" class="modal modal-small" id="activ-beta">
+                            <form action="{% url "content:put-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="activ-beta">
                                 {% csrf_token %}
                                 <input type="hidden" name="version" value="{{ log.newhexsha }}">
                                 <p>
                                     {% blocktrans %}
                                         Êtes-vous certain de vouloir <strong>
                                     {% endblocktrans %}
-                                     {% if not tutorial.sha_beta %}
+                                     {% if not content.sha_beta %}
                                         {% trans "activer" %}
                                     {% else %}
                                         {% trans "mettre à jour" %}
                                     {% endif %}
-                                    {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
+                                    {% blocktrans with date_version=log.time.0|humane_time content_title=content.title %}
                                         </strong> la bêta sur le tutoriel
-                                        "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
+                                        "<em>{{ content_title }}</em>" dans sa version du {{ date_version }} ?
                                     {% endblocktrans %}
                                 </p>
                                 <button type="submit">
