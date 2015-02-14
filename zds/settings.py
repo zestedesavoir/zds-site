@@ -459,7 +459,8 @@ ZDS_APP = {
     'content': {
         'repo_private_path': os.path.join(SITE_ROOT, 'contents-private'),
         'repo_public_path': os.path.join(SITE_ROOT, 'contents-public'),
-        'max_tree_depth': 3
+        'max_tree_depth': 3,
+        'default_license_pk': 7
     },
     'forum': {
         'posts_per_page': 21,

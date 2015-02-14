@@ -772,6 +772,47 @@ class VersionedContent(Container):
         return self.repo_update(title, introduction, conclusion, commit_message)
 
 
+def get_content_from_json(json, sha):
+    """
+    Transform the JSON formated data into `VersionedContent`
+    :param json: JSON data from a `manifest.json` file
+    :param sha: version
+    :return: a `VersionedContent` with all the information retrieved from JSON
+    """
+    # TODO: should definitely be static
+    # create and fill the container
+    versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'])
+
+    if 'version' in json and json['version'] == 2:
+        # fill metadata :
+        if 'description' in json:
+            versioned.description = json['description']
+
+        if 'type' in json:
+            if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
+                versioned.type = json['type']
+
+        if 'licence' in json:
+            versioned.licence = Licence.objects.filter(code=json['licence']).first()
+        else:
+            versioned.licence = \
+                Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
+
+        if 'introduction' in json:
+            versioned.introduction = json['introduction']
+        if 'conclusion' in json:
+            versioned.conclusion = json['conclusion']
+
+        # then, fill container with children
+        fill_containers_from_json(json, versioned)
+
+    else:
+        raise Exception('Importation of old version is not yet supported')
+        # TODO so here we can support old version !!
+
+    return versioned
+
+
 def fill_containers_from_json(json_sub, parent):
     """
     Function which call itself to fill container
@@ -1059,43 +1100,13 @@ class PublishableContent(models.Model):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
+
         path = self.get_repo_path()
         repo = Repo(path)
         data = get_blob(repo.commit(sha).tree, 'manifest.json')
         json = json_reader.loads(data)
-
-        # create and fill the container
-        versioned = VersionedContent(sha, self.type, json['title'], json['slug'])
-        if 'version' in json and json['version'] == 2:
-
-            # fill metadata :
-            if 'description' in json:
-                versioned.description = json['description']
-
-            if 'type' in json:
-                if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
-                    versioned.type = json['type']
-            else:
-                versioned.type = self.type
-
-            if 'licence' in json:
-                versioned.licence = Licence.objects.filter(code=json['licence']).first()
-            else:
-                versioned.licence = \
-                    Licence.objects.filter(pk=settings.ZDS_APP['tutorial']['default_license_pk']).first()
-
-            if 'introduction' in json:
-                versioned.introduction = json['introduction']
-            if 'conclusion' in json:
-                versioned.conclusion = json['conclusion']
-
-            # then, fill container with children
-            fill_containers_from_json(json, versioned)
-            self.insert_data_in_versioned(versioned)
-
-        else:
-            raise Exception('Importation of old version is not yet supported')
-            # TODO so here we can support old version !!
+        versioned = get_content_from_json(json, sha)
+        self.insert_data_in_versioned(versioned)
 
         return versioned
 
