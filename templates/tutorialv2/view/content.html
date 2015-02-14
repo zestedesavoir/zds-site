@@ -164,7 +164,7 @@
 
 {% block sidebar_actions %}
     {% if can_edit %}
-        {% if not tutorial.in_beta %}
+        {% if not content.in_beta %}
             <li>
                 <a href="#activ-beta" class="open-modal ico-after beta blue">
                     {% trans "Mettre cette version en bêta" %}
@@ -173,9 +173,9 @@
                     {% csrf_token %}
                     <input type="hidden" name="version" value="{{ content.sha_draft }}">
                     <p>
-                        {% blocktrans with tutorial_title=tutorial.title %}
+                        {% blocktrans with content_title=content.title %}
                         Êtes-vous certain de vouloir <strong>activer</strong> la bêta du tutoriel
-                        "<em>{{ tutorial_title }}</em>" dans la version que vous voyez actuellement ?
+                        "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                         {% endblocktrans %}
                     </p>
                     <button type="submit">
@@ -183,10 +183,10 @@
                     </button>
                 </form>
             </li>
-        {% else %}
-            {% if not tutorial.is_beta %}
+            {% else %}
+            {% if not content.is_beta %}
                 <li>
-                    <a href="{{ tutorial.get_absolute_url }}?version={{ tutorial.sha_beta }}" class="ico-after view blue">
+                    <a href="{{ content.get_absolute_url_beta }}" class="ico-after view blue">
                         {% blocktrans %}
                             Voir <span class="wide">la version</span> en bêta
                         {% endblocktrans %}
@@ -198,13 +198,13 @@
                     </a>
                     <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="update-beta">
                         {% csrf_token %}
-                        <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                        <input type="hidden" name="content" value="{{ content.pk }}">
                         <input type="hidden" name="update_beta">
                         <input type="hidden" name="version" value="{{ version }}">
                         <p>
-                            {% blocktrans with tutorial_title=content.title %}
+                            {% blocktrans with content_title=content.title %}
                             Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel
-                            "<em>{{ tutorial_title }}</em>" dans la version que vous voyez actuellement ?
+                            "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                             {% endblocktrans %}
                         </p>
                         <button type="submit">
@@ -225,12 +225,12 @@
                 </a>
                 <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="desactiv-beta">
                     {% csrf_token %}
-                    <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
+                    <input type="hidden" name="content" value="{{ content.pk }}">
                     <input type="hidden" name="desactiv_beta">
                     <input type="hidden" name="version" value="{{ version }}">
                     <p>
-                        {% blocktrans with tutorial_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta du tutoriel "<em>{{ tutorial_title }}</em>" ?
+                        {% blocktrans with content_title=content.title %}
+                            Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta du tutoriel "<em>{{ content_title }}</em>" ?
                         {% endblocktrans %}
                     </p>
                     <button type="submit">
@@ -239,7 +239,8 @@
                 </form>
             </li>
         {% endif %}
-         <li>
+
+        <li>
             <a href="{% url "content:history" content.pk content.slug %}" class="ico-after history blue">
                 {% trans "Historique des versions" %}
             </a>
