@@ -133,8 +133,9 @@
             {% endfor %}
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross red ">
-                        {% trans "Annuler le filtre" %}
+                    <a href="{% url "zds.tutorial.views.help_tutorial" %}">
+                        <span class="icon ico-after cross red"> </span>
+                        <span>{% trans "Annuler le filtre" %}</span>
                     </a>
                 </li>
             {% endif %}
