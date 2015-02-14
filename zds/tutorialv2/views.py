@@ -440,7 +440,7 @@ class CreateContainer(FormView):
         self.content.update_date = datetime.now()
         self.content.save()
 
-        self.success_url = parent.get_absolute_url()
+        self.success_url = parent.children[-1].get_absolute_url()
 
         return super(CreateContainer, self).form_valid(form)
 
@@ -596,7 +596,7 @@ class CreateExtract(FormView):
         self.content.update_date = datetime.now()
         self.content.save()
 
-        self.success_url = parent.get_absolute_url()
+        self.success_url = parent.children[-1].get_absolute_url()
 
         return super(CreateExtract, self).form_valid(form)
 

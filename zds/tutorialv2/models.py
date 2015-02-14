@@ -239,6 +239,7 @@ class Container:
                 child.update_children()
             elif isinstance(child, Extract):
                 child.text = child.get_path(relative=True)
+        # TODO : does this function should also rewrite `slug_pool` ?
 
     def get_path(self, relative=False):
         """
