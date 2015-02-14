@@ -6,13 +6,13 @@
 
 
 {% block title %}
-    {% trans "Sujets crées par" %} {{ usr.username }}
+    {% trans "Sujets créés par" %} {{ usr.username }}
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Sujets crées par" %} "{{ usr.username }}"
+    {% trans "Sujets créés par" %} "{{ usr.username }}"
 {% endblock %}
 
 
@@ -21,7 +21,7 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.forum.views.find_topic" usr.pk %}">{% trans "Sujets crées" %}</a></li>
+    <li><a href="{% url "zds.forum.views.find_topic" usr.pk %}">{% trans "Sujets créés" %}</a></li>
     <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
@@ -52,7 +52,16 @@
                         {{ topic.pubdate|format_date }}
                     </td>
                     <td>
-                        {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
+                        {% if topic.first_post.is_visible != False %}
+                            {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
+                        {% else %}
+                            <p>
+                                {% trans "Masqué par" %} {{ topic.first_post.editor }}
+                                {% if topic.first_post.text_hidden %}
+                                    : {{ topic.first_post.text_hidden }}
+                                {% endif %}
+                            </p>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
