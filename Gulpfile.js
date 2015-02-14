@@ -10,7 +10,7 @@ var gulp = require("gulp"),
 var sourceDir = "assets/",
     destDir = "dist/",
     appFile = "js/app.js"
-    styleFile = "main.scss",
+    stylesFiles = ["main.scss", "only-ie.scss"],
     sassDir = "scss/",
     imagesDir = "images/",
     scriptsDir = "js/",
@@ -113,7 +113,11 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
  * Compiles SASS files
  */
 gulp.task("stylesheet", ["sprite", "vendors"], function() {
-  return gulp.src(sourceDir + sassDir + styleFile)
+  var files = [];
+  for (var i = 0; i < stylesFiles.length; i++) {
+    files.push(sourceDir + sassDir + stylesFiles[i]);
+  }
+  return gulp.src(files)
     .pipe($.sass({
       sass: sourceDir + sassDir,
       imagePath: sourceDir + imagesDir
@@ -136,7 +140,11 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
  * Error-pages stylesheet
  */
 gulp.task("errors", ["clean-errors"], function() {
-  return gulp.src(errorsDir + sassDir + styleFile)
+  var files = [];
+  for (var i = 0; i < stylesFiles.length; i++) {
+    files.push(sourceDir + sassDir + stylesFiles[i]);
+  }
+  return gulp.src(files)
     .pipe($.sass({
       sass: errorsDir + sassDir,
       imagePath: errorsDir + imagesDir,
