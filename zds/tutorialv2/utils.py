@@ -14,6 +14,7 @@ def search_container_or_404(base_content, kwargs_array):
     :raise Http404 if no suitable container is found
     """
     container = None
+
     if 'parent_container_slug' in kwargs_array:
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
@@ -22,6 +23,8 @@ def search_container_or_404(base_content, kwargs_array):
             else:
                 if not isinstance(container, Container):
                     raise Http404
+    else:
+        container = base_content
 
     # if extract is at depth 2 or 3 we get its direct parent container
     if 'container_slug' in kwargs_array:
