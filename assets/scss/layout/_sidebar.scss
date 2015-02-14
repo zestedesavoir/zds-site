@@ -140,7 +140,7 @@
                 /**
                  * Sidebar link variations / icons
                  */
-                &.unread {
+                &.selected {
                     font-weight: bold;
                 }
 
@@ -322,6 +322,10 @@
             padding-top: 5px;
             margin-bottom: 5px;
             background-color: #FFF;
+
+            & + a {
+                font-weight: bold;
+            }
 
             ol {
                 margin-top: 5px;

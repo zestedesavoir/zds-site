@@ -22,12 +22,12 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}unread{% endif %}">
+                <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}selected{% endif %}">
                     {% trans "En cours de validation" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}unread{% endif %}">
+                <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}selected{% endif %}">
                     {% trans "En attente de validateur" %}
                 </a>
             </li>
