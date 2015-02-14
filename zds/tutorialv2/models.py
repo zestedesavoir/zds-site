@@ -20,6 +20,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from datetime import datetime
 from git.repo import Repo
+from git import Actor
 from django.core.exceptions import PermissionDenied
 
 from zds.gallery.models import Image, Gallery
@@ -29,7 +30,6 @@ from zds.utils.tutorials import get_blob
 from zds.utils.tutorialv2 import export_content
 from zds.settings import ZDS_APP
 from zds.utils.models import HelpWriting
-
 from uuslug import uuslug
 
 
@@ -360,7 +360,7 @@ class Container:
 
         if commit_message == '':
             commit_message = u'Mise à jour de « ' + self.title + u' »'
-        cm = repo.index.commit(commit_message)
+        cm = repo.index.commit(commit_message, **get_commit_author())
 
         return cm.hexsha
 
@@ -405,7 +405,7 @@ class Container:
 
         if commit_message == '':
             commit_message = u'Création du conteneur « ' + title + u' »'
-        cm = repo.index.commit(commit_message)
+        cm = repo.index.commit(commit_message, **get_commit_author())
 
         return cm.hexsha
 
@@ -439,7 +439,7 @@ class Container:
 
         if commit_message == '':
             commit_message = u'Création de l\'extrait « ' + title + u' »'
-        cm = repo.index.commit(commit_message)
+        cm = repo.index.commit(commit_message, **get_commit_author())
 
         return cm.hexsha
 
@@ -465,7 +465,7 @@ class Container:
 
         if commit_message == '':
             commit_message = u'Suppression du conteneur « {} »'.format(self.title)
-        cm = repo.index.commit(commit_message)
+        cm = repo.index.commit(commit_message, **get_commit_author())
 
         return cm.hexsha
 
@@ -603,7 +603,7 @@ class Extract:
         if commit_message == '':
             commit_message = u'Modification de l\'extrait « {} », situé dans le conteneur « {} »'\
                 .format(self.title, self.container.title)
-        cm = repo.index.commit(commit_message)
+        cm = repo.index.commit(commit_message, **get_commit_author())
 
         return cm.hexsha
 
@@ -629,7 +629,7 @@ class Extract:
 
         if commit_message == '':
             commit_message = u'Suppression de l\'extrait « {} »'.format(self.title)
-        cm = repo.index.commit(commit_message)
+        cm = repo.index.commit(commit_message, **get_commit_author())
 
         return cm.hexsha
 
@@ -857,7 +857,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     if commit_message == '':
         commit_message = u'Création du contenu'
     repo.index.add(['manifest.json', introduction, conclusion])
-    cm = repo.index.commit(commit_message)
+    cm = repo.index.commit(commit_message, **get_commit_author())
 
     # update sha:
     db_object.sha_draft = cm.hexsha
@@ -871,6 +871,18 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     versioned_content.repository = repo
 
     return versioned_content
+
+
+def get_commit_author():
+    """
+    :return: correctly formatted commit author for `repo.index.commit()`
+    """
+    user = get_current_user()
+    aut_user = str(user.pk)
+    aut_email = str(user.email)
+    if aut_email is None or aut_email.strip() == "":
+        aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
+    return {'author': Actor(aut_user, aut_email),  'committer': Actor(aut_user, aut_email)}
 
 
 class PublishableContent(models.Model):
