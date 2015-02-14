@@ -362,6 +362,8 @@ class Container:
             commit_message = u'Mise à jour de « ' + self.title + u' »'
         cm = repo.index.commit(commit_message, **get_commit_author())
 
+        self.top_container().sha_draft = cm.hexsha
+
         return cm.hexsha
 
     def repo_add_container(self, title, introduction, conclusion, commit_message=''):
@@ -407,6 +409,8 @@ class Container:
             commit_message = u'Création du conteneur « ' + title + u' »'
         cm = repo.index.commit(commit_message, **get_commit_author())
 
+        self.top_container().sha_draft = cm.hexsha
+
         return cm.hexsha
 
     def repo_add_extract(self, title, text, commit_message=''):
@@ -441,6 +445,8 @@ class Container:
             commit_message = u'Création de l\'extrait « ' + title + u' »'
         cm = repo.index.commit(commit_message, **get_commit_author())
 
+        self.top_container().sha_draft = cm.hexsha
+
         return cm.hexsha
 
     def repo_delete(self, commit_message=''):
@@ -466,6 +472,8 @@ class Container:
         if commit_message == '':
             commit_message = u'Suppression du conteneur « {} »'.format(self.title)
         cm = repo.index.commit(commit_message, **get_commit_author())
+
+        self.top_container().sha_draft = cm.hexsha
 
         return cm.hexsha
 
@@ -605,6 +613,8 @@ class Extract:
                 .format(self.title, self.container.title)
         cm = repo.index.commit(commit_message, **get_commit_author())
 
+        self.container.top_container().sha_draft = cm.hexsha
+
         return cm.hexsha
 
     def repo_delete(self, commit_message=''):
@@ -631,6 +641,8 @@ class Extract:
             commit_message = u'Suppression de l\'extrait « {} »'.format(self.title)
         cm = repo.index.commit(commit_message, **get_commit_author())
 
+        self.container.top_container().sha_draft = cm.hexsha
+
         return cm.hexsha
 
 
@@ -650,8 +662,6 @@ class VersionedContent(Container):
     description = ''
     type = ''
     licence = None
-
-    slug_pool = {}
 
     # Metadata from DB :
     pk = 0
