@@ -183,7 +183,7 @@ class Container:
         """
         if not self.has_extracts():
             if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth']-1:
-                if self.top_container().type != 'ARTICLE':
+                if not self.top_container().is_article:
                     return True
         return False
 
@@ -685,6 +685,9 @@ class VersionedContent(Container):
     in_validation = False
     in_public = False
 
+    is_article = False
+    is_tutorial = False
+
     have_markdown = False
     have_html = False
     have_pdf = False
@@ -751,7 +754,7 @@ class VersionedContent(Container):
         :return: a list of chpaters (Container which contains Extracts) in the reading order
         """
         continuous_list = []
-        if self.type != "ARTICLE":  # article cannot be paginated
+        if not self.is_article:  # article cannot be paginated
             if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers !
                 for child in self.children:
                     if len(child.children) != 0:
@@ -1155,7 +1158,7 @@ class PublishableContent(models.Model):
             'pk',
             'have_markdown', 'have_html', 'have_pdf', 'have_epub', 'in_beta', 'in_validation', 'in_public',
             'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source', 'sha_draft',
-            'sha_beta', 'sha_validation', 'sha_public'
+            'sha_beta', 'sha_validation', 'sha_public', 'is_article', 'is_tutorial'
         ]
 
         # load functions and attributs in `versioned`
