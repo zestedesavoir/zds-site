@@ -34,11 +34,22 @@
         }
     }
 
+    $hmargin: 15px;
+
+    .autocomplete-wrapper {
+        .autocomplete-input {
+            margin: 0 $hmargin;
+        }
+        .autocomplete-dropdown {
+            margin: 0 $hmargin;
+        }
+    }
+
     p,
     input,
     select,
     textarea {
-        margin: 10px 15px;
+        margin: 10px $hmargin;
         resize: none;
 
         &:not([type=checkbox]):not([type=radio]) {
@@ -46,7 +57,7 @@
         }
     }
     label {
-        margin: 0 15px;
+        margin: 0 $hmargin;
     }
     textarea {
         margin-top: 0;
