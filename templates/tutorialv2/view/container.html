@@ -60,6 +60,18 @@
         </p>
     {% endif %}
 
+     {% if container.has_extracts %}
+        <ul>
+            {% for extract in container.children %}
+                <li>
+                    <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
+                        {{ extract.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
 
 
     <hr />
@@ -189,7 +201,7 @@
 
 
 {% block sidebar_blocks %}
-    {#  include "tutorial/includes/summary.part.html" with tutorial=tutorial chapter_current=chapter #}
+    {%   include "tutorialv2/includes/summary.part.html" with current_container=container %}
 
     {% if user in content.authors.all or perms.content.change_content %}
          <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
