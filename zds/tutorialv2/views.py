@@ -492,7 +492,24 @@ class DisplayContainer(DetailView):
         context['content'] = content.load_version(sha)
         container = context['content']
 
-        context['container'] = search_container_or_404(container, self.kwargs)
+        container = search_container_or_404(container, self.kwargs)
+        context['container'] = container
+
+        # pagination: search for `previous` and `next`, if available
+        if context['content'].type != 'ARTICLE' and not context['content'].has_extracts():
+            chapters = context['content'].get_list_of_chapters()
+            try:
+                position = chapters.index(container)
+            except ValueError:
+                pass  # this is not (yet?) a chapter
+            else:
+                context['has_pagination'] = True
+                context['previous'] = None
+                context['next'] = None
+                if position > 0:
+                    context['previous'] = chapters[position-1]
+                if position < len(chapters)-1:
+                    context['next'] = chapters[position+1]
 
         return context
 
