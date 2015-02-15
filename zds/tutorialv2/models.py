@@ -723,7 +723,7 @@ class VersionedContent(Container):
         """
         :return: the url to access the tutorial when in beta
         """
-        if self.is_beta:
+        if self.in_beta:
             return self.get_absolute_url() + '?version=' + self.sha_beta
         else:
             return self.get_absolute_url()

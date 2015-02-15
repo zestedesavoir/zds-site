@@ -135,7 +135,7 @@
 
 {% block sidebar_new %}
     {% if can_edit %}
-        {% if content.sha_draft == version %}
+        {% if not version or content.sha_draft == version %}
             <a href="{% url "content:edit" content.pk content.slug %}" class="ico-after edit blue new-btn">
                 {% trans "Éditer" %}
             </a>

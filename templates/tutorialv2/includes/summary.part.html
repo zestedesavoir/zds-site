@@ -60,9 +60,9 @@
                                     <li>
                                         <a
                                             {% if online %}
-                                                href="{{ extract.get_absolute_url_online }}"
+                                                href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}"
                                             {% else %}
-                                                href="{{ extract.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                                                href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
                                             {% endif %}
                                         >
                                             {{ extract.title }}

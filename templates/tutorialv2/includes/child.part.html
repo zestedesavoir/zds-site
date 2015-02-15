@@ -3,19 +3,21 @@
 
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
-    <a href="{{ child.get_absolute_url }}">
+    <a href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">
         {{ child.title }}
     </a>
 </h2>
 
 {% if user in content.authors.all or perms.tutorial.change_tutorial %}
-    <div class="actions-title">
-        <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
-            {% trans "Éditer" %}
-        </a>
+    {%  if not version or version == content.sha_draft %}
+        <div class="actions-title">
+            <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
+                {% trans "Éditer" %}
+            </a>
 
-        {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
+            {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
     </div>
+    {% endif %}
 {% endif %}
 
 {% if child.text %}
@@ -26,11 +28,19 @@
 {% else %}
     {# child is a container #}
 
-    {% if child.children %}
+    {% if child.has_extracts %}
         <ol>
-            {%  for subchild in child.children %}
+            {% for extract in child.children %}
             <li>
-                <a href="{{ subchild.get_absolute_url }}">{{ subchild.title }}</a>
+                <a href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+            </li>
+            {% endfor %}
+        </ol>
+    {%  elif child.has_sub_containers %}
+        <ol>
+            {% for subchild in child.children %}
+            <li>
+                <a href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ subchild.title }}</a>
             </li>
             {% endfor %}
         </ol>
