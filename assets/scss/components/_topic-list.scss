@@ -82,6 +82,7 @@
 
     .topic-infos {
         width: 5%;
+        min-width: 35px; // 20px + 15px (width + margin of .ico-after:after)
 
         input[type=checkbox] {
             margin: 29px 25% 0;
