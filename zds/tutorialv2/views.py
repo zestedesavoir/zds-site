@@ -233,6 +233,9 @@ class DisplayContent(DetailView):
             else:
                 sha = content.sha_draft
 
+        if sha != content.sha_draft:
+            context["version"] = sha
+
         # check that if we ask for beta, we also ask for the sha version
         is_beta = content.is_beta(sha)
         can_edit = self.request.user in content.authors.all()
@@ -244,6 +247,8 @@ class DisplayContent(DetailView):
             else:
                 can_edit = True
 
+        context["can_edit"] = can_edit
+
         # load versioned file
         versioned_tutorial = content.load_version(sha)
 
@@ -254,8 +259,6 @@ class DisplayContent(DetailView):
             is_js = ""
         context["is_js"] = is_js
         context["content"] = versioned_tutorial
-        context["version"] = sha
-        context["can_edit"] = can_edit
         self.get_forms(context, content)
 
         return context
@@ -479,14 +482,21 @@ class DisplayContainer(DetailView):
             else:
                 sha = content.sha_draft
 
+        if sha != content.sha_draft:
+            context["version"] = sha
+
         # check that if we ask for beta, we also ask for the sha version
         is_beta = content.is_beta(sha)
-
+        can_edit = self.request.user in content.authors.all()
         if self.request.user not in content.authors.all() and not is_beta:
             # if we are not author of this content or if we did not ask for beta
             # the only members that can display and modify the tutorial are validators
             if not self.request.user.has_perm("tutorial.change_tutorial"):
                 raise PermissionDenied
+            else:
+                can_edit = True
+
+        context["can_edit"] = can_edit
 
         # load versioned file
         context['content'] = content.load_version(sha)

@@ -13,11 +13,11 @@
 
 {% block breadcrumb %}
     {%  if container.parent.parent %}
-        <li><a href="{{ container.parent.parent.get_absolute_url }}">{{ container.parent.parent.title }}</a></li>
+        <li><a href="{{ container.parent.parent.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ container.parent.parent.title }}</a></li>
     {% endif %}
 
     {%  if container.parent %}
-        <li><a href="{{ container.parent.get_absolute_url }}">{{ container.parent.title }}</a></li>
+        <li><a href="{{ container.parent.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ container.parent.title }}</a></li>
     {% endif %}
 
     <li>{{ container.title }}</li>
@@ -100,30 +100,31 @@
 
 
 {% block sidebar_new %}
-    {% if user in content.authors.all or perms.tutorial.change_tutorial %}
-
-        <a href="{{ container.get_edit_url }}" class="ico-after edit blue new-btn">
-            {% trans "Éditer" %}
-        </a>
-
-
-        {%  if container.can_add_container %}
-            <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
-                {% trans "Ajouter un conteneur" %}
+    {% if can_edit %}
+        {% if not version or version == content.sha_draf %}
+            <a href="{{ container.get_edit_url }}" class="ico-after edit blue new-btn">
+                {% trans "Éditer" %}
             </a>
+
+
+            {%  if container.can_add_container %}
+                <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
+                    {% trans "Ajouter un conteneur" %}
+                </a>
+            {% endif %}
+
+            {%  if container.can_add_extract %}
+                <a href="
+                    {%  if container.parent == content %}
+                        {% url "content:create-extract" content.pk content.slug container.slug %}
+                    {%  else %}
+                        {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
+                    {%  endif %}
+                 " class="ico-after more blue new-btn">
+                    {% trans "Ajouter un extrait" %}
+                </a>
+            {%  endif %}
         {% endif %}
-
-        {%  if container.can_add_extract %}
-            <a href="
-                {%  if container.parent == content %}
-                    {% url "content:create-extract" content.pk content.slug container.slug %}
-                {%  else %}
-                    {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
-                {%  endif %}
-             " class="ico-after more blue new-btn">
-                {% trans "Ajouter un extrait" %}
-            </a>
-        {%  endif %}
     {% endif %}
 {% endblock %}
 
