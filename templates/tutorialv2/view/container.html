@@ -50,6 +50,8 @@
 
 
 {% block content %}
+    {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" %}
+
     {% if container.get_introduction and container.get_introduction != "None" %}
         {{ container.get_introduction|emarkdown }}
     {% elif not content.is_beta %}
@@ -79,6 +81,8 @@
             {% trans "Il n'y a pas de conclusion" %}.
         </p>
     {% endif %}
+
+    {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" %}
 {% endblock %}
 
 

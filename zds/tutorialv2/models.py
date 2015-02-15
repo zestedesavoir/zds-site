@@ -737,6 +737,22 @@ class VersionedContent(Container):
         """
         return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
 
+    def get_list_of_chapters(self):
+        """
+        :return: a list of chpaters (Container which contains Extracts) in the reading order
+        """
+        continuous_list = []
+        if self.type != "ARTICLE":  # article cannot be paginated
+            if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers !
+                for child in self.children:
+                    if len(child.children) != 0:
+                        if isinstance(child.children[0], Extract):
+                            continuous_list.append(child)  # it contains Extract, this is a chapter, so paginated
+                        else:  # Container is a part
+                            for sub_child in child.children:
+                                continuous_list.append(sub_child)  # even if empty `sub_child.childreen`, it's chapter
+        return continuous_list
+
     def get_json(self):
         """
         :return: raw JSON file
