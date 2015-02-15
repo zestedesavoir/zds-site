@@ -168,6 +168,15 @@ class Container:
         else:
             raise Exception('slug "{}" already in the slug pool !'.format(slug))
 
+    def long_slug(self):
+        """
+        :return: a long slug that embed slugs of parents
+        """
+        long_slug = ''
+        if self.parent:
+            long_slug = self.parent.long_slug() + '__'
+        return long_slug + self.slug
+
     def can_add_container(self):
         """
         :return: True if this container accept child container, false otherwise
