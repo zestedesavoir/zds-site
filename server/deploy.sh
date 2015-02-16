@@ -46,7 +46,6 @@ git checkout $1
 git checkout -b $1
 
 # Front commands
-source /usr/local/nvm/nvm.sh
 # Update packages
 npm install --production
 # Remove unused packages
@@ -75,4 +74,4 @@ sudo service nginx reload
 
 # Display current branch and commit
 git status
-echo "Commit deployé : `git rev-parse HEAD`"
+echo "Commit deployÃ© : `git rev-parse HEAD`"
