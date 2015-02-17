@@ -456,17 +456,17 @@ def load_tutorials(cli, size, fake):
                         v.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation
-                                             + percent_tutos_validation_with_validator)):
+                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
+                                             percent_tutos_validation_with_validator)):
                         v = TValidation(tutorial=tuto,
                                         version=tuto.sha_draft,
                                         date_proposition=datetime.now())
                         v.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation
-                                             + percent_tutos_validation_with_validator
-                                             + percent_tutos_public)):
+                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
+                                             percent_tutos_validation_with_validator +
+                                             percent_tutos_public)):
                         mep_tuto(tuto, tuto.sha_draft)
                         v = TValidation(tutorial=tuto,
                                         version=tuto.sha_draft,
@@ -506,17 +506,17 @@ def load_tutorials(cli, size, fake):
                         v.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation
-                                             + percent_tutos_validation_with_validator)):
+                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
+                                             percent_tutos_validation_with_validator)):
                         v = TValidation(tutorial=tuto,
                                         version=tuto.sha_draft,
                                         date_proposition=datetime.now())
                         v.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation
-                                             + percent_tutos_validation_with_validator
-                                             + percent_tutos_public)):
+                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
+                                             percent_tutos_validation_with_validator +
+                                             percent_tutos_public)):
                         mep_tuto(tuto, tuto.sha_draft)
                         v = TValidation(tutorial=tuto,
                                         version=tuto.sha_draft,
@@ -592,17 +592,17 @@ def load_articles(cli, size, fake):
                         v.save()
                         art.sha_validation = art.sha_draft
                         art.save()
-                    elif i < int(nb_arts * (percent_arts_validation_in_validation
-                                            + percent_arts_validation_with_validator)):
+                    elif i < int(nb_arts * (percent_arts_validation_in_validation +
+                                            percent_arts_validation_with_validator)):
                         v = AValidation(article=art,
                                         version=art.sha_draft,
                                         date_proposition=datetime.now())
                         v.save()
                         art.sha_validation = art.sha_draft
                         art.save()
-                    elif i < int(nb_arts * (percent_arts_validation_in_validation
-                                            + percent_arts_validation_with_validator
-                                            + percent_arts_public)):
+                    elif i < int(nb_arts * (percent_arts_validation_in_validation +
+                                            percent_arts_validation_with_validator +
+                                            percent_arts_public)):
                         mep_art(art, art.sha_draft)
                         v = AValidation(article=art,
                                         version=art.sha_draft,
