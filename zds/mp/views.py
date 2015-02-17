@@ -42,8 +42,8 @@ def index(request):
             liste = request.POST.getlist('items')
             topics = PrivateTopic.objects.filter(pk__in=liste) \
                 .filter(
-                Q(participants__in=[request.user])
-                | Q(author=request.user))
+                Q(participants__in=[request.user]) |
+                Q(author=request.user))
 
             for topic in topics:
                 if topic.participants.all().count() == 0:

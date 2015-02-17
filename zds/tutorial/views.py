@@ -162,9 +162,9 @@ def list_validation(request):
             validations = Validation.objects.filter(
                 Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition").all()
         else:
-            validations = Validation.objects.filter(Q(status="PENDING")
-                                                    | Q(status="PENDING_V"
-                                                        )).filter(tutorial__subcategory__in=[subcategory]) \
+            validations = Validation.objects.filter(Q(status="PENDING") |
+                                                    Q(status="PENDING_V")
+                                                    ).filter(tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition")\
                 .all()
     return render(request, "tutorial/validation/index.html",
@@ -319,14 +319,14 @@ def reject_tutorial(request):
             True,
             direct=False,
         )
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
     else:
         messages.error(request,
                        _(u"Vous devez avoir réservé ce tutoriel "
                          u"pour pouvoir le refuser."))
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
 
 
 @can_write_and_read_now
@@ -391,14 +391,14 @@ def valid_tutorial(request):
             True,
             direct=False,
         )
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
     else:
         messages.error(request,
                        _(u"Vous devez avoir réservé ce tutoriel "
                          u"pour pouvoir le valider."))
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
 
 
 @can_write_and_read_now
@@ -427,8 +427,8 @@ def invalid_tutorial(request, tutorial_pk):
     tutorial.pubdate = None
     tutorial.save()
     messages.success(request, _(u"Le tutoriel a bien été dépublié."))
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
+    return redirect(tutorial.get_absolute_url() + "?version=" +
+                    validation.version)
 
 
 # User actions on tutorial.
@@ -719,8 +719,8 @@ def modify_tutorial(request):
                            u'La beta du tutoriel est de nouveau active.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                    settings.ZDS_APP['site']['url']
-                                                                    + tutorial.get_absolute_url_beta()))
+                                                                    settings.ZDS_APP['site']['url'] +
+                                                                    tutorial.get_absolute_url_beta()))
                     unlock_topic(topic, msg)
                     send_post(topic, msg_up)
 
@@ -761,8 +761,8 @@ def modify_tutorial(request):
                            u'La beta du tutoriel a été mise à jour.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                    settings.ZDS_APP['site']['url']
-                                                                    + tutorial.get_absolute_url_beta()))
+                                                                    settings.ZDS_APP['site']['url'] +
+                                                                    tutorial.get_absolute_url_beta()))
                     unlock_topic(topic, msg)
                     send_post(topic, msg_up)
                 messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
@@ -949,8 +949,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             for ext in chapter["extracts"]:
                 ext["position_in_chapter"] = cpt
                 ext["path"] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
+                text = open(os.path.join(tutorial.get_prod_path(), ext["text"] +
+                                         ".html"), "r")
                 ext["txt"] = text.read()
                 text.close()
                 cpt += 1
@@ -1679,8 +1679,8 @@ def view_chapter(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            chapter["get_absolute_url"] = part["get_absolute_url"] \
-                + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
+            chapter["get_absolute_url"] = part["get_absolute_url"] + "{0}/{1}/" \
+                                                                     .format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
@@ -1706,10 +1706,10 @@ def view_chapter(
     if not find:
         raise Http404
 
-    prev_chapter = (chapter_tab[final_position - 1] if final_position
-                    > 0 else None)
-    next_chapter = (chapter_tab[final_position + 1] if final_position + 1
-                    < len(chapter_tab) else None)
+    prev_chapter = (chapter_tab[final_position - 1] if final_position >
+                    0 else None)
+    next_chapter = (chapter_tab[final_position + 1] if final_position + 1 >
+                    len(chapter_tab) else None)
 
     if tutorial.js_support:
         is_js = "js"
@@ -2013,8 +2013,8 @@ def edit_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if (big and request.user not in chapter.part.tutorial.authors.all()
-        or small and request.user not in chapter.tutorial.authors.all())\
+    if (big and request.user not in chapter.part.tutorial.authors.all() or
+        small and request.user not in chapter.tutorial.authors.all())\
             and not request.user.has_perm("tutorial.change_tutorial"):
         raise PermissionDenied
     introduction = os.path.join(chapter.get_path(), "introduction.md")
@@ -2435,12 +2435,12 @@ def import_content(
         tutorial.authors.add(request.user)
         part_count = 1
         for partie in tree.xpath("/bigtuto/parties/partie"):
-            part_title = tree.xpath("/bigtuto/parties/partie["
-                                    + str(part_count) + "]/titre")[0]
-            part_intro = tree.xpath("/bigtuto/parties/partie["
-                                    + str(part_count) + "]/introduction")[0]
-            part_conclu = tree.xpath("/bigtuto/parties/partie["
-                                     + str(part_count) + "]/conclusion")[0]
+            part_title = tree.xpath("/bigtuto/parties/partie[" +
+                                    str(part_count) + "]/titre")[0]
+            part_intro = tree.xpath("/bigtuto/parties/partie[" +
+                                    str(part_count) + "]/introduction")[0]
+            part_conclu = tree.xpath("/bigtuto/parties/partie[" +
+                                     str(part_count) + "]/conclusion")[0]
             part = Part()
             part.title = part_title.text.strip()
             part.position_in_tutorial = part_count
@@ -2462,9 +2462,9 @@ def import_content(
                 action="add",
             )
             chapter_count = 1
-            for chapitre in tree.xpath("/bigtuto/parties/partie["
-                                       + str(part_count)
-                                       + "]/chapitres/chapitre"):
+            for chapitre in tree.xpath("/bigtuto/parties/partie[" +
+                                       str(part_count) +
+                                       "]/chapitres/chapitre"):
                 chapter_title = tree.xpath(
                     "/bigtuto/parties/partie[" +
                     str(part_count) +
@@ -2512,9 +2512,9 @@ def import_content(
                     action="add",
                 )
                 extract_count = 1
-                for souspartie in tree.xpath("/bigtuto/parties/partie["
-                                             + str(part_count) + "]/chapitres/chapitre["
-                                             + str(chapter_count) + "]/sousparties/souspartie"):
+                for souspartie in tree.xpath("/bigtuto/parties/partie[" +
+                                             str(part_count) + "]/chapitres/chapitre[" +
+                                             str(chapter_count) + "]/sousparties/souspartie"):
                     extract_title = tree.xpath(
                         "/bigtuto/parties/partie[" +
                         str(part_count) +
@@ -2596,10 +2596,10 @@ def import_content(
         chapter.save()
         extract_count = 1
         for souspartie in tree.xpath("/minituto/sousparties/souspartie"):
-            extract_title = tree.xpath("/minituto/sousparties/souspartie["
-                                       + str(extract_count) + "]/titre")[0]
-            extract_text = tree.xpath("/minituto/sousparties/souspartie["
-                                      + str(extract_count) + "]/texte")[0]
+            extract_title = tree.xpath("/minituto/sousparties/souspartie[" +
+                                       str(extract_count) + "]/titre")[0]
+            extract_text = tree.xpath("/minituto/sousparties/souspartie[" +
+                                      str(extract_count) + "]/texte")[0]
             extract = Extract()
             extract.title = extract_title.text.strip()
             extract.position_in_chapter = extract_count
@@ -3242,19 +3242,19 @@ def mep(tutorial, sha):
     # load pandoc
 
     os.chdir(prod_path)
-    os.system(settings.PANDOC_LOC
-              + "pandoc --latex-engine=xelatex -s -S --toc "
-              + os.path.join(prod_path, tutorial.slug)
-              + ".md -o " + os.path.join(prod_path,
-                                         tutorial.slug) + ".html" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
-              + os.path.join(prod_path, tutorial.slug) + ".md "
-              + "-o " + os.path.join(prod_path, tutorial.slug)
-              + ".pdf" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
-              + os.path.join(prod_path, tutorial.slug)
-              + ".md -o " + os.path.join(prod_path,
-                                         tutorial.slug) + ".epub" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC +
+              "pandoc --latex-engine=xelatex -s -S --toc " +
+              os.path.join(prod_path, tutorial.slug) +
+              ".md -o " + os.path.join(prod_path,
+                                       tutorial.slug) + ".html" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
+              os.path.join(prod_path, tutorial.slug) + ".md " +
+              "-o " + os.path.join(prod_path, tutorial.slug) +
+              ".pdf" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC + "pandoc -s -S --toc " +
+              os.path.join(prod_path, tutorial.slug) +
+              ".md -o " + os.path.join(prod_path,
+                                       tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 
@@ -3509,8 +3509,8 @@ def edit_note(request):
         if "preview" in request.POST:
             form = NoteForm(g_tutorial, request.user,
                             initial={"text": request.POST["text"]})
-            form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
-                + "?message=" + str(note_pk)
+            form.helper.form_action = reverse("zds.tutorial.views.edit_note") + \
+                "?message=" + str(note_pk)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
@@ -3532,8 +3532,8 @@ def edit_note(request):
         return redirect(note.get_absolute_url())
     else:
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
-        form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
-            + "?message=" + str(note_pk)
+        form.helper.form_action = reverse("zds.tutorial.views.edit_note") + \
+            "?message=" + str(note_pk)
         return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 
@@ -3703,8 +3703,8 @@ def warn_typo(request, obj_type, obj_pk):
                         chapter.title,
                         settings.ZDS_APP['site']['url'] + chapter.get_absolute_url() + '?version=' + tutorial.sha_beta,
                         chapter.part.title,
-                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url() + '?version='
-                        + tutorial.sha_beta
+                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url() + '?version=' +
+                        tutorial.sha_beta
                     )
 
             msg += _(u'Voici son message :\n\n{}').format(explanation)
