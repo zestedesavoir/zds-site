@@ -61,6 +61,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, DetailView, FormView, DeleteView
+from zds.member.decorator import PermissionRequiredMixin
 
 
 class ListContent(ListView):
@@ -1010,8 +1011,7 @@ class PutContentOnBeta(FormView):
         if obj.slug != self.kwargs['slug']:
             raise Http404
         if self.request.user not in obj.authors.all():
-            # Todo: find how to throw http 403
-            raise Http404
+            raise PermissionDenied
         return obj
 
     def form_valid(self, form):
@@ -1092,68 +1092,43 @@ class PutContentOnBeta(FormView):
 # Staff actions.
 
 
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-@login_required
-def list_validation(request):
-    """Display tutorials list in validation."""
+class ValidationListView(ListView, PermissionRequiredMixin):
+    permissions = ["tutorial.change_tutorial"]
+    context_object_name = "validations"
+    template_name = "tutorialv2/validation/index.html"
 
-    # Retrieve type of the validation. Default value is all validations.
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.check_permissions()
+        return super(ValidationListView, self).dispatch(*args, **kwargs)
 
-    try:
-        type = request.GET["type"]
-    except KeyError:
-        type = None
+    def get_queryset(self):
+        """
 
-    # Get subcategory to filter validations.
+        :return: a query set containing all validation according to the type and subcategory optional parameters
+        """
+        try:
+            type = self.request.GET["type"]
+            if type == "orphan":
+                queryset = Validation.objects.filter(
+                    validator__isnull=True,
+                    status="PENDING")
+            elif type == "reserved":
+                queryset = Validation.objects.filter(
+                    validator__isnull=True,
+                    status="PENDING")
+            else:
+                raise KeyError()
+        except KeyError:
+            queryset = Validation.objects.filter(
+                Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition")
 
-    try:
-        subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
-        subcategory = None
-
-    # Orphan validation. There aren't validator attached to the validations.
-
-    if type == "orphan":
-        if subcategory is None:
-            validations = Validation.objects.filter(
-                validator__isnull=True,
-                status="PENDING").order_by("date_proposition").all()
-        else:
-            validations = Validation.objects.filter(validator__isnull=True,
-                                                    status="PENDING",
-                                                    tutorial__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
-                .all()
-    elif type == "reserved":
-
-        # Reserved validation. There are a validator attached to the
-        # validations.
-
-        if subcategory is None:
-            validations = Validation.objects.filter(
-                validator__isnull=False,
-                status="PENDING_V").order_by("date_proposition").all()
-        else:
-            validations = Validation.objects.filter(validator__isnull=False,
-                                                    status="PENDING_V",
-                                                    tutorial__subcategory__in=[subcategory]) \
-                .order_by("date_proposition") \
-                .all()
-    else:
-
-        # Default, we display all validations.
-
-        if subcategory is None:
-            validations = Validation.objects.filter(
-                Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition").all()
-        else:
-            validations = Validation.objects.filter(Q(status="PENDING")
-                                                    | Q(status="PENDING_V"
-                                                        )).filter(tutorial__subcategory__in=[subcategory]) \
-                .order_by("date_proposition")\
-                .all()
-    return render(request, "tutorial/validation/index.html",
-                           {"validations": validations})
+        try:
+            category = get_object_or_404(Category, pk=self.request.GET["subcategory"])
+            queryset = queryset.filter(content__subcategory__in=[category]).order_by("date_proposition").all()
+        except KeyError:
+            queryset = queryset.order_by("date_proposition").all()
+        return queryset
 
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
