@@ -18,8 +18,8 @@ class PrivateTopicFormTest(TestCase):
         """  Reference valid case """
         data = {
             'participants':
-                self.profile1.user.username
-                + ',' + self.staff1.username,
+                self.profile1.user.username +
+                ',' + self.staff1.username,
             'title': 'Test title',
             'subtitle': 'Test subtitle',
             'text': 'blabla'

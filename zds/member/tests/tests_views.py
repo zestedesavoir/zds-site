@@ -136,8 +136,8 @@ class MemberTests(TestCase):
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
         result = self.client.post(
-            reverse('zds.member.views.login_view')
-            + '?next=' + reverse('zds.gallery.views.gallery_list'),
+            reverse('zds.member.views.login_view') +
+            '?next=' + reverse('zds.gallery.views.gallery_list'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
@@ -148,11 +148,11 @@ class MemberTests(TestCase):
         # a next parameter.
         self.client.logout()
         result = self.client.get(
-            reverse('zds.member.views.login_view')
-            + '?next=' + reverse('zds.gallery.views.gallery_list'))
+            reverse('zds.member.views.login_view') +
+            '?next=' + reverse('zds.gallery.views.gallery_list'))
         self.assertContains(result,
-                            reverse('zds.member.views.login_view')
-                            + '?next=' + reverse('zds.gallery.views.gallery_list'),
+                            reverse('zds.member.views.login_view') +
+                            '?next=' + reverse('zds.gallery.views.gallery_list'),
                             count=1)
 
     def test_register(self):
@@ -469,8 +469,8 @@ class MemberTests(TestCase):
 
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
-        result = self.client.get(reverse('zds.member.views.login_view') + '?next='
-                                 + reverse('member-detail', args=[user.user.username]),
+        result = self.client.get(reverse('zds.member.views.login_view') + '?next=' +
+                                 reverse('member-detail', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
 
