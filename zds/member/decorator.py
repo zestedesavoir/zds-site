@@ -18,3 +18,11 @@ def can_write_and_read_now(func):
 
         return func(request, *args, **kwargs)
     return _can_write_and_read_now
+
+
+class PermissionRequiredMixin(object):
+    permissions = []
+
+    def check_permissions(self):
+        if False in [self.request.user.has_perm(p) for p in self.permissions]:
+            raise PermissionDenied

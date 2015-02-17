@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
-    PutContentOnBeta, DisplayHistory
+    PutContentOnBeta, DisplayHistory, ValidationListView
 from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
@@ -85,5 +85,9 @@ urlpatterns = patterns('',
 
                        # markdown import
                        url(r'^importer/archive/nouveau/$', ImportMarkdownView.as_view(), name="import_new_archive"),
-                       url(r'^importer/archive/(?P<pk>\d+)/$', ImportMarkdownView.as_view(), name="update_with_archive")
+                       url(r'^importer/archive/(?P<pk>\d+)/$', ImportMarkdownView.as_view(),
+                           name="update_with_archive"),
+
+                       # validation
+                       url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation")
                        )
