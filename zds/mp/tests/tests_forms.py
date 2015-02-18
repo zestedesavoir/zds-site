@@ -146,7 +146,7 @@ class PrivatePostFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivatePostForm(self.topic, self.profile.user, data=data)
+        form = PrivatePostForm(self.topic, data=data)
         self.assertTrue(form.is_valid())
 
     def test_invalid_form_post_empty_text(self):
@@ -154,9 +154,9 @@ class PrivatePostFormTest(TestCase):
             'text': ' '
         }
 
-        form = PrivatePostForm(self.topic, self.profile.user, data=data)
+        form = PrivatePostForm(self.topic, data=data)
         self.assertFalse(form.is_valid())
 
     def test_invalid_form_post_no_text(self):
-        form = PrivatePostForm(self.topic, self.profile.user, data={})
+        form = PrivatePostForm(self.topic, data={})
         self.assertFalse(form.is_valid())

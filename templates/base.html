@@ -274,7 +274,7 @@
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
                                     {% with total_topics=topics.total %}
-                                        <a href="{% url "zds.mp.views.index" %}" class="ico-link">
+                                        <a href="{% url "mp-list" %}" class="ico-link">
                                             {% if total_topics > 0 %}
                                                 <span class="notif-count">{{ total_topics }}</span>
                                             {% endif %}
@@ -308,7 +308,7 @@
                                                     </li>
                                                     {% endif %}
                                                 </ul>
-                                                <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
+                                                <a href="{% url "mp-list" %}" class="dropdown-link-all">
                                                     {% trans "Tous les messages" %}
                                                 </a>
                                             </div>

@@ -38,9 +38,7 @@ class PrivateTopicTest(TestCase):
         self.assertEqual(self.topic1.__unicode__(), self.topic1.title)
 
     def test_absolute_url(self):
-        url = reverse(
-            'zds.mp.views.topic',
-            args=[self.topic1.pk, slugify(self.topic1.title)])
+        url = reverse('posts-private-list', args=[self.topic1.pk])
 
         self.assertEqual(self.topic1.get_absolute_url(), url)
 

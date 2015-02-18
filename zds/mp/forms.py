@@ -106,7 +106,7 @@ class PrivatePostForm(forms.Form):
         )
     )
 
-    def __init__(self, topic, user, *args, **kwargs):
+    def __init__(self, topic, *args, **kwargs):
         super(PrivatePostForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse(

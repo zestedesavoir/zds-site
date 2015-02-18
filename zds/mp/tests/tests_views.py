@@ -31,13 +31,6 @@ class IndexViewTest(TestCase):
             author=self.profile2.user,
             position_in_topic=2)
 
-    def test_denies_anonymous(self):
-        response = self.client.get(reverse('zds.mp.views.index'), follow=True)
-        self.assertRedirects(
-            response,
-            reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('zds.mp.views.index'), ''))
-
     def test_success_delete_topic_no_participants(self):
         topic = PrivateTopicFactory(author=self.profile1.user)
         login_check = self.client.login(
@@ -48,14 +41,13 @@ class IndexViewTest(TestCase):
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
         response = self.client.post(
-            reverse('zds.mp.views.index'),
+            reverse('zds.mp.views.leave_mps'),
             {
-                'delete': '',
                 'items': [topic.pk]
             }
         )
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(302, response.status_code)
         self.assertEqual(0, PrivateTopic.objects.filter(pk=topic.pk).count())
 
     def test_success_delete_topic_as_author(self):
@@ -67,14 +59,13 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('zds.mp.views.index'),
+            reverse('zds.mp.views.leave_mps'),
             {
-                'delete': '',
                 'items': [self.topic1.pk]
             }
         )
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(302, response.status_code)
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertEqual(self.profile2.user, topic.author)
         self.assertNotIn(self.profile1.user, topic.participants.all())
@@ -89,14 +80,13 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('zds.mp.views.index'),
+            reverse('zds.mp.views.leave_mps'),
             {
-                'delete': '',
                 'items': [self.topic1.pk]
             }
         )
 
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(302, response.status_code)
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertNotEqual(self.profile2.user, topic.author)
@@ -115,9 +105,8 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         self.client.post(
-            reverse('zds.mp.views.index'),
+            reverse('zds.mp.views.leave_mps'),
             {
-                'delete': '',
                 'items': [topic.pk]
             }
         )
@@ -133,10 +122,8 @@ class IndexViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('zds.mp.views.index') + '?page=abc')
-        self.assertEqual(response.status_code, 200)
-        # will return the first page
-        self.assertEqual(response.context['nb'], 1)
+        response = self.client.get(reverse('mp-list') + '?page=abc')
+        self.assertEqual(response.status_code, 404)
 
     def test_topic_get_page_too_far(self):
         """ get a page that is too far yet"""
@@ -156,15 +143,8 @@ class IndexViewTest(TestCase):
                 author=self.profile1.user,
                 position_in_topic=1)
 
-        response = self.client.post(
-            reverse('zds.mp.views.index') + '?page=42',
-            {
-                'items': [self.topic1.pk],
-            }
-        )
-        self.assertEqual(response.status_code, 200)
-        # will return the last page (2)
-        self.assertEqual(response.context['nb'], 2)
+        response = self.client.get(reverse('mp-list') + '?page=42')
+        self.assertEqual(response.status_code, 404)
 
 
 class TopicViewTest(TestCase):
@@ -185,17 +165,12 @@ class TopicViewTest(TestCase):
             position_in_topic=2)
 
     def test_denies_anonymous(self):
-        response = self.client.get(
-            reverse(
-                'zds.mp.views.topic',
-                args=[self.topic1.pk, slugify(self.topic1.title)]),
+        response = self.client.get(reverse('posts-private-list', args=[self.topic1.pk]),
             follow=True)
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse(
-                'zds.mp.views.topic',
-                args=[self.topic1.pk, slugify(self.topic1.title)]), ''))
+            '?next=' + urllib.quote(reverse('posts-private-list', args=[self.topic1.pk]), ''))
 
     def test_fail_topic_no_exist(self):
 
@@ -205,9 +180,7 @@ class TopicViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse(
-            'zds.mp.views.topic',
-            args=[12, 'test']))
+        response = self.client.get(reverse('posts-private-list', args=[12]))
         self.assertEqual(404, response.status_code)
 
     def test_fail_topic_no_permission(self):
@@ -219,33 +192,9 @@ class TopicViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse(
-            'zds.mp.views.topic',
-            args=[topic.pk, 'test']),
-            follow=True
-        )
+        response = self.client.get(reverse('posts-private-list', args=[topic.pk]), follow=True)
 
         self.assertEqual(403, response.status_code)
-
-    def test_fail_topic_slug(self):
-        login_check = self.client.login(
-            username=self.profile1.user.username,
-            password='hostel77'
-        )
-        self.assertTrue(login_check)
-
-        response = self.client.get(reverse(
-            'zds.mp.views.topic',
-            args=[self.topic1.pk, 'test']),
-            follow=True
-        )
-
-        self.assertRedirects(
-            response,
-            reverse(
-                'zds.mp.views.topic',
-                args=[self.topic1.pk, slugify(self.topic1.title)]),
-        )
 
     def test_get_weird_page(self):
         """ get a page that can't exist (like page=abc)"""
@@ -256,9 +205,8 @@ class TopicViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('zds.mp.views.topic',
-                                           kwargs={'topic_pk': self.topic1.pk,
-                                                   'topic_slug': slugify(self.topic1.title)
+        response = self.client.get(reverse('posts-private-list',
+                                           kwargs={'pk': self.topic1.pk,
                                                    }) + '?page=abc')
         self.assertEqual(response.status_code, 404)
 
@@ -271,9 +219,8 @@ class TopicViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('zds.mp.views.topic',
-                                           kwargs={'topic_pk': self.topic1.pk,
-                                                   'topic_slug': slugify(self.topic1.title)
+        response = self.client.get(reverse('posts-private-list',
+                                           kwargs={'pk': self.topic1.pk,
                                                    }) + '?page=42')
         self.assertEqual(response.status_code, 404)
 
@@ -294,9 +241,8 @@ class TopicViewTest(TestCase):
                 author=self.profile1.user,
                 position_in_topic=i + 2)
 
-        response = self.client.get(reverse('zds.mp.views.topic',
-                                           kwargs={'topic_pk': self.topic1.pk,
-                                                   'topic_slug': slugify(self.topic1.title)
+        response = self.client.get(reverse('posts-private-list',
+                                           kwargs={'pk': self.topic1.pk,
                                                    }) + '?page=2')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['posts'][-1], post)

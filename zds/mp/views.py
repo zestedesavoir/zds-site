@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
@@ -18,13 +17,14 @@ from django.shortcuts import redirect, get_object_or_404, render, render_to_resp
 from django.template import Context
 from django.template.loader import get_template
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.generic.detail import SingleObjectMixin
 
-from zds.utils import slugify
 from zds.utils.mps import send_mp
-from zds.utils.paginator import paginator_range
+from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
 
 from .forms import PrivateTopicForm, PrivatePostForm
@@ -33,118 +33,85 @@ from .models import PrivateTopic, PrivatePost, \
 from django.utils.translation import ugettext as _
 
 
-@login_required
-def index(request):
-    """Display the all private topics."""
+class PrivateTopicList(ZdSPagingListView):
+    """
+    Displays the list of private topics of a member given.
+    """
 
-    # delete actions
-    if request.method == 'POST':
-        if 'delete' in request.POST:
-            liste = request.POST.getlist('items')
-            topics = PrivateTopic.objects.filter(pk__in=liste) \
-                .filter(
-                Q(participants__in=[request.user]) |
-                Q(author=request.user))
+    context_object_name = 'privatetopics'
+    paginate_by = settings.ZDS_APP['forum']['topics_per_page']
+    template_name = 'mp/index.html'
 
-            for topic in topics:
-                if topic.participants.all().count() == 0:
-                    topic.delete()
-                elif request.user == topic.author:
-                    topic.author = topic.participants.all()[0]
-                    topic.participants.remove(topic.participants.all()[0])
-                    topic.save()
-                else:
-                    topic.participants.remove(request.user)
-                    topic.save()
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PrivateTopicList, self).dispatch(*args, **kwargs)
 
-    privatetopics = PrivateTopic.objects \
-        .filter(Q(participants__in=[request.user]) | Q(author=request.user)) \
-        .select_related("author", "participants") \
-        .distinct().order_by('-last_message__pubdate').all()
-
-    # Paginator
-    paginator = Paginator(privatetopics, settings.ZDS_APP['forum']['topics_per_page'])
-    page = request.GET.get('page')
-
-    try:
-        shown_privatetopics = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_privatetopics = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_privatetopics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    return render(request, 'mp/index.html', {
-        'privatetopics': shown_privatetopics,
-        'pages': paginator_range(page, paginator.num_pages), 'nb': page
-    })
+    def get_queryset(self):
+        return PrivateTopic.objects \
+            .filter(Q(participants__in=[self.request.user.id]) | Q(author=self.request.user.id)) \
+            .select_related("author", "participants") \
+            .distinct().order_by('-last_message__pubdate').all()
 
 
 @login_required
-def topic(request, topic_pk, topic_slug):
-    """Display a thread and its posts using a pager."""
+@require_POST
+def leave_mps(request):
+    """
+    Deletes list of private topics.
+    """
 
-    # TODO: Clean that up
-    g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
+    list = request.POST.getlist('items')
+    topics = PrivateTopic.objects.filter(pk__in=list) \
+        .filter(Q(participants__in=[request.user]) | Q(author=request.user))
 
-    if not g_topic.author == request.user \
-            and request.user not in list(g_topic.participants.all()):
-        raise PermissionDenied
+    for topic in topics:
+        if topic.participants.all().count() == 0:
+            topic.delete()
+        elif request.user == topic.author:
+            topic.author = topic.participants.all()[0]
+            topic.participants.remove(topic.participants.all()[0])
+            topic.save()
+        else:
+            topic.participants.remove(request.user)
+            topic.save()
 
-    # Check link
-    if not topic_slug == slugify(g_topic.title):
-        return redirect(g_topic.get_absolute_url())
+    return redirect(reverse('mp-list'))
 
-    if request.user.is_authenticated():
-        if never_privateread(g_topic):
-            mark_read(g_topic)
 
-    posts = PrivatePost.objects.filter(privatetopic__pk=g_topic.pk) \
-        .order_by('position_in_topic') \
-        .all()
+class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
+    """
+    Display a thread and its posts using a pager.
+    """
 
-    last_post_pk = g_topic.last_message.pk
+    paginate_by = settings.ZDS_APP['forum']['posts_per_page']
+    template_name = 'mp/topic/index.html'
 
-    # Handle pagination
-    paginator = Paginator(posts, settings.ZDS_APP['forum']['posts_per_page'])
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PrivatePostList, self).dispatch(*args, **kwargs)
 
-    try:
-        page_nbr = int(request.GET['page'])
-    except KeyError:
-        page_nbr = 1
-    except ValueError:
-        raise Http404
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object(queryset=PrivateTopic.objects.all())
+        if not self.object.author == request.user \
+            and request.user not in list(self.object.participants.all()):
+            raise PermissionDenied
+        return super(PrivatePostList, self).get(request, *args, **kwargs)
 
-    try:
-        posts = paginator.page(page_nbr)
-    except PageNotAnInteger:
-        posts = paginator.page(1)
-    except EmptyPage:
-        raise Http404
+    def get_context_data(self, **kwargs):
+        context = super(PrivatePostList, self).get_context_data(**kwargs)
+        context['topic'] = self.object
+        context['last_post_pk'] = self.object.last_message.pk
+        context['form'] = PrivatePostForm(self.object)
+        context['posts'] = self.build_list()
+        if never_privateread(self.object):
+            mark_read(self.object)
+        return context
 
-    res = []
-    if page_nbr != 1:
-        # Show the last post of the previous page
-        last_page = paginator.page(page_nbr - 1).object_list
-        last_post = (last_page)[len(last_page) - 1]
-        res.append(last_post)
-
-    for post in posts:
-        res.append(post)
-
-    # Build form to add an answer for the current topid.
-    form = PrivatePostForm(g_topic, request.user)
-
-    return render(request, 'mp/topic/index.html', {
-        'topic': g_topic,
-        'posts': res,
-        'pages': paginator_range(page_nbr, paginator.num_pages),
-        'nb': page_nbr,
-        'last_post_pk': last_post_pk,
-        'form': form
-    })
+    def get_queryset(self):
+        return PrivatePost.objects\
+            .filter(privatetopic__pk=self.object.pk) \
+            .order_by('position_in_topic') \
+            .all()
 
 
 @login_required
@@ -300,6 +267,7 @@ def answer(request):
         data = request.POST
 
         if not request.is_ajax():
+            print data['last_post']
             newpost = last_post_pk != int(data['last_post'])
 
         # Using the « preview button », the « more » button or new post
@@ -308,7 +276,7 @@ def answer(request):
                 content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
                 return StreamingHttpResponse(content)
             else:
-                form = PrivatePostForm(g_topic, request.user, initial={
+                form = PrivatePostForm(g_topic, initial={
                     'text': data['text']
                 })
 
@@ -322,7 +290,7 @@ def answer(request):
 
         # Saving the message
         else:
-            form = PrivatePostForm(g_topic, request.user, data)
+            form = PrivatePostForm(g_topic, data)
             if form.is_valid():
                 data = form.data
 
@@ -409,7 +377,7 @@ def answer(request):
                 resp["text"] = text
                 return HttpResponse(json.dumps(resp), content_type='application/json')
 
-        form = PrivatePostForm(g_topic, request.user, initial={
+        form = PrivatePostForm(g_topic, initial={
             'text': text
         })
         return render(request, 'mp/post/new.html', {
@@ -465,7 +433,7 @@ def edit_post(request):
                 content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
                 return StreamingHttpResponse(content)
             else:
-                form = PrivatePostForm(g_topic, request.user, initial={
+                form = PrivatePostForm(g_topic, initial={
                     'text': data['text']
                 })
                 form.helper.form_action = reverse(
@@ -486,7 +454,7 @@ def edit_post(request):
         return redirect(post.get_absolute_url())
 
     else:
-        form = PrivatePostForm(g_topic, request.user, initial={
+        form = PrivatePostForm(g_topic, initial={
             'text': post.text
         })
         form.helper.form_action = reverse(
@@ -519,7 +487,7 @@ def leave(request):
         messages.success(
             request, _(u'Vous avez quitté la conversation avec succès.'))
 
-    return redirect(reverse('zds.mp.views.index'))
+    return redirect(reverse('mp-list'))
 
 
 @login_required
@@ -576,6 +544,4 @@ def add_participant(request):
         messages.warning(
             request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.'))
 
-    return redirect(reverse('zds.mp.views.topic', args=[
-        ptopic.pk,
-        slugify(ptopic.title)]))
+    return redirect(reverse('posts-private-list', args=[ptopic.pk]))
