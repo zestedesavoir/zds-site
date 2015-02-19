@@ -17,15 +17,21 @@
             "left": this.$input.css("margin-left")
         });
 
+
         this.$input.on("keyup", this.handleInput.bind(this));
         this.$input.on("keydown", this.handleKeydown.bind(this));
         this.$input.on("blur", this.hideDropdown.bind(this));
 
+        this.options = options;
+
+        if(this.options.type === "multiple") {
+            this.$form = this.$wrapper.parents("form:first");
+            this.$form.on("submit", this.handleSubmit.bind(this));
+        }
+
         this.selected = -1;
 
         this._lastInput = "";
-
-        this.options = options;
     }
 
     AutoComplete.prototype = {
@@ -94,6 +100,13 @@
                     });
                 this.updateDropdown(this.sortList(this.searchCache(search), search));
                 this.showDropdown();
+            }
+        },
+ 
+        handleSubmit: function() {
+            var content = this.$input.val();
+            if(content.slice(-2) === ", ") {
+                this.$input.val(content.slice(0, -2));
             }
         },
 
