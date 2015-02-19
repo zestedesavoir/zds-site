@@ -12,7 +12,7 @@ Prérequis sur linux
 
 Avant toute chose soyez-sûr d'avoir Java (disponible dans les dépôts de votre distribution, ou `sur le site officiel <http://www.java.com/fr/download/manual.jsp#lin>`__).
 
-Téléchargez `l'archive Solr <http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip>`__ ou entrez la commande ``wget wget http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip``.
+Téléchargez `l'archive Solr <http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip>`__ ou entrez la commande ``wget http://archive.apache.org/dist/lucene/solr/4.9.0/solr-4.9.0.zip``.
 
 Puis décompressez l'archive avec ``unzip solr-4.9.0.zip``.
 
