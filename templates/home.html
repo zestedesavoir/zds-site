@@ -27,6 +27,17 @@
     <div class="home-banner">
         <div class="home-larger">
             {% if user.is_authenticated %}
+                <section class="home-description connected">
+                    <blockquote>
+                        «&nbsp;{{ quote }}&nbsp;»
+                    </blockquote>
+                    <p>
+                        <span class="important">Nouveau !</span>
+                        Vous pouvez maintenant aider les auteurs dans la rédaction de leurs tutoriels !
+                        <a class="home-description-button" href="/">En savoir plus</a>
+                    </p>
+                </section>
+            {% else %}
                 <section class="home-description">
                     <div class="column">
                         <h2>La connaissance pour tous</h2>
@@ -42,18 +53,6 @@
                         <p><a class="home-description-button" href="/">Aider à développer la plateforme</a></p>
                     </div>
                 </section>
-            {% else %}
-                <section class="home-description connected">
-                    <blockquote>
-                        «&nbsp;{{ quote }}&nbsp;»
-                    </blockquote>
-                    <p>
-                        <span class="important">Nouveau !</span>
-                        Vous pouvez maintenant aider les auteurs dans la rédaction de leurs tutoriels !
-                        <a class="home-description-button" href="/">En savoir plus</a>
-                    </p>
-                </section>
-                
             {% endif %}
 
             <section class="home-search-box">
