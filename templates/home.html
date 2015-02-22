@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% load staticfiles %}
 {% load emarkdown %}
 {% load date %}
@@ -10,11 +11,6 @@
 
 
 {% block body_class %}home{% endblock %}
-
-
-
-{% block pre_content %}
-{% endblock %}
 
 
 
@@ -32,33 +28,53 @@
                         «&nbsp;{{ quote }}&nbsp;»
                     </blockquote>
                     <p>
-                        <span class="important">Nouveau !</span>
-                        Vous pouvez maintenant aider les auteurs dans la rédaction de leurs tutoriels !
-                        <a class="home-description-button" href="/">En savoir plus</a>
+                        <span class="important">{% trans "Nouveau !" %}</span>
+
+                        {% trans "Vous pouvez maintenant aider les auteurs dans la rédaction de leurs tutoriels !" %}
+
+                        <a class="home-description-button" href="/">
+                            {% trans "En savoir plus" %}
+                        </a>
                     </p>
                 </section>
             {% else %}
                 <section class="home-description">
                     <div class="column">
-                        <h2>La connaissance pour tous</h2>
-                        <p>Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide annimés par et pour les communautés.</p>
+                        <h2>
+                            {% trans "La connaissance pour tous" %}
+                        </h2>
+                        <p>
+                            {% trans "Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide annimés par et pour les communautés." %}
+                        </p>
                     </div>
                     <div class="column">
-                        <h2>Partagez vos connaissances</h2>
-                        <p>Tout les membres peuvent écrire et publier des tutoriels et des articles sur le site. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.</p>
+                        <h2>
+                            {% trans "Partagez vos connaissances" %}
+                        </h2>
+                        <p>
+                            {% trans "Tout les membres peuvent écrire et publier des tutoriels et des articles sur le site. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication." %}
+                        </p>
                     </div>
                     <div class="column">
-                        <h2>Gratuit et sans publicité</h2>
-                        <p>Tout cela est entièrement gratuit et garanti sans publicité, le site est géré et financé par une association à but non lucratif.</p>
-                        <p><a class="home-description-button" href="/">Aider à développer la plateforme</a></p>
+                        <h2>
+                            {% trans "Gratuit et sans publicité" %}
+                        </h2>
+                        <p>
+                            {% trans "Tout cela est entièrement gratuit et garanti sans publicité, le site est géré et financé par une association à but non lucratif." %}
+                        </p>
+                        <p><a class="home-description-button" href="#link-to-the-release-article">
+                            {% trans "Aider à développer la plateforme" %}
+                        </a></p>
                     </div>
                 </section>
             {% endif %}
 
             <section class="home-search-box">
-                <form action="/rechercher">
-                    <label for="search-box-field">{% trans "Recherche" %}</label>
-                    <input type="text" name="q" placeholder="Mathématiques, UDK, HTML, Java, PHP, ..." id="search-box-field">
+                <form action='{% url "haystack_search" %}'>
+                    <label for="search-box-field">
+                        {% trans "Recherche" %}
+                    </label>
+                    <input type="text" name="q" id="search-box-field" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
                     <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
                 </form>
             </section>
@@ -68,7 +84,7 @@
     <div class="home-larger">
         <section class="home-pinned-content">
             <h2 class="ico-after ico-tutorials" itemprop="name">
-                A la une
+                {% trans "A la une" %}
             </h2>
 
             <ul class="pinned-block">
@@ -94,7 +110,7 @@
             <h2 class="ico-after ico-articles" itemprop="name">
                 {% trans "Derniers articles" %}
             </h2>
-            
+
             <meta itemprop="itemListOrder" content="Descending">
 
             {% for article in last_articles %}
@@ -110,7 +126,7 @@
                                 {{ article.title }}
                             </a>
                         </h3>
-                        
+
                         <span class="article-metadata">
                             {{ article.pubdate|format_date|capfirst }} -
                             <a href="
@@ -138,13 +154,13 @@
             {% endfor %}
         </section>
 
-        <section class="" itemscope itemtype="http://schema.org/ItemList">
+        <section itemscope itemtype="http://schema.org/ItemList">
             <h2 class="ico-after ico-tutorials" itemprop="name">
                 {% trans "Derniers tutoriels" %}
             </h2>
-            
+
             <meta itemprop="itemListOrder" content="Descending">
-            
+
             {% for tutorial in last_tutorials %}
                 {% include 'tutorial/includes/tutorial_item.part.html' %}
             {% empty %}
@@ -152,9 +168,4 @@
             {% endfor %}
         </section>
     </div>
-{% endblock %}
-
-
-
-{% block sidebar %}
 {% endblock %}
