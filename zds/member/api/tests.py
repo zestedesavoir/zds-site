@@ -321,6 +321,40 @@ class MemberListAPITest(APITestCase):
             ProfileFactory()
 
 
+class MemberMyDetailAPITest(APITestCase):
+    def test_detail_of_the_member(self):
+        """
+        Gets all information about the user.
+        """
+        profile = ProfileFactory()
+        client_oauth2 = create_oauth2_client(profile.user)
+        client_authenticated = APIClient()
+        authenticate_client(client_authenticated, client_oauth2, profile.user.username, 'hostel77')
+
+        response = client_authenticated.get(reverse('api-member-profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(profile.pk, response.data.get('pk'))
+        self.assertEqual(profile.user.username, response.data.get('username'))
+        self.assertEqual(profile.user.is_active, response.data.get('is_active'))
+        self.assertEqual(profile.site, response.data.get('site'))
+        self.assertEqual(profile.avatar_url, response.data.get('avatar_url'))
+        self.assertEqual(profile.biography, response.data.get('biography'))
+        self.assertEqual(profile.sign, response.data.get('sign'))
+        self.assertEqual(profile.email_for_answer, response.data.get('email_for_answer'))
+        self.assertIsNotNone(response.data.get('date_joined'))
+        self.assertFalse(response.data.get('show_email'))
+        self.assertEqual(profile.user.email, response.data.get('email'))
+
+    def test_detail_of_the_member_not_authenticated(self):
+        """
+        Tries to get profile of the member with a client not authenticated.
+        """
+        client = APIClient()
+
+        response = client.get(reverse('api-member-profile'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class MemberDetailAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()

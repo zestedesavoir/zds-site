@@ -2,8 +2,8 @@
 
 from rest_framework import filters
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -32,6 +32,11 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     language = bits.LanguageKeyBit()
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+
+
+class MyDetailKeyConstructor(DefaultKeyConstructor):
+    format = bits.FormatKeyBit()
+    language = bits.LanguageKeyBit()
 
 
 class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
@@ -93,6 +98,40 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
             return ProfileListSerializer
         elif self.request.method == 'POST':
             return ProfileCreateSerializer
+
+
+class MemberMyDetailAPI(RetrieveAPIView):
+    """
+    Profile resource to display details of the member.
+    """
+    obj_key_func = MyDetailKeyConstructor()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileDetailSerializer
+
+    @etag(obj_key_func)
+    @cache_response(key_func=obj_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Gets information of his account.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not authenticated
+        """
+        profile = self.get_object()
+        serializer = self.get_serializer(profile,
+                                         show_email=True,
+                                         is_authenticated=True)
+        return Response(serializer.data)
+
+    def get_object(self):
+        return get_object_or_404(Profile, user=self.request.user)
 
 
 class MemberDetailAPI(RetrieveUpdateAPIView):
