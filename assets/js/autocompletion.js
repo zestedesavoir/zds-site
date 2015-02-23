@@ -12,11 +12,6 @@
         this.$input = this.$wrapper.find(".autocomplete-input");
         this.$dropdown = this.$wrapper.find(".autocomplete-dropdown");
 
-        this.$dropdown.css({
-            "marginTop": "-" + this.$input.css("margin-bottom"),
-            "left": this.$input.css("margin-left")
-        });
-
 
         this.$input.on("keyup", this.handleInput.bind(this));
         this.$input.on("keydown", this.handleKeydown.bind(this));
