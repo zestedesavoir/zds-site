@@ -28,7 +28,7 @@ def get_markdown_instance(inline=False, js_support=False):
     :param bool inline: If `True`, configure parser to parse only inline content.
     :return: A ZMarkdown parser.
     """
-    zdsext = ZdsExtension({'inline': inline, 'emoticons': smileys, 'js_support': js_support})
+    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support)
     # Generate parser
     md = Markdown(
         extensions=(zdsext,),
