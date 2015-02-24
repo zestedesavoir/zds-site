@@ -111,6 +111,8 @@ FILE_UPLOAD_HANDLERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    # CorsMiddleware needs to be before CommonMiddleware.
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -173,6 +175,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'rest_framework',
     'rest_framework_swagger',
+    'corsheaders',
     'oauth2_provider',
 
     # Apps DB tables are created in THIS order by default
@@ -253,6 +256,30 @@ SWAGGER_SETTINGS = {
         'delete'
     ]
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_METHODS = (
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+)
+
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'x-csrftoken',
+    'x-data-format'
+)
+
+CORS_EXPOSE_HEADERS = (
+    'etag',
+    'link'
+)
 
 if (DEBUG):
     INSTALLED_APPS += (
