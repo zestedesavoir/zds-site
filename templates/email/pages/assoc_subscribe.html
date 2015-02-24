@@ -1,16 +1,14 @@
+{% extends "email/base.html" %}
+
 {% load i18n %}
-<html lang="fr">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head>
-<body>
-    
-    {% trans "Bonjour, membres du CA" %},
-    <br />
-    <br />
+
+{% block content %}
     <p>
-        {% blocktrans with asso_name=app.site.association.name %}
-        Le membre {{ username }} souhaiterait adhérer à {{asso_name}}.
+        {% trans "Bonjour membres du CA," %}
+    </p>
+    <p>
+        {% blocktrans %}
+        Le membre {{ username }} souhaiterait adhérer à {{ asso_name }}.
         {% endblocktrans %}
     </p>
     <ul>
@@ -25,10 +23,13 @@
         {{ justification|linebreaks }}
     </p>
     <p>
-
         {% trans "Cliquez ici pour voir son profil sur le site" %} : <a href="{{ profile_url }}">{{ profile_url }}</a>.
     </p>
 
-    <p>{% trans "Cordialement" %},<br/>
-    {{app.member.bot_account}}</p>
-</body>
+    <p>
+        {% trans "Cordialement," %}
+    </p>
+    <p>
+        {{ bot_name }}
+    </p>
+{% endblock %}

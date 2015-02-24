@@ -14,8 +14,6 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
-from django.template import Context
-from django.template.loader import get_template
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.core.exceptions import ObjectDoesNotExist
@@ -181,7 +179,9 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
                 self.object.save()
                 # send email
                 if participant.email_for_answer:
-                    subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['litteral_name'], self.object.title)
+                    subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
+                                                     _(u'Message Privé'),
+                                                     self.object.title)
                     from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                                    settings.ZDS_APP['site']['email_noreply'])
                     context = {
@@ -369,7 +369,9 @@ class PrivatePostAnswer(CreateView):
         self.topic.save()
 
         # send email
-        subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['abbr'], self.topic.title)
+        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['abbr'],
+                                         _(u'Message Privé'),
+                                         self.topic.title)
         from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
         parts = list(self.topic.participants.all())
@@ -384,19 +386,13 @@ class PrivatePostAnswer(CreateView):
                     privatepost__position_in_topic=pos,
                     user=part).count()
                 if last_read > 0:
-                    message_html = get_template('email/mp/new.html') \
-                        .render(
-                        Context({
-                            'username': part.username,
-                            'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                            'author': self.request.user.username
-                        }))
-                    message_txt = get_template('email/mp/new.txt').render(
-                        Context({
-                            'username': part.username,
-                            'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                            'author': self.request.user.username
-                        }))
+                    context = {
+                        'username': part.username,
+                        'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                        'author': self.request.user.username
+                    }
+                    message_html = render_to_string('email/mp/new.html', context)
+                    message_txt = render_to_string('email/mp/new.txt', context)
 
                     msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
                     msg.attach_alternative(message_html, "text/html")

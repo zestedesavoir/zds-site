@@ -17,8 +17,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
@@ -640,20 +639,19 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['abbr'])
+            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['litteral_name'])
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
-            message_html = get_template("email/forgot_password/confirm.html").render(Context(
-                {"username": usr.username,
-                 "site_name": settings.ZDS_APP['site']['name'],
-                 "site_url": settings.ZDS_APP['site']['url'],
-                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-            message_txt = get_template("email/forgot_password/confirm.txt").render(Context(
-                {"username": usr.username,
-                 "site_name": settings.ZDS_APP['site']['name'],
-                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-            msg = EmailMultiAlternatives(subject, message_txt, from_email,
-                                         [usr.email])
+            context = {
+                "username": usr.username,
+                "site_name": settings.ZDS_APP['site']['litteral_name'],
+                "site_url": settings.ZDS_APP['site']['url'],
+                "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()
+            }
+            message_html = render_to_string("email/member/confirm_forgot_password.html", context)
+            message_txt = render_to_string("email/member/confirm_forgot_password.txt", context)
+
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
             return render(request, "member/forgot_password/success.html")
@@ -753,7 +751,7 @@ def active_account(request):
     send_mp(
         bot,
         [usr],
-        _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['name']),
+        _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
         _(u"Le manuel du nouveau membre"),
         msg,
         True,
@@ -782,21 +780,19 @@ def generate_token_account(request):
     token.save()
 
     # send email
-
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
+    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
     from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
-    message_html = get_template("email/register/confirm.html") \
-        .render(Context({"username": token.user.username,
-                         "site_url": settings.ZDS_APP['site']['url'],
-                         "site_name": settings.ZDS_APP['site']['name'],
-                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-    message_txt = get_template("email/register/confirm.txt") \
-        .render(Context({"username": token.user.username,
-                         "site_name": settings.ZDS_APP['site']['name'],
-                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-    msg = EmailMultiAlternatives(subject, message_txt, from_email,
-                                 [token.user.email])
+    context = {
+        "username": token.user.username,
+        "site_url": settings.ZDS_APP['site']['url'],
+        "site_name": settings.ZDS_APP['site']['litteral_name'],
+        "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()
+    }
+    message_html = render_to_string("email/member/confirm_registration.html", context)
+    message_txt = render_to_string("email/member/confirm_registration.txt", context)
+
+    msg = EmailMultiAlternatives(subject, message_txt, from_email, [token.user.email])
     msg.attach_alternative(message_html, "text/html")
     try:
         msg.send()

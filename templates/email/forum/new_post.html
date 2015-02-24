@@ -1,0 +1,13 @@
+{% extends "email/base_from_staff.html" %}
+
+{% load i18n %}
+
+{% block content_from_staff %}
+    <p>
+        <strong>{{ author }}</strong> {% trans "a répondu au sujet" %} "{{ title }}" {% trans "que vous suivez sur" %} {{ site_name }}.
+    </p>
+
+    <p>
+        {% trans "Pour le lire," %} <a href="{{ url }}">{% trans "cliquez ici" %}</a>
+    </p>
+{% endblock %}

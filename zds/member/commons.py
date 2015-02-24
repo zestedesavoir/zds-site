@@ -8,8 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile, TokenRegister, Ban, logout_user
 from zds.settings import SITE_ROOT
@@ -146,19 +145,18 @@ class TokenGenerator(object):
         :return: nothing
         :rtype: None
         """
-        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['abbr'])
+        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['litteral_name'])
         from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
-        template_context = Context(
-            {
-                'username': user.username,
-                'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-                'site_name': settings.ZDS_APP['site']['name'],
-                'site_url': settings.ZDS_APP['site']['url']
-            }
-        )
-        message_html = get_template('email/register/confirm.html').render(template_context)
-        message_txt = get_template('email/register/confirm.txt').render(template_context)
+        context = {
+            'username': user.username,
+            'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+            'site_name': settings.ZDS_APP['site']['litteral_name'],
+            'site_url': settings.ZDS_APP['site']['url']
+        }
+        message_html = render_to_string('email/member/confirm_registration.html', context)
+        message_txt = render_to_string('email/member/confirm_registration.txt', context)
+
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
         msg.attach_alternative(message_html, 'text/html')
         try:

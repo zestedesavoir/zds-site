@@ -9,8 +9,7 @@ from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.shortcuts import render
 from zds import settings
 
@@ -68,6 +67,11 @@ def assoc_subscribe(request):
         if form.is_valid():
             user = request.user
             data = form.data
+
+            # Send email
+            subject = _(u"Demande d'adhésion de {}").format(user.username)
+            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                          settings.ZDS_APP['site']['email_noreply'])
             context = {
                 'full_name': data['full_name'],
                 'email': data['email'],
@@ -76,14 +80,13 @@ def assoc_subscribe(request):
                 'justification': data['justification'],
                 'username': user.username,
                 'profile_url': settings.ZDS_APP['site']['url'] + reverse('member-detail',
-                                                                         kwargs={'user_name': user.username})
+                                                                         kwargs={'user_name': user.username}),
+                'bot_name': settings.ZDS_APP['member']['bot_account'],
+                'asso_name': settings.ZDS_APP['site']['association']['name']
             }
-            # Send email
-            subject = "Demande d'adhésion de {}".format(user.username)
-            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                          settings.ZDS_APP['site']['email_noreply'])
-            message_html = get_template("email/assoc/subscribe.html").render(Context(context))
-            message_txt = get_template("email/assoc/subscribe.txt") .render(Context(context))
+            message_html = render_to_string("email/pages/assoc_subscribe.html", context)
+            message_txt = render_to_string("email/pages/assoc_subscribe.txt", context)
+
             msg = EmailMultiAlternatives(
                 subject,
                 message_txt,
@@ -95,7 +98,7 @@ def assoc_subscribe(request):
                 messages.success(request, _(u"Votre demande d'adhésion a bien été envoyée et va être étudiée."))
             except:
                 msg = None
-                messages.error(request, u"Une erreur est survenue.")
+                messages.error(request, _(u"Une erreur est survenue."))
 
             # reset the form after successfull validation
             form = AssocSubscribeForm()
