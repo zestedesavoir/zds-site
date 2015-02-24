@@ -18,6 +18,15 @@
         this.data(dataAttribute, text);
     };
 
+    function synchText() {
+        $("#mobile-menu [data-ajax-input]").each(function () {
+            var dataAjaxInput = $(this).data("ajax-input");
+            console.log($(this).text(), $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text(), dataAjaxInput);
+
+            $(this).text($(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text());
+        });
+    }
+
     /**
      * Karma of the messages
      */
@@ -115,6 +124,8 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("blue yellow");
+
+                synchText();
             }
         });
 
@@ -162,6 +173,8 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("blue");
+
+                synchText();
             }
         });
         e.stopPropagation();
@@ -200,6 +213,8 @@
                 $act.toggleText("content-on-click");
                 $act.toggleClass("green blue");
                 $("[data-ajax-output='solve-topic']").toggleClass("empty");
+
+                synchText();
             }
         });
         e.stopPropagation();
