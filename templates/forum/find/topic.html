@@ -44,7 +44,7 @@
                 <tr>
                     <td>
                         <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.never_read %} unread {% endif %} {% endif %}">
-                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a> 
+                        <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
                             {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
                         </div>
                     </td>
@@ -52,15 +52,13 @@
                         {{ topic.pubdate|format_date }}
                     </td>
                     <td>
-                        {% if topic.first_post.is_visible != False %}
+                        {% if topic.first_post.is_visible %}
                             {{ topic.first_post.text|truncatechars:200|emarkdown|striptags }}
                         {% else %}
-                            <p>
+                            {% if topic.first_post.text_hidden %}
                                 {% trans "Masqué par" %} {{ topic.first_post.editor }}
-                                {% if topic.first_post.text_hidden %}
-                                    : {{ topic.first_post.text_hidden }}
-                                {% endif %}
-                            </p>
+                                : {{ topic.first_post.text_hidden }}
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>
