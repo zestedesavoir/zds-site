@@ -133,6 +133,10 @@ class Profile(models.Model):
 
     def get_post_count(self):
         """Number of messages posted."""
+        return Post.objects.filter(author__pk=self.user.pk, is_visible=True).count()
+
+    def get_post_count_as_staff(self):
+        """Number of messages posted (view as staff)."""
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):
