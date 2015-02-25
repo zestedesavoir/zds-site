@@ -4,6 +4,7 @@
     .autocomplete-dropdown {
         position: absolute;
         z-index: 60;
+        cursor: pointer;
 
         ul {
             padding: 0;
