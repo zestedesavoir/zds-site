@@ -36,10 +36,14 @@ from zds.utils.models import SubCategory, Licence, Alert, HelpWriting
 from zds.utils.misc import compute_hash
 
 
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['tutorial']['repo_path'] = os.path.join(SITE_ROOT, 'tutoriels-private-test')
+overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(SITE_ROOT, 'tutoriels-public-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class BigTutorialTests(TestCase):
 
     def setUp(self):
@@ -67,31 +71,36 @@ class BigTutorialTests(TestCase):
         self.bigtuto.licence = self.licence
         self.bigtuto.save()
 
-        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
-        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2)
-        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3)
+        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1, light=True)
+        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2, light=True)
+        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3, light=True)
 
         self.chapter1_1 = ChapterFactory(
             part=self.part1,
             position_in_part=1,
-            position_in_tutorial=1)
+            position_in_tutorial=1,
+            light=True)
         self.chapter1_2 = ChapterFactory(
             part=self.part1,
             position_in_part=2,
-            position_in_tutorial=2)
+            position_in_tutorial=2,
+            light=True)
         self.chapter1_3 = ChapterFactory(
             part=self.part1,
             position_in_part=3,
-            position_in_tutorial=3)
+            position_in_tutorial=3,
+            light=True)
 
         self.chapter2_1 = ChapterFactory(
             part=self.part2,
             position_in_part=1,
-            position_in_tutorial=4)
+            position_in_tutorial=4,
+            light=True)
         self.chapter2_2 = ChapterFactory(
             part=self.part2,
             position_in_part=2,
-            position_in_tutorial=5)
+            position_in_tutorial=5,
+            light=True)
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
@@ -277,7 +286,7 @@ class BigTutorialTests(TestCase):
                             "zip",
                             os.path.join(temp, self.bigtuto.get_phy_slug()))
 
-        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")))
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")))
 
         # import zip archive
         result = self.client.post(
@@ -286,7 +295,7 @@ class BigTutorialTests(TestCase):
                 'file': open(
                     os.path.join(
                         temp,
-                        os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")),
+                        os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")),
                     'r'),
                 'tutorial': self.bigtuto.pk,
                 'import-archive': "importer"},
@@ -2803,7 +2812,7 @@ class BigTutorialTests(TestCase):
         sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
         self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
         self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url()+'?version='+sha_beta,
+        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url() + '?version=' + sha_beta,
                       sent_pm.last_message.text)  # public url is in message
 
     def tearDown(self):
@@ -2818,9 +2827,7 @@ class BigTutorialTests(TestCase):
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
@@ -2852,7 +2859,8 @@ class MiniTutorialTests(TestCase):
 
         self.chapter = ChapterFactory(
             tutorial=self.minituto,
-            position_in_tutorial=1)
+            position_in_tutorial=1,
+            light=True)
 
         self.staff = StaffProfileFactory().user
 
@@ -2948,7 +2956,7 @@ class MiniTutorialTests(TestCase):
                             "zip",
                             os.path.join(temp, self.minituto.get_phy_slug()))
 
-        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug()+".zip")))
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug() + ".zip")))
         # import zip archive
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
@@ -2956,7 +2964,7 @@ class MiniTutorialTests(TestCase):
                 'file': open(
                     os.path.join(
                         temp,
-                        os.path.join(temp, self.minituto.get_phy_slug()+".zip")),
+                        os.path.join(temp, self.minituto.get_phy_slug() + ".zip")),
                     'r'),
                 'tutorial': self.minituto.pk,
                 'import-archive': "importer"},

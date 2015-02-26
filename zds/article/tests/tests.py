@@ -28,11 +28,12 @@ from zds.settings import SITE_ROOT
 from zds.utils.models import Alert
 
 
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(
-    REPO_ARTICLE_PATH=os.path.join(
-        SITE_ROOT,
-        'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class ArticleTests(TestCase):
 
     def setUp(self):
@@ -129,7 +130,7 @@ class ArticleTests(TestCase):
         )
         # now that we have a first image, let's change it
 
-        oldAddress = self.article.image.name
+        old_address = self.article.image.name
         self.article.image = self.logo2
         self.article.save()
         self.assertEqual(
@@ -142,7 +143,7 @@ class ArticleTests(TestCase):
         )
         self.assertEqual(
             os.path.exists(
-                os.path.join(settings.MEDIA_ROOT, oldAddress)
+                os.path.join(settings.MEDIA_ROOT, old_address)
             ),
             False
         )
@@ -387,7 +388,7 @@ class ArticleTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_workflow_licence(self):
-        '''Ensure the behavior of licence on articles'''
+        """Ensure the behavior of licence on articles"""
 
         # create a new licence
         new_licence = LicenceFactory(code='CC_BY', title='Creative Commons BY')

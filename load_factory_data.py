@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import yaml
-import zds
 import os
-from zds import settings
 
 parser = argparse.ArgumentParser(description='Give yaml fixture files.')
 

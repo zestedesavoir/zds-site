@@ -101,6 +101,7 @@
 
 
 {% block content %}
+
     {% if tutorial.get_introduction and tutorial.get_introduction != "None" %}
         {{ tutorial.get_introduction|emarkdown:is_js }}
     {% elif not tutorial.is_beta %}
@@ -152,7 +153,7 @@
 
 {% block sidebar_new %}
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
-        {% if tutorial.sha_draft = version %}
+        {% if tutorial.sha_draft == version %}
             {% if not tutorial.is_mini %}
                 <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
                     {% trans "Ajouter une partie" %}
@@ -409,7 +410,7 @@
                             </form>
                         </li>
                     {% elif validation.is_pending_valid %}
-                        {% if validation.validator = user %}
+                        {% if validation.validator == user %}
                             <li>
                                 <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
                                     {% csrf_token %}
@@ -440,7 +441,7 @@
                                 <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
                                     {% csrf_token %}
                                     <p>
-                                        {% trans "La validation de ce tutoriel est actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certains de vouloir le retirer" %} ?
+                                        {% trans "La validation de ce tutoriel est actuellement réservée par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
                                     </p>
                                     <button type="submit">
                                         {% trans "Confirmer" %}

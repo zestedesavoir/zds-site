@@ -75,7 +75,7 @@ def assoc_subscribe(request):
                 'adresse': data['adresse'],
                 'justification': data['justification'],
                 'username': user.username,
-                'profile_url': settings.ZDS_APP['site']['url'] + reverse('zds.member.views.details',
+                'profile_url': settings.ZDS_APP['site']['url'] + reverse('member-detail',
                                                                          kwargs={'user_name': user.username})
             }
             # Send email
@@ -146,3 +146,8 @@ def alerts(request):
     return render(request, 'pages/alerts.html', {
         'alerts': alerts,
     })
+
+
+def custom_error_500(request):
+    """Custom view for 500 errors"""
+    return render(request, '500.html')

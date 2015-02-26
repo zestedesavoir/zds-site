@@ -302,13 +302,13 @@
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucun nouveau message" %}
                                                     </li>
-                                                {% endif %}
-                                            </ul>
-                                            <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
-                                                {% trans "Tous les messages" %}
-                                            </a>
-                                        </div>
-                                    {% endwith %}
+                                                    {% endif %}
+                                                </ul>
+                                                <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
+                                                    {% trans "Tous les messages" %}
+                                                </a>
+                                            </div>
+                                        {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
                                 </div>
@@ -340,7 +340,7 @@
                                                     </li>
                                                 {% endfor %}
 
-                                                {% if unread_posts|length = 0 %}
+                                                {% if unread_posts|length == 0 %}
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucune notification" %}
                                                     </li>
@@ -355,40 +355,42 @@
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
-                                    {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
-                                        <div>
-                                            <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
-                                                <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
-                                                {% if nb_alerts > 0 %}
-                                                    <span class="notif-count">{{ nb_alerts }}</span>
-                                                {% endif %}
-                                            </a>
-
-                                            <div class="dropdown">
-                                                <span class="dropdown-title">{% trans "Alertes Modération" %}</span>
-                                                <ul class="dropdown-list">
-                                                    {% for alert in alerts %}
-                                                        <li>
-                                                            <a href="{{ alert.url }}">
-                                                                <span class="username">{{ alert.title }}</span>
-                                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
-                                                                <span class="topic">{{ alert.text }}</span>
-                                                            </a>
-                                                        </li>
-                                                    {% empty %}
-                                                        <li class="dropdown-empty-message">
-                                                            {% trans "Aucune alerte" %}
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                                <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
-                                                    {% trans "Toutes les alertes" %}
+                                    {% with alerts=user|alerts_list %}
+                                        {%  with nb_alerts=alerts|length %}
+                                            <div>
+                                                <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
+                                                    <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
+                                                    {% if nb_alerts > 0 %}
+                                                        <span class="notif-count">{{ nb_alerts }}</span>
+                                                    {% endif %}
                                                 </a>
+
+                                                <div class="dropdown">
+                                                    <span class="dropdown-title">{% trans "Alertes Modération" %}</span>
+                                                    <ul class="dropdown-list">
+                                                        {% for alert in alerts %}
+                                                            <li>
+                                                                <a href="{{ alert.url }}">
+                                                                    <span class="username">{{ alert.title }}</span>
+                                                                    <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                                                    <span class="topic">{{ alert.text }}</span>
+                                                                </a>
+                                                            </li>
+                                                        {% empty %}
+                                                            <li class="dropdown-empty-message">
+                                                                {% trans "Aucune alerte" %}
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
+                                                        {% trans "Toutes les alertes" %}
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {%  endwith %}
                                     {% endwith %}
                                 {% else %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -400,7 +402,7 @@
 
                             <div>
                                 {% with profile=user.profile %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
                                        title="{% blocktrans %}Mon compte{% endblocktrans %}"
@@ -420,7 +422,7 @@
 
                                     <ul class="dropdown-list">
                                         <li>
-                                            <a href="{% url "zds.member.views.details" user.username %}">{% trans "Mon profil" %}</a>
+                                            <a href="{% url "member-detail" user.username %}">{% trans "Mon profil" %}</a>
                                         </li>
                                         <li>
                                             <a href="{% url "zds.member.views.tutorials" %}">{% trans "Mes tutoriels" %}</a>
@@ -432,7 +434,7 @@
                                             <a href="{% url "zds.gallery.views.gallery_list" %}">{% trans "Galeries d'images" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "zds.member.views.settings_profile" %}">{% trans "Paramètres" %}</a>
+                                            <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                                         </li>
 
                                         {% if perms.tutorial.change_tutorial %}
@@ -462,7 +464,7 @@
 
                         {% else %} {# Not logged #}
                             <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}">{% trans "Connexion" %}</a>
-                            <a href="{% url "zds.member.views.register_view" %}">{% trans "Inscription" %}</a>
+                            <a href="{% url "register-member" %}">{% trans "Inscription" %}</a>
                         {% endif %}
                     </div>
                 </div>
@@ -541,7 +543,7 @@
         <footer class="page-footer">
             <div class="wrapper">
                 <p class="copyright">
-                    {{app.site.litteral_name}} &bull; {{app.site.year}}
+                    {{app.site.litteral_name}}
                     <span class="version">
                         &bull; {% trans "Version" %} : <a href="{{git_version.url}}">{{git_version.name}}</a>
                     </span>
@@ -560,6 +562,7 @@
                 </ul>
 
                 <ul class="links">
+                    <li><a href="{% url "django.swagger.base.view" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}

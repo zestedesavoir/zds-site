@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
         for tutorial in tutorials:
             prod_path = tutorial.get_prod_path(tutorial.sha_public)
-            os.system("cd "+prod_path + " && " + settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
+            os.system("cd " + prod_path + " && " + settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
                       + os.path.join(prod_path, tutorial.slug) + ".md "
                       + "-o " + os.path.join(prod_path, tutorial.slug)
                       + ".pdf" + pandoc_debug_str)

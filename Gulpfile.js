@@ -15,7 +15,7 @@ var sourceDir = "assets/",
     imagesDir = "images/",
     scriptsDir = "js/",
     vendorsDir = "vendors/",
-    sprite2xDir = "sprite@2x/",
+    spriteDir = "sprite/",
     vendorsCSS = ["node_modules/normalize.css/normalize.css"],
     vendorsJS = ["node_modules/jquery/dist/jquery.js"],
     autoprefixerConfig = ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"]
@@ -64,7 +64,10 @@ gulp.task("bundle", function() {
       .pipe($.streamify($.size({ title: "App file" })))
       .pipe(gulp.dest(destDir))
       .pipe($.rename({ suffix: ".min" }))
-      .pipe($.streamify($.uglify()))
+      .pipe($.streamify($.uglify().on('error', $.notify.onError({
+        title: "Javascript error",
+        message: "<%= error.message %>"
+      }))))
       .pipe($.streamify($.size({ title: "App file (minified)" })))
       .pipe(gulp.dest(destDir));
   }
@@ -99,7 +102,10 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
     .pipe(gulp.dest(destDir + scriptsDir))
     .pipe($.rename({ suffix: ".min" }))
     .pipe($.size({ title: "Scripts (vendors, minified)" }))
-    .pipe($.uglify())
+    .pipe($.uglify().on('error', $.notify.onError({
+      title: "Javascript error",
+      message: "<%= error.message %>"
+    })))
     .pipe(gulp.dest(destDir + scriptsDir));
 });
 
@@ -117,7 +123,7 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
       message: "<%= error.message %>"
     }))
     .on("error", function() { this.emit("end"); })
-    .pipe($.autoprefixer(autoprefixerConfig), { cascade: true })
+    .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
     .pipe($.size({ title: "Stylesheet" }))
     .pipe(gulp.dest(destDir + "css/"))
     .pipe($.rename({ suffix: ".min" }))
@@ -147,7 +153,7 @@ gulp.task("errors", ["clean-errors"], function() {
  * Generates Sprite files (SASS + image)
  */
 gulp.task("sprite", function() {
-  return gulp.src(sourceDir + imagesDir + sprite2xDir + "*")
+  return gulp.src(sourceDir + imagesDir + spriteDir + "*")
     .pipe(sprite({
       name: "sprite",
       style: "_sprite.scss",
@@ -179,7 +185,10 @@ gulp.task("scripts", function() {
     .pipe($.size({ title: "Scripts" }))
     .pipe(gulp.dest(destDir + scriptsDir))
     .pipe($.rename({ suffix: ".min" }))
-    .pipe($.uglify())
+    .pipe($.uglify().on('error', $.notify.onError({
+      title: "Javascript error",
+      message: "<%= error.message %>"
+    })))
     .pipe($.size({ title: "Scripts (minified)" }))
     .pipe(gulp.dest(destDir + scriptsDir));
 });
@@ -197,12 +206,15 @@ gulp.task("jshint", function() {
  * Merge vendors and app scripts
  */
 gulp.task("merge-scripts", ["vendors", "scripts"], function() {
-  return gulp.src(destDir + scriptsDir + "{vendors,main}.js")
+  return gulp.src([destDir + scriptsDir + "vendors.js", destDir + scriptsDir + "main.js"])
     .pipe($.concat("all.js"))
     .pipe($.size({ title: "Scripts (all)" }))
     .pipe(gulp.dest(destDir + scriptsDir))
     .pipe($.rename({ suffix: ".min" }))
-    .pipe($.uglify())
+    .pipe($.uglify().on('error', $.notify.onError({
+      title: "Javascript error",
+      message: "<%= error.message %>"
+    })))
     .pipe($.size({ title: "Scripts (all, minified)" }))
     .pipe(gulp.dest(destDir + scriptsDir));
 });

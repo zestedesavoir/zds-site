@@ -1,0 +1,28 @@
+.taglist {
+    list-style: none;
+    padding: 0;
+    margin: -14px 0 15px;
+    height: 30px;
+    line-height: 30px;
+
+    li {
+        float: right;
+
+        a {
+            display: block;
+            text-decoration: none;
+            padding: 0 10px;
+            background: $color-header-hover;
+            color: #FFF;
+            margin-left: 1px;
+            transition: all $transition-duration ease;
+
+            &:hover,
+            &:focus {
+                background: #FFF;
+                color: $color-header-hover;
+                border-bottom: 1px solid $color-header-hover;
+            }
+        }
+    }
+}

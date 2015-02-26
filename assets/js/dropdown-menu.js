@@ -122,7 +122,6 @@
             });
         } else {
             $("html").removeClass("dropdown-active");
-            $("body").off("click");
             $(".dropdown :tabbable").off("blur");
 
             if($that.is("[data-active]"))
