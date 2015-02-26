@@ -470,7 +470,6 @@ LOGIN_REDIRECT_URL = "/"
 
 AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
                            'social.backends.google.GoogleOAuth2',
-                           'social.backends.twitter.TwitterOAuth',
                            'django.contrib.auth.backends.ModelBackend')
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
 
@@ -490,8 +489,6 @@ SOCIAL_AUTH_PIPELINE = (
 # redefine for real key and secret code
 SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
-SOCIAL_AUTH_TWITTER_KEY = "bVWLd2pDe6F12SXRa5FQyVTze"
-SOCIAL_AUTH_TWITTER_SECRET = "pwdQ3trdMdT7Y669aKRwVM6tivrYsx3psbFnRJ5Tq4Wy1VjBNk"
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
 
