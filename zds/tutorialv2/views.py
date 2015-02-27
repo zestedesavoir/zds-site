@@ -63,6 +63,31 @@ from django.views.generic import ListView, DetailView, FormView, DeleteView
 from zds.member.decorator import PermissionRequiredMixin
 
 
+class SingleContentViewMixin(object):
+    must_be_author = True
+    authorized_for_staff = True
+    prefetch_all = True
+
+    def get_object(self, queryset=None):
+        if self.prefetch_all:
+            queryset = queryset.objects\
+                .select_related("licence")\
+                .prefetch_related("authors")\
+                .prefetch_related("subcategory")\
+                .filter(pk=self.kwargs["pk"])
+
+            obj = queryset.first()
+        else:
+            obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        if 'slug' in obj.slug != self.kwargs['slug']:
+            raise Http404
+        if self.must_be_author and self.request.user not in obj.authors.all():
+            if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
+                return obj
+            raise PermissionDenied
+        return obj
+
+
 class ListContent(LoggedWithReadWriteHability, ListView):
     """
     Displays the list of offline contents (written by user)
@@ -161,13 +186,14 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 
-class DisplayContent(LoginRequiredMixin, DetailView):
+class DisplayContent(LoginRequiredMixin, SingleContentViewMixin, DetailView):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
     online = False
     sha = None
+    must_be_author = False  # as in beta state anyone that is logged can access to it
 
     def get_forms(self, context, content):
         """get all the auxiliary forms about validation, js fiddle..."""
@@ -189,18 +215,6 @@ class DisplayContent(LoginRequiredMixin, DetailView):
         context["formJs"] = form_js
         context["formValid"] = form_valid
         context["formReject"] = form_reject
-
-    def get_object(self, queryset=None):
-        query_set = PublishableContent.objects\
-            .select_related("licence")\
-            .prefetch_related("authors")\
-            .prefetch_related("subcategory")\
-            .filter(pk=self.kwargs["pk"])
-
-        obj = query_set.first()
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -249,17 +263,11 @@ class DisplayContent(LoginRequiredMixin, DetailView):
         return context
 
 
-class EditContent(LoggedWithReadWriteHability, FormView):
+class EditContent(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
     content = None
-
-    def get_object(self, queryset=None):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
@@ -344,17 +352,12 @@ class EditContent(LoggedWithReadWriteHability, FormView):
         return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 
-class DeleteContent(LoggedWithReadWriteHability, DeleteView):
+class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = [u'delete', u'post']
     object = None
-
-    def get_object(self, queryset=None):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
+    authorized_for_staff = False  # deletion is creator's privilege
 
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""
@@ -367,16 +370,11 @@ class DeleteContent(LoggedWithReadWriteHability, DeleteView):
         return reverse('content:index')
 
 
-class CreateContainer(LoggedWithReadWriteHability, FormView):
+class CreateContainer(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
-
-    def get_object(self):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
+    authorized_for_staff = False
 
     def get_context_data(self, **kwargs):
         self.content = self.get_object()
@@ -416,19 +414,14 @@ class CreateContainer(LoggedWithReadWriteHability, FormView):
         return super(CreateContainer, self).form_valid(form)
 
 
-class DisplayContainer(LoginRequiredMixin, DetailView):
+class DisplayContainer(LoginRequiredMixin, SingleContentViewMixin, DetailView):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/container.html'
     online = False
     sha = None
-
-    def get_object(self, queryset=None):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
+    must_be_author = False  # beta state does not need the author
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -488,16 +481,10 @@ class DisplayContainer(LoginRequiredMixin, DetailView):
         return context
 
 
-class EditContainer(LoggedWithReadWriteHability, FormView):
+class EditContainer(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
-
-    def get_object(self):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
 
     def get_context_data(self, **kwargs):
         self.content = self.get_object()
@@ -543,16 +530,11 @@ class EditContainer(LoggedWithReadWriteHability, FormView):
         return super(EditContainer, self).form_valid(form)
 
 
-class CreateExtract(LoggedWithReadWriteHability, FormView):
+class CreateExtract(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
-
-    def get_object(self):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
+    authorized_for_staff = False
 
     def get_context_data(self, **kwargs):
         self.content = self.get_object()
@@ -582,17 +564,10 @@ class CreateExtract(LoggedWithReadWriteHability, FormView):
         return super(CreateExtract, self).form_valid(form)
 
 
-class EditExtract(LoggedWithReadWriteHability, FormView):
+class EditExtract(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
-
-    def get_object(self):
-        """get the PublishableContent object that the user asked. We double check pk and slug"""
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
 
     def get_context_data(self, **kwargs):
         self.content = self.get_object()
@@ -646,18 +621,12 @@ class EditExtract(LoggedWithReadWriteHability, FormView):
         return super(EditExtract, self).form_valid(form)
 
 
-class DeleteContainerOrExtract(LoggedWithReadWriteHability, DeleteView):
+class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = [u'delete', u'post']
     object = None
     content = None
-
-    def get_object(self, queryset=None):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        return obj
 
     def get_context_data(self, **kwargs):
         self.content = self.get_object()
@@ -769,18 +738,12 @@ class TutorialWithHelp(TutorialList):
 # TODO ArticleWithHelp
 
 
-class DisplayHistory(DetailView):
+class DisplayHistory(LoginRequiredMixin, SingleContentViewMixin, DetailView):
     """Display the whole modification history.
     this class has no reason to be adapted to any content type"""
     model = PublishableContent
     template_name = "tutorialv2/view/history.html"
     context_object_name = "object"
-
-    def get_object(self, queryset=None):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if self.request.user not in obj.authors.all():
-            raise Http404
-        return obj
 
     def get_context_data(self, **kwargs):
 
@@ -938,18 +901,11 @@ class DisplayOnlineArticle(DisplayOnlineContent):
     type = "ARTICLE"
 
 
-class PutContentOnBeta(LoggedWithReadWriteHability, FormView):
+class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
     model = PublishableContent
     content = None
     form_class = BetaForm
-
-    def get_object(self):
-        obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if obj.slug != self.kwargs['slug']:
-            raise Http404
-        if self.request.user not in obj.authors.all():
-            raise PermissionDenied
-        return obj
+    authorized_for_staff = False
 
     def form_valid(self, form):
 
