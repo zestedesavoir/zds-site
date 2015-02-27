@@ -64,6 +64,12 @@ from zds.member.decorator import PermissionRequiredMixin
 
 
 class SingleContentViewMixin(object):
+    """
+    Base mixin to get only one content,
+    sends 404 error if the primary key is not found or the slug is not coherent,
+    sends 403 error if the view is only accessible for author
+    """
+
     must_be_author = True
     authorized_for_staff = True
     prefetch_all = True
