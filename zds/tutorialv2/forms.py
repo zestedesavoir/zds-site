@@ -529,4 +529,4 @@ class JsFiddleActivationForm(forms.Form):
                 StrictButton(
                     _(u'Valider'),
                     type='submit'),),
-            Hidden('tutorial', '{{ tutorial.pk }}'), )
+            Hidden('tutorial', '{{ content.pk }}'), )
