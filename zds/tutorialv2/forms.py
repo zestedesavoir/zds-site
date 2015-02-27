@@ -486,29 +486,6 @@ class RejectForm(forms.Form):
             Hidden('version', '{{ version }}'), )
 
 
-class ActivJsForm(forms.Form):
-
-    js_support = forms.BooleanField(
-        label='Cocher pour activer JSFiddle',
-        required=False,
-        initial=True
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(JsFiddleActivationForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.activ_js')
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('js_support'),
-            ButtonHolder(
-                StrictButton(
-                    _(u'Valider'),
-                    type='submit'),),
-            Hidden('tutorial', '{{ tutorial.pk }}'), )
-
-
 class JsFiddleActivationForm(forms.Form):
 
     js_support = forms.BooleanField(
