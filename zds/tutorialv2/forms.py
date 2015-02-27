@@ -520,7 +520,7 @@ class JsFiddleActivationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(JsFiddleActivationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.activ_js')
+        self.helper.form_action = reverse('content:activate-jsfiddle')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

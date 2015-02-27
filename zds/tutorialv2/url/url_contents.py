@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
-    PutContentOnBeta, DisplayHistory, ValidationListView
+    PutContentOnBeta, DisplayHistory, ValidationListView, ActivateJSFiddleInContent
 from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
@@ -67,7 +67,9 @@ urlpatterns = patterns('',
                        # beta
 
                        url(r'^mettre-beta/(?P<pk>\d+)/(?P<slug>.+)/$', PutContentOnBeta.as_view(), name="put-beta"),
+                       # jsfiddle support
 
+                       url(r'activer-js/', ActivateJSFiddleInContent.as_view(), name="activate-jsfiddle"),
 
                        # delete:
                        url(r'^supprimer/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/'
@@ -90,4 +92,5 @@ urlpatterns = patterns('',
 
                        # validation
                        url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation")
+
                        )
