@@ -253,6 +253,25 @@
 {% block sidebar_blocks %}
     {% if perms.tutorial.change_tutorial %}
         {#  more actions only for validators?!? #}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
+            <h3>{% trans "Validation" %}</h3>
+            <ul>
+                <li>
+                    {% if is_js %}
+                        <a href="#js-activation" class="open-modal ico-after cross red">
+                            {% trans "Désactiver JSFiddle" %}
+                        </a>
+                    {% else %}
+                        <a href="#js-activation" class="open-modal ico-after tick green">
+                            {% trans "Activer JSFiddle" %}
+                        </a>
+                    {% endif %}
+                </li>
+                <div id="js-activation" class="modal modal-small">
+                    {% crispy formJs %}
+                </div>
+            </ul>
+        </div>
     {% endif %}
 
     {%  include "tutorialv2/includes/summary.part.html"  %}
