@@ -44,7 +44,7 @@ from django.views.decorators.http import require_POST
 from git import Repo
 
 from forms import ContentForm, ContainerForm, \
-    ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
+    ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, JsFiddleActivationForm
 from models import PublishableContent, Container, Extract, Validation, ContentReaction, init_new_repo
 from utils import never_read, mark_read, search_container_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -174,7 +174,7 @@ class DisplayContent(LoginRequiredMixin, DetailView):
         validation = Validation.objects.filter(content__pk=content.pk)\
             .order_by("-date_proposition")\
             .first()
-        form_js = ActivJsForm(initial={"js_support": content.js_support})
+        form_js = JsFiddleActivationForm(initial={"js_support": content.js_support})
 
         if content.source:
             form_ask_validation = AskValidationForm(initial={"source": content.source})
@@ -744,7 +744,7 @@ class TutorialWithHelp(TutorialList):
     """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
     for more documentation, have a look to ZEP 03 specification (fr)"""
     context_object_name = 'tutorials'
-    template_name = 'tutorialv2/help.html'
+    template_name = 'tutorialv2/view/help.html'
 
     def get_queryset(self):
         """get only tutorial that need help and handle filtering if asked"""
@@ -1061,6 +1061,22 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         except KeyError:
             queryset = queryset.order_by("date_proposition").all()
         return queryset
+
+
+class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    """Handles changes a validator or staff member can do on the js fiddle support of the provided content
+    Only those members can do it"""
+
+    permissions = ["tutorial.change_tutorial"]
+    form_class = JsFiddleActivationForm
+    http_method_names = ["POST"]
+
+    def form_valid(self, form):
+        """Change the js fiddle support of content and redirect to the view page """
+        content = get_object_or_404(PublishableContent, pk=form.cleaned_data["content"])
+        content.js_support = "js_support" in form.cleaned_data and form.cleaned_data["js_support"]
+        content.save()
+        return redirect(content.load_version().get_absolute_url())
 
 
 @permission_required("tutorial.change_tutorial", raise_exception=True)
@@ -1912,21 +1928,6 @@ def solve_alert(request):
     alert.delete()
     messages.success(request, _(u"L'alerte a bien été résolue."))
     return redirect(note.get_absolute_url())
-
-
-@login_required
-@require_POST
-def activ_js(request):
-
-    # only for staff
-
-    if not request.user.has_perm("tutorial.change_tutorial"):
-        raise PermissionDenied
-    tutorial = get_object_or_404(PublishableContent, pk=request.POST["tutorial"])
-    tutorial.js_support = "js_support" in request.POST
-    tutorial.save()
-
-    return redirect(tutorial.get_absolute_url())
 
 
 @can_write_and_read_now
