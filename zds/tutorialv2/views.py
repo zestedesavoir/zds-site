@@ -29,7 +29,6 @@ import tempfile
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
-from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -49,7 +48,7 @@ from forms import ContentForm, ContainerForm, \
 from models import PublishableContent, Container, Extract, Validation, ContentReaction, init_new_repo
 from utils import never_read, mark_read, search_container_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
-from zds.member.decorator import can_write_and_read_now
+from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
 from zds.utils import slugify
 from zds.utils.models import Alert
@@ -64,18 +63,12 @@ from django.views.generic import ListView, DetailView, FormView, DeleteView
 from zds.member.decorator import PermissionRequiredMixin
 
 
-class ListContent(ListView):
+class ListContent(LoggedWithReadWriteHability, ListView):
     """
     Displays the list of offline contents (written by user)
     """
     context_object_name = 'contents'
     template_name = 'tutorialv2/index.html'
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        """rewrite this method to ensure decoration"""
-        return super(ListContent, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         """
@@ -99,16 +92,11 @@ class ListContent(ListView):
         return context
 
 
-class CreateContent(FormView):
+class CreateContent(LoggedWithReadWriteHability, FormView):
     template_name = 'tutorialv2/create/content.html'
     model = PublishableContent
     form_class = ContentForm
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(CreateContent, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         # create the object:
@@ -173,17 +161,13 @@ class CreateContent(FormView):
         return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 
-class DisplayContent(DetailView):
+class DisplayContent(LoginRequiredMixin, DetailView):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
     online = False
     sha = None
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(DisplayContent, self).dispatch(*args, **kwargs)
 
     def get_forms(self, context, content):
         """get all the auxiliary forms about validation, js fiddle..."""
@@ -265,17 +249,11 @@ class DisplayContent(DetailView):
         return context
 
 
-class EditContent(FormView):
+class EditContent(LoggedWithReadWriteHability, FormView):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        """rewrite this method to ensure decoration"""
-        return super(EditContent, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -366,17 +344,11 @@ class EditContent(FormView):
         return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 
-class DeleteContent(DeleteView):
+class DeleteContent(LoggedWithReadWriteHability, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = [u'delete', u'post']
     object = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        """rewrite this method to ensure decoration"""
-        return super(DeleteContent, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -395,15 +367,10 @@ class DeleteContent(DeleteView):
         return reverse('content:index')
 
 
-class CreateContainer(FormView):
+class CreateContainer(LoggedWithReadWriteHability, FormView):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(CreateContainer, self).dispatch(*args, **kwargs)
 
     def get_object(self):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -449,17 +416,13 @@ class CreateContainer(FormView):
         return super(CreateContainer, self).form_valid(form)
 
 
-class DisplayContainer(DetailView):
+class DisplayContainer(LoginRequiredMixin, DetailView):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/container.html'
     online = False
     sha = None
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(DisplayContainer, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -525,15 +488,10 @@ class DisplayContainer(DetailView):
         return context
 
 
-class EditContainer(FormView):
+class EditContainer(LoggedWithReadWriteHability, FormView):
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(EditContainer, self).dispatch(*args, **kwargs)
 
     def get_object(self):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -585,15 +543,10 @@ class EditContainer(FormView):
         return super(EditContainer, self).form_valid(form)
 
 
-class CreateExtract(FormView):
+class CreateExtract(LoggedWithReadWriteHability, FormView):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(CreateExtract, self).dispatch(*args, **kwargs)
 
     def get_object(self):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -629,15 +582,10 @@ class CreateExtract(FormView):
         return super(CreateExtract, self).form_valid(form)
 
 
-class EditExtract(FormView):
+class EditExtract(LoggedWithReadWriteHability, FormView):
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(EditExtract, self).dispatch(*args, **kwargs)
 
     def get_object(self):
         """get the PublishableContent object that the user asked. We double check pk and slug"""
@@ -698,17 +646,12 @@ class EditExtract(FormView):
         return super(EditExtract, self).form_valid(form)
 
 
-class DeleteContainerOrExtract(DeleteView):
+class DeleteContainerOrExtract(LoggedWithReadWriteHability, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = [u'delete', u'post']
     object = None
     content = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        return super(DeleteContainerOrExtract, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -995,16 +938,10 @@ class DisplayOnlineArticle(DisplayOnlineContent):
     type = "ARTICLE"
 
 
-class PutContentOnBeta(FormView):
+class PutContentOnBeta(LoggedWithReadWriteHability, FormView):
     model = PublishableContent
     content = None
     form_class = BetaForm
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, *args, **kwargs):
-        """rewrite this method to ensure decoration"""
-        return super(PutContentOnBeta, self).dispatch(*args, **kwargs)
 
     def get_object(self):
         obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
@@ -1092,15 +1029,10 @@ class PutContentOnBeta(FormView):
 # Staff actions.
 
 
-class ValidationListView(ListView, PermissionRequiredMixin):
+class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permissions = ["tutorial.change_tutorial"]
     context_object_name = "validations"
     template_name = "tutorialv2/validation/index.html"
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        self.check_permissions()
-        return super(ValidationListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         """
