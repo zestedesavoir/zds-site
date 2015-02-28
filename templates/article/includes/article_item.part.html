@@ -3,21 +3,22 @@
 {% load thumbnail %}
 {% load i18n %}
 
-<article>
-    {% if not link %}
-        {# Public link by default #}
-        {% captureas link %}
-            {{ article.get_absolute_url_online }}
-        {% endcaptureas %}
-    {% endif %}
+{# Public link by default #}
+{% if not link %}
+    {% captureas link %}
+        {{ article.get_absolute_url_online }}
+    {% endcaptureas %}
+{% endif %}
+
+<article class="content-item {% if not article.image %}without-illu{% endif %}">
 
     {% if article.image %}
         <a href="{{ link }}" tabindex="-1">
-            <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
+            <img src="{{ article.image.article_illu.url }}" alt="" class="content-illu">
         </a>
     {% endif %}
 
-    <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
+    <div class="article-item">
         <h3 itemprop="itemListElement">
             <a href="{{ link }}" title="{{ article.title }}">
                 {{ article.title }}
