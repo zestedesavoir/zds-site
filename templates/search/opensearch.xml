@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+    <ShortName>{{ site_name }}</ShortName>
+    <Description>Rechercher sur {{ site_name}}</Description>
+    <InputEncoding>UTF-8</InputEncoding>
+    <Url type="text/html" method="GET" template="{{ search_url }}">
+            <Param name="q" value="{searchTerms}"/>
+    </Url>
+    <Url type="application/opensearchdescription+xml" rel="self" template="{% url "zds.search.views.opensearch" %}" />
+</OpenSearchDescription>
