@@ -9,7 +9,6 @@ from django.core.urlresolvers import reverse
 from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.utils import slugify
 from zds.settings import ZDS_APP
 from django.contrib.auth.models import Group
 
@@ -165,8 +164,7 @@ class TopicViewTest(TestCase):
             position_in_topic=2)
 
     def test_denies_anonymous(self):
-        response = self.client.get(reverse('posts-private-list', args=[self.topic1.pk]),
-            follow=True)
+        response = self.client.get(reverse('posts-private-list', args=[self.topic1.pk]), follow=True)
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
@@ -264,23 +262,23 @@ class NewTopicViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse('zds.mp.views.new'), follow=True)
+        response = self.client.get(reverse('mp-new'), follow=True)
 
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('zds.mp.views.new'), ''))
+            '?next=' + urllib.quote(reverse('mp-new'), ''))
 
     def test_success_get_with_and_without_username(self):
 
-        response = self.client.get(reverse('zds.mp.views.new'))
+        response = self.client.get(reverse('mp-new'))
 
         self.assertEqual(200, response.status_code)
         self.assertIsNone(
             response.context['form'].initial['participants'])
 
         response2 = self.client.get(
-            reverse('zds.mp.views.new') +
+            reverse('mp-new') +
             '?username=' + self.profile2.user.username)
 
         self.assertEqual(200, response2.status_code)
@@ -290,14 +288,14 @@ class NewTopicViewTest(TestCase):
 
     def test_success_get_with_and_without_title(self):
 
-        response = self.client.get(reverse('zds.mp.views.new'))
+        response = self.client.get(reverse('mp-new'))
 
         self.assertEqual(200, response.status_code)
         self.assertIsNone(
             response.context['form'].initial['title'])
 
         response2 = self.client.get(
-            reverse('zds.mp.views.new') +
+            reverse('mp-new') +
             '?title=Test titre')
 
         self.assertEqual(200, response2.status_code)
@@ -308,7 +306,7 @@ class NewTopicViewTest(TestCase):
     def test_fail_get_with_username_not_exist(self):
 
         response2 = self.client.get(
-            reverse('zds.mp.views.new') +
+            reverse('mp-new') +
             '?username=wrongusername')
 
         self.assertEqual(200, response2.status_code)
@@ -319,7 +317,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse('zds.mp.views.new'),
+            reverse('mp-new'),
             {
                 'preview': '',
                 'participants': self.profile2.user.username,
@@ -336,7 +334,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse('zds.mp.views.new'),
+            reverse('mp-new'),
             {
                 'participants': 'wronguser',
                 'title': 'title',
@@ -352,7 +350,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse('zds.mp.views.new'),
+            reverse('mp-new'),
             {
                 'participants': self.profile2.user.username,
                 'title': 'title',
@@ -369,7 +367,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse('zds.mp.views.new'),
+            reverse('mp-new'),
             {
                 'participants': self.profile1.user.username,
                 'title': 'title',
@@ -389,7 +387,7 @@ class NewTopicViewTest(TestCase):
         participants = self.profile2.user.username
 
         response = self.client.post(
-            reverse('zds.mp.views.new'),
+            reverse('mp-new'),
             {
                 'participants': participants,
                 'title': 'title',

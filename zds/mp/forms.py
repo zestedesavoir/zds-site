@@ -3,15 +3,15 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden
 from django import forms
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from zds.mp.commons import ParticipantsValidator, TitleValidator, TextValidator
 
 from zds.mp.models import PrivateTopic
 from zds.utils.forms import CommonLayoutEditor
 from django.utils.translation import ugettext_lazy as _
 
 
-class PrivateTopicForm(forms.Form):
+class PrivateTopicForm(forms.Form, ParticipantsValidator, TitleValidator, TextValidator):
     participants = forms.CharField(
         label=_('Participants'),
         widget=forms.TextInput(
@@ -39,7 +39,6 @@ class PrivateTopicForm(forms.Form):
 
     text = forms.CharField(
         label='Texte',
-        required=False,
         widget=forms.Textarea(
             attrs={
                 'placeholder': _('Votre message au format Markdown.'),
@@ -65,34 +64,14 @@ class PrivateTopicForm(forms.Form):
     def clean(self):
         cleaned_data = super(PrivateTopicForm, self).clean()
 
-        participants = cleaned_data.get('participants')
-        title = cleaned_data.get('title')
-        text = cleaned_data.get('text')
-
-        if participants is not None and participants.strip() == '':
-            self._errors['participants'] = self.error_class(
-                [_(u'Le champ participants ne peut être vide')])
-
-        if participants is not None and participants.strip() != '':
-            receivers = participants.strip().split(',')
-            for receiver in receivers:
-                if User.objects.filter(username__exact=receiver.strip()).count() == 0 and receiver.strip() != '' \
-                        or receiver.strip() == '':
-                    self._errors['participants'] = self.error_class(
-                        [_(u'Un des participants saisi est introuvable')])
-                elif receiver.strip().lower() == self.username.lower():
-                    self._errors['participants'] = self.error_class(
-                        [_(u'Vous ne pouvez pas vous écrire à vous-même !')])
-
-        if title is not None and title.strip() == '':
-            self._errors['title'] = self.error_class(
-                [_(u'Le champ titre ne peut être vide')])
-
-        if text is not None and text.strip() == '':
-            self._errors['text'] = self.error_class(
-                [_(u'Le champ text ne peut être vide')])
+        self.validate_participants(cleaned_data.get('participants'), self.username)
+        self.validate_title(cleaned_data.get('title'))
+        self.validate_text(cleaned_data.get('text'))
 
         return cleaned_data
+
+    def throw_error(self, key=None, message=None):
+        self._errors[key] = self.error_class([message])
 
 
 class PrivatePostForm(forms.Form):

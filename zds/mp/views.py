@@ -19,8 +19,8 @@ from django.template.loader import get_template
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
-from django.forms.util import ErrorList
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 
 from zds.utils.mps import send_mp
@@ -51,6 +51,103 @@ class PrivateTopicList(ZdSPagingListView):
             .filter(Q(participants__in=[self.request.user.id]) | Q(author=self.request.user.id)) \
             .select_related("author", "participants") \
             .distinct().order_by('-last_message__pubdate').all()
+
+
+class PrivateTopicNew(CreateView):
+    """
+    Creates a new MP.
+    """
+
+    form_class = PrivateTopicForm
+    template_name = 'mp/topic/new.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PrivateTopicNew, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        title = request.GET.get('title') if 'title' in request.GET else None
+        try:
+            participants = User.objects.get(username=request.GET.get('username')).username \
+                if 'username' in request.GET else None
+        except:
+            participants = None
+
+        form = self.form_class(username=request.user.username,
+                               initial={
+                                   'participants': participants,
+                                   'title': title
+                               })
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.form_class)
+
+        if 'preview' in request.POST:
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
+            else:
+                form = self.form_class(request.user.username,
+                                       initial={
+                                           'participants': request.POST['participants'],
+                                           'title': request.POST['title'],
+                                           'subtitle': request.POST['subtitle'],
+                                           'text': request.POST['text'],
+                                       })
+        elif form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
+    def get_form(self, form_class):
+        return form_class(self.request.user.username, self.request.POST)
+
+    def form_valid(self, form):
+        participants = []
+        for participant in form.data['participants'].split(","):
+            current = participant.strip()
+            if current == '':
+                continue
+            participants.append(get_object_or_404(User, username=current))
+
+        p_topic = send_mp(self.request.user,
+                          participants,
+                          form.data['title'],
+                          form.data['subtitle'],
+                          form.data['text'],
+                          True,
+                          False)
+
+        return redirect(p_topic.get_absolute_url())
+
+
+@login_required
+@require_POST
+def edit(request):
+    """Edit the given topic."""
+
+    try:
+        topic_pk = request.POST['privatetopic']
+    except KeyError:
+        raise Http404
+
+    try:
+        page = int(request.POST['page'])
+    except KeyError:
+        page = 1
+    except ValueError:
+        raise Http404
+
+    g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
+
+    if request.POST['username']:
+        u = get_object_or_404(User, username=request.POST['username'])
+        if not request.user == u and not u.profile.is_private():
+            g_topic.participants.add(u)
+            g_topic.save()
+
+    return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
 @login_required
@@ -92,8 +189,7 @@ class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=PrivateTopic.objects.all())
-        if not self.object.author == request.user \
-            and request.user not in list(self.object.participants.all()):
+        if not self.object.author == request.user and request.user not in list(self.object.participants.all()):
             raise PermissionDenied
         return super(PrivatePostList, self).get(request, *args, **kwargs)
 
@@ -112,132 +208,6 @@ class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
             .filter(privatetopic__pk=self.object.pk) \
             .order_by('position_in_topic') \
             .all()
-
-
-@login_required
-def new(request):
-    """Creates a new private topic."""
-
-    if request.method == 'POST':
-        # If the client is using the "preview" button
-        if 'preview' in request.POST:
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
-                return StreamingHttpResponse(content)
-            else:
-                form = PrivateTopicForm(request.user.username,
-                                        initial={
-                                            'participants': request.POST['participants'],
-                                            'title': request.POST['title'],
-                                            'subtitle': request.POST['subtitle'],
-                                            'text': request.POST['text'],
-                                        })
-                return render(request, 'mp/topic/new.html', {
-                    'form': form,
-                })
-
-        form = PrivateTopicForm(request.user.username, request.POST)
-
-        if form.is_valid():
-            data = form.data
-            tried_unauthorized_member = False
-            # Retrieve all participants of the MP.
-            ctrl = []
-            list_part = data['participants'].split(",")
-            for part in list_part:
-                part = part.strip()
-                if part == '':
-                    continue
-                p = get_object_or_404(User, username=part)
-                # We don't the author of the MP.
-                if request.user == p:
-                    continue
-                if p.profile.is_private():
-                    tried_unauthorized_member = True
-                ctrl.append(p)
-
-            # user add only himself
-            if len(ctrl) < 1 and len(list_part) == 1 and list_part[0] == request.user.username:
-                errors = form._errors.setdefault("participants", ErrorList())  # TODO: use mutators instead of _errors
-                errors.append(_(u'Vous êtes déjà auteur du message'))
-                if tried_unauthorized_member:
-                    errors.append(_(u'Vous avez tenté d\'ajouter un utilisateur injoignable.'))
-                return render(request, 'mp/topic/new.html', {
-                    'form': form,
-                })
-            if tried_unauthorized_member:
-                errors = form._errors.setdefault("participants", ErrorList())
-                errors.append(_(u'Vous avez tenté d\'ajouter un utilisateur injoignable.'))
-            else:
-                p_topic = send_mp(request.user,
-                                  ctrl,
-                                  data['title'],
-                                  data['subtitle'],
-                                  data['text'],
-                                  True,
-                                  False)
-
-                return redirect(p_topic.get_absolute_url())
-            return render(request, 'mp/topic/new.html', {
-                'form': form,
-            })
-        else:
-            return render(request, 'mp/topic/new.html', {
-                'form': form,
-            })
-    else:
-        dest = None
-        if 'username' in request.GET:
-            dest_list = []
-            # check that usernames in url is in the database
-            for username in request.GET.getlist('username'):
-                try:
-                    dest_list.append(User.objects.get(username=username).username)
-                except:
-                    pass
-            if len(dest_list) > 0:
-                dest = ', '.join(dest_list)
-
-        title = None
-        if 'title' in request.GET:
-            title = request.GET['title']
-
-        form = PrivateTopicForm(username=request.user.username,
-                                initial={
-                                    'participants': dest,
-                                    'title': title
-                                })
-        return render(request, 'mp/topic/new.html', {
-            'form': form,
-        })
-
-
-@login_required
-@require_POST
-def edit(request):
-    """Edit the given topic."""
-
-    try:
-        topic_pk = request.POST['privatetopic']
-    except KeyError:
-        raise Http404
-
-    try:
-        page = int(request.POST['page'])
-    except KeyError:
-        page = 1
-    except ValueError:
-        raise Http404
-
-    g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
-
-    if request.POST['username']:
-        u = get_object_or_404(User, username=request.POST['username'])
-        if not request.user == u and not u.profile.is_private():
-            g_topic.participants.add(u)
-            g_topic.save()
-
-    return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
 
 
 @login_required

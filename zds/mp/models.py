@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from zds.utils import get_current_user, slugify
+from zds.utils import get_current_user
 
 
 class PrivateTopic(models.Model):

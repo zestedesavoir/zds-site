@@ -7,7 +7,6 @@ from math import ceil
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import mark_read, never_privateread, PrivateTopicRead
-from zds.utils import slugify
 from zds import settings
 
 # by moment, i wrote the scenario to be simpler

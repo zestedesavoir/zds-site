@@ -109,7 +109,7 @@
                 </a>
             </li>
             <li>
-                <a  href="{% url "zds.mp.views.new" %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
+                <a  href="{% url 'mp-new' %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
                     class="ico-after cite blue"
                 >
                     {% trans "Envoyer un MP" %}

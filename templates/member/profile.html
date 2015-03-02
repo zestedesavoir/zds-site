@@ -219,7 +219,7 @@
                 <ul>
                     {% if usr != user and not profile.is_private %}
                         <li>
-                            <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
+                            <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
                             </a>
                         </li>

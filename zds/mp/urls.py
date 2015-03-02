@@ -1,13 +1,12 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
-from zds.mp.views import PrivateTopicList, PrivatePostList
+from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew
 
 
 urlpatterns = patterns('',
 
     # Viewing a thread
-    url(r'^nouveau/$', 'zds.mp.views.new'),
     url(r'^editer/$', 'zds.mp.views.edit'),
     url(r'^quitter/$', 'zds.mp.views.leave'),
     url(r'^ajouter/$', 'zds.mp.views.add_participant'),
@@ -19,6 +18,7 @@ urlpatterns = patterns('',
     # Topics.
     url(r'^$', PrivateTopicList.as_view(), name='mp-list'),
     url(r'^quitter-list/$', 'zds.mp.views.leave_mps'),
+    url(r'^nouveau/$', PrivateTopicNew.as_view(), name='mp-new'),
 
     # Posts.
     url(r'^(?P<pk>\d+)/messages/$', PrivatePostList.as_view(), name='posts-private-list'),

@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from zds.member.factories import ProfileFactory, StaffFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.forms import PrivateTopicForm, PrivatePostForm
 from zds.mp.factories import PrivateTopicFactory
 
@@ -12,14 +12,14 @@ class PrivateTopicFormTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        self.staff1 = StaffFactory()
+        self.staff1 = StaffProfileFactory()
 
     def test_valid_topic_form(self):
         """  Reference valid case """
         data = {
             'participants':
                 self.profile1.user.username +
-                ',' + self.staff1.username,
+                ',' + self.staff1.user.username,
             'title': 'Test title',
             'subtitle': 'Test subtitle',
             'text': 'blabla'
