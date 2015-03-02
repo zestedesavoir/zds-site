@@ -62,7 +62,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 class ContainerFactory(factory.Factory):
     FACTORY_FOR = Container
 
-    title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n+1))
+    title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n + 1))
     slug = ''
 
     @classmethod
@@ -103,7 +103,7 @@ class ContainerFactory(factory.Factory):
 
 class ExtractFactory(factory.Factory):
     FACTORY_FOR = Extract
-    title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n+1))
+    title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n + 1))
     slug = ''
 
     @classmethod

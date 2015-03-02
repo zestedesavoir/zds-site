@@ -76,7 +76,7 @@ class SingleContentViewMixin(object):
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
-            queryset = queryset.objects\
+            queryset = PublishableContent.objects\
                 .select_related("licence")\
                 .prefetch_related("authors")\
                 .prefetch_related("subcategory")\
@@ -480,9 +480,9 @@ class DisplayContainer(LoginRequiredMixin, SingleContentViewMixin, DetailView):
                 context['previous'] = None
                 context['next'] = None
                 if position > 0:
-                    context['previous'] = chapters[position-1]
-                if position < len(chapters)-1:
-                    context['next'] = chapters[position+1]
+                    context['previous'] = chapters[position - 1]
+                if position < len(chapters) - 1:
+                    context['next'] = chapters[position + 1]
 
         return context
 
@@ -975,10 +975,10 @@ class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, Form
                    u'La beta du {2} est de nouveau active.'
                    u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                    u'\n\nMerci pour vos relectures').format(self.content.title,
-                                                            settings.ZDS_APP['site']['url']
-                                                            + reverse("content:view",
-                                                                      args=[self.content.pk,
-                                                                            self.content.slug]),
+                                                            settings.ZDS_APP['site']['url'] +
+                                                            reverse("content:view",
+                                                                    args=[self.content.pk,
+                                                                          self.content.slug]),
                                                             self.content.type))
             unlock_topic(topic, msg)
             send_post(topic, msg_up)
@@ -1126,7 +1126,7 @@ def reject_tutorial(request):
         tutorial.pubdate = None
         tutorial.save()
         messages.info(request, _(u"Le tutoriel a bien été refusé."))
-        comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
+        comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
         # send feedback
         msg = (
             _(u'Désolé, le zeste **{0}** n\'a malheureusement '
@@ -1151,14 +1151,12 @@ def reject_tutorial(request):
             True,
             direct=False,
         )
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
     else:
         messages.error(request,
                        _(u"Vous devez avoir réservé ce tutoriel "
                          u"pour pouvoir le refuser."))
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
 
 
 @can_write_and_read_now
@@ -1223,14 +1221,12 @@ def valid_tutorial(request):
             True,
             direct=False,
         )
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
     else:
         messages.error(request,
                        _(u"Vous devez avoir réservé ce tutoriel "
                          u"pour pouvoir le valider."))
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
 
 
 @can_write_and_read_now
@@ -1259,8 +1255,7 @@ def invalid_tutorial(request, tutorial_pk):
     tutorial.pubdate = None
     tutorial.save()
     messages.success(request, _(u"Le tutoriel a bien été dépublié."))
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
+    return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
 
 
 # User actions on tutorial.
@@ -1702,19 +1697,17 @@ def mep(tutorial, sha):
     # load pandoc
 
     os.chdir(prod_path)
-    os.system(settings.PANDOC_LOC
-              + "pandoc --latex-engine=xelatex -s -S --toc "
-              + os.path.join(prod_path, tutorial.slug)
-              + ".md -o " + os.path.join(prod_path,
-                                         tutorial.slug) + ".html" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
-              + os.path.join(prod_path, tutorial.slug) + ".md "
-              + "-o " + os.path.join(prod_path, tutorial.slug)
-              + ".pdf" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
-              + os.path.join(prod_path, tutorial.slug)
-              + ".md -o " + os.path.join(prod_path,
-                                         tutorial.slug) + ".epub" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC +
+              "pandoc --latex-engine=xelatex -s -S --toc " +
+              os.path.join(prod_path, tutorial.slug) +
+              ".md -o " + os.path.join(prod_path, tutorial.slug) + ".html" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
+              os.path.join(prod_path, tutorial.slug) + ".md " +
+              "-o " + os.path.join(prod_path, tutorial.slug) +
+              ".pdf" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC + "pandoc -s -S --toc " +
+              os.path.join(prod_path, tutorial.slug) +
+              ".md -o " + os.path.join(prod_path, tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 

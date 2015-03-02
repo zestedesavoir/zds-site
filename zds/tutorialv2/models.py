@@ -182,7 +182,7 @@ class Container:
         :return: True if this container accept child container, false otherwise
         """
         if not self.has_extracts():
-            if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth']-1:
+            if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
                 if not self.top_container().is_article:
                     return True
         return False
@@ -884,7 +884,7 @@ def fill_containers_from_json(json_sub, parent):
                 new_extract.text = child['text']
                 parent.add_extract(new_extract, generate_slug=(slug != ''))
             else:
-                raise Exception('Unknown object type'+child['object'])
+                raise Exception('Unknown object type' + child['object'])
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=''):
@@ -961,7 +961,7 @@ def get_commit_author():
     aut_email = str(user.email)
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
-    return {'author': Actor(aut_user, aut_email),  'committer': Actor(aut_user, aut_email)}
+    return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
 
 
 class PublishableContent(models.Model):
@@ -1331,7 +1331,7 @@ class ContentRead(models.Model):
     user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
 
     def __unicode__(self):
-        return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.content,  self.user, self.note.pk)
+        return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.content, self.user, self.note.pk)
 
 
 class Validation(models.Model):
