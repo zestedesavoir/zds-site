@@ -369,6 +369,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         """rewrite delete() function to ensure repository deletion"""
         self.object = self.get_object()
         self.object.repo_delete()
+        self.object.delete()
 
         return redirect(self.get_success_url())
 
