@@ -29,6 +29,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 
+        Repo.init(path, bare=False)
+
         introduction = 'introduction.md'
         conclusion = 'conclusion.md'
         versioned_content = VersionedContent(None,
@@ -37,8 +39,6 @@ class PublishableContentFactory(factory.DjangoModelFactory):
                                              slugify(publishable_content.title))
         versioned_content.introduction = introduction
         versioned_content.conclusion = conclusion
-
-        Repo.init(path, bare=False)
         repo = Repo(path)
 
         versioned_content.dump_json()

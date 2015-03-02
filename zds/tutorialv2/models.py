@@ -705,7 +705,9 @@ class VersionedContent(Container):
         Container.__init__(self, title, slug)
         self.current_version = current_version
         self.type = _type
-        self.repository = Repo(self.get_path())
+
+        if os.path.exists(self.get_path()):
+            self.repository = Repo(self.get_path())
 
     def __unicode__(self):
         return self.title
@@ -904,6 +906,10 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     if not os.path.isdir(path):
         os.makedirs(path, mode=0o777)
 
+    # init repo:
+    Repo.init(path, bare=False)
+    repo = Repo(path)
+
     introduction = 'introduction.md'
     conclusion = 'conclusion.md'
     versioned_content = VersionedContent(None,
@@ -916,10 +922,6 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     versioned_content.description = db_object.description
     versioned_content.introduction = introduction
     versioned_content.conclusion = conclusion
-
-    # init repo:
-    Repo.init(path, bare=False)
-    repo = Repo(path)
 
     # fill intro/conclusion:
     f = open(os.path.join(path, introduction), "w")
