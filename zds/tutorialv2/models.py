@@ -901,7 +901,6 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
     # create directory
     path = db_object.get_repo_path()
-    print(path)
     if not os.path.isdir(path):
         os.makedirs(path, mode=0o777)
 
@@ -1154,16 +1153,21 @@ class PublishableContent(models.Model):
         :param versioned: the VersionedContent to fill
         """
 
+        attrs = [
+            'pk', 'authors', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+        ]
+
         fns = [
-            'pk',
             'have_markdown', 'have_html', 'have_pdf', 'have_epub', 'in_beta', 'in_validation', 'in_public',
-            'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source', 'sha_draft',
-            'sha_beta', 'sha_validation', 'sha_public', 'is_article', 'is_tutorial'
+            'is_article', 'is_tutorial'
         ]
 
         # load functions and attributs in `versioned`
+        for attr in attrs:
+            setattr(versioned, attr, getattr(self, attr))
         for fn in fns:
-            setattr(versioned, fn, getattr(self, fn))
+            setattr(versioned, fn, getattr(self, fn)())
 
         # general information
         versioned.is_beta = self.is_beta(versioned.current_version)
@@ -1258,28 +1262,28 @@ class PublishableContent(models.Model):
         Check if the markdown zip archive is available
         :return: `True` if available, `False` otherwise
         """
-        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".md"))
+        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".md"))
 
     def have_html(self):
         """
         Check if the html version of the content is available
         :return: `True` if available, `False` otherwise
         """
-        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".html"))
+        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".html"))
 
     def have_pdf(self):
         """
         Check if the pdf version of the content is available
         :return: `True` if available, `False` otherwise
         """
-        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".pdf"))
+        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".pdf"))
 
     def have_epub(self):
         """
         Check if the standard epub version of the content is available
         :return: `True` if available, `False` otherwise
         """
-        return os.path.isfile(os.path.join(self.get_prod_path(), self.slug + ".epub"))
+        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".epub"))
 
     def repo_delete(self):
         """
