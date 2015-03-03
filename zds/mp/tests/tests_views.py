@@ -405,129 +405,6 @@ class NewTopicViewTest(TestCase):
         )
 
 
-class EditViewTest(TestCase):
-
-    def setUp(self):
-        self.profile1 = ProfileFactory()
-        self.profile2 = ProfileFactory()
-        self.profile3 = ProfileFactory()
-
-        self.topic1 = PrivateTopicFactory(author=self.profile1.user)
-        self.topic1.participants.add(self.profile2.user)
-        self.post1 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile1.user,
-            position_in_topic=1)
-
-        self.post2 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile2.user,
-            position_in_topic=2)
-
-        login_check = self.client.login(
-            username=self.profile1.user.username,
-            password='hostel77'
-        )
-        self.assertTrue(login_check)
-
-    def test_denies_anonymous(self):
-
-        self.client.logout()
-        response = self.client.get(reverse('zds.mp.views.edit'), follow=True)
-
-        self.assertRedirects(
-            response,
-            reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('zds.mp.views.edit'), ''))
-
-    def test_fail_edit_topic_not_sending_topic_pk(self):
-
-        response = self.client.post(reverse('zds.mp.views.edit'))
-
-        self.assertEqual(404, response.status_code)
-
-    def test_fail_edit_topic_no_exist(self):
-
-        response = self.client.post(
-            reverse('zds.mp.views.edit'),
-            {
-                'privatetopic': 156
-            }
-        )
-
-        self.assertEqual(404, response.status_code)
-
-    def test_fail_edit_topic_add_no_exist_user(self):
-
-        response = self.client.post(
-            reverse('zds.mp.views.edit'),
-            {
-                'privatetopic': self.topic1.pk,
-                'username': 'wrongusername'
-            }
-        )
-
-        self.assertEqual(404, response.status_code)
-
-    def test_success_edit_topic_add_participant(self):
-
-        response = self.client.post(
-            reverse('zds.mp.views.edit'),
-            {
-                'privatetopic': self.topic1.pk,
-                'username': self.profile3.user.username
-            },
-            follow=True
-        )
-
-        self.assertEqual(200, response.status_code)
-        topic = PrivateTopic.objects.get(pk=self.topic1.pk)
-        self.assertIn(
-            self.profile3.user,
-            topic.participants.all()
-        )
-
-    def test_fail_user_add_himself_to_private_topic_with_no_right(self):
-
-        self.client.logout()
-        self.assertTrue(
-            self.client.login(
-                username=self.profile3.user.username,
-                password='hostel77'
-            )
-        )
-
-        response = self.client.post(
-            reverse('zds.mp.views.edit'),
-            {
-                'privatetopic': self.topic1.pk,
-                'username': self.profile3.user.username
-            },
-            follow=True
-        )
-
-        self.assertEqual(403, response.status_code)
-        topic = PrivateTopic.objects.get(pk=self.topic1.pk)
-        self.assertNotIn(
-            self.profile3.user,
-            topic.participants.all()
-        )
-
-    def test_weird_page_number(self):
-        """ get a page that can't exist (like page=abc) """
-
-        response = self.client.post(
-            reverse('zds.mp.views.edit'),
-            {
-                'privatetopic': self.topic1.pk,
-                'username': self.profile3.user.username,
-                'page': 'abc'
-            },
-            follow=True
-        )
-        self.assertEqual(response.status_code, 404)
-
-
 class AnswerViewTest(TestCase):
 
     def setUp(self):
@@ -1059,22 +936,19 @@ class AddParticipantViewTest(TestCase):
 
         self.client.logout()
         response = self.client.get(
-            reverse('zds.mp.views.add_participant'),
+            reverse('mp-edit-participant', args=[1]),
             follow=True
         )
 
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('zds.mp.views.add_participant'), ''))
+            '?next=' + urllib.quote(reverse('mp-edit-participant', args=[1]), ''))
 
     def test_fail_add_participant_topic_no_exist(self):
 
         response = self.client.post(
-            reverse('zds.mp.views.add_participant'),
-            {
-                'topic_pk': '451'
-            },
+            reverse('mp-edit-participant', args=[451]),
             follow=True
         )
 
@@ -1090,10 +964,9 @@ class AddParticipantViewTest(TestCase):
         )
 
         self.client.post(
-            reverse('zds.mp.views.add_participant'),
+            reverse('mp-edit-participant', args=[self.topic1.pk]),
             {
-                'topic_pk': self.topic1.pk,
-                'user_pk': self.anonymous_account.username
+                'username': self.anonymous_account.username
             }
         )
         self.assertFalse(self.anonymous_account in self.topic1.participants.all())
@@ -1101,10 +974,9 @@ class AddParticipantViewTest(TestCase):
     def test_fail_add_participant_who_no_exist(self):
 
         response = self.client.post(
-            reverse('zds.mp.views.add_participant'),
+            reverse('mp-edit-participant', args=[self.topic1.pk]),
             {
-                'topic_pk': self.topic1.pk,
-                'user_pk': '178548'
+                'username': '178548'
             },
             follow=True
         )
@@ -1124,10 +996,9 @@ class AddParticipantViewTest(TestCase):
         )
 
         response = self.client.post(
-            reverse('zds.mp.views.add_participant'),
+            reverse('mp-edit-participant', args=[self.topic1.pk]),
             {
-                'topic_pk': self.topic1.pk,
-                'user_pk': profile3.user.username
+                'username': profile3.user.username
             }
         )
 
@@ -1140,10 +1011,9 @@ class AddParticipantViewTest(TestCase):
     def test_fail_add_participant_already_in(self):
 
         response = self.client.post(
-            reverse('zds.mp.views.add_participant'),
+            reverse('mp-edit-participant', args=[self.topic1.pk]),
             {
-                'topic_pk': self.topic1.pk,
-                'user_pk': self.profile2.user.username
+                'username': self.profile2.user.username
             },
             follow=True
         )
@@ -1156,10 +1026,9 @@ class AddParticipantViewTest(TestCase):
         profile3 = ProfileFactory()
 
         response = self.client.post(
-            reverse('zds.mp.views.add_participant'),
+            reverse('mp-edit-participant', args=[self.topic1.pk]),
             {
-                'topic_pk': self.topic1.pk,
-                'user_pk': profile3.user.username
+                'username': profile3.user.username
             },
             follow=True
         )

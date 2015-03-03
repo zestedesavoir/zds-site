@@ -20,8 +20,9 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic import CreateView
+from django.views.generic import CreateView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
+from zds.member.models import Profile
 
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -122,32 +123,61 @@ class PrivateTopicNew(CreateView):
         return redirect(p_topic.get_absolute_url())
 
 
-@login_required
-@require_POST
-def edit(request):
-    """Edit the given topic."""
+class AddParticipant(SingleObjectMixin, RedirectView):
+    """
+    Adds a new participant in a MP.
+    """
+    object = None
+    queryset = PrivateTopic.objects.all()
 
-    try:
-        topic_pk = request.POST['privatetopic']
-    except KeyError:
-        raise Http404
+    @method_decorator(login_required)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AddParticipant, self).dispatch(request, *args, **kwargs)
 
-    try:
-        page = int(request.POST['page'])
-    except KeyError:
-        page = 1
-    except ValueError:
-        raise Http404
+    def get_object(self, queryset=None):
+        topic = super(AddParticipant, self).get_object(self.queryset)
+        if topic is not None and not topic.author == self.request.user:
+            raise PermissionDenied
+        return topic
 
-    g_topic = get_object_or_404(PrivateTopic, pk=topic_pk)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
 
-    if request.POST['username']:
-        u = get_object_or_404(User, username=request.POST['username'])
-        if not request.user == u and not u.profile.is_private():
-            g_topic.participants.add(u)
-            g_topic.save()
+        try:
+            participant = get_object_or_404(Profile, user__username=request.POST.get('username'))
+            if participant.is_private():
+                raise ObjectDoesNotExist
+            if participant.user.pk == self.object.author.pk or participant.user in self.object.participants.all():
+                messages.warning(request, _(u'Le membre que vous essayez d\'ajouter à la conversation y est déjà.'))
+            else:
+                self.object.participants.add(participant.user)
+                self.object.save()
+                # send email
+                profile = participant.profile
+                if profile.email_for_answer:
+                    subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['litteral_name'], self.object.title)
+                    from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                                   settings.ZDS_APP['site']['email_noreply'])
+                    context = {
+                        'username': participant.username,
+                        'url': settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
+                        'author': request.user.username,
+                        'site_name': settings.ZDS_APP['site']['litteral_name']
+                    }
+                    message_html = render_to_string('email/mp/new_participant.html', context)
+                    message_txt = render_to_string('email/mp/new_participant.txt', context)
 
-    return redirect(u'{}?page={}'.format(g_topic.get_absolute_url(), page))
+                    msg = EmailMultiAlternatives(subject, message_txt, from_email, [participant.email])
+                    msg.attach_alternative(message_html, "text/html")
+                    msg.send()
+                messages.success(request, _(u'Le membre a bien été ajouté à la conversation.'))
+        except Http404:
+            messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+        except ObjectDoesNotExist:
+            messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
+
+        return redirect(reverse('posts-private-list', args=[self.object.pk]))
 
 
 @login_required
@@ -458,60 +488,3 @@ def leave(request):
             request, _(u'Vous avez quitté la conversation avec succès.'))
 
     return redirect(reverse('mp-list'))
-
-
-@login_required
-@require_POST
-@transaction.atomic
-def add_participant(request):
-    try:
-        ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
-    except KeyError:
-        messages.warning(
-            request, _(u'La conversation que vous avez essayé d\'utiliser n\'existe pas.'))
-
-    # check if user is the author of topic
-    if ptopic is not None and not ptopic.author == request.user:
-        raise PermissionDenied
-
-    try:
-        # user_pk or user_username ?
-        part = User.objects.get(username__exact=request.POST['user_pk'])
-        if part.profile.is_private():
-            raise ObjectDoesNotExist
-        if part.pk == ptopic.author.pk or part in ptopic.participants.all():
-            messages.warning(
-                request,
-                _(u'Le membre que vous essayez d\'ajouter '
-                  u'à la conversation y est déjà.'))
-        else:
-            ptopic.participants.add(part)
-            ptopic.save()
-
-            # send email
-            profile = part.profile
-            if profile.email_for_answer:
-                subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['litteral_name'], ptopic.title)
-                from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                               settings.ZDS_APP['site']['email_noreply'])
-                context = {
-                    'username': part.username,
-                    'url': settings.ZDS_APP['site']['url'] + ptopic.get_absolute_url(),
-                    'author': request.user.username,
-                    'site_name': settings.ZDS_APP['site']['litteral_name']
-                }
-                message_html = render_to_string('email/mp/new_participant.html', context)
-                message_txt = render_to_string('email/mp/new_participant.txt', context)
-
-                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-                msg.attach_alternative(message_html, "text/html")
-                msg.send()
-
-            messages.success(
-                request,
-                _(u'Le membre a bien été ajouté à la conversation.'))
-    except (KeyError, ObjectDoesNotExist):
-        messages.warning(
-            request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas ou ne peut être contacté.'))
-
-    return redirect(reverse('posts-private-list', args=[ptopic.pk]))

@@ -99,13 +99,12 @@
                     <a href="#add-participant" class="open-modal ico-after more blue">
                         {% trans "Ajouter un membre" %}
                     </a>
-                    <form action="{% url "zds.mp.views.add_participant" %}" method="post" id="add-participant" class="modal modal-medium">
+                    <form action="{% url "mp-edit-participant" topic.pk %}" method="post" id="add-participant" class="modal modal-medium">
                         <p>
                             {% trans "Vous allez rajouter un nouveau membre dans la conversation privée" %}.
                         </p>
-                        <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
                         <input
-                            type="text" class="input" name="user_pk"
+                            type="text" class="input" name="username"
                             placeholder="Pseudo du membre"
                             data-autocomplete="{'type':'single'}"
                         >
