@@ -54,7 +54,7 @@
 
         {% block sidebar_blocks %}{% endblock %}
         {% if content %}
-            {% if content.on_line or content.in_beta and user in content.authors.all or perms.tutorial.change_tutorial %}
+            {% if content.on_line or content.in_beta or can_edit %}
                 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
                     <h3>{% trans "Télécharger" %}</h3>
                     <ul>
@@ -92,7 +92,7 @@
                         {% endif %}
 
                         <li>
-                            <a href="{% url "content:download-zip" content.pk content.slug %}" class="ico-after download blue">
+                            <a href="{% url "content:download-zip" content.pk content.slug %}{% if version %}?version={{ version }}{% endif %}" class="ico-after download blue">
                                 {% trans "Archive" %}
                             </a>
                         </li>

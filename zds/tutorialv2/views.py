@@ -44,9 +44,10 @@ from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
-from forms import ContentForm, ContainerForm, \
-    ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, JsFiddleActivationForm
-from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo
+from forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, \
+    JsFiddleActivationForm, ImportMarkdownForm
+from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
+    BadManifestError, Extract
 from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
@@ -63,7 +64,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import ListView, DetailView, FormView, DeleteView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
-    SingleContentDetailViewMixin, DownloadViewMixin
+    SingleContentDetailViewMixin, SingleContentDownloadViewMixin
 
 
 class ListContent(LoggedWithReadWriteHability, ListView):
@@ -304,18 +305,19 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         return redirect(reverse('content:index'))
 
 
-class DownloadContent(LoggedWithReadWriteHability, SingleContentViewMixin, DownloadViewMixin):
+class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
     """
     Download a zip archive with all the content of the repository directory
     """
 
-    object = None
     mimetype = 'application/zip'
+    only_draft_version = False  # beta version can also be downloaded
+    must_be_author = False  # other user can download archive
 
     @staticmethod
     def insert_into_zip(zip_file, git_tree):
-        """
-        Recursively add file into zip
+        """Recursively add file into zip
+
         :param zip_file: a `zipfile` object (with writing permissions)
         :param git_tree: Git tree (from `repository.commit(sha).tree`)
         """
@@ -329,9 +331,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentViewMixin, Downl
         """
         :return: a zip file
         """
-        self.object = self.get_object()
-        # TODO: deal with version ?!?
-        versioned = self.object.load_version()
+        versioned = self.versioned_object
 
         # create and fill zip
         path = self.object.get_repo_path()
@@ -347,6 +347,181 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentViewMixin, Downl
 
     def get_filename(self):
         return self.get_object().slug + '.zip'
+
+
+class BadArchiveError(Exception):
+    """ The exception that is raised when a bad archive is sent """
+    message = u''
+
+    def __init__(self, reason):
+        self.message = reason
+
+
+class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+
+    template_name = 'tutorialv2/import/content.html'
+    form_class = ImportMarkdownForm
+
+    @staticmethod
+    def walk_container(container):
+        """Iterator that yield each file in a Container
+
+        :param container: the container
+        :type container: Container
+        """
+
+        if container.introduction:
+            yield container.introduction
+        if container.conclusion:
+            yield container.conclusion
+
+        for child in container.children:
+            if isinstance(child, Container):
+                for _y in ImportContent.walk_container(child):
+                    yield _y
+            else:
+                yield child.text
+
+    @staticmethod
+    def walk_content(versioned):
+        """Iterator that yield each files in a VersionedContent
+
+        :param versioned: the content
+        :type versioned: VersionedContent
+        """
+
+        for _y in ImportContent.walk_container(versioned):
+            yield _y
+
+    @staticmethod
+    def extract_content_from_zip(zip_archive, old_version):
+        """Check if the data in the zip file are coherents
+
+        :param zip_archive: the zip archive to analyze
+        :type zip_archive: zipfile.ZipFile
+        :param old_version: old version of the content
+        :type old_version: VersionedContent
+        :raise BadArchiveError: if something is wrong in the archive
+        :return: the content in the archive
+        :rtype: VersionedContent
+        """
+
+        try:
+            manifest = unicode(zip_archive.read('manifest.json'), 'utf-8')
+        except KeyError:
+            raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json'))
+
+        # is the manifest ok ?
+        json_ = json_reader.loads(manifest)
+        try:
+            versioned = get_content_from_json(json_, None, '')
+        except BadManifestError as e:
+            raise BadArchiveError(e.message)
+
+        # is there everything in the archive ?
+        for f in ImportContent.walk_content(versioned):
+            try:
+                zip_archive.getinfo(f)
+            except KeyError:
+                raise BadArchiveError(_(u'Le fichier "{}" n\'existe pas dans l\'archive').format(f))
+
+        return versioned
+
+    @staticmethod
+    def update_from_new_version_in_zip(copy_to, copy_from, zip_file):
+        """Copy the information from ``new_container`` into ``copy_to``.
+        This function correct path for file if necessary
+
+        :param copy_to: container that to copy to
+        :type copy_to: Container
+        :param copy_from: copy from container
+        :type copy_from: Container
+        :param zip_file: zip file that contain the files
+        :type zip_file: zipfile.ZipFile
+        """
+
+        for child in copy_from.children:
+            if isinstance(child, Container):
+
+                introduction = ''
+                conclusion = ''
+
+                if child.introduction:
+                    introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                if child.conclusion:
+                    conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+
+                copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False)
+                ImportContent.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
+
+            elif isinstance(child, Extract):
+                text = unicode(zip_file.read(child.text), 'utf-8')
+                copy_to.repo_add_extract(child.title, text, do_commit=False)
+
+    def form_valid(self, form):
+        versioned = self.versioned_object
+
+        if self.request.FILES['archive']:
+            zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+
+            try:
+                new_version = ImportContent.extract_content_from_zip(zfile, versioned)
+            except BadArchiveError as e:
+                messages.error(self.request, e.message)
+                return super(ImportContent, self).form_invalid(form)
+            else:
+                # first, update DB object (in order to get a new slug if needed)
+                self.object.title = new_version.title
+                self.object.description = new_version.description
+                self.object.licence = new_version.licence
+                self.object.type = new_version.type  # change of type is then allowed !!
+                self.object.save()
+
+                new_version.slug = self.object.slug  # new slug if any !!
+
+                # ok, then, let's do the import. First, remove everything in the repository
+                while True:
+                    if len(versioned.children) != 0:
+                        versioned.children[0].repo_delete(do_commit=False)
+                    else:
+                        break  # this weird construction ensure that everything is removed
+
+                # start by copying extra information
+                self.object.insert_data_in_versioned(versioned)  # better have a clean version of those one
+                versioned.description = new_version.description
+                versioned.type = new_version.type
+                versioned.licence = new_version.licence
+
+                # update container (and repo)
+                introduction = ''
+                conclusion = ''
+
+                if new_version.introduction:
+                    introduction = unicode(zfile.read(new_version.introduction), 'utf-8')
+                if new_version.conclusion:
+                    conclusion = unicode(zfile.read(new_version.conclusion), 'utf-8')
+
+                versioned.repo_update_top_container(
+                    new_version.title, new_version.slug, introduction, conclusion, do_commit=False)
+
+                # then do the dirty job:
+                ImportContent.update_from_new_version_in_zip(versioned, new_version, zfile)
+
+                # and end up by a commit !!
+                commit_message = form.cleaned_data['msg_commit']
+
+                if commit_message == '':
+                    commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_version.title)
+
+                sha = versioned.commit_changes(commit_message)
+
+                # of course, need to update sha
+                self.object.sha_draft = sha
+                self.object.save()
+
+                self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
+
+        return super(ImportContent, self).form_valid(form)
 
 
 class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):

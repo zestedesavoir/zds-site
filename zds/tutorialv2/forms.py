@@ -293,9 +293,20 @@ class ImportForm(forms.Form):
 
 class ImportMarkdownForm(forms.Form):
 
-    file = forms.FileField(
+    archive = forms.FileField(
         label=_(u"Sélectionnez l'archive de votre tutoriel"),
         required=True
+    )
+
+    msg_commit = forms.CharField(
+        label=_(u"Message de suivi"),
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Un résumé de vos ajouts et modifications')
+            }
+        )
     )
 
     def __init__(self, *args, **kwargs):
@@ -305,10 +316,27 @@ class ImportMarkdownForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('file'),
-            Field('tutorial'),
-            Submit('import-archive', _(u"Importer l'archive")),
+            Field('archive'),
+            Field('msg_commit'),
+            ButtonHolder(
+                StrictButton('Importer l\'archive', type='submit'),
+            ),
         )
+
+    def clean(self):
+        cleaned_data = super(ImportMarkdownForm, self).clean()
+
+        # Check that the files extensions are correct
+        archive = cleaned_data.get('archive')
+
+        if archive is not None:
+            ext = archive.name.split(".")[-1]
+            if ext != 'zip':
+                del cleaned_data['archive']
+                msg = _(u'L\'archive doit être au format ZIP')
+                self._errors['archive'] = self.error_class([msg])
+
+        return cleaned_data
 
 
 class BetaForm(forms.Form):

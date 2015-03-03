@@ -150,7 +150,11 @@
                 <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more blue new-btn">
                     {% trans "Ajouter un extrait" %}
                 </a>
-             {%  endif %}
+            {%  endif %}
+
+            <a href="{% url "content:import" content.pk content.slug %}" class="ico-after import blue new-btn">
+                {% trans "Importer une nouvelle version" %}
+            </a>
 
         {% else %}
             <a href="{% url "content:view" content.pk content.slug_repository %}" class="ico-after arrow-right blue new-btn">

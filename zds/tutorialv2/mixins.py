@@ -154,8 +154,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
 
 
 class DownloadViewMixin(View):
-    """
-    Base mixin to return a file to download
+    """Basic View to return a file to download
 
     (inspired from https://djangosnippets.org/snippets/2549/ and
     http://stackoverflow.com/questions/16286666/send-a-file-through-django-class-based-views)
@@ -180,3 +179,28 @@ class DownloadViewMixin(View):
         response.write(self.get_contents())
 
         return response
+
+
+class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
+    """
+    Ensure, by rewritring ``get()``, that
+    - `self.object` contains the result of `get_object()` (as it must be if `get()` is not rewritten)
+    - `self.sha` is set according to `self.request.GET['version']` (if any) and `self.object.sha_draft` otherwise
+    - `self.versioned_object` contains the results of `get_versioned_object()`
+    """
+
+    object = None
+    versioned_object = None
+
+    def get(self, context, **response_kwargs):
+        self.object = self.get_object()
+
+        if not self.sha:
+            try:
+                self.sha = self.request.GET["version"]
+            except KeyError:
+                self.sha = self.object.sha_draft
+
+        self.versioned_object = self.get_versioned_object()
+
+        return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)

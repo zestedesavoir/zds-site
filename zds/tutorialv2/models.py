@@ -966,7 +966,7 @@ class VersionedContent(Container):
         json_data.write(self.get_json().encode('utf-8'))
         json_data.close()
 
-    def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message=''):
+    def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message='', do_commit=True):
         """Update the top container information and commit them into the repository.
         Note that this is slightly different from the `repo_update()` function, because slug is generated using DB
 
@@ -975,6 +975,7 @@ class VersionedContent(Container):
         :param introduction: the new introduction text
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
+        :param do_commit: if `True`, also commit change
         :return : commit sha
         """
 
@@ -987,7 +988,7 @@ class VersionedContent(Container):
             self.repository = Repo(new_path)
             self.slug_repository = slug
 
-        return self.repo_update(title, introduction, conclusion, commit_message)
+        return self.repo_update(title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
 
     def commit_changes(self, commit_message):
         """Commit change made to the repository
@@ -1023,9 +1024,17 @@ class VersionedContent(Container):
         self.dump_json()
 
 
-def get_content_from_json(json, sha, slug_last_draft):
-    """Transform the JSON formated data into `VersionedContent`
+class BadManifestError(Exception):
+    """ The exception that is raised when the manifest.json contains errors """
+    message = u''
 
+    def __init__(self, reason):
+        self.message = reason
+
+
+def get_content_from_json(json, sha, slug_last_draft):
+    """
+    Transform the JSON formated data into `VersionedContent`
     :param json: JSON data from a `manifest.json` file
     :param sha: version
     :return: a `VersionedContent` with all the information retrieved from JSON
@@ -1058,7 +1067,7 @@ def get_content_from_json(json, sha, slug_last_draft):
         fill_containers_from_json(json, versioned)
 
     else:
-        raise Exception('Importation of old version is not yet supported')
+        raise BadManifestError(_('Il est impossible d\'importer d\'anciennes versions pour le moment'))
         # TODO so here we can support old version !!
 
     return versioned
@@ -1097,7 +1106,7 @@ def fill_containers_from_json(json_sub, parent):
                 new_extract.text = child['text']
                 parent.add_extract(new_extract, generate_slug=(slug != ''))
             else:
-                raise Exception('Unknown object type' + child['object'])
+                raise BadManifestError(_('Type d\'objet inconnu :') + child['object'])
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
