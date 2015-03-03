@@ -5,7 +5,8 @@ from django.conf.urls import patterns, url
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
-    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild
+    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent
+
 from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
@@ -20,6 +21,8 @@ urlpatterns = patterns('',
                            name='view-container'),
 
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayContent.as_view(), name='view'),
+
+                       url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(), name='download-zip'),
 
                        # create:
                        url(r'^nouveau/$', CreateContent.as_view(), name='create'),

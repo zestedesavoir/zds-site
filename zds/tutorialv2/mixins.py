@@ -1,5 +1,7 @@
-from django.http import Http404
+from django.views.generic import View
+
 from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, FormView
 from zds.tutorialv2.models import PublishableContent
@@ -15,7 +17,6 @@ class SingleContentViewMixin(object):
     must_be_author = True
     authorized_for_staff = True
     prefetch_all = True
-
     only_draft_version = True
     sha = None
 
@@ -150,3 +151,32 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
             context["version"] = self.sha
 
         return context
+
+
+class DownloadViewMixin(View):
+    """
+    Base mixin to return a file to download
+
+    (inspired from https://djangosnippets.org/snippets/2549/ and
+    http://stackoverflow.com/questions/16286666/send-a-file-through-django-class-based-views)
+
+    You just need to override `get_contents()` to make it works
+    """
+    mimetype = None
+    filename = None
+
+    def get_mimetype(self):
+        return self.mimetype
+
+    def get_filename(self):
+        return self.filename
+
+    def get_contents(self):
+        pass
+
+    def get(self, context, **response_kwargs):
+        response = HttpResponse(mimetype=self.get_mimetype())
+        response['Content-Disposition'] = 'filename=' + self.get_filename()
+        response.write(self.get_contents())
+
+        return response

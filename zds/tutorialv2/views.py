@@ -63,7 +63,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import ListView, DetailView, FormView, DeleteView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
-    SingleContentDetailViewMixin
+    SingleContentDetailViewMixin, DownloadViewMixin
 
 
 class ListContent(LoggedWithReadWriteHability, ListView):
@@ -302,6 +302,51 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         self.object.delete()
 
         return redirect(reverse('content:index'))
+
+
+class DownloadContent(LoggedWithReadWriteHability, SingleContentViewMixin, DownloadViewMixin):
+    """
+    Download a zip archive with all the content of the repository directory
+    """
+
+    object = None
+    mimetype = 'application/zip'
+
+    @staticmethod
+    def insert_into_zip(zip_file, git_tree):
+        """
+        Recursively add file into zip
+        :param zip_file: a `zipfile` object (with writing permissions)
+        :param git_tree: Git tree (from `repository.commit(sha).tree`)
+        """
+        for blob in git_tree.blobs:  # first, add files :
+            zip_file.writestr(blob.path, blob.data_stream.read())
+        if len(git_tree.trees) is not 0:  # then, recursively add dirs :
+            for subtree in git_tree.trees:
+                insert_into_zip(zip_file, subtree)
+
+    def get_contents(self):
+        """
+        :return: a zip file
+        """
+        self.object = self.get_object()
+        # TODO: deal with version ?!?
+        versioned = self.object.load_version()
+
+        # create and fill zip
+        path = self.object.get_repo_path()
+        zip_path = path + self.get_filename()
+        zip_file = zipfile.ZipFile(zip_path, 'w')
+        self.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
+        zip_file.close()
+
+        # return content
+        response = open(zip_path, "rb").read()
+        os.remove(zip_path)
+        return response
+
+    def get_filename(self):
+        return self.get_object().slug + '.zip'
 
 
 class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
