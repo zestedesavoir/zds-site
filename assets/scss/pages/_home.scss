@@ -1,13 +1,16 @@
 .home {
     .main {
         display: block;
-        height: auto; width: auto;
-        margin: 0; padding: 0;
+        height: auto;
+        width: auto;
+        margin: 0;
+        padding: 0;
     }
 
     #content {
         width: 100%;
-        margin: 0; padding: 0;
+        margin: 0;
+        padding: 0;
     }
 
     // A VIRER POUR FAIRE MIEUX :)
@@ -22,14 +25,15 @@
         padding-top: 50px;
 
         & > * {
-            width: 1100px;
+            max-width: 1100px;
             margin: 0 auto;
         }
     }
 
     .home-description {
         p {
-            margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
             color: white;
             line-height: normal;
             text-align: justify;
@@ -41,7 +45,8 @@
             color: white;
             text-decoration: none;
             border: solid 1px rgba(255, 255, 255, .5);
-            padding: 0 6px; margin-top: 5px;
+            padding: 0 6px;
+            margin-top: 5px;
         }
 
         .column {
@@ -67,7 +72,8 @@
             blockquote {
                 font-size: 2.5rem;
                 color: white;
-                padding: 0; margin: 0;
+                padding: 0;
+                margin: 0;
             }
 
             .important {
@@ -93,37 +99,45 @@
         &:before {
             content: '';
             position: absolute;
-            width: 145px; height: 134px;
+            bottom: -6px;
+            left: -110px;
+
             background: url('../images/home-clem-quote.png');
-            bottom: -6px; left: -110px;
+            width: 145px;
+            height: 134px;
+        }
+
+        label, input {
+            box-sizing: border-box;
+            display: inline-block;
+            line-height: 50px;
+            height: 50px;
         }
 
         label {
-            box-sizing: border-box;
-            display: inline-block;
-            width: 20%;
             text-align: right;
             padding: 0 5px;
-            line-height: 50px; height: 50px;
             font-size: 2rem;
+            width: 20%;
+
         }
 
         input {
-            box-sizing: border-box;
-            display: inline-block;
+            font-size: 2rem;
             width: 79% !important;
             border: none;
-            line-height: 50px; height: 50px;
-            font-size: 2rem;
         }
 
         button {
             display: block;
             position: absolute;
+            bottom: 0;
+            right: 0;
+            top: 0;
 
-            bottom: 0; right: 0; top: 0;
-            width: 50px; height: 50px;
-            background: white;
+            background: #FFF;
+            width: 50px;
+            height: 50px;
 
             &:hover, &:focus {
                 background: white;
