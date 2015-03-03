@@ -18,10 +18,10 @@ from django.template import Context
 from django.template.loader import get_template
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import CreateView, RedirectView
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.list import MultipleObjectMixin
 from zds.member.models import Profile
 
 from zds.utils.mps import send_mp
@@ -207,29 +207,32 @@ class AddParticipant(SingleObjectMixin, RedirectView):
         return redirect(reverse('posts-private-list', args=[self.object.pk]))
 
 
-@login_required
-@require_POST
-def leave_mps(request):
+class LeaveList(MultipleObjectMixin, RedirectView):
     """
-    Deletes list of private topics.
+    Leaves a list of MP.
     """
 
-    list = request.POST.getlist('items')
-    topics = PrivateTopic.objects.filter(pk__in=list) \
-        .filter(Q(participants__in=[request.user]) | Q(author=request.user))
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LeaveList, self).dispatch(request, *args, **kwargs)
 
-    for topic in topics:
-        if topic.participants.all().count() == 0:
-            topic.delete()
-        elif request.user == topic.author:
-            topic.author = topic.participants.all()[0]
-            topic.participants.remove(topic.participants.all()[0])
-            topic.save()
-        else:
-            topic.participants.remove(request.user)
-            topic.save()
+    def get_queryset(self):
+        list = self.request.POST.getlist('items')
+        return PrivateTopic.objects.filter(pk__in=list)\
+            .filter(Q(participants__in=[self.request.user]) | Q(author=self.request.user))
 
-    return redirect(reverse('mp-list'))
+    def post(self, request, *args, **kwargs):
+        for topic in self.get_queryset():
+            if topic.participants.all().count() == 0:
+                topic.delete()
+            elif request.user == topic.author:
+                topic.author = topic.participants.all()[0]
+                topic.participants.remove(topic.participants.all()[0])
+                topic.save()
+            else:
+                topic.participants.remove(request.user)
+                topic.save()
+        return redirect(reverse('mp-list'))
 
 
 class PrivatePostList(SingleObjectMixin, ZdSPagingListView):

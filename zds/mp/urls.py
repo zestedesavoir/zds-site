@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
-from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew, AddParticipant, LeaveMP
+from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew, AddParticipant, LeaveMP, LeaveList
 
 
 urlpatterns = patterns('',
@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
     # Topics.
     url(r'^$', PrivateTopicList.as_view(), name='mp-list'),
-    url(r'^quitter-list/$', 'zds.mp.views.leave_mps'),
+    url(r'^quitter/$', LeaveList.as_view(), name='mp-list-delete'),
     url(r'^nouveau/$', PrivateTopicNew.as_view(), name='mp-new'),
 
     url(r'^(?P<pk>\d+)/quitter/$', LeaveMP.as_view(), name='mp-delete'),

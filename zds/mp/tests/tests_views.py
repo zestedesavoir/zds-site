@@ -40,7 +40,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
         response = self.client.post(
-            reverse('zds.mp.views.leave_mps'),
+            reverse('mp-list-delete'),
             {
                 'items': [topic.pk]
             }
@@ -58,7 +58,7 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('zds.mp.views.leave_mps'),
+            reverse('mp-list-delete'),
             {
                 'items': [self.topic1.pk]
             }
@@ -79,7 +79,7 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('zds.mp.views.leave_mps'),
+            reverse('mp-list-delete'),
             {
                 'items': [self.topic1.pk]
             }
@@ -104,7 +104,7 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         self.client.post(
-            reverse('zds.mp.views.leave_mps'),
+            reverse('mp-list-delete'),
             {
                 'items': [topic.pk]
             }
