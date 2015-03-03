@@ -123,10 +123,37 @@ class PrivateTopicNew(CreateView):
         return redirect(p_topic.get_absolute_url())
 
 
+class LeaveMP(SingleObjectMixin, RedirectView):
+    """
+    Leaves a MP.
+    """
+    queryset = PrivateTopic.objects.all()
+
+    @method_decorator(login_required)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        return super(LeaveMP, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        topic = self.get_object()
+
+        if topic.participants.count() == 0:
+            topic.delete()
+        elif request.user.pk == topic.author.pk:
+            move = topic.participants.first()
+            topic.author = move
+            topic.participants.remove(move)
+            topic.save()
+        else:
+            topic.participants.remove(request.user)
+            topic.save()
+
+        messages.success(request, _(u'Vous avez quitté la conversation avec succès.'))
+
+        return redirect(reverse('mp-list'))
+
+
 class AddParticipant(SingleObjectMixin, RedirectView):
-    """
-    Adds a new participant in a MP.
-    """
     object = None
     queryset = PrivateTopic.objects.all()
 
@@ -465,26 +492,3 @@ def edit_post(request):
             'text': post.text,
             'form': form,
         })
-
-
-@login_required
-@require_POST
-@transaction.atomic
-def leave(request):
-    if 'leave' in request.POST:
-        ptopic = get_object_or_404(PrivateTopic, pk=request.POST['topic_pk'])
-        if ptopic.participants.count() == 0:
-            ptopic.delete()
-        elif request.user.pk == ptopic.author.pk:
-            move = ptopic.participants.first()
-            ptopic.author = move
-            ptopic.participants.remove(move)
-            ptopic.save()
-        else:
-            ptopic.participants.remove(request.user)
-            ptopic.save()
-
-        messages.success(
-            request, _(u'Vous avez quitté la conversation avec succès.'))
-
-    return redirect(reverse('mp-list'))

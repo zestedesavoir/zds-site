@@ -119,11 +119,10 @@
                 <a href="#leave-conversation" class="open-modal ico-after cross blue">
                     {% trans "Quitter la conversation" %}
                 </a>
-                <form action="{% url "zds.mp.views.leave" %}" method="post" id="leave-conversation" class="modal modal-small">
+                <form action="{% url "mp-delete" topic.pk %}" method="post" id="leave-conversation" class="modal modal-small">
                     <p>
                         {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation" %}.
                     </p>
-                    <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
 
                     {% csrf_token %}
                     <button type="submit" name="leave">{% trans "Confirmer" %}</button>
