@@ -30,14 +30,6 @@
 
 
 {% block content %}
-    {% comment %}
-        {% captureas form_action %}
-            {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
-        {% endcaptureas %}
-
-        {% include "misc/message_form.html" with member=user %}
-    {% endcomment %}
-
     {% crispy form %}
 
     {% if form.text.value %}

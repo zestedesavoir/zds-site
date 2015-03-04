@@ -270,6 +270,143 @@ class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
             .all()
 
 
+class PrivatePostAnswer(CreateView):
+    """
+    Creates a post to answer on a MP.
+    """
+
+    topic = None
+    posts = None
+    form_class = PrivatePostForm
+    template_name = 'mp/post/new.html'
+    queryset = PrivateTopic.objects.all()
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        self.topic = super(PrivatePostAnswer, self).get_object(queryset)
+        self.posts = PrivatePost.objects \
+            .filter(privatetopic=self.topic) \
+            .prefetch_related() \
+            .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
+        if not self.request.user == self.topic.author \
+                and self.request.user not in list(self.topic.participants.all()):
+            raise PermissionDenied
+        return self.topic
+
+    def get(self, request, *args, **kwargs):
+        self.topic = self.get_object()
+        text = ''
+
+        # Using the quote button
+        if 'cite' in request.GET:
+            post_cite = get_object_or_404(PrivatePost, pk=(request.GET.get('cite')))
+
+            for line in post_cite.text.splitlines():
+                text = text + '> ' + line + '\n'
+
+            text = u'{0}Source:[{1}]({2}{3})'.format(
+                text,
+                post_cite.author.username,
+                settings.ZDS_APP['site']['url'],
+                post_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp = {}
+                resp['text'] = text
+                return HttpResponse(json.dumps(resp), content_type='application/json')
+
+        form = self.form_class(self.topic, initial={
+            'text': text
+        })
+        return render(request, self.template_name, {
+            'topic': self.topic,
+            'posts': self.posts,
+            'last_post_pk': self.topic.last_message.pk,
+            'form': form
+        })
+
+    def post(self, request, *args, **kwargs):
+        self.topic = self.get_object()
+        form = self.get_form(self.form_class)
+        newpost = None
+        if not request.is_ajax():
+            newpost = self.topic.last_message.pk != int(request.POST.get('last_post'))
+
+        if 'preview' in request.POST or newpost:
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+            else:
+                form = self.form_class(self.topic, initial={
+                    'text': request.POST.get('text')
+                })
+        elif form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, 'mp/post/new.html', {
+            'topic': self.topic,
+            'posts': self.posts,
+            'last_post_pk': self.topic.last_message.pk,
+            'newpost': newpost,
+            'form': form,
+        })
+
+    def get_form(self, form_class):
+        return form_class(self.topic, self.request.POST)
+
+    def form_valid(self, form):
+        post = PrivatePost()
+        post.privatetopic = self.topic
+        post.author = self.request.user
+        post.text = form.data.get('text')
+        post.text_html = emarkdown(form.data.get('text'))
+        post.pubdate = datetime.now()
+        post.position_in_topic = self.topic.get_post_count() + 1
+        post.save()
+
+        self.topic.last_message = post
+        self.topic.save()
+
+        # send email
+        subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['abbr'], self.topic.title)
+        from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                       settings.ZDS_APP['site']['email_noreply'])
+        parts = list(self.topic.participants.all())
+        parts.append(self.topic.author)
+        parts.remove(self.request.user)
+        for part in parts:
+            profile = part.profile
+            if profile.email_for_answer:
+                pos = post.position_in_topic - 1
+                last_read = PrivateTopicRead.objects.filter(
+                    privatetopic=self.topic,
+                    privatepost__position_in_topic=pos,
+                    user=part).count()
+                if last_read > 0:
+                    message_html = get_template('email/mp/new.html') \
+                        .render(
+                            Context({
+                                'username': part.username,
+                                'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                                'author': self.request.user.username
+                            }))
+                    message_txt = get_template('email/mp/new.txt').render(
+                        Context({
+                            'username': part.username,
+                            'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                            'author': self.request.user.username
+                        }))
+
+                    msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                    msg.attach_alternative(message_html, "text/html")
+                    msg.send()
+
+        return redirect(post.get_absolute_url())
+
+
 @login_required
 def answer(request):
     """Adds an answer from an user to a topic."""

@@ -63,7 +63,7 @@
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+                {% url "posts-private-new" topic.pk %}?cite={{ message.pk }}
             {% endcaptureas %}
 
             {% if topic.last_message.pk = message.pk %}
@@ -82,7 +82,7 @@
 
     
     {% captureas form_action %}
-        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+        {% url "posts-private-new" topic.pk %}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user %}
