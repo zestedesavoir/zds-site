@@ -76,22 +76,35 @@ class SingleContentViewMixin(object):
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
-            queryset = PublishableContent.objects\
-                .select_related("licence")\
-                .prefetch_related("authors")\
-                .prefetch_related("subcategory")\
+            queryset = PublishableContent.objects \
+                .select_related("licence") \
+                .prefetch_related("authors") \
+                .prefetch_related("subcategory") \
                 .filter(pk=self.kwargs["pk"])
 
             obj = queryset.first()
         else:
             obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if 'slug' in obj.slug != self.kwargs['slug']:
+        if 'slug' in self.kwargs and obj.slug != self.kwargs['slug']:
             raise Http404
         if self.must_be_author and self.request.user not in obj.authors.all():
             if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
                 return obj
             raise PermissionDenied
         return obj
+
+
+class SingleContentPostMixin(SingleContentViewMixin):
+    """
+    Base mixin used to get content from post query
+    """
+
+    def get_object(self, queryset=None):
+        try:
+            self.kwargs["pk"] = self.request.POST['pk']
+        except KeyError:
+            raise Http404
+        return super(SingleContentPostMixin, self).get_object()
 
 
 class ListContent(LoggedWithReadWriteHability, ListView):
@@ -203,8 +216,8 @@ class DisplayContent(LoginRequiredMixin, SingleContentViewMixin, DetailView):
 
     def get_forms(self, context, content):
         """get all the auxiliary forms about validation, js fiddle..."""
-        validation = Validation.objects.filter(content__pk=content.pk)\
-            .order_by("-date_proposition")\
+        validation = Validation.objects.filter(content__pk=content.pk) \
+            .order_by("-date_proposition") \
             .first()
         form_js = JsFiddleActivationForm(initial={"js_support": content.js_support})
 
@@ -240,7 +253,8 @@ class DisplayContent(LoginRequiredMixin, SingleContentViewMixin, DetailView):
 
         if sha != content.sha_draft:
             context["version"] = sha
-
+        else:
+            context["version"] = content.sha_draft
         # check that if we ask for beta, we also ask for the sha version
         is_beta = content.is_beta(sha)
         can_edit = self.request.user in content.authors.all()
@@ -694,7 +708,7 @@ class ArticleList(ListView):
         """
         if self.request.GET.get('tag') is not None:
             self.tag = get_object_or_404(SubCategory, title=self.request.GET.get('tag'))
-        query_set = PublishableContent.objects.filter(type=self.type).filter(sha_public__isnull=False)\
+        query_set = PublishableContent.objects.filter(type=self.type).filter(sha_public__isnull=False) \
             .exclude(sha_public='')
         if self.tag is not None:
             query_set = query_set.filter(subcategory__in=[self.tag])
@@ -724,7 +738,7 @@ class TutorialWithHelp(TutorialList):
 
     def get_queryset(self):
         """get only tutorial that need help and handle filtering if asked"""
-        query_set = PublishableContent.objects\
+        query_set = PublishableContent.objects \
             .annotate(total=Count('helps'), shasize=Count('sha_beta')) \
             .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
             .all()
@@ -742,6 +756,7 @@ class TutorialWithHelp(TutorialList):
         context['helps'] = HelpWriting.objects.all()
         return context
 
+
 # TODO ArticleWithHelp
 
 
@@ -753,7 +768,6 @@ class DisplayHistory(LoginRequiredMixin, SingleContentViewMixin, DetailView):
     context_object_name = "object"
 
     def get_context_data(self, **kwargs):
-
         context = super(DisplayHistory, self).get_context_data(**kwargs)
         repo = Repo(context['object'].get_repo_path())
         logs = repo.head.reference.log()
@@ -889,7 +903,6 @@ class DisplayOnlineContent(DisplayContent):
 
         res = []
         if page_nbr != 1:
-
             # Show the last note of the previous page
 
             last_page = paginator.page(page_nbr - 1).object_list
@@ -924,8 +937,8 @@ class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, Form
             self.content.save()
         except Exception:
             # exception are raised if :
-            #     - we have a false version number
-            #     - we have a not supported manfile
+            # - we have a false version number
+            # - we have a not supported manfile
             pass
         topic = Topic.objects.filter(key=self.content.pk, forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
         msg = \
@@ -936,10 +949,10 @@ class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, Form
                u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
                u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
                u'\n\nMerci d\'avance pour votre aide').format(
-                   naturaltime(self.content.creation_date),
-                   self.content.title,
-                   settings.ZDS_APP['site']['url'] +
-                   reverse("content:view", args=[self.content.pk, self.content.slug])))
+                naturaltime(self.content.creation_date),
+                self.content.title,
+                settings.ZDS_APP['site']['url'] +
+                reverse("content:view", args=[self.content.pk, self.content.slug])))
         if topic is None:
             forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
 
@@ -948,8 +961,7 @@ class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, Form
                          title=_(u"[beta][tutoriel]{0}").format(self.content.title),
                          subtitle=u"{}".format(self.content.description),
                          text=msg,
-                         key=self.content.pk
-                         )
+                         key=self.content.pk)
             tp = Topic.objects.get(key=self.content.pk)
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             private_mp = \
@@ -959,9 +971,9 @@ class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, Form
                    u'constructifs avant sa soumission en validation.\n\n'
                    u'Un sujet dédié pour la beta de votre tutoriel a été '
                    u'crée dans le forum et est accessible [ici]({})').format(
-                       self.request.user.username,
-                       self.content.title,
-                       settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
+                    self.request.user.username,
+                    self.content.title,
+                    settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
             send_mp(
                 bot,
                 [self.request.user],
@@ -988,6 +1000,7 @@ class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, Form
 
     def get_success_url(self):
         return reverse('content:view', args=[self.content.pk, self.content.slug])
+
 
 # Staff actions.
 
@@ -1042,6 +1055,60 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
         return redirect(content.load_version().get_absolute_url())
 
 
+class AskValidationForContent(LoggedWithReadWriteHability, SingleContentPostMixin, FormView):
+    """User ask validation for his tutorial. Staff member can also to that"""
+    prefetch_all = False
+    form_class = AskValidationForm
+
+    def form_valid(self, form):
+        content = self.get_object()
+        old_validation = Validation.objects.filter(content__pk=content.pk,
+                                                   status__in=['PENDING_V']).first()
+        if old_validation is not None:
+            old_validator = old_validation.validator
+        else:
+            old_validator = None
+            Validation.objects.filter(content__pk=content.pk,
+                                      status__in=['PENDING', 'PENDING_V']) \
+                .delete()
+        # We create and save validation object of the tutorial.
+
+        validation = Validation()
+        validation.content = content
+        validation.date_proposition = datetime.now()
+        validation.comment_authors = form.cleaned_data["text"]
+        # Todo: check if version really exists
+        validation.version = self.request.POST["version"]
+        # Todo: put everything in cleaned_data, needs form class remake
+        if old_validator is not None:
+            validation.validator = old_validator
+            validation.date_reserve
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            msg = \
+                (_(u'Bonjour {0},'
+                   u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
+                   u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
+                   u'consulter l\'historique des versions'
+                   u'\n\n> Merci').format(old_validator.username, content.title))
+            send_mp(
+                bot,
+                [old_validator],
+                _(u"Mise à jour de tuto : {0}").format(content.title),
+                _(u"En validation"),
+                msg,
+                False,
+            )
+        validation.save()
+        validation.content.source = form.cleaned_data["source"]
+        validation.content.sha_validation = validation.version
+        validation.content.save()
+        messages.success(self.request, _(u"Votre demande de validation a été envoyée à l'équipe."))
+        return redirect(reverse('content:view', args=[content.pk, content.slug]))
+
+
+# User actions on tutorial.
+
+
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 @login_required
 @require_POST
@@ -1086,15 +1153,15 @@ def history_validation(request, tutorial_pk):
     if subcategory is None:
         validations = \
             Validation.objects.filter(tutorial__pk=tutorial_pk) \
-            .order_by("date_proposition"
-                      ).all()
+            .order_by("date_proposition") \
+            .all()
     else:
         validations = Validation.objects.filter(tutorial__pk=tutorial_pk,
                                                 tutorial__subcategory__in=[subcategory]) \
-            .order_by("date_proposition"
-                      ).all()
+            .order_by("date_proposition") \
+            .all()
     return render(request, "tutorial/validation/history.html",
-                           {"validations": validations, "tutorial": tutorial})
+                  {"validations": validations, "tutorial": tutorial})
 
 
 @can_write_and_read_now
@@ -1211,7 +1278,7 @@ def valid_tutorial(request):
             .format(tutorial.title,
                     settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
                     validation.validator.username,
-                    settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),))
+                    settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(), ))
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         send_mp(
             bot,
@@ -1259,73 +1326,6 @@ def invalid_tutorial(request, tutorial_pk):
     return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
 
 
-# User actions on tutorial.
-
-@can_write_and_read_now
-@login_required
-@require_POST
-def ask_validation(request):
-    """User ask validation for his tutorial."""
-
-    # Retrieve current tutorial;
-
-    try:
-        tutorial_pk = request.POST["tutorial"]
-    except KeyError:
-        raise Http404
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
-
-    # If the user isn't an author of the tutorial or isn't in the staff, he
-    # hasn't permission to execute this method:
-
-    if request.user not in tutorial.authors.all():
-        if not request.user.has_perm("tutorial.change_tutorial"):
-            raise PermissionDenied
-
-    old_validation = Validation.objects.filter(tutorial__pk=tutorial_pk,
-                                               status__in=['PENDING_V']).first()
-    if old_validation is not None:
-        old_validator = old_validation.validator
-    else:
-        old_validator = None
-    # delete old pending validation
-    Validation.objects.filter(tutorial__pk=tutorial_pk,
-                              status__in=['PENDING', 'PENDING_V'])\
-        .delete()
-    # We create and save validation object of the tutorial.
-
-    validation = Validation()
-    validation.content = tutorial
-    validation.date_proposition = datetime.now()
-    validation.comment_authors = request.POST["text"]
-    validation.version = request.POST["version"]
-    if old_validator is not None:
-        validation.validator = old_validator
-        validation.date_reserve
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = \
-            (_(u'Bonjour {0},'
-               u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
-               u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
-               u'consulter l\'historique des versions'
-               u'\n\n> Merci').format(old_validator.username, tutorial.title))
-        send_mp(
-            bot,
-            [old_validator],
-            _(u"Mise à jour de tuto : {0}").format(tutorial.title),
-            _(u"En validation"),
-            msg,
-            False,
-        )
-    validation.save()
-    validation.content.source = request.POST["source"]
-    validation.content.sha_validation = request.POST["version"]
-    validation.content.save()
-    messages.success(request,
-                     _(u"Votre demande de validation a été envoyée à l'équipe."))
-    return redirect(tutorial.get_absolute_url())
-
-
 def find_tuto(request, pk_user):
     try:
         type = request.GET["type"]
@@ -1344,7 +1344,7 @@ def find_tuto(request, pk_user):
             tuto_versions.append(mandata)
 
         return render(request, "tutorial/member/beta.html",
-                               {"tutorials": tuto_versions, "usr": display_user})
+                      {"tutorials": tuto_versions, "usr": display_user})
     else:
         tutorials = PublishableContent.objects.all().filter(
             authors__in=[display_user],
@@ -1522,8 +1522,8 @@ def get_url_images(md_text, pt):
 
             # if link is http type
             if parse_object.scheme in ["http", "https", "ftp"] or \
-                    parse_object.netloc[:3] == "www" or \
-                    parse_object.path[:3] == "www":
+               parse_object.netloc[:3] == "www" or \
+               parse_object.path[:3] == "www":
                 (filepath, filename) = os.path.split(parse_object.path)
                 if not os.path.isdir(os.path.join(pt, "images")):
                     os.makedirs(os.path.join(pt, "images"))
@@ -1585,15 +1585,15 @@ def sub_urlimg(g):
         ext = filename.split(".")[-1]
         if ext == "gif":
             if parse_object.scheme in ("http", "https") or \
-                    parse_object.netloc[:3] == "www" or \
-                    parse_object.path[:3] == "www":
+               parse_object.netloc[:3] == "www" or \
+               parse_object.path[:3] == "www":
                 url = os.path.join("images", filename.split(".")[0] + ".png")
             else:
                 url = (url.split(".")[0])[1:] + ".png"
         else:
             if parse_object.scheme in ("http", "https") or \
-                    parse_object.netloc[:3] == "www" or \
-                    parse_object.path[:3] == "www":
+               parse_object.netloc[:3] == "www" or \
+               parse_object.path[:3] == "www":
                 url = os.path.join("images", filename)
             else:
                 url = url[1:]
@@ -1715,7 +1715,7 @@ def mep(tutorial, sha):
 
 def un_mep(tutorial):
     del_paths = glob.glob(os.path.join(settings.ZDS_APP['tutorial']['repo_public_path'],
-                          str(tutorial.pk) + '_*'))
+                                       str(tutorial.pk) + '_*'))
     for del_path in del_paths:
         if os.path.isdir(del_path):
             try:
@@ -1850,7 +1850,6 @@ def answer(request):
 @require_POST
 @transaction.atomic
 def solve_alert(request):
-
     # only staff can move topic
 
     if not request.user.has_perm("tutorial.change_note"):
@@ -1867,12 +1866,12 @@ def solve_alert(request):
                u'dans le tutoriel [{2}]({3}). Votre alerte a été traitée par **{4}** '
                u'et il vous a laissé le message suivant :'
                u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !').format(
-                   alert.author.username,
-                   note.author.username,
-                   note.tutorial.title,
-                   settings.ZDS_APP['site']['url'] + note.get_absolute_url(),
-                   request.user.username,
-                   request.POST["text"],))
+                alert.author.username,
+                note.author.username,
+                note.tutorial.title,
+                settings.ZDS_APP['site']['url'] + note.get_absolute_url(),
+                request.user.username,
+                request.POST["text"], ))
         send_mp(
             bot,
             [alert.author],
@@ -1941,8 +1940,7 @@ def edit_note(request):
         if "preview" in request.POST:
             form = NoteForm(g_tutorial, request.user,
                             initial={"text": request.POST["text"]})
-            form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
-                + "?message=" + str(note_pk)
+            form.helper.form_action = reverse("zds.tutorial.views.edit_note") + "?message=" + str(note_pk)
             if request.is_ajax():
                 return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
                                     content_type='application/json')
@@ -1964,8 +1962,7 @@ def edit_note(request):
         return redirect(note.get_absolute_url())
     else:
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
-        form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
-            + "?message=" + str(note_pk)
+        form.helper.form_action = reverse("zds.tutorial.views.edit_note") + "?message=" + str(note_pk)
         return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 

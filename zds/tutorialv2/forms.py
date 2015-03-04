@@ -401,7 +401,7 @@ class AskValidationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AskValidationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.ask_validation')
+        self.helper.form_action = reverse('content:ask_validation')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -410,7 +410,7 @@ class AskValidationForm(forms.Form):
             StrictButton(
                 _(u'Confirmer'),
                 type='submit'),
-            Hidden('tutorial', '{{ tutorial.pk }}'),
+            Hidden('pk', '{{ content.pk }}'),
             Hidden('version', '{{ version }}'), )
 
 
