@@ -2,6 +2,8 @@
 
 from math import ceil
 import shutil
+from django.http import Http404
+from gitdb import BadObject
 
 try:
     import ujson as json_reader
@@ -1124,6 +1126,20 @@ class PublishableContent(models.Model):
         """
         return self.type == 'TUTORIAL'
 
+    def load_version_or_404(self, sha=None, public=False):
+        """
+        Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
+        `public` is `True`).
+        :param sha: version
+        :param public: if `True`, use `sha_public` instead of `sha_draft` if `sha` is `None`
+        :raise Http404: if sha is not None and related version could not be found
+        :return: the versioned content
+        """
+        try:
+            return self.load_version(sha, public)
+        except BadObject:
+            raise Http404
+
     def load_version(self, sha=None, public=False):
         """
         Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
@@ -1131,6 +1147,7 @@ class PublishableContent(models.Model):
         Note: for practical reason, the returned object is filled with information form DB.
         :param sha: version
         :param public: if `True`, use `sha_public` instead of `sha_draft` if `sha` is `None`
+        :raise BadObject: if sha is not None and related version could not be found
         :return: the versioned content
         """
         # load the good manifest.json

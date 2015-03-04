@@ -98,13 +98,18 @@ class SingleContentPostMixin(SingleContentViewMixin):
     """
     Base mixin used to get content from post query
     """
+    # represent the fact that we have to check if the version given in self.request.POST['version'] exists
+    versioned = True
 
     def get_object(self, queryset=None):
         try:
             self.kwargs["pk"] = self.request.POST['pk']
         except KeyError:
             raise Http404
-        return super(SingleContentPostMixin, self).get_object()
+        obj = super(SingleContentPostMixin, self).get_object()
+        if self.versioned and 'version' in self.request.POST['version']:
+            obj.load_version_or_404(sha=self.request.POST['version'])
+        return obj
 
 
 class ListContent(LoggedWithReadWriteHability, ListView):
