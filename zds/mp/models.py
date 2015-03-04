@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from zds.utils import get_current_user
+from zds.utils import get_current_user, slugify
 
 
 class PrivateTopic(models.Model):
@@ -45,7 +45,15 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object URL
         :rtype: str
         """
-        return reverse('posts-private-list', args=[self.pk])
+        return reverse('private-posts-list', args=[self.pk, self.slug])
+
+    def slug(self):
+        """
+        PrivateTopic doesn't have a slug attribute of a private topic. To be compatible
+        with older private topic, the slug is always re-calculate when we need one.
+        :return: title slugify.
+        """
+        return slugify(self.title)
 
     def get_post_count(self):
         """

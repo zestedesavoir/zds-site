@@ -41,7 +41,7 @@
     {% endif %}
 
     {% captureas form_action %}
-        {% url "posts-private-new" topic.pk %}
+        {% url "private-posts-new" topic.pk topic.slug %}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user text=form.text.value %}
@@ -55,11 +55,11 @@
     <div class="content-wrapper">
         {% for message in posts %}
             {% captureas edit_link %}
-                {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}
+                {% url "private-posts-edit" topic.pk topic.slug message.pk %}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "posts-private-new" topic.pk %}?cite={{ message.pk }}
+                {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
             {% include "misc/message.part.html" %}

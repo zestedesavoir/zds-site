@@ -37,7 +37,7 @@ class PrivateTopicTest(TestCase):
         self.assertEqual(self.topic1.__unicode__(), self.topic1.title)
 
     def test_absolute_url(self):
-        url = reverse('posts-private-list', args=[self.topic1.pk])
+        url = reverse('private-posts-list', args=[self.topic1.pk, self.topic1.slug])
 
         self.assertEqual(self.topic1.get_absolute_url(), url)
 

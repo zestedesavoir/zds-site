@@ -1,24 +1,28 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
-from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew, AddParticipant, LeaveMP, LeaveList, \
-    PrivatePostAnswer
+
+from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew, PrivateTopicAddParticipant, \
+    PrivateTopicLeaveDetail, PrivateTopicLeaveList, \
+    PrivatePostAnswer, PrivatePostEdit
 
 
 urlpatterns = patterns('',
+                       # Topics.
+                       url(r'^$', PrivateTopicList.as_view(), name='mp-list'),
+                       url(r'^quitter/$', PrivateTopicLeaveList.as_view(), name='mp-list-delete'),
+                       url(r'^creer/$', PrivateTopicNew.as_view(), name='mp-new'),
 
-    # Message-related
-    url(r'^message/editer/$', 'zds.mp.views.edit_post'),
+                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/quitter/$', PrivateTopicLeaveDetail.as_view(),
+                           name='mp-delete'),
+                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/editer/participants/$',
+                           PrivateTopicAddParticipant.as_view(), name='mp-edit-participant'),
 
-    # Topics.
-    url(r'^$', PrivateTopicList.as_view(), name='mp-list'),
-    url(r'^quitter/$', LeaveList.as_view(), name='mp-list-delete'),
-    url(r'^nouveau/$', PrivateTopicNew.as_view(), name='mp-new'),
-
-    url(r'^(?P<pk>\d+)/quitter/$', LeaveMP.as_view(), name='mp-delete'),
-    url(r'^(?P<pk>\d+)/editer/participants/$', AddParticipant.as_view(), name='mp-edit-participant'),
-
-    # Posts.
-    url(r'^(?P<pk>\d+)/messages/$', PrivatePostList.as_view(), name='posts-private-list'),
-    url(r'^(?P<pk>\d+)/message/nouveau/$', PrivatePostAnswer.as_view(), name='posts-private-new'),
+                       # Posts.
+                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/messages/$', PrivatePostList.as_view(),
+                           name='private-posts-list'),
+                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/messages/creer/$', PrivatePostAnswer.as_view(),
+                           name='private-posts-new'),
+                       url(r'^(?P<topic_pk>\d+)/(?P<topic_slug>.+)/messages/(?P<pk>\d+)/editer/$',
+                           PrivatePostEdit.as_view(), name='private-posts-edit'),
 )

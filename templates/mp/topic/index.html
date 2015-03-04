@@ -59,11 +59,11 @@
     <div>
         {% for message in posts %}
             {% captureas edit_link %}
-                {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}
+                {% url "private-posts-edit" topic.pk topic.slug message.pk %}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "posts-private-new" topic.pk %}?cite={{ message.pk }}
+                {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
             {% if topic.last_message.pk = message.pk %}
@@ -82,7 +82,7 @@
 
     
     {% captureas form_action %}
-        {% url "posts-private-new" topic.pk %}
+        {% url "private-posts-new" topic.pk topic.slug %}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user %}
@@ -99,7 +99,7 @@
                     <a href="#add-participant" class="open-modal ico-after more blue">
                         {% trans "Ajouter un membre" %}
                     </a>
-                    <form action="{% url "mp-edit-participant" topic.pk %}" method="post" id="add-participant" class="modal modal-medium">
+                    <form action="{% url "mp-edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-medium">
                         <p>
                             {% trans "Vous allez rajouter un nouveau membre dans la conversation privée" %}.
                         </p>
@@ -119,7 +119,7 @@
                 <a href="#leave-conversation" class="open-modal ico-after cross blue">
                     {% trans "Quitter la conversation" %}
                 </a>
-                <form action="{% url "mp-delete" topic.pk %}" method="post" id="leave-conversation" class="modal modal-small">
+                <form action="{% url "mp-delete" topic.pk topic.slug %}" method="post" id="leave-conversation" class="modal modal-small">
                     <p>
                         {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation" %}.
                     </p>
