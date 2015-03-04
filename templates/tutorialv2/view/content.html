@@ -245,6 +245,27 @@
                 {% trans "Historique des versions" %}
             </a>
         </li>
+        {% if not tutorial.in_validation %}
+            <li>
+                <a href="#ask-validation" class="open-modal ico-after tick green">
+                    {% trans "Demander la validation" %}
+                </a>
+            </li>
+        {% else %}
+            {% if not tutorial.is_validation %}
+                <li>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">
+                        {% trans "Mettre à jour la version en validation" %}
+                    </a>
+                </li>
+            {% endif %}
+            <li class="inactive">
+                <span class="ico-after tick disabled">{% trans "En attente de validation" %}</span>
+            </li>
+        {% endif %}
+        <div id="ask-validation" class="modal modal-big">
+            {% crispy formAskValidation %}
+        </div>
     {% endif %}
 {% endblock %}
 
