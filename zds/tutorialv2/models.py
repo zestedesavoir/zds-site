@@ -3,7 +3,7 @@
 from math import ceil
 import shutil
 from django.http import Http404
-from gitdb import BadObject
+from gitdb.exc import BadObject
 
 try:
     import ujson as json_reader

@@ -84,7 +84,7 @@
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
-                                        {% url "zds.tutorial.views.reservation" validation.pk %}
+                                        {% url "content:reserve_validation" validation.pk %}
                                     {% endcaptureas %}
                                     {% include "misc/validation.part.html" %}
                                 </td>

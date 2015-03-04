@@ -1114,32 +1114,30 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentPostMixi
 # User actions on tutorial.
 
 
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-@login_required
-@require_POST
-def reservation(request, validation_pk):
-    """Display tutorials list in validation."""
+class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permissions = ["tutorial.change_tutorial"]
 
-    validation = get_object_or_404(Validation, pk=validation_pk)
-    if validation.validator:
-        validation.validator = None
-        validation.date_reserve = None
-        validation.status = "PENDING"
-        validation.save()
-        messages.info(request, _(u"Le tutoriel n'est plus sous réserve."))
-        return redirect(reverse("zds.tutorial.views.list_validation"))
-    else:
-        validation.validator = request.user
-        validation.date_reserve = datetime.now()
-        validation.status = "PENDING_V"
-        validation.save()
-        messages.info(request,
-                      _(u"Le tutoriel a bien été \
-                      réservé par {0}.").format(request.user.username))
-        return redirect(
-            validation.content.get_absolute_url() +
-            "?version=" + validation.version
-        )
+    def post(self, request, *args, **kwargs):
+        validation = get_object_or_404(Validation, pk=kwargs["pk"])
+        if validation.validator:
+            validation.validator = None
+            validation.date_reserve = None
+            validation.status = "PENDING"
+            validation.save()
+            messages.info(request, _(u"Le tutoriel n'est plus sous réserve."))
+            return redirect(reverse("content:list_validation"))
+        else:
+            validation.validator = request.user
+            validation.date_reserve = datetime.now()
+            validation.status = "PENDING_V"
+            validation.save()
+            messages.info(request,
+                          _(u"Le tutoriel a bien été \
+                          réservé par {0}.").format(request.user.username))
+            return redirect(
+                reverse("content:view", args=[validation.content.pk, validation.content.slug])
+                + "?version=" + validation.version
+            )
 
 
 @login_required
