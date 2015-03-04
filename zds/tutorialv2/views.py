@@ -1140,31 +1140,24 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-@login_required
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-def history_validation(request, tutorial_pk):
-    """History of the validation of a tutorial."""
+class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentViewMixin, DetailView):
+    model = PublishableContent
+    permissions = ["tutorial.change_tutorial"]
+    context_object_name = "content"
+    template_name = "tutorialv2/validation/history.html"
 
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
-
-    # Get subcategory to filter validations.
-
-    try:
-        subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
-        subcategory = None
-    if subcategory is None:
-        validations = \
-            Validation.objects.filter(tutorial__pk=tutorial_pk) \
-            .order_by("date_proposition") \
-            .all()
-    else:
-        validations = Validation.objects.filter(tutorial__pk=tutorial_pk,
-                                                tutorial__subcategory__in=[subcategory]) \
-            .order_by("date_proposition") \
-            .all()
-    return render(request, "tutorial/validation/history.html",
-                  {"validations": validations, "tutorial": tutorial})
+    def get_context_data(self, **kwargs):
+        context = super(HistoryOfValidationDisplay, self).get_context_data()
+        content = self.get_object()
+        try:
+            subcategory = get_object_or_404(Category, pk=self.request.GET["subcategory"])
+        except (KeyError, Http404):
+            subcategory = None
+        validations_queryset = Validation.objects.filter(content__pk=content.pk)
+        if subcategory is not None:
+            validations_queryset = validations_queryset.filter(content__subcategory__in=[subcategory])
+        context["validations"] = validations_queryset.order_by("date_proposition").all()
+        return context
 
 
 @can_write_and_read_now
