@@ -4,7 +4,8 @@ from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
-    PutContentOnBeta, DisplayHistory, ValidationListView, ActivateJSFiddleInContent, AskValidationForContent
+    PutContentOnBeta, DisplayHistory, ValidationListView, ActivateJSFiddleInContent, AskValidationForContent, \
+    ReserveValidation
 from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
@@ -92,5 +93,6 @@ urlpatterns = patterns('',
 
                        # validation
                        url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation"),
-                       url(r'^valider/proposer/$', AskValidationForContent.as_view(), name="ask_validation")
+                       url(r'^valider/proposer/$', AskValidationForContent.as_view(), name="ask_validation"),
+                       url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(), name="reserve_validation")
                        )
