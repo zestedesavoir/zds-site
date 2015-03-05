@@ -23,9 +23,7 @@
     <div class="home-wrapper">
         {% if user.is_authenticated %}
             <section class="home-description connected">
-                <blockquote>
-                    «&nbsp;{{ quote }}&nbsp;»
-                </blockquote>
+                <blockquote>{{ quote }}</blockquote>
                 <p>
                     <span class="important">{% trans "Nouveau !" %}</span>
 
