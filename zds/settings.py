@@ -475,6 +475,10 @@ SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
 
+# To remove a useless warning in Django 1.7.
+# See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
