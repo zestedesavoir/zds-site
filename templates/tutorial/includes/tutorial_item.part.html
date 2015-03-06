@@ -1,31 +1,65 @@
+{% load captureas %}
 {% load thumbnail %}
+{% load i18n %}
 
-<article class="content-item {% if not tutorial.image.physical.tutorial_illu.url %}without-illu{% endif %}">
-    <a href="
-        {% if beta %}
-            {{ tutorial.get_absolute_url_beta }}
-        {% else %}
-            {{ tutorial.get_absolute_url_online }}
-        {% endif %}
-    ">
-        {% if tutorial.image.physical.tutorial_illu.url %}
+{% captureas link %}
+    {% if beta %}
+        {{ tutorial.get_absolute_url_beta }}
+    {% else %}
+        {{ tutorial.get_absolute_url_online }}
+    {% endif %}
+{% endcaptureas %}
+
+<article class="content-item tutorial-item">
+    {% if tutorial.image %}
+        <a href="{{ link }}" tabindex="-1">
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="content-illu">
-        {% endif %}
-        <div class="tutorial-item ">
-            <h3 itemprop="itemListElement" title="{{ tutorial.title }}">
-                {{ tutorial.title }}
-            </h3>
+        </a>
+    {% endif %}
 
-            <span class="tutorial-metadata">
-                {% if tutorial.subcategory %}
-                    {% for category in tutorial.subcategory.all %}
-                        {% if not forloop.first %}
-                            -
-                        {% endif %}
-                        {{ category.title }}
-                    {% endfor %}
+    <h3 class="content-title" itemprop="itemListElement">
+        <a href="{{ link }}" title="{{ tutorial.title }}">
+            {{ tutorial.title }}
+        </a>
+    </h3>
+
+    {% if tutorial.description and show_description %}
+        <p class="content-description">{{ tutorial.description }}</p>
+    {% endif %}
+
+    {% if tutorial.subcategory %}
+        <p class="content-categories">
+            {% for category in tutorial.subcategory.all %}
+                {% if forloop.first %}
+                    {% trans "dans" %}
+                {% elif forloop.last %}
+                    {% trans "et" %}
+                {% else %}
+                    ,
                 {% endif %}
-            </span>
-        </div>
-    </a>
+
+                {{ category.title }}
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if tutorial.authors %}
+        <p class="content-authors">
+            {% for author in tutorial.authors.all %}
+                {% if forloop.first %}
+                    {% trans "par" %}
+                {% elif forloop.last %}
+                    {% trans "et" %}
+                {% else %}
+                    ,
+                {% endif %}
+
+                {% if author == user %}
+                    {% trans "vous" %}
+                {% else %}
+                    {{ author.username }}
+                {% endif %}
+            {% endfor %}
+        </p>
+    {% endif %}
 </article>

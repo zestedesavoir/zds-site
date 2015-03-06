@@ -1,7 +1,7 @@
-{% load date %}
 {% load captureas %}
 {% load thumbnail %}
 {% load i18n %}
+{% load date %}
 
 {# Public link by default #}
 {% if not link %}
@@ -10,42 +10,76 @@
     {% endcaptureas %}
 {% endif %}
 
-<article class="content-item {% if not article.image %}without-illu{% endif %}">
-
+<article class="content-item article-item">
     {% if article.image %}
         <a href="{{ link }}" tabindex="-1">
             <img src="{{ article.image.article_illu.url }}" alt="" class="content-illu">
         </a>
     {% endif %}
 
-    <div class="article-item">
-        <h3 itemprop="itemListElement">
-            <a href="{{ link }}" title="{{ article.title }}">
-                {{ article.title }}
-            </a>
-        </h3>
-        <p class="article-metadata">
-            {% if article.sha_public %}
-                {{ article.pubdate|format_date|capfirst }}
-                -
-                <a href="
-                    {% if article.last_read_reaction %}
-                        {{ article.last_read_reaction.get_absolute_url }}
-                    {% else %}
-                        {{ article.get_absolute_url_online }}#reactions
-                    {% endif %}
-                ">
-                    {% if article.get_reaction_count == 0 %}
-                        {% trans "Aucune réaction" %}
-                    {% else %}
-                        {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
-                    {% endif %}
-                </a>
-            {% elif article.sha_validation %}
-                {% trans "En validation" %}
-            {% else %}
-                {% trans "Brouillon" %}
-            {% endif %}
+    <h3 class="content-title" itemprop="itemListElement">
+        <a href="{{ link }}" title="{{ article.title }}">
+            {{ article.title }}
+        </a>
+    </h3>
+
+    {% if article.description and show_description %}
+        <p class="content-description">{{ article.description }}</p>
+    {% endif %}
+
+    <!-- This is the code used for the link to the comments of the article ; Temporary unused before the design is ready
+
+    <a href="
+        {% if article.last_read_reaction %}
+            {{ article.last_read_reaction.get_absolute_url }}
+        {% else %}
+            {{ article.get_absolute_url_online }}#reactions
+        {% endif %}"
+    >
+        {% if article.get_reaction_count == 0 %}
+            {% trans "Aucune réaction" %}
+        {% else %}
+            {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
+        {% endif %}
+    </a>-->
+
+    <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
+        {{ article.pubdate|format_date|capfirst }}
+   </time>
+
+    {% if article.sha_public %}
+        <p class="content-authors">
+            {% for author in authors.all %}
+                {% if forloop.first %}
+                    {% trans "par" %}
+                {% elif forloop.last %}
+                    {% trans "et" %}
+                {% else %}
+                    ,
+                {% endif %}
+
+                {% if author == user %}
+                    {% trans "vous" %}
+                {% else %}
+                    {{ author.username }}
+                {% endif %}
+            {% endfor %}
+                {% for author in authors.all %}
+                    <li itemscope itemprop="author"
+                        itemtype="http://schema.org/Person"
+                    >
+                        {{ author.username }}
+                    </li>
+                {% endfor %}
+            </ul>
         </p>
-    </div>
+    {% elif article.sha_validation %}
+        <p class="content-state">
+            {% trans "En validation" %}
+        </p>
+    {% else %}
+        <p class="content-state">
+            {% trans "Brouillon" %}
+        </p>
+    {% endif %}
 </article>

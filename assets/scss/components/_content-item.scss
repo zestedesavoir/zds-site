@@ -1,12 +1,64 @@
 .content-item {
     background: #FFF;
+    min-height: 60px;
+
     border: solid 2px #EEE;
     border-bottom-width: 4px;
     margin-bottom: 15px;
+    padding: 10px;
 
-    &.without-illu {
-        padding-left: 15px;
+    & > * {
+        margin: 0;
     }
-    
-    
+
+    a {
+        text-decoration: none;
+    }
+
+    .content-illu {
+        float: left;
+        padding-right: 10px;
+        margin: auto 0;
+    }
+}
+
+.article-item,
+.tutorial-item {
+    .content-title {
+        padding: 0;
+        clear: none;
+
+        font-size: 20px;
+        font-size: 2.0rem;
+        font-weight: normal;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        a {
+            color: #424242;
+        }
+    }
+
+    .content-description {
+        color: #999;
+    }
+
+    .content-authors {
+        color: #EE8709;
+    }
+}
+
+.tutorial-item {
+    .content-categories {
+        color: #EE8709;
+    }
+}
+
+.article-item {
+    .content-pubdate,
+    .content-state {
+        color: #EE8709;
+    }
 }

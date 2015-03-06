@@ -51,7 +51,7 @@
         {% if tutorials %}
             <div class="tutorial-list">
                 {% for tutorial in tutorials %}
-                    {% include 'tutorial/includes/tutorial_item.part.html' %}
+                    {% include 'tutorial/includes/tutorial_item.part.html' with description=False %}
                 {% endfor %}
             </div>
         {% else %}

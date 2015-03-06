@@ -74,31 +74,7 @@
         {% if tutorials %}
             <div class="tutorial-list">
                 {% for tutorial in tutorials %}
-                    <article>
-                        <a href="
-                            {% if type = 'public' and tutorial.on_line %}
-                                {{ tutorial.get_absolute_url_online }}
-                            {% else %}
-                                {{ tutorial.get_absolute_url }}
-                            {% endif %}
-                        ">
-                            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
-                            <div class="tutorial-infos">
-                                <h3>{{ tutorial.title }}</h3>
-                                
-                                <span class="article-metadata">
-                                    {% if tutorial.subcategory.all %}
-                                        {% for category in tutorial.subcategory.all %}
-                                            {{ category.title }}                                    
-                                        {% endfor %}
-                                    {% else %}
-                                        {% trans "Aucune catégorie" %}
-                                    {% endif %}
-                                    - {% trans "Créé" %} {{ tutorial.create_at|format_date }}
-                                </span>
-                            </div>
-                        </a>
-                    </article>
+                    {% include 'tutorial/includes/tutorial_item.part.html' %}
                 {% endfor %}
             </div>
         {% else %}

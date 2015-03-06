@@ -7,6 +7,7 @@
 {% load topbar %}
 {% load thumbnail %}
 {% load i18n %}
+{% load captureas %}
 
 
 
@@ -108,7 +109,7 @@
             <meta itemprop="itemListOrder" content="Descending">
 
             {% for article in last_articles %}
-                {% include 'article/includes/article_item.part.html' %}
+                {% include 'article/includes/article_item.part.html' with show_description=True %}
             {% empty %}
                 <p>{% trans "Aucun article disponible." %}</p>
             {% endfor %}
@@ -122,7 +123,7 @@
             <meta itemprop="itemListOrder" content="Descending">
 
             {% for tutorial in last_tutorials %}
-                {% include 'tutorial/includes/tutorial_item.part.html' %}
+                {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True %}
             {% empty %}
                 <p>{% trans "Aucun tutoriel disponible." %}</p>
             {% endfor %}

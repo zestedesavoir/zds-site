@@ -22,24 +22,24 @@
 
 
 
-{% block headline %}
-    <h2 class="ico-after ico-tutorials">{% trans "Tutoriels en bêta par" %} {{ usr.username }}</h2>
-{% endblock %}
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tutorials">
+            {% trans "Tutoriels en bêta par" %} {{ usr.username }}
+        </h2>
 
-
-
-{% block content %}
-    {% if tutorials %}
-        <div class="tutorial-list">
-            {% for tutorial in tutorials %}
-                {% include 'tutorial/includes/tutorial_item.part.html' with beta=True %}
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>
-            {% trans "Aucun tutoriel disponible" %}.
-        </p>
-    {% endif %}
+        {% if tutorials %}
+            <div class="tutorial-list">
+                {% for tutorial in tutorials %}
+                    {% include 'tutorial/includes/tutorial_item.part.html' with beta=True %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>
+                {% trans "Aucun tutoriel disponible" %}.
+            </p>
+        {% endif %}
+    </section>
 {% endblock %}
 
 {% block sidebar_blocks %}
