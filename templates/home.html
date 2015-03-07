@@ -82,27 +82,17 @@
 
     <div class="home-wrapper">
         <section class="home-pinned-content">
-            <h2 class="ico-after ico-tutorials" itemprop="name">
+            <h2 class="ico-after ico-tutorials home-heading heading-white" itemprop="name">
                 {% trans "A la une" %}
             </h2>
 
-            <ul class="pinned-block">
-                <li>
-                    test
-                </li>
-                <li>
-                    test
-                </li>
-                <li>
-                    test
-                </li>
-                <li>
-                    test
-                </li>
-                <li>
-                    test
-                </li>
-            </ul>
+            <div class="featured-row">
+                {% for n in "12345" %}
+                <article class="featured-item">
+                    {{ n }}th item
+                </article>
+                {% endfor %}
+            </div>
         </section>
 
         <section itemscope itemtype="http://schema.org/ItemList">
