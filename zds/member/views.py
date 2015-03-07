@@ -67,7 +67,7 @@ class MemberDetail(DetailView):
         usr = context['usr']
         profile = usr.profile
         context['profile'] = profile
-        context['topics'] = Topic.objects.last_topics_of_a_member(usr)
+        context['topics'] = Topic.objects.last_topics_of_a_member(usr, self.request.user)
         context['articles'] = Article.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = Tutorial.objects.last_tutorials_of_a_member_loaded(usr)
         context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
