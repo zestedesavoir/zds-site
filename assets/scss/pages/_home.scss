@@ -36,6 +36,8 @@ $content-width: 1145px;
     }
 
     .home-description {
+        display: flex;
+
         p {
             margin: 0;
             padding: 0;
@@ -60,11 +62,7 @@ $content-width: 1145px;
         }
 
         .column {
-            box-sizing: border-box;
-            display: inline-block;
-            vertical-align: top;
-
-            width: 33%;
+            flex: 1;
             padding: 0 10px;
 
             h2 {
@@ -105,6 +103,18 @@ $content-width: 1145px;
         }
     }
 
+    .home-heading {
+        height: 40px;
+        padding-left: 55px;
+
+        &.ico-after::after {
+            margin-left: 0;
+        }
+
+        .btn {
+            font-size: 15px;
+        }
+    }
 
     .home-search-box {
         display: block;
