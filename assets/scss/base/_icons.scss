@@ -360,7 +360,7 @@
             @include sprite-position($unread);
         }
     }
-    
+
     &.upvote {
         &:after {
             @include sprite-position($thumb-up);

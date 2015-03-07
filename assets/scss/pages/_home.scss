@@ -152,6 +152,13 @@ $content-width: 1145px;
             &:hover, &:focus {
                 background: white;
             }
+
+            &:after {
+                margin: 16px;
+                @include sprite-position($search);
+                @include sprite-width($search);
+                @include sprite-height($search);
+            }
         }
     }
 }
