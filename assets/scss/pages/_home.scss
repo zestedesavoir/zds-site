@@ -184,6 +184,10 @@ $content-width: 1145px;
         margin: 80px 100px 0 150px;
         background: white;
 
+        form {
+            display: flex;
+        }
+
         &:before {
             content: '';
             position: absolute;
@@ -206,35 +210,31 @@ $content-width: 1145px;
             text-align: right;
             padding: 0 5px;
             font-size: 2rem;
-            width: 20%;
-
+            font-weight: 300;
+            margin-left: 50px;
         }
 
         input {
             font-size: 2rem;
-            width: 79% !important;
             border: none;
+            font-weight: 300;
+            flex: 1;
         }
 
-        button {
-            display: block;
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            top: 0;
-
+        button[type=submit] {
             background: #FFF;
             width: 50px;
             height: 50px;
 
             &:hover, &:focus {
-                background: white;
+                background-color: #DDD;
             }
 
             &:after {
                 margin: 16px;
                 @include sprite-position($search);
-                @include sprite-width($search);
+                //@include sprite-width($search);
+                width: 17px; // Pour une raison obscure, il faut faire ça pour bien affiche...
                 @include sprite-height($search);
             }
         }
