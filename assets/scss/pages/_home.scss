@@ -27,6 +27,17 @@ $content-width: 1145px;
         margin: 0 auto;
     }
 
+    $gap: 20px;
+    .home-row {
+        display: flex;
+        margin: 0 -($gap/2);
+
+        & > section {
+            flex: 1;
+            margin: 0 $gap/2;
+        }
+    }
+
     .home-header {
         height: 450px;
         border-bottom: solid 1px white;
@@ -234,7 +245,7 @@ $content-width: 1145px;
                 margin: 16px;
                 @include sprite-position($search);
                 //@include sprite-width($search);
-                width: 17px; // Pour une raison obscure, il faut faire ça pour bien affiche...
+                width: 17px; // sprite-width's output (16px) isn't correct for some reason...
                 @include sprite-height($search);
             }
         }
