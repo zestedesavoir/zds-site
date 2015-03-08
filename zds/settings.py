@@ -184,6 +184,7 @@ THUMBNAIL_ALIASES = {
         'avatar_mini': {'size': (24, 24), 'crop': True},
         'tutorial_illu': {'size': (60, 60), 'crop': True},
         'article_illu': {'size': (60, 60), 'crop': True},
+        'content_thumb': {'size': (96, 96), 'crop': True},
         'help_illu': {'size': (48, 48), 'crop': True},
         'help_mini_illu': {'size': (26, 26), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
