@@ -81,9 +81,11 @@ $content-width: 1145px;
             padding: 0 10px;
 
             h2 {
+                font-size: 18px;
+                font-size: 1.8rem;
+                color: white;
                 margin: 0 0 5px 0;
                 border-bottom-color: white;
-                color: white;
                 font-weight: 300; // Light
             }
         }
@@ -272,9 +274,22 @@ $content-width: 1145px;
             padding: 20px 10px;
         }
         .home-description {
+            flex-direction: column;
             .column {
-                display: block;
-                width: auto;
+                margin-bottom: 10px;
+            }
+        }
+    }
+}
+
+@media only screen and #{$media-wide} {
+    .home {
+        .home-description {
+            .column {
+                h2 {
+                    font-size: 22px;
+                    font-size: 2.2rem;
+                }
             }
         }
         .featured-row {
