@@ -162,8 +162,9 @@ $content-width: 1145px;
 
                 h3 {
                      font-size: 16px;
+                     line-height: 20px;
                      font-weight: normal;
-                     margin: 0;
+                     margin: 4px 0 0 0;
                  }
 
                  p {
@@ -279,6 +280,14 @@ $content-width: 1145px;
                 margin-bottom: 10px;
             }
         }
+        .featured-row {
+            .featured-item {
+                padding: 0 !important;
+            }
+        }
+        .home-row {
+            flex-direction: column;
+        }
     }
 }
 
@@ -291,14 +300,6 @@ $content-width: 1145px;
                     font-size: 2.2rem;
                 }
             }
-        }
-        .featured-row {
-            .featured-item {
-                padding: 0 !important;
-            }
-        }
-        .home-row {
-            flex-direction: column;
         }
     }
 }
