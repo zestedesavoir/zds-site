@@ -1,0 +1,26 @@
+{% extends "news/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Création d'une nouvelle une" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Création d'une nouvelle une" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans "Création d'une nouvelle une" %}</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}

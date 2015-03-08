@@ -39,3 +39,11 @@
 
     {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
+
+{% block sidebar %}
+    <aside class="sidebar accordeon mobile-menu-bloc" data-title="Action sur les unes">
+        <a href="{% url 'news-new' %}" class="new-btn ico-after more blue">
+            {% trans "Nouvelle une" %}
+        </a>
+    </aside>
+{% endblock %}

@@ -2,9 +2,9 @@
 
 from django.conf.urls import patterns, url
 
-from zds.news.views import NewsList
+from zds.news.views import NewsList, NewsCreate
 
 urlpatterns = patterns('',
-                       # list
                        url(r'^$', NewsList.as_view(), name='news-list'),
+                       url(r'^creer/$', NewsCreate.as_view(), name='news-new'),
 )
