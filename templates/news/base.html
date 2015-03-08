@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+
+{% block title_base %}
+    &bull; {% trans "A la une" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "A la une" %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url 'news-list' %}">{% trans "A a une" %}</a></li>
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        {% block sidebar_actions %}{% endblock %}
+    </aside>
+{% endblock %}

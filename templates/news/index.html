@@ -1,0 +1,41 @@
+{% extends "news/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Liste des unes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Liste des unes" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Liste des unes" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/paginator.html" with position="top" %}
+
+    <div class="featured-item">
+        <ul>
+            {% for new in news %}
+                <li>
+                    {{ new.title }}
+                </li>
+            {% empty %}
+                <li>
+                    {% trans "Aucune une pour le moment." %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}

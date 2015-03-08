@@ -458,6 +458,12 @@
                                                 <a href="{% url "zds.article.views.list_validation" %}">{% trans "Validation des articles" %}</a>
                                             </li>
                                         {% endif %}
+
+                                        {% if perms.tutorial.change_tutorial %}
+                                            <li>
+                                                <a href="{% url 'news-list' %}">{% trans 'Gestion des unes' %}</a>
+                                            </li>
+                                        {% endif %}
                                         <li>
                                             <form
                                                 method="post"
