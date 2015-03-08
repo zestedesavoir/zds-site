@@ -277,5 +277,13 @@ $content-width: 1145px;
                 width: auto;
             }
         }
+        .featured-row {
+            .featured-item {
+                padding: 0 !important;
+            }
+        }
+        .home-row {
+            flex-direction: column;
+        }
     }
 }
