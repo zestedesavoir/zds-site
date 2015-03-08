@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from django.core.urlresolvers import reverse
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -44,6 +46,7 @@ class NewsCreate(CreateView):
         news.type = form.data.get('type')
         news.image_url = form.data.get('image_url')
         news.url = form.data.get('url')
+        news.pubdate = datetime.now()
         news.save()
         for author in form.data.get('authors').split(","):
             current = author.strip()

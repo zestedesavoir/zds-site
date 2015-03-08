@@ -15,6 +15,7 @@ from zds import settings
 
 from zds.article.models import get_last_articles
 from zds.member.decorator import can_write_and_read_now
+from zds.news.models import News
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
 from zds.tutorial.models import get_last_tutorials
@@ -47,6 +48,7 @@ def home(request):
         'last_tutorials': tutos,
         'last_articles': articles,
         'quote': quote,
+        'last_news': News.objects.get_last_news()
     })
 
 

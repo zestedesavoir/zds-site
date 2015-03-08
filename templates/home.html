@@ -86,12 +86,14 @@
             </h2>
 
             <div class="featured-row">
-                {% for n in "12345" %}
+                {% for news in last_news %}
                 <article class="featured-item">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOQAAADkCAMAAAC/iXi/AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAZQTFRFyzkvAAAAiigyJwAAAExJREFUeNrswTEBAAAAwqD1T20KP6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOBrAgwAy/QAAZcPHAAAAAAASUVORK5CYII=" />
+                    <a href="{{ news.url }}">
+                        <img src="{{ news.image_url }}" alt="" class="content-illu">
+                    </a>
                     <div class="featured-meta">
-                        <h3>Article title here</h3>
-                        <p class="featured-description">Un article par <i>anonymous</i></p>
+                        <h3>{{ news.title }}</h3>
+                        <p class="featured-description">Un {{ news.type }} par <i>{% for member in news.authors.all %}{{ member }}, {% endfor %}</i></p>
                     </div>
                 </article>
                 {% endfor %}

@@ -27,7 +27,9 @@
         <ul>
             {% for new in news %}
                 <li>
-                    {{ new.title }}
+                    <a href="{{ new.url }}">
+                        {{ new.title }}
+                    </a>
                 </li>
             {% empty %}
                 <li>
