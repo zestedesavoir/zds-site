@@ -45,8 +45,8 @@ from git import Repo
 
 from forms import ContentForm, ContainerForm, \
     ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, JsFiddleActivationForm
-from models import PublishableContent, Container, Extract, Validation, ContentReaction, init_new_repo
-from utils import never_read, mark_read, search_container_or_404
+from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo
+from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
@@ -61,55 +61,8 @@ from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, DetailView, FormView, DeleteView
 from zds.member.decorator import PermissionRequiredMixin
-
-
-class SingleContentViewMixin(object):
-    """
-    Base mixin to get only one content,
-    sends 404 error if the primary key is not found or the slug is not coherent,
-    sends 403 error if the view is only accessible for author
-    """
-
-    must_be_author = True
-    authorized_for_staff = True
-    prefetch_all = True
-
-    def get_object(self, queryset=None):
-        if self.prefetch_all:
-            queryset = PublishableContent.objects \
-                .select_related("licence") \
-                .prefetch_related("authors") \
-                .prefetch_related("subcategory") \
-                .filter(pk=self.kwargs["pk"])
-
-            obj = queryset.first()
-        else:
-            obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if 'slug' in self.kwargs and obj.slug != self.kwargs['slug']:
-            raise Http404
-        if self.must_be_author and self.request.user not in obj.authors.all():
-            if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
-                return obj
-            raise PermissionDenied
-        return obj
-
-
-class SingleContentPostMixin(SingleContentViewMixin):
-    """
-    Base mixin used to get content from post query
-    """
-    # represent the fact that we have to check if the version given in self.request.POST['version'] exists
-    versioned = True
-
-    def get_object(self, queryset=None):
-        try:
-            self.kwargs["pk"] = self.request.POST['pk']
-        except KeyError:
-            raise Http404
-        obj = super(SingleContentPostMixin, self).get_object()
-        if self.versioned and 'version' in self.request.POST['version']:
-            obj.load_version_or_404(sha=self.request.POST['version'])
-        return obj
+from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
+    SingleContentDetailViewMixin
 
 
 class ListContent(LoggedWithReadWriteHability, ListView):
@@ -125,6 +78,7 @@ class ListContent(LoggedWithReadWriteHability, ListView):
         :return: list of articles
         """
         query_set = PublishableContent.objects.all().filter(authors__in=[self.request.user])
+        # TODO: prefetch !
         return query_set
 
     def get_context_data(self, **kwargs):
@@ -210,25 +164,25 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 
-class DisplayContent(LoginRequiredMixin, SingleContentViewMixin, DetailView):
+class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
     online = False
-    sha = None
     must_be_author = False  # as in beta state anyone that is logged can access to it
+    only_draft_version = False
 
-    def get_forms(self, context, content):
+    def get_forms(self, context):
         """get all the auxiliary forms about validation, js fiddle..."""
-        validation = Validation.objects.filter(content__pk=content.pk) \
+        validation = Validation.objects.filter(content__pk=self.object.pk) \
             .order_by("-date_proposition") \
             .first()
-        form_js = JsFiddleActivationForm(initial={"js_support": content.js_support})
+        form_js = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
 
-        if content.source:
-            form_ask_validation = AskValidationForm(initial={"source": content.source})
-            form_valid = ValidForm(initial={"source": content.source})
+        if self.object.source:
+            form_ask_validation = AskValidationForm(initial={"source": self.object.source})
+            form_valid = ValidForm(initial={"source": self.object.source})
         else:
             form_ask_validation = AskValidationForm()
             form_valid = ValidForm()
@@ -242,63 +196,28 @@ class DisplayContent(LoginRequiredMixin, SingleContentViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
-
         context = super(DisplayContent, self).get_context_data(**kwargs)
-        content = context['object']
-
-        # Retrieve sha given by the user. This sha must to be exist. If it doesn't
-        # exist, we take draft version of the content.
-        try:
-            sha = self.request.GET["version"]
-        except KeyError:
-            if self.sha is not None:
-                sha = self.sha
-            else:
-                sha = content.sha_draft
-
-        if sha != content.sha_draft:
-            context["version"] = sha
-        else:
-            context["version"] = content.sha_draft
-        # check that if we ask for beta, we also ask for the sha version
-        is_beta = content.is_beta(sha)
-        can_edit = self.request.user in content.authors.all()
-        if self.request.user not in content.authors.all() and not is_beta:
-            # if we are not author of this content or if we did not ask for beta
-            # the only members that can display and modify the tutorial are validators
-            if not self.request.user.has_perm("tutorial.change_tutorial"):
-                raise PermissionDenied
-            else:
-                can_edit = True
-
-        context["can_edit"] = can_edit
-
-        # load versioned file
-        versioned_tutorial = content.load_version(sha)
 
         # check whether this tuto support js fiddle
-        if content.js_support:
+        if self.object.js_support:
             is_js = "js"
         else:
             is_js = ""
         context["is_js"] = is_js
-        context["content"] = versioned_tutorial
-        self.get_forms(context, content)
+        self.get_forms(context)
 
         return context
 
 
-class EditContent(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
+class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
-    content = None
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        context = self.get_context_data()
-        versioned = context['content']
         initial = super(EditContent, self).get_initial()
+        versioned = self.versioned_object
 
         initial['title'] = versioned.title
         initial['description'] = versioned.description
@@ -306,75 +225,66 @@ class EditContent(LoggedWithReadWriteHability, SingleContentViewMixin, FormView)
         initial['introduction'] = versioned.get_introduction()
         initial['conclusion'] = versioned.get_conclusion()
         initial['licence'] = versioned.licence
-        initial['subcategory'] = self.content.subcategory.all()
-        initial['helps'] = self.content.helps.all()
+        initial['subcategory'] = self.object.subcategory.all()
+        initial['helps'] = self.object.helps.all()
 
         return initial
 
-    def get_context_data(self, **kwargs):
-        self.content = self.get_object()
-        context = super(EditContent, self).get_context_data(**kwargs)
-        context['content'] = self.content.load_version()
-
-        return context
-
     def form_valid(self, form):
         # TODO: tutorial <-> article
-        context = self.get_context_data()
-        versioned = context['content']
+        versioned = self.versioned_object
+        publishable = self.object
 
         # first, update DB (in order to get a new slug if needed)
-        self.content.title = form.cleaned_data['title']
-        self.content.description = form.cleaned_data["description"]
-        self.content.licence = form.cleaned_data["licence"]
+        publishable.title = form.cleaned_data['title']
+        publishable.description = form.cleaned_data["description"]
+        publishable.licence = form.cleaned_data["licence"]
 
-        self.content.update_date = datetime.now()
+        publishable.update_date = datetime.now()
 
         # update gallery and image:
-        gal = Gallery.objects.filter(pk=self.content.gallery.pk)
-        gal.update(title=self.content.title)
-        gal.update(slug=slugify(self.content.title))
+        gal = Gallery.objects.filter(pk=publishable.gallery.pk)
+        gal.update(title=publishable.title)
+        gal.update(slug=slugify(publishable.title))
         gal.update(update=datetime.now())
 
         if "image" in self.request.FILES:
             img = Image()
             img.physical = self.request.FILES["image"]
-            img.gallery = self.content.gallery
+            img.gallery = publishable.gallery
             img.title = self.request.FILES["image"]
             img.slug = slugify(self.request.FILES["image"])
             img.pubdate = datetime.now()
             img.save()
-            self.content.image = img
+            publishable.image = img
 
-        self.content.save()
+        publishable.save()
 
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
 
         sha = versioned.repo_update_top_container(form.cleaned_data['title'],
-                                                  self.content.slug,
+                                                  publishable.slug,
                                                   form.cleaned_data['introduction'],
                                                   form.cleaned_data['conclusion'],
                                                   form.cleaned_data['msg_commit'])
 
         # update relationships :
-        self.content.sha_draft = sha
+        publishable.sha_draft = sha
 
-        self.content.subcategory.clear()
+        publishable.subcategory.clear()
         for subcat in form.cleaned_data["subcategory"]:
-            self.content.subcategory.add(subcat)
+            publishable.subcategory.add(subcat)
 
-        self.content.helps.clear()
+        publishable.helps.clear()
         for help in form.cleaned_data["helps"]:
-            self.content.helps.add(help)
+            publishable.helps.add(help)
 
-        self.content.save()
+        publishable.save()
 
+        self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
         return super(EditContent, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('content:view', args=[self.content.pk, self.content.slug])
 
 
 class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
@@ -390,57 +300,40 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         self.object.repo_delete()
         self.object.delete()
 
-        return redirect(self.get_success_url())
-
-    def get_success_url(self):
-        return reverse('content:index')
+        return redirect(reverse('content:index'))
 
 
-class CreateContainer(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
+class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
     authorized_for_staff = False
 
     def get_context_data(self, **kwargs):
-        self.content = self.get_object()
         context = super(CreateContainer, self).get_context_data(**kwargs)
-        context['content'] = self.content.load_version()
 
-        # get the container:
-        if 'container_slug' in self.kwargs:
-            try:
-                container = context['content'].children_dict[self.kwargs['container_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(container, Container):
-                    raise Http404
-                context['container'] = container
-        else:
-            context['container'] = context['content']
+        context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
         return context
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        parent = context['container']
+        parent = search_container_or_404(self.versioned_object, self.kwargs)
 
         sha = parent.repo_add_container(form.cleaned_data['title'],
                                         form.cleaned_data['introduction'],
                                         form.cleaned_data['conclusion'],
                                         form.cleaned_data['msg_commit'])
 
-        # then save
-        self.content.sha_draft = sha
-        self.content.update_date = datetime.now()
-        self.content.save()
+        # then save:
+        self.object.sha_draft = sha
+        self.object.update_date = datetime.now()
+        self.object.save()
 
         self.success_url = parent.children[-1].get_absolute_url()
 
         return super(CreateContainer, self).form_valid(form)
 
 
-class DisplayContainer(LoginRequiredMixin, SingleContentViewMixin, DetailView):
+class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
@@ -451,48 +344,14 @@ class DisplayContainer(LoginRequiredMixin, SingleContentViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
-
         context = super(DisplayContainer, self).get_context_data(**kwargs)
-        content = context['object']
-
-        # Retrieve sha given by the user. This sha must to be exist. If it doesn't
-        # exist, we take draft version of the content.
-        try:
-            sha = self.request.GET["version"]
-        except KeyError:
-            if self.sha is not None:
-                sha = self.sha
-            else:
-                sha = content.sha_draft
-
-        if sha != content.sha_draft:
-            context["version"] = sha
-
-        # check that if we ask for beta, we also ask for the sha version
-        is_beta = content.is_beta(sha)
-        can_edit = self.request.user in content.authors.all()
-        if self.request.user not in content.authors.all() and not is_beta:
-            # if we are not author of this content or if we did not ask for beta
-            # the only members that can display and modify the tutorial are validators
-            if not self.request.user.has_perm("tutorial.change_tutorial"):
-                raise PermissionDenied
-            else:
-                can_edit = True
-
-        context["can_edit"] = can_edit
-
-        # load versioned file
-        context['content'] = content.load_version(sha)
-        container = context['content']
-
-        container = search_container_or_404(container, self.kwargs)
-        context['container'] = container
+        context['container'] = search_container_or_404(context['content'], self.kwargs)
 
         # pagination: search for `previous` and `next`, if available
         if context['content'].type != 'ARTICLE' and not context['content'].has_extracts():
             chapters = context['content'].get_list_of_chapters()
             try:
-                position = chapters.index(container)
+                position = chapters.index(context['container'])
             except ValueError:
                 pass  # this is not (yet?) a chapter
             else:
@@ -507,29 +366,21 @@ class DisplayContainer(LoginRequiredMixin, SingleContentViewMixin, DetailView):
         return context
 
 
-class EditContainer(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
+class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/container.html'
     form_class = ContainerForm
     content = None
 
     def get_context_data(self, **kwargs):
-        self.content = self.get_object()
         context = super(EditContainer, self).get_context_data(**kwargs)
-        context['content'] = self.content.load_version()
-        container = context['content']
-
-        # get the container:
-        container = search_container_or_404(container, self.kwargs)
-
-        context['container'] = container
+        context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
 
         return context
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        context = self.get_context_data()
-        container = context['container']
         initial = super(EditContainer, self).get_initial()
+        container = search_container_or_404(self.versioned_object, self.kwargs)
 
         initial['title'] = container.title
         initial['introduction'] = container.get_introduction()
@@ -538,8 +389,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentViewMixin, FormVie
         return initial
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        container = context['container']
+        container = search_container_or_404(self.versioned_object, self.kwargs)
 
         sha = container.repo_update(form.cleaned_data['title'],
                                     form.cleaned_data['introduction'],
@@ -547,82 +397,59 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentViewMixin, FormVie
                                     form.cleaned_data['msg_commit'])
 
         # then save
-        self.content.sha_draft = sha
-        self.content.update_date = datetime.now()
-        self.content.save()
+        self.object.sha_draft = sha
+        self.object.update_date = datetime.now()
+        self.object.save()
 
         self.success_url = container.get_absolute_url()
 
         return super(EditContainer, self).form_valid(form)
 
 
-class CreateExtract(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
+class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
     authorized_for_staff = False
 
     def get_context_data(self, **kwargs):
-        self.content = self.get_object()
         context = super(CreateExtract, self).get_context_data(**kwargs)
-        context['content'] = self.content.load_version()
-        container = context['content']
-
-        context['container'] = search_container_or_404(container, self.kwargs)
+        context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
 
         return context
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        parent = context['container']
+        parent = search_container_or_404(self.versioned_object, self.kwargs)
 
         sha = parent.repo_add_extract(form.cleaned_data['title'],
                                       form.cleaned_data['text'],
                                       form.cleaned_data['msg_commit'])
 
         # then save
-        self.content.sha_draft = sha
-        self.content.update_date = datetime.now()
-        self.content.save()
+        self.object.sha_draft = sha
+        self.object.update_date = datetime.now()
+        self.object.save()
 
         self.success_url = parent.children[-1].get_absolute_url()
 
         return super(CreateExtract, self).form_valid(form)
 
 
-class EditExtract(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
+class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/extract.html'
     form_class = ExtractForm
     content = None
 
     def get_context_data(self, **kwargs):
-        self.content = self.get_object()
         context = super(EditExtract, self).get_context_data(**kwargs)
-        context['content'] = self.content.load_version()
-        container = context['content']
-
-        # if the extract is at a depth of 3 we get the first parent container
-        container = search_container_or_404(container, self.kwargs)
-
-        extract = None
-        if 'extract_slug' in self.kwargs:
-            try:
-                extract = container.children_dict[self.kwargs['extract_slug']]
-            except KeyError:
-                raise Http404
-            else:
-                if not isinstance(extract, Extract):
-                    raise Http404
-
-        context['extract'] = extract
+        context['extract'] = search_extract_or_404(self.versioned_object, self.kwargs)
 
         return context
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        context = self.get_context_data()
-        extract = context['extract']
         initial = super(EditExtract, self).get_initial()
+        extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
         initial['title'] = extract.title
         initial['text'] = extract.get_text()
@@ -630,17 +457,16 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentViewMixin, FormView)
         return initial
 
     def form_valid(self, form):
-        context = self.get_context_data()
-        extract = context['extract']
+        extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
         sha = extract.repo_update(form.cleaned_data['title'],
                                   form.cleaned_data['text'],
                                   form.cleaned_data['msg_commit'])
 
         # then save
-        self.content.sha_draft = sha
-        self.content.update_date = datetime.now()
-        self.content.save()
+        self.object.sha_draft = sha
+        self.object.update_date = datetime.now()
+        self.object.save()
 
         self.success_url = extract.get_absolute_url()
 
@@ -652,47 +478,30 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
     template_name = None
     http_method_names = [u'delete', u'post']
     object = None
-    content = None
-
-    def get_context_data(self, **kwargs):
-        self.content = self.get_object()
-        context = super(DeleteContainerOrExtract, self).get_context_data(**kwargs)
-        context['content'] = self.content.load_version()
-        container = context['content']
-
-        container = search_container_or_404(container, self.kwargs)
-
-        to_delete = None
-        if 'object_slug' in self.kwargs:
-            try:
-                to_delete = container.children_dict[self.kwargs['object_slug']]
-            except KeyError:
-                raise Http404
-
-        context['to_delete'] = to_delete
-
-        return context
+    versioned_object = None
 
     def delete(self, request, *args, **kwargs):
         """delete any object, either Extract or Container"""
+        self.object = self.get_object()
+        self.versioned_object = self.get_versioned_object()
+        parent = search_container_or_404(self.versioned_object, self.kwargs)
 
-        context = self.get_context_data()
-        to_delete = context['to_delete']
+        # find something to delete and delete it
+        to_delete = None
+        if 'object_slug' in self.kwargs:
+            try:
+                to_delete = parent.children_dict[self.kwargs['object_slug']]
+            except KeyError:
+                raise Http404
 
         sha = to_delete.repo_delete()
 
         # then save
-        self.content.sha_draft = sha
-        self.content.update_date = datetime.now()
-        self.content.save()
+        self.object.sha_draft = sha
+        self.object.update_date = datetime.now()
+        self.object.save()
 
-        success_url = ''
-        if isinstance(to_delete, Extract):
-            success_url = to_delete.container.get_absolute_url()
-        else:
-            success_url = to_delete.parent.get_absolute_url()
-
-        return redirect(success_url)
+        return redirect(parent.get_absolute_url())
 
 
 class ArticleList(ListView):
