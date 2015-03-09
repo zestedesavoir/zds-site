@@ -174,9 +174,7 @@ $content-width: 1145px;
                  }
             }
 
-            &::after { // Gradient overlay
-                content: '';
-                display: block;
+            .overlay { // Gradient overlay
                 position: absolute;
                 top: 0;
                 right: 0;

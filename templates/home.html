@@ -90,11 +90,12 @@
                 <article class="featured-item">
                     <a href="{{ news.url }}">
                         <img src="{{ news.image_url }}" alt="" class="content-illu">
+                        <div class="featured-meta">
+                            <h3>{{ news.title }}</h3>
+                            <p class="featured-description">Un {{ news.type }} par <i>{% for member in news.authors.all %}{{ member }}, {% endfor %}</i></p>
+                        </div>
+                        <div class="overlay"></div>
                     </a>
-                    <div class="featured-meta">
-                        <h3>{{ news.title }}</h3>
-                        <p class="featured-description">Un {{ news.type }} par <i>{% for member in news.authors.all %}{{ member }}, {% endfor %}</i></p>
-                    </div>
                 </article>
                 {% endfor %}
             </div>
