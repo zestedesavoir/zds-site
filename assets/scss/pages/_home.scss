@@ -271,14 +271,19 @@ $content-width: 1145px;
 
 @media only screen and #{$media-mobile} {
     .home {
-        .home-wrapper {
-            padding: 20px 10px;
-        }
         .home-description {
             flex-direction: column;
             .column {
                 margin-bottom: 10px;
             }
+        }
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .home {
+        .home-wrapper {
+            padding: 20px 10px;
         }
         .featured-row {
             .featured-item {
