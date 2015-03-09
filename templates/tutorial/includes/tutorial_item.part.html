@@ -10,10 +10,10 @@
     {% endif %}
 {% endcaptureas %}
 
-<article class="content-item tutorial-item">
+<article class="content-item tutorial-item{{ item_class }}">
     {% if tutorial.image %}
         <a href="{{ link }}" tabindex="-1" class="content-illu">
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="">
+            <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
         </a>
     {% endif %}
 
@@ -28,6 +28,7 @@
             <p class="content-description">{{ tutorial.description }}</p>
         {% endif %}
 
+        <div class="content-meta">
         {% if tutorial.subcategory %}
             <p class="content-categories">
                 {% for category in tutorial.subcategory.all %}
@@ -63,5 +64,6 @@
                 {% endfor %}
             </p>
         {% endif %}
+        </div>
     </div>
 </article>

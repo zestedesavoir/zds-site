@@ -45,44 +45,46 @@
             {% endif %}
         </a>-->
 
-        <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
+        <p class="content-meta">
+          <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
             {{ article.pubdate|format_date|capfirst }}
-        </time>
+          </time>
 
-        {% if article.sha_public %}
-            <p class="content-authors">
-                {% for author in authors.all %}
-                    {% if forloop.first %}
-                        {% trans "par" %}
-                    {% elif forloop.last %}
-                        {% trans "et" %}
-                    {% else %}
-                        ,
-                    {% endif %}
+          {% if article.sha_public %}
+              <p class="content-authors">
+                  {% for author in authors.all %}
+                      {% if forloop.first %}
+                          {% trans "par" %}
+                      {% elif forloop.last %}
+                          {% trans "et" %}
+                      {% else %}
+                          ,
+                      {% endif %}
 
-                    {% if author == user %}
-                        {% trans "vous" %}
-                    {% else %}
-                        {{ author.username }}
-                    {% endif %}
-                {% endfor %}
-                    {% for author in authors.all %}
-                        <li itemscope itemprop="author"
-                            itemtype="http://schema.org/Person"
-                        >
-                            {{ author.username }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </p>
-        {% elif article.sha_validation %}
-            <p class="content-state">
-                {% trans "En validation" %}
-            </p>
-        {% else %}
-            <p class="content-state">
-                {% trans "Brouillon" %}
-            </p>
-        {% endif %}
+                      {% if author == user %}
+                          {% trans "vous" %}
+                      {% else %}
+                          {{ author.username }}
+                      {% endif %}
+                  {% endfor %}
+                      {% for author in authors.all %}
+                          <li itemscope itemprop="author"
+                              itemtype="http://schema.org/Person"
+                          >
+                              {{ author.username }}
+                          </li>
+                      {% endfor %}
+                  </ul>
+              </p>
+          {% elif article.sha_validation %}
+              <p class="content-state">
+                  {% trans "En validation" %}
+              </p>
+          {% else %}
+              <p class="content-state">
+                  {% trans "Brouillon" %}
+              </p>
+          {% endif %}
+        </p>
     </div>
 </article>

@@ -108,11 +108,20 @@
 
                 <meta itemprop="itemListOrder" content="Descending">
 
+                <div class="content-item-list">
                 {% for tutorial in last_tutorials %}
-                    {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True %}
+                    {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True item_class=forloop.first|yesno:", mini" %}
                 {% empty %}
                     <p>{% trans "Aucun tutoriel disponible." %}</p>
                 {% endfor %}
+                  <div class="content-item write-tutorial">
+                    <div class="write-tutorial-text">
+                      <p>{% trans "Il y a 452 tutoriels sur Zeste de Savoir." %}</p>
+                      <p class="lead">{% trans "Pourquoi pas le votre ?" %}</p>
+                    </div>
+                    <a href="#" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
+                  </div>
+                </div>
             </section>
 
             <section itemscope itemtype="http://schema.org/ItemList">

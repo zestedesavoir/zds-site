@@ -9,6 +9,13 @@ $content-border-color: #DEDEDE;
     border-bottom-width: 2px;
     margin-bottom: 15px;
 
+    overflow: hidden; // Temporary, until the items are completely styled
+
+    flex: 1 1 300px;
+
+    &.mini {
+      max-width: 270px;
+    }
 
     & > * {
         margin: 0;
@@ -58,21 +65,45 @@ $content-border-color: #DEDEDE;
         white-space: nowrap;
     }
 
-    .content-authors {
-        color: $color-secondary;
+    .content-meta {
+      color: $color-secondary;
     }
 
-    &.article-item {
-        .content-pubdate,
-        .content-state {
-            color: $color-secondary;
-        }
-    }
+    &.write-tutorial {
+      background-color: $color-primary;
+      border-color: $color-primary;
+      align-items: center;
+      color: white;
+      height: 96px;
 
-    &.tutorial-item {
-        .content-categories {
-            color: $color-secondary;
+      .write-tutorial-text {
+        flex: 1;
+        text-align: center;
+
+        p {
+          margin: 0;
+          font-size: 16px;
+
+          &.lead {
+            font-size: 18px;
+            font-weight: bold;
+          }
         }
+      }
+
+      .btn-write-tutorial {
+        background-color: #19526c;
+        margin-right: 28px;
+
+        &:hover, &:focus {
+          background-color: lighten(#19526c, 6%);
+        }
+      }
     }
 }
 
+.content-item-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
