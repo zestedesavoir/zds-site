@@ -344,7 +344,7 @@ class Container:
             self.title = title
             if self.get_tree_depth() > 0:  # if top container, slug is generated from DB, so already changed
                 old_path = self.get_path(relative=True)
-                self.slug = self.top_container().get_unique_slug(title)
+                self.slug = self.parent.get_unique_slug(title)
                 new_path = self.get_path(relative=True)
                 repo.index.move([old_path, new_path])
 
@@ -472,12 +472,12 @@ class Container:
 
         # now, remove from manifest
         # work only if slug is correct
-        top = self.top_container()
+        top = self.parent
         top.children_dict.pop(self.slug)
         top.children.pop(top.children.index(self))
 
         # commit
-        top.dump_json()
+        top.top_container().dump_json()
         repo.index.add(['manifest.json'])
 
         if commit_message == '':
