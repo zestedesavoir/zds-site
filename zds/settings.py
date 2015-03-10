@@ -447,6 +447,9 @@ ZDS_APP = {
         'top_tag_max': 5,
         'home_number': 5,
     },
+    'topic': {
+        'home_number': 5,
+    },
     'news': {
         'news_per_page': 100,
         'home_number': 5,

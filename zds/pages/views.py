@@ -14,6 +14,7 @@ from django.shortcuts import render
 from zds import settings
 
 from zds.article.models import get_last_articles
+from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.news.models import News
 from zds.pages.forms import AssocSubscribeForm
@@ -47,8 +48,9 @@ def home(request):
     return render(request, 'home.html', {
         'last_tutorials': tutos,
         'last_articles': articles,
+        'last_news': News.objects.get_last_news(),
+        'last_topics': Topic.objects.get_last_topics(),
         'quote': quote,
-        'last_news': News.objects.get_last_news()
     })
 
 
