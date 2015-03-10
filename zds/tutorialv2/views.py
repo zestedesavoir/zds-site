@@ -5,10 +5,10 @@ from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
-from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.template import loader, Context
 from zds.forum.models import Forum, Topic
 from zds.tutorialv2.forms import BetaForm
-from zds.utils.forums import send_post, unlock_topic, create_topic
+from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 
 try:
     import ujson as json_reader
@@ -41,7 +41,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
-from git import Repo
+from git import Repo, BadObject
 
 from forms import ContentForm, ContainerForm, \
     ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, JsFiddleActivationForm
@@ -552,6 +552,113 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         return context
 
 
+class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    """
+    Depending of the value of `self.action`, this class will behave differently;
+    - if "set", it will active (of update) the beta
+    - if "inactive", it will inactive the beta on the tutorial
+    """
+
+    model = PublishableContent
+    form_class = BetaForm
+    authorized_for_staff = False
+
+    action = None
+
+    @staticmethod
+    def get_text_from_template(path, options):
+        template = loader.get_template(path)
+        return template.render(Context(options))
+
+    def form_valid(self, form):
+        # check version:
+        try:
+            sha_beta = self.request.POST['version']
+            beta_version = self.object.load_version(sha=sha_beta)
+        except KeyError:
+            raise Http404  # wrong POST data
+        except BadObject:
+            raise PermissionDenied  # version does not exists !
+
+        # topic of the beta version:
+        topic = Topic.objects.filter(related_publishable_content=self.object,
+                                     forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
+        # perform actions:
+        if self.action == 'inactive':
+            self.object.sha_beta = None
+            msg_post = self.get_text_from_template(
+                'tutorialv2/messages/beta_desactivate.msg.html', {'content': beta_version}
+            )
+            send_post(topic, msg_post)
+            lock_topic(topic)
+
+        elif self.action == 'set':
+            already_in_beta = self.object.in_beta()
+            if already_in_beta and self.object.sha_beta == sha_beta:
+                pass  # no need to perform additional actions
+            else:
+                self.object.sha_beta = sha_beta
+                self.versioned_object.in_beta = True
+                self.versioned_object.sha_beta = sha_beta
+
+                msg = self.get_text_from_template(
+                    'tutorialv2/messages/beta_activate_topic.msg.html',
+                    {
+                        'content': beta_version,
+                        'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
+                    }
+                )
+
+                if not topic:
+                    # if first time putting the content in beta, send a message on the forum and a PM
+                    forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
+                    create_topic(author=self.request.user,
+                                 forum=forum,
+                                 title=_(u"[beta][tutoriel]{0}").format(beta_version.title),
+                                 subtitle=u"{}".format(beta_version.description),
+                                 text=msg,
+                                 related_publishable_content=self.object)
+                    topic = Topic.objects.get(related_publishable_content=self.object)
+
+                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                    msg_pm = self.get_text_from_template(
+                        'tutorialv2/messages/beta_activate_pm.msg.html',
+                        {
+                            'content': beta_version,
+                            'url': settings.ZDS_APP['site']['url'] + topic.get_absolute_url()
+                        }
+                    )
+                    send_mp(bot,
+                            self.object.authors.all(),
+                            _(u"Tutoriel en beta : {0}").format(beta_version.title),
+                            "",
+                            msg_pm,
+                            False)
+                else:
+                    if not already_in_beta:
+                        unlock_topic(topic, msg)
+                        msg_post = self.get_text_from_template(
+                            'tutorialv2/messages/beta_reactivate.msg.html',
+                            {
+                                'content': beta_version,
+                                'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
+                            }
+                        )
+                    else:
+                        msg_post = self.get_text_from_template(
+                            'tutorialv2/messages/beta_update.msg.html',
+                            {
+                                'content': beta_version,
+                                'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
+                            }
+                        )
+                    send_post(topic, msg_post)
+
+        self.object.save()
+        self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
+        return super(ManageBetaContent, self).form_valid(form)
+
+
 class ArticleList(ListView):
     """
     Displays the list of published articles.
@@ -732,87 +839,6 @@ class DisplayOnlineArticle(DisplayOnlineContent):
     type = "ARTICLE"
 
 
-class PutContentOnBeta(LoggedWithReadWriteHability, SingleContentViewMixin, FormView):
-    model = PublishableContent
-    content = None
-    form_class = BetaForm
-    authorized_for_staff = False
-
-    def form_valid(self, form):
-
-        self.content = self.get_object()
-        try:
-            self.content.load_version(self.request.POST['version'])
-
-            self.content.sha_beta = self.request.POST['version']
-            self.content.save()
-        except Exception:
-            # exception are raised if :
-            # - we have a false version number
-            # - we have a not supported manfile
-            pass
-        topic = Topic.objects.filter(key=self.content.pk, forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
-        msg = \
-            (_(u'Bonjour à tous,\n\n'
-               u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
-               u'J\'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
-               u'sur la forme, afin de proposer en validation un texte de qualité.'
-               u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
-               u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
-               u'\n\nMerci d\'avance pour votre aide').format(
-                naturaltime(self.content.creation_date),
-                self.content.title,
-                settings.ZDS_APP['site']['url'] +
-                reverse("content:view", args=[self.content.pk, self.content.slug])))
-        if topic is None:
-            forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
-
-            create_topic(author=self.request.user,
-                         forum=forum,
-                         title=_(u"[beta][tutoriel]{0}").format(self.content.title),
-                         subtitle=u"{}".format(self.content.description),
-                         text=msg,
-                         key=self.content.pk)
-            tp = Topic.objects.get(key=self.content.pk)
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            private_mp = \
-                (_(u'Bonjour {},\n\n'
-                   u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
-                   u'pourra le consulter afin de vous faire des retours '
-                   u'constructifs avant sa soumission en validation.\n\n'
-                   u'Un sujet dédié pour la beta de votre tutoriel a été '
-                   u'crée dans le forum et est accessible [ici]({})').format(
-                    self.request.user.username,
-                    self.content.title,
-                    settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
-            send_mp(
-                bot,
-                [self.request.user],
-                _(u"Tutoriel en beta : {0}").format(self.content.title),
-                "",
-                private_mp,
-                False,
-            )
-        else:
-            msg_up = \
-                (_(u'Bonjour,\n\n'
-                   u'La beta du {2} est de nouveau active.'
-                   u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
-                   u'\n\nMerci pour vos relectures').format(self.content.title,
-                                                            settings.ZDS_APP['site']['url'] +
-                                                            reverse("content:view",
-                                                                    args=[self.content.pk,
-                                                                          self.content.slug]),
-                                                            self.content.type))
-            unlock_topic(topic, msg)
-            send_post(topic, msg_up)
-        self.content.save()
-        return super(PutContentOnBeta, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('content:view', args=[self.content.pk, self.content.slug])
-
-
 # Staff actions.
 
 
@@ -941,8 +967,8 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                           _(u"Le tutoriel a bien été \
                           réservé par {0}.").format(request.user.username))
             return redirect(
-                reverse("content:view", args=[validation.content.pk, validation.content.slug])
-                + "?version=" + validation.version
+                reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
+                "?version=" + validation.version
             )
 
 

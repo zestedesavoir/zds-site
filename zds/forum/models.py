@@ -17,6 +17,8 @@ from zds.forum.managers import TopicManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
+from zds.tutorialv2.models import PublishableContent
+
 
 def sub_tag(g):
     start = g.group('start')
@@ -152,6 +154,11 @@ class Topic(models.Model):
         db_index=True)
 
     key = models.IntegerField('cle', null=True, blank=True)
+
+    related_publishable_content = models.ForeignKey(PublishableContent,
+                                                    verbose_name='Contenu associé',
+                                                    default=None,
+                                                    null=True)
 
     objects = TopicManager()
 
