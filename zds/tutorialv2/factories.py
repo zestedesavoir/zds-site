@@ -166,8 +166,8 @@ class ValidationFactory(factory.DjangoModelFactory):
 class LicenceFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Licence
 
-    code = u'Licence bidon'
-    title = u'Licence bidon'
+    code = factory.Sequence(lambda n: 'bidon-no{0}'.format(n + 1))
+    title = factory.Sequence(lambda n: 'Licence bidon no{0}'.format(n + 1))
 
     @classmethod
     def _prepare(cls, create, **kwargs):
