@@ -14,6 +14,9 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory
 from zds.tutorialv2.models import PublishableContent
 from zds.gallery.factories import GalleryFactory
+from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.models import Topic, Post
+from zds.mp.models import PrivateTopic
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(SITE_ROOT, 'contents-private-test')
@@ -33,14 +36,19 @@ class ContentTests(TestCase):
         self.subcategory = SubCategoryFactory()
 
         self.user_author = ProfileFactory().user
-        self.staff = StaffProfileFactory().user
-        self.guest = ProfileFactory().user
+        self.user_staff = StaffProfileFactory().user
+        self.user_guest = ProfileFactory().user
 
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
         self.tuto.gallery = GalleryFactory()
         self.tuto.licence = self.licence
         self.tuto.save()
+
+        self.beta_forum = ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
@@ -119,7 +127,7 @@ class ContentTests(TestCase):
         # login with guest
         self.assertEqual(
             self.client.login(
-                username=self.guest.username,
+                username=self.user_guest.username,
                 password='hostel77'),
             True)
 
@@ -155,7 +163,7 @@ class ContentTests(TestCase):
         # login with staff
         self.assertEqual(
             self.client.login(
-                username=self.staff.username,
+                username=self.user_staff.username,
                 password='hostel77'),
             True)
 
@@ -479,6 +487,221 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         self.assertFalse(os.path.isfile(versioned.get_path()))  # deletion get right ;)
+
+    def test_beta_workflow(self):
+        """Test beta workflow (access and update)"""
+
+        # login with guest and test the non-access
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', args=[self.tuto.pk, self.tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # (get 403 since he is not part of the authors)
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # activ beta:
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        current_sha_beta = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': current_sha_beta
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # check if there is a new topic and a pm corresponding to the tutorial in beta
+        self.assertEqual(Topic.objects.filter(forum=self.beta_forum).count(), 1)
+        self.assertEqual(Topic.objects.filter(related_publishable_content__pk=self.tuto.pk).count(), 1)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
+
+        beta_topic = Topic.objects.get(related_publishable_content__pk=self.tuto.pk)
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
+
+        # test access for public
+        self.client.logout()
+
+        result = self.client.get(
+            reverse('content:view', args=[self.tuto.pk, self.tuto.slug]) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 302)  # (get 302: no access to beta for public)
+
+        # test access for guest;
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        # get 200 everywhere :)
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # change beta version
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }),
+            {
+                'title': u'Un autre titre',
+                'introduction': u'Introduire la chose',
+                'conclusion': u'Et terminer sur un truc bien'
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.assertNotEqual(current_sha_beta, tuto.sha_draft)
+
+        # change beta:
+        old_sha_beta = current_sha_beta
+        current_sha_beta = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': current_sha_beta
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.assertEqual(tuto.sha_beta, current_sha_beta)
+
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
+
+        # then test for guest
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + old_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # no access using the old version
+
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 200)  # ok for the new version
+
+        # inactive beta
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:inactive-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': current_sha_beta
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 3)  # a new message was added !
+        self.assertTrue(Topic.objects.get(pk=beta_topic.pk).is_locked)  # beta was inactived, so topic is locked !
+
+        # then test for guest
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + current_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # no access anymore
+
+        # reactive beta
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': old_sha_beta  # with a different version than the draft one
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.assertEqual(tuto.sha_beta, old_sha_beta)
+
+        self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 4)  # a new message was added !
+        self.assertFalse(Topic.objects.get(pk=beta_topic.pk).is_locked)  # not locked anymore
+
+        # then test for guest
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + tuto.sha_draft,
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # no access on the non-beta version (of course)
+
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]) + '?version=' + old_sha_beta,
+            follow=False)
+        self.assertEqual(result.status_code, 200)  # access granted
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
