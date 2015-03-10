@@ -341,6 +341,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     online = False
     sha = None
     must_be_author = False  # beta state does not need the author
+    only_draft_version = False
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -504,6 +505,53 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
         return redirect(parent.get_absolute_url())
 
 
+class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
+    """
+    Display the whole modification history.
+    This class has no reason to be adapted to any content type
+    """
+
+    model = PublishableContent
+    template_name = "tutorialv2/view/history.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(DisplayHistory, self).get_context_data(**kwargs)
+        repo = self.versioned_object.repository
+        logs = repo.head.reference.log()
+        logs = sorted(logs, key=attrgetter("time"), reverse=True)
+        context['logs'] = logs
+        return context
+
+
+class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
+    """
+    Display the difference between two version of a content.
+    Reference is always HEAD and compared version is a GET query parameter named sha
+    this class has no reason to be adapted to any content type
+    """
+
+    model = PublishableContent
+    template_name = "tutorialv2/view/diff.html"
+    only_draft_version = False
+
+    def get_context_data(self, **kwargs):
+        context = super(DisplayDiff, self).get_context_data(**kwargs)
+
+        # open git repo and find diff between displayed version and head
+        repo = self.versioned_object.repository
+        current_version_commit = repo.commit(self.sha)
+        diff_with_head = current_version_commit.diff("HEAD~1")
+
+        context['commit_msg'] = current_version_commit.message
+
+        context["path_add"] = diff_with_head.iter_change_type("A")
+        context["path_ren"] = diff_with_head.iter_change_type("R")
+        context["path_del"] = diff_with_head.iter_change_type("D")
+        context["path_maj"] = diff_with_head.iter_change_type("M")
+
+        return context
+
+
 class ArticleList(ListView):
     """
     Displays the list of published articles.
@@ -572,57 +620,6 @@ class TutorialWithHelp(TutorialList):
 
 
 # TODO ArticleWithHelp
-
-
-class DisplayHistory(LoginRequiredMixin, SingleContentViewMixin, DetailView):
-    """Display the whole modification history.
-    this class has no reason to be adapted to any content type"""
-    model = PublishableContent
-    template_name = "tutorialv2/view/history.html"
-    context_object_name = "object"
-
-    def get_context_data(self, **kwargs):
-        context = super(DisplayHistory, self).get_context_data(**kwargs)
-        repo = Repo(context['object'].get_repo_path())
-        logs = repo.head.reference.log()
-        logs = sorted(logs, key=attrgetter("time"), reverse=True)
-        context['logs'] = logs
-        context['content'] = context['object'].load_version()
-        return context
-
-
-class DisplayDiff(DetailView):
-    """Display the difference between two version of a content.
-    Reference is always HEAD and compared version is a GET query parameter named sha
-    this class has no reason to be adapted to any content type"""
-    model = PublishableContent
-    template_name = "tutorialv2/diff.html"
-    context_object_name = "tutorial"
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(PublishableContent, pk=self.kwargs['content_pk'])
-
-    def get_context_data(self, **kwargs):
-
-        context = super(DisplayDiff, self).get_context_data(**kwargs)
-
-        try:
-            sha = self.request.GET.get("sha")
-        except KeyError:
-            sha = self.get_object().sha_draft
-
-        if self.request.user not in context[self.context_object_name].authors.all():
-            if not self.request.user.has_perm("tutorial.change_tutorial"):
-                raise PermissionDenied
-        # open git repo and find diff between displayed version and head
-        repo = Repo(context[self.context_object_name].get_repo_path())
-        current_version_commit = repo.commit(sha)
-        diff_with_head = current_version_commit.diff("HEAD~1")
-        context["path_add"] = diff_with_head.iter_change_type("A")
-        context["path_ren"] = diff_with_head.iter_change_type("R")
-        context["path_del"] = diff_with_head.iter_change_type("D")
-        context["path_maj"] = diff_with_head.iter_change_type("M")
-        return context
 
 
 class DisplayOnlineContent(DisplayContent):

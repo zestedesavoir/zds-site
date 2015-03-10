@@ -78,7 +78,7 @@
                         </a>
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.diff" content.pk content.slug %}?sha={{ log.newhexsha }}" >
+                        <a href="{% url "content:diff" content.pk content.slug %}?version={{ log.newhexsha }}" >
                             {{ log.newhexsha|truncatechars:8 }}
                         </a>
                     </td>
