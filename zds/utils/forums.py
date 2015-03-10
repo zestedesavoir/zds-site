@@ -12,7 +12,7 @@ def create_topic(
         title,
         subtitle,
         text,
-        key):
+        related_publishable_content=None):
     """create topic in forum"""
 
     (tags, title_only) = get_tag_by_title(title[:80])
@@ -24,7 +24,7 @@ def create_topic(
     n_topic.subtitle = subtitle
     n_topic.pubdate = datetime.now()
     n_topic.author = author
-    n_topic.key = key
+    n_topic.related_publishable_content = related_publishable_content
     n_topic.save()
     n_topic.add_tags(tags)
     n_topic.save()

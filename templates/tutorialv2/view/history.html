@@ -62,11 +62,14 @@
                         {% if content.sha_validation == log.newhexsha %}
                             {% trans "Validation" %}
                         {% endif %}
-                        {% if content.sha_beta = log.newhexsha %}
+                        {% if content.sha_beta == log.newhexsha %}
                             {% trans "Beta" %}
                         {% endif %}
-                        {% if content.sha_draft = log.newhexsha %}
-                            {% trans "Draft" %}
+                        {% if content.sha_draft == log.newhexsha %}
+                            {% trans "Brouillon" %}
+                        {% endif %}
+                        {% if content.sha_public == log.newhexsha %}
+                            {% trans "Publiée" %}
                         {% endif %}
                     </td>
                     <td>
@@ -92,7 +95,7 @@
                         {% endwith %}
                     </td>
                     <td>
-                        {% if not content.sha_beta == log.newhexsha %}
+                        {% if content.sha_beta != log.newhexsha %}
                             <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
                                 {% if not content.sha_beta %}
                                     {% trans "Activer" %}
@@ -100,7 +103,7 @@
                                     {% trans "Mettre à jour" %}
                                 {% endif %}
                             </a>
-                            <form action="{% url "content:put-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="activ-beta-{{ log.newhexsha }}">
+                            <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="activ-beta-{{ log.newhexsha }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="version" value="{{ log.newhexsha }}">
                                 <p>

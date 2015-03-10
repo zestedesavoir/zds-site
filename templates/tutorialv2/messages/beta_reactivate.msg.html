@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{% blocktrans with title=content.title %}
+
+Bonjour,
+
+La bêta de **{{ title }}** est de nouveau active.
+
+-> [Lien de la beta du tutoriel : {{ title }}]({{ url }}) <-
+
+Merci d'avance pour vos relectures.
+
+{%  endblocktrans %}

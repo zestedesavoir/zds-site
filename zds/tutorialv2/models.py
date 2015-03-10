@@ -714,11 +714,16 @@ class VersionedContent(Container):
     def __unicode__(self):
         return self.title
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, version=None):
         """
         :return: the url to access the tutorial when offline
         """
-        return reverse('content:view', args=[self.pk, self.slug])
+        url = reverse('content:view', args=[self.pk, self.slug])
+
+        if version and version != self.sha_draft:
+            url += '?version=' + version
+
+        return url
 
     def get_absolute_url_online(self):
         """

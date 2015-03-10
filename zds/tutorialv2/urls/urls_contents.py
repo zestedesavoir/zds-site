@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
-    PutContentOnBeta, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
+    ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay
 from zds.tutorialv2.importation import ImportMarkdownView
 
@@ -67,11 +67,14 @@ urlpatterns = patterns('',
 
                        url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayHistory.as_view(), name="history"),
                        url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name="diff"),
-                       # beta
 
-                       url(r'^mettre-beta/(?P<pk>\d+)/(?P<slug>.+)/$', PutContentOnBeta.as_view(), name="put-beta"),
-                       # jsfiddle support
+                       # beta:
+                       url(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
+                           name="set-beta"),
+                       url(r'^desactiver-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='inactive'),
+                           name="inactive-beta"),
 
+                       # jsfiddle support:
                        url(r'activer-js/', ActivateJSFiddleInContent.as_view(), name="activate-jsfiddle"),
 
                        # delete:
