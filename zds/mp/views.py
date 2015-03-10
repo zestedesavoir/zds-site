@@ -17,6 +17,7 @@ from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template import Context
 from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.forms.util import ErrorList
 from django.core.exceptions import ObjectDoesNotExist
@@ -545,6 +546,25 @@ def add_participant(request):
         else:
             ptopic.participants.add(part)
             ptopic.save()
+
+            # send email
+            profile = part.profile
+            if profile.email_for_answer:
+                subject = u"{} - MP : {}".format(settings.ZDS_APP['site']['litteral_name'], ptopic.title)
+                from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                               settings.ZDS_APP['site']['email_noreply'])
+                context = {
+                    'username': part.username,
+                    'url': settings.ZDS_APP['site']['url'] + ptopic.get_absolute_url(),
+                    'author': request.user.username,
+                    'site_name': settings.ZDS_APP['site']['litteral_name']
+                }
+                message_html = render_to_string('email/mp/new_participant.html', context)
+                message_txt = render_to_string('email/mp/new_participant.txt', context)
+
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                msg.attach_alternative(message_html, "text/html")
+                msg.send()
 
             messages.success(
                 request,

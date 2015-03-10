@@ -1,0 +1,20 @@
+{% load i18n %}
+<html lang="fr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+    {% trans "Bonjour" %} <strong>{{ username_new_participant }}</strong>,
+    <br />
+    <br />
+    <strong>{{ author }}</strong> {% trans "vous a invité pour participer à une discussion privée sur" %} {{site_name}}.
+    <br />
+    <br />
+    {% trans "Pour le lire" %}, <a href="{{ url }}">{% trans "cliquez ici" %}</a>.
+    <br />
+    <br />
+    <br />
+    {% trans "Cordialement" %},
+    <br />
+    {% trans "L'équipe" %} {{app.site.litteral_name}}
+</body>
