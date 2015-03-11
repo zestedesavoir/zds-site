@@ -165,7 +165,7 @@ gulp.task("sprite", function() {
     .pipe(sprite({
       name: "sprite",
       style: "_sprite.scss",
-      cssPath: "../images",
+      cssPath: "../" + imagesDir,
       retina: true,
       prefix: "sprite-icon",
       processor: "scss",
