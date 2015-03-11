@@ -27,6 +27,7 @@ class ParticipantsValidator(Validator):
                 if len(participants) == 1 and participants[0].strip() == ',':
                     msg = _(u'Vous devez spécfier des participants valides')
                 for participant in participants.split(','):
+                    participant = participant.strip()
                     if participant == '':
                         continue
                     if participant.strip().lower() == username.lower():
