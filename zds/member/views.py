@@ -14,6 +14,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Context
@@ -607,12 +608,21 @@ def forgot_password(request):
     if request.method == "POST":
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
+
+            # Get data from form
             data = form.data
             username = data["username"]
-            usr = get_object_or_404(User, username=username)
+            email = data["email"]
+
+            # Fetch the user, we need his email adress
+            usr = None
+            if username:
+                usr = get_object_or_404(User, Q(username=username))
+
+            if email:
+                usr = get_object_or_404(User, Q(email=email))
 
             # Generate a valid token during one hour.
-
             uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)

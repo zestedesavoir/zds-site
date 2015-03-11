@@ -14,7 +14,7 @@ from zds.settings import SITE_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.member.models import Profile, KarmaNote
+from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory, PublishedMiniTutorial
@@ -342,6 +342,35 @@ class MemberTests(TestCase):
         self.assertEquals(alone_gallery.get_linked_users().count(), 1)
         self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
+
+    def test_forgot_password(self):
+        """To test nominal scenario of a lost password."""
+
+        # Empty the test outbox
+        mail.outbox = []
+
+        result = self.client.post(
+            reverse('zds.member.views.forgot_password'),
+            {
+                'username': self.mas.user.username,
+                'email': '',
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has been sent
+        self.assertEquals(len(mail.outbox), 1)
+
+        # clic on the link which has been sent in mail
+        user = User.objects.get(username=self.mas.user.username)
+
+        token = TokenForgotPassword.objects.get(user=user)
+        result = self.client.get(
+            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
 
     def test_sanctions(self):
         """

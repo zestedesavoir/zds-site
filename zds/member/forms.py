@@ -4,16 +4,17 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
+from django.utils.translation import gettext as _
+
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
-    Submit, Field, ButtonHolder, Hidden
+    Submit, Field, ButtonHolder, Hidden, Div
 
 from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator
 from zds.member.models import Profile, listing, KarmaNote
 from zds.utils.forms import CommonLayoutModalText
-
 
 # Max password length for the user.
 # Unlike other fields, this is not the length of DB field
@@ -433,8 +434,12 @@ class ChangePasswordForm(forms.Form):
 class ForgotPasswordForm(forms.Form):
     username = forms.CharField(
         label=_(u'Nom d\'utilisateur'),
-        max_length=User._meta.get_field('username').max_length,
-        required=True
+        required=False
+    )
+
+    email = forms.CharField(
+        label=_(u'Adresse de courriel'),
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -444,21 +449,46 @@ class ForgotPasswordForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('username'),
-            ButtonHolder(
-                StrictButton(_(u'Envoyer'), type='submit'),
+            Div(
+                Field('username'),
+                ButtonHolder(
+                    StrictButton(_(u'Envoyer'), type='submit'),
+                ),
+                css_id='form-username'
+            ),
+            Div(
+                Field('email'),
+                ButtonHolder(
+                    StrictButton(_(u'Envoyer'), type='submit'),
+                ),
+                css_id='form-email'
             )
         )
 
     def clean(self):
         cleaned_data = super(ForgotPasswordForm, self).clean()
 
-        # Check that the password and it's confirmation match
+        # Clean data
         username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
 
-        if User.objects.filter(username=username).count() == 0:
-            self._errors['username'] = self.error_class(
-                [_(u'Ce nom d\'utilisateur n\'existe pas')])
+        # Check that the username or the email is filled
+        if (username and email) or (not username and not email):
+            if username and email:
+                self._errors['username'] = self.error_class([_(u'Les deux champs ne doivent pas être rempli. '
+                                                               u'Remplissez soit l\'adresse de courriel soit le '
+                                                               u'nom d\'utilisateur')])
+            else:
+                self._errors['username'] = self.error_class([_(u'Il vous faut remplir au moins un des deux champs')])
+        else:
+            # Check if the user exist
+            if username:
+                if User.objects.filter(Q(username=username)).count() == 0:
+                    self._errors['username'] = self.error_class([_(u'Ce nom d\'utilisateur n\'existe pas')])
+
+            if email:
+                if User.objects.filter(Q(email=email)).count() == 0:
+                    self._errors['email'] = self.error_class([_(u'Cette adresse de courriel n\'existe pas')])
 
         return cleaned_data
 
