@@ -286,7 +286,7 @@ class BigTutorialTests(TestCase):
                             "zip",
                             os.path.join(temp, self.bigtuto.get_phy_slug()))
 
-        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")))
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")))
 
         # import zip archive
         result = self.client.post(
@@ -295,7 +295,7 @@ class BigTutorialTests(TestCase):
                 'file': open(
                     os.path.join(
                         temp,
-                        os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")),
+                        os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")),
                     'r'),
                 'tutorial': self.bigtuto.pk,
                 'import-archive': "importer"},
@@ -2812,7 +2812,7 @@ class BigTutorialTests(TestCase):
         sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
         self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
         self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url()+'?version='+sha_beta,
+        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url() + '?version=' + sha_beta,
                       sent_pm.last_message.text)  # public url is in message
 
     def tearDown(self):
@@ -2956,7 +2956,7 @@ class MiniTutorialTests(TestCase):
                             "zip",
                             os.path.join(temp, self.minituto.get_phy_slug()))
 
-        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug()+".zip")))
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug() + ".zip")))
         # import zip archive
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
@@ -2964,7 +2964,7 @@ class MiniTutorialTests(TestCase):
                 'file': open(
                     os.path.join(
                         temp,
-                        os.path.join(temp, self.minituto.get_phy_slug()+".zip")),
+                        os.path.join(temp, self.minituto.get_phy_slug() + ".zip")),
                     'r'),
                 'tutorial': self.minituto.pk,
                 'import-archive': "importer"},

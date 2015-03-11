@@ -18,6 +18,15 @@
         this.data(dataAttribute, text);
     };
 
+    function synchText() {
+        $("#mobile-menu [data-ajax-input]").each(function () {
+            var dataAjaxInput = $(this).data("ajax-input");
+            console.log($(this).text(), $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text(), dataAjaxInput);
+
+            $(this).text($(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text());
+        });
+    }
+
     /**
      * Karma of the messages
      */
@@ -115,6 +124,8 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("blue yellow");
+
+                synchText();
             }
         });
 
@@ -162,6 +173,8 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("blue");
+
+                synchText();
             }
         });
         e.stopPropagation();
@@ -200,10 +213,28 @@
                 $act.toggleText("content-on-click");
                 $act.toggleClass("green blue");
                 $("[data-ajax-output='solve-topic']").toggleClass("empty");
+
+                synchText();
             }
         });
         e.stopPropagation();
         e.preventDefault();
+    });
+
+    /**
+     * Mobile action
+     */
+    $("#mobile-menu").on("click", "[data-ajax-input]", function(e){
+        var dataAjaxInput = $(this).data("ajax-input");
+        var $button = $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']");
+
+        if ($button[0]) {
+            $(this).toggleText("content-on-click");
+            $button.click();
+
+            e.stopPropagation();
+            e.preventDefault();
+        }
     });
 
     /**
@@ -249,8 +280,12 @@
             },
             success: function(data){
                 $(".previsualisation").remove();
+
                 $(data).insertAfter($form);
-            },
+
+                if ($(data).find("mathjax").length > 0)
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+            }
         });
         e.stopPropagation();
         e.preventDefault();

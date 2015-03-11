@@ -22,8 +22,8 @@ class PrivateTopic(models.Model):
 
     title = models.CharField('Titre', max_length=130)
     subtitle = models.CharField('Sous-titre', max_length=200)
-    author = models.ForeignKey(User, verbose_name='Auteur',  related_name='author', db_index=True)
-    participants = models.ManyToManyField(User, verbose_name='Participants',  related_name='participants',
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True)
+    participants = models.ManyToManyField(User, verbose_name='Participants', related_name='participants',
                                           db_index=True)
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
                                      verbose_name='Dernier message')

@@ -26,10 +26,7 @@ from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm
 from zds.utils.models import Comment, CommentLike, CommentDislike
-import json
-import pygal
-from models import Profile, TokenForgotPassword, Ban, TokenRegister, \
-    get_info_old_tuto, logout_user, KarmaNote
+from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
@@ -51,7 +48,7 @@ class MemberList(ZdSPagingListView):
     paginate_by = settings.ZDS_APP['member']['members_per_page']
     # TODO When User will be no more used, you can make this request with
     # Profile.objects.all_members_ordered_by_date_joined()
-    queryset = User.objects.order_by('-date_joined').all()
+    queryset = User.objects.order_by('-date_joined').all().select_related("profile")
     template_name = 'member/index.html'
 
 
@@ -348,11 +345,11 @@ def unregister(request):
     # he was alone so that gallery is not lost
     for gallery in UserGallery.objects.filter(user=current):
         if gallery.gallery.get_linked_users().count() == 1:
-            anonymousGallery = UserGallery()
-            anonymousGallery.user = external
-            anonymousGallery.mode = "w"
-            anonymousGallery.gallery = gallery.gallery
-            anonymousGallery.save()
+            anonymous_gallery = UserGallery()
+            anonymous_gallery.user = external
+            anonymous_gallery.mode = "w"
+            anonymous_gallery.gallery = gallery.gallery
+            anonymous_gallery.save()
         gallery.delete()
 
     logout(request)

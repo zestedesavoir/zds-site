@@ -134,9 +134,8 @@ def topic(request, topic_pk, topic_slug):
 
     posts = \
         Post.objects.filter(topic__pk=topic.pk) \
-        .select_related() \
-        .order_by("position"
-                  ).all()
+        .select_related("author__profile") \
+        .order_by("position").all()
     last_post_pk = topic.last_message.pk
 
     # Handle pagination
@@ -1062,6 +1061,9 @@ def followed_topics(request):
 
 
 def complete_topic(request):
+    if not request.GET.get('q', None):
+        return HttpResponse("{}", content_type='application/json')
+
     sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
 
     suggestions = {}

@@ -108,21 +108,21 @@
         <ul>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=solve"
-                   class="ico-after tick green {% if request.GET.filter == "solve" %}unread{% endif %}"
+                   class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
                 >
                     {% trans "Sujets résolus" %}
                 </a>
             </li>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=unsolve"
-                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}unread{% endif %}"
+                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
                 >
                     {% trans "Sujets non résolus" %}
                 </a>
             </li>
             <li>
                 <a href="{% url "zds.forum.views.details" forum.category.slug forum.slug %}?filter=noanswer"
-                   class="ico-after view {% if request.GET.filter == "noanswer" %}unread{% endif %}"
+                   class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
                 >
                     {% trans "Sujets sans réponse" %}
                 </a>

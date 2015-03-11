@@ -171,7 +171,7 @@ class Topic(models.Model):
 
     def get_last_post(self):
         """Gets the last post in the thread."""
-        return self.last_message
+        return Post.objects.select_related("author__profile").get(pk=self.last_message)
 
     def get_last_answer(self):
         """Gets the last answer in the thread, if any."""
@@ -454,4 +454,7 @@ def get_topics(forum_pk, is_sticky, filter=None):
     else:
         topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
 
-    return topics.order_by('-last_message__pubdate').prefetch_related('author', 'last_message', 'tags').all()
+    return topics.order_by('-last_message__pubdate')\
+        .select_related('author__profile')\
+        .prefetch_related('last_message', 'tags')\
+        .all()

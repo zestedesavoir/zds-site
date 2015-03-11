@@ -127,22 +127,22 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "zds.member.views.tutorials" %}?type=public{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after tick green {% if request.GET.type == "public" %}unread{% endif %}">
+                <a href="{% url "zds.member.views.tutorials" %}?type=public{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after tick green {% if request.GET.type == "public" %}selected{% endif %}">
                     {% trans "Publiés" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "zds.member.views.tutorials" %}?type=validate{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after tick {% if request.GET.type == "validate" %}unread{% endif %}">
+                <a href="{% url "zds.member.views.tutorials" %}?type=validate{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after tick {% if request.GET.type == "validate" %}selected{% endif %}">
                     {% trans "En validation" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "zds.member.views.tutorials" %}?type=beta{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after beta {% if request.GET.type == "beta" %}unread{% endif %}">
+                <a href="{% url "zds.member.views.tutorials" %}?type=beta{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after beta {% if request.GET.type == "beta" %}selected{% endif %}">
                     {% trans "En bêta" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "zds.member.views.tutorials" %}?type=draft{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after edit {% if request.GET.type == "draft" %}unread{% endif %}">
+                <a href="{% url "zds.member.views.tutorials" %}?type=draft{% if sort %}&sort={{ sort }}{% endif %}" class="ico-after edit {% if request.GET.type == "draft" %}selected{% endif %}">
                     {% trans "Brouillons" %}
                 </a>
             </li>
@@ -159,17 +159,17 @@
             <h3>Trier</h3>
             <ul>
                 <li>
-                    <a href="{% url "zds.member.views.tutorials" %}?sort=abc{% if type %}&type={{ type }}{% endif %}" class="ico-after gear {% if sort == "abc" %}unread{% endif %}">
+                    <a href="{% url "zds.member.views.tutorials" %}?sort=abc{% if type %}&type={{ type }}{% endif %}" class="ico-after gear {% if sort == "abc" %}selected{% endif %}">
                         Par ordre alphabétique
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "zds.member.views.tutorials" %}?sort=creation{% if type %}&type={{ type }}{% endif %}" class="ico-after gear {% if sort == "creation" %}unread{% endif %}">
+                    <a href="{% url "zds.member.views.tutorials" %}?sort=creation{% if type %}&type={{ type }}{% endif %}" class="ico-after gear {% if sort == "creation" %}selected{% endif %}">
                         Par date de création
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "zds.member.views.tutorials" %}?sort=modification{% if type %}&type={{ type }}{% endif %}" class="ico-after gear {% if sort == "modification" %}unread{% endif %}">
+                    <a href="{% url "zds.member.views.tutorials" %}?sort=modification{% if type %}&type={{ type }}{% endif %}" class="ico-after gear {% if sort == "modification" %}selected{% endif %}">
                         Par date de dernière modification
                     </a>
                 </li>

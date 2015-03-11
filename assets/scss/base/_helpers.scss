@@ -62,13 +62,18 @@ hr.clearfix {
     border: none;
 }
 
+.unstyled-list {
+  list-style: none;
+  padding-left: 0;
+}
+
 // Hidden on mobile
 .screen,
 .wide {
     display: none;
 }
 
-@media only screen and ($media-extra-wide) {
+@media only screen and #{$media-extra-wide} {
     .wide {
         display: inline;
     }
@@ -77,7 +82,7 @@ hr.clearfix {
     }
 }
 
-@media only screen and ($media-wide) {
+@media only screen and #{$media-wide} {
     .screen {
         display: inline;
     }

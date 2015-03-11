@@ -35,8 +35,8 @@ class IndexViewTest(TestCase):
         response = self.client.get(reverse('zds.mp.views.index'), follow=True)
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.index'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.index'), ''))
 
     def test_success_delete_topic_no_participants(self):
         topic = PrivateTopicFactory(author=self.profile1.user)
@@ -148,7 +148,7 @@ class IndexViewTest(TestCase):
         self.assertTrue(login_check)
 
         # create many subjects (at least two pages)
-        for i in range(1, settings.ZDS_APP['forum']['topics_per_page']+5):
+        for i in range(1, settings.ZDS_APP['forum']['topics_per_page'] + 5):
             topic = PrivateTopicFactory(author=self.profile1.user)
             topic.participants.add(self.profile2.user)
             PrivatePostFactory(
@@ -192,8 +192,8 @@ class TopicViewTest(TestCase):
             follow=True)
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse(
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse(
                 'zds.mp.views.topic',
                 args=[self.topic1.pk, slugify(self.topic1.title)]), ''))
 
@@ -287,11 +287,12 @@ class TopicViewTest(TestCase):
         self.assertTrue(login_check)
 
         # create many subjects (at least two pages)
-        for i in range(1, settings.ZDS_APP['forum']['topics_per_page']+5):
+        post = None
+        for i in range(1, settings.ZDS_APP['forum']['topics_per_page'] + 5):
             post = PrivatePostFactory(
                 privatetopic=self.topic1,
                 author=self.profile1.user,
-                position_in_topic=i+2)
+                position_in_topic=i + 2)
 
         response = self.client.get(reverse('zds.mp.views.topic',
                                            kwargs={'topic_pk': self.topic1.pk,
@@ -321,8 +322,8 @@ class NewTopicViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.new'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.new'), ''))
 
     def test_success_get_with_and_without_username(self):
 
@@ -333,8 +334,8 @@ class NewTopicViewTest(TestCase):
             response.context['form'].initial['participants'])
 
         response2 = self.client.get(
-            reverse('zds.mp.views.new')
-            + '?username=' + self.profile2.user.username)
+            reverse('zds.mp.views.new') +
+            '?username=' + self.profile2.user.username)
 
         self.assertEqual(200, response2.status_code)
         self.assertEqual(
@@ -350,8 +351,8 @@ class NewTopicViewTest(TestCase):
             response.context['form'].initial['title'])
 
         response2 = self.client.get(
-            reverse('zds.mp.views.new')
-            + '?title=Test titre')
+            reverse('zds.mp.views.new') +
+            '?title=Test titre')
 
         self.assertEqual(200, response2.status_code)
         self.assertEqual(
@@ -361,8 +362,8 @@ class NewTopicViewTest(TestCase):
     def test_fail_get_with_username_not_exist(self):
 
         response2 = self.client.get(
-            reverse('zds.mp.views.new')
-            + '?username=wrongusername')
+            reverse('zds.mp.views.new') +
+            '?username=wrongusername')
 
         self.assertEqual(200, response2.status_code)
         self.assertIsNone(
@@ -492,8 +493,8 @@ class EditViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.edit'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.edit'), ''))
 
     def test_fail_edit_topic_not_sending_topic_pk(self):
 
@@ -616,8 +617,8 @@ class AnswerViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.answer'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.answer'), ''))
 
     def test_fail_answer_not_send_topic_pk(self):
 
@@ -640,9 +641,9 @@ class AnswerViewTest(TestCase):
     def test_fail_cite_post_no_exist(self):
 
         response = self.client.get(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(self.topic1.pk)
-            + '&cite=4864',
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(self.topic1.pk) +
+            '&cite=4864',
             {}
         )
 
@@ -651,9 +652,9 @@ class AnswerViewTest(TestCase):
     def test_success_cite_post(self):
 
         response = self.client.get(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(self.topic1.pk)
-            + '&cite=' + str(self.post1.pk),
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(self.topic1.pk) +
+            '&cite=' + str(self.post1.pk),
             {}
         )
 
@@ -662,8 +663,8 @@ class AnswerViewTest(TestCase):
     def test_success_preview_answer(self):
 
         response = self.client.post(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(self.topic1.pk),
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'preview': '',
@@ -677,8 +678,8 @@ class AnswerViewTest(TestCase):
     def test_success_answer(self):
 
         response = self.client.post(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(self.topic1.pk),
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'last_post': self.topic1.last_message.pk
@@ -700,8 +701,8 @@ class AnswerViewTest(TestCase):
         )
 
         response = self.client.post(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(self.topic1.pk),
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'last_post': self.topic1.last_message.pk
@@ -715,20 +716,19 @@ class AnswerViewTest(TestCase):
     def test_unicode_title_answer(self):
         """To test unicode title."""
 
-        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
-                                           title=u'Title with accent àéè')
-        unicodeTopic.participants.add(self.profile2.user)
-        unicodePost = PrivatePostFactory(
-            privatetopic=unicodeTopic,
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title=u'Title with accent àéè')
+        unicode_topic.participants.add(self.profile2.user)
+        unicode_post = PrivatePostFactory(
+            privatetopic=unicode_topic,
             author=self.profile1.user,
             position_in_topic=1)
 
         response = self.client.post(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(unicodeTopic.pk),
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(unicode_topic.pk),
             {
                 'text': 'answer',
-                'last_post': unicodePost.pk
+                'last_post': unicode_post.pk
             },
             follow=True
         )
@@ -737,20 +737,19 @@ class AnswerViewTest(TestCase):
     def test_unicode_subtitle_answer(self):
         """To test unicode subtitle."""
 
-        unicodeTopic = PrivateTopicFactory(author=self.profile1.user,
-                                           subtitle=u'Subtitle with accent àéè')
-        unicodeTopic.participants.add(self.profile2.user)
-        unicodePost = PrivatePostFactory(
-            privatetopic=unicodeTopic,
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle=u'Subtitle with accent àéè')
+        unicode_topic.participants.add(self.profile2.user)
+        unicode_post = PrivatePostFactory(
+            privatetopic=unicode_topic,
             author=self.profile1.user,
             position_in_topic=1)
 
         response = self.client.post(
-            reverse('zds.mp.views.answer')
-            + '?sujet=' + str(unicodeTopic.pk),
+            reverse('zds.mp.views.answer') +
+            '?sujet=' + str(unicode_topic.pk),
             {
                 'text': 'answer',
-                'last_post': unicodePost.pk
+                'last_post': unicode_post.pk
             },
             follow=True
         )
@@ -792,8 +791,8 @@ class EditPostViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.edit_post'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.edit_post'), ''))
 
     def test_fail_edit_post_no_get_parameter(self):
 
@@ -814,8 +813,8 @@ class EditPostViewTest(TestCase):
         )
 
         response = self.client.get(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post2.pk)
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post2.pk)
         )
 
         self.assertEqual(200, response.status_code)
@@ -823,8 +822,8 @@ class EditPostViewTest(TestCase):
     def test_fail_edit_post_no_exist(self):
 
         response = self.client.get(
-            reverse('zds.mp.views.edit_post')
-            + '?message=154'
+            reverse('zds.mp.views.edit_post') +
+            '?message=154'
         )
 
         self.assertEqual(404, response.status_code)
@@ -832,8 +831,8 @@ class EditPostViewTest(TestCase):
     def test_fail_edit_post_not_last(self):
 
         response = self.client.get(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post1.pk)
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post1.pk)
         )
 
         self.assertEqual(403, response.status_code)
@@ -841,8 +840,8 @@ class EditPostViewTest(TestCase):
     def test_fail_edit_post_with_no_right(self):
 
         response = self.client.get(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post2.pk)
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post2.pk)
         )
 
         self.assertEqual(403, response.status_code)
@@ -858,8 +857,8 @@ class EditPostViewTest(TestCase):
         )
 
         response = self.client.post(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post2.pk),
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post2.pk),
             {
                 'text': 'update post',
                 'preview': ''
@@ -883,8 +882,8 @@ class EditPostViewTest(TestCase):
         )
 
         response = self.client.post(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post2.pk),
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post2.pk),
             {
                 'text': 'update post',
             },
@@ -901,8 +900,8 @@ class EditPostViewTest(TestCase):
         """ test what happens if the text is not sent """
 
         response = self.client.post(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post2.pk),
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post2.pk),
             {
                 'text': '',
             },
@@ -914,8 +913,8 @@ class EditPostViewTest(TestCase):
         """ test what happens when we preview with no text """
 
         response = self.client.post(
-            reverse('zds.mp.views.edit_post')
-            + '?message=' + str(self.post2.pk),
+            reverse('zds.mp.views.edit_post') +
+            '?message=' + str(self.post2.pk),
             {
                 'preview': '',
             },
@@ -964,8 +963,8 @@ class LeaveViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.leave'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.leave'), ''))
 
     def test_fail_leave_topic_no_exist(self):
 
@@ -1093,8 +1092,8 @@ class AddParticipantViewTest(TestCase):
 
         self.assertRedirects(
             response,
-            reverse('zds.member.views.login_view')
-            + '?next=' + urllib.quote(reverse('zds.mp.views.add_participant'), ''))
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('zds.mp.views.add_participant'), ''))
 
     def test_fail_add_participant_topic_no_exist(self):
 
