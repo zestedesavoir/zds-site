@@ -117,6 +117,37 @@ L'installation de Gulp, ainsi que des différentes dépendances et bibliothèque
 
     npm install
 
+Ajout d'une dépendance
+----------------------
+
+Pour ajouter une dépendance, il suffit de lancer la commande ``npm install <package> --save-exact`` ce qui va ajouter la dépendance dans sa version actuelle au ``package.json``. Si cette dépendance n'est utilisée que pour le développement, il faut rajouter ``--save-dev`` à la commande pour ne pas l'installer en production.
+
+Il ne vous reste plus qu'à faire une *pull request* pour l'intégrer au projet !
+
+Mise à jour des dépendances
+---------------------------
+
+Pour mettre à jour les dépendances à leur dernière version, il est courant d'utiliser ``david``. Nous utilisons aussi la commande ``npm shrinkwrap`` pour minimiser les problèmes lors de l'installation des outils en production.
+
+Il faut donc :
+
+- installer ``david`` avec les droits administrateurs ``sudo npm install -g david`` ;
+- supprimer le fichier ``npm-shrinkwrap.json`` ;
+- mettre à jour les dépendances ``david update`` ;
+- recréer le fichier ``npm-shrinkwrap.json`` avec ``npm shrinkwrap --dev`` ;
+- installer les nouvelles dépendances ``npm update`` ;
+- vérifier que toute les commandes fonctionnent correctement ;
+- faire une *pull request* sur le dépôt.
+
+Pour vérifier que tout se passera bien lors de la prochaine mise en production, il faut :
+
+- se positionner sur la branche de production ``git checkout upstream/prod`` ;
+- supprimer les dépendances ``rm -rI node_modules/`` ;
+- installer les dépendances en mode production ``npm install --production`` ;
+- aller sur la branche contenant les modifications ``git checkout ma-branche`` ;
+- mettre à jour les dépendances ``npm update --production`` ;
+- vérifier que toute les commandes fonctionnent correctement.
+
 Utilisation des outils
 ======================
 
