@@ -231,8 +231,8 @@ def new(request):
     """Creates a new topic in a forum."""
 
     try:
-        forum_pk = request.GET["forum"]
-    except KeyError:
+        forum_pk = int(request.GET["forum"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
@@ -351,8 +351,8 @@ def move_topic(request):
     if not request.user.has_perm("forum.change_topic"):
         raise PermissionDenied
     try:
-        topic_pk = request.GET["sujet"]
-    except KeyError:
+        topic_pk = int(request.GET["sujet"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=request.POST["forum"])
@@ -382,8 +382,8 @@ def edit(request):
     """Edit the given topic."""
 
     try:
-        topic_pk = request.POST["topic"]
-    except KeyError:
+        topic_pk = request.POST['topic']
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     if "page" in request.POST:
@@ -447,8 +447,8 @@ def answer(request):
     """Adds an answer from a user to a topic."""
 
     try:
-        topic_pk = request.GET["sujet"]
-    except KeyError:
+        topic_pk = int(request.GET["sujet"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
 
@@ -576,7 +576,10 @@ def answer(request):
 
         if "cite" in request.GET:
             resp = {}
-            post_cite_pk = request.GET["cite"]
+            try:
+                post_cite_pk = request.GET["cite"]
+            except ValueError:
+                raise Http404
             post_cite = Post.objects.get(pk=post_cite_pk)
             if not post_cite.is_visible:
                 raise PermissionDenied
@@ -757,8 +760,8 @@ def useful_post(request):
     """Marks a message as useful (for the OP)"""
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -784,8 +787,8 @@ def unread_post(request):
     """Marks a message as unread """
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -821,8 +824,8 @@ def like_post(request):
     """Like a post."""
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     resp = {}
@@ -869,8 +872,8 @@ def dislike_post(request):
     """Dislike a post."""
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     resp = {}

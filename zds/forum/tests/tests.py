@@ -140,6 +140,39 @@ class ForumMemberTests(TestCase):
         self.assertContains(response, topic.title)
         self.assertContains(response, topic.subtitle)
 
+    def test_create_topic_failing_param(self):
+        """Testing different failing cases"""
+
+        # With a weird pk
+        result = self.client.post(
+            reverse('zds.forum.views.new') + '?forum=' + 'abc',
+            {'title': u'Un autre sujet',
+             'subtitle': u'Encore ces lombards en plein ete',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # With a missing pk
+        result = self.client.post(
+            reverse('zds.forum.views.new') + '?forum=',
+            {'title': u'Un autre sujet',
+             'subtitle': u'Encore ces lombards en plein ete',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # With a missing parameter
+        result = self.client.post(
+            reverse('zds.forum.views.new'),
+            {'title': u'Un autre sujet',
+             'subtitle': u'Encore ces lombards en plein ete',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             },
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
     def test_answer(self):
         """To test all aspects of answer."""
         user1 = ProfileFactory().user
@@ -210,6 +243,52 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
+
+    def test_failing_answer_cases(self):
+        """To test some failing aspects of answer."""
+        user1 = ProfileFactory().user
+        user2 = ProfileFactory().user
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        post3 = PostFactory(topic=topic1, author=user1, position=3)
+        TopicRead(topic=topic1, user=user1, post=post3).save()
+        TopicRead(topic=topic1, user=user2, post=post3).save()
+        TopicRead(topic=topic1, user=self.user, post=post3).save()
+        TopicFollowed(topic=topic1, user=user1, email=True).save()
+        TopicFollowed(topic=topic1, user=user2, email=True).save()
+        TopicFollowed(topic=topic1, user=self.user, email=True).save()
+
+        # missing parameter
+        result = self.client.post(
+            reverse('zds.forum.views.answer'),
+            {
+                'last_post': topic1.last_message.pk,
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # weird parameter
+        result = self.client.post(
+            reverse('zds.forum.views.answer') + '?sujet=' + 'abc',
+            {
+                'last_post': topic1.last_message.pk,
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # non-existing (yet) parameter
+        result = self.client.post(
+            reverse('zds.forum.views.answer') + '?sujet=' + '424242',
+            {
+                'last_post': topic1.last_message.pk,
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
 
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by member."""
@@ -500,6 +579,32 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
+    def test_failing_like_post(self):
+        """Test failing cases when a member like any post."""
+
+        # parameter is missing
+        result = self.client.post(
+            reverse('zds.forum.views.like_post'),
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # parameter is weird
+        result = self.client.post(
+            reverse('zds.forum.views.like_post') +
+            '?message=' + 'abc',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # pk doesn't (yet) exist
+        result = self.client.post(
+            reverse('zds.forum.views.like_post') +
+            '?message=' + '424242',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
     def test_dislike_post(self):
         """Test when a member dislike any post."""
         user1 = ProfileFactory().user
@@ -561,6 +666,32 @@ class ForumMemberTests(TestCase):
             CommentDislike.objects.filter(
                 comments__pk=post3.pk).all().count(),
             0)
+
+    def test_failing_dislike_post(self):
+        """Test failing cases when a member dislike any post."""
+
+        # parameter is missing
+        result = self.client.post(
+            reverse('zds.forum.views.dislike_post'),
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # parameter is weird
+        result = self.client.post(
+            reverse('zds.forum.views.dislike_post') +
+            '?message=' + 'abc',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # pk doesn't (yet) exist
+        result = self.client.post(
+            reverse('zds.forum.views.dislike_post') +
+            '?message=' + '424242',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
 
     def test_useful_post(self):
         """To test when a member mark a post is usefull."""
@@ -625,6 +756,32 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
 
+    def test_failing_useful_post(self):
+        """To test some failing cases when a member mark a post is useful."""
+
+        # missing parameter
+        result = self.client.post(
+            reverse('zds.forum.views.useful_post'),
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # weird parameter
+        result = self.client.post(
+            reverse('zds.forum.views.useful_post') +
+            '?message=' + 'abc',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # not existing (yet) pk parameter
+        result = self.client.post(
+            reverse('zds.forum.views.useful_post') +
+            '?message=' + '424242',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
     def test_move_topic(self):
         """Test topic move."""
         user1 = ProfileFactory().user
@@ -667,6 +824,51 @@ class ForumMemberTests(TestCase):
             Topic.objects.get(
                 pk=topic1.pk).forum.pk,
             self.forum12.pk)
+
+    def test_failing_moving_topic(self):
+        """Test some failing case when playing with the "move topic" feature"""
+        user1 = ProfileFactory().user
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        PostFactory(topic=topic1, author=self.user, position=1)
+        PostFactory(topic=topic1, author=user1, position=2)
+        PostFactory(topic=topic1, author=self.user, position=3)
+
+        # log as staff
+        staff1 = StaffProfileFactory().user
+        self.assertEqual(
+            self.client.login(
+                username=staff1.username,
+                password='hostel77'),
+            True)
+
+        # missing parameter
+        result = self.client.post(
+            reverse('zds.forum.views.move_topic'),
+            {
+                'forum': self.forum12.pk},
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # weird parameter
+        result = self.client.post(
+            reverse('zds.forum.views.move_topic') +
+            '?sujet=' + 'abc',
+            {
+                'forum': self.forum12.pk},
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # non-existing (yet) parameter
+        result = self.client.post(
+            reverse('zds.forum.views.move_topic') +
+            '?sujet=' + '424242',
+            {
+                'forum': self.forum12.pk},
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
 
     def test_answer_empty(self):
         """Test behaviour on empty answer."""
@@ -771,6 +973,32 @@ class ForumMemberTests(TestCase):
                     slugify(topic1.title)]),
             follow=True)
         self.assertEqual(result.status_code, 200)
+
+    def test_failing_unread_post(self):
+        """Test failing cases when a member try to mark as unread a post."""
+
+        # parameter is missing
+        result = self.client.get(
+            reverse('zds.forum.views.unread_post'),
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # parameter is weird
+        result = self.client.get(
+            reverse('zds.forum.views.unread_post') +
+            '?message=' + 'abc',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
+        # pk doesn't (yet) exist
+        result = self.client.get(
+            reverse('zds.forum.views.unread_post') +
+            '?message=' + '424242',
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
 
 
 class ForumGuestTests(TestCase):

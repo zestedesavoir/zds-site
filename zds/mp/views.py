@@ -277,8 +277,8 @@ def edit(request):
 def answer(request):
     """Adds an answer from an user to a topic."""
     try:
-        topic_pk = request.GET['sujet']
-    except KeyError:
+        topic_pk = int(request.GET['sujet'])
+    except (KeyError, ValueError):
         raise Http404
 
     # Retrieve current topic.
@@ -390,7 +390,10 @@ def answer(request):
         # Using the quote button
         if 'cite' in request.GET:
             resp = {}
-            post_cite_pk = request.GET['cite']
+            try:
+                post_cite_pk = int(request.GET['cite'])
+            except ValueError:
+                raise Http404
             post_cite = get_object_or_404(PrivatePost, pk=post_cite_pk)
 
             for line in post_cite.text.splitlines():
@@ -421,8 +424,8 @@ def answer(request):
 def edit_post(request):
     """Edit the given user's post."""
     try:
-        post_pk = request.GET['message']
-    except KeyError:
+        post_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
 
     post = get_object_or_404(PrivatePost, pk=post_pk)

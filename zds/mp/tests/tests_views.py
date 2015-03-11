@@ -660,11 +660,28 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
+    def test_mess_with_cite_post_param(self):
+
+        response = self.client.get(
+            reverse('zds.mp.views.answer') + '?sujet=' + str(self.topic1.pk) + '&cite=' + 'abc',
+            {}
+        )
+
+        self.assertEqual(404, response.status_code)
+
+    def test_non_exist_pk_cite_param(self):
+
+        response = self.client.get(
+            reverse('zds.mp.views.answer') + '?sujet=' + str(self.topic1.pk) + '&cite=' + '42424242',
+            {}
+        )
+
+        self.assertEqual(404, response.status_code)
+
     def test_success_preview_answer(self):
 
         response = self.client.post(
-            reverse('zds.mp.views.answer') +
-            '?sujet=' + str(self.topic1.pk),
+            reverse('zds.mp.views.answer') + '?sujet=' + str(self.topic1.pk),
             {
                 'text': 'answer',
                 'preview': '',
@@ -922,6 +939,18 @@ class EditPostViewTest(TestCase):
         )
         self.assertEqual(403, response.status_code)
         # 403 because resend the same view without the preview parameter
+
+    def test_mess_with_params(self):
+        """ test what happen when we mess with the params """
+
+        response = self.client.post(
+            reverse('zds.mp.views.edit_post') + '?message=' + 'abc',
+            {
+                'text': 'update post',
+            },
+            follow=True
+        )
+        self.assertEqual(404, response.status_code)
 
 
 class LeaveViewTest(TestCase):

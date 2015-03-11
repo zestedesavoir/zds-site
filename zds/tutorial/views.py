@@ -123,7 +123,7 @@ def list_validation(request):
 
     try:
         subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
+    except (KeyError, ValueError, Http404):
         subcategory = None
 
     # Orphan validation. There aren't validator attached to the validations.
@@ -248,7 +248,7 @@ def history_validation(request, tutorial_pk):
 
     try:
         subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
+    except (KeyError, ValueError, Http404):
         subcategory = None
     if subcategory is None:
         validations = \
@@ -1160,8 +1160,8 @@ def edit_tutorial(request):
     # Retrieve current tutorial;
 
     try:
-        tutorial_pk = request.GET["tutoriel"]
-    except KeyError:
+        tutorial_pk = int(request.GET["tutoriel"])
+    except (KeyError, ValueError):
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
@@ -1429,8 +1429,8 @@ def add_part(request):
     """Add a new part."""
 
     try:
-        tutorial_pk = request.GET["tutoriel"]
-    except KeyError:
+        tutorial_pk = int(request.GET["tutoriel"])
+    except (KeyError, ValueError):
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
@@ -1551,9 +1551,7 @@ def edit_part(request):
 
     try:
         part_pk = int(request.GET["partie"])
-    except KeyError:
-        raise Http404
-    except ValueError:
+    except (KeyError, ValueError):
         raise Http404
 
     part = get_object_or_404(Part, pk=part_pk)
@@ -1836,8 +1834,8 @@ def add_chapter(request):
     """Add a new chapter to given part."""
 
     try:
-        part_pk = request.GET["partie"]
-    except KeyError:
+        part_pk = int(request.GET["partie"])
+    except (KeyError, ValueError):
         raise Http404
     part = get_object_or_404(Part, pk=part_pk)
 
@@ -2002,9 +2000,7 @@ def edit_chapter(request):
 
     try:
         chapter_pk = int(request.GET["chapitre"])
-    except KeyError:
-        raise Http404
-    except ValueError:
+    except (KeyError, ValueError):
         raise Http404
 
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
@@ -2091,9 +2087,7 @@ def add_extract(request):
 
     try:
         chapter_pk = int(request.GET["chapitre"])
-    except KeyError:
-        raise Http404
-    except ValueError:
+    except (KeyError, ValueError):
         raise Http404
 
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
@@ -2152,8 +2146,8 @@ def add_extract(request):
 def edit_extract(request):
     """Edit extract."""
     try:
-        extract_pk = request.GET["extrait"]
-    except KeyError:
+        extract_pk = int(request.GET["extrait"])
+    except (KeyError, ValueError):
         raise Http404
     extract = get_object_or_404(Extract, pk=extract_pk)
     part = extract.chapter.part
@@ -2954,7 +2948,10 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download a tutorial."""
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    except (KeyError, ValueError):
+        raise Http404
 
     repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], tutorial.get_phy_slug())
     repo = Repo(repo_path)
@@ -2977,8 +2974,10 @@ def download(request):
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 def download_markdown(request):
     """Download a markdown tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=int(request.GET["tutoriel"]))
+    except:
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -2994,7 +2993,10 @@ def download_markdown(request):
 def download_html(request):
     """Download a pdf tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=int(request.GET["tutoriel"]))
+    except (KeyError, ValueError):
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3012,7 +3014,10 @@ def download_html(request):
 def download_pdf(request):
     """Download a pdf tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=int(request.GET["tutoriel"]))
+    except (KeyError, ValueError):
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3030,7 +3035,10 @@ def download_pdf(request):
 def download_epub(request):
     """Download an epub tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    except (KeyError, ValueError):
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3277,8 +3285,8 @@ def answer(request):
     """Adds an answer from a user to an tutorial."""
 
     try:
-        tutorial_pk = request.GET["tutorial"]
-    except KeyError:
+        tutorial_pk = int(request.GET["tutorial"])
+    except (KeyError, ValueError):
         raise Http404
 
     # Retrieve current tutorial.
@@ -3371,7 +3379,10 @@ def answer(request):
 
         if "cite" in request.GET:
             resp = {}
-            note_cite_pk = request.GET["cite"]
+            try:
+                note_cite_pk = request.GET["cite"]
+            except ValueError:
+                raise Http404
             note_cite = Note.objects.get(pk=note_cite_pk)
             if not note_cite.is_visible:
                 raise PermissionDenied
@@ -3460,8 +3471,8 @@ def edit_note(request):
     """Edit the given user's note."""
 
     try:
-        note_pk = request.GET["message"]
-    except KeyError:
+        note_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         raise Http404
     note = get_object_or_404(Note, pk=note_pk)
     g_tutorial = None
@@ -3542,8 +3553,8 @@ def edit_note(request):
 def like_note(request):
     """Like a note."""
     try:
-        note_pk = request.GET["message"]
-    except KeyError:
+        note_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         raise Http404
     resp = {}
     note = get_object_or_404(Note, pk=note_pk)
@@ -3587,8 +3598,8 @@ def dislike_note(request):
     """Dislike a note."""
 
     try:
-        note_pk = request.GET["message"]
-    except KeyError:
+        note_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         raise Http404
     resp = {}
     note = get_object_or_404(Note, pk=note_pk)
