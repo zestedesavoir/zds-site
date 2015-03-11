@@ -132,3 +132,12 @@ Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les 
 ```python
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
 ```
+
+Issue #2058
+-----------
+
+Rajouter cette propriété dans le fichier `zds/settings_prod.py` :
+
+```
+ZDS_APP['site']['gaTrackingId'] = "UA-27730868-1:GTM-WH7642"
+```
