@@ -25,6 +25,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
+from zds.utils.models import CommentLike
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -268,6 +269,12 @@ class MemberTests(TestCase):
         edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
         edited_answer.editor = user.user
         edited_answer.save()
+
+        upvoted_answer = PostFactory(topic=answered_topic, author=user2.user, position=4)
+        upvoted_answer.like += 1
+        upvoted_answer.save()
+        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
+
         private_topic = PrivateTopicFactory(author=user.user)
         private_topic.participants.add(user2.user)
         private_topic.save()
@@ -342,6 +349,8 @@ class MemberTests(TestCase):
         self.assertEquals(alone_gallery.get_linked_users().count(), 1)
         self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
