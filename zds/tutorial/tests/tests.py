@@ -4,6 +4,8 @@ import os
 import shutil
 import tempfile
 import zipfile
+import datetime
+
 from git import Repo
 try:
     import ujson as json_reader
@@ -18,6 +20,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib import messages
 
 from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -33,10 +36,14 @@ from zds.utils.models import SubCategory, Licence, Alert, HelpWriting
 from zds.utils.misc import compute_hash
 
 
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['tutorial']['repo_path'] = os.path.join(SITE_ROOT, 'tutoriels-private-test')
+overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(SITE_ROOT, 'tutoriels-public-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+
+
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class BigTutorialTests(TestCase):
 
     def setUp(self):
@@ -64,31 +71,36 @@ class BigTutorialTests(TestCase):
         self.bigtuto.licence = self.licence
         self.bigtuto.save()
 
-        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1)
-        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2)
-        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3)
+        self.part1 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=1, light=True)
+        self.part2 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=2, light=True)
+        self.part3 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=3, light=True)
 
         self.chapter1_1 = ChapterFactory(
             part=self.part1,
             position_in_part=1,
-            position_in_tutorial=1)
+            position_in_tutorial=1,
+            light=True)
         self.chapter1_2 = ChapterFactory(
             part=self.part1,
             position_in_part=2,
-            position_in_tutorial=2)
+            position_in_tutorial=2,
+            light=True)
         self.chapter1_3 = ChapterFactory(
             part=self.part1,
             position_in_part=3,
-            position_in_tutorial=3)
+            position_in_tutorial=3,
+            light=True)
 
         self.chapter2_1 = ChapterFactory(
             part=self.part2,
             position_in_part=1,
-            position_in_tutorial=4)
+            position_in_tutorial=4,
+            light=True)
         self.chapter2_2 = ChapterFactory(
             part=self.part2,
             position_in_part=2,
-            position_in_tutorial=5)
+            position_in_tutorial=5,
+            light=True)
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
@@ -274,7 +286,7 @@ class BigTutorialTests(TestCase):
                             "zip",
                             os.path.join(temp, self.bigtuto.get_phy_slug()))
 
-        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")))
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")))
 
         # import zip archive
         result = self.client.post(
@@ -283,7 +295,7 @@ class BigTutorialTests(TestCase):
                 'file': open(
                     os.path.join(
                         temp,
-                        os.path.join(temp, self.bigtuto.get_phy_slug()+".zip")),
+                        os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")),
                     'r'),
                 'tutorial': self.bigtuto.pk,
                 'import-archive': "importer"},
@@ -294,6 +306,38 @@ class BigTutorialTests(TestCase):
         # delete temporary data directory
         shutil.rmtree(temp)
         os.remove(zip_path)
+
+    def test_fail_import_archive(self):
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        temp = os.path.join(tempfile.gettempdir(), "temp")
+        if not os.path.exists(temp):
+            os.makedirs(temp, mode=0777)
+
+        # test fail import
+        with open(os.path.join(temp, 'test.py'), 'a') as f:
+            f.write('something')
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.import_tuto'),
+            {
+                'file': open(
+                    os.path.join(
+                        temp,
+                        'test.py'),
+                    'r'),
+                'tutorial': self.bigtuto.pk,
+                'import-archive': "importer"},
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # delete temporary data directory
+        shutil.rmtree(temp)
 
     def test_add_note(self):
         """To test add note for tutorial."""
@@ -2483,6 +2527,294 @@ class BigTutorialTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(online_zip_path)
 
+    def test_change_update(self):
+        """test the change of `tutorial.update` if part/chapter/extract are modified (ensure #1715) """
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first, ensure the modification
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertEqual(tutorial.update, time_0)
+
+        # add part (implicit call to `maj_repo_part()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tutorial.pk),
+            {
+                'title': u"Une nouvelle partie",
+                'introduction': "Expérimentation",
+                'conclusion': "C'est terminé",
+                'msg_commit': u"Nouvelle partie"
+            },
+            follow=False)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # edit part (implicit call to `maj_repo_part()`)
+        part = Part.objects.filter(tutorial=tutorial).last()
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(part.pk),
+            {
+                'title': u"Cette partie a changé de nom",
+                'introduction': u"Expérimentation : edition d'introduction",
+                'conclusion': u"C'est terminé : edition de conlusion",
+                'msg_commit': u"Changement de la partie",
+                "last_hash": compute_hash([os.path.join(part.tutorial.get_path(), part.introduction),
+                                           os.path.join(part.tutorial.get_path(), part.conclusion)])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # add chapter  (implicit call to `maj_repo_chapter()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(part.pk),
+            {
+                'title': u"Cuisine des agrumes sur ZdS",
+                'introduction': "Mon premier chapitre",
+                'conclusion': "Fin de mon premier chapitre",
+                'msg_commit': u"Initialisation du chapitre 1"
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # edit chapter (implicit call to `maj_repo_chapter()`)
+        chapter = Chapter.objects.filter(part=part).last()
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(chapter.pk),
+            {
+                'title': u"Le respect des agrumes sur ZdS",
+                'introduction': u"Edition d'introduction",
+                'conclusion': u"Edition de conlusion",
+                'msg_commit': u"MàJ du chapitre 2 : le respect des agrumes sur ZdS",
+                "last_hash": compute_hash([
+                    os.path.join(chapter.get_path(), "introduction.md"),
+                    os.path.join(chapter.get_path(), "conclusion.md")])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # add another extract (implicit call to `maj_repo_extract()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(chapter.pk),
+            {
+                'title': u'Un second extrait',
+                'text': u'Comment extraire le jus des agrumes ? Est-ce torturer Clem ?'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        tutorial = Tutorial.objects.get(pk=self.bigtuto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # edit extract (implicit call to `maj_repo_extract()`)
+        extract = chapter.get_extracts()[0]
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
+            {
+                'title': u"Extrait 2 : edition de titre",
+                'text': u"On ne torture pas les agrumes !",
+                "last_hash": compute_hash([os.path.join(extract.get_path())])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotEqual(Tutorial.objects.get(pk=self.bigtuto.pk), time_0)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in tutorial
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es nul'
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            {
+                'explication': u'ceci est un test',
+                'version_tutorial': self.bigtuto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': self.bigtuto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.bigtuto.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"chapter", self.chapter1_1.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': self.bigtuto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.chapter1_1.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # induce a change and put in beta :
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(self.chapter1_1.pk),
+            {
+                'title': u'Un nouveau titre d\'extrait',
+                'text': u'I do not fear computers. I fear the lack of them. (I. Asimov)'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
+        response = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': self.bigtuto.pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial in beta version
+        sha_beta = Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': sha_beta
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta(),
+                      sent_pm.last_message.text)  # beta url is in message !
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"chapter", self.chapter1_1.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': sha_beta
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url() + '?version=' + sha_beta,
+                      sent_pm.last_message.text)  # public url is in message
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
             shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
@@ -2495,9 +2827,7 @@ class BigTutorialTests(TestCase):
 
 
 @override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
-@override_settings(REPO_PATH=os.path.join(SITE_ROOT, 'tutoriels-private-test'))
-@override_settings(REPO_PATH_PROD=os.path.join(SITE_ROOT, 'tutoriels-public-test'))
-@override_settings(REPO_ARTICLE_PATH=os.path.join(SITE_ROOT, 'articles-data-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
 class MiniTutorialTests(TestCase):
 
     def setUp(self):
@@ -2529,7 +2859,8 @@ class MiniTutorialTests(TestCase):
 
         self.chapter = ChapterFactory(
             tutorial=self.minituto,
-            position_in_tutorial=1)
+            position_in_tutorial=1,
+            light=True)
 
         self.staff = StaffProfileFactory().user
 
@@ -2625,7 +2956,7 @@ class MiniTutorialTests(TestCase):
                             "zip",
                             os.path.join(temp, self.minituto.get_phy_slug()))
 
-        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug()+".zip")))
+        self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug() + ".zip")))
         # import zip archive
         result = self.client.post(
             reverse('zds.tutorial.views.import_tuto'),
@@ -2633,7 +2964,7 @@ class MiniTutorialTests(TestCase):
                 'file': open(
                     os.path.join(
                         temp,
-                        os.path.join(temp, self.minituto.get_phy_slug()+".zip")),
+                        os.path.join(temp, self.minituto.get_phy_slug() + ".zip")),
                     'r'),
                 'tutorial': self.minituto.pk,
                 'import-archive': "importer"},
@@ -2644,6 +2975,38 @@ class MiniTutorialTests(TestCase):
         # delete temporary data directory
         shutil.rmtree(temp)
         os.remove(zip_path)
+
+    def test_fail_import_archive(self):
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        temp = os.path.join(tempfile.gettempdir(), "temp")
+        if not os.path.exists(temp):
+            os.makedirs(temp, mode=0777)
+
+        # test fail import
+        with open(os.path.join(temp, 'test.py'), 'a') as f:
+            f.write('something')
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.import_tuto'),
+            {
+                'file': open(
+                    os.path.join(
+                        temp,
+                        'test.py'),
+                    'r'),
+                'tutorial': self.minituto.pk,
+                'import-archive': "importer"},
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # delete temporary data directory
+        shutil.rmtree(temp)
 
     def test_add_extract_named_introduction(self):
         """test the use of an extract named introduction"""
@@ -4029,6 +4392,191 @@ class MiniTutorialTests(TestCase):
             self.assertEqual(200, response.status_code)
             tutos = response.context['tutorials']
             self.assertEqual(len(tutos), 1)
+
+        # test pagination page doesn't exist
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            u'?page=1534',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)
+
+        # test pagination page not an integer
+        response = self.client.post(
+            reverse('zds.tutorial.views.help_tutorial') +
+            u'?page=abcd',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)
+
+    def test_change_update(self):
+        """test the change of `tutorial.update` if extract is modified (ensure #1715)"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        time_0 = datetime.datetime.fromtimestamp(0)  # way deep in the past
+        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # first check if this modification is performed :
+        self.assertEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
+
+        # test adding a new extract (implicit call to `maj_repo_extract()`)
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') +
+            '?chapitre={0}'.format(
+                self.chapter.pk),
+            {
+                'title': u'Un deuxieme extrait',
+                'text': u'Attention aux épines, ça pique !!'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        tutorial = Tutorial.objects.get(pk=self.minituto.pk)
+        self.assertNotEqual(tutorial.update, time_0)
+        tutorial.update = time_0
+        tutorial.save()
+
+        # test the extract edition (also implicit call to `maj_repo_extract()`) :
+        extract = self.chapter.get_extracts().last()
+        result = self.client.post(
+            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
+            {
+                'title': u"Un autre titre",
+                'text': u"j'ai changé d'avis, je vais mettre un sapin synthétique",
+                "last_hash": compute_hash([extract.get_path()])
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotEqual(Tutorial.objects.get(pk=self.minituto.pk).update, time_0)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in tutorial
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es nul'
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            {
+                'explication': u'ceci est un test',
+                'version_tutorial': self.minituto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': self.minituto.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.minituto.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # induce a change and put in beta :
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(self.chapter.pk),
+            {
+                'title': u'Un nouveau titre d\'extrait',
+                'text': u'Linux is like sex, it\'s better when it\'s free (L. Torvald)'
+            })
+        self.assertEqual(result.status_code, 302)
+
+        sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
+        response = self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': self.minituto.pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial in beta version
+        result = self.client.post(
+            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            {
+                'explication': typo_text,
+                'version_tutorial': Tutorial.objects.get(pk=self.minituto.pk).sha_beta
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta(),
+                      sent_pm.last_message.text)  # beta url is in message !
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):

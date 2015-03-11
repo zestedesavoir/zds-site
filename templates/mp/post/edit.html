@@ -11,7 +11,7 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{{ post.topic.get_absolute_url }}">{{ post.privatetopic.title }}</a></li>
+    <li><a href="{{ post.privatetopic.get_absolute_url }}">{{ post.privatetopic.title }}</a></li>
     <li>{% trans "Éditer un message" %}</li>
 {% endblock %}
 
@@ -37,7 +37,7 @@
 
         {% include "misc/message_form.html" with member=user %}
     {% endcomment %}
-    
+
     {% crispy form %}
 
     {% if form.text.value %}
@@ -48,13 +48,10 @@
 
 
 {% block sidebar_actions %}
-    <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
-        <h3>{% trans "Actions" %}</h3>
-        <ul>
-            {% if user.is_authenticated %}
-                <li><a href="{% url "zds.mp.views.new" %}">{% trans "Nouvelle conversation" %}</a></li>
-            {% endif %}
-            {% if topic.author == user %}
+    {% if topic.author == user %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Actions">
+            <h3>{% trans "Actions" %}</h3>
+            <ul>
                 <li>
                     <a href="#add-participant" class="open-modal">{% trans "Ajouter un membre" %}</a>
                     <form action="{% url "zds.mp.views.add_participant" %}" method="post" id="add-participant" class="modal modal-medium">
@@ -67,10 +64,10 @@
                         {% csrf_token %}
                         <button type="submit">{% trans "Ajouter" %}</button>
                     </form>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
+                    </li>
+            </ul>
+        </div>
+    {% endif %}
     <div class="mobile-menu-bloc mobile-all-links" data-title="Participants">
         <h3>{% trans "Participants" %}</h3>
         <ul>

@@ -689,11 +689,11 @@ class ForumMemberTests(TestCase):
 
     def test_add_tag(self):
 
-        TagCSharp = TagFactory(title="C#")
+        tag_c_sharp = TagFactory(title="C#")
 
-        TagC = TagFactory(title="C")
-        self.assertEqual(TagCSharp.slug, TagC.slug)
-        self.assertNotEqual(TagCSharp.title, TagC.title)
+        tag_c = TagFactory(title="C")
+        self.assertEqual(tag_c_sharp.slug, tag_c.slug)
+        self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(
             reverse('zds.forum.views.new') + '?forum={0}'
@@ -708,24 +708,24 @@ class ForumMemberTests(TestCase):
         # test the topic is added to the good tag
 
         self.assertEqual(Topic.objects.filter(
-            tags__in=[TagCSharp])
+            tags__in=[tag_c_sharp])
             .order_by("-last_message__pubdate").prefetch_related(
             "tags").count(), 1)
-        self.assertEqual(Topic.objects.filter(tags__in=[TagC])
+        self.assertEqual(Topic.objects.filter(tags__in=[tag_c])
                          .order_by("-last_message__pubdate").prefetch_related(
             "tags").count(), 0)
-        topicWithConflictTags = TopicFactory(
+        topic_with_conflict_tags = TopicFactory(
             forum=self.forum11, author=self.user)
-        topicWithConflictTags.title = u"[C][c][ c][C ]name"
-        (tags, title) = get_tag_by_title(topicWithConflictTags.title)
-        topicWithConflictTags.add_tags(tags)
-        self.assertEqual(topicWithConflictTags.tags.all().count(), 1)
-        topicWithConflictTags = TopicFactory(
+        topic_with_conflict_tags.title = u"[C][c][ c][C ]name"
+        (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
+        topic_with_conflict_tags.add_tags(tags)
+        self.assertEqual(topic_with_conflict_tags.tags.all().count(), 1)
+        topic_with_conflict_tags = TopicFactory(
             forum=self.forum11, author=self.user)
-        topicWithConflictTags.title = u"[][ ][	]name"
-        (tags, title) = get_tag_by_title(topicWithConflictTags.title)
-        topicWithConflictTags.add_tags(tags)
-        self.assertEqual(topicWithConflictTags.tags.all().count(), 0)
+        topic_with_conflict_tags.title = u"[][ ][	]name"
+        (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
+        topic_with_conflict_tags.add_tags(tags)
+        self.assertEqual(topic_with_conflict_tags.tags.all().count(), 0)
 
     def test_mandatory_fields_on_new(self):
         """Test handeling of mandatory fields on new topic creation."""

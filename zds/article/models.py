@@ -24,6 +24,7 @@ import json as json_writer
 from django.contrib.auth.models import User
 from datetime import datetime
 
+from zds.article.managers import ArticleManager
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article, get_blob
@@ -89,6 +90,8 @@ class Article(models.Model):
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)
+
+    objects = ArticleManager()
 
     def __unicode__(self):
         return self.title
@@ -171,6 +174,7 @@ class Article(models.Model):
                                                       args=[self.pk, self.slug])
         article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online',
                                                              args=[self.pk, slugify(article_version['title'])])
+        article_version['update'] = self.update
 
         return article_version
 

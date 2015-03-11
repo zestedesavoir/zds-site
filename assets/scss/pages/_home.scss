@@ -1,0 +1,107 @@
+.home-wrapper {
+    position: relative;
+    max-width: 1100px;
+    padding: 0 15px;
+    margin: 0 auto;
+}
+.home-quote {
+    width: 100%;
+    min-height: 24px;
+    background: #e9e7e4; // @TODO: Color
+
+    blockquote {
+        color: #0b668e; // @TODO: Color
+        font-style: italic;
+        margin: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    &.home-simple-quote {
+        padding: 20px 0;
+
+        img {
+            position: absolute;
+            height: 80px;
+            top: -15px;
+            left: -20px;
+        }
+
+        blockquote {
+            margin: 0;
+            font-size: 16px;
+            font-size: 1.6rem;
+        }
+    }
+
+    &.home-full-description {
+        padding: 20px 0;
+        min-height: 210px;
+        text-align: center;
+
+        img {
+            margin: 0 0 15px -100px;
+        }
+
+        .home-full-description-text {
+            line-height: 18px;
+            text-align: left;
+
+            h2 {
+                font-size: 22px;
+                font-size: 2.2rem;
+                line-height: 38px;
+                line-height: 3.8rem;
+                color: $color-primary;
+                font-weight: normal;
+                border-bottom: 1px solid #F8AD32;
+                margin-top: 0;
+            }
+
+            blockquote {
+                color: #0b668e;
+                font-style: italic;
+                font-size: 18px;
+                font-size: 1.8rem;
+                margin: 0;
+            }
+
+            p:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+@media only screen and #{$media-wide} {
+    .home-quote {
+        blockquote {
+            text-align: left;
+        }
+
+        &.home-simple-quote {
+            img {
+                height: 80px;
+                top: -15px;
+                left: 150px;
+                margin-left: -10px;
+            }
+
+            blockquote {
+                margin: 0 0 0 300px;
+                width: auto;
+            }
+        }
+
+        &.home-full-description {
+            img {
+                float: left;
+                margin: 15px 0 0 -15px;
+            }
+
+            .home-full-description-text {
+                margin-left: 300px;
+            }
+        }
+    }
+}

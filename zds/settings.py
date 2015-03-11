@@ -1,7 +1,9 @@
 # coding: utf-8
 
 import os
+
 from django.utils.translation import gettext_lazy as _
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -109,6 +111,8 @@ FILE_UPLOAD_HANDLERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    # CorsMiddleware needs to be before CommonMiddleware.
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -166,10 +170,13 @@ INSTALLED_APPS = (
     'easy_thumbnails.optimize',
     'south',
     'crispy_forms',
-    'email_obfuscator',
     'haystack',
     'munin',
     'social.apps.django_app.default',
+    'rest_framework',
+    'rest_framework_swagger',
+    'corsheaders',
+    'oauth2_provider',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -203,6 +210,76 @@ THUMBNAIL_ALIASES = {
         'content': {'size': (960, 960), 'crop': False},
     },
 }
+
+REST_FRAMEWORK = {
+    # If the pagination isn't specify in the API, its configuration is
+    # specified here.
+    'PAGINATE_BY': 10,                 # Default to 10
+    'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
+    'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
+    # Active OAuth2 authentication.
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.XMLParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.XMLRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '60/hour',
+        'user': '2000/hour'
+    }
+}
+
+REST_FRAMEWORK_EXTENSIONS = {
+    # If the cache isn't specify in the API, the time of the cache
+    # is specified here in seconds.
+    'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 15
+}
+
+SWAGGER_SETTINGS = {
+    'enabled_methods': [
+        'get',
+        'post',
+        'put',
+        'delete'
+    ]
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_METHODS = (
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+)
+
+CORS_ALLOW_HEADERS = (
+    'x-requested-with',
+    'content-type',
+    'accept',
+    'origin',
+    'authorization',
+    'x-csrftoken',
+    'x-data-format'
+)
+
+CORS_EXPOSE_HEADERS = (
+    'etag',
+    'link'
+)
 
 if (DEBUG):
     INSTALLED_APPS += (
@@ -267,7 +344,7 @@ PANDOC_LOG_STATE = False
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
-        'URL': 'http://127.0.0.1:8983/solr'
+        'URL': 'http://127.0.0.1:8983/solr/'
         # ...or for multicore...
         # 'URL': 'http://127.0.0.1:8983/solr/mysite',
     },
@@ -301,12 +378,13 @@ ZDS_APP = {
         'email_contact': u"communication@zestedesavoir.com",
         'email_noreply': u"noreply@zestedesavoir.com",
         'repository': u"https://github.com/zestedesavoir/zds-site",
+        'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
+        'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
         'short_description': u"",
         'long_description': u"Zeste de Savoir est un site de partage de connaissances "
                             u"sur lequel vous trouverez des tutoriels de tous niveaux, "
                             u"des articles et des forums d'entraide animés par et pour "
                             u"la communauté.",
-        'year': u"2014",
         'association': {
             'name': u"Zeste de Savoir",
             'fee': u"30 €",
@@ -334,16 +412,17 @@ ZDS_APP = {
                 'code': u"GPL v3",
                 'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
                 'provider_name': u"Progdupeupl",
-                'provider_url': u"http://progdupeu.pl",
+                'provider_url': u"http://pdp.microjoe.org",
             },
-            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+            'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
+                                  u'ences-sur-zeste-de-savoir/',
             'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
             'name': u"OVH",
             'address': u"2 rue Kellermann - 59100 Roubaix - France"
         },
-	'social': {
+        'social': {
             'facebook': u'https://www.facebook.com/ZesteDeSavoir',
             'twitter': u'https://twitter.com/ZesteDeSavoir',
             'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
@@ -354,6 +433,7 @@ ZDS_APP = {
         'bot_account': u"admin",
         'anonymous_account': u"anonymous",
         'external_account': u"external",
+        'bot_group': u'bot',
         'members_per_page': 100,
     },
     'gallery': {
@@ -368,6 +448,7 @@ ZDS_APP = {
         'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
         'default_license_pk': 7,
         'home_number': 5,
+        'helps_per_page': 20
     },
     'forum': {
         'posts_per_page': 21,
@@ -378,8 +459,9 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+        'home_number': 5,
     },
-    'paginator':{
+    'paginator': {
         'folding_limit': 4
     }
 }
@@ -388,7 +470,6 @@ LOGIN_REDIRECT_URL = "/"
 
 AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
                            'social.backends.google.GoogleOAuth2',
-                           'social.backends.twitter.TwitterOAuth',
                            'django.contrib.auth.backends.ModelBackend')
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
 
@@ -408,8 +489,6 @@ SOCIAL_AUTH_PIPELINE = (
 # redefine for real key and secret code
 SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
-SOCIAL_AUTH_TWITTER_KEY = "bVWLd2pDe6F12SXRa5FQyVTze"
-SOCIAL_AUTH_TWITTER_SECRET = "pwdQ3trdMdT7Y669aKRwVM6tivrYsx3psbFnRJ5Tq4Wy1VjBNk"
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
 

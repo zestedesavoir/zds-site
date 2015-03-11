@@ -9,8 +9,7 @@ except ImportError:
         import simplejson as json_reader
     except ImportError:
         import json as json_reader
-import json
-import json as json_writer
+import json as json_writter
 import os
 import shutil
 import zipfile
@@ -25,8 +24,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -41,6 +40,7 @@ from zds.utils.models import SubCategory, Category, CommentLike, \
 from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
+from django.utils.translation import ugettext as _
 
 from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
@@ -427,6 +427,8 @@ def maj_repo_article(
         action=None,
         msg=None,):
 
+    article.update = datetime.now()
+
     if action == 'del':
         shutil.rmtree(old_slug_path)
     else:
@@ -477,7 +479,11 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    try:
+        article_id = int(request.GET["article"])
+    except (KeyError, ValueError):
+        raise Http404
+    article = get_object_or_404(Article, pk=article_id)
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
@@ -531,7 +537,7 @@ def modify(request):
                 article.pubdate = None
                 article.save()
 
-                comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
+                comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
                 # send feedback
                 msg = (
                     u'Désolé, le zeste **{0}** '
@@ -714,11 +720,14 @@ def modify(request):
                 article.slug
             ])
 
-            author_username = request.POST['author']
+            author_username = request.POST['author'].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
 
             article.authors.add(author)
@@ -947,8 +956,10 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
 
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
     return render(request, 'article/member/history.html', {
-        'article': article, 'logs': logs
+        'article': article, 'logs': logs, 'formJs': form_js
     })
 
 # Reactions at an article.
@@ -1011,17 +1022,20 @@ def answer(request):
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
-        newreaction = last_reaction_pk != int(data['last_reaction'])
+
+        if not request.is_ajax():
+            newreaction = last_reaction_pk != int(data['last_reaction'])
 
         # Using the « preview button », the « more » button or new reaction
         if 'preview' in data or newreaction:
-            form = ReactionForm(article, request.user, initial={
-                'text': data['text']
-            })
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
+                form = ReactionForm(article, request.user, initial={
+                    'text': data['text']
+                })
+
                 return render(request, 'article/reaction/new.html', {
                     'article': article,
                     'last_reaction_pk': last_reaction_pk,
@@ -1065,6 +1079,7 @@ def answer(request):
 
         # Using the quote button
         if 'cite' in request.GET:
+            resp = {}
             reaction_cite_pk = request.GET['cite']
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
             if not reaction_cite.is_visible:
@@ -1078,6 +1093,10 @@ def answer(request):
                 reaction_cite.author.username,
                 settings.ZDS_APP['site']['url'],
                 reaction_cite.get_absolute_url())
+
+            if request.is_ajax():
+                resp["text"] = text
+                return HttpResponse(json_writter.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
@@ -1215,8 +1234,8 @@ def edit_reaction(request):
                 '?message=' + \
                 str(reaction_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, 'article/reaction/edit.html', {
                     'reaction': reaction,
@@ -1294,7 +1313,7 @@ def like_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
@@ -1342,7 +1361,7 @@ def dislike_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 

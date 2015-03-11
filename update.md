@@ -102,8 +102,44 @@ python load_factory_data.py fixtures/advanced/aide_tuto_media.yaml
 Actions à faire pour mettre en prod la version : v1.5
 =====================================================
 
+Issue #1541
+-----------
+
+Désormais les utilisateurs anonyme et auteur externe doit faire partie du groupe "bot".
+
+Il faudra donc :
+
+1. créer le groupe "bot"
+2. vérifier que `settings.ZDS_APP['member']['bot_group']` vaut bien `"bot"`
+3. Aller dans l'interface de promotion des utilisateurs pour ajouter les comptes auteur externe et anonyme au groupe bot
+
+npm
+---
+
+Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lancer la commande `sudo npm install -g npm`.
+
+Faire pointer nginx sur `static/` au lieu de `dist/`.
+
+
+Actions à faire pour mettre en prod la version : v1.6
+=====================================================
+
+Issue #1724
+-----------
+
+Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les fichier statiques :
+
+```python
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
+```
+
+Actions à faire pour mettre en prod la version : v1.7
+=====================================================
+
 Issue #1511
 -----------
+
 Fix sur la recherche d'article avec solr :
+
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/solr-4.10.2/example/solr/collection1/conf/schema.xml`
-  - Lancer l'indexage : `python manage.py rebuild_index`
+  - Lancer l'indexation : `python manage.py rebuild_index`

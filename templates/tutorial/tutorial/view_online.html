@@ -42,18 +42,18 @@
 
 
 {% block headline %}
+    {% if tutorial.licence %}
+        <span class="license" itemprop="license">
+            {{ tutorial.licence }}
+        </span>
+    {% endif %}
+
     <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {{ tutorial.title }}
     </h1>
-
-    {% if tutorial.licence %}
-        <span class="license" itemprop="license">
-            {{ tutorial.licence }}
-        </span>
-    {% endif %}
 
     {% if tutorial.description %}
         <h2 class="subtitle" itemprop="description">
@@ -67,6 +67,7 @@
 
 
 {% block content %}
+
     {% if tutorial.get_introduction_online %}
         {{ tutorial.get_introduction_online|safe }}
     {% endif %}
@@ -98,6 +99,10 @@
 
     {% if tutorial.get_conclusion_online %}
         {{ tutorial.get_conclusion_online|safe }}
+    {% endif %}
+
+    {%  if user.is_authenticated %}
+        {% include "tutorial/includes/warn_typo.part.html" with obj_type="tutorial" obj_pk=tutorial.pk version_tutorial=tutorial.sha_public %}
     {% endif %}
 {% endblock %}
 
@@ -188,7 +193,7 @@
                     <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
                     	{% csrf_token %}
                         <p>
-                            {% trans "Êtes-vous certains de vouloir dépublier le tutoriel" %} "<em>{{ tutorial.title }}</em>".
+                            {% trans "Êtes-vous certains de vouloir dépublier le tutoriel" %} « <em>{{ tutorial.title }}</em> » ?
                         </p>
                         <button type="submit">
                             {% trans "Confirmer" %}

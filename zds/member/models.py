@@ -18,6 +18,7 @@ from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
+from zds.member.managers import ProfileManager
 from django.utils.importlib import import_module
 
 
@@ -88,13 +89,21 @@ class Profile(models.Model):
         null=True,
         blank=True)
 
+    objects = ProfileManager()
+
     def __unicode__(self):
         """Textual forum of a profile."""
         return self.user.username
 
+    def is_private(self):
+        """checks the user can display his stats"""
+        user_groups = self.user.groups.all()
+        user_group_names = [g.name for g in user_groups]
+        return settings.ZDS_APP['member']['bot_group'] in user_group_names
+
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('zds.member.views.details',
+        return reverse('member-detail',
                        kwargs={'user_name': self.user.username})
 
     def get_city(self):
@@ -124,6 +133,10 @@ class Profile(models.Model):
 
     def get_post_count(self):
         """Number of messages posted."""
+        return Post.objects.filter(author__pk=self.user.pk, is_visible=True).count()
+
+    def get_post_count_as_staff(self):
+        """Number of messages posted (view as staff)."""
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):
@@ -132,6 +145,8 @@ class Profile(models.Model):
 
     def get_tuto_count(self):
         """Number of tutos created."""
+        if self.is_private():
+            return 0
         return Tutorial.objects.filter(authors__in=[self.user]).count()
 
     def get_tutos(self):
@@ -141,9 +156,12 @@ class Profile(models.Model):
     def get_draft_tutos(self):
         """Tutorial in draft."""
         return Tutorial.objects.filter(
-            authors__in=[
-                self.user],
-            sha_draft__isnull=False).all()
+            authors__in=[self.user],
+            sha_draft__isnull=False,
+            sha_beta__isnull=True,
+            sha_validation__isnull=True,
+            sha_public__isnull=True,
+        ).all()
 
     def get_public_tutos(self):
         """Tutorial in public."""
