@@ -30,7 +30,7 @@
     /**
      * Karma of the messages
      */
-    $(".topic-message").on("click", ".upvote, .downvote", function(e){
+    $(".topic-message").on("click", "button.upvote, button.downvote", function(e){
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
@@ -78,6 +78,8 @@
                 } else {
                     $downvote.removeClass("more-voted");
                 }
+
+                $thumb.blur();
             }
         });
 
