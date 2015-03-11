@@ -5,7 +5,7 @@ from datetime import datetime
 from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
-from django.template import loader, Context
+from django.template.loader import render_to_string
 from zds.forum.models import Forum, Topic
 from zds.tutorialv2.forms import BetaForm
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
@@ -565,11 +565,6 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     action = None
 
-    @staticmethod
-    def get_text_from_template(path, options):
-        template = loader.get_template(path)
-        return template.render(Context(options))
-
     def form_valid(self, form):
         # check version:
         try:
@@ -586,7 +581,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         # perform actions:
         if self.action == 'inactive':
             self.object.sha_beta = None
-            msg_post = self.get_text_from_template(
+            msg_post = render_to_string(
                 'tutorialv2/messages/beta_desactivate.msg.html', {'content': beta_version}
             )
             send_post(topic, msg_post)
@@ -601,7 +596,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 self.versioned_object.in_beta = True
                 self.versioned_object.sha_beta = sha_beta
 
-                msg = self.get_text_from_template(
+                msg = render_to_string(
                     'tutorialv2/messages/beta_activate_topic.msg.html',
                     {
                         'content': beta_version,
@@ -621,7 +616,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     topic = Topic.objects.get(related_publishable_content=self.object)
 
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                    msg_pm = self.get_text_from_template(
+                    msg_pm = render_to_string(
                         'tutorialv2/messages/beta_activate_pm.msg.html',
                         {
                             'content': beta_version,
@@ -637,7 +632,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 else:
                     if not already_in_beta:
                         unlock_topic(topic, msg)
-                        msg_post = self.get_text_from_template(
+                        msg_post = render_to_string(
                             'tutorialv2/messages/beta_reactivate.msg.html',
                             {
                                 'content': beta_version,
@@ -645,7 +640,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             }
                         )
                     else:
-                        msg_post = self.get_text_from_template(
+                        msg_post = render_to_string(
                             'tutorialv2/messages/beta_update.msg.html',
                             {
                                 'content': beta_version,
