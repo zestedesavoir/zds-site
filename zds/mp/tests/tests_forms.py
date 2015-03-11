@@ -18,8 +18,8 @@ class PrivateTopicFormTest(TestCase):
         """  Reference valid case """
         data = {
             'participants':
-                self.profile1.user.username
-                + ',' + self.staff1.username,
+                self.profile1.user.username +
+                ',' + self.staff1.username,
             'title': 'Test title',
             'subtitle': 'Test subtitle',
             'text': 'blabla'
@@ -119,6 +119,17 @@ class PrivateTopicFormTest(TestCase):
             'title': 'Test title',
             'subtitle': 'Test subtitle',
             'text': ' '
+        }
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_invalid_topic_form_comma(self):
+        """ Cas when participants is only a comma """
+        data = {
+            'participants': ',',
+            'title': 'Test title',
+            'subtitle': 'Test subtitle',
+            'text': 'Test text'
         }
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())

@@ -1,4 +1,5 @@
 {% extends "member/base.html" %}
+
 {% load emarkdown %}
 {% load email_obfuscator %}
 {% load date %}
@@ -42,8 +43,14 @@
                     {% trans "Inscrit" %} {{ usr.date_joined|format_date:True }}
                 </li>
                 <li>
-                    {% trans "Dernière visite sur le site" %} {{ profile.last_visit|format_date:True }}
+                    {% trans "Dernière visite sur le site" %} : 
+                        {% if profile.last_visit %}
+                            {{ profile.last_visit|format_date:True }}
+                        {% else %}
+                            {% trans "ne s'est jamais connecté(e)" %}
+                        {% endif %}
                 </li>
+
                 {% if perms.member.show_ip %}
                     <li>
                         {% trans "Dernière IP" %} : <a href="{% url "zds.member.views.member_from_ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
@@ -191,7 +198,7 @@
         {% if profile.user == user or perms.member.change_profile %}
             <div>
                 {% if profile.user == user %}
-                    <a href="{% url "zds.member.views.settings_profile" %}" class="new-btn ico-after gear blue">
+                    <a href="{% url "update-member" %}" class="new-btn ico-after gear blue">
                         {% trans "Paramètres" %} <span class="wide">{% trans "de mon compte" %}</span>
                     </a>
                 {% else %}
@@ -210,7 +217,7 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
                 <h3>{% trans "Actions" %}</h3>
                 <ul>
-                    {% if usr != user %}
+                    {% if usr != user and not profile.is_private %}
                         <li>
                             <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
@@ -391,7 +398,7 @@
             {% endif %}
         {% endwith %}
 
-        {% if profile.get_post_count > 0 %}
+        {% if perms.member.change_post and profile.get_post_count_as_staff > 0 or profile.get_post_count > 0 %}
             <h4>{% trans "Forums" %}</h4>
             <ul>
                 <li>
@@ -403,7 +410,13 @@
                 <li>
                     <a href="{% url "zds.forum.views.find_post" usr.pk %}">
                         {% trans "Messages postés" %}
-                        <span class="count">{{ profile.get_post_count }}</span>
+                        <span class="count">
+                            {% if perms.member.change_post %}
+                                {{ profile.get_post_count_as_staff }}
+                            {% else %}
+                                {{ profile.get_post_count }}
+                            {% endif %}
+                        </span>
                     </a>
                 </li>
             </ul>
@@ -451,7 +464,7 @@
                                     Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
                                 {% endblocktrans %}
                             </p>
-                            <input type="text" name="ls-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="text" name="ls-text" class="expand" placeholder="Spam, Troll, etc.">
                             <input type="number" name="ls-jrs" class="expand" placeholder="Durée de la lecture seule, en jours" min="1">
                             {% csrf_token %}
                             <button type="submit" name="ls-temp">
@@ -505,7 +518,7 @@
                                     Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em> ?
                                 {% endblocktrans %}
                             </p>
-                            <input type="text" name="ban-temp-text" class="expand" placeholder="Spam, Troll, etc.">
+                            <input type="text" name="ban-text" class="expand" placeholder="Spam, Troll, etc.">
                             <input type="number" name="ban-jrs" class="expand" placeholder="Durée du bannissement, en jours" min="1">
                             {% csrf_token %}
                             <button type="submit" name="ban-temp">

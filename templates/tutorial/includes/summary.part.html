@@ -55,7 +55,7 @@
                                 {% else %}
                                     href="{% url "view-chapter-url" tutorial.pk tutorial.slug part.pk part.slug chapter.pk chapter.slug %}"{% if version %}?version={{ version }}{% endif %}
                                 {% endif %}
-                                class="mobile-menu-link mobile-menu-sublink {% if chapter_current.pk = chapter.pk %}unread{% endif %}"
+                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 {{ chapter.title }}
                             </a>

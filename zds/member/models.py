@@ -18,6 +18,7 @@ from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
+from zds.member.managers import ProfileManager
 from django.utils.importlib import import_module
 
 
@@ -88,6 +89,8 @@ class Profile(models.Model):
         null=True,
         blank=True)
 
+    objects = ProfileManager()
+
     def __unicode__(self):
         """Textual forum of a profile."""
         return self.user.username
@@ -100,7 +103,7 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('zds.member.views.details',
+        return reverse('member-detail',
                        kwargs={'user_name': self.user.username})
 
     def get_city(self):
@@ -130,6 +133,10 @@ class Profile(models.Model):
 
     def get_post_count(self):
         """Number of messages posted."""
+        return Post.objects.filter(author__pk=self.user.pk, is_visible=True).count()
+
+    def get_post_count_as_staff(self):
+        """Number of messages posted (view as staff)."""
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):

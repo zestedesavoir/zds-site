@@ -111,7 +111,7 @@ Il faudra donc :
 
 1. créer le groupe "bot"
 2. vérifier que `settings.ZDS_APP['member']['bot_group']` vaut bien `"bot"`
-3. Aller dans l'interface d'administration pour ajouter les comptes auteur externe et anonyme au groupe bot
+3. Aller dans l'interface de promotion des utilisateurs pour ajouter les comptes auteur externe et anonyme au groupe bot
 
 npm
 ---
@@ -119,3 +119,16 @@ npm
 Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lancer la commande `sudo npm install -g npm`.
 
 Faire pointer nginx sur `static/` au lieu de `dist/`.
+
+
+Actions à faire pour mettre en prod la version : v1.6
+=====================================================
+
+Issue #1724
+-----------
+
+Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les fichier statiques :
+
+```python
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
+```

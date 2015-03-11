@@ -30,8 +30,10 @@
 {% block content %}
     {% if newpost %}
         <div class="alert-box alert">
-            <strong>{% trans "Au moins un nouveau message a été posté</strong> dans la discussion
-            pendant que vous rédigiez le votre" %}.
+            {% blocktrans %}
+                <strong>Au moins un nouveau message a été posté</strong> dans la discussion
+                pendant que vous rédigiez le votre.
+            {% endblocktrans %}
         </div>
     {% endif %}
 

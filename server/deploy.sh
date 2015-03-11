@@ -48,7 +48,7 @@ git checkout -b $1
 # Front commands
 source /usr/local/nvm/nvm.sh
 # Update packages
-npm update --production
+npm install --production
 # Remove unused packages
 npm prune --production
 # Clean the front stuff
@@ -61,8 +61,8 @@ source ../bin/activate
 pip install --upgrade --use-mirrors -r requirements.txt
 python manage.py migrate
 python manage.py compilemessages
-# Collect all static files from dist/ and python packages to static/
-python manage.py collectstatic
+# Collect all staticfiles from dist/ and python packages to static/
+python manage.py collectstatic --noinput --clear
 deactivate
 
 # Restart zds

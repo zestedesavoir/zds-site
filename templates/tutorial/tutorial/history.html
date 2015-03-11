@@ -18,19 +18,26 @@
 
 
 
+{%  block sidebar %}
+    {# Remove "Download" part #}
+    <aside class="sidebar summary mobile-menu-hide"></aside>
+{% endblock %}
+
+
+
 {% block headline %}
+    {% if tutorial.licence %}
+        <span class="license">
+            {{ tutorial.licence }}
+        </span>
+    {% endif %}
+
     <h1 {% if tutorial.image %}class="illu"{% endif %} itemprop="name">
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
         {% trans "Historique de" %} "{{ tutorial.title }}"
     </h1>
-
-    {% if tutorial.licence %}
-        <span class="license">
-            {{ tutorial.licence }}
-        </span>
-    {% endif %}
 
     <h2 class="subtitle">
         {{ tutorial.description }}
@@ -45,7 +52,7 @@
     <table class="fullwidth">
         <thead>
             <tr>
-                <th width="10%">{% trans "Etat" %}</th>
+                <th width="10%">{% trans "État" %}</th>
                 <th width="18%">{% trans "Date" %}</th>
                 <th>{% trans "Version" %}</th>
                 <th width="10%">{% trans "Diff" %}.</th>
@@ -57,14 +64,29 @@
             {% for log in logs %}
                 <tr>
                     <td>
-                        {% if tutorial.sha_validation = log.newhexsha %}
-                            {% trans "Validation" %}
-                        {% endif %}
-                        {% if tutorial.sha_beta = log.newhexsha %}
-                            {% trans "Beta" %}
-                        {% endif %}
-                        {% if tutorial.sha_draft = log.newhexsha %}
-                            {% trans "Draft" %}
+                        {% if tutorial.sha_public == log.newhexsha or tutorial.sha_validation == log.newhexsha or tutorial.sha_beta == log.newhexsha or tutorial.sha_draft == log.newhexsha %}
+                                <ul class="unstyled-list">
+                                {% if tutorial.sha_public == log.newhexsha %}
+                                    <li>
+                                        {% trans "En ligne" %}
+                                    </li>
+                                {% endif %}
+                                {% if tutorial.sha_validation == log.newhexsha %}
+                                    <li>
+                                        {% trans "En validation" %}
+                                    </li>
+                                {% endif %}
+                                {% if tutorial.sha_beta == log.newhexsha %}
+                                    <li>
+                                        {% trans "En bêta" %}
+                                    </li>
+                                {% endif %}
+                                {% if tutorial.sha_draft == log.newhexsha %}
+                                    <li>
+                                        {% trans "Brouillon" %}
+                                    </li>
+                                {% endif %}
+                            </ul>
                         {% endif %}
                     </td>
                     <td>
@@ -90,7 +112,7 @@
                         {% endwith %}
                     </td>
                     <td>
-                        {% if not tutorial.sha_beta = log.newhexsha %}
+                        {% if not tutorial.sha_beta == log.newhexsha %}
                             <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
                                 {% if not tutorial.sha_beta %}
                                     {% trans "Activer" %}
