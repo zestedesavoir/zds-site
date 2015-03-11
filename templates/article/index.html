@@ -80,7 +80,7 @@
                 <ul>
                     {% for subcat,slug in subcats %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                            <a href="{% url "zds.article.views.index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
                                 {{  subcat }}
                             </a>
                         </li>

@@ -52,7 +52,7 @@ def index(request):
     # The tag indicate what the category article the user would
     # like to display. We can display all subcategories for articles.
     try:
-        tag = get_object_or_404(SubCategory, title=request.GET['tag'])
+        tag = get_object_or_404(SubCategory, slug=request.GET['tag'])
     except (KeyError, Http404):
         tag = None
 
