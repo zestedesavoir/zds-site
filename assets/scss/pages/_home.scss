@@ -275,6 +275,11 @@ $content-width: 1145px;
                 margin-bottom: 10px;
             }
         }
+        .home-heading {
+            .btn {
+                visibility: hidden;
+            }
+        }
     }
 }
 

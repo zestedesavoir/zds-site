@@ -81,7 +81,7 @@
 
     <div class="home-wrapper">
         <section class="home-pinned-content">
-            <h2 class="ico-after ico-tutorials home-heading heading-white" itemprop="name">
+            <h2 class="home-heading heading-white" itemprop="name">
                 {% trans "A la une" %}
             </h2>
 
@@ -140,5 +140,20 @@
                 {% endfor %}
             </section>
         </div>
+
+        <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="home-heading" itemprop="name">
+                    {% trans "Derniers sujets" %}
+                    <a href="{% url "zds.forum.views.index" %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                {% for topic in last_topics %}
+                    {% include 'forum/includes/topic_item.part.html' %}
+                {% empty %}
+                    <p>{% trans "Aucun sujet disponible." %}</p>
+                {% endfor %}
+            </section>
     </div>
 {% endblock %}

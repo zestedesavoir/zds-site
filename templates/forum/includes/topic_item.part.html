@@ -1,0 +1,26 @@
+{% load captureas %}
+{% load thumbnail %}
+{% load i18n %}
+{% load date %}
+
+<article class="content-item topic-item">
+    <div class="content-info">
+        <h3 class="content-title" itemprop="itemListElement">
+            <a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">
+                {{ topic.title }}
+            </a>
+        </h3>
+
+        <p class="content-meta">
+            <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
+                {{ article.pubdate|format_date|capfirst }}
+            </time>
+
+            {% with answer=topic.get_last_answer %}
+                <p class="content-authors" itemscope itemprop="author" itemtype="http://schema.org/Person">
+                    {{ answer.author }}
+                </p>
+            {% endwith %}
+        </p>
+    </div>
+</article>
