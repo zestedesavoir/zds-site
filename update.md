@@ -132,3 +132,14 @@ Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les 
 ```python
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
 ```
+
+Actions à faire pour mettre en prod la version : v1.7
+=====================================================
+
+Issue #1511
+-----------
+
+Fix sur la recherche d'article avec solr :
+
+  - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/solr-4.10.2/example/solr/collection1/conf/schema.xml`
+  - Lancer l'indexation : `python manage.py rebuild_index`
