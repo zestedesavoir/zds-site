@@ -121,6 +121,8 @@
                     {{ article.description }}
                 </p>
             </article>
+        {% empty %}
+            <p>{% trans "Aucun article disponible." %}</p>
         {% endfor %}
     </section>
 
@@ -133,6 +135,8 @@
         
         {% for tutorial in last_tutorials %}
             {% include 'tutorial/includes/tutorial_item.part.html' %}
+        {% empty %}
+            <p>{% trans "Aucun tutoriel disponible." %}</p>
         {% endfor %}
     </section>
 {% endblock %}
@@ -149,13 +153,17 @@
             {% for title, subcats in categories.items %}
                 <h4>{{ title }}</h4>
                 <ul>
-                    {% for subcat in subcats %}
+                    {% for subcat, slug in subcats %}
                         <li>
-                            <a href="{{ subcat.get_absolute_url_tutorial }}">
-                                {{ subcat.title }}
+			    <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}">
+                                {{ subcat }}
                             </a>
                         </li>
                     {% endfor %}
+                </ul>
+            {% empty %}
+                <ul>
+                    <li>{% trans "Aucune catégorie disponible." %}</li>
                 </ul>
             {% endfor %}
         {% endwith %}

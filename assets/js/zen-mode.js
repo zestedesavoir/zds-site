@@ -14,6 +14,17 @@
                 $(".open-zen-mode").attr("data-content-on-click", Text);
                 $(".open-zen-mode").text(TextToPut);
 
+                if(typeof sessionStorage !== "undefined"){
+                    if($(".content-container").hasClass("zen-mode")){
+                        if("zenMode" in sessionStorage){
+                            sessionStorage.setItem("zenMode", "false");
+                        }
+                    }
+                    else{
+                        sessionStorage.setItem("zenMode", "true");
+                    }
+                }
+
                 $(".content-container").toggleClass("zen-mode tab-modalize");
                 $(this).blur();
                 e.preventDefault();
@@ -29,10 +40,24 @@
                 $(".open-zen-mode").attr("data-content-on-click", Text);
                 $(".open-zen-mode").text(TextToPut);
 
+                if(typeof sessionStorage !== "undefined"){
+                    if("zenMode" in sessionStorage){
+                        sessionStorage.setItem("zenMode", "false");
+                    }
+                }
+
                 $(".content-container").toggleClass("zen-mode tab-modalize");
                 $(this).blur();
                 e.stopPropagation();
             }
         });
+
+        if(typeof sessionStorage !== "undefined"){
+            if("zenMode" in sessionStorage){
+                if(sessionStorage.getItem("zenMode") === "true"){
+                    $(".open-zen-mode").click();
+                }
+            }
+        }
     }
 })(jQuery);

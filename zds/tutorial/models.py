@@ -16,6 +16,7 @@ import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.http import urlencode
 from django.db import models
 from datetime import datetime
 from git.repo import Repo
@@ -24,6 +25,7 @@ from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
+from zds.tutorial.managers import TutorialManager
 
 
 TYPE_CHOICES = (
@@ -113,6 +115,8 @@ class Tutorial(models.Model):
 
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
 
+    objects = TutorialManager()
+
     def __unicode__(self):
         return self.title
 
@@ -139,15 +143,12 @@ class Tutorial(models.Model):
 
     def get_absolute_contact_url(self):
         """ Get url to send a new mp for collaboration """
-        auths = self.authors.all()
-        mp_title = "&title=Collaboration - {}".format(self.title)
+        get = '?' + urlencode({'title': u'Collaboration - {}'.format(self.title)})
 
-        get = u"?username={}".format(auths[0])
-        for author in auths[1:]:
-            get += "&username={}".format(author.username)
-        get += mp_title
+        for author in self.authors.all():
+            get += '&' + urlencode({'username': author.username})
 
-        return reverse('zds.mp.views.new')+get
+        return reverse('zds.mp.views.new') + get
 
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \

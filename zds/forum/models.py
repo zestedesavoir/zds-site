@@ -13,6 +13,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
+from zds.forum.managers import TopicManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
@@ -120,13 +121,6 @@ class Forum(models.Model):
             else:
                 return False
 
-    def is_read(self):
-        """Checks if there are topics never read in the forum."""
-        for current_topic in Topic.objects.filter(forum=self).all():
-            if never_read(current_topic):
-                return False
-        return True
-
 
 class Topic(models.Model):
 
@@ -159,6 +153,8 @@ class Topic(models.Model):
 
     key = models.IntegerField('cle', null=True, blank=True)
 
+    objects = TopicManager()
+
     def __unicode__(self):
         """Textual form of a thread."""
         return self.title
@@ -175,7 +171,7 @@ class Topic(models.Model):
 
     def get_last_post(self):
         """Gets the last post in the thread."""
-        return self.last_message
+        return Post.objects.select_related("author__profile").get(pk=self.last_message)
 
     def get_last_answer(self):
         """Gets the last answer in the thread, if any."""
@@ -458,4 +454,7 @@ def get_topics(forum_pk, is_sticky, filter=None):
     else:
         topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
 
-    return topics.order_by('-last_message__pubdate').prefetch_related('author', 'last_message', 'tags').all()
+    return topics.order_by('-last_message__pubdate')\
+        .select_related('author__profile')\
+        .prefetch_related('last_message', 'tags')\
+        .all()

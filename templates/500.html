@@ -28,16 +28,16 @@
 
 {% block content %}
     <p>
-        {% blocktrans with url_forum="http://zestedesavoir.com/forums/communaute/bug-suggestions/" %}
+        {% blocktrans with url_forum=app.site.forum_feedback_users %}
         Si vous voyez cette page, c'est que vous avez trouvé un bug. Merci
         de rapporter cette erreur en expliquant comment vous avez procédé
         pour tomber sur cette page en créant un sujet sur
-        <a href="{{url_forum}}">le forum Bugs et Suggestions.</a>Merci de votre aide
+        <a href="{{ site_url }}{{ url_forum }}">le forum Bugs et Suggestions.</a>Merci de votre aide
         {% endblocktrans %} !
     </p>
     <p>
-        {% blocktrans with url_bugtracker="https://github.com/zestedesavoir/zds-site/issues?q=is%3Aopen+is%3Aissue+500" %}
-        Si vous êtes curieux, voici une <a href="{{url_bugtracker}}">liste des sujets ouverts à ce propos</a> sur le bug tracker public de l'association
+        {% blocktrans with url_bugtracker=app.site.bugtracker %}
+        Si vous êtes curieux, voici une <a href="{{ url_bugtracker }}">liste des sujets ouverts à ce propos</a> sur le bug tracker public de l'association
         {% endblocktrans %}.
     </p>
 {% endblock %}

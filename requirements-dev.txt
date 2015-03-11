@@ -1,6 +1,7 @@
 PyYAML==3.11
 django-debug-toolbar==1.2.2
-flake8==2.2.5
+flake8==2.3.0
 autopep8==1.0.4
 sphinx==1.2.3
-faker==0.0.4
+sphinx_rtd_theme==0.1.6
+fake-factory==0.4.2

@@ -91,6 +91,13 @@ urlpatterns = patterns('',
 
                        ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# API
+urlpatterns += patterns('',
+                        url(r'^api/', include('rest_framework_swagger.urls')),
+                        url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+                        url(r'^api/membres/', include('zds.member.api.urls')),
+                        )
+
 # SiteMap URLs
 urlpatterns += patterns('django.contrib.sitemaps.views',
                         (r'^sitemap\.xml$',
@@ -110,3 +117,6 @@ if settings.SERVE:
                                 'django.views.static.serve',
                                 {'document_root': settings.MEDIA_ROOT}),
                             )
+
+# custom view for 500 errors
+handler500 = "zds.pages.views.custom_error_500"

@@ -15,6 +15,11 @@
             - 76
             - 109
             - 121
+-   model: auth.group
+    pk: 2
+    fields:
+        name : bot
+
 -   model: auth.user
     pk: 1
     fields:
@@ -60,6 +65,8 @@
         username: anonymous
         password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
         is_superuser: False
+        groups:
+            - 2
 -   model: auth.user
     pk: 6
     fields:
@@ -68,6 +75,8 @@
         username: external
         password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
         is_superuser: False
+        groups:
+            - 2
 -   model: member.Profile
     pk: 1
     fields:
