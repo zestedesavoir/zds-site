@@ -292,4 +292,32 @@
         e.stopPropagation();
         e.preventDefault();
     });
+
+    /*
+     * Mark a message useful
+     */
+    $(".topic-message").on("click", "[data-ajax-input='mark-message-as-useful']", function(e){
+        var $button = $(this),
+            $form = $button.parents("form:first"),
+            $message = $form.parents("article"),
+            $usefulText = $message.find("[data-ajax-output='mark-message-as-useful']"),
+            csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            data: {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken
+            },
+            success: function(){
+                $message.toggleClass("helpful");
+                $button.toggleText("content-on-click");
+                $usefulText.toggleClass("hidden");
+                $button.blur();
+            }
+        });
+
+        e.stopPropagation();
+        e.preventDefault();
+    });
 })(jQuery);
