@@ -53,17 +53,17 @@
         </ul>
     </div>
 
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
     
     <div>
         {% for message in posts %}
             {% captureas edit_link %}
-                {% url "zds.mp.views.edit_post" %}?message={{ message.pk }}
+                {% url "private-posts-edit" topic.pk topic.slug message.pk %}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+                {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
             {% if topic.last_message.pk = message.pk %}
@@ -77,12 +77,12 @@
     </div>
 
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
 
 
     
     {% captureas form_action %}
-        {% url "zds.mp.views.answer" %}?sujet={{ topic.pk }}
+        {% url "private-posts-new" topic.pk topic.slug %}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user %}
@@ -99,13 +99,12 @@
                     <a href="#add-participant" class="open-modal ico-after more blue">
                         {% trans "Ajouter un membre" %}
                     </a>
-                    <form action="{% url "zds.mp.views.add_participant" %}" method="post" id="add-participant" class="modal modal-medium">
+                    <form action="{% url "mp-edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-medium">
                         <p>
                             {% trans "Vous allez rajouter un nouveau membre dans la conversation privée" %}.
                         </p>
-                        <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
                         <input
-                            type="text" class="input" name="user_pk"
+                            type="text" class="input" name="username"
                             placeholder="Pseudo du membre"
                             data-autocomplete="{'type':'single'}"
                         >
@@ -120,11 +119,10 @@
                 <a href="#leave-conversation" class="open-modal ico-after cross blue">
                     {% trans "Quitter la conversation" %}
                 </a>
-                <form action="{% url "zds.mp.views.leave" %}" method="post" id="leave-conversation" class="modal modal-small">
+                <form action="{% url "mp-delete" topic.pk topic.slug %}" method="post" id="leave-conversation" class="modal modal-small">
                     <p>
                         {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation" %}.
                     </p>
-                    <input type="hidden" name="topic_pk" value="{{ topic.pk }}">
 
                     {% csrf_token %}
                     <button type="submit" name="leave">{% trans "Confirmer" %}</button>

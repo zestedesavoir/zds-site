@@ -24,7 +24,7 @@
         </p>
         <p>
             {% trans "Pas assez de place ?" %}
-            <a href="{% url "zds.mp.views.new" %}?title={% trans "Je voudrais signaler une faute dans le tutoriel" %} &quot;{{ tutorial.title }}&quot;{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
+            <a href="{% url 'mp-new' %}?title={% trans "Je voudrais signaler une faute dans le tutoriel" %} &quot;{{ tutorial.title }}&quot;{% for username in tutorial.authors.all %}&amp;username={{ username }}{% endfor %}" >
                 {% trans "Envoyez un MP" %}
                 {% if tutorial.authors.all|length > 1 %}
                     {% trans "aux auteurs" %}
