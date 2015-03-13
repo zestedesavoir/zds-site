@@ -15,8 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext as _
 
@@ -516,11 +515,14 @@ def answer(request):
                 post.save()
                 g_topic.last_message = post
                 g_topic.save()
+
                 # Send mail
-                subject = u"{} - Notification : {}".format(settings.ZDS_APP['site']['abbr'],
-                                                           g_topic.title)
-                from_email = "{0} <{1}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                                settings.ZDS_APP['site']['email_noreply'])
+                subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
+                                                 _(u'Forum'),
+                                                 g_topic.title)
+                from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                              settings.ZDS_APP['site']['email_noreply'])
+
                 followers = g_topic.get_followers_by_email()
                 for follower in followers:
                     receiver = follower.user
@@ -532,24 +534,17 @@ def answer(request):
                         post__position=pos,
                         user=receiver).count()
                     if last_read > 0:
-                        message_html = get_template('email/notification/new.html') \
-                            .render(
-                                Context({
-                                    'username': receiver.username,
-                                    'title': g_topic.title,
-                                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                                    'author': request.user.username
-                                }))
-                        message_txt = get_template('email/notification/new.txt').render(
-                            Context({
-                                'username': receiver.username,
-                                'title': g_topic.title,
-                                'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                                'author': request.user.username
-                            }))
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                receiver.email])
+                        context = {
+                            'username': receiver.username,
+                            'title': g_topic.title,
+                            'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                            'author': request.user.username,
+                            'site_name': settings.ZDS_APP['site']['litteral_name']
+                        }
+                        message_html = render_to_string('email/forum/new_post.html', context)
+                        message_txt = render_to_string('email/forum/new_post.txt', context)
+
+                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
                         msg.attach_alternative(message_html, "text/html")
                         msg.send()
 

@@ -1,0 +1,19 @@
+{% extends "email/base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <p>
+        {% trans "Bonjour" %} <strong>{{ username }}</strong>,
+    </p>
+
+    {% block content_from_staff %}
+    {% endblock %}
+
+    <p>
+        {% trans "Cordialement," %}
+    </p>
+    <p>
+        {% trans "L'équipe" %} {{ site_name }}
+    </p>
+{% endblock %}

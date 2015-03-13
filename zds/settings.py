@@ -352,6 +352,9 @@ HAYSTACK_CONNECTIONS = {
 
 GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
 
+# Fake mails (in console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
