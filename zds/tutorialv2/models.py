@@ -183,7 +183,7 @@ class Container:
         """
         :return: True if this container accept child container, false otherwise
         """
-        if not self.has_extracts():
+        if not self.has_extracts() and not self.is_article():
             if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
                 if not self.top_container().is_article:
                     return True
