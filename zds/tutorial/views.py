@@ -3776,7 +3776,7 @@ def help_tutorial(request):
 
     return render(request, "tutorial/tutorial/help.html", {
         "tutorials": shown_tutos,
-        "nb_tuto":len(tutos),
+        "nb_tuto": paginator.count,
         "helps": aides,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page
