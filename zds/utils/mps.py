@@ -28,8 +28,9 @@ def send_mp(
     """
 
     # Creating the thread
+    limit = PrivateTopic._meta.get_field('title').max_length
     n_topic = PrivateTopic()
-    n_topic.title = title[:80]
+    n_topic.title = title[:limit]
     n_topic.subtitle = subtitle
     n_topic.pubdate = datetime.now()
     n_topic.author = author
