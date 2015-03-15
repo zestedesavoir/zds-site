@@ -431,7 +431,7 @@
         {% endif %}
     </div>
 
-    {% if perms.member.change_profile %}
+    {% if perms.member.change_profile and profile.user.is_active %}
         <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Modération" %}'>
             <h3>{% trans "Modération" %}</h3>
 
