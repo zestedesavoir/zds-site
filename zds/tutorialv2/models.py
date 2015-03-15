@@ -524,7 +524,7 @@ class Container:
 
     def move_child_after(self, child_slug, refer_slug):
         """
-        Change the child's ordering by moving down the child whose slug equals child_slug.
+        Change the child's ordering by moving the child to be below the reference child.
         This method **does not** automaticaly update the repo
         :param child_slug: the child's slug
         :param refer_slug: the referent child's slug.
@@ -536,6 +536,7 @@ class Container:
             raise ValueError(refer_slug + " does not exist")
         child_pos = self.children.index(self.children_dict[child_slug])
         refer_pos = self.children.index(self.children_dict[refer_slug])
+
         # if we want our child to get down (reference is an lower child)
         if child_pos < refer_pos:
             for i in range(child_pos, refer_pos):
@@ -543,6 +544,30 @@ class Container:
         elif child_pos > refer_pos:
             # if we want our child to get up (reference is an upper child)
             for i in range(child_pos, refer_pos + 1, - 1):
+                self.move_child_up(child_slug)
+
+    def move_child_before(self, child_slug, refer_slug):
+        """
+        Change the child's ordering by moving the child to be just above the reference child. .
+        This method **does not** automaticaly update the repo
+        :param child_slug: the child's slug
+        :param refer_slug: the referent child's slug.
+        :raise ValueError: if one slug does not refer to an existing child
+        """
+        if child_slug not in self.children_dict:
+            raise ValueError(child_slug + " does not exist")
+        if refer_slug not in self.children_dict:
+            raise ValueError(refer_slug + " does not exist")
+        child_pos = self.children.index(self.children_dict[child_slug])
+        refer_pos = self.children.index(self.children_dict[refer_slug])
+
+        # if we want our child to get down (reference is an lower child)
+        if child_pos < refer_pos:
+            for i in range(child_pos, refer_pos - 1):
+                self.move_child_down(child_slug)
+        elif child_pos > refer_pos:
+            # if we want our child to get up (reference is an upper child)
+            for i in range(child_pos, refer_pos, - 1):
                 self.move_child_up(child_slug)
 
 

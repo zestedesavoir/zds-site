@@ -1024,6 +1024,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                 parent.move_child_up(child_slug)
             if form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
+            if form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
+                target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
+                parent.move_child_after(child_slug, target)
+            if form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
+                target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
+                parent.move_child_before(child_slug, target)
 
             versioned.dump_json()
             parent.repo_update(parent.title,
