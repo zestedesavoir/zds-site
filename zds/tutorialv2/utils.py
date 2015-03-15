@@ -6,6 +6,15 @@ from zds import settings
 from zds.utils import get_current_user
 
 
+class TooDeepContainerError(ValueError):
+    """
+    Exception used to represent the fact you can't add a container to a level greater than two
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(TooDeepContainerError, self).__init__(*args, **kwargs)
+
+
 def search_container_or_404(base_content, kwargs_array):
     """
     :param base_content: the base Publishable content we will use to retrieve the container
@@ -122,3 +131,37 @@ def mark_read(content):
             content=content,
             user=get_current_user())
         a.save()
+
+
+def try_adopt_new_child(adoptive_parent_full_path, child, root):
+    """
+    Try the adoptive parent to take the responsability of the child
+    :param parent_full_path:
+    :param child_slug:
+    :param root:
+    :raise Http404: if adoptive_parent_full_path is not found on root hierarchy
+    :raise TypeError: if the adoptive parent is not allowed to adopt the child due to its type
+    :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
+    :return:
+    """
+    splitted = adoptive_parent_full_path.split('/')
+    if len(splitted) == 1:
+        container = root
+    elif len(splitted) == 2:
+        container = search_container_or_404(root, {'parent_container_slug': splitted[1]})
+    elif len(splitted) == 3:
+        container = search_container_or_404(root,
+                                            {'parent_container_slug': splitted[1],
+                                             'container_slug': splitted[2]})
+    else:
+        raise Http404
+    if isinstance(child, Extract):
+        if not container.can_add_extract():
+            raise TypeError
+        # Todo : handle file deplacement
+    if isinstance(child, Container):
+        if not container.can_add_container():
+            raise TypeError
+        if container.get_tree_depth() + child.get_tree_depth() > settings.ZDS_APP['content']['max_tree_depth']:
+            raise TooDeepContainerError
+        # Todo: handle dir deplacement
