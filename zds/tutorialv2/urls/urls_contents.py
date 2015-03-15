@@ -5,7 +5,7 @@ from django.conf.urls import patterns, url
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
-    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay
+    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild
 from zds.tutorialv2.importation import ImportMarkdownView
 
 urlpatterns = patterns('',
@@ -64,6 +64,7 @@ urlpatterns = patterns('',
                            name='edit-extract'),
 
                        url(r'^editer/(?P<pk>\d+)/(?P<slug>.+)/$', EditContent.as_view(), name='edit'),
+                       url(r'^deplacer/$', MoveChild.as_view(), name='move-element'),
 
                        url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayHistory.as_view(), name="history"),
                        url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name="diff"),

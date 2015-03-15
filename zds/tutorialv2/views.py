@@ -7,7 +7,7 @@ from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
 from zds.forum.models import Forum, Topic
-from zds.tutorialv2.forms import BetaForm
+from zds.tutorialv2.forms import BetaForm, MoveElementForm
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 
 try:
@@ -985,6 +985,66 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
             validations_queryset = validations_queryset.filter(content__subcategory__in=[subcategory])
         context["validations"] = validations_queryset.order_by("date_proposition").all()
         return context
+
+
+class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
+    model = PublishableContent
+    permissions = ["tutorial.change_tutorial"]
+    form_class = MoveElementForm
+    versioned = False
+
+    def get(self, request, *args, **kwargs):
+        raise PermissionDenied
+
+    def form_valid(self, form):
+        content = self.get_object()
+        versioned = content.load_version()
+        base_container_slug = form.data["container_slug"]
+        child_slug = form.data['child_slug']
+
+        if base_container_slug == '':
+            raise Http404
+
+        if child_slug == '':
+            raise Http404
+
+        if base_container_slug == versioned.slug:
+            parent = versioned
+        else:
+            search_params = {}
+            if form.data['first_level_slug'] != '':
+                search_params['parent_container_slug'] = form.data['first_level_slug']
+                search_params['container_slug'] = base_container_slug
+            else:
+                search_params['parent_container_slug'] = base_container_slug
+            parent = search_container_or_404(versioned, search_params)
+
+        try:
+            if form.data['moving_method'] == MoveElementForm.MOVE_UP:
+                parent.move_child_up(child_slug)
+            if form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
+                parent.move_child_down(child_slug)
+
+            versioned.dump_json()
+            parent.repo_update(parent.title,
+                               parent.get_introduction(),
+                               parent.get_conclusion(),
+                               _(u"Déplacement de ") + child_slug)
+            content.sha_draft = versioned.sha_draft
+            content.save()
+            messages.info(self.request, _(u"L'élément a bien été déplacé."))
+
+        except ValueError:
+            raise Http404
+        except IndexError:
+            messages.warning(self.request, _(u"L'élément est déjà à la place souhaitée."))
+
+        if base_container_slug == versioned.slug:
+            return redirect(reverse("content:view", args=[content.pk, content.slug]))
+        else:
+            search_params['slug'] = content.slug
+            search_params['pk'] = content.pk
+            return redirect(reverse("content:view-container", kwargs=search_params))
 
 
 @can_write_and_read_now

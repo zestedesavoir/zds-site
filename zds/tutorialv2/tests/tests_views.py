@@ -703,6 +703,72 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)  # access granted
 
+    def test_move_up_extract(self):
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
+        old_sha = tuto.sha_draft
+        # test moving up smoothly
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.extract2.slug,
+                'container_slug': self.chapter1.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'up',
+                'pk': tuto.pk
+            },
+            follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[0]
+        self.assertEqual(self.extract2.slug, extract.slug)
+        # test moving up the first element
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.extract2.slug,
+                'container_slug': self.chapter1.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'up',
+                'pk': tuto.pk
+            },
+            follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children_dict[self.part1.slug]\
+            .children_dict[self.chapter1.slug].children_dict[self.extract2.slug]
+        self.assertEqual(1, extract.position_in_parent)
+
+        # test moving without permission
+
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.extract2.slug,
+                'container_slug': self.chapter1.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'up',
+                'pk': tuto.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

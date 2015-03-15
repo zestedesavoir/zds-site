@@ -506,4 +506,29 @@ class JsFiddleActivationForm(forms.Form):
                 StrictButton(
                     _(u'Valider'),
                     type='submit'),),
-            Hidden('tutorial', '{{ content.pk }}'), )
+            Hidden('pk', '{{ content.pk }}'), )
+
+
+class MoveElementForm(forms.Form):
+
+    child_slug = forms.HiddenInput()
+    container_slug = forms.HiddenInput()
+    first_level_slug = forms.HiddenInput()
+    moving_method = forms.HiddenInput()
+
+    MOVE_UP = "up"
+    MOVE_DOWN = "down"
+    MOVE_AFTER = "after"
+    MOVE_BEFORE = "before"
+
+    def __init__(self, *args, **kwargs):
+        super(MoveElementForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('content:move-element')
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('child_slug'),
+            Field('container_slug'),
+            Field('first_level_slug'),
+            Field('moving_method'),
+            Hidden('pk', '{{ content.pk }}'))
