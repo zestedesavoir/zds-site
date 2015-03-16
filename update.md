@@ -146,6 +146,7 @@ ZDS_APP['site']['googleAnalyticsID'] = 'UA-27730868-1'
 ZDS_APP['site']['googleTagManagerID'] = 'GTM-WH7642'
 ```
 
+
 Vérifier que `EMAIL_BACKEND` est bien définit dans le `settings_prod.py` car il a maintenant une valeur par défaut. La configuration par défaut sur la prod devrait être `EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'`.
 
 Actions à faire pour mettre en prod la version : v1.8
@@ -193,3 +194,8 @@ command = /opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
 stdout_logfile = /opt/zdsenv/logs/supervisor_stdout.log
 stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 ```
+
+Issue #1634
+-----------
+
+Exécuter la commande suivante : `sudo apt-get install libffi-dev`
