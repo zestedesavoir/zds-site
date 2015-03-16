@@ -20,6 +20,7 @@ import zipfile
 import os
 import glob
 import tempfile
+import cairosvg
 
 from PIL import Image as ImagePIL
 from django.conf import settings
@@ -3085,15 +3086,19 @@ def get_url_images(md_text, pt):
                 try:
                     urlretrieve(real_url, down_path)
                     try:
-                        ext = filename.split(".")[-1]
-                        im = ImagePIL.open(down_path)
-                        # if image is gif, convert to png
-                        if ext == "gif":
-                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                        ext = filename.split(".")[-1].lower()
+                        if ext == "svg":
+                            cairosvg.svg2png(url=down_path,
+                                             write_to=os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                        else:
+                            im = ImagePIL.open(down_path)
+                            # if image is gif, convert to png
+                            if ext == "gif":
+                                im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                     except IOError:
-                        ext = filename.split(".")[-1]
+                        ext = filename.split(".")[-1].lower()
                         im = ImagePIL.open(unknow_path)
-                        if ext == "gif":
+                        if ext == "gif" or ext == "svg":
                             im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                         else:
                             im.save(os.path.join(pt, "images", filename))
@@ -3111,14 +3116,18 @@ def get_url_images(md_text, pt):
 
                     try:
                         ext = dstroot.split(".")[-1]
-                        im = ImagePIL.open(dstroot)
-                        # if image is gif, convert to png
-                        if ext == "gif":
-                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                        if ext == "svg":
+                            cairosvg.svg2png(url=dstroot,
+                                             write_to=os.path.join(dstroot.split(".")[0] + ".png"))
+                        else:
+                            im = ImagePIL.open(dstroot)
+                            # if image is gif or svg, convert to png
+                            if ext == "gif":
+                                im.save(os.path.join(dstroot.split(".")[0] + ".png"))
                     except IOError:
-                        ext = dstroot.split(".")[-1]
+                        ext = dstroot.split(".")[-1].lower()
                         im = ImagePIL.open(unknow_path)
-                        if ext == "gif":
+                        if ext == "gif" or ext == "svg":
                             im.save(os.path.join(dstroot.split(".")[0] + ".png"))
                         else:
                             im.save(os.path.join(dstroot))
@@ -3134,8 +3143,8 @@ def sub_urlimg(g):
     (filepath, filename) = os.path.split(parse_object.path)
     if filename != '':
         mark = g.group("mark")
-        ext = filename.split(".")[-1]
-        if ext == "gif":
+        ext = filename.split(".")[-1].lower()
+        if ext == "gif" or ext == "svg":
             if parse_object.scheme in ("http", "https") or \
                     parse_object.netloc[:3] == "www" or \
                     parse_object.path[:3] == "www":
