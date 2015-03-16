@@ -15,6 +15,7 @@ except:
     except:
         import json as json_reader
 from django.db.models import Q
+from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -2652,6 +2653,9 @@ class BigTutorialTests(TestCase):
         Add a non-regression test about warning the author(s) of a typo in tutorial
         """
 
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
+
         typo_text = u'T\'as fait une faute, t\'es nul'
 
         # login with author
@@ -4460,6 +4464,9 @@ class MiniTutorialTests(TestCase):
         """
         Add a non-regression test about warning the author(s) of a typo in tutorial
         """
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
         typo_text = u'T\'as fait une faute, t\'es nul'
 

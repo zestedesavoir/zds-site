@@ -3645,7 +3645,6 @@ def warn_typo(request, obj_type, obj_pk):
     profile = get_object_or_404(Profile, user=request.user)
 
     # get tutorial (and object)
-    tutorial = None
     chapter = None
     if obj_type == 'tutorial':
         tutorial = get_object_or_404(Tutorial, pk=obj_pk)
@@ -3657,6 +3656,12 @@ def warn_typo(request, obj_type, obj_pk):
             raise Http404  # normally, warn about mistake in chapter is only possible with big tutorials
     else:
         raise Http404  # unknown `obj_type`
+
+    authors_reachable = Profile.objects.contactable_members()\
+        .filter(user__in=tutorial.authors.all())
+    authors = []
+    for author in authors_reachable:
+        authors.append(author.user)
 
     # check if the warn is done on a public or beta version :
     is_on_line = False
@@ -3672,62 +3677,71 @@ def warn_typo(request, obj_type, obj_pk):
         else:
             raise Http404  # Mistake in draft version. Only possible for (non-author) admin, but useless
 
-    # then, fetch explanation :
-    explanation = ''
-    if 'explication' not in request.POST or request.POST['explication'] is None:
-        messages.error(request, _(u'Votre proposition de correction est vide'))
-    else:
-        explanation = request.POST['explication']
-        explanation = '\n'.join(['> ' + line for line in explanation.split('\n')])
-
-        # is the user trying to send PM to himself ?
-        if request.user in tutorial.authors.all():
-            messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes auteur de ce tutoriel!'))
+    if len(authors) == 0:
+        if tutorial.authors.count() > 1:
+            messages.error(request, _(u"Les auteurs de ce tutoriel sont malheureusement injoignables"))
         else:
-            # create message :
-            msg = ''
-            if is_on_line:
-                msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n').format(
-                    request.user.username,
-                    settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
-                    tutorial.title,
-                    settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online()
-                )
-                # special case of mistake in chapter :
-                if obj_type == 'chapter':
-                    msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
-                        chapter.title,
-                        settings.ZDS_APP['site']['url'] + chapter.get_absolute_url_online(),
-                        chapter.part.title,
-                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url_online()
-                    )
-            elif is_beta:
-                msg = _(u'[{}]({}) souhaite vous proposer une correction sur votre tutoriel en bêta [{}]({}).\n\n')\
-                    .format(request.user.username,
-                            settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
-                            tutorial.title,
-                            settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()
-                            )
-                # special case of mistake in chapter :
-                if obj_type == 'chapter':
-                    msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
-                        chapter.title,
-                        settings.ZDS_APP['site']['url'] + chapter.get_absolute_url() + '?version=' + tutorial.sha_beta,
-                        chapter.part.title,
-                        settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url() + '?version=' +
-                        tutorial.sha_beta
-                    )
+            messages.error(request, _(u"L'auteur de ce tutoriel est malheureusement injoignable"))
+    else:
+        # then, fetch explanation :
+        explanation = ''
+        if 'explication' not in request.POST or request.POST['explication'] is None:
+            messages.error(request, _(u'Votre proposition de correction est vide'))
+        else:
+            explanation = request.POST['explication']
+            explanation = '\n'.join(['> ' + line for line in explanation.split('\n')])
 
-            msg += _(u'Voici son message :\n\n{}').format(explanation)
+            # is the user trying to send PM to himself ?
+            if request.user in authors:
+                messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes auteur de ce tutoriel!'))
+            else:
+                # create message :
+                msg = ''
+                if is_on_line:
+                    msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n').format(
+                        request.user.username,
+                        settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                        tutorial.title,
+                        settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online()
+                    )
+                    # special case of mistake in chapter :
+                    if obj_type == 'chapter':
+                        msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                            chapter.title,
+                            settings.ZDS_APP['site']['url'] + chapter.get_absolute_url_online(),
+                            chapter.part.title,
+                            settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url_online()
+                        )
+                elif is_beta:
+                    msg = _(u'[{}]({}) souhaite vous proposer une correction sur votre tutoriel en bêta [{}]({}).\n\n')\
+                        .format(request.user.username,
+                                settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                                tutorial.title,
+                                settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()
+                                )
+                    # special case of mistake in chapter :
+                    if obj_type == 'chapter':
+                        msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                            chapter.title,
+                            settings.ZDS_APP['site']['url'] +
+                            chapter.get_absolute_url() +
+                            '?version=' + tutorial.sha_beta,
+                            chapter.part.title,
+                            settings.ZDS_APP['site']['url'] +
+                            chapter.part.get_absolute_url() +
+                            '?version=' + tutorial.sha_beta
+                        )
 
-            # send it :
-            send_mp(request.user,
-                    tutorial.authors.all(),
-                    _(u"Proposition de correction"),
-                    tutorial.title,
-                    msg,
-                    leave=False)
-            messages.success(request, _(u'Votre correction a bien été proposée !'))
+                msg += _(u'Voici son message :\n\n{}').format(explanation)
+
+                # send it :
+                send_mp(request.user,
+                        authors,
+                        _(u"Proposition de correction"),
+                        tutorial.title,
+                        msg,
+                        leave=False)
+                messages.success(request, _(u'Votre correction a bien été proposée !'))
 
     # return to page :
     if obj_type == 'tutorial':
