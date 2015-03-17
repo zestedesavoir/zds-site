@@ -2705,7 +2705,7 @@ def maj_repo_tuto(
             conclu.close()
             index.add(["conclusion.md"])
         aut_user = str(request.user.pk)
-        aut_email = str(request.user.email)
+        aut_email = request.user.email
         if aut_email is None or aut_email.strip() == "":
             aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(
@@ -2766,7 +2766,7 @@ def maj_repo_part(
             index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
                                     )])
     aut_user = str(request.user.pk)
-    aut_email = str(request.user.email)
+    aut_email = request.user.email
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['litteral_name'])
     com_part = index.commit(
@@ -2844,7 +2844,7 @@ def maj_repo_chapter(
         chapter.part.tutorial.dump_json(path=man_path)
     index.add(["manifest.json"])
     aut_user = str(request.user.pk)
-    aut_email = str(request.user.email)
+    aut_email = request.user.email
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     com_ch = index.commit(
@@ -2918,7 +2918,7 @@ def maj_repo_extract(
 
     index.add(["manifest.json"])
     aut_user = str(request.user.pk)
-    aut_email = str(request.user.email)
+    aut_email = request.user.email
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     com_ex = index.commit(
