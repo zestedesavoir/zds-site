@@ -16,8 +16,8 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
-from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
+from django.shortcuts import redirect, render, get_object_or_404, render_to_response
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
@@ -356,6 +356,19 @@ def unregister(request):
     User.objects.filter(pk=current.pk).delete()
     return redirect(reverse("zds.pages.views.home"))
 
+def save_profile_or_is_ban(backend, user, response, *args, **kwargs):
+    profile = Profile.objects.filter(user=user).first()
+    if profile is None:
+        profile = Profile(user=user,
+                          show_email=False,
+                          show_sign=True,
+                          hover_or_click=True,
+                          email_for_answer=False)
+        profile.last_ip_address = "0.0.0.0"
+        profile.save()
+    else:
+        if not profile.can_read_now():
+            return render_to_response("member/lockedaccount.html")
 
 @require_POST
 @can_write_and_read_now
@@ -572,10 +585,8 @@ def login_view(request):
                     except:
                         return redirect(reverse("zds.pages.views.home"))
                 else:
-                    messages.error(request,
-                                   _(u"Vous n'êtes pas autorisé à vous connecter "
-                                     u"sur le site, vous avez été banni par un "
-                                     u"modérateur."))
+                    return render(request, "member/lockedaccount.html")
+
             else:
                 messages.error(request,
                                _(u"Vous n'avez pas encore activé votre compte, "
