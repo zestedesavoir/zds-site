@@ -356,7 +356,8 @@ def unregister(request):
     User.objects.filter(pk=current.pk).delete()
     return redirect(reverse("zds.pages.views.home"))
 
-def save_profile_or_is_ban(backend, user, response, *args, **kwargs):
+
+def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
         profile = Profile(user=user,
@@ -366,9 +367,13 @@ def save_profile_or_is_ban(backend, user, response, *args, **kwargs):
                           email_for_answer=False)
         profile.last_ip_address = "0.0.0.0"
         profile.save()
-    else:
-        if not profile.can_read_now():
-            return render_to_response("member/lockedaccount.html")
+
+
+def is_ban(backend, user, response, *args, **kwargs):
+    profile = Profile.objects.filter(user=user).first()
+
+    if not profile.can_read_now():
+        return render_to_response("member/lockedaccount.html")
 
 @require_POST
 @can_write_and_read_now
