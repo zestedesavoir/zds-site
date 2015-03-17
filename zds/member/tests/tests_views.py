@@ -109,6 +109,26 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 404)
 
+    def test_modify_member(self):
+
+        # we need staff right for update other profile
+        self.client.logout()
+        self.client.login(username=self.staff.username, password="hostel77")
+
+        # an inexistant member return 404
+        result = self.client.get(
+            reverse('zds.member.views.settings_mini_profile', args=["xkcd"]),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 404)
+
+        # an existant member return 200
+        result = self.client.get(
+            reverse('zds.member.views.settings_mini_profile', args=[self.mas.user.username]),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+
     def test_login(self):
         """
         To test user login.

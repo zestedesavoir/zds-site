@@ -501,8 +501,7 @@ def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
 
     # extra information about the current user
-
-    profile = Profile.objects.get(user__username=user_name)
+    profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
         form = MiniProfileForm(request.POST)
         c = {"form": form, "profile": profile}
