@@ -158,10 +158,13 @@ def try_adopt_new_child(adoptive_parent_full_path, child, root):
     if isinstance(child, Extract):
         if not container.can_add_extract():
             raise TypeError
-        # Todo : handle file deplacement
+        child.repo_delete('', False)
+        container.add_extract(child, generate_slug=False)
     if isinstance(child, Container):
         if not container.can_add_container():
             raise TypeError
         if container.get_tree_depth() + child.get_tree_depth() > settings.ZDS_APP['content']['max_tree_depth']:
             raise TooDeepContainerError
-        # Todo: handle dir deplacement
+        child.repo_delete('', False)
+        container.add_container(child)
+
