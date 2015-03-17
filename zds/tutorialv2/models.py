@@ -460,9 +460,10 @@ class Container:
 
         return cm.hexsha
 
-    def repo_delete(self, commit_message=''):
+    def repo_delete(self, commit_message='', do_commit=True):
         """
         :param commit_message: commit message used instead of default one if provided
+        :param do_commit: tells if we have to commit the change now or let the outter program do it
         :return: commit sha
         """
         path = self.get_path(relative=True)
@@ -482,9 +483,10 @@ class Container:
 
         if commit_message == '':
             commit_message = u'Suppression du conteneur « {} »'.format(self.title)
-        cm = repo.index.commit(commit_message, **get_commit_author())
+        if do_commit:
+            cm = repo.index.commit(commit_message, **get_commit_author())
 
-        self.top_container().sha_draft = cm.hexsha
+            self.top_container().sha_draft = cm.hexsha
 
         return cm.hexsha
 
@@ -710,9 +712,10 @@ class Extract:
 
         return cm.hexsha
 
-    def repo_delete(self, commit_message=''):
+    def repo_delete(self, commit_message='', do_commit=True):
         """
         :param commit_message: commit message used instead of default one if provided
+        :param do_commit: tells if we have to commit the change now or let the outter program do it
         :return: commit sha
         """
         path = self.get_path(relative=True)
@@ -732,9 +735,10 @@ class Extract:
 
         if commit_message == '':
             commit_message = u'Suppression de l\'extrait « {} »'.format(self.title)
-        cm = repo.index.commit(commit_message, **get_commit_author())
+        if do_commit:
+            cm = repo.index.commit(commit_message, **get_commit_author())
 
-        self.container.top_container().sha_draft = cm.hexsha
+            self.container.top_container().sha_draft = cm.hexsha
 
         return cm.hexsha
 
