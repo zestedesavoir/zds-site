@@ -536,6 +536,7 @@ def delete_tutorial(request, tutorial_pk):
         messages.success(request,
                          _(u'Le tutoriel {0} a bien '
                            u'été supprimé.').format(tutorial.title))
+        Topic.objects.get_beta_topic_of(tutorial).delete()
         tutorial.delete()
     else:
         tutorial.authors.remove(request.user)

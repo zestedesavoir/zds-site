@@ -16,3 +16,6 @@ class TopicManager(models.Manager):
                    .prefetch_related("author") \
                    .order_by("-pubdate") \
                    .all()[:settings.ZDS_APP['forum']['home_number']]
+
+    def get_beta_topic_of(self, tutorial):
+        return self.filter(key=tutorial.pk, key__isnull=False).first()
