@@ -410,9 +410,13 @@ def edit(request):
 
         if "lock" in data:
             g_topic.is_locked = data["lock"] == "true"
-            messages.success(request,
-                             u"Le sujet {0} est désormais verrouillé."
-                             .format(g_topic.title))
+
+            if g_topic.is_locked:
+                success_message = u"Le sujet {0} est désormais verrouillé.".format(g_topic.title)
+            else:
+                success_message = u"Le sujet {0} est désormais déverrouillé.".format(g_topic.title)
+
+            messages.success(request, success_message)
         if 'sticky' in data:
             if data['sticky'] == 'true':
                 g_topic.is_sticky = True
