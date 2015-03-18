@@ -24,7 +24,7 @@ def top_categories(user):
         forums_prv = Forum\
             .objects\
             .filter(group__isnull=False, group__in=user.groups.all())\
-            .select_related("category").all()
+            .select_related("category").distinct().all()
         forums = list(forums_pub | forums_prv)
     else:
         forums = list(forums_pub)
