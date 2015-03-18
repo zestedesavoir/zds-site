@@ -238,7 +238,7 @@ class BigTutorialTests(TestCase):
         # then active the beta on tutorial
         self.assertIsNone(Topic.objects.get_beta_topic_of(future_tutorial))
         sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
-        response = self.client.post(
+        self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
                 'tutorial': future_tutorial_pk,
@@ -271,7 +271,7 @@ class BigTutorialTests(TestCase):
         # then active the beta on tutorial
         self.assertIsNone(Topic.objects.get_beta_topic_of(future_tutorial))
         sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
-        response = self.client.post(
+        self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
                 'tutorial': future_tutorial_pk,
@@ -286,7 +286,7 @@ class BigTutorialTests(TestCase):
         # then desactive the beta on tutorial
         self.assertIsNone(Topic.objects.filter(pk=topic_pk, is_locked=True).first())
         sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
-        response = self.client.post(
+        self.client.post(
             reverse('zds.tutorial.views.modify_tutorial'),
             {
                 'tutorial': future_tutorial_pk,
