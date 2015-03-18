@@ -55,6 +55,9 @@ class MemberTests(TestCase):
             position_in_category=1)
         self.staff = StaffProfileFactory().user
 
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
+
     def test_list_members(self):
         """
         To test the listing of the members with and without page parameter.
