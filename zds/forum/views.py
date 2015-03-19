@@ -959,8 +959,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         shown_topics = paginator.page(1)
         page = 1
     except EmptyPage:
-        shown_topics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        raise Http404
     return render(request, "forum/find/topic_by_tag.html", {
         "topics": shown_topics,
         "tag": tag,
