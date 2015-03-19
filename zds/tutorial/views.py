@@ -3140,8 +3140,12 @@ def resize_svg(source, max_size=960):
     max_size = int(settings.THUMBNAIL_ALIASES[""]["content"]["size"][0])
     tree = etree.parse(source)
     svg = tree.getroot()
-    width = float(svg.attrib["width"])
-    height = float(svg.attrib["height"])
+    try:
+        width = float(svg.attrib["width"])
+        height = float(svg.attrib["height"])
+    except KeyError:
+        width = max_size
+        height = max_size
     end_height = height
     end_width = width
     if width > max_size or height > max_size:
