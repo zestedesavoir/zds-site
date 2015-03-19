@@ -60,6 +60,12 @@ class MemberTests(TestCase):
         To test the listing of the members with and without page parameter.
         """
 
+        # create strange member
+        weird = ProfileFactory()
+        weird.user.username = u"ïtrema718"
+        weird.user.email = u"foo@\xfbgmail.com"
+        weird.user.save()
+
         # list of members.
         result = self.client.get(
             reverse('member-list'),
