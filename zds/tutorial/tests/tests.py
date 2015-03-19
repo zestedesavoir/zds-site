@@ -226,6 +226,24 @@ class BigTutorialTests(TestCase):
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
 
+    def test_delete_tutorial_never_beta(self):
+        future_tutorial = self.create_basic_big_tutorial()
+        future_tutorial_pk = future_tutorial.pk
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # delete tutorial
+        response = self.client.post(
+            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            {},
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(Tutorial.objects.filter(pk=future_tutorial_pk).first())
+
     def test_delete_tutorial_on_beta(self):
         future_tutorial = self.create_basic_big_tutorial()
         future_tutorial_pk = future_tutorial.pk
