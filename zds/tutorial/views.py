@@ -3145,11 +3145,11 @@ def resize_svg(source, max_size=800):
     end_width = width
     if width > max_size or height > max_size:
         if width > height:
-            end_height = (height/width) * max_size
+            end_height = (height / width) * max_size
             end_width = max_size
         else:
             end_height = max_size
-            end_width = (width/height) * max_size
+            end_width = (width / height) * max_size
     svg.attrib["width"] = str(end_width)
     svg.attrib["height"] = str(end_height)
     tree.write(source)
