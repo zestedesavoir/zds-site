@@ -3092,17 +3092,17 @@ def get_url_images(md_text, pt):
                             cairosvg.svg2png(url=down_path,
                                              write_to=os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                         else:
-                            im = ImagePIL.open(down_path)
+                            im_display = ImagePIL.open(down_path)
                             # if image is gif, convert to png
                             if ext == "gif":
-                                im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                                im_display.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                     except IOError:
                         ext = filename.split(".")[-1].lower()
-                        im = ImagePIL.open(unknow_path)
+                        im_display = ImagePIL.open(unknow_path)
                         if ext == "gif" or ext == "svg":
-                            im.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
+                            im_display.save(os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                         else:
-                            im.save(os.path.join(pt, "images", filename))
+                            im_display.save(os.path.join(pt, "images", filename))
                 except IOError:
                     pass
             else:
@@ -3122,21 +3122,22 @@ def get_url_images(md_text, pt):
                             cairosvg.svg2png(url=dstroot,
                                              write_to=os.path.join(dstroot.split(".")[0] + ".png"))
                         else:
-                            im = ImagePIL.open(dstroot)
+                            im_display = ImagePIL.open(dstroot)
                             # if image is gif or svg, convert to png
                             if ext == "gif":
-                                im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                                im_display.save(os.path.join(dstroot.split(".")[0] + ".png"))
                     except IOError:
                         ext = dstroot.split(".")[-1].lower()
-                        im = ImagePIL.open(unknow_path)
+                        im_display = ImagePIL.open(unknow_path)
                         if ext == "gif" or ext == "svg":
-                            im.save(os.path.join(dstroot.split(".")[0] + ".png"))
+                            im_display.save(os.path.join(dstroot.split(".")[0] + ".png"))
                         else:
-                            im.save(os.path.join(dstroot))
+                            im_display.save(os.path.join(dstroot))
 
 
-def resize_svg(source, max_size=800):
+def resize_svg(source, max_size=960):
 
+    max_size = int(settings.THUMBNAIL_ALIASES[""]["content"]["size"][0])
     tree = etree.parse(source)
     svg = tree.getroot()
     width = float(svg.attrib["width"])
