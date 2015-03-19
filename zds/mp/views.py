@@ -433,7 +433,7 @@ class PrivatePostEdit(UpdateView):
         self.current_post = self.get_object()
         form = self.form_class(self.topic, initial={'text': self.current_post.text})
         form.helper.form_action = reverse('private-posts-edit',
-                                          args=[self.topic.pk, self.topic.slug, self.current_post.pk])
+                                          args=[self.topic.pk, self.topic.slug(), self.current_post.pk])
         return render(request, self.template_name, {
             'post': self.current_post,
             'topic': self.topic,
