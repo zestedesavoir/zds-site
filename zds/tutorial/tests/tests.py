@@ -2265,7 +2265,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, new_licence.code)
+        self.assertEquals(json['licence'], new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2299,7 +2299,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2356,7 +2356,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a big tutorial"""
@@ -4066,7 +4066,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, new_licence.code)
+        self.assertEquals(json['licence'], new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -4100,7 +4100,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -4157,7 +4157,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a mini tutorial"""
