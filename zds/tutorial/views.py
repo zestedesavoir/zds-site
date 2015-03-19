@@ -3088,6 +3088,7 @@ def get_url_images(md_text, pt):
                     try:
                         ext = filename.split(".")[-1].lower()
                         if ext == "svg":
+                            resize_svg(down_path)
                             cairosvg.svg2png(url=down_path,
                                              write_to=os.path.join(pt, "images", filename.split(".")[0] + ".png"))
                         else:
@@ -3117,6 +3118,7 @@ def get_url_images(md_text, pt):
                     try:
                         ext = dstroot.split(".")[-1]
                         if ext == "svg":
+                            resize_svg(dstroot)
                             cairosvg.svg2png(url=dstroot,
                                              write_to=os.path.join(dstroot.split(".")[0] + ".png"))
                         else:
@@ -3131,6 +3133,26 @@ def get_url_images(md_text, pt):
                             im.save(os.path.join(dstroot.split(".")[0] + ".png"))
                         else:
                             im.save(os.path.join(dstroot))
+
+
+def resize_svg(source, max_size=800):
+
+    tree = etree.parse(source)
+    svg = tree.getroot()
+    width = float(svg.attrib["width"])
+    height = float(svg.attrib["height"])
+    end_height = height
+    end_width = width
+    if width > max_size or height > max_size:
+        if width > height:
+            end_height = (height/width) * max_size
+            end_width = max_size
+        else:
+            end_height = max_size
+            end_width = (width/height) * max_size
+    svg.attrib["width"] = str(end_width)
+    svg.attrib["height"] = str(end_height)
+    tree.write(source)
 
 
 def sub_urlimg(g):
