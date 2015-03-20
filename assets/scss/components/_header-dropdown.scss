@@ -17,6 +17,15 @@
         color: #FFF;
     }
 
+    &.header-menu-dropdown .dropdown-list > li {
+        @for $i from 1 through 4 {
+            &:first-child:nth-last-child(#{$i}),
+            &:first-child:nth-last-child(#{$i}) ~ li {
+                width: 100% / $i;
+            }
+        }
+    }
+
     .dropdown-list {
         width: 100%;
         padding: 0;
@@ -43,14 +52,15 @@
                 a {
                     display: block;
                     width: 95%;
-                    height: 25px;
+                    min-height: 25px;
                     line-height: 25px;
                     color: #95d7f5;
+                    overflow: hidden;
                     transition: all $transition-duration ease;
 
                     &:hover,
                     &:focus {
-                        text-indent: 3%;
+                        padding-left: 3%;
                         background-color: rgba(0, 0, 0, .3)
                     }
                 }
