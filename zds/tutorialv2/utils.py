@@ -19,10 +19,17 @@ def search_container_or_404(base_content, kwargs_array):
     """
     :param base_content: the base Publishable content we will use to retrieve the container
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys
+    or the string representation
     :return: the Container object we were searching for
     :raise Http404 if no suitable container is found
     """
     container = None
+    if isinstance(kwargs_array, str):
+        dic = {}
+        dic["parent_container_slug"] = kwargs_array.split("/")[0]
+        if len(kwargs_array.split("/")) == 2:
+            dic["container_slug"] = kwargs_array.split("/")[1]
+        kwargs_array = dic
 
     if 'parent_container_slug' in kwargs_array:
             try:
@@ -133,7 +140,7 @@ def mark_read(content):
         a.save()
 
 
-def try_adopt_new_child(adoptive_parent_full_path, child, root):
+def try_adopt_new_child(adoptive_parent, child):
     """
     Try the adoptive parent to take the responsability of the child
     :param parent_full_path:
@@ -144,17 +151,7 @@ def try_adopt_new_child(adoptive_parent_full_path, child, root):
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
     :return:
     """
-    splitted = adoptive_parent_full_path.split('/')
-    if len(splitted) == 1:
-        container = root
-    elif len(splitted) == 2:
-        container = search_container_or_404(root, {'parent_container_slug': splitted[1]})
-    elif len(splitted) == 3:
-        container = search_container_or_404(root,
-                                            {'parent_container_slug': splitted[1],
-                                             'container_slug': splitted[2]})
-    else:
-        raise Http404
+    container = adoptive_parent
     if isinstance(child, Extract):
         if not container.can_add_extract():
             raise TypeError

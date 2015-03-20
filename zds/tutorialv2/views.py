@@ -1026,10 +1026,21 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                 parent.move_child_down(child_slug)
             if form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
-                parent.move_child_after(child_slug, target)
+                if not parent.has_child_with_path(target):
+                    target_parent = search_container_or_404(versionned, target.split("/")[1:-2])
+                    child = target_parent.children_dict[target.split("/")[-1]]
+                    try_adopt_new_child(target_parent, parent[child_slug])
+                target_parent.move_child_after(child_slug, target)
             if form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
-                parent.move_child_before(child_slug, target)
+                if not parent.has_child_with_path(target):
+
+                    target_parent = search_container_or_404(versioned, target.split("/")[1:-2])
+                    if target.split("/")[-1] not in target_parent:
+                        raise Http404
+                    child = target_parent.children_dict[target.split("/")[-1]]
+                    try_adopt_new_child(target_parent, parent[child_slug])
+                parent.move_child_before(child_slug, target.split("/")[-1])
 
             versioned.dump_json()
             parent.repo_update(parent.title,
