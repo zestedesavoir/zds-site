@@ -130,6 +130,16 @@ class Container:
             depth += 1
         return depth
 
+    def has_child_with_path(self, child_path):
+        """
+        Check that the given path represent the full path
+        of a child of this container.
+        :param child_path: the full path (/maincontainer/subc1/subc2/childslug) we want to check
+        """
+        if self.get_path(True) not in child_path:
+            return False
+        return child_path.replace(self.get_path(True), "").replace("/", "") in self.children_dict
+
     def top_container(self):
         """
         :return: Top container (for which parent is `None`)
