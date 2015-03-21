@@ -40,6 +40,7 @@ def opensearch(request):
 
     return render(request, 'search/opensearch.xml', {
         'site_name': settings.ZDS_APP['site']['litteral_name'],
-        'site_image_16': '',
+        'site_url': settings.ZDS_APP['site']['url'],
+        'language': settings.LANGUAGE_CODE,
         'search_url': settings.ZDS_APP['site']['url'] + reverse('haystack_search')
-    }, content_type='text/xml')
+    }, content_type='application/opensearchdescription+xml')
