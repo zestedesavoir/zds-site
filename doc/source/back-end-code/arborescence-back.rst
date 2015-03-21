@@ -45,7 +45,6 @@ On retrouve également dans ce dossier les quelques fichiers suivants, nécéssa
     ├── settings_test.py # paramètres spécifiques à une version locale
     └── wsgi.py
 
-
 Contenu d'un module
 ===================
 
@@ -73,6 +72,8 @@ Fichiers principaux
 -------------------
 
 Django étant basé sur une architecture de type Modèle-Vue-Controleur, on retrouve les modèles dans le fichier ``models.py`` et les vues associées à celles-ci dans ``views.py``. Ces dernières peuvent employer des classes formulaires qui sont définis dans ``forms.py``. Les URLs associées au module et permetant d'accéder aux vues sont définies dans ``urls.py``. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans ``feeds.py``.
+
+Le contenu de ces fichiers est documenté dans la `documentation technique <back-end.html>`__.
 
 
 Tests unitaires
