@@ -16,12 +16,7 @@ Sommaire
 
    install
    workflow
-   tutorial
-   member
-   private-message
-   forum
-   gallery
-   article
+   back-end
+   front-end
    api
    utils
-   design

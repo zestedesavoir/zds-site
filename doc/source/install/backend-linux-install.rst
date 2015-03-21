@@ -86,7 +86,4 @@ Ce qui revient à lancer les commmandes suivantes :
     cabal update
     cabal install pandoc
 
-Ajouter un hook de pre-commit a git pour tester flake
------------------------------------------------------
-
-.. include:: includes/git-pre-hook.rst
+Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <utils/git-pre-hook.html>`__.

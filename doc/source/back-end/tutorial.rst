@@ -176,7 +176,7 @@ Les archives zip
 
 Si vous avez commencé a rédiger un tutoriel via l'éditeur en ligne de Zeste de Savoir, vous avez téléchargé l'archive correspondante et vous avez fait des modifications sur les fichiers en hors-ligne, et vous souhaitez maintenant importer ces modifications sur le site. Il suffit de faire une archive zip du répertoire dans lequel se trouvent les fichiers de votre tutoriel et de renseigner les deux champs relatifs à l'import d'une archive, puis de cliquer sur importer.
 
-.. figure:: images/tutorial/import-archive.png
+.. figure:: ../images/tutorial/import-archive.png
     :align:   center
 
 .. attention::
@@ -194,7 +194,7 @@ Vous aurez aussi besoin du pack d'images (au format zip) qui sont utilisés dans
 
 Il ne vous restera plus qu'à renseigner les champs relatifs à l'import de ``.tuto`` pour importer le vôtre.
 
-.. figure:: images/tutorial/import-tuto.png
+.. figure:: ../images/tutorial/import-tuto.png
     :align:   center
 
 .. attention::
@@ -290,14 +290,14 @@ L'ensemble des tutoriels à la recherche d'aide est visible via la page "/tutori
 Il est également possible **pour tout membre qui n'est pas auteur du tutoriel consulté** de signaler une erreur, en employant le bouton prévu à cet effet et situé en bas d'une page du tutoriel (il est également présent en bas d'un chapitre, s'il s'agit d'un big-tutoriel).
 
 
-   .. figure:: images/tutorial/warn-typo-button.png
+   .. figure:: ../images/tutorial/warn-typo-button.png
       :align: center
 
       Bouton permentant de signaler une erreur
 
 Ce bouton est disponible sur la version publiée ou en bêta d'un tutoriel. Cliquer sur celui-ci ouvre une boite de dialogue :
 
-   .. figure:: images/tutorial/warn-typo-dial.png
+   .. figure:: ../images/tutorial/warn-typo-dial.png
       :align: center
 
       Boite de dialogue permetant de signaler à l'auteur une erreur qu'il aurait commise
