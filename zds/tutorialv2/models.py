@@ -726,7 +726,7 @@ class Extract:
         """
         :param commit_message: commit message used instead of default one if provided
         :param do_commit: tells if we have to commit the change now or let the outter program do it
-        :return: commit sha
+        :return: commit sha, None if no commit is done
         """
         path = self.get_path(relative=True)
         repo = self.container.top_container().repository
@@ -750,7 +750,8 @@ class Extract:
 
             self.container.top_container().sha_draft = cm.hexsha
 
-        return cm.hexsha
+            return cm.hexsha
+        return None
 
 
 class VersionedContent(Container):
