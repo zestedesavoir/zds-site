@@ -8,6 +8,7 @@ from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
 from zds.forum.models import Forum, Topic
 from zds.tutorialv2.forms import BetaForm, MoveElementForm
+from zds.tutorialv2.utils import try_adopt_new_child
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 
 try:
@@ -1034,12 +1035,14 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             if form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
-
-                    target_parent = search_container_or_404(versioned, target.split("/")[1:-2])
-                    if target.split("/")[-1] not in target_parent:
+                    
+                    target_parent = search_container_or_404(versioned, target)
+                    print target_parent.get_path()
+                    if target.split("/")[-1] not in target_parent.children_dict:
                         raise Http404
                     child = target_parent.children_dict[target.split("/")[-1]]
-                    try_adopt_new_child(target_parent, parent[child_slug])
+                    try_adopt_new_child(target_parent, parent.children_dict[child_slug])
+                    parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
 
             versioned.dump_json()

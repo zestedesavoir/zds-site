@@ -24,10 +24,10 @@ def search_container_or_404(base_content, kwargs_array):
     :raise Http404 if no suitable container is found
     """
     container = None
-    if isinstance(kwargs_array, str):
+    if isinstance(kwargs_array, basestring):
         dic = {}
         dic["parent_container_slug"] = kwargs_array.split("/")[0]
-        if len(kwargs_array.split("/")) == 2:
+        if len(kwargs_array.split("/")) >= 2:
             dic["container_slug"] = kwargs_array.split("/")[1]
         kwargs_array = dic
 

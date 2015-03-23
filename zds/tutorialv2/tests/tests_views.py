@@ -797,6 +797,30 @@ class ContentTests(TestCase):
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[0]
         self.assertEqual(self.extract2.slug, extract.slug)
+        
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        # test changing parent for extract (smoothly)
+        self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+        self.extract4 = ExtractFactory(container=self.chapter2, db_object=self.tuto)
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.extract1.slug,
+                'container_slug': self.chapter1.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'before:'+self.extract4.get_path(True)[:-3],
+                'pk': tuto.pk
+            },
+            follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[0]
+        self.assertEqual(self.extract1.slug, extract.slug)
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
+        self.assertEqual(self.extract4.slug, extract.slug)
+        self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
