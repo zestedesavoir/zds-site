@@ -46,15 +46,15 @@ git checkout $1
 git checkout -b $1
 
 # Front commands
-source /usr/local/nvm/nvm.sh
+[ -s /usr/local/nvm.sh ] && . /usr/local/nvm/nvm.sh
 # Update packages
 npm install --production
 # Remove unused packages
 npm prune --production
 # Clean the front stuff
-npm run gulp -- clean
+npm run clean
 # Build the front stuff
-npm run gulp -- build
+npm run gulp build
 
 # Update application data
 source ../bin/activate
@@ -75,4 +75,4 @@ sudo service nginx reload
 
 # Display current branch and commit
 git status
-echo "Commit deployé : `git rev-parse HEAD`"
+echo "Commit deployÃ© : `git rev-parse HEAD`"
