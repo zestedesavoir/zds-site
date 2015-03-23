@@ -103,6 +103,7 @@
 @media only screen and #{$media-mobile} {
     .pagination {
         li {
+            &.prev a,
             &.next a {
                 min-width: 0px;
                 span {
