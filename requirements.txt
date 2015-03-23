@@ -19,6 +19,7 @@ pillow==2.7.0
 gitpython==0.3.5
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.4.zip
 easy-thumbnails==2.2
+CairoSVG==1.0.13
 
 # Api dependencies
 djangorestframework==3.0.2
