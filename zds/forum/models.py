@@ -37,6 +37,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Catégorie'
         verbose_name_plural = 'Catégories'
+        ordering = ['position', 'title']
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', null=True, blank=True)
@@ -66,6 +67,7 @@ class Forum(models.Model):
     class Meta:
         verbose_name = 'Forum'
         verbose_name_plural = 'Forums'
+        ordering = ['position_in_category', 'title']
 
     title = models.CharField('Titre', max_length=80)
     subtitle = models.CharField('Sous-titre', max_length=200)
