@@ -26,8 +26,10 @@
         <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
         {% if app.site.association %}
             <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+            {% endif %}
         {% endif %}
-        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
         <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
         <li><a href="{% url "zds.pages.views.cookies" %}">{% trans "Les cookies" %}</a></li>
     </ul>
