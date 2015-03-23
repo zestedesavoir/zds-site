@@ -18,9 +18,15 @@ GALLERY_READ = 'R'
 
 def image_path(instance, filename):
     """Return path to an image."""
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('galleries', str(instance.gallery.pk), filename)
+    try:
+        img = Image.objects.get(pk=instance.pk)
+        file = "{}".format(img.physical)
+        os.remove(os.path.join(settings.MEDIA_ROOT, file))
+        return file
+    except:
+        ext = filename.split('.')[-1]
+        filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+        return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 
 class UserGallery(models.Model):

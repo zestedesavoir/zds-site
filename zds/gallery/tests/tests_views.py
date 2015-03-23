@@ -361,6 +361,8 @@ class EditImageViewTest(TestCase):
     def test_success_member_edit_image(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
+        filename = os.path.join(settings.MEDIA_ROOT, "{}".format(self.image.physical))
+        size_old = os.stat(filename).st_size
 
         with open(os.path.join(settings.SITE_ROOT, 'fixtures', 'logo.png'), 'r') as fp:
 
@@ -378,8 +380,11 @@ class EditImageViewTest(TestCase):
                 follow=True
             )
         self.assertEqual(200, response.status_code)
+        size = os.stat(filename).st_size
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertEqual('edit title', image_test.title)
+        self.assertTrue(os.path.exists(filename))
+        self.assertNotEqual(size_old, size)
         image_test.delete()
 
     def test_access_permission(self):
