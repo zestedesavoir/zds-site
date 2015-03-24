@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from zds.mp.managers import PrivateTopicManager
 
 from zds.utils import get_current_user, slugify
 
@@ -28,6 +29,7 @@ class PrivateTopic(models.Model):
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
                                      verbose_name=u'Dernier message')
     pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
+    objects = PrivateTopicManager()
 
     def __unicode__(self):
         """

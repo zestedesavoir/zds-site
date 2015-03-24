@@ -46,10 +46,7 @@ class PrivateTopicList(ZdSPagingListView):
         return super(PrivateTopicList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return PrivateTopic.objects \
-            .filter(Q(participants__in=[self.request.user.id]) | Q(author=self.request.user.id)) \
-            .select_related("author", "participants") \
-            .distinct().order_by('-last_message__pubdate').all()
+        return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 
 class PrivateTopicNew(CreateView):
