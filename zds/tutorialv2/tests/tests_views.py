@@ -769,9 +769,9 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)
 
-    def test_move_before(self):
+    def test_move_extract_before(self):
         # test 1 : move extract after a sibling
-         # login with author
+        # login with author
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -813,6 +813,7 @@ class ContentTests(TestCase):
                 'pk': tuto.pk
             },
             follow=True)
+        
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -821,7 +822,107 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-
+        # test try to move to a container that can't get extract
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.extract1.slug,
+                'container_slug': self.chapter2.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'before:'+self.chapter1.get_path(True),
+                'pk': tuto.pk
+            },
+            follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[0]
+        self.assertEqual(self.extract1.slug, extract.slug)
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
+        self.assertEqual(self.extract4.slug, extract.slug)
+        self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
+        # test try to move near an extract that does not exist
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.extract1.slug,
+                'container_slug': self.chapter2.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'before:'+self.chapter1.get_path(True)+"/un-mauvais-extrait",
+                'pk': tuto.pk
+            },
+            follow=True)
+        self.assertEqual(404, result.status_code)
+        self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[0]
+        self.assertEqual(self.extract1.slug, extract.slug)
+        extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
+        self.assertEqual(self.extract4.slug, extract.slug)
+        self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
+    
+    def test_move_container_before(self):
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+        self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+        self.part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
+        self.chapter4 = ContainerFactory(parent=self.part2, db_object=self.tuto)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        # test changing parent for container (smoothly)
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.chapter3.slug,
+                'container_slug': self.part1.slug,
+                'first_level_slug': '',
+                'moving_method': 'before:'+self.chapter4.get_path(True),
+                'pk': tuto.pk
+            },
+            follow=True)
+        
+        self.assertEqual(200, result.status_code)
+        self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        self.assertEqual(2, len(versioned.children_dict[self.part2.slug].children))
+        chapter = versioned.children_dict[self.part2.slug].children[0]
+        self.assertEqual(self.chapter3.slug, chapter.slug)
+        chapter = versioned.children_dict[self.part2.slug].children[1]
+        self.assertEqual(self.chapter4.slug, chapter.slug)
+        # test changing parent for too deep container
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.part1.slug,
+                'container_slug': self.tuto.slug,
+                'first_level_slug': '',
+                'moving_method': 'before:'+self.chapter4.get_path(True),
+                'pk': tuto.pk
+            },
+            follow=True)
+        
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        self.assertEqual(2, len(versioned.children_dict[self.part2.slug].children))
+        chapter = versioned.children_dict[self.part2.slug].children[0]
+        self.assertEqual(self.chapter3.slug, chapter.slug)
+        chapter = versioned.children_dict[self.part2.slug].children[1]
+        self.assertEqual(self.chapter4.slug, chapter.slug)
+        
+        
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
