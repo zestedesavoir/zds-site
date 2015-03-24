@@ -8,7 +8,7 @@ from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
 from zds.forum.models import Forum, Topic
 from zds.tutorialv2.forms import BetaForm, MoveElementForm
-from zds.tutorialv2.utils import try_adopt_new_child
+from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 
 try:
@@ -1002,7 +1002,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         versioned = content.load_version()
         base_container_slug = form.data["container_slug"]
         child_slug = form.data['child_slug']
-
+        
         if base_container_slug == '':
             raise Http404
 
@@ -1013,14 +1013,17 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             parent = versioned
         else:
             search_params = {}
+
             if form.data['first_level_slug'] != '':
+                
                 search_params['parent_container_slug'] = form.data['first_level_slug']
                 search_params['container_slug'] = base_container_slug
             else:
-                search_params['parent_container_slug'] = base_container_slug
+                search_params['container_slug'] = base_container_slug
             parent = search_container_or_404(versioned, search_params)
-
+        
         try:
+            child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
             if form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
@@ -1035,13 +1038,16 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             if form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
-                    
-                    target_parent = search_container_or_404(versioned, target)
-                    print target_parent.get_path()
-                    if target.split("/")[-1] not in target_parent.children_dict:
-                        raise Http404
+                    if "/" not in target:
+                        target_parent = versioned
+                    else:
+                        target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
+
+                        if target.split("/")[-1] not in target_parent.children_dict:
+                            raise Http404
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
+                    
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
 
@@ -1053,18 +1059,20 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             content.sha_draft = versioned.sha_draft
             content.save()
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
-
+        except TooDeepContainerError:
+            messages.error(self.request, _(u'Cette section contient déjà trop de sous-section pour devenir'\
+                ' la sous-section d\'une autre section.'))
         except ValueError:
             raise Http404
         except IndexError:
             messages.warning(self.request, _(u"L'élément est déjà à la place souhaitée."))
+        except TypeError:
+            messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit"))
 
         if base_container_slug == versioned.slug:
             return redirect(reverse("content:view", args=[content.pk, content.slug]))
-        else:
-            search_params['slug'] = content.slug
-            search_params['pk'] = content.pk
-            return redirect(reverse("content:view-container", kwargs=search_params))
+        else:                
+            return redirect(child.get_absolute_url())
 
 
 @can_write_and_read_now

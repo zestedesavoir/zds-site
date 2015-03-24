@@ -116,6 +116,7 @@ class Container:
 
     def get_tree_depth(self):
         """
+        Represent the depth where this container is found
         Tree depth is no more than 2, because there is 3 levels for Containers :
         - PublishableContent (0),
         - Part (1),
@@ -129,6 +130,20 @@ class Container:
             current = current.parent
             depth += 1
         return depth
+
+    def get_tree_level(self):
+        """
+        Represent the level in the tree of this container, i.e the depth of its deepest child
+        :return: tree level
+        """
+        current = self
+        if len(self.children) == 0:
+            return 1
+        elif isinstance(self.children[0], Extract):
+            return 2
+        else:
+            return 1 + max([i.get_tree_level() for i in self.children])
+
 
     def has_child_with_path(self, child_path):
         """
@@ -498,7 +513,8 @@ class Container:
 
             self.top_container().sha_draft = cm.hexsha
 
-        return cm.hexsha
+            return cm.hexsha
+        return None
 
     def move_child_up(self, child_slug):
         """

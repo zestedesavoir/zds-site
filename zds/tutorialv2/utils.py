@@ -51,7 +51,7 @@ def search_container_or_404(base_content, kwargs_array):
         else:
             if not isinstance(container, Container):
                 raise Http404
-    else:
+    elif container == base_content:
         # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
         return base_content
     if container is None:
@@ -160,7 +160,7 @@ def try_adopt_new_child(adoptive_parent, child):
     if isinstance(child, Container):
         if not container.can_add_container():
             raise TypeError
-        if container.get_tree_depth() + child.get_tree_depth() > settings.ZDS_APP['content']['max_tree_depth']:
+        if container.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
             raise TooDeepContainerError
         child.repo_delete('', False)
         container.add_container(child)
