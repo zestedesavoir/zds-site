@@ -146,13 +146,6 @@ Rajouter ces lignes dans le `settings_prod.py` :
 ZDS_SITE['site']['googleAnalyticsID'] = 'UA-27730868-1'
 ZDS_SITE['site']['googleTagManagerID'] = 'GTM-WH7642'
 ```
-
-Issue #1634
------------
-
-Exécuter la commande suivante : `sudo apt-get install libffi-dev`
-
-
 Actions à faire pour mettre en prod la version : v1.6
 =====================================================
 
