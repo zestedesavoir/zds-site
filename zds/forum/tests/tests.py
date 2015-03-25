@@ -299,7 +299,7 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
 
-        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.status_code, 302)
         self.assertEqual(result.request["PATH_INFO"], reverse('zds.forum.views.answer'))
 
     def test_edit_main_post(self):
