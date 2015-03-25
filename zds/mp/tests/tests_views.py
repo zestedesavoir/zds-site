@@ -248,6 +248,8 @@ class NewTopicViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
         login_check = self.client.login(
             username=self.profile1.user.username,
@@ -333,6 +335,26 @@ class NewTopicViewTest(TestCase):
             reverse('mp-new'),
             {
                 'participants': 'wronguser',
+                'title': 'title',
+                'subtitle': 'subtitle',
+                'text': 'text'
+            }
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, PrivateTopic.objects.all().count())
+
+    def test_fail_new_topic_user_no_active(self):
+
+        profile_inactive = ProfileFactory()
+        profile_inactive.user.is_active = False
+        profile_inactive.user.save()
+
+        self.assertEqual(0, PrivateTopic.objects.all().count())
+        response = self.client.post(
+            reverse('mp-new'),
+            {
+                'participants': u"{}".format(profile_inactive.user.username),
                 'title': 'title',
                 'subtitle': 'subtitle',
                 'text': 'text'
