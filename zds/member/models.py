@@ -126,7 +126,10 @@ class Profile(models.Model):
     def get_avatar_url(self):
         """Avatar URL (using custom URL or Gravatar)"""
         if self.avatar_url:
-            return self.avatar_url
+            if self.avatar_url.startswith(settings.MEDIA_URL):
+                return u"{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
+            else:
+                return self.avatar_url
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
                 md5(self.user.email.lower().encode("utf-8")).hexdigest())

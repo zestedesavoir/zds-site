@@ -17,7 +17,7 @@ from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorial.factories import MiniTutorialFactory
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.utils.models import Alert
 from zds.settings import SITE_ROOT
 
@@ -57,6 +57,13 @@ class MemberModelsTest(TestCase):
         testurl = 'http://test.com/avatar.jpg'
         user2.avatar_url = testurl
         self.assertEqual(user2.get_avatar_url(), testurl)
+
+        # if url is relative, send absolute url
+        gallerie_avtar = GalleryFactory()
+        image_avatar = ImageFactory(gallery=gallerie_avtar)
+        user2.avatar_url = image_avatar.physical.url
+        self.assertNotEqual(user2.get_avatar_url(), image_avatar.physical.url)
+        self.assertIn("http", user2.get_avatar_url())
 
     def test_get_post_count(self):
         # Start with 0
