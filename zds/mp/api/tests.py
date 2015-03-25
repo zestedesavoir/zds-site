@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase, APIClient
 from zds import settings
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.factories import ProfileFactory
-from zds.mp.factories import PrivateTopicFactory
+from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 
 
 overrided_drf = settings.REST_FRAMEWORK
@@ -179,5 +179,54 @@ class PrivateTopicListAPITest(APITestCase):
 
     def create_multiple_private_topics_for_member(self, user, number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
         for private_topic in xrange(0, number_of_users):
-            private_topic = PrivateTopicFactory(author=user)
-            private_topic.save()
+            PrivateTopicFactory(author=user)
+
+
+class PrivateTopicDetailAPITest(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.private_post = PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic,
+                                               position_in_topic=1)
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+    def test_detail_mp_with_client_unauthenticated(self):
+        """
+        Gets details about a private topic with an unauthenticated client.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_detail_of_a_member(self):
+        """
+        Gets all information about a private topic.
+        """
+        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.private_topic.id, response.data.get('id'))
+        self.assertEqual(self.private_topic.title, response.data.get('title'))
+        self.assertEqual(self.private_topic.subtitle, response.data.get('subtitle'))
+        self.assertIsNotNone(response.data.get('pubdate'))
+        self.assertEqual(self.profile.user.id, response.data.get('author'))
+        self.assertEqual(self.private_post.id, response.data.get('last_message'))
+        self.assertEqual([], response.data.get('participants'))
+
+    def test_detail_of_a_private_topic_not_present(self):
+        """
+        Gets an error 404 when the private topic isn't present in the database.
+        """
+        response = self.client.get(reverse('api-mp-detail', args=[42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_detail_of_private_topic_not_in_participants(self):
+        """
+        Gets an error 403 when the member doesn't have permission to display details about the private topic.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+
+        response = self.client.get(reverse('api-mp-detail', args=[another_private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

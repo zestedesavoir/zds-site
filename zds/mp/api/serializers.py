@@ -5,7 +5,7 @@ from rest_framework import serializers
 from zds.mp.models import PrivateTopic
 
 
-class PrivateTopicListSerializer(serializers.ModelSerializer):
+class PrivateTopicSerializer(serializers.ModelSerializer):
     """
     Serializers of a private topic object.
     """
