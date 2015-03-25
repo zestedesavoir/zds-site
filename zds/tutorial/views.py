@@ -1707,9 +1707,6 @@ def view_chapter(
 
     prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
     next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
-    print "-------------> {}".format(next_chapter)
-    print "-------------> {}".format(final_position)
-    print "-------------> {}".format(len(chapter_tab))
 
     if tutorial.js_support:
         is_js = "js"
