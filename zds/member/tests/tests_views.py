@@ -505,6 +505,33 @@ class MemberTests(TestCase):
         self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 
+    def test_failed_bot_sanctions(self):
+
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        bot_group = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot_group.save()
+        bot_profile = ProfileFactory()
+        bot_profile.user.groups.add(bot_group)
+        bot_profile.user.save()
+
+        # Test: LS
+        result = self.client.post(
+            reverse(
+                'zds.member.views.modify_profile', kwargs={
+                    'user_pk': bot_profile.user.id}), {
+                'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
+        user = Profile.objects.get(id=bot_profile.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 403)
+        self.assertTrue(user.can_write)
+        self.assertTrue(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
         result = self.client.get(reverse('zds.member.views.login_view') + '?next=' +
@@ -739,7 +766,7 @@ class MemberTests(TestCase):
         # Now access some unknow user
         result = self.client.post(
             reverse('zds.member.views.modify_karma'),
-            {'profile_pk': -1,
+            {'profile_pk': 9999,
              'warning': 'Good tester is good !',
              'points': '10'},
             follow=False)
@@ -770,7 +797,7 @@ class MemberTests(TestCase):
 
         # Now access without post
         result = self.client.get(reverse('zds.member.views.modify_karma'), follow=False)
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 405)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
