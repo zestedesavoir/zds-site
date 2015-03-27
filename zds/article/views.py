@@ -394,7 +394,7 @@ def edit(request):
 
     form_js = ActivJsForm(initial={"js_support": article.js_support})
     return render(request, 'article/member/edit.html', {
-        'article': article, 'form': form, 'formJs': form_js
+        'article': article, 'form': form, 'formJs': form_js, 'authors': article.authors,
     })
 
 
