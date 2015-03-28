@@ -7,8 +7,11 @@ python:
   - 2.7
 
 env:
-  - TEST_APP="-e back_mysql"
-  - TEST_APP="-e front"
+  global:
+    - secure: "HV/SWOi45F/w6v1RFTeoBethWqz/V+433C569uw4zjngNYZNUiCp4tUQ2xpXyTWSuyX0GdSEbtu6ZwQPvk+ABxZ+q27DvVFPdur984RDjRZN4eaRdbOU1OtFsX+G2E+8ghbjqMt2rA6aCQmG3WBDmsJaNYgp60HeakQh1CNt/mk="
+  matrix:
+    - TEST_APP="-e back_mysql"
+    - TEST_APP="-e front"
 
 notifications:
   irc:
@@ -78,3 +81,17 @@ script:
 
 after_success:
   - coveralls
+  - |
+    if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ "$TRAVIS_BRANCH" == "release"* ]]
+    then
+      echo "Pushing front to GitHub"
+      echo "machine github.com login sandhose password $GITHUB_TOKEN" > ~/.netrc
+      git config --global url."https://".insteadOf git://
+      git config --global user.name "Build bot"
+      git config --global user.email "buildbot@zestedesavoir.com"
+      git config --global push.default simple
+      git add --force dist/
+      git commit -m "[bot] Front build"
+      git push origin HEAD:$TRAVIS_BRANCH
+    fi
+
