@@ -91,7 +91,7 @@ after_success:
       git config --global user.email "buildbot@zestedesavoir.com"
       git config --global push.default simple
       git add --force dist/
-      git commit -m "[bot] Front build"
+      git commit -m "Front build [ci skip]"
       git push origin HEAD:$TRAVIS_BRANCH
     fi
 
