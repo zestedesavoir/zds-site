@@ -597,6 +597,20 @@ class Container:
             # if we want our child to get up (reference is an upper child)
             for i in range(child_pos, refer_pos, - 1):
                 self.move_child_up(child_slug)
+    
+    def traverse(self, only_container=True):
+        """
+        traverse the 
+        :param only_container: if we only want container's paths, not extract
+        :return: a generator that traverse all the container recursively (depth traversal)  
+        """
+        yield self
+        for child in children:
+            if isinstance(child, Container):
+                for _ in child.traverse(only_container):
+                    yield _
+            elif not only_container:
+                yield child
 
 
 class Extract:
@@ -665,6 +679,13 @@ class Extract:
         args.extend(slugs)
 
         return reverse('content:edit-extract', args=args)
+
+    def get_full_slug(self):
+        """
+        get the slug of curent extract with its full path (part1/chapter1/slug_of_extract) 
+        this method is an alias to extract.get_path(True)[:-3] (remove .md extension)
+        """
+        return self.get_path(True)[:-3]
 
     def get_delete_url(self):
         """
