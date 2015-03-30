@@ -85,7 +85,6 @@ class UpdateMember(UpdateView):
     form_class = ProfileForm
     template_name = 'member/settings/profile.html'
 
-    @method_decorator(can_write_and_read_now)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(UpdateMember, self).dispatch(*args, **kwargs)
