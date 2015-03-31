@@ -115,6 +115,36 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 404)
 
+    def test_profile_page_of_weird_member_username(self):
+
+        # create some user with weird username
+        user_1 = ProfileFactory()
+        user_2 = ProfileFactory()
+        user_3 = ProfileFactory()
+        user_1.user.username = u"ïtrema"
+        user_1.user.save()
+        user_2.user.username = u"&#34;a"
+        user_2.user.save()
+        user_3.user.username = u"_`_`_`_"
+        user_3.user.save()
+
+        # profile pages of weird users.
+        result = self.client.get(
+            reverse('member-detail', args=[user_1.user.username]),
+            follow=True
+        )
+        self.assertEqual(result.status_code, 200)
+        result = self.client.get(
+            reverse('member-detail', args=[user_2.user.username]),
+            follow=True
+        )
+        self.assertEqual(result.status_code, 200)
+        result = self.client.get(
+            reverse('member-detail', args=[user_3.user.username]),
+            follow=True
+        )
+        self.assertEqual(result.status_code, 200)
+
     def test_modify_member(self):
 
         # we need staff right for update other profile

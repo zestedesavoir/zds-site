@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db import models
 from hashlib import md5
 from django.http import HttpRequest
+from django.utils.http import urlquote
 from django.contrib.sessions.models import Session
 from django.contrib.auth import logout
 import os
@@ -103,8 +104,7 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('member-detail',
-                       kwargs={'user_name': self.user.username})
+        return reverse('member-detail', kwargs={'user_name': urlquote(self.user.username)})
 
     def get_city(self):
         """return physical adress by geolocalisation."""
