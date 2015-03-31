@@ -6,6 +6,9 @@ import zipfile
 import datetime
 from zds.gallery.factories import ImageFactory, UserGalleryFactory, GalleryFactory
 
+from django.contrib import messages
+from django.contrib.auth.models import Group
+
 try:
     import ujson as json_reader
 except:
@@ -38,7 +41,6 @@ overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-dat
 class ArticleTests(TestCase):
 
     def setUp(self):
-
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
@@ -101,6 +103,9 @@ class ArticleTests(TestCase):
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
         mail.outbox = []
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
     def test_delete_image_on_change(self):
         """test que l'image est bien supprimée quand on la change"""
@@ -877,6 +882,115 @@ class ArticleTests(TestCase):
             follow=True)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(Article.objects.filter(title='Create a new article test').count(), 1)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in an article
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es nul'
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': u'ceci est un test',
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': typo_text,
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.article.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # Check if we send a wrong pk key
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=["1111"]),
+            {
+                'explication': typo_text,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # Check if we send no explanation
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': '',
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # Check if we send an explanation with only space
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': '  ',
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # Check if a guest can not warn the author
+        self.client.logout()
+
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': typo_text,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
