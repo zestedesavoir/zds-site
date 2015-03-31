@@ -8,7 +8,7 @@ from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
 from zds.forum.models import Forum, Topic
 from zds.tutorialv2.forms import BetaForm, MoveElementForm
-from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError
+from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get_target_tagged_tree
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 
 try:
@@ -348,7 +348,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
         """Show the given tutorial if exists."""
         context = super(DisplayContainer, self).get_context_data(**kwargs)
         context['container'] = search_container_or_404(context['content'], self.kwargs)
-
+        context['containers_target'] = get_target_tagged_tree(context['container'], context['content'])
         # pagination: search for `previous` and `next`, if available
         if context['content'].type != 'ARTICLE' and not context['content'].has_extracts():
             chapters = context['content'].get_list_of_chapters()
@@ -374,8 +374,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     content = None
 
     def get_context_data(self, **kwargs):
-        context = super(EditContainer, self).get_context_data(**kwargs)
-        context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
+        context = super(EditContainer, self).get_context_data(**kwargs) 
 
         return context
 
