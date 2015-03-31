@@ -1456,25 +1456,25 @@ class BigTutorialTests(TestCase):
         # deleted part and section HAVE TO be accessible on beta (get 200)
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_part',
+                'zds.tutorial.views.view_part_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_beta),
+                    p1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_chapter',
+                'zds.tutorial.views.view_chapter_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p2.pk,
                     p2.slug,
                     c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_beta),
+                    c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -1587,25 +1587,25 @@ class BigTutorialTests(TestCase):
         # deleted part and section still accessible on beta (get 200)
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_part',
+                'zds.tutorial.views.view_part_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_beta),
+                    p1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_chapter',
+                'zds.tutorial.views.view_chapter_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p2.pk,
                     p2.slug,
                     c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_beta),
+                    c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 

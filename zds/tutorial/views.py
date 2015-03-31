@@ -767,10 +767,11 @@ def view_tutorial(request, tutorial_pk, tutorial_slug, sha=None):
     # Retrieve sha given by the user. This sha must to be exist. If it doesn't
     # exist, we take draft version of the article.
 
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
+    if sha is None:
+        try:
+            sha = request.GET["version"]
+        except KeyError:
+            sha = tutorial.sha_draft
 
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
 
@@ -1265,16 +1266,13 @@ def view_part(
     """Display a part."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
+    if sha is None:
+        try:
+            sha = request.GET["version"]
+        except KeyError:
+            sha = tutorial.sha_draft
 
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
-
-    if request.path.startswith("/tutoriels/off") and is_beta:
-        part = get_object_or_404(Part, pk=part_pk)
-        return redirect(part.get_absolute_url_beta())
 
     # Only authors of the tutorial and staff can view tutorial in offline.
 
@@ -1320,6 +1318,12 @@ def view_part(
             part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
             part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
             final_part = part
+            if request.path.startswith("/tutoriels/off") and is_beta:
+                return redirect(reverse('zds.tutorial.views.view_part_beta', args=[
+                    tutorial_pk,
+                    tutorial_slug,
+                    part_pk,
+                    part_slug]))
         cpt_p += 1
 
     # if part can't find
@@ -1627,16 +1631,13 @@ def view_chapter(
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
+    if sha is None:
+        try:
+            sha = request.GET["version"]
+        except KeyError:
+            sha = tutorial.sha_draft
 
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
-
-    if request.path.startswith("/tutoriels/off") and is_beta:
-        chapter = get_object_or_404(Chapter, pk=chapter_pk)
-        return redirect(chapter.get_absolute_url_beta())
 
     # Only authors of the tutorial and staff can view tutorial in offline.
 
@@ -1696,6 +1697,15 @@ def view_chapter(
             if chapter_pk == str(chapter["pk"]):
                 final_chapter = chapter
                 final_position = len(chapter_tab) - 1
+
+                if request.path.startswith("/tutoriels/off") and is_beta:
+                    return redirect(reverse('zds.tutorial.views.view_chapter_beta', args=[
+                        tutorial_pk,
+                        tutorial_slug,
+                        part_pk,
+                        part_slug,
+                        chapter_pk,
+                        chapter_slug]))
             cpt_c += 1
         cpt_p += 1
 
