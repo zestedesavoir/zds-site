@@ -20,7 +20,7 @@ On retrouve un dossier pour chaque module du site :
     │   └── ...
     ├── member/ # module des membres
     │   └── ...
-    ├── mp/ # module des MPs
+    ├── mp/ # module des messages privés
     │   └── ...
     ├── munin/ # module de Munin, utilisé pour le monitoring
     │   └── ...
@@ -42,7 +42,7 @@ On retrouve également dans ce dossier les quelques fichiers suivants, nécéssa
     zds/
     ├── urls.py # définition générale des URLs du site, inclus celle de chacun des modules
     ├── settings.py # paramètres du site
-    ├── settings_test.py # paramètres spécifiques à une version locale
+    ├── settings_test.py # paramètres spécifiques aux tests
     └── wsgi.py
 
 Contenu d'un module
@@ -55,10 +55,13 @@ Chacun des modules possède dans son dossier une arborescence fort semblable, et
     module/
     ├── migrations/
     │   └── ...
+    ├── api/
+    │   └── ...
     ├── tests/
     │   ├── tests.py
     │   └── ...
     ├── admin.py
+    ├── commons.py
     ├── factories.py
     ├── feeds.py
     ├── forms.py
@@ -73,8 +76,7 @@ Fichiers principaux
 
 Django étant basé sur une architecture de type Modèle-Vue-Controleur, on retrouve les modèles dans le fichier ``models.py`` et les vues associées à celles-ci dans ``views.py``. Ces dernières peuvent employer des classes formulaires qui sont définis dans ``forms.py``. Les URLs associées au module et permetant d'accéder aux vues sont définies dans ``urls.py``. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans ``feeds.py``.
 
-Le contenu de ces fichiers est documenté dans la `documentation technique <back-end.html>`__.
-
+On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django <https://docs.djangoproject.com/en/dev/ref/validators/>`__).
 
 Tests unitaires
 ---------------
@@ -103,6 +105,15 @@ Cela permetra aux autres dévellopeurs de répercuter les modifications en utili
 .. sourcecode:: bash
 
     python manage.py migrate
+
+
+API
+---
+
+Une description fonctionnelle de l'API est faite `sur la page correspondante <../api.html>`__.
+
+Les fichiers correspondants à une API du module (si elle existe) se situent dans le dossier ``api/``. Dans celui-ci, principalement de nouvelles vues (``api/views.py``), URLs (``api/urls.py``) et tests (``api/tests.py``). On retrouve également des *serializers* dans ``api/serializers.py``, nécéssaires à la création de l'API (voir à ce sujet `la documentation du REST framework <http://www.django-rest-framework.org/api-guide/serializers/>`__).
+
 
 Autres
 ------
