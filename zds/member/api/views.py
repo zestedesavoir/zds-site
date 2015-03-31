@@ -276,11 +276,11 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
               description: Bearer token to make a authenticated request.
               required: true
               paramType: header
-            - name: ls-jrs
+            - name: ban-jrs
               description: Number of days for the sanction.
               required: false
               paramType: form
-            - name: ls-text
+            - name: ban-text
               description: Description of the sanction.
               required: false
               paramType: form
