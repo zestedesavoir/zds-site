@@ -111,6 +111,9 @@
 
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
+
+    {# OpenSearch plugin autodiscovery #}
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "zds.search.views.opensearch" %}">
 </head>
 <body class="{% block body_class %}{% endblock %}"
       itemscope
@@ -492,11 +495,11 @@
                         </ol>
                     </div>
                     <div class="search header-right" id="search">
-                        <form action="/rechercher">
-                            <input type="text" name="q" placeholder="Rechercher">
-                            <button type="submit" class="ico-after search-submit" title="Lancer la recherche">{% trans "OK" %}</button>
+                        <form action="{% url "haystack_search" %}">
+                            <input type="text" name="q" placeholder="{% trans "Rechercher" %}">
+                            <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                         </form>
-                        <a href="/rechercher" title="Recherche avancée" class="search-more"></a>
+                        <a href="{% url "haystack_search" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
                     </div>
                 </div>
             </div>

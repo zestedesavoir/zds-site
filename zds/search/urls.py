@@ -8,9 +8,12 @@ from zds.search.views import CustomSearchView
 from zds.search.forms import CustomSearchForm
 
 urlpatterns = patterns('haystack.views',
-                          url(r'^$', search_view_factory(
-                              view_class=CustomSearchView,
-                              template='search/search.html',
-                              form_class=CustomSearchForm
-                          ), name='haystack_search'),
+                       url(r'^$', search_view_factory(
+                           view_class=CustomSearchView,
+                           template='search/search.html',
+                           form_class=CustomSearchForm
+                       ), name='haystack_search'))
+
+urlpatterns += patterns('',
+                        url(r'^opensearch.xml', 'zds.search.views.opensearch')
                         )
