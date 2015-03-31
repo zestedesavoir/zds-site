@@ -64,6 +64,10 @@
             width: 90%;
             line-height: 40px;
             text-indent: 0;
+
+            .count {
+                vertical-align: inherit;
+            }
         }
         .mobile-menu-bloc {
             margin: 0 5% 15px;
