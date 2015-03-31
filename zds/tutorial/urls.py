@@ -25,6 +25,18 @@ urlpatterns = patterns('',
                        url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
                            'zds.tutorial.views.view_tutorial'),
 
+                       # Beta URLs
+                       url(r'^beta/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
+                           'zds.tutorial.views.view_chapter_beta',
+                           name="view-chapter-url-beta"),
+
+                       url(r'^beta/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/$',
+                           'zds.tutorial.views.view_part_beta',
+                           name="view-part-url-beta"),
+
+                       url(r'^beta/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$',
+                           'zds.tutorial.views.view_tutorial_beta'),
+
                        # View online
                        url(r'^(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<chapter_slug>.+)/$',
                            'zds.tutorial.views.view_chapter_online',
