@@ -148,7 +148,7 @@
 
 
 {% block sidebar_blocks %}
-    {% include "tutorial/includes/summary.part.html" with tutorial=tutorial chapter_current=chapter %}
+    {% include "tutorial/includes/summary.part.html" with tutorial=chapter.part.tutorial chapter_current=chapter %}
 
     {% if chapter.part %}
         {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}

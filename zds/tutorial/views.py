@@ -1317,31 +1317,31 @@ def view_part(
     find = False
     cpt_p = 1
     for part in parts:
+        part["tutorial"] = tutorial
+        part["path"] = tutorial.get_path()
+        part["slug"] = slugify(part["title"])
+        part["position_in_tutorial"] = cpt_p
+
+        cpt_c = 1
+        for chapter in part["chapters"]:
+            chapter["part"] = part
+            chapter["path"] = tutorial.get_path()
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["type"] = "BIG"
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            cpt_e = 1
+            for ext in chapter["extracts"]:
+                ext["chapter"] = chapter
+                ext["position_in_chapter"] = cpt_e
+                ext["path"] = tutorial.get_path()
+                cpt_e += 1
+            cpt_c += 1
         if part_pk == str(part["pk"]):
             find = True
-            part["tutorial"] = tutorial
-            part["path"] = tutorial.get_path()
-            part["slug"] = slugify(part["title"])
-            part["position_in_tutorial"] = cpt_p
             part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
             part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
-            cpt_c = 1
-            for chapter in part["chapters"]:
-                chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
-                chapter["slug"] = slugify(chapter["title"])
-                chapter["type"] = "BIG"
-                chapter["position_in_part"] = cpt_c
-                chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
-                cpt_c += 1
             final_part = part
-            break
         cpt_p += 1
 
     # if part can't find
@@ -1423,7 +1423,7 @@ def view_part_online(
     if not find:
         raise Http404
 
-    return render(request, "tutorial/part/view_online.html", {"part": final_part})
+    return render(request, "tutorial/part/view_online.html", {"tutorial": mandata, "part": final_part})
 
 
 @can_write_and_read_now
@@ -1656,13 +1656,12 @@ def view_chapter(
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
 
-    parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
     chapter_tab = []
     final_position = 0
     find = False
-    for part in parts:
+    for part in mandata["parts"]:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
         part["get_absolute_url"] = reverse(
@@ -1672,7 +1671,9 @@ def view_chapter(
                 tutorial.slug,
                 part["pk"],
                 part["slug"]])
-        part["tutorial"] = tutorial
+        part["tutorial"] = mandata
+        part["position_in_tutorial"] = cpt_p
+        part["get_chapters"] = part["chapters"]
         for chapter in part["chapters"]:
             chapter["part"] = part
             chapter["path"] = tutorial.get_path()
@@ -1707,10 +1708,8 @@ def view_chapter(
     if not find:
         raise Http404
 
-    prev_chapter = (chapter_tab[final_position - 1] if final_position >
-                    0 else None)
-    next_chapter = (chapter_tab[final_position + 1] if final_position + 1 >
-                    len(chapter_tab) else None)
+    prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
+    next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
 
     if tutorial.js_support:
         is_js = "js"
