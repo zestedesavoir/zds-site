@@ -34,7 +34,6 @@ from zds.settings import ZDS_APP
 from zds.utils.models import HelpWriting
 from uuslug import uuslug
 
-
 TYPE_CHOICES = (
     ('TUTORIAL', 'Tutoriel'),
     ('ARTICLE', 'Article'),
@@ -605,7 +604,7 @@ class Container:
         :return: a generator that traverse all the container recursively (depth traversal)  
         """
         yield self
-        for child in children:
+        for child in self.children:
             if isinstance(child, Container):
                 for _ in child.traverse(only_container):
                     yield _

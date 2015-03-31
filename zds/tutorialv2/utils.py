@@ -151,19 +151,19 @@ def try_adopt_new_child(adoptive_parent, child):
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
     :return:
     """
-    container = adoptive_parent
+    adoptive_parent
     if isinstance(child, Extract):
-        if not container.can_add_extract():
+        if not adoptive_parent.can_add_extract():
             raise TypeError
         child.repo_delete('', False)
-        container.add_extract(child, generate_slug=False)
+        adoptive_parent.add_extract(child, generate_slug=False)
     if isinstance(child, Container):
-        if not container.can_add_container():
+        if not adoptive_parent.can_add_container():
             raise TypeError
-        if container.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
+        if adoptive_parent.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
             raise TooDeepContainerError
-        child.repo_delete('', False)
-        container.add_container(child)
+        adoptive_parent.repo_delete('', False)
+        adoptive_parent.add_container(child)
 
 def get_target_tagged_tree(moveable_child, root):
     """
@@ -184,20 +184,14 @@ def get_target_tagged_tree_for_extract(moveable_child, root):
     :param moveable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
     :return: an array of tuples that represent the capacity of moveable_child to be moved near another child
-    .. sourcecode::python
-        [
-            (relative_path_root, False),
-            (relative_path_of_a_container, False),
-            (relative_path_of_another_extract, True)
-            ...
-        ]
+    tuples are (relative_path, title, level, can_be_a_target) 
     """
     target_tagged_tree = []
     for child in root.traverse(False):
         if is_instance(child, Extract):
-            target_tagged_tree.append((child.get_full_slug(), child != moveable_child))
+            target_tagged_tree.append((child.get_full_slug(), child.title, child.get_tree_level(), child != moveable_child))
         else:
-            target_tagged_tree.append((child.get_path(True), False))
+            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(), False))
     
     return target_tagged_tree
     
@@ -207,22 +201,13 @@ def get_target_tagged_tree_for_container(moveable_child, root):
     :param moveable_child: the container we want to move
     :param root: the VersionnedContent we use as root
     :return: an array of tuples that represent the capacity of moveable_child to be moved near another child
-    .. sourcecode::python
-        [
-            (relative_path_root, True),
-            (relative_path_of_a_too_deep_container, False),
-            (relativbe_path_of_a_good_container, False),
-            (relative_path_of_another_extract, False)
-            ...
-        ]
+    extracts are not included
     """
     target_tagged_tree = []
-    for child in root.traverse(False):
-        if is_instance(child, Extract):
-            target_tagged_tree.append((child.get_full_slug(), False))
-        else:
-            composed_depth = child.get_tree_depth() + moveable_child.get_tree_level()
-            enabled = composed_depth > settings.ZDS_APP['content']['max_tree_depth']
-            target_tagged_tree.append((child.get_path(True), enabled and child != moveable_child))
+    for child in root.traverse(True):
+        composed_depth = child.get_tree_depth() + moveable_child.get_tree_level()
+        enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
+        target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(),
+            enabled and child != moveable_child and child != root))
     
     return target_tagged_tree

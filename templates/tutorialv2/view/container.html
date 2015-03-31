@@ -159,9 +159,23 @@
                             {% trans "Descendre" %}
                         </option>
                     {% endif %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
+                        {% for element in containers_target %}
+                                <option value="before:{{element.0}}" 
+                                {% if not element.3 %} disabled {% endif %}>
+                                     {{ element.1 }}
+                                </option>
+                        {% endfor %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
+                        {% for element in containers_target %}
+                                <option value="after:{{element.0}}" 
+                                {% if not element.3 %} disabled {% endif %}>
+                                     {{ element.1 }}
+                                </option>
+                        {% endfor %}
                 </select>
-                {% if container.parent.parent %}
-                    <input type="hidden" name="first_container_slug" value="{{ parent.parent.slug }}">
+                {% if container.get_tree_depth = 2 %}
+                    <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
                 {% endif %}
                 <input type="hidden" name="child_slug" value="{{ container.slug }}">
                 <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
