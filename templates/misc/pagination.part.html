@@ -15,7 +15,9 @@
             <li class="prev">
                 {% with prev=nb|add:-1 %}
                     <a href="{% append_to_get page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue">
+                    <span>
                         {% trans "Précédente" %}
+                    </span>
                     </a>
                 {% endwith %}
             </li>
@@ -61,7 +63,9 @@
             <li class="next">
                 {% with next=nb|add:1 %}
                     <a href="{% append_to_get page=next %}{{ full_anchor }}" class="ico-after arrow-right blue">
+                        <span>
                         {% trans "Suivante" %}
+                        </span>
                     </a>
                 {% endwith %}
             </li>
