@@ -34,7 +34,7 @@ class ParticipantsValidator(Validator):
                         msg = _(u'Vous ne pouvez pas vous écrire à vous-même !')
                     try:
                         current = get_object_or_404(Profile, user__username=participant)
-                        if current.is_private():
+                        if not Profile.objects.contactable_members().filter(pk=current.pk).exists():
                             msg = _(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
                     except Http404:
                         msg = _(u'Un des participants saisi est introuvable')
