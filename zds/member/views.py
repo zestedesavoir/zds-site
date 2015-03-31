@@ -365,6 +365,8 @@ def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
+    if profile.is_private():
+        raise PermissionDenied
 
     if 'ls' in request.POST:
         state = ReadingOnlySanction(request.POST)
@@ -1000,30 +1002,34 @@ def member_from_ip(request, ip):
 
 
 @login_required
+@require_POST
 def modify_karma(request):
     """ Add a Karma note to the user profile """
 
     if not request.user.has_perm("member.change_profile"):
         raise PermissionDenied
 
-    if request.method == "POST":
+    try:
         profile_pk = request.POST["profile_pk"]
-        profile = get_object_or_404(Profile, pk=profile_pk)
-
-        note = KarmaNote()
-        note.user = profile.user
-        note.staff = request.user
-        note.comment = request.POST["warning"]
-        try:
-            note.value = int(request.POST["points"])
-        except (KeyError, ValueError):
-            note.value = 0
-
-        note.save()
-
-        profile.karma += note.value
-        profile.save()
-
-        return redirect(reverse("member-detail", args=[profile.user.username]))
-    else:
+    except (KeyError, ValueError):
         raise Http404
+
+    profile = get_object_or_404(Profile, pk=profile_pk)
+    if profile.is_private():
+        raise PermissionDenied
+
+    note = KarmaNote()
+    note.user = profile.user
+    note.staff = request.user
+    note.comment = request.POST["warning"]
+    try:
+        note.value = int(request.POST["points"])
+    except (KeyError, ValueError):
+        note.value = 0
+
+    note.save()
+
+    profile.karma += note.value
+    profile.save()
+
+    return redirect(reverse("member-detail", args=[profile.user.username]))
