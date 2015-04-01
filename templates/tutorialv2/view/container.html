@@ -3,6 +3,7 @@
 {% load thumbnail %}
 {%  load emarkdown %}
 {% load i18n %}
+{% load times %}
 
 
 {% block title %}
@@ -163,14 +164,14 @@
                         {% for element in containers_target %}
                                 <option value="before:{{element.0}}" 
                                 {% if not element.3 %} disabled {% endif %}>
-                                     {{ element.1 }}
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
                                 </option>
                         {% endfor %}
                         <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
                         {% for element in containers_target %}
                                 <option value="after:{{element.0}}" 
                                 {% if not element.3 %} disabled {% endif %}>
-                                     {{ element.1 }}
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
                                 </option>
                         {% endfor %}
                 </select>
