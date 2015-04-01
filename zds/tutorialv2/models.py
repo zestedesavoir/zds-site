@@ -970,6 +970,23 @@ class VersionedContent(Container):
 
         return self.repo_update(title, introduction, conclusion, commit_message)
 
+    def change_child_directory(self, child, adoptive_parent):
+        
+        old_path = child.get_path(False) # absolute path because we want to access the adress
+        adoptive_parent_path = adoptive_parent.get_path(False)
+        if isinstance(child, Extract):
+            old_parent = child.container
+            old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
+            adoptive_parent.add_extract(child)
+        else:
+            old_parent = child.parent
+            old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
+            adoptive_parent.add_container(child)
+        self.repository.index.move([old_path, child.get_path(False)])
+
+        self.dump_json()
+        
+        
 
 def get_content_from_json(json, sha, slug_last_draft):
     """
