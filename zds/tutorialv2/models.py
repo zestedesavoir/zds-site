@@ -135,14 +135,13 @@ class Container:
         Represent the level in the tree of this container, i.e the depth of its deepest child
         :return: tree level
         """
-        current = self
+
         if len(self.children) == 0:
             return 1
         elif isinstance(self.children[0], Extract):
             return 2
         else:
             return 1 + max([i.get_tree_level() for i in self.children])
-
 
     def has_child_with_path(self, child_path):
         """
@@ -596,12 +595,12 @@ class Container:
             # if we want our child to get up (reference is an upper child)
             for i in range(child_pos, refer_pos, - 1):
                 self.move_child_up(child_slug)
-    
+
     def traverse(self, only_container=True):
         """
-        traverse the 
+        Traverse the container
         :param only_container: if we only want container's paths, not extract
-        :return: a generator that traverse all the container recursively (depth traversal)  
+        :return: a generator that traverse all the container recursively (depth traversal)
         """
         yield self
         for child in self.children:
@@ -681,7 +680,7 @@ class Extract:
 
     def get_full_slug(self):
         """
-        get the slug of curent extract with its full path (part1/chapter1/slug_of_extract) 
+        get the slug of curent extract with its full path (part1/chapter1/slug_of_extract)
         this method is an alias to extract.get_path(True)[:-3] (remove .md extension)
         """
         return self.get_path(True)[:-3]
@@ -800,6 +799,7 @@ class VersionedContent(Container):
     """
 
     current_version = None
+    slug_repository = ''
     repository = None
 
     # Metadata from json :
@@ -836,10 +836,24 @@ class VersionedContent(Container):
     update_date = None
     source = None
 
-    def __init__(self, current_version, _type, title, slug):
+    def __init__(self, current_version, _type, title, slug, slug_repository=''):
+        """
+        :param current_version: version of the content
+        :param _type: either "TUTORIAL" or "ARTICLE"
+        :param title: title of the content
+        :param slug: slug of the content
+        :param slug_repository: slug of the directory that contains the repository, named after database slug.
+            if not provided, use `self.slug` instead.
+        """
+
         Container.__init__(self, title, slug)
         self.current_version = current_version
         self.type = _type
+
+        if slug_repository != '':
+            self.slug_repository = slug_repository
+        else:
+            self.slug_repository = slug
 
         if os.path.exists(self.get_path()):
             self.repository = Repo(self.get_path())
@@ -873,16 +887,20 @@ class VersionedContent(Container):
         else:
             return self.get_absolute_url()
 
-    def get_path(self, relative=False):
+    def get_path(self, relative=False, use_current_slug=False):
         """
         Get the physical path to the draft version of the Content.
         :param relative: if `True`, the path will be relative, absolute otherwise.
+        :param use_current_slug: if `True`, use `self.slug` instead of `self.slug_last_draft`
         :return: physical path
         """
         if relative:
             return ''
         else:
-            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
+            slug = self.slug_repository
+            if use_current_slug:
+                slug = self.slug
+            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
     def get_prod_path(self):
         """
@@ -943,16 +961,17 @@ class VersionedContent(Container):
 
         if slug != self.slug:
             # move repository
-            old_path = self.get_path()
+            old_path = self.get_path(use_current_slug=True)
             self.slug = slug
-            new_path = self.get_path()
+            new_path = self.get_path(use_current_slug=True)
             shutil.move(old_path, new_path)
             self.repository = Repo(new_path)
+            self.slug_repository = slug
 
         return self.repo_update(title, introduction, conclusion, commit_message)
 
 
-def get_content_from_json(json, sha):
+def get_content_from_json(json, sha, slug_last_draft):
     """
     Transform the JSON formated data into `VersionedContent`
     :param json: JSON data from a `manifest.json` file
@@ -961,7 +980,7 @@ def get_content_from_json(json, sha):
     """
     # TODO: should definitely be static
     # create and fill the container
-    versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'])
+    versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
 
     if 'version' in json and json['version'] == 2:
         # fill metadata :
@@ -1055,6 +1074,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     versioned_content = VersionedContent(None,
                                          db_object.type,
                                          db_object.title,
+                                         db_object.slug,
                                          db_object.slug)
 
     # fill some information that are missing :
@@ -1275,7 +1295,7 @@ class PublishableContent(models.Model):
         """
         try:
             return self.load_version(sha, public)
-        except BadObject:
+        except (BadObject, IOError):
             raise Http404
 
     def load_version(self, sha=None, public=False):
@@ -1296,10 +1316,14 @@ class PublishableContent(models.Model):
                 sha = self.sha_public
 
         path = self.get_repo_path()
+
+        if not os.path.isdir(path):
+            raise IOError(path)
+
         repo = Repo(path)
         data = get_blob(repo.commit(sha).tree, 'manifest.json')
         json = json_reader.loads(data)
-        versioned = get_content_from_json(json, sha)
+        versioned = get_content_from_json(json, sha, self.slug)
         self.insert_data_in_versioned(versioned)
 
         return versioned

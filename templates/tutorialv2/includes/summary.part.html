@@ -48,7 +48,12 @@
                             {% if online %}
                                 href="{{ subchild.get_absolute_url_online }}"
                             {% else %}
-                                href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                                {%  if subchild.text %}
+                                    {# subchild is an extract #}
+                                    href="{{ subchild.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ subchild.position_in_parent }}-{{ subchild.slug }}"
+                                {% else %}
+                                    href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                                {% endif %}
                             {% endif %}
                             class="mobile-menu-link mobile-menu-sublink {% if current_container.long_slug == subchild.long_slug %}unread{% endif %}"
                         >
