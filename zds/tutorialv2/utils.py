@@ -151,19 +151,17 @@ def try_adopt_new_child(adoptive_parent, child):
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
     :return:
     """
-    adoptive_parent
+
     if isinstance(child, Extract):
         if not adoptive_parent.can_add_extract():
             raise TypeError
-        child.repo_delete('', False)
-        adoptive_parent.add_extract(child, generate_slug=False)
     if isinstance(child, Container):
         if not adoptive_parent.can_add_container():
             raise TypeError
         if adoptive_parent.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
             raise TooDeepContainerError
-        adoptive_parent.repo_delete('', False)
-        adoptive_parent.add_container(child)
+    adoptive_parent.top_container().change_child_directory(child, adoptive_parent)
+
 
 def get_target_tagged_tree(moveable_child, root):
     """
