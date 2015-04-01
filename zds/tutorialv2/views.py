@@ -374,7 +374,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     content = None
 
     def get_context_data(self, **kwargs):
-        context = super(EditContainer, self).get_context_data(**kwargs) 
+        context = super(EditContainer, self).get_context_data(**kwargs)
 
         return context
 
@@ -1001,7 +1001,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         versioned = content.load_version()
         base_container_slug = form.data["container_slug"]
         child_slug = form.data['child_slug']
-        
+
         if base_container_slug == '':
             raise Http404
 
@@ -1014,13 +1014,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             search_params = {}
 
             if form.data['first_level_slug'] != '':
-                
                 search_params['parent_container_slug'] = form.data['first_level_slug']
                 search_params['container_slug'] = base_container_slug
             else:
                 search_params['container_slug'] = base_container_slug
             parent = search_container_or_404(versioned, search_params)
-        
+
         try:
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
@@ -1034,7 +1033,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = versioned
                     else:
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
-                        
+
                         if target.split("/")[-1] not in target_parent.children_dict:
                             raise Http404
                     child = target_parent.children_dict[target.split("/")[-1]]
@@ -1053,7 +1052,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                             raise Http404
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
-                    
+
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
 
@@ -1066,8 +1065,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             content.save()
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
         except TooDeepContainerError:
-            messages.error(self.request, _(u'Cette section contient déjà trop de sous-section pour devenir'\
-                ' la sous-section d\'une autre section.'))
+            messages.error(self.request, _(u'Cette section contient déjà trop de sous-section pour devenir'
+                                           u' la sous-section d\'une autre section.'))
         except ValueError:
             raise Http404
         except IndexError:
@@ -1077,7 +1076,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
         if base_container_slug == versioned.slug:
             return redirect(reverse("content:view", args=[content.pk, content.slug]))
-        else:                
+        else:
             return redirect(child.get_absolute_url())
 
 

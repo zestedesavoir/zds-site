@@ -30,8 +30,6 @@ class SingleContentViewMixin(object):
             obj = queryset.first()
         else:
             obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        if 'slug' in self.kwargs and obj.slug != self.kwargs['slug']:
-            raise Http404
         if self.must_be_author and self.request.user not in obj.authors.all():
             if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
                 return obj
@@ -57,7 +55,13 @@ class SingleContentViewMixin(object):
                 raise PermissionDenied
 
         # load versioned file
-        return self.object.load_version_or_404(sha)
+        versioned = self.object.load_version_or_404(sha)
+
+        if 'slug' in self.kwargs \
+                and (versioned.slug != self.kwargs['slug'] and self.object.slug != self.kwargs['slug']):
+            raise Http404
+
+        return versioned
 
 
 class SingleContentPostMixin(SingleContentViewMixin):

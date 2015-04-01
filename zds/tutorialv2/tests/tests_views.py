@@ -788,7 +788,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.extract3.get_path(True)[:-3],
+                'moving_method': 'before:' + self.extract3.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
@@ -797,7 +797,7 @@ class ContentTests(TestCase):
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[0]
         self.assertEqual(self.extract2.slug, extract.slug)
-        
+
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         # test changing parent for extract (smoothly)
@@ -809,11 +809,11 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.extract4.get_path(True)[:-3],
+                'moving_method': 'before:' + self.extract4.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -831,7 +831,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.chapter1.get_path(True),
+                'moving_method': 'before:' + self.chapter1.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
@@ -852,7 +852,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.chapter1.get_path(True)+"/un-mauvais-extrait",
+                'moving_method': 'before:' + self.chapter1.get_path(True) + "/un-mauvais-extrait",
                 'pk': tuto.pk
             },
             follow=True)
@@ -864,7 +864,7 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-    
+
     def test_move_container_before(self):
         # login with author
         self.assertEqual(
@@ -886,11 +886,11 @@ class ContentTests(TestCase):
                 'child_slug': self.chapter3.slug,
                 'container_slug': self.part1.slug,
                 'first_level_slug': '',
-                'moving_method': 'before:'+self.chapter4.get_path(True),
+                'moving_method': 'before:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -908,11 +908,11 @@ class ContentTests(TestCase):
                 'child_slug': self.part1.slug,
                 'container_slug': self.tuto.slug,
                 'first_level_slug': '',
-                'moving_method': 'before:'+self.chapter4.get_path(True),
+                'moving_method': 'before:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -921,7 +921,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[1]
         self.assertEqual(self.chapter4.slug, chapter.slug)
-    
+
     def test_move_extract_after(self):
         # test 1 : move extract after a sibling
         # login with author
@@ -941,7 +941,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.extract3.get_path(True)[:-3],
+                'moving_method': 'after:' + self.extract3.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
@@ -952,7 +952,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.extract2.slug, extract.slug)
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[1]
         self.assertEqual(self.extract3.slug, extract.slug)
-        
+
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         # test changing parent for extract (smoothly)
@@ -964,11 +964,11 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.extract4.get_path(True)[:-3],
+                'moving_method': 'after:' + self.extract4.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -986,7 +986,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.chapter1.get_path(True),
+                'moving_method': 'after:' + self.chapter1.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
@@ -1007,7 +1007,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.chapter1.get_path(True)+"/un-mauvais-extrait",
+                'moving_method': 'after:' + self.chapter1.get_path(True) + "/un-mauvais-extrait",
                 'pk': tuto.pk
             },
             follow=True)
@@ -1019,7 +1019,7 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[0]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-    
+
     def test_move_container_after(self):
         # login with author
         self.assertEqual(
@@ -1041,11 +1041,11 @@ class ContentTests(TestCase):
                 'child_slug': self.chapter3.slug,
                 'container_slug': self.part1.slug,
                 'first_level_slug': '',
-                'moving_method': 'after:'+self.chapter4.get_path(True),
+                'moving_method': 'after:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -1063,11 +1063,11 @@ class ContentTests(TestCase):
                 'child_slug': self.part1.slug,
                 'container_slug': self.tuto.slug,
                 'first_level_slug': '',
-                'moving_method': 'after:'+self.chapter4.get_path(True),
+                'moving_method': 'after:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -1076,7 +1076,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[0]
         self.assertEqual(self.chapter4.slug, chapter.slug)
-        
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
