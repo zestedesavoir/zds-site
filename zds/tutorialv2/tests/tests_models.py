@@ -88,6 +88,132 @@ class ContentTests(TestCase):
         new_extract_3 = ExtractFactory(title='aa', container=new_chapter_1, db_object=self.tuto)
         self.assertNotEqual(new_extract_3.slug, new_extract_1.slug)  # same parent, forbidden
 
+    def test_workflow_repository(self):
+        """
+        Test to ensure the behavior of repo_*() functions :
+        - if they change the filesystem as they are suppose to ;
+        - if they change the `self.sha_*` as they are suppose to.
+        """
+
+        new_title = u'Un nouveau titre'
+        other_new_title = u'Un titre différent'
+        random_text = u'J\'ai faim!'
+        other_random_text = u'Oh, du chocolat <3'
+
+        versioned = self.tuto.load_version()
+        current_version = versioned.current_version
+        slug_repository = versioned.slug_repository
+
+        # VersionedContent:
+        old_path = versioned.get_path()
+        self.assertTrue(os.path.isdir(old_path))
+        new_slug = versioned.get_unique_slug(new_title)  # normally, you get a new slug by asking database !
+
+        versioned.repo_update_top_container(new_title, new_slug, random_text, random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        new_path = versioned.get_path()
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isdir(new_path))
+        self.assertFalse(os.path.isdir(old_path))
+
+        self.assertNotEqual(slug_repository, versioned.slug_repository)  # if this test fail, you're in trouble
+
+        # Container:
+
+        # 1. add new part:
+        versioned.repo_add_container(new_title, random_text, random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        part = versioned.children[-1]
+        old_path = part.get_path()
+        self.assertTrue(os.path.isdir(old_path))
+        self.assertTrue(os.path.exists(os.path.join(versioned.get_path(), part.introduction)))
+        self.assertTrue(os.path.exists(os.path.join(versioned.get_path(), part.conclusion)))
+        self.assertEqual(part.get_introduction(), random_text)
+        self.assertEqual(part.get_conclusion(), random_text)
+
+        # 2. update the part
+        part.repo_update(other_new_title, other_random_text, other_random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        new_path = part.get_path()
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isdir(new_path))
+        self.assertFalse(os.path.isdir(old_path))
+
+        self.assertEqual(part.get_introduction(), other_random_text)
+        self.assertEqual(part.get_conclusion(), other_random_text)
+
+        # 3. delete it
+        part.repo_delete()  # boom !
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        self.assertFalse(os.path.isdir(new_path))
+
+        # Extract :
+
+        # 1. add new extract
+        versioned.repo_add_container(new_title, random_text, random_text)  # need to add a new part before
+        part = versioned.children[-1]
+
+        part.repo_add_extract(new_title, random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        extract = part.children[-1]
+        old_path = extract.get_path()
+        self.assertTrue(os.path.isfile(old_path))
+        self.assertEqual(extract.get_text(), random_text)
+
+        # 2. update extract
+        extract.repo_update(other_new_title, other_random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        new_path = extract.get_path()
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isfile(new_path))
+        self.assertFalse(os.path.isfile(old_path))
+
+        self.assertEqual(extract.get_text(), other_random_text)
+
+        # 3. update parent and see if it still works:
+        part.repo_update(other_new_title, other_random_text, other_random_text)
+
+        old_path = new_path
+        new_path = extract.get_path()
+
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isfile(new_path))
+        self.assertFalse(os.path.isfile(old_path))
+
+        self.assertEqual(extract.get_text(), other_random_text)
+
+        # 4. Boom, no more extract
+        extract.repo_delete()
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+
+        self.assertFalse(os.path.exists(new_path))
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

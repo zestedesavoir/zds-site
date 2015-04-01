@@ -1077,6 +1077,205 @@ class ContentTests(TestCase):
         chapter = versioned.children_dict[self.part2.slug].children[0]
         self.assertEqual(self.chapter4.slug, chapter.slug)
 
+    def test_history_navigation(self):
+        """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # check access
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # edit tutorial:
+        old_slug_tuto = tuto.slug
+        version_1 = tuto.sha_draft  # "version 1" is the one before any change
+
+        new_licence = LicenceFactory()
+        random = 'Pâques, c\'est bientôt?'
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': random,
+                'description': random,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': new_licence.pk,
+                'subcategory': self.subcategory.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        version_2 = tuto.sha_draft  # "version 2" is the one with the different slug for the tutorial
+        self.assertNotEqual(tuto.slug, old_slug_tuto)
+
+        # check access using old slug and no version
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, old_slug_tuto]),
+            follow=False)
+        self.assertEqual(result.status_code, 404)  # it is not possible, so get 404
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # check access with old slug and version
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, old_slug_tuto]) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': self.part1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # edit container:
+        old_slug_part = self.part1.slug
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={
+                'pk': tuto.pk,
+                'slug': tuto.slug,
+                'container_slug': self.part1.slug
+            }),
+            {
+                'title': random,
+                'introduction': random,
+                'conclusion': random
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # we can still access to the container using old slug !
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # and even to it using version 1 and old tuto slug !!
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # but you can also access it with the current slug (for retro-compatibility)
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
