@@ -187,9 +187,9 @@ def get_target_tagged_tree_for_extract(moveable_child, root):
     target_tagged_tree = []
     for child in root.traverse(False):
         if is_instance(child, Extract):
-            target_tagged_tree.append((child.get_full_slug(), child.title, child.get_tree_level(), child != moveable_child))
+            target_tagged_tree.append((child.get_full_slug(), child.title, child.get_tree_depth(), child != moveable_child))
         else:
-            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(), False))
+            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(), False))
     
     return target_tagged_tree
     
@@ -203,9 +203,9 @@ def get_target_tagged_tree_for_container(moveable_child, root):
     """
     target_tagged_tree = []
     for child in root.traverse(True):
-        composed_depth = child.get_tree_depth() + moveable_child.get_tree_level()
+        composed_depth = child.get_tree_depth() + moveable_child.get_tree_depth()
         enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
-        target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(),
+        target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(),
             enabled and child != moveable_child and child != root))
     
     return target_tagged_tree
