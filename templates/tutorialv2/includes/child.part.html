@@ -1,6 +1,7 @@
 {% load emarkdown %}
 {% load i18n %}
-
+{% load times %}
+{% load target_tree %}
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
     <a
@@ -31,6 +32,20 @@
                         {% if child.position_in_parent < child.parent.children|length %}
                             <option value="down">{% trans "Descendre" %}</option>
                         {% endif %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
+                        {% for element in child|target_tree %}
+                                <option value="before:{{element.0}}" 
+                                {% if not element.3 %} disabled {% endif %}>
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                </option>
+                        {% endfor %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
+                        {% for element in child|target_tree %}
+                                <option value="after:{{element.0}}" 
+                                {% if not element.3 %} disabled {% endif %}>
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                </option>
+                        {% endfor %}
                     </select>
                     <input type="hidden" name="child_slug" value="{{ child.slug }}">
                     <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
