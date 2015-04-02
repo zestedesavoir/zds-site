@@ -46,7 +46,7 @@ La doc de Django explique le principe des *context_processors* comme suis :
 | Les processeurs de contexte personnalisés peuvent se trouver n’importe où dans le code. Tout ce que Django demande, c’est que le réglage ``TEMPLATE_CONTEXT_PROCESSORS`` contienne le chemin vers le processeur personnalisé.
 |
 
-(pour plus de détails, `voir la documenation de Django à ce sujet <https://docs.djangoproject.com/en/dev/ref/templates/api/#subclassing-context-requestcontext>`__)
+(pour plus de détails, `voir la documenation de Django à ce sujet (en) <https://docs.djangoproject.com/en/dev/ref/templates/api/#subclassing-context-requestcontext>`__)
 
 .. automodule:: zds.utils.context_processor
     :members:

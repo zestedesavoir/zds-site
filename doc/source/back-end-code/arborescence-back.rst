@@ -76,7 +76,7 @@ Fichiers principaux
 
 Django étant basé sur une architecture de type Modèle-Vue-Controleur, on retrouve les modèles dans le fichier ``models.py`` et les vues associées à celles-ci dans ``views.py``. Ces dernières peuvent employer des classes formulaires qui sont définis dans ``forms.py``. Les URLs associées au module et permetant d'accéder aux vues sont définies dans ``urls.py``. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans ``feeds.py``.
 
-On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django <https://docs.djangoproject.com/en/dev/ref/validators/>`__).
+On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django (en) <https://docs.djangoproject.com/en/dev/ref/validators/>`__).
 
 Tests unitaires
 ---------------
@@ -112,7 +112,7 @@ API
 
 Une description fonctionnelle de l'API est faite `sur la page correspondante <../api.html>`__.
 
-Les fichiers correspondants à une API du module (si elle existe) se situent dans le dossier ``api/``. Dans celui-ci, principalement de nouvelles vues (``api/views.py``), URLs (``api/urls.py``) et tests (``api/tests.py``). On retrouve également des *serializers* dans ``api/serializers.py``, nécéssaires à la création de l'API (voir à ce sujet `la documentation du REST framework <http://www.django-rest-framework.org/api-guide/serializers/>`__).
+Les fichiers correspondants à une API du module (si elle existe) se situent dans le dossier ``api/``. Dans celui-ci, principalement de nouvelles vues (``api/views.py``), URLs (``api/urls.py``) et tests (``api/tests.py``). On retrouve également des *serializers* dans ``api/serializers.py``, nécéssaires à la création de l'API (voir à ce sujet `la documentation du REST framework (en) <http://www.django-rest-framework.org/api-guide/serializers/>`__).
 
 
 Autres
