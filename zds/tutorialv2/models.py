@@ -982,9 +982,12 @@ class VersionedContent(Container):
         return cm.hexsha
 
     def change_child_directory(self, child, adoptive_parent):
-        
-        old_path = child.get_path(False) # absolute path because we want to access the adress
-        adoptive_parent_path = adoptive_parent.get_path(False)
+        """
+        Move an element of this content to a new location.
+        This method changes the repository index and stage every change but does **not** commit.
+        :param child: the child we want to move, can be either an Extract or a Container object
+        :param adoptive_parent: the container where the child *will be* moved, must be a Container object
+        """
         if isinstance(child, Extract):
             old_parent = child.container
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
