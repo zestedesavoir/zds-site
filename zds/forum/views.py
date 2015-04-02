@@ -696,16 +696,27 @@ def edit_post(request):
                 })
         else:
             # The user just sent data, handle them
-            if request.POST["text"].strip() != "":
+            if "text" in request.POST:
                 form = TopicForm(request.POST)
+                form_post = PostForm(post.topic, request.user, request.POST)
 
-                if not form.is_valid() and g_topic:
-                    return render(request, "forum/post/edit.html", {
-                        "post": post,
-                        "topic": post.topic,
-                        "text": post.text,
-                        "form": form,
-                    })
+                if not form.is_valid():
+                    if g_topic:
+                        return render(request, "forum/post/edit.html", {
+                            "post": post,
+                            "topic": post.topic,
+                            "text": post.text,
+                            "form": form,
+                        })
+                    elif not form_post.is_valid():
+                        form = PostForm(post.topic, request.user, initial={"text": post.text})
+                        form._errors = form_post._errors
+                        return render(request, "forum/post/edit.html", {
+                            "post": post,
+                            "topic": post.topic,
+                            "text": post.text,
+                            "form": form,
+                        })
 
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
