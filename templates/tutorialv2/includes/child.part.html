@@ -3,7 +3,13 @@
 
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
-    <a href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">
+    <a
+    {%  if child.text %}
+        href="{{ child.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ child.position_in_parent }}-{{ child.slug }}"
+    {% else %}
+        href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+    {% endif %}
+    >
         {{ child.title }}
     </a>
 </h2>

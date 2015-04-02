@@ -2,8 +2,7 @@
 
 from math import ceil
 import shutil
-from django.http import Http404
-from gitdb.exc import BadObject
+from datetime import datetime
 
 try:
     import ujson as json_reader
@@ -20,10 +19,13 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
-from datetime import datetime
+from django.http import Http404
+from gitdb.exc import BadObject
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext as _
+
 from git.repo import Repo
 from git import Actor
-from django.core.exceptions import PermissionDenied
 
 from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
@@ -135,14 +137,13 @@ class Container:
         Represent the level in the tree of this container, i.e the depth of its deepest child
         :return: tree level
         """
-        current = self
+
         if len(self.children) == 0:
             return 1
         elif isinstance(self.children[0], Extract):
             return 2
         else:
             return 1 + max([i.get_tree_level() for i in self.children])
-
 
     def has_child_with_path(self, child_path):
         """
@@ -351,13 +352,14 @@ class Container:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
                             self.conclusion)
 
-    def repo_update(self, title, introduction, conclusion, commit_message=''):
+    def repo_update(self, title, introduction, conclusion, commit_message='', do_commit=True):
         """
         Update the container information and commit them into the repository
         :param title: the new title
         :param introduction: the new introduction text
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
+        :param do_commit: perform the commit in repository if `True`
         :return : commit sha
         """
 
@@ -368,12 +370,19 @@ class Container:
             self.title = title
             if self.get_tree_depth() > 0:  # if top container, slug is generated from DB, so already changed
                 old_path = self.get_path(relative=True)
+                old_slug = self.slug
+
+                # move things
                 self.slug = self.parent.get_unique_slug(title)
                 new_path = self.get_path(relative=True)
                 repo.index.move([old_path, new_path])
 
                 # update manifest
                 self.update_children()
+
+                # update parent children dict:
+                self.parent.children_dict.pop(old_slug)
+                self.parent.children_dict[self.slug] = self
 
         # update introduction and conclusion
         rel_path = self.get_path(relative=True)
@@ -394,19 +403,18 @@ class Container:
         repo.index.add(['manifest.json', self.introduction, self.conclusion])
 
         if commit_message == '':
-            commit_message = u'Mise à jour de « ' + self.title + u' »'
-        cm = repo.index.commit(commit_message, **get_commit_author())
+            commit_message = _(u'Mise à jour de « {} »').format(self.title)
 
-        self.top_container().sha_draft = cm.hexsha
+        if do_commit:
+            return self.top_container().commit_changes(commit_message)
 
-        return cm.hexsha
-
-    def repo_add_container(self, title, introduction, conclusion, commit_message=''):
+    def repo_add_container(self, title, introduction, conclusion, commit_message='', do_commit=True):
         """
         :param title: title of the new container
         :param introduction: text of its introduction
         :param conclusion: text of its conclusion
         :param commit_message: commit message that will be used instead of the default one
+        :param do_commit: perform the commit in repository if `True`
         :return: commit sha
         """
         subcontainer = Container(title)
@@ -441,18 +449,17 @@ class Container:
         repo.index.add(['manifest.json', subcontainer.introduction, subcontainer.conclusion])
 
         if commit_message == '':
-            commit_message = u'Création du conteneur « ' + title + u' »'
-        cm = repo.index.commit(commit_message, **get_commit_author())
+            commit_message = _(u'Création du conteneur « {} »').format(title)
 
-        self.top_container().sha_draft = cm.hexsha
+        if do_commit:
+            return self.top_container().commit_changes(commit_message)
 
-        return cm.hexsha
-
-    def repo_add_extract(self, title, text, commit_message=''):
+    def repo_add_extract(self, title, text, commit_message='', do_commit=True):
         """
         :param title: title of the new extract
         :param text: text of the new extract
         :param commit_message: commit message that will be used instead of the default one
+        :param do_commit: perform the commit in repository if `True`
         :return: commit sha
         """
         extract = Extract(title)
@@ -477,12 +484,10 @@ class Container:
         repo.index.add(['manifest.json', extract.text])
 
         if commit_message == '':
-            commit_message = u'Création de l\'extrait « ' + title + u' »'
-        cm = repo.index.commit(commit_message, **get_commit_author())
+            commit_message = _(u'Création de l\'extrait « {} »').format(title)
 
-        self.top_container().sha_draft = cm.hexsha
-
-        return cm.hexsha
+        if do_commit:
+            return self.top_container().commit_changes(commit_message)
 
     def repo_delete(self, commit_message='', do_commit=True):
         """
@@ -507,13 +512,9 @@ class Container:
 
         if commit_message == '':
             commit_message = u'Suppression du conteneur « {} »'.format(self.title)
+
         if do_commit:
-            cm = repo.index.commit(commit_message, **get_commit_author())
-
-            self.top_container().sha_draft = cm.hexsha
-
-            return cm.hexsha
-        return None
+            return self.top_container().commit_changes(commit_message)
 
     def move_child_up(self, child_slug):
         """
@@ -596,18 +597,18 @@ class Container:
             # if we want our child to get up (reference is an upper child)
             for i in range(child_pos, refer_pos, - 1):
                 self.move_child_up(child_slug)
-    
+
     def traverse(self, only_container=True):
         """
-        traverse the 
+        Traverse the container
         :param only_container: if we only want container's paths, not extract
-        :return: a generator that traverse all the container recursively (depth traversal)  
+        :return: a generator that traverse all the container recursively (depth traversal)
         """
         yield self
         for child in self.children:
             if isinstance(child, Container):
-                for _ in child.traverse(only_container):
-                    yield _
+                for _y in child.traverse(only_container):
+                    yield _y
             elif not only_container:
                 yield child
 
@@ -681,7 +682,7 @@ class Extract:
 
     def get_full_slug(self):
         """
-        get the slug of curent extract with its full path (part1/chapter1/slug_of_extract) 
+        get the slug of curent extract with its full path (part1/chapter1/slug_of_extract)
         this method is an alias to extract.get_path(True)[:-3] (remove .md extension)
         """
         return self.get_path(True)[:-3]
@@ -718,7 +719,7 @@ class Extract:
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
                 self.text)
 
-    def repo_update(self, title, text, commit_message=''):
+    def repo_update(self, title, text, commit_message='', do_commit=True):
         """
         :param title: new title of the extract
         :param text: new text of the extract
@@ -731,11 +732,17 @@ class Extract:
         if title != self.title:
             # get a new slug
             old_path = self.get_path(relative=True)
+            old_slug = self.slug
             self.title = title
             self.slug = self.container.get_unique_slug(title)
-            new_path = self.get_path(relative=True)
+
             # move file
+            new_path = self.get_path(relative=True)
             repo.index.move([old_path, new_path])
+
+            # update parent children dict:
+            self.container.children_dict.pop(old_slug)
+            self.container.children_dict[self.slug] = self
 
         # edit text
         path = self.container.top_container().get_path()
@@ -752,11 +759,9 @@ class Extract:
         if commit_message == '':
             commit_message = u'Modification de l\'extrait « {} », situé dans le conteneur « {} »'\
                 .format(self.title, self.container.title)
-        cm = repo.index.commit(commit_message, **get_commit_author())
 
-        self.container.top_container().sha_draft = cm.hexsha
-
-        return cm.hexsha
+        if do_commit:
+            return self.container.top_container().commit_changes(commit_message)
 
     def repo_delete(self, commit_message='', do_commit=True):
         """
@@ -781,13 +786,9 @@ class Extract:
 
         if commit_message == '':
             commit_message = u'Suppression de l\'extrait « {} »'.format(self.title)
+
         if do_commit:
-            cm = repo.index.commit(commit_message, **get_commit_author())
-
-            self.container.top_container().sha_draft = cm.hexsha
-
-            return cm.hexsha
-        return None
+            return self.container.top_container().commit_changes(commit_message)
 
 
 class VersionedContent(Container):
@@ -800,6 +801,7 @@ class VersionedContent(Container):
     """
 
     current_version = None
+    slug_repository = ''
     repository = None
 
     # Metadata from json :
@@ -836,10 +838,24 @@ class VersionedContent(Container):
     update_date = None
     source = None
 
-    def __init__(self, current_version, _type, title, slug):
+    def __init__(self, current_version, _type, title, slug, slug_repository=''):
+        """
+        :param current_version: version of the content
+        :param _type: either "TUTORIAL" or "ARTICLE"
+        :param title: title of the content
+        :param slug: slug of the content
+        :param slug_repository: slug of the directory that contains the repository, named after database slug.
+            if not provided, use `self.slug` instead.
+        """
+
         Container.__init__(self, title, slug)
         self.current_version = current_version
         self.type = _type
+
+        if slug_repository != '':
+            self.slug_repository = slug_repository
+        else:
+            self.slug_repository = slug
 
         if os.path.exists(self.get_path()):
             self.repository = Repo(self.get_path())
@@ -873,16 +889,20 @@ class VersionedContent(Container):
         else:
             return self.get_absolute_url()
 
-    def get_path(self, relative=False):
+    def get_path(self, relative=False, use_current_slug=False):
         """
         Get the physical path to the draft version of the Content.
         :param relative: if `True`, the path will be relative, absolute otherwise.
+        :param use_current_slug: if `True`, use `self.slug` instead of `self.slug_last_draft`
         :return: physical path
         """
         if relative:
             return ''
         else:
-            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
+            slug = self.slug_repository
+            if use_current_slug:
+                slug = self.slug
+            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
     def get_prod_path(self):
         """
@@ -943,18 +963,27 @@ class VersionedContent(Container):
 
         if slug != self.slug:
             # move repository
-            old_path = self.get_path()
+            old_path = self.get_path(use_current_slug=True)
             self.slug = slug
-            new_path = self.get_path()
+            new_path = self.get_path(use_current_slug=True)
             shutil.move(old_path, new_path)
             self.repository = Repo(new_path)
+            self.slug_repository = slug
 
         return self.repo_update(title, introduction, conclusion, commit_message)
 
+    def commit_changes(self, commit_message):
+        """Commit change made to the repository"""
+        cm = self.repository.index.commit(commit_message, **get_commit_author())
+
+        self.sha_draft = cm.hexsha
+        self.current_version = cm.hexsha
+
+        return cm.hexsha
+
     def change_child_directory(self, child, adoptive_parent):
-        
-        old_path = child.get_path(False) # absolute path because we want to access the adress
-        adoptive_parent_path = adoptive_parent.get_path(False)
+
+        old_path = child.get_path(False)  # absolute path because we want to access the address
         if isinstance(child, Extract):
             old_parent = child.container
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
@@ -966,10 +995,9 @@ class VersionedContent(Container):
         self.repository.index.move([old_path, child.get_path(False)])
 
         self.dump_json()
-        
-        
 
-def get_content_from_json(json, sha):
+
+def get_content_from_json(json, sha, slug_last_draft):
     """
     Transform the JSON formated data into `VersionedContent`
     :param json: JSON data from a `manifest.json` file
@@ -978,7 +1006,7 @@ def get_content_from_json(json, sha):
     """
     # TODO: should definitely be static
     # create and fill the container
-    versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'])
+    versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
 
     if 'version' in json and json['version'] == 2:
         # fill metadata :
@@ -1072,6 +1100,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     versioned_content = VersionedContent(None,
                                          db_object.type,
                                          db_object.title,
+                                         db_object.slug,
                                          db_object.slug)
 
     # fill some information that are missing :
@@ -1115,8 +1144,15 @@ def get_commit_author():
     :return: correctly formatted commit author for `repo.index.commit()`
     """
     user = get_current_user()
-    aut_user = str(user.pk)
-    aut_email = str(user.email)
+
+    if user:
+        aut_user = str(user.pk)
+        aut_email = str(user.email)
+
+    else:
+        aut_user = ZDS_APP['member']['bot_account']
+        aut_email = None
+
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
@@ -1292,7 +1328,7 @@ class PublishableContent(models.Model):
         """
         try:
             return self.load_version(sha, public)
-        except BadObject:
+        except (BadObject, IOError):
             raise Http404
 
     def load_version(self, sha=None, public=False):
@@ -1313,10 +1349,14 @@ class PublishableContent(models.Model):
                 sha = self.sha_public
 
         path = self.get_repo_path()
+
+        if not os.path.isdir(path):
+            raise IOError(path)
+
         repo = Repo(path)
         data = get_blob(repo.commit(sha).tree, 'manifest.json')
         json = json_reader.loads(data)
-        versioned = get_content_from_json(json, sha)
+        versioned = get_content_from_json(json, sha, self.slug)
         self.insert_data_in_versioned(versioned)
 
         return versioned

@@ -163,49 +163,47 @@ def try_adopt_new_child(adoptive_parent, child):
     adoptive_parent.top_container().change_child_directory(child, adoptive_parent)
 
 
-def get_target_tagged_tree(moveable_child, root):
+def get_target_tagged_tree(movable_child, root):
     """
     Gets the tagged tree with deplacement availability
-    :param moveable_child: the extract we want to move
+    :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
-    :return: an array of tuples that represent the capacity of moveable_child to be moved near another child
+    :return: an array of tuples that represent the capacity of movable_child to be moved near another child
     check get_target_tagged_tree_for_extract and get_target_tagged_tree_for_container for format
     """
-    if isinstance(moveable_child, Extract):
-        return get_target_tagged_tree_for_extract(moveable_child, root)
+    if isinstance(movable_child, Extract):
+        return get_target_tagged_tree_for_extract(movable_child, root)
     else:
-        return get_target_tagged_tree_for_container(moveable_child, root)
-    
-def get_target_tagged_tree_for_extract(moveable_child, root):
+        return get_target_tagged_tree_for_container(movable_child, root)
+
+
+def get_target_tagged_tree_for_extract(movable_child, root):
     """
-    Gets the tagged tree with deplacement availability when moveable_child is an extract
-    :param moveable_child: the extract we want to move
+    Gets the tagged tree with displacement availability when movable_child is an extract
+    :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
-    :return: an array of tuples that represent the capacity of moveable_child to be moved near another child
-    tuples are (relative_path, title, level, can_be_a_target) 
+    :return: an array of tuples that represent the capacity of movable_child to be moved near another child
+    tuples are (relative_path, title, level, can_be_a_target)
     """
     target_tagged_tree = []
     for child in root.traverse(False):
-        if is_instance(child, Extract):
-            target_tagged_tree.append((child.get_full_slug(), child.title, child.get_tree_depth(), child != moveable_child))
-        else:
-            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(), False))
-    
-    return target_tagged_tree
-    
-def get_target_tagged_tree_for_container(moveable_child, root):
+        return target_tagged_tree
+
+
+def get_target_tagged_tree_for_container(movable_child, root):
     """
-    Gets the tagged tree with deplacement availability when moveable_child is an extract
-    :param moveable_child: the container we want to move
+    Gets the tagged tree with displacement availability when movable_child is an extract
+    :param movable_child: the container we want to move
     :param root: the VersionnedContent we use as root
-    :return: an array of tuples that represent the capacity of moveable_child to be moved near another child
+    :return: an array of tuples that represent the capacity of movable_child to be moved near another child
     extracts are not included
     """
     target_tagged_tree = []
     for child in root.traverse(True):
-        composed_depth = child.get_tree_depth() + moveable_child.get_tree_depth()
+        composed_depth = child.get_tree_depth() + movable_child.get_tree_depth()
         enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
-        target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(),
-            enabled and child != moveable_child and child != root))
-    
+        target_tagged_tree.append((child.get_path(True),
+                                   child.title, child.get_tree_depth(),
+                                   enabled and child != movable_child and child != root))
+
     return target_tagged_tree

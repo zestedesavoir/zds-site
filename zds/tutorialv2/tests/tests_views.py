@@ -264,6 +264,7 @@ class ContentTests(TestCase):
         self.assertEqual(versioned.get_conclusion(), random)
         self.assertEqual(versioned.description, random)
         self.assertEqual(versioned.licence.pk, new_licence.pk)
+        self.assertNotEqual(versioned.slug, slug)
 
         slug = tuto.slug  # make the title change also change the slug !!
 
@@ -292,6 +293,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # edit container:
+        old_slug_container = container.slug
         result = self.client.post(
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
             {
@@ -307,6 +309,7 @@ class ContentTests(TestCase):
         self.assertEqual(container.title, random)
         self.assertEqual(container.get_introduction(), random)
         self.assertEqual(container.get_conclusion(), random)
+        self.assertNotEqual(container.slug, old_slug_container)
 
         # add a subcontainer
         result = self.client.post(
@@ -339,6 +342,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # edit subcontainer:
+        old_slug_subcontainer = subcontainer.slug
         result = self.client.post(
             reverse('content:edit-container',
                     kwargs={
@@ -360,6 +364,7 @@ class ContentTests(TestCase):
         self.assertEqual(subcontainer.title, random)
         self.assertEqual(subcontainer.get_introduction(), random)
         self.assertEqual(subcontainer.get_conclusion(), random)
+        self.assertNotEqual(subcontainer.slug, old_slug_subcontainer)
 
         # add extract to subcontainer:
         result = self.client.post(
@@ -396,6 +401,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # edit extract:
+        old_slug_extract = extract.slug
         result = self.client.post(
             reverse('content:edit-extract',
                     kwargs={
@@ -416,6 +422,7 @@ class ContentTests(TestCase):
         extract = versioned.children[0].children[0].children[0]
         self.assertEqual(extract.title, random)
         self.assertEqual(extract.get_text(), random)
+        self.assertNotEqual(old_slug_extract, extract.slug)
 
         # then, delete extract:
         result = self.client.get(
@@ -788,7 +795,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.extract3.get_path(True)[:-3],
+                'moving_method': 'before:' + self.extract3.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
@@ -797,7 +804,7 @@ class ContentTests(TestCase):
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[0]
         self.assertEqual(self.extract2.slug, extract.slug)
-        
+
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         # test changing parent for extract (smoothly)
@@ -809,11 +816,11 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.extract4.get_path(True)[:-3],
+                'moving_method': 'before:' + self.extract4.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -831,7 +838,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.chapter1.get_path(True),
+                'moving_method': 'before:' + self.chapter1.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
@@ -852,7 +859,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:'+self.chapter1.get_path(True)+"/un-mauvais-extrait",
+                'moving_method': 'before:' + self.chapter1.get_path(True) + "/un-mauvais-extrait",
                 'pk': tuto.pk
             },
             follow=True)
@@ -864,7 +871,7 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-    
+
     def test_move_container_before(self):
         # login with author
         self.assertEqual(
@@ -886,11 +893,11 @@ class ContentTests(TestCase):
                 'child_slug': self.chapter3.slug,
                 'container_slug': self.part1.slug,
                 'first_level_slug': '',
-                'moving_method': 'before:'+self.chapter4.get_path(True),
+                'moving_method': 'before:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -908,11 +915,11 @@ class ContentTests(TestCase):
                 'child_slug': self.part1.slug,
                 'container_slug': self.tuto.slug,
                 'first_level_slug': '',
-                'moving_method': 'before:'+self.chapter4.get_path(True),
+                'moving_method': 'before:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -921,7 +928,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[1]
         self.assertEqual(self.chapter4.slug, chapter.slug)
-    
+
     def test_move_extract_after(self):
         # test 1 : move extract after a sibling
         # login with author
@@ -941,7 +948,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.extract3.get_path(True)[:-3],
+                'moving_method': 'after:' + self.extract3.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
@@ -952,7 +959,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.extract2.slug, extract.slug)
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[1]
         self.assertEqual(self.extract3.slug, extract.slug)
-        
+
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         # test changing parent for extract (smoothly)
@@ -964,11 +971,11 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.extract4.get_path(True)[:-3],
+                'moving_method': 'after:' + self.extract4.get_path(True)[:-3],
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -986,7 +993,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.chapter1.get_path(True),
+                'moving_method': 'after:' + self.chapter1.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
@@ -1007,7 +1014,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter2.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'after:'+self.chapter1.get_path(True)+"/un-mauvais-extrait",
+                'moving_method': 'after:' + self.chapter1.get_path(True) + "/un-mauvais-extrait",
                 'pk': tuto.pk
             },
             follow=True)
@@ -1019,7 +1026,7 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[0]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-    
+
     def test_move_container_after(self):
         # login with author
         self.assertEqual(
@@ -1041,11 +1048,11 @@ class ContentTests(TestCase):
                 'child_slug': self.chapter3.slug,
                 'container_slug': self.part1.slug,
                 'first_level_slug': '',
-                'moving_method': 'after:'+self.chapter4.get_path(True),
+                'moving_method': 'after:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -1063,11 +1070,11 @@ class ContentTests(TestCase):
                 'child_slug': self.part1.slug,
                 'container_slug': self.tuto.slug,
                 'first_level_slug': '',
-                'moving_method': 'after:'+self.chapter4.get_path(True),
+                'moving_method': 'after:' + self.chapter4.get_path(True),
                 'pk': tuto.pk
             },
             follow=True)
-        
+
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -1076,7 +1083,288 @@ class ContentTests(TestCase):
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[0]
         self.assertEqual(self.chapter4.slug, chapter.slug)
-        
+
+    def test_history_navigation(self):
+        """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # check access
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # edit tutorial:
+        old_slug_tuto = tuto.slug
+        version_1 = tuto.sha_draft  # "version 1" is the one before any change
+
+        new_licence = LicenceFactory()
+        random = 'Pâques, c\'est bientôt?'
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': random,
+                'description': random,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': new_licence.pk,
+                'subcategory': self.subcategory.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        version_2 = tuto.sha_draft  # "version 2" is the one with the different slug for the tutorial
+        self.assertNotEqual(tuto.slug, old_slug_tuto)
+
+        # check access using old slug and no version
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, old_slug_tuto]),
+            follow=False)
+        self.assertEqual(result.status_code, 404)  # it is not possible, so get 404
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': self.part1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # check access with old slug and version
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, old_slug_tuto]) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': self.part1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': self.part1.slug,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # edit container:
+        old_slug_part = self.part1.slug
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={
+                'pk': tuto.pk,
+                'slug': tuto.slug,
+                'container_slug': self.part1.slug
+            }),
+            {
+                'title': random,
+                'introduction': random,
+                'conclusion': random
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        version_3 = tuto.sha_draft  # "version 3" is the one with the modified part
+        versioned = tuto.load_version()
+        current_slug_part = versioned.children[0].slug
+
+        # we can still access to the container using old slug !
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # and even to it using version 1 and old tuto slug !!
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # but you can also access it with the current slug (for retro-compatibility)
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # delete part
+        result = self.client.post(
+            reverse('content:delete',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'object_slug': current_slug_part
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # we can still access to the part in version 3:
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': current_slug_part
+                    }) + '?version=' + version_3,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': current_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_3,
+            follow=False)
+
+        # version 2:
+        self.assertEqual(result.status_code, 200)
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # version 1:
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'container_slug': old_slug_part
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': old_slug_tuto,
+                        'parent_container_slug': old_slug_part,
+                        'container_slug': self.chapter1.slug
+                    }) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
