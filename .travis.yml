@@ -8,7 +8,7 @@ python:
 
 env:
   global:
-    - secure: "JiFg/1F3zuBLYJaJtHFGbIOaT6GP1Zf4qqqwLAgZJAm9AmbNIrRWz4jdI6/qxnD7AuO7XqkeoS56KBxKGGkFAz+bwndBNAyeLKN3u8dusCT3LPoF8IK6yp+RcHcSQoe8cMI8uNp/W3ZIshIweRL2EcKEJhDq8U5Q5wLqzkJqL/g="
+    - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
   matrix:
     - TEST_APP="-e back_mysql"
     - TEST_APP="-e front"
