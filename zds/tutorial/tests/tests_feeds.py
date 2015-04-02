@@ -11,7 +11,7 @@ from django.test.utils import override_settings
 
 from zds.gallery.factories import GalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.tutorial.factories import MiniTutorialFactory, ChapterFactory, \
     SubCategoryFactory, LicenceFactory
 from zds.tutorial.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
@@ -19,12 +19,12 @@ from zds.tutorial.models import Tutorial, Validation
 
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['tutorial']['repo_path'] = os.path.join(SITE_ROOT, 'tutoriels-private-test')
-overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(SITE_ROOT, 'tutoriels-public-test')
-overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
+overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class LastTutorialsFeedRSSTest(TestCase):
 

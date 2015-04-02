@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile, TokenRegister, Ban, logout_user
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.utils.mps import send_mp
 
 
@@ -72,7 +72,7 @@ class ProfileEmailValidator(Validator):
         if value:
             msg = None
             # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+            with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as fh:
                 for provider in fh:
                     if provider.strip() in value:
                         msg = _(u'Utilisez un autre fournisseur d\'adresses courriel.')

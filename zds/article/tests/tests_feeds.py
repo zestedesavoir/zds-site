@@ -13,14 +13,14 @@ from zds.article.factories import ArticleFactory, LicenceFactory
 from zds.article.models import Validation, Article
 from zds.article.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class LastArticlesFeedRSSTest(TestCase):
 

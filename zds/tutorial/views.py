@@ -3059,7 +3059,7 @@ def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
     regex = ur"(!\[.*?\]\()(.+?)(\))"
-    unknow_path = os.path.join(settings.SITE_ROOT, "fixtures", "noir_black.png")
+    unknow_path = os.path.join(settings.BASE_DIR, "fixtures", "noir_black.png")
 
     # if text is empty don't download
 
@@ -3103,7 +3103,7 @@ def get_url_images(md_text, pt):
                     pass
             else:
                 # relative link
-                srcfile = settings.SITE_ROOT + real_url
+                srcfile = settings.BASE_DIR + real_url
                 if os.path.isfile(srcfile):
                     dstroot = pt + real_url
                     dstdir = os.path.dirname(dstroot)
@@ -3265,7 +3265,7 @@ def mep(tutorial, sha):
               os.path.join(prod_path, tutorial.slug) +
               ".md -o " + os.path.join(prod_path,
                                        tutorial.slug) + ".epub" + pandoc_debug_str)
-    os.chdir(settings.SITE_ROOT)
+    os.chdir(settings.BASE_DIR)
     return (output, err)
 
 

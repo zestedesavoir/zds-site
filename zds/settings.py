@@ -48,12 +48,9 @@ LANGUAGES = (
     ('en', _('Anglais')),
 )
 
-
-SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
-
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -64,7 +61,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -75,7 +72,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, 'dist'),
+    os.path.join(BASE_DIR, 'dist'),
 )
 
 # List of finder classes that know how to find static files in
@@ -86,7 +83,7 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
+FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'))
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
@@ -120,7 +117,7 @@ TEMPLATE_DIRS = [
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, 'templates')
+    os.path.join(BASE_DIR, 'templates')
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -330,7 +327,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -347,7 +344,7 @@ MESSAGE_TAGS = {
 SDZ_TUTO_DIR = ''
 
 LOCALE_PATHS = (
-    os.path.join(SITE_ROOT, 'conf/locale/'),
+    os.path.join(BASE_DIR, 'conf/locale/'),
 )
 
 ZDS_APP = {
@@ -424,11 +421,11 @@ ZDS_APP = {
     },
     'article': {
         'home_number': 5,
-        'repo_path': os.path.join(SITE_ROOT, 'articles-data')
+        'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
-        'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
-        'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
+        'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
+        'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
         'default_license_pk': 7,
         'home_number': 5,
         'helps_per_page': 20
@@ -484,3 +481,4 @@ try:
     from settings_prod import *
 except ImportError:
     pass
+
