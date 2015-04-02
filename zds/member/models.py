@@ -15,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.http import HttpRequest
+from django.utils.http import urlquote
 
 from zds.article.models import Article
 from zds.forum.models import Post, Topic
