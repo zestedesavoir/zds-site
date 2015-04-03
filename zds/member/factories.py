@@ -5,11 +5,13 @@ import factory
 
 from zds.member.models import Profile
 
-# Don't try to directly use UserFactory, this didn't create Profile then
-# don't work!
-
 
 class UserFactory(factory.DjangoModelFactory):
+    """
+    This factory creates User.
+    WARNING: Don't try to directly use `UserFactory`, this didn't create associated Profile then don't work!
+    Use `ProfileFactory` instead.
+    """
     FACTORY_FOR = User
 
     username = factory.Sequence(lambda n: 'firm{0}'.format(n))
@@ -28,11 +30,13 @@ class UserFactory(factory.DjangoModelFactory):
                 user.save()
         return user
 
-# Don't try to directly use StaffFactory, this didn't create Profile then
-# don't work!
-
 
 class StaffFactory(factory.DjangoModelFactory):
+    """
+    This factory creates staff User.
+    WARNING: Don't try to directly use `StaffFactory`, this didn't create associated Profile then don't work!
+    Use `StaffProfileFactory` instead.
+    """
     FACTORY_FOR = User
 
     username = factory.Sequence(lambda n: 'firmstaff{0}'.format(n))
@@ -64,6 +68,9 @@ class StaffFactory(factory.DjangoModelFactory):
 
 
 class ProfileFactory(factory.DjangoModelFactory):
+    """
+    Use this factory when you need a complete Profile for a standard user.
+    """
     FACTORY_FOR = Profile
 
     user = factory.SubFactory(UserFactory)
@@ -79,6 +86,9 @@ class ProfileFactory(factory.DjangoModelFactory):
 
 
 class StaffProfileFactory(factory.DjangoModelFactory):
+    """
+    Use this factory when you need a complete Profile for a staff user.
+    """
     FACTORY_FOR = Profile
 
     user = factory.SubFactory(StaffFactory)
@@ -94,12 +104,20 @@ class StaffProfileFactory(factory.DjangoModelFactory):
 
 
 class NonAsciiUserFactory(UserFactory):
+    """
+    This factory creates standard user with non-ASCII characters in its username.
+    WARNING: Don't try to directly use `NonAsciiUserFactory`, this didn't create associated Profile then don't work!
+    Use `NonAsciiProfileFactory` instead.
+    """
     FACTORY_FOR = User
 
     username = factory.Sequence(lambda n: u'ïéàçÊÀ{0}'.format(n))
 
 
 class NonAsciiProfileFactory(ProfileFactory):
+    """
+    Use this factory to create a standard user with non-ASCII characters in its username.
+    """
     FACTORY_FOR = Profile
 
     user = factory.SubFactory(NonAsciiUserFactory)

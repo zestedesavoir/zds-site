@@ -88,7 +88,5 @@ Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils Lat
 
   sudo port install pandoc
 
-Ajouter un hook de pre-commit a git pour tester flake
------------------------------------------------------
 
-.. include:: includes/git-pre-hook.rst
+Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <utils/git-pre-hook.html>`__.

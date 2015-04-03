@@ -24,14 +24,14 @@ L'inscription se fait via l'interface utilisateur.
 -  Le lien de désinscription est accessible via paramètres (``/membres/parametres/profil/``) puis “Se désinscrire” dans la barre
    latérale (``/membres/desinscrire/avertissement/``) :
 
-   .. figure:: images/member/desinscription-1.png
+   .. figure:: ../images/member/desinscription-1.png
       :align:   center
 
       Position du lien de désinscription dans les paramètres du membre (``/membres/parametres/profil/``)
 
 -  Le lien mène alors vers une page expliquant les conséquences de sa  désinscription. Il peut alors poursuivre via un bouton en bas de celle-ci :
 
-   .. figure:: images/member/desinscription-2.png
+   .. figure:: ../images/member/desinscription-2.png
       :align:   center
 
       Bouton de confirmation
@@ -39,7 +39,7 @@ L'inscription se fait via l'interface utilisateur.
 
 -  Le clic sur le bouton rouge ouvre une boite modale qui constitue le dernier avertissement avant le déclenchement du processus de désinscription :
 
-   .. figure:: images/member/desinscription-3.png
+   .. figure:: ../images/member/desinscription-3.png
       :align:   center
 
       La dernière étape
@@ -133,14 +133,14 @@ L'interface de réinitialisation de mot de passe
 Quand le membre du site oublie son mot de passe, il peut le réinitialiser. L'ancien mot de passe est supprimé et l'utilisateur peut en choisir un nouveau.
 Pour cela, il se rend sur la page de réinitialisation de mot de passe (``membres/reinitialisation/``) à partir de la page de connexion.
 
-    .. figure:: images/member/reinitialisation-mot-de-passe-1.png
+    .. figure:: ../images/member/reinitialisation-mot-de-passe-1.png
 
 Sur cette page l'utilisateur, doit rentrer son nom d'utilisateur ou son adresse de courriel. Pour cela, il clique sur le lien pour que le formullaire apparaisse.
 Quand l'utilisateur clique sur le bouton de validation, un jeton est généré aléatoirement et est stocké dans une base de données.
 
 Un message est envoyé à l'adresse de courriel de l'utilisateur. Ce courriel contient un lien de réinitialisation. Ce lien contient un paramètre, le jeton de réinitialisation et dirige l'utilisateur vers l'adresse ``membres/new_password/``.
 
-    .. figure:: images/member/reinitialisation-mot-de-passe-2.png
+    .. figure:: ../images/member/reinitialisation-mot-de-passe-2.png
 
 Cette page permet de changer le mot de passe de l'utilisateur. L'utilisateur remplit le formulaire et clique sur le bouton de validation.
 Si le mot de passe et le champ confirmation correspondent et que le mot de passe respecte les règles métiers, le mot de passe est changé.

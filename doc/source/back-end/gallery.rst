@@ -19,14 +19,14 @@ On peut créer une nouvelle galerie via l'url ``/galerie/nouveau/``, où il est 
 
 Il est ensuite possible d'uploader des images via le menu de gauche :
 
-   .. figure:: images/gallery/menu-gauche.png
+   .. figure:: ../images/gallery/menu-gauche.png
       :align: center
 
       Liens permettant d'uploader des images
 
 Via celui-ci, on peut importer des archives contenant des images (au format ZIP) ou des images seules. Dans ce dernier cas, le formulaire d'*upload* est le suivant :
 
-   .. figure:: images/gallery/nouvelle-image.png
+   .. figure:: ../images/gallery/nouvelle-image.png
       :align: center
 
       Formulaire d'upload de nouvelles images
@@ -35,7 +35,7 @@ Comme on peut le voir, chaque image doit posséder au minimum un titre et peut p
 
 Une fois l'image uploadée, il est possible d'effectuer différentes actions sur celle-ci sur la page spécifique à celle-ci :
 
-   .. figure:: images/gallery/gestion-image.png
+   .. figure:: ../images/gallery/gestion-image.png
       :align: center
 
       Gestion d'une image
@@ -53,14 +53,14 @@ Les utilisateurs et leurs droits
 
 Le créateur de la galerie possède un droit d'écriture, mais peut rajouter à tout moment des utilisateurs dans celle-ci :
 
-   .. figure:: images/gallery/gestion-auteurs.png
+   .. figure:: ../images/gallery/gestion-auteurs.png
       :align: center
 
       Ajout d'un nouvel utilisateur
 
 Lors d'un clic sur "Ajouter un utilisateur", une fenêtre modale s'ouvre :
 
-   .. figure:: images/gallery/gestion-auteurs2.png
+   .. figure:: ../images/gallery/gestion-auteurs2.png
       :align: center
 
       Choix de l'utilisateur et sélection de ces droits
@@ -79,7 +79,7 @@ La suppression
 
 Une image peut être supprimée à tout moment en la sélectionnant sur la page de la galerie et en cliquant sur le bouton suivant :
 
-   .. figure:: images/gallery/sup-image.png
+   .. figure:: ../images/gallery/sup-image.png
       :align: center
 
       Suppression d'une ou plusieurs image(s)
@@ -88,14 +88,14 @@ Attention qu'aucune confirmation n'est demandée pour la suppression d'une image
 
 Une galerie peut être quant à elle supprimée via la page de gestion des galeries (``/galerie/``) en cochant la case de celle-ci et en cliquant sur "supprimer les galeries sélectionnées" dans le menu de gauche :
 
-   .. figure:: images/gallery/sup-galerie.png
+   .. figure:: ../images/gallery/sup-galerie.png
       :align: center
 
       Suppression d'une galerie
 
 Une modale s'ouvre ensuite, demandant de confirmer le choix :
 
-   .. figure:: images/gallery/sup-galerie2.png
+   .. figure:: ../images/gallery/sup-galerie2.png
       :align: center
 
       Confirmation
