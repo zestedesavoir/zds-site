@@ -35,7 +35,7 @@ On retrouve un dossier pour chaque module du site :
     ├── middlewares/ # codes provenant de sources externes
     │   └── ...
 
-On retrouve également dans ce dossier les quelques fichiers suivants, nécéssaires à la configuration et au fonctionnement de Django :
+On retrouve également dans ce dossier les quelques fichiers suivants, nécessaires à la configuration et au fonctionnement de Django :
 
 .. sourcecode:: bash
 
@@ -74,14 +74,14 @@ Chacun des modules possède dans son dossier une arborescence fort semblable, et
 Fichiers principaux
 -------------------
 
-Django étant basé sur une architecture de type Modèle-Vue-Controleur, on retrouve les modèles dans le fichier ``models.py`` et les vues associées à celles-ci dans ``views.py``. Ces dernières peuvent employer des classes formulaires qui sont définis dans ``forms.py``. Les URLs associées au module et permetant d'accéder aux vues sont définies dans ``urls.py``. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans ``feeds.py``.
+Django étant basé sur une architecture de type Modèle-Vue-Template, on retrouve les modèles dans le fichier ``models.py`` et les contrôles associés à celles-ci dans ``views.py``. Ces dernières peuvent employer des classes formulaires qui sont définis dans ``forms.py``. Les URLs associées au module et permetant d'accéder aux vues sont définies dans ``urls.py``. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans ``feeds.py``.
 
-On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django (en) <https://docs.djangoproject.com/en/dev/ref/validators/>`__).
+On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django <https://docs.djangoproject.com/fr/1.7/ref/validators/>`__).
 
 Tests unitaires
 ---------------
 
-Une partie importante du dévellopement est basée sur les tests unitaires: afin d'éviter qu'un dévellopement futur ne brise une fonctionnalité, une série de test associé à chaque module est écrite dans des fichiers situés dans le dossier ``tests/`` de chaque module. Cette série de test peut être lancée en utilisant la commande suivante:
+Une partie importante du développement est basée sur les tests unitaires : afin d'éviter qu'un dévellopement futur ne brise une fonctionnalité, une série de test associé à chaque module est écrite dans des fichiers situés dans le dossier ``tests/`` de chaque module. Cette série de test peut être lancée en utilisant la commande suivante :
 
 .. sourcecode:: bash
 
@@ -100,7 +100,7 @@ Le dossier ``migrations/`` permet à Django de consigner les changements effectu
 
 Celle-ci doit être utilisée lorsqu'une variable d'un modèle (dans ``models.py``) est modifiée, ajoutée ou supprimée. Si tel est le cas, n'oubliez pas d'inclure le fichier résultant (de la forme ``xxxx_auto_yyy.py``) dans votre prochain *commit* !
 
-Cela permetra aux autres dévellopeurs de répercuter les modifications en utilisant:
+Cela permettra aux autres développeurs de répercuter les modifications en utilisant:
 
 .. sourcecode:: bash
 
@@ -112,7 +112,7 @@ API
 
 Une description fonctionnelle de l'API est faite `sur la page correspondante <../api.html>`__.
 
-Les fichiers correspondants à une API du module (si elle existe) se situent dans le dossier ``api/``. Dans celui-ci, principalement de nouvelles vues (``api/views.py``), URLs (``api/urls.py``) et tests (``api/tests.py``). On retrouve également des *serializers* dans ``api/serializers.py``, nécéssaires à la création de l'API (voir à ce sujet `la documentation du REST framework (en) <http://www.django-rest-framework.org/api-guide/serializers/>`__).
+Les fichiers correspondants à une API du module (si elle existe) se situent dans le dossier ``api/``. Dans celui-ci, se trouvent principalement de nouvelles vues (``api/views.py``), URLs (``api/urls.py``) et tests (``api/tests.py``). On retrouve également des *serializers* dans ``api/serializers.py``, nécessaires à la création de l'API (voir à ce sujet `la documentation du REST framework (en) <http://www.django-rest-framework.org/api-guide/serializers/>`__).
 
 
 Autres

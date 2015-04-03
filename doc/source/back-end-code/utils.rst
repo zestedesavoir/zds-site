@@ -39,14 +39,14 @@ Tutoriels (``tutorials.py``)
 Les processeurs de contexte (``context_processor.py``)
 ======================================================
 
-La doc de Django explique le principe des *context_processors* comme suis :
+La doc de Django explique le principe des *context_processors* comme suit :
 
 | Un processeur de contexte possède une interface très simple : ce n’est qu’une fonction Python acceptant un paramètre, un objet HttpRequest, et renvoyant un dictionnaire qui est ensuite ajouté au contexte de gabarit. Chaque processeur de contexte doit renvoyer un dictionnaire.
 |
 | Les processeurs de contexte personnalisés peuvent se trouver n’importe où dans le code. Tout ce que Django demande, c’est que le réglage ``TEMPLATE_CONTEXT_PROCESSORS`` contienne le chemin vers le processeur personnalisé.
 |
 
-(pour plus de détails, `voir la documenation de Django à ce sujet (en) <https://docs.djangoproject.com/en/dev/ref/templates/api/#subclassing-context-requestcontext>`__)
+(pour plus de détails, `voir la documenation de Django à ce sujet <https://docs.djangoproject.com/fr/1.7/ref/templates/api/#subclassing-context-requestcontext>`__)
 
 .. automodule:: zds.utils.context_processor
     :members:
