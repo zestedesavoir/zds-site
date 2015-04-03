@@ -22,14 +22,14 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView
-from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
+from .forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm
 from zds.utils.models import Comment, CommentLike, CommentDislike
-from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+from .models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
-from zds.gallery.models import UserGallery
+from zds.gallery.models import UserGallery, GALLERY_WRITE
 from zds.forum.models import Topic, follow, TopicFollowed
 from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
@@ -282,12 +282,13 @@ def unregister(request):
                 external_gallery = UserGallery()
                 external_gallery.user = external
                 external_gallery.gallery = tuto.gallery
-                external_gallery.mode = 'W'
+                external_gallery.mode = GALLERY_WRITE
                 external_gallery.save()
                 UserGallery.objects.filter(user=current).filter(gallery=tuto.gallery).delete()
 
             tuto.authors.remove(current)
             tuto.save()
+
     for article in request.user.profile.get_articles():
         # we delete article only if not published with only one author
         if not article.on_line() and article.authors.count() == 1:
@@ -346,7 +347,7 @@ def unregister(request):
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
             anonymous_gallery.user = external
-            anonymous_gallery.mode = "w"
+            anonymous_gallery.mode = GALLERY_WRITE
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
         gallery.delete()
@@ -896,14 +897,14 @@ def settings_promote(request, user_pk):
 
     if request.method == "POST":
         form = PromoteMemberForm(request.POST)
-        data = dict(form.data.iterlists())
+        data = dict(form.data.lists())
 
         groups = Group.objects.all()
         usergroups = user.groups.all()
 
         if 'groups' in data:
             for group in groups:
-                if unicode(group.id) in data['groups']:
+                if str(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
                         messages.success(request, _(u'{0} appartient maintenant au groupe {1}.')

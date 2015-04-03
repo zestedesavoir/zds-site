@@ -58,13 +58,13 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         repo = Repo(path)
 
         f = open(os.path.join(path, 'manifest.json'), "w")
-        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False))
         f.close()
         f = open(os.path.join(path, tuto.introduction), "w")
-        f.write(real_content.encode('utf-8'))
+        f.write(real_content)
         f.close()
         f = open(os.path.join(path, tuto.conclusion), "w")
-        f.write(real_content.encode('utf-8'))
+        f.write(real_content)
         f.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
@@ -108,13 +108,13 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
             json_writer.dumps(
                 man,
                 indent=4,
-                ensure_ascii=False).encode('utf-8'))
+                ensure_ascii=False))
         file.close()
         file = open(os.path.join(path, tuto.introduction), "w")
-        file.write(real_content.encode('utf-8'))
+        file.write(real_content)
         file.close()
         file = open(os.path.join(path, tuto.conclusion), "w")
-        file.write(real_content.encode('utf-8'))
+        file.write(real_content)
         file.close()
 
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
@@ -153,11 +153,11 @@ class PartFactory(factory.DjangoModelFactory):
         part.save()
 
         f = open(os.path.join(tutorial.get_path(), part.introduction), "w")
-        f.write(real_content.encode('utf-8'))
+        f.write(real_content)
         f.close()
         repo.index.add([part.introduction])
         f = open(os.path.join(tutorial.get_path(), part.conclusion), "w")
-        f.write(real_content.encode('utf-8'))
+        f.write(real_content)
         f.close()
         repo.index.add([part.conclusion])
 
@@ -170,7 +170,7 @@ class PartFactory(factory.DjangoModelFactory):
                 json_writer.dumps(
                     man,
                     indent=4,
-                    ensure_ascii=False).encode('utf-8'))
+                    ensure_ascii=False))
             f.close()
 
             repo.index.add(['manifest.json'])
@@ -217,7 +217,7 @@ class ChapterFactory(factory.DjangoModelFactory):
                 json_writer.dumps(
                     man,
                     indent=4,
-                    ensure_ascii=False).encode('utf-8'))
+                    ensure_ascii=False))
             f.close()
             repo.index.add(['manifest.json'])
 
@@ -236,14 +236,14 @@ class ChapterFactory(factory.DjangoModelFactory):
                     part.tutorial.get_path(),
                     chapter.introduction),
                 "w")
-            f.write(real_content.encode('utf-8'))
+            f.write(real_content)
             f.close()
             f = open(
                 os.path.join(
                     part.tutorial.get_path(),
                     chapter.conclusion),
                 "w")
-            f.write(real_content.encode('utf-8'))
+            f.write(real_content)
             f.close()
             part.tutorial.save()
             repo = Repo(part.tutorial.get_path())
@@ -258,7 +258,7 @@ class ChapterFactory(factory.DjangoModelFactory):
                 json_writer.dumps(
                     man,
                     indent=4,
-                    ensure_ascii=False).encode('utf-8'))
+                    ensure_ascii=False))
             f.close()
 
             repo.index.add([chapter.introduction, chapter.conclusion])

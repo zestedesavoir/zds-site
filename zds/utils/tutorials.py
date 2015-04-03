@@ -447,7 +447,7 @@ def import_archive(request):
             ph = i
             if ph == "manifest.json":
                 json_data = zfile.read(i)
-                mandata = json_reader.loads(json_data)
+                mandata = json_reader.loads(json_data.decode('utf-8'))
                 ck_zip = zipfile.ZipFile(archive, "r")
                 (check, reason) = check_json(mandata, tutorial, ck_zip)
                 if not check:

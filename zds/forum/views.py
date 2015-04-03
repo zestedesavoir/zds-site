@@ -22,8 +22,8 @@ from django.utils.translation import ugettext as _
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
-from forms import TopicForm, PostForm, MoveTopicForm
-from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
+from .forms import TopicForm, PostForm, MoveTopicForm
+from .models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
     mark_read, TopicFollowed, get_topics
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now

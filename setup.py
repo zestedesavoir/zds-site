@@ -21,7 +21,7 @@ setup(
     packages=['zds'],
     include_package_data=True,
     license='GPLv3',
-    description='Community Website implemented with Django framework and Python 2.',
+    description='Community Website implemented with Django framework and Python 3.',
     long_description=README,
     url='https://github.com/zestedesavoir/zds-site',
     classifiers=[
@@ -31,8 +31,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        # Replace these appropriately if you are stuck on Python 2.
-        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],

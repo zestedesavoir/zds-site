@@ -55,8 +55,9 @@ class MemberTests(TestCase):
             position_in_category=1)
         self.staff = StaffProfileFactory().user
 
-        self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
-        self.bot.save()
+        if not Group.objects.filter(name=settings.ZDS_APP["member"]["bot_group"]).exists():
+            bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+            bot.save()
 
     def test_list_members(self):
         """
@@ -184,7 +185,7 @@ class MemberTests(TestCase):
         self.assertRedirects(result, reverse('zds.pages.views.home'))
 
         # login failed with bad password then no redirection
-        # (status_code equals 200 and not 302).
+        # (status_code equal 200 and not 302).
         result = self.client.post(
             reverse('zds.member.views.login_view'),
             {'username': user.user.username,
@@ -232,7 +233,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent.
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # check if the new user is well inactive.
         user = User.objects.get(username='firm1')
@@ -247,7 +248,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check a new email has been sent at the new user.
-        self.assertEquals(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 2)
 
         # check if the new user is active.
         self.assertTrue(User.objects.get(username='firm1').is_active)
@@ -405,11 +406,11 @@ class MemberTests(TestCase):
         self.assertIsNotNone(Topic.objects.get(pk=authored_topic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=private_topic.pk))
         self.assertIsNotNone(Gallery.objects.get(pk=alone_gallery.pk))
-        self.assertEquals(alone_gallery.get_linked_users().count(), 1)
-        self.assertEquals(shared_gallery.get_linked_users().count(), 1)
-        self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
+        self.assertEqual(alone_gallery.get_linked_users().count(), 1)
+        self.assertEqual(shared_gallery.get_linked_users().count(), 1)
+        self.assertEqual(UserGallery.objects.filter(user=user.user).count(), 0)
+        self.assertEqual(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEqual(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
@@ -428,7 +429,7 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # clic on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
@@ -467,7 +468,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
         self.assertEqual(ban.type, 'Lecture Seule')
         self.assertEqual(ban.text, 'Texte de test pour LS')
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # Test: Un-LS
         result = self.client.post(
@@ -485,7 +486,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Autorisation d\'écrire')
         self.assertEqual(ban.text, 'Texte de test pour un-LS')
-        self.assertEquals(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 2)
 
         # Test: LS temp
         user_ls_temp = ProfileFactory()
@@ -505,7 +506,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Lecture Seule Temporaire')
         self.assertEqual(ban.text, u'Texte de test pour LS TEMP')
-        self.assertEquals(len(mail.outbox), 3)
+        self.assertEqual(len(mail.outbox), 3)
 
         # Test: BAN
         user_ban = ProfileFactory()
@@ -523,7 +524,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban définitif')
         self.assertEqual(ban.text, u'Texte de test pour BAN')
-        self.assertEquals(len(mail.outbox), 4)
+        self.assertEqual(len(mail.outbox), 4)
 
         # Test: un-BAN
         result = self.client.post(
@@ -542,7 +543,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Autorisation de se connecter')
         self.assertEqual(ban.text, u'Texte de test pour BAN')
-        self.assertEquals(len(mail.outbox), 5)
+        self.assertEqual(len(mail.outbox), 5)
 
         # Test: BAN temp
         user_ban_temp = ProfileFactory()
@@ -562,7 +563,7 @@ class MemberTests(TestCase):
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
         self.assertEqual(ban.type, u'Ban Temporaire')
         self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
-        self.assertEquals(len(mail.outbox), 6)
+        self.assertEqual(len(mail.outbox), 6)
 
     def test_failed_bot_sanctions(self):
 
@@ -571,6 +572,12 @@ class MemberTests(TestCase):
             username=staff.user.username,
             password='hostel77')
         self.assertEqual(login_check, True)
+
+        if not Group.objects.filter(name=settings.ZDS_APP["member"]["bot_group"]).exists():
+            bot_group = Group(name=settings.ZDS_APP["member"]["bot_group"])
+            bot_group.save()
+        else:
+            bot_group = Group.objects.get(name=settings.ZDS_APP["member"]["bot_group"])
 
         bot_profile = ProfileFactory()
         bot_profile.user.groups.add(self.bot)

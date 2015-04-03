@@ -4,7 +4,7 @@ git:
 language: python
 
 python:
-  - 2.7
+  - 3.4
 
 env:
   - TEST_APP="-e back_mysql"
@@ -68,6 +68,7 @@ install:
 
   # Python dependencies
   - travis_retry pip install coveralls
+  - travis_retry pip install --allow-all-external mysql-connector-python
   - travis_retry pip install tox
 
   # Node.js + npm stuff

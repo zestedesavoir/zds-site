@@ -94,7 +94,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         self.assertEqual(pub.status_code, 302)
         self.minituto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(self.minituto.on_line(), True)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         mail.outbox = []
 

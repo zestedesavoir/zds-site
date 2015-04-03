@@ -34,7 +34,7 @@ class ArticleFactory(factory.DjangoModelFactory):
         repo = Repo(path)
 
         f = open(os.path.join(path, 'manifest.json'), "w")
-        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
+        f.write(json_writer.dumps(man, indent=4, ensure_ascii=False))
         f.close()
         f = open(os.path.join(path, article.text), "w")
         f.write(u'Test')

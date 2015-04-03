@@ -12,8 +12,8 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 Assurez vous que les dépendances suivantes soient résolues :
 
 - git : ``apt-get install git``
-- python2.7
-- python-dev : ``apt-get install python-dev``
+- python3.4 ; ``apt-get install python3``
+- python-dev : ``apt-get install python3-dev``
 - easy_install : ``apt-get install python-setuptools``
 - pip : ``easy_install pip``
 - tox : ``pip install tox``
@@ -41,7 +41,7 @@ Installation et configuration de `virtualenv`
 .. sourcecode:: bash
 
     pip install virtualenv
-    virtualenv zdsenv --python=python2
+    virtualenv zdsenv --python=python3.4
 
 
 **À chaque fois** que vous souhaitez travailler dans votre environement, activez le via la commande suivante :

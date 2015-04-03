@@ -67,12 +67,12 @@ class TopicForm(forms.Form):
                     [_(u'Le champ titre ne peut être vide')])
                 if 'title' in cleaned_data:
                     del cleaned_data['title']
-            elif re.sub(ur"(?P<start>)(\[.*?\])(?P<end>)", sub_tag, title) \
+            elif re.sub(r"(?P<start>)(\[.*?\])(?P<end>)", sub_tag, title) \
                     .strip() == '':
                 self._errors['title'] = self.error_class(
                     [_(u'Le titre ne peux pas contenir uniquement des tags')])
             else:
-                tags = re.findall(ur"((.*?)\[(.*?)\](.*?))", title)
+                tags = re.findall(r"((.*?)\[(.*?)\](.*?))", title)
                 for tag in tags:
                     if tag[2].strip() == "":
                         if 'title' in cleaned_data:

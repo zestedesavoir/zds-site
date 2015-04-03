@@ -1,10 +1,9 @@
 # coding: utf-8
 
 import os
-from string import lower
-from uuid import uuid4
-
 from easy_thumbnails.fields import ThumbnailerImageField
+import uuid
+import shutil
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -32,8 +31,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split('.')[-1]
-    filename = u'{0}.{1}'.format(str(uuid4()), lower(ext))
-
+    filename = u'{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 
@@ -208,3 +206,5 @@ def auto_delete_image_on_delete(sender, instance, **kwargs):
     """
     for image in instance.get_images():
         image.delete()
+    if (os.path.exists(instance.get_gallery_path())):
+        shutil.rmtree(instance.get_gallery_path())

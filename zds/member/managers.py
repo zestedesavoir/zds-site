@@ -44,7 +44,7 @@ class ProfileManager(models.Manager):
         :return: A list of tutorials from Site du Zéro for a member if exist.
         :rtype: list
         """
-        from models import get_info_old_tuto
+        from .models import get_info_old_tuto
 
         if profile.sdz_tutorial:
             olds = profile.sdz_tutorial.strip().split(':')

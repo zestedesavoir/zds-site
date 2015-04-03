@@ -293,7 +293,7 @@ class Tutorial(models.Model):
         dct = export_tutorial(self)
         data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
-        json_data.write(data.encode('utf-8'))
+        json_data.write(data)
         json_data.close()
 
     def get_introduction(self, sha=None):
@@ -321,7 +321,7 @@ class Tutorial(models.Model):
             intro_contenu = intro.read()
             intro.close()
 
-            return intro_contenu.decode('utf-8')
+            return intro_contenu
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -348,7 +348,7 @@ class Tutorial(models.Model):
             conclu_contenu = conclu.read()
             conclu.close()
 
-            return conclu_contenu.decode('utf-8')
+            return conclu_contenu
 
     def delete_entity_and_tree(self):
         """deletes the entity and its filesystem counterpart"""
@@ -650,7 +650,7 @@ class Part(models.Model):
         intro_contenu = intro.read()
         intro.close()
 
-        return intro_contenu.decode('utf-8')
+        return intro_contenu
 
     def get_conclusion(self, sha=None):
 
@@ -684,7 +684,7 @@ class Part(models.Model):
         conclu_contenu = conclu.read()
         conclu.close()
 
-        return conclu_contenu.decode('utf-8')
+        return conclu_contenu
 
     def update_children(self):
         self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
@@ -877,7 +877,7 @@ class Chapter(models.Model):
                 intro_contenu = intro.read()
                 intro.close()
 
-                return intro_contenu.decode('utf-8')
+                return intro_contenu
             else:
                 return None
         else:
@@ -932,11 +932,11 @@ class Chapter(models.Model):
                 conclu_contenu = conclu.read()
                 conclu.close()
 
-                return conclu_contenu.decode('utf-8')
+                return conclu_contenu
             else:
                 return None
 
-            return conclu_contenu.decode('utf-8')
+            return conclu_contenu
         else:
             return None
 
@@ -1095,7 +1095,7 @@ class Extract(models.Model):
             text_contenu = text.read()
             text.close()
 
-            return text_contenu.decode('utf-8')
+            return text_contenu
         else:
             return None
 

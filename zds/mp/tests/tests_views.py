@@ -265,7 +265,7 @@ class NewTopicViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('mp-new'), ''))
+            '?next=' + urllib.request.quote(reverse('mp-new'), ''))
 
     def test_success_get_with_and_without_username(self):
 
@@ -472,7 +472,7 @@ class AnswerViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('private-posts-new', args=[1, 'private-topic']), ''))
+            '?next=' + urllib.request.quote(reverse('private-posts-new', args=[1, 'private-topic']), ''))
 
     def test_fail_answer_not_send_topic_pk(self):
 
@@ -616,7 +616,7 @@ class EditPostViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('private-posts-edit', args=[1, 'private-topic', 1]), ''))
+            '?next=' + urllib.request.quote(reverse('private-posts-edit', args=[1, 'private-topic', 1]), ''))
 
     def test_succes_get_edit_post_page(self):
         self.client.logout()
@@ -740,7 +740,7 @@ class LeaveViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('mp-delete', args=[1, 'private-topic']), ''))
+            '?next=' + urllib.request.quote(reverse('mp-delete', args=[1, 'private-topic']), ''))
 
     def test_fail_leave_topic_no_exist(self):
 
@@ -842,7 +842,7 @@ class AddParticipantViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('mp-edit-participant', args=[1, 'private-topic']), ''))
+            '?next=' + urllib.request.quote(reverse('mp-edit-participant', args=[1, 'private-topic']), ''))
 
     def test_fail_add_participant_topic_no_exist(self):
 

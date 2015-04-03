@@ -88,7 +88,7 @@ class PagesMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
         result = self.client.post(
             reverse('zds.pages.views.assoc_subscribe'),
@@ -107,7 +107,7 @@ class PagesMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_url_cookies(self):
         """Test: check that cookies page is alive."""

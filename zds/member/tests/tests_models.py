@@ -51,7 +51,7 @@ class MemberModelsTest(TestCase):
         # if no url was specified -> gravatar !
         self.assertEqual(self.user1.get_avatar_url(),
                          'https://secure.gravatar.com/avatar/{0}?d=identicon'.
-                         format(md5(self.user1.user.email.lower()).hexdigest()))
+                         format(md5(self.user1.user.email.lower().encode("utf-8")).hexdigest()))
         # if an url is specified -> take it !
         user2 = ProfileFactory()
         testurl = 'http://test.com/avatar.jpg'

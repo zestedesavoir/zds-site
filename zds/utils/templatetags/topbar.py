@@ -51,7 +51,7 @@ def top_categories(user):
 
     cpt = 0
     top_tag = []
-    sort_list = reversed(sorted(cts.iteritems(), key=lambda k_v: (k_v[1], k_v[0])))
+    sort_list = reversed(sorted(cts.items(), key=lambda k_v: (k_v[1], k_v[0])))
     for key, value in sort_list:
         top_tag.append(key)
         cpt += 1

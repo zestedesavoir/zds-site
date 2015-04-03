@@ -9,7 +9,7 @@ Avant de vous lancez dans l'installation de l'environnement de zds, il faut quel
 
 - Installer `XCode <http://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12>`_ pour pouvoir exécuter des commandes (g)cc.
 - Installer `MacPorts <http://www.macports.org/>`_ pour récupérer certains paquets utiles pour l'installation des dépendances de ce projet.
-- Installer python 2.7
+- Installer python 3.4
 - Installer pip
 - Installer git
 - Installer `gettext <https://www.gnu.org/software/gettext/>`_

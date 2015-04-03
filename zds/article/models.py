@@ -187,7 +187,7 @@ class Article(models.Model):
         dct = export_article(self)
         data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
-        json_data.write(data.encode('utf-8'))
+        json_data.write(data)
         json_data.close()
 
     def get_text(self):
@@ -196,7 +196,7 @@ class Article(models.Model):
         txt_contenu = txt.read()
         txt.close()
 
-        return txt_contenu.decode('utf-8')
+        return txt_contenu
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
