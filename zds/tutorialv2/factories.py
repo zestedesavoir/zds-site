@@ -1,13 +1,10 @@
 # coding: utf-8
 
 from datetime import datetime
-from git.repo import Repo
-import os
 
 import factory
 
-from zds.tutorialv2.models import PublishableContent, Validation, VersionedContent, ContentReaction, Container, Extract
-from zds.utils import slugify
+from zds.tutorialv2.models import PublishableContent, Validation, ContentReaction, Container, Extract, init_new_repo
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 
@@ -25,37 +22,13 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
-        path = publishable_content.get_repo_path()
-        if not os.path.isdir(path):
-            os.makedirs(path, mode=0o777)
 
-        Repo.init(path, bare=False)
-
-        introduction = 'introduction.md'
-        conclusion = 'conclusion.md'
-        versioned_content = VersionedContent(None,
-                                             publishable_content.type,
-                                             publishable_content.title,
-                                             slugify(publishable_content.title))
-        versioned_content.introduction = introduction
-        versioned_content.conclusion = conclusion
-        repo = Repo(path)
-
-        versioned_content.dump_json()
-        f = open(os.path.join(path, introduction), "w")
-        f.write(text_content.encode('utf-8'))
-        f.close()
-        f = open(os.path.join(path, conclusion), "w")
-        f.write(text_content.encode('utf-8'))
-        f.close()
-        repo.index.add(['manifest.json', introduction, conclusion])
-        cm = repo.index.commit("Init Tuto")
-
-        publishable_content.sha_draft = cm.hexsha
-        publishable_content.sha_beta = None
         publishable_content.gallery = GalleryFactory()
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery)
+
+        init_new_repo(publishable_content, text_content, text_content)
+
         return publishable_content
 
 
@@ -63,39 +36,17 @@ class ContainerFactory(factory.Factory):
     FACTORY_FOR = Container
 
     title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n + 1))
-    slug = ''
 
     @classmethod
     def _prepare(cls, create, **kwargs):
         db_object = kwargs.pop('db_object', None)
-        container = super(ContainerFactory, cls)._prepare(create, **kwargs)
-        container.parent.add_container(container, generate_slug=True)
+        parent = kwargs.pop('parent', None)
 
-        path = container.get_path()
-        repo = Repo(container.top_container().get_path())
-        top_container = container.top_container()
-
-        if not os.path.isdir(path):
-            os.makedirs(path, mode=0o777)
-
-        container.introduction = os.path.join(container.get_path(relative=True), 'introduction.md')
-        container.conclusion = os.path.join(container.get_path(relative=True), 'conclusion.md')
-
-        f = open(os.path.join(top_container.get_path(), container.introduction), "w")
-        f.write(text_content.encode('utf-8'))
-        f.close()
-        f = open(os.path.join(top_container.get_path(), container.conclusion), "w")
-        f.write(text_content.encode('utf-8'))
-        f.close()
-        repo.index.add([container.introduction, container.conclusion])
-
-        top_container.dump_json()
-        repo.index.add(['manifest.json'])
-
-        cm = repo.index.commit("Add container")
+        sha = parent.repo_add_container(kwargs['title'], text_content, text_content)
+        container = parent.children[-1]
 
         if db_object:
-            db_object.sha_draft = cm.hexsha
+            db_object.sha_draft = sha
             db_object.save()
 
         return container
@@ -104,30 +55,17 @@ class ContainerFactory(factory.Factory):
 class ExtractFactory(factory.Factory):
     FACTORY_FOR = Extract
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n + 1))
-    slug = ''
 
     @classmethod
     def _prepare(cls, create, **kwargs):
         db_object = kwargs.pop('db_object', None)
-        extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
-        extract.container.add_extract(extract, generate_slug=True)
+        parent = kwargs.pop('container', None)
 
-        extract.text = extract.get_path(relative=True)
-        top_container = extract.container.top_container()
-        repo = Repo(top_container.get_path())
-        f = open(extract.get_path(), 'w')
-        f.write(text_content.encode('utf-8'))
-        f.close()
-
-        repo.index.add([extract.text])
-
-        top_container.dump_json()
-        repo.index.add(['manifest.json'])
-
-        cm = repo.index.commit("Add extract")
+        sha = parent.repo_add_extract(kwargs['title'], text_content)
+        extract = parent.children[-1]
 
         if db_object:
-            db_object.sha_draft = cm.hexsha
+            db_object.sha_draft = sha
             db_object.save()
 
         return extract

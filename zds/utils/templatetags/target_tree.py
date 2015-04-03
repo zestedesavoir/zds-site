@@ -6,11 +6,14 @@ from django import template
 
 
 register = template.Library()
+
+
 @register.filter('target_tree')
 def target_tree(child):
     """
     A django filter that wrap zds.tutorialv2.utils.get_target_tagged_tree function
     """
+    root = None
     if isinstance(child, Container):
         root = child.top_container()
     elif isinstance(child, Extract):
