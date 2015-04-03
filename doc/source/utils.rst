@@ -2,7 +2,7 @@
 Autres outils
 =============
 
-Le package ``zds/utils`` contient un certains nombres d'outils transverses.
+Vous retrouverez ici quelques éléments utiles.
 
 .. toctree::
    :maxdepth: 2

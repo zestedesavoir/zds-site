@@ -10,7 +10,7 @@ Le site est composé de plusieurs grandes parties.
 L'en-tête
 ---------
 
-.. figure:: images/design/en-tete.png
+.. figure:: ../images/design/en-tete.png
    :align: center
 
 On peut découper l'en-tête du site en quatre.
@@ -25,7 +25,7 @@ Le menu
 
 Le menu est composé soit d'un lien, soit d'un menu déroulant. Ces derniers contiennent des listes de liens.
 
-.. figure:: images/design/en-tete_menu.png
+.. figure:: ../images/design/en-tete_menu.png
    :align: center
 
 La *logbox*
@@ -37,7 +37,7 @@ La *logbox* contient trois menus déroulants :
 - le deuxième affiche les notifications ;
 - et le dernier contient des liens vers les zones réservées à l'utilisateur.
 
-.. figure:: images/design/en-tete_logbox.png
+.. figure:: ../images/design/en-tete_logbox.png
    :align: center
 
 Le fil d'ariane
@@ -53,7 +53,7 @@ La barre latérale
 
 La barre latérale contient des listes de liens, boutons ou formulaires permettant à l'utilisateur d'effectuer des actions.
 
-.. figure:: images/design/barre-laterale.png
+.. figure:: ../images/design/barre-laterale.png
    :align: center
 
    Barre latérale de la page d'un profil
@@ -72,7 +72,7 @@ Le bas de page est sûrement la partie la plus simple du site. Il contient trois
 - celui du milieu contient les liens vers les comptes des réseaux sociaux du site ;
 - celui de droite contient des liens vers les pages annexes du site, tel que les CGUs par exemple.
 
-.. figure:: images/design/bas-de-page.png
+.. figure:: ../images/design/bas-de-page.png
    :align: center
 
 Le menu pour mobile
@@ -80,7 +80,7 @@ Le menu pour mobile
 
 Le menu pour mobile est généré en javascript à partir de l'en-tête et de la barre latérale. `Le code est disponible sur Github. <https://github.com/zestedesavoir/zds-site/blob/dev/assets/js/mobile-menu.js>`_
 
-.. figure:: images/design/menu-mobile.png
+.. figure:: ../images/design/menu-mobile.png
    :align: center
 
 Quelques éléments propres au site
@@ -91,13 +91,13 @@ Les boîtes modales
 
 Une boîte modale est une pseudo-fenêtre qui s'affiche au clique de certains boutons. Elle a pour but de faire confirmer un choix à l'utilisateur ou de permettre à celui-ci de remplir un formulaire.
 
-.. figure:: images/design/boite-modale_mp.png
+.. figure:: ../images/design/boite-modale_mp.png
    :align: center
 
    La boîte modale pour ajouter un participant à un message privé
 
 
-.. figure:: images/design/boite-modale_desinscription.png
+.. figure:: ../images/design/boite-modale_desinscription.png
    :align: center
 
    La boîte modale pour confirmer sa désinscription
@@ -107,13 +107,13 @@ La lecture zen
 
 La lecture zen est un mode d'affichage des tutoriels et des articles permettant à l'utilisateur de se concentrer sur sa lecture. Elle cache l'en-tête et la barre latérale de la page pour ne laisser que le contenu principal. Techniquement, c'est un mélange de javascript et de (S)CSS.
 
-.. figure:: images/design/lecture-zen_off.png
+.. figure:: ../images/design/lecture-zen_off.png
    :align: center
 
    Un tutoriel sans lecture zen
 
 
-.. figure:: images/design/lecture-zen_on.png
+.. figure:: ../images/design/lecture-zen_on.png
    :align: center
 
    Ce même tutoriel avec lecture zen

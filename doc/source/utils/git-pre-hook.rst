@@ -1,3 +1,7 @@
+===================================================
+Détection automatique des erreurs *flake8* avec Git
+===================================================
+
 Afin de s'assurer qu'aucune erreur de mise en forme ne passe les commits,
 il peut être utile de rajouter un hook de pre-commit à git. Un hook est un petit
 programme qui sera exécuté avant une action particulière de git. En l'occurence nous
