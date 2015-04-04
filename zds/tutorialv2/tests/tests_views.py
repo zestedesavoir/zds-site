@@ -1376,6 +1376,94 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
+    def test_if_none(self):
+        """ensure that everything is ok if `None` is set"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        given_title = u'Un titre que personne ne lira'
+        some_text = u'Tralalala !!'
+
+        # let's cheat a little bit and use the "manual way" to force `None`
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        versioned = tuto.load_version()
+        sha = versioned.repo_add_container(given_title, None, None)
+        slug_new_container = versioned.children[-1].slug
+        tuto.sha_draft = sha
+        tuto.save()
+
+        # test access
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': slug_new_container
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': slug_new_container
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)  # access to edition page is ok
+
+        # edit container:
+        result = self.client.post(
+            reverse('content:edit-container', kwargs={
+                'pk': tuto.pk,
+                'slug': tuto.slug,
+                'container_slug': slug_new_container
+            }),
+            {
+                'title': given_title,
+                'introduction': some_text,
+                'conclusion': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # test access
+        result = self.client.get(
+            reverse('content:view', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:view-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': slug_new_container
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': slug_new_container
+                    }),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

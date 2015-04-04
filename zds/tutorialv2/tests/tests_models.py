@@ -214,6 +214,41 @@ class ContentTests(TestCase):
 
         self.assertFalse(os.path.exists(new_path))
 
+    def test_if_none(self):
+        """Test the case where introduction and conclusion are `None`"""
+
+        given_title = u'La vie secrète de Clem\''
+        some_text = u'Tous ces secrets (ou pas)'
+        versioned = self.tuto.load_version()
+        versioned.repo_add_container(given_title, None, None)  # add a new part with `None` for intro and conclusion
+
+        new_part = versioned.children[-1]
+        self.assertIsNone(new_part.introduction)
+        self.assertIsNone(new_part.conclusion)
+
+        new_part.repo_update(given_title, None, None)  # still `None`
+        self.assertIsNone(new_part.introduction)
+        self.assertIsNone(new_part.conclusion)
+
+        new_part.repo_update(given_title, some_text, some_text)
+        self.assertIsNotNone(new_part.introduction)  # now, value given
+        self.assertIsNotNone(new_part.conclusion)
+
+        old_intro = new_part.introduction
+        old_conclu = new_part.conclusion
+        self.assertTrue(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))
+        self.assertTrue(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
+
+        new_part.repo_update(given_title, None, None)  # and we go back to `None`
+        self.assertIsNone(new_part.introduction)
+        self.assertIsNone(new_part.conclusion)
+        self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))  # introduction is deleted
+        self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
+
+        new_part.repo_update(given_title, '', '')  # empty string != `None`
+        self.assertIsNotNone(new_part.introduction)
+        self.assertIsNotNone(new_part.conclusion)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

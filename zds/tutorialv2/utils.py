@@ -1,5 +1,6 @@
 # coding: utf-8
 
+
 from django.http import Http404
 
 from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract
@@ -211,6 +212,7 @@ def get_target_tagged_tree_for_container(movable_child, root):
         enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
         target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(),
                                    child.title, child.get_tree_level(),
+
                                    enabled and child != movable_child and child != root))
 
     return target_tagged_tree
