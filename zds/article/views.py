@@ -2,6 +2,8 @@
 
 from datetime import datetime
 from operator import attrgetter
+from zds.member.models import Profile
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -130,6 +132,7 @@ def view(request, article_pk, article_slug):
         'validation': validation,
         'is_js': is_js,
         'formJs': form_js,
+        'on_line': False
     })
 
 
@@ -164,6 +167,12 @@ def view_online(request, article_pk, article_slug):
         .filter(article__pk=article.pk)\
         .order_by('position')\
         .all()
+
+    # Check if the author is reachable
+    authors_reachable_request = Profile.objects.contactable_members().filter(user__in=article.authors.all())
+    authors_reachable = []
+    for author in authors_reachable_request:
+        authors_reachable.append(author.user)
 
     # Retrieve pk of the last reaction. If there aren't reactions
     # for the article, we initialize this last reaction at 0.
@@ -211,8 +220,77 @@ def view_online(request, article_pk, article_slug):
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
         'last_reaction_pk': last_reaction_pk,
-        'form': form
+        'form': form,
+        'on_line': True,
+        'authors_reachable': authors_reachable
     })
+
+
+@login_required
+@require_POST
+def warn_typo(request, article_pk):
+    """Warn author(s) about a mistake in its (their) article by sending him/her (them) a private message."""
+
+    # Need profile
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # Get article
+    try:
+        article_pk = int(article_pk)
+    except (KeyError, ValueError):
+        raise Http404
+
+    article = get_object_or_404(Article, pk=article_pk)
+
+    # Check if the article is published
+    if article.sha_public is None:
+        raise Http404
+
+    # Check if authors are reachable
+    authors_reachable = Profile.objects.contactable_members().filter(user__in=article.authors.all())
+    authors = []
+    for author in authors_reachable:
+        authors.append(author.user)
+
+    if len(authors) == 0:
+        if article.authors.count() > 1:
+            messages.error(request, _(u"Les auteurs de l'article sont malheureusement injoignables"))
+        else:
+            messages.error(request, _(u"L'auteur de l'article est malheureusement injoignable"))
+    else:
+        # Fetch explanation
+        if 'explication' not in request.POST or not request.POST['explication'].strip():
+            messages.error(request, _(u'Votre proposition de correction est vide'))
+        else:
+            explanation = request.POST['explication']
+            explanation = '\n'.join(['> ' + line for line in explanation.split('\n')])
+
+            # Is the user trying to send PM to himself ?
+            if request.user in article.authors.all():
+                messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes l\'auteur '
+                                          u'de cet article !'))
+            else:
+                # Create message :
+                msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre article [{}]({}).\n\n').format(
+                    request.user.username,
+                    settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                    article.title,
+                    settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()
+                )
+
+                msg += _(u'Voici son message :\n\n{}').format(explanation)
+
+                # Send it
+                send_mp(request.user,
+                        article.authors.all(),
+                        _(u"Proposition de correction"),
+                        article.title,
+                        msg,
+                        leave=False)
+                messages.success(request, _(u'Votre correction a bien été proposée !'))
+
+    # return to page :
+    return redirect(article.get_absolute_url_online())
 
 
 @can_write_and_read_now
@@ -394,7 +472,7 @@ def edit(request):
 
     form_js = ActivJsForm(initial={"js_support": article.js_support})
     return render(request, 'article/member/edit.html', {
-        'article': article, 'form': form, 'formJs': form_js
+        'article': article, 'form': form, 'formJs': form_js, 'authors': article.authors,
     })
 
 

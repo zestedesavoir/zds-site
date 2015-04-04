@@ -4,6 +4,10 @@ import shutil
 import tempfile
 import zipfile
 import datetime
+from zds.gallery.factories import ImageFactory, UserGalleryFactory, GalleryFactory
+
+from django.contrib import messages
+from django.contrib.auth.models import Group
 
 try:
     import ujson as json_reader
@@ -20,7 +24,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.article.factories import ArticleFactory, ReactionFactory,   \
-    LicenceFactory
+    LicenceFactory, PublishedArticleFactory, SubCategoryFactory
 from zds.article.models import Validation, Reaction, Article, Licence
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
@@ -37,7 +41,6 @@ overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-dat
 class ArticleTests(TestCase):
 
     def setUp(self):
-
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
@@ -100,6 +103,9 @@ class ArticleTests(TestCase):
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
         mail.outbox = []
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
     def test_delete_image_on_change(self):
         """test que l'image est bien supprimée quand on la change"""
@@ -265,6 +271,35 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
+    def test_read_not_public_article(self):
+        """To test if nobody can read a not public article."""
+
+        # member can't read public articles which is not published
+        article_no_public = ArticleFactory()
+        article_no_public.on_line = False
+        article_no_public.save()
+
+        result = self.client.get(
+            reverse(
+                'zds.article.views.view_online',
+                args=[
+                    article_no_public.pk,
+                    article_no_public.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # logout before
+        self.client.logout()
+
+        result = self.client.get(
+            reverse(
+                'zds.article.views.view_online',
+                args=[
+                    article_no_public.pk,
+                    article_no_public.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
     def test_url_for_guest(self):
         """Test simple get request by guest."""
 
@@ -335,7 +370,7 @@ class ArticleTests(TestCase):
                 password='hostel77'),
             True)
 
-        # member who isn't author can read public articles
+        # author can read public articles
         result = self.client.get(
             reverse(
                 'zds.article.views.view_online',
@@ -345,7 +380,10 @@ class ArticleTests(TestCase):
             follow=True)
         self.assertEqual(result.status_code, 200)
 
-        # member who isn't author  can't read offline articles
+        # author can use js
+        self.article.js_support = True
+        self.article.save()
+
         result = self.client.get(
             reverse(
                 'zds.article.views.view',
@@ -755,6 +793,204 @@ class ArticleTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 404)
+
+    def test_list_article(self):
+        # Test if we can display an article
+        result = self.client.get(
+            reverse('zds.article.views.index'),
+            {},
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(self.article.title, result.content)
+
+    def test_list_article_with_subcategory(self):
+        # Test with tag restriction
+
+        # Create an article with subcategory
+        subcat = SubCategoryFactory()
+
+        article_with_tag = PublishedArticleFactory()
+        article_with_tag.subcategory.add(subcat.pk)
+        article_with_tag.save()
+
+        # Create another article with another subcategory
+        subcat2 = SubCategoryFactory()
+
+        article_with_other_tag = PublishedArticleFactory()
+        article_with_other_tag.subcategory.add(subcat2.pk)
+        article_with_other_tag.save()
+
+        # Launch test with a subcategory in params url
+        result = self.client.post(
+            reverse('zds.article.views.index') + '?tag=' + subcat.slug,
+            {},
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertNotIn(self.article.title, result.content)
+        self.assertNotIn(article_with_other_tag.title, result.content)
+        self.assertIn(article_with_tag.title, result.content)
+
+        # Launch test with no subcategory
+        result = self.client.post(
+            reverse('zds.article.views.index') + '?tag=None',
+            {},
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn(self.article.title, result.content)
+        self.assertIn(article_with_other_tag.title, result.content)
+        self.assertIn(article_with_tag.title, result.content)
+
+    def test_new_article(self):
+        # Create a Gallery
+        gallery = GalleryFactory()
+
+        # Attach an image of a gallery
+        image_article = ImageFactory(gallery=gallery)
+        UserGalleryFactory(user=self.user_author, gallery=gallery)
+
+        # Create a subcategory
+        subcat = SubCategoryFactory()
+
+        # Try the preview button
+        result = self.client.post(
+            reverse('zds.article.views.new'),
+            {'text': 'A wonderful poetry by Victor Hugo',
+             'preview': '',
+
+             'title': '',
+             'description': '',
+             'text': '',
+             'image': image_article.pk,
+             'subcategory': subcat.pk,
+             'licence': self.licence.pk,
+             'msg_commit': ''
+             },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        # Create an article
+        result = self.client.post(
+            reverse('zds.article.views.new'),
+            {'title': 'Create a new article test',
+             'description': 'Describe the mew article',
+             'text': 'A wonderful poetry by Victor Hugo',
+             'image': image_article.pk,
+             'subcategory': subcat.pk,
+             'licence': self.licence.pk,
+             'msg_commit': 'Celui qui ouvre une porte d\'école, ferme une prison.'
+             },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(Article.objects.filter(title='Create a new article test').count(), 1)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in an article
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es nul'
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': u'ceci est un test',
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': typo_text,
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.article.get_absolute_url_online(), sent_pm.last_message.text)  # public url is in message
+
+        # Check if we send a wrong pk key
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=["1111"]),
+            {
+                'explication': typo_text,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # Check if we send no explanation
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': '',
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # Check if we send an explanation with only space
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': '  ',
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # Check if a guest can not warn the author
+        self.client.logout()
+
+        result = self.client.post(
+            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            {
+                'explication': typo_text,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['article']['repo_path']):

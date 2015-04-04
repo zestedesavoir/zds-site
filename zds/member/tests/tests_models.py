@@ -3,18 +3,19 @@
 import os
 import shutil
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib.auth.models import Group
 from hashlib import md5
 
 from zds.article.factories import ArticleFactory
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.member.models import TokenForgotPassword, TokenRegister
+from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorial.factories import MiniTutorialFactory
 from zds.gallery.factories import GalleryFactory
 from zds.utils.models import Alert
@@ -253,6 +254,71 @@ class MemberModelsTest(TestCase):
         topicsfollowed = self.user1.get_followed_topics()
         self.assertEqual(len(topicsfollowed), 1)
         self.assertEqual(self.forumtopic, topicsfollowed[0])
+
+    def test_reachable_manager(self):
+        # profile types
+        profile_normal = ProfileFactory()
+        profile_superuser = ProfileFactory()
+        profile_superuser.user.is_superuser = True
+        profile_superuser.user.save()
+        profile_inactive = ProfileFactory()
+        profile_inactive.user.is_active = False
+        profile_inactive.user.save()
+        profile_bot = ProfileFactory()
+        profile_bot.user.username = settings.ZDS_APP["member"]["bot_account"]
+        profile_bot.user.save()
+        profile_anonymous = ProfileFactory()
+        profile_anonymous.user.username = settings.ZDS_APP["member"]["anonymous_account"]
+        profile_anonymous.user.save()
+        profile_external = ProfileFactory()
+        profile_external.user.username = settings.ZDS_APP["member"]["external_account"]
+        profile_external.user.save()
+        profile_ban_def = ProfileFactory()
+        profile_ban_def.can_read = False
+        profile_ban_def.can_write = False
+        profile_ban_def.save()
+        profile_ban_temp = ProfileFactory()
+        profile_ban_temp.can_read = False
+        profile_ban_temp.can_write = False
+        profile_ban_temp.end_ban_read = datetime.now() + timedelta(days=1)
+        profile_ban_temp.save()
+        profile_unban = ProfileFactory()
+        profile_unban.can_read = False
+        profile_unban.can_write = False
+        profile_unban.end_ban_read = datetime.now() - timedelta(days=1)
+        profile_unban.save()
+        profile_ls_def = ProfileFactory()
+        profile_ls_def.can_write = False
+        profile_ls_def.save()
+        profile_ls_temp = ProfileFactory()
+        profile_ls_temp.can_write = False
+        profile_ls_temp.end_ban_write = datetime.now() + timedelta(days=1)
+        profile_ls_temp.save()
+
+        # groups
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
+
+        # associate account to groups
+        bot.user_set.add(profile_anonymous.user)
+        bot.user_set.add(profile_external.user)
+        bot.user_set.add(profile_bot.user)
+        bot.save()
+
+        # test reachable user
+        profiles_reacheable = Profile.objects.contactable_members().all()
+        self.assertIn(profile_normal, profiles_reacheable)
+        self.assertIn(profile_superuser, profiles_reacheable)
+        self.assertNotIn(profile_inactive, profiles_reacheable)
+        self.assertNotIn(profile_anonymous, profiles_reacheable)
+        self.assertNotIn(profile_external, profiles_reacheable)
+        self.assertNotIn(profile_bot, profiles_reacheable)
+        self.assertIn(profile_unban, profiles_reacheable)
+        self.assertNotIn(profile_ban_def, profiles_reacheable)
+        self.assertNotIn(profile_ban_temp, profiles_reacheable)
+        self.assertIn(profile_ls_def, profiles_reacheable)
+        self.assertIn(profile_ls_temp, profiles_reacheable)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):

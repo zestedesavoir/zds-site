@@ -419,6 +419,36 @@ class ForumMemberTests(TestCase):
         # check edit data
         self.assertEqual(Post.objects.get(pk=post2.pk).editor, self.user)
 
+    def test_edit_post_with_blank(self):
+
+        topic1 = TopicFactory(forum=self.forum11, author=self.user)
+        PostFactory(topic=topic1, author=self.user, position=1)
+        post2 = PostFactory(topic=topic1, author=self.user, position=2)
+        post3 = PostFactory(topic=topic1, author=self.user, position=3)
+
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message={0}'
+            .format(post2.pk),
+            {
+                'text': u"  "
+            },
+            follow=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.request["PATH_INFO"], "/forums/message/editer/")
+        self.assertEqual(result.request["QUERY_STRING"], "message={}".format(post2.pk))
+
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message={0}'
+            .format(post3.pk),
+            {
+                'text': u" contenu "
+            },
+            follow=True)
+
+        self.assertEqual(result.status_code, 200)
+        self.assertNotEqual(result.request["PATH_INFO"], "/forums/message/editer/")
+
     def test_quote_post(self):
         """To test when a member quote anyone post."""
         user1 = ProfileFactory().user

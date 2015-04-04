@@ -92,6 +92,9 @@
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
 
 
+    {% block extra_css %}
+    {% endblock %}
+
     {# favicons #}
     <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
     <link rel="apple-touch-icon" sizes="144x144" href="{% static "images/apple-touch-icon-144x144-precomposed.png" %}">
@@ -108,6 +111,9 @@
 
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
+
+    {# OpenSearch plugin autodiscovery #}
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "zds.search.views.opensearch" %}">
 </head>
 <body class="{% block body_class %}{% endblock %}"
       itemscope
@@ -489,11 +495,11 @@
                         </ol>
                     </div>
                     <div class="search header-right" id="search">
-                        <form action="/rechercher">
-                            <input type="text" name="q" placeholder="Rechercher">
-                            <button type="submit" class="ico-after search-submit" title="Lancer la recherche">{% trans "OK" %}</button>
+                        <form action="{% url "haystack_search" %}">
+                            <input type="text" name="q" placeholder="{% trans "Rechercher" %}">
+                            <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                         </form>
-                        <a href="/rechercher" title="Recherche avancée" class="search-more"></a>
+                        <a href="{% url "haystack_search" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
                     </div>
                 </div>
             </div>
@@ -502,44 +508,46 @@
 
 
         <div class="main-container">
-            {% block pre_content %}
-            {% endblock %}
+            {% block doc_api %}
+                {% block pre_content %}
+                {% endblock %}
 
-            <div class="main wrapper clearfix">
-                <main class="content-container" role="main" id="content">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert-box {{ message.tags }}">
-                                <span>{{ message }}</span>
-                                <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l'alerte" %}</a>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                <div class="main wrapper clearfix">
+                    <main class="content-container" role="main" id="content">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert-box {{ message.tags }}">
+                                    <span>{{ message }}</span>
+                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l'alerte" %}</a>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
 
-                    {% block content_out %}
-                        {% captureas schema %}
-                            {% block schema %}{% endblock %}
-                        {% endcaptureas %}
-                        <section class="content-wrapper" {{ schema|safe }}>
-                            <h1 {% if schema %}itemprop="name"{% endif %}>
-                                {% block headline %}{% endblock %}
-                            </h1>
-
-                            {% captureas headlinesub %}
-                                {% block headline_sub %}{% endblock %}
+                        {% block content_out %}
+                            {% captureas schema %}
+                                {% block schema %}{% endblock %}
                             {% endcaptureas %}
+                            <section class="content-wrapper" {{ schema|safe }}>
+                                <h1 {% if schema %}itemprop="name"{% endif %}>
+                                    {% block headline %}{% endblock %}
+                                </h1>
 
-                            {% if headlinesub %}
-                                <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
-                            {% endif %}
+                                {% captureas headlinesub %}
+                                    {% block headline_sub %}{% endblock %}
+                                {% endcaptureas %}
 
-                            {% block content %}{% endblock %}
-                        </section>
-                    {% endblock %}
-                </main>
+                                {% if headlinesub %}
+                                    <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
+                                {% endif %}
 
-                {% block sidebar %}{% endblock %}
-            </div>
+                                {% block content %}{% endblock %}
+                            </section>
+                        {% endblock %}
+                    </main>
+
+                    {% block sidebar %}{% endblock %}
+                </div>
+            {% endblock %}
         </div>
 
 
@@ -594,6 +602,9 @@
         <script src="{% static "js/all.min.js" %}"></script>
     {% endif %}
 
+    {% block extra_js %}
+    {% endblock %}
+
 
 
     {# Google Analytics #}
@@ -619,6 +630,8 @@
                 inlineMath: [['$', '$']],
                 displayMath: [['$$','$$']],
                 processEscapes: true,
+                processClass: "message-content|article-content",
+                ignoreClass: "page-container"
             },
             TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
             messageStyle: "none",

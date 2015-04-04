@@ -99,3 +99,17 @@
         border: 1px solid #d2d5d6;
     }
 }
+
+@media only screen and #{$media-mobile} {
+    .pagination {
+        li {
+            &.prev a,
+            &.next a {
+                min-width: 0px;
+                span {
+                    display: none;
+                }
+            }
+        }
+    }
+}

@@ -37,7 +37,9 @@ from zds.utils.templatetags.topbar import top_categories
 
 
 def index(request):
-    """Display the category list with all their forums."""
+    """
+    The forum index. Displays the category list with all their forums the current user can read.
+    """
 
     categories = top_categories(request.user)
 
@@ -48,7 +50,12 @@ def index(request):
 
 
 def details(request, cat_slug, forum_slug):
-    """Display the given forum and all its topics."""
+    """
+    Displays a forum with all its topic, if the current use is allowed to read it.
+    The topic list is paginated (`settings.ZDS_APP['forum']['topics_per_page']` topics per page) and can be filtered.
+    :param cat_slug: As a forum slug is unique through the database, this is unused.
+    :param forum_slug: The slug of the forum to display.
+    """
 
     forum = get_object_or_404(Forum, slug=forum_slug)
     if not forum.can_read(request.user):
@@ -86,7 +93,10 @@ def details(request, cat_slug, forum_slug):
 
 
 def cat_details(request, cat_slug):
-    """Display the forums belonging to the given category."""
+    """
+    Displays a category and all its forums the current user can read.
+    :param cat_slug: The slug of the category to display.
+    """
 
     category = get_object_or_404(Category, slug=cat_slug)
 
@@ -111,7 +121,15 @@ def cat_details(request, cat_slug):
 
 
 def topic(request, topic_pk, topic_slug):
-    """Display a thread and its posts using a pager."""
+    """
+    Displays a topic (if the user can read it) and all its posts, paginated with
+    `settings.ZDS_APP['forum']['posts_per_page']` posts per page.
+    If the page to display is not the first one, the last post of the previous page is displayed as the first post of
+    the current page.
+    :param topic_pk: The primary key of the topic to display
+    :param topic_slug: The slug of the topic to display. If the slug doesn't match the topic slug, the user is
+    redirected to the proper topic URL.
+    """
 
     topic = get_object_or_404(Topic, pk=topic_pk)
     if not topic.forum.can_read(request.user):
@@ -190,6 +208,18 @@ def topic(request, topic_pk, topic_slug):
 
 
 def get_tag_by_title(title):
+    """
+    Extract tags from title.
+    In a title, tags can be set this way:
+    > [Tag 1][Tag 2] There is the real title
+    Rules to detect tags:
+    - Tags are enclosed in square brackets. This allows multi-word tags instead of hashtags.
+    - Tags can embed square brackets: [Tag] is a valid tag and must be written [[Tag]] in the raw title
+    - All tags must be declared at the beginning of the title. Example: _"Title [tag]"_ will not create a tag.
+    - Tags and title correctness (example: empty tag/title detection) is **not** checked here
+    :param title: The raw title
+    :return: A tuple: (the tag list, the title without the tags).
+    """
     nb_bracket = 0
     current_tag = u""
     current_title = u""
@@ -212,7 +242,7 @@ def get_tag_by_title(title):
             elif current_tag.strip() != u"" and nb_bracket > 0:
                 current_tag = current_tag + char
 
-        elif ((char != u"[" and char.strip() != "") or not continue_parsing_tags):
+        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
     title = current_title
@@ -227,7 +257,9 @@ def get_tag_by_title(title):
 @login_required
 @transaction.atomic
 def new(request):
-    """Creates a new topic in a forum."""
+    """
+    Creates a new topic in a forum.
+    """
 
     try:
         forum_pk = int(request.GET["forum"])
@@ -302,8 +334,11 @@ def new(request):
 @require_POST
 @transaction.atomic
 def solve_alert(request):
-
-    # only staff can move topic
+    """
+    Solves an alert (i.e. delete it from alert list) and sends an email to the user that created the alert, if the
+    resolver leaves a comment.
+    This can only be done by staff.
+    """
 
     if not request.user.has_perm("forum.change_post"):
         raise PermissionDenied
@@ -344,8 +379,10 @@ def solve_alert(request):
 @require_POST
 @transaction.atomic
 def move_topic(request):
-
-    # only staff can move topic
+    """
+    Moves a topic to another forum.
+    This can only be done by staff.
+    """
 
     if not request.user.has_perm("forum.change_topic"):
         raise PermissionDenied
@@ -361,8 +398,8 @@ def move_topic(request):
     topic.forum = forum
     topic.save()
 
-    # unfollow user auth
-
+    # If the topic is moved in a restricted forum, users that cannot read this topic any more un-follow it.
+    # This avoids unreachable notifications.
     followers = TopicFollowed.objects.filter(topic=topic)
     for follower in followers:
         if not forum.can_read(follower.user):
@@ -378,7 +415,9 @@ def move_topic(request):
 @login_required
 @require_POST
 def edit(request):
-    """Edit the given topic."""
+    """
+    Edit the given topic metadata: follow, follow by email, solved, locked, sticky.
+    """
 
     try:
         topic_pk = request.POST['topic']
@@ -410,9 +449,13 @@ def edit(request):
 
         if "lock" in data:
             g_topic.is_locked = data["lock"] == "true"
-            messages.success(request,
-                             u"Le sujet {0} est désormais verrouillé."
-                             .format(g_topic.title))
+
+            if g_topic.is_locked:
+                success_message = u"Le sujet {0} est désormais verrouillé.".format(g_topic.title)
+            else:
+                success_message = u"Le sujet {0} est désormais déverrouillé.".format(g_topic.title)
+
+            messages.success(request, success_message)
         if 'sticky' in data:
             if data['sticky'] == 'true':
                 g_topic.is_sticky = True
@@ -420,6 +463,7 @@ def edit(request):
             else:
                 g_topic.is_sticky = False
                 messages.success(request, _(u'Le sujet « {0} » n\'est désormais plus épinglé.').format(g_topic.title))
+        # TODO: Doublon avec "move_topic" ?
         if "move" in data:
             try:
                 forum_pk = int(request.POST["move_target"])
@@ -443,7 +487,13 @@ def edit(request):
 @login_required
 @transaction.atomic
 def answer(request):
-    """Adds an answer from a user to a topic."""
+    """
+    Answers (= add a new post) to an existing topic.
+    This method also allows the user to preview its answer.
+    If there is at least one new answer since the beginning of post redaction, the system displays the updated topic and
+    asks the user if it wants to posts its answers as is or edit it before re-send it. This is done by sending the
+    "current" last post ID with in the new form post and check on submit if there is a new last post ID.
+    """
 
     try:
         topic_pk = int(request.GET["sujet"])
@@ -479,7 +529,7 @@ def answer(request):
         data = request.POST
         newpost = last_post_pk != int(data["last_post"])
 
-        # Using the « preview button », the « more » button or new post
+        # Using the "preview button", the "more" button or new post
 
         if "preview" in data or newpost:
             form = PostForm(g_topic, request.user, initial={"text": data["text"]})
@@ -605,7 +655,11 @@ def answer(request):
 @login_required
 @transaction.atomic
 def edit_post(request):
-    """Edit the given user's post."""
+    """
+    Edit a post. Also allows to signal a message to the staff, hide a message (in code this is called "delete" it), show
+    it and allows the user to preview its edited message.
+    This displays a warning if a moderator edits someone else's post.
+    """
 
     try:
         post_pk = request.GET["message"]
@@ -692,16 +746,27 @@ def edit_post(request):
                 })
         else:
             # The user just sent data, handle them
-            if request.POST["text"].strip() != "":
+            if "text" in request.POST:
                 form = TopicForm(request.POST)
+                form_post = PostForm(post.topic, request.user, request.POST)
 
-                if not form.is_valid() and g_topic:
-                    return render(request, "forum/post/edit.html", {
-                        "post": post,
-                        "topic": post.topic,
-                        "text": post.text,
-                        "form": form,
-                    })
+                if not form.is_valid():
+                    if g_topic:
+                        return render(request, "forum/post/edit.html", {
+                            "post": post,
+                            "topic": post.topic,
+                            "text": post.text,
+                            "form": form,
+                        })
+                    elif not form_post.is_valid():
+                        form = PostForm(post.topic, request.user, initial={"text": post.text})
+                        form._errors = form_post._errors
+                        return render(request, "forum/post/edit.html", {
+                            "post": post,
+                            "topic": post.topic,
+                            "text": post.text,
+                            "form": form,
+                        })
 
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
@@ -752,7 +817,10 @@ def edit_post(request):
 @login_required
 @require_POST
 def useful_post(request):
-    """Marks a message as useful (for the OP)"""
+    """
+    Marks an answer as "useful".
+    Only the topic creator (or a staff member) can do this.
+    """
 
     try:
         post_pk = int(request.GET["message"])
@@ -783,7 +851,13 @@ def useful_post(request):
 @can_write_and_read_now
 @login_required
 def unread_post(request):
-    """Marks a message as unread """
+    """
+    Marks a post as "unread".
+    If the post is the first one, the whole topic is marked as "unread" - technically, the whole `TopicRead` entry is
+    removed.
+    If the post is not the first one, the topic is marked as "unread" starting this post - technically, the `TopicRead`
+    entry is updated or created.
+    """
 
     try:
         post_pk = int(request.GET["message"])
@@ -816,11 +890,17 @@ def unread_post(request):
     return redirect(reverse("zds.forum.views.details", args=[post.topic.forum.category.slug, post.topic.forum.slug]))
 
 
+# TODO nécessite une transaction ?
 @can_write_and_read_now
 @login_required
 @require_POST
 def like_post(request):
-    """Like a post."""
+    """
+    The current user likes the post, or stops to like it if it was already liked. A like replaces the eventual existing
+    dislike on this post.
+    As the "like/dislike" data is de-normalized for performance purposes, also this also updates the de-normalized data
+    at `Post` level.
+    """
 
     try:
         post_pk = int(request.GET["message"])
@@ -864,11 +944,17 @@ def like_post(request):
         return redirect(post.get_absolute_url())
 
 
+# TODO nécessite une transaction ?
 @can_write_and_read_now
 @login_required
 @require_POST
 def dislike_post(request):
-    """Dislike a post."""
+    """
+    The current user dislikes the post, or stops to dislike it if it was already liked. A dislike replaces the eventual
+    existing like on this post.
+    As the "like/dislike" data is de-normalized for performance purposes, also this also updates the de-normalized data
+    at `Post` level.
+    """
 
     try:
         post_pk = int(request.GET["message"])
@@ -911,8 +997,16 @@ def dislike_post(request):
         return redirect(post.get_absolute_url())
 
 
+# TODO: PK AND slug -> one of them is probably useless
 def find_topic_by_tag(request, tag_pk, tag_slug):
-    """Finds all topics byg tag."""
+    """
+    Displays all topics with provided tag. Also handles a filter on "solved". Only the topics the user can read are
+    displayed.
+    The tag primary key and the tag slug must match, otherwise nothing will be found.
+    Topics found are displayed paginated with `settings.ZDS_APP['forum']['topics_per_page']` topics per page.
+    :param tag_pk: the primary key of the tag to find by
+    :param tag_slug: the slug of the tag to find by
+    """
 
     tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
@@ -955,8 +1049,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         shown_topics = paginator.page(1)
         page = 1
     except EmptyPage:
-        shown_topics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        raise Http404
     return render(request, "forum/find/topic_by_tag.html", {
         "topics": shown_topics,
         "tag": tag,
@@ -967,7 +1060,12 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
 
 
 def find_topic(request, user_pk):
-    """Finds all topics of a user."""
+    """
+    Displays all topics created by the provided user, paginated with `settings.ZDS_APP['forum']['topics_per_page']`
+    topics per page.
+    Only the topics the current user can read are displayed.
+    :param user_pk: the user to find the topics.
+    """
 
     displayed_user = get_object_or_404(User, pk=user_pk)
     topics = \
@@ -999,7 +1097,11 @@ def find_topic(request, user_pk):
 
 
 def find_post(request, user_pk):
-    """Finds all posts of a user."""
+    """
+    Displays all posts of a user, paginated with `settings.ZDS_APP['forum']['posts_per_page']` post per page.
+    Only the posts the current user can read are displayed.
+    :param user_pk: the user to find the posts.
+    """
 
     displayed_user = get_object_or_404(User, pk=user_pk)
     user = request.user
@@ -1040,6 +1142,10 @@ def find_post(request, user_pk):
 
 @login_required
 def followed_topics(request):
+    """
+    Displays the followed topics fo the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
+    topics per page.
+    """
     followed_topics = request.user.get_profile().get_followed_topics()
 
     # Paginator
@@ -1062,10 +1168,12 @@ def followed_topics(request):
                             "nb": page})
 
 
+# TODO suggestions de recherche auto lors d'un nouveau topic, cf issues #99 et #580. Actuellement désactivées :(
 def complete_topic(request):
     if not request.GET.get('q', None):
         return HttpResponse("{}", content_type='application/json')
 
+    # TODO: WTF "sqs" ?!
     sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
 
     suggestions = {}

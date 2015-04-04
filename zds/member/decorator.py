@@ -6,7 +6,13 @@ from django.utils.decorators import method_decorator
 
 
 def can_write_and_read_now(func):
-    """Decorator to check that the user can read and write now."""
+    """
+    Checks if the current user has read and write rights, right now.
+    A visitor has correct rights only if it is connected and has proper rights attached to its profile.
+    Real roles in database are checked, this doesn't use session-cached stuff.
+    :param func: the decorated function
+    :return: `True` if the current user can read and write, `False` otherwise.
+    """
     def _can_write_and_read_now(request, *args, **kwargs):
         try:
             profile = request.user.profile

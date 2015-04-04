@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from datetime import datetime, timedelta
 import uuid
@@ -67,7 +66,7 @@ class MemberDetail(DetailView):
         usr = context['usr']
         profile = usr.profile
         context['profile'] = profile
-        context['topics'] = Topic.objects.last_topics_of_a_member(usr)
+        context['topics'] = Topic.objects.last_topics_of_a_member(usr, self.request.user)
         context['articles'] = Article.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = Tutorial.objects.last_tutorials_of_a_member_loaded(usr)
         context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
@@ -84,7 +83,6 @@ class UpdateMember(UpdateView):
     form_class = ProfileForm
     template_name = 'member/settings/profile.html'
 
-    @method_decorator(can_write_and_read_now)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(UpdateMember, self).dispatch(*args, **kwargs)
@@ -365,6 +363,8 @@ def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
+    if profile.is_private():
+        raise PermissionDenied
 
     if 'ls' in request.POST:
         state = ReadingOnlySanction(request.POST)
@@ -386,13 +386,18 @@ def modify_profile(request, user_pk):
         raise HttpResponseBadRequest
 
     state.apply_sanction(profile, ban)
-    msg = state.get_message_sanction() \
-        .format(ban.user,
-                ban.moderator,
-                ban.type,
-                state.get_detail(),
-                ban.text,
-                settings.ZDS_APP['site']['litteral_name'])
+
+    if 'un-ls' in request.POST or 'un-ban' in request.POST:
+        msg = state.get_message_unsanction()
+    else:
+        msg = state.get_message_sanction()
+
+    msg = msg.format(ban.user,
+                     ban.moderator,
+                     ban.type,
+                     state.get_detail(),
+                     ban.text,
+                     settings.ZDS_APP['site']['litteral_name'])
 
     state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())
@@ -501,8 +506,7 @@ def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
 
     # extra information about the current user
-
-    profile = Profile.objects.get(user__username=user_name)
+    profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
         form = MiniProfileForm(request.POST)
         c = {"form": form, "profile": profile}
@@ -1001,30 +1005,34 @@ def member_from_ip(request, ip):
 
 
 @login_required
+@require_POST
 def modify_karma(request):
     """ Add a Karma note to the user profile """
 
     if not request.user.has_perm("member.change_profile"):
         raise PermissionDenied
 
-    if request.method == "POST":
+    try:
         profile_pk = request.POST["profile_pk"]
-        profile = get_object_or_404(Profile, pk=profile_pk)
-
-        note = KarmaNote()
-        note.user = profile.user
-        note.staff = request.user
-        note.comment = request.POST["warning"]
-        try:
-            note.value = int(request.POST["points"])
-        except (KeyError, ValueError):
-            note.value = 0
-
-        note.save()
-
-        profile.karma += note.value
-        profile.save()
-
-        return redirect(reverse("member-detail", args=[profile.user.username]))
-    else:
+    except (KeyError, ValueError):
         raise Http404
+
+    profile = get_object_or_404(Profile, pk=profile_pk)
+    if profile.is_private():
+        raise PermissionDenied
+
+    note = KarmaNote()
+    note.user = profile.user
+    note.staff = request.user
+    note.comment = request.POST["warning"]
+    try:
+        note.value = int(request.POST["points"])
+    except (KeyError, ValueError):
+        note.value = 0
+
+    note.save()
+
+    profile.karma += note.value
+    profile.save()
+
+    return redirect(reverse("member-detail", args=[profile.user.username]))

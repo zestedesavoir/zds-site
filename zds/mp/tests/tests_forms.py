@@ -5,6 +5,8 @@ from django.test import TestCase
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.forms import PrivateTopicForm, PrivatePostForm
 from zds.mp.factories import PrivateTopicFactory
+from zds.settings import ZDS_APP
+from django.contrib.auth.models import Group
 
 
 class PrivateTopicFormTest(TestCase):
@@ -13,6 +15,8 @@ class PrivateTopicFormTest(TestCase):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
         self.staff1 = StaffProfileFactory()
+        bot = Group(name=ZDS_APP["member"]["bot_group"])
+        bot.save()
 
     def test_valid_topic_form(self):
         """  Reference valid case """

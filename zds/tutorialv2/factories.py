@@ -2,9 +2,11 @@
 
 from datetime import datetime
 
+from zds.tutorialv2.models import init_new_repo
+
 import factory
 
-from zds.tutorialv2.models import PublishableContent, Validation, ContentReaction, Container, Extract, init_new_repo
+from zds.tutorialv2.models import PublishableContent, Validation, ContentReaction, Container, Extract
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 

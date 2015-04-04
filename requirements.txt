@@ -4,7 +4,7 @@ pygments==2.0.1
 python-social-auth==0.1.26
 
 # Explicit dependencies (references in code)
-django==1.6.10
+django==1.6.11
 coverage==3.7.1
 south==1.0.1
 django-crispy-forms==1.4.0
@@ -25,6 +25,6 @@ djangorestframework==3.0.2
 django-filter==0.8
 django-oauth-toolkit==0.7.2
 drf-extensions==0.2.6
-django-rest-swagger==0.2.8
+django-rest-swagger==0.2.9
 django-cors-headers==1.0.0
 django-uuslug==1.0.3

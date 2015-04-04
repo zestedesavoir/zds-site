@@ -80,7 +80,7 @@
             {% endif %}
         </ul>
 
-        {% if perms.member.change_profile %}
+        {% if perms.member.change_profile and not profile.is_private %}
             <div>
                 {% trans "Remarques sur cet utilisateur" %} ({{ profile.karma }}) :
                 <ul>
@@ -138,7 +138,7 @@
 
     {% if profile.biography %}
         <hr class="clearfix" />
-        <section class="full-content-wrapper without-margin">
+        <section class="full-content-wrapper without-margin article-content">
             <h2 id="biographie">{% trans "Biographie" %}</h2>
             {{ profile.biography|emarkdown }}
         </section>
@@ -451,6 +451,7 @@
                 </li>
             </ul>
 
+            {% if not profile.is_private %}
             <h4>{% trans "Sanctions" %}</h4>
             <ul>
                 {% if profile.can_write_now %}
@@ -559,6 +560,7 @@
                     </li>
                 {% endif %}
             </ul>
+            {% endif %}
         </div>
     {% endif %}
 {% endblock %}
