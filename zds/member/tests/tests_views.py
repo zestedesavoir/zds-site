@@ -202,17 +202,17 @@ class MemberTests(TestCase):
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        self.assertRedirects(result, reverse('zds.gallery.views.gallery_list'))
+        self.assertRedirects(result, reverse('gallery-list'))
 
         # check if the login form will redirect if there is
         # a next parameter.
         self.client.logout()
         result = self.client.get(
             reverse('zds.member.views.login_view') +
-            '?next=' + reverse('zds.gallery.views.gallery_list'))
+            '?next=' + reverse('gallery-list'))
         self.assertContains(result,
                             reverse('zds.member.views.login_view') +
-                            '?next=' + reverse('zds.gallery.views.gallery_list'),
+                            '?next=' + reverse('gallery-list'),
                             count=1)
 
     def test_register(self):
