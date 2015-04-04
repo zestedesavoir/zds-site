@@ -51,6 +51,10 @@
         {% include "tutorial/includes/chapter.part.html" %}
         {% include "tutorial/includes/chapter_pager.part.html" with position="bottom" %}
     {% endwith %}
+
+    {%  if tutorial.is_beta %}
+        {% include "tutorial/includes/warn_typo.part.html" with obj_type="chapter" obj_pk=chapter.pk version_tutorial=tutorial.sha_beta %}
+    {% endif %}
 {% endblock %}
 
 
@@ -144,7 +148,7 @@
 
 
 {% block sidebar_blocks %}
-    {% include "tutorial/includes/summary.part.html" with tutorial=tutorial chapter_current=chapter %}
+    {% include "tutorial/includes/summary.part.html" with tutorial=chapter.part.tutorial chapter_current=chapter %}
 
     {% if chapter.part %}
         {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}

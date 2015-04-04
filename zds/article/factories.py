@@ -10,6 +10,7 @@ from zds.article.models import Article, Reaction, \
     Validation, Licence
 from zds.utils.articles import export_article
 from zds.article.views import mep
+from zds.utils.models import SubCategory
 
 
 class ArticleFactory(factory.DjangoModelFactory):
@@ -89,3 +90,11 @@ class PublishedArticleFactory(ArticleFactory):
         article.pubdate = datetime.now()
         article.save()
         return article
+
+
+class SubCategoryFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = SubCategory
+
+    title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour l\'article'.format(n))
+    subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour l\'article'.format(n))
+    slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))

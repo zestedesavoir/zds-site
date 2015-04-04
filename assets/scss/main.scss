@@ -1,94 +1,85 @@
-/* ===== Zeste de Savoir ====================================================
-   All styles for *Zeste de Savoir* website
-   ---------------------------------
-   Author: Alex-D / Alexandre Demode
-   ========================================================================== */
-
-
-
-
-
 /**
- * Global vars
+ * Zeste de Savoir
+ * Main style file, imports everything
+ * @file main.scss
  */
-$transition-duration: .15s;
 
-//$sprite: url("../images/sprite.png");
-$sprite2x: url("../images/sprite@2x.png");
-$sprite: $sprite2x;
-
-
-
-/**
- * Colors
- */
-$primary: #084561; // Blue for ZdS
-$secondary: #F8AD32; // Orange for ZdS
-
-$body-background: #F7F7F7; // Background of page body
-$header-hover: #396a81; // Hover background of links in header
-$helpful: #e9f9dc; // Background of helpful messages
-
-$sidebar-background: #F0F0F0; // Background of sidebar
-$sidebar-hover: #FFF; // Background of links on hover
-
-$upvote: #48a200; // Green for ZdS / Upvote text & staff badge & submit button
-$downvote: #c0392b; // Red for ZdS / Downvote text & cancel button
-
-$kbd-color: #F8F6EA; // Base color for keyboard tag
-
-// Margins
-$modal-margin: 25px; // Default modal margin (biggest size)
-
-// Font Famillies
-$font-sans-serif: "Segoe UI", "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
-$font-serif: "Liberation Serif", "Times New Roman", Times, Georgia, FreeSerif, serif;
-$font-monospace: monospace, serif;
-$font-sans-serif-active: "Source Sans Pro", $font-sans-serif;
-$font-serif-active: "Merriweather", $font-serif;
-$font-monospace-active: "Source Code Pro", $font-monospace;
-
-
-
-
-
-/**
- * Import external mixins
- */
-@import "mixins/display-flex";
-@import "mixins/sprite-pos";
-
-/**
- * Import sprite
- */
+@import "variables/variables";
 @import "sprite";
+@import "mixins/display-flex";
 
-/**
- * Import custom styles
- */
-@import "normalize";
-@import "base";
+/*------------------------
+1. Normalize
+------------------------*/
+@import "vendors/normalize";
 
-@import "all-supports";
-@import "form";
-@import "editor";
+/*------------------------
+2. Base
+------------------------*/
+@import "base/base";
+@import "base/tables";
+@import "base/forms";
 
-// Fluid layout
-@import "mobile";
-@import "mobile-tablet";
-@import "tablet";
-@import "wide";
-@import "extra-wide";
-@import "mega-wide";
+/*------------------------
+3. Typography
+------------------------*/
+@import "base/typography";
 
-// Icons
-@import "icons";
+/*------------------------
+4. Icons
+------------------------*/
+@import "base/icons";
 
-// Retina-like support
-@import "high-pixel-ratio";
+/*------------------------
+5. Helpers
+------------------------*/
+@import "base/helpers";
 
-// Dependencies
-@import "pygments";
+/*------------------------
+6. Header
+------------------------*/
+@import "layout/header";
+@import "components/header-dropdown";
+@import "components/header-search";
+@import "components/accessibility-bar";
+@import "components/cookies-banner";
 
-// Disable a lot of styles for print
-@import "print";
+/*------------------------
+7. Layout
+------------------------*/
+@import "layout/sidebar";
+@import "layout/main";
+@import "layout/content";
+@import "layout/footer";
+
+/*------------------------
+8. Pages
+------------------------*/
+@import "pages/home";
+@import "components/home-search-box";
+@import "pages/gallery";
+@import "pages/api";
+
+/*------------------------
+9. Components
+------------------------*/
+@import "components/alert-box";
+@import "components/authors";
+@import "components/autocomplete";
+@import "components/breadcrumb";
+@import "components/editor";
+@import "components/markdown-help";
+@import "components/mobile-menu";
+@import "components/modals";
+@import "components/pagination";
+@import "components/pygments";
+@import "components/tags";
+@import "components/topic-list";
+@import "components/topic-message";
+@import "components/tutorials-list";
+@import "components/user-profile";
+
+/*-------------------------
+10. High pixel ratio (retina)
+-------------------------*/
+@import "base/high-pixel-ratio";

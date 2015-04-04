@@ -2,6 +2,8 @@
 
 from datetime import datetime
 from operator import attrgetter
+from zds.member.models import Profile
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -9,8 +11,7 @@ except ImportError:
         import simplejson as json_reader
     except ImportError:
         import json as json_reader
-import json
-import json as json_writer
+import json as json_writter
 import os
 import shutil
 import zipfile
@@ -25,8 +26,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -41,6 +42,7 @@ from zds.utils.models import SubCategory, Category, CommentLike, \
 from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
+from django.utils.translation import ugettext as _
 
 from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
@@ -52,7 +54,7 @@ def index(request):
     # The tag indicate what the category article the user would
     # like to display. We can display all subcategories for articles.
     try:
-        tag = get_object_or_404(SubCategory, title=request.GET['tag'])
+        tag = get_object_or_404(SubCategory, slug=request.GET['tag'])
     except (KeyError, Http404):
         tag = None
 
@@ -130,6 +132,7 @@ def view(request, article_pk, article_slug):
         'validation': validation,
         'is_js': is_js,
         'formJs': form_js,
+        'on_line': False
     })
 
 
@@ -164,6 +167,12 @@ def view_online(request, article_pk, article_slug):
         .filter(article__pk=article.pk)\
         .order_by('position')\
         .all()
+
+    # Check if the author is reachable
+    authors_reachable_request = Profile.objects.contactable_members().filter(user__in=article.authors.all())
+    authors_reachable = []
+    for author in authors_reachable_request:
+        authors_reachable.append(author.user)
 
     # Retrieve pk of the last reaction. If there aren't reactions
     # for the article, we initialize this last reaction at 0.
@@ -211,8 +220,77 @@ def view_online(request, article_pk, article_slug):
         'pages': paginator_range(page_nbr, paginator.num_pages),
         'nb': page_nbr,
         'last_reaction_pk': last_reaction_pk,
-        'form': form
+        'form': form,
+        'on_line': True,
+        'authors_reachable': authors_reachable
     })
+
+
+@login_required
+@require_POST
+def warn_typo(request, article_pk):
+    """Warn author(s) about a mistake in its (their) article by sending him/her (them) a private message."""
+
+    # Need profile
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # Get article
+    try:
+        article_pk = int(article_pk)
+    except (KeyError, ValueError):
+        raise Http404
+
+    article = get_object_or_404(Article, pk=article_pk)
+
+    # Check if the article is published
+    if article.sha_public is None:
+        raise Http404
+
+    # Check if authors are reachable
+    authors_reachable = Profile.objects.contactable_members().filter(user__in=article.authors.all())
+    authors = []
+    for author in authors_reachable:
+        authors.append(author.user)
+
+    if len(authors) == 0:
+        if article.authors.count() > 1:
+            messages.error(request, _(u"Les auteurs de l'article sont malheureusement injoignables"))
+        else:
+            messages.error(request, _(u"L'auteur de l'article est malheureusement injoignable"))
+    else:
+        # Fetch explanation
+        if 'explication' not in request.POST or not request.POST['explication'].strip():
+            messages.error(request, _(u'Votre proposition de correction est vide'))
+        else:
+            explanation = request.POST['explication']
+            explanation = '\n'.join(['> ' + line for line in explanation.split('\n')])
+
+            # Is the user trying to send PM to himself ?
+            if request.user in article.authors.all():
+                messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes l\'auteur '
+                                          u'de cet article !'))
+            else:
+                # Create message :
+                msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre article [{}]({}).\n\n').format(
+                    request.user.username,
+                    settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                    article.title,
+                    settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()
+                )
+
+                msg += _(u'Voici son message :\n\n{}').format(explanation)
+
+                # Send it
+                send_mp(request.user,
+                        article.authors.all(),
+                        _(u"Proposition de correction"),
+                        article.title,
+                        msg,
+                        leave=False)
+                messages.success(request, _(u'Votre correction a bien été proposée !'))
+
+    # return to page :
+    return redirect(article.get_absolute_url_online())
 
 
 @can_write_and_read_now
@@ -301,8 +379,8 @@ def new(request):
 def edit(request):
     """Edit article identified by given GET parameter."""
     try:
-        article_pk = request.GET['article']
-    except KeyError:
+        article_pk = int(request.GET['article'])
+    except (KeyError, ValueError):
         raise Http404
 
     article = get_object_or_404(Article, pk=article_pk)
@@ -394,7 +472,7 @@ def edit(request):
 
     form_js = ActivJsForm(initial={"js_support": article.js_support})
     return render(request, 'article/member/edit.html', {
-        'article': article, 'form': form, 'formJs': form_js
+        'article': article, 'form': form, 'formJs': form_js, 'authors': article.authors,
     })
 
 
@@ -479,7 +557,11 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download an article."""
-    article = get_object_or_404(Article, pk=request.GET["article"])
+    try:
+        article_id = int(request.GET["article"])
+    except (KeyError, ValueError):
+        raise Http404
+    article = get_object_or_404(Article, pk=article_id)
     repo_path = os.path.join(settings.ZDS_APP['article']['repo_path'], article.get_phy_slug())
     repo = Repo(repo_path)
     sha = article.sha_draft
@@ -533,7 +615,7 @@ def modify(request):
                 article.pubdate = None
                 article.save()
 
-                comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
+                comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
                 # send feedback
                 msg = (
                     u'Désolé, le zeste **{0}** '
@@ -716,11 +798,14 @@ def modify(request):
                 article.slug
             ])
 
-            author_username = request.POST['author']
+            author_username = request.POST['author'].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
 
             article.authors.add(author)
@@ -817,10 +902,8 @@ def list_validation(request):
 
     # Get subcategory to filter validations.
     try:
-        subcategory = get_object_or_404(
-            Category,
-            pk=request.GET['subcategory'])
-    except (KeyError, Http404):
+        subcategory = get_object_or_404(Category, pk=int(request.GET['subcategory']))
+    except (KeyError, ValueError, Http404):
         subcategory = None
 
     # Orphan validation. There aren't validator attached to the validations.
@@ -877,10 +960,8 @@ def history_validation(request, article_pk):
 
     # Get subcategory to filter validations.
     try:
-        subcategory = get_object_or_404(
-            Category,
-            pk=request.GET['subcategory'])
-    except (KeyError, Http404):
+        subcategory = get_object_or_404(Category, pk=int(request.GET['subcategory']))
+    except (KeyError, ValueError, Http404):
         subcategory = None
 
     if subcategory is None:
@@ -949,8 +1030,10 @@ def history(request, article_pk, article_slug):
     logs = repo.head.reference.log()
     logs = sorted(logs, key=attrgetter('time'), reverse=True)
 
+    form_js = ActivJsForm(initial={"js_support": article.js_support})
+
     return render(request, 'article/member/history.html', {
-        'article': article, 'logs': logs
+        'article': article, 'logs': logs, 'formJs': form_js
     })
 
 # Reactions at an article.
@@ -983,8 +1066,8 @@ def mep(article, sha):
 def answer(request):
     """Adds an answer from a user to an article."""
     try:
-        article_pk = request.GET['article']
-    except KeyError:
+        article_pk = int(request.GET['article'])
+    except (KeyError, ValueError):
         raise Http404
 
     # Retrieve current article.
@@ -1020,8 +1103,8 @@ def answer(request):
         # Using the « preview button », the « more » button or new reaction
         if 'preview' in data or newreaction:
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 form = ReactionForm(article, request.user, initial={
                     'text': data['text']
@@ -1071,7 +1154,10 @@ def answer(request):
         # Using the quote button
         if 'cite' in request.GET:
             resp = {}
-            reaction_cite_pk = request.GET['cite']
+            try:
+                reaction_cite_pk = int(request.GET['cite'])
+            except ValueError:
+                raise Http404
             reaction_cite = Reaction.objects.get(pk=reaction_cite_pk)
             if not reaction_cite.is_visible:
                 raise PermissionDenied
@@ -1087,7 +1173,7 @@ def answer(request):
 
             if request.is_ajax():
                 resp["text"] = text
-                return HttpResponse(json.dumps(resp), content_type='application/json')
+                return HttpResponse(json_writter.dumps(resp), content_type='application/json')
 
         form = ReactionForm(article, request.user, initial={
             'text': text
@@ -1164,8 +1250,8 @@ def edit_reaction(request):
     """Edit the given user's reaction."""
 
     try:
-        reaction_pk = request.GET['message']
-    except KeyError:
+        reaction_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
 
@@ -1225,8 +1311,8 @@ def edit_reaction(request):
                 '?message=' + \
                 str(reaction_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, 'article/reaction/edit.html', {
                     'reaction': reaction,
@@ -1267,8 +1353,8 @@ def like_reaction(request):
     """Like a reaction."""
 
     try:
-        reaction_pk = request.GET['message']
-    except KeyError:
+        reaction_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
 
     resp = {}
@@ -1304,7 +1390,7 @@ def like_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 
@@ -1315,8 +1401,8 @@ def dislike_reaction(request):
     """Dislike a reaction."""
 
     try:
-        reaction_pk = request.GET['message']
-    except KeyError:
+        reaction_pk = int(request.GET['message'])
+    except (KeyError, ValueError):
         raise Http404
     resp = {}
     reaction = get_object_or_404(Reaction, pk=reaction_pk)
@@ -1352,7 +1438,7 @@ def dislike_reaction(request):
     resp['downvotes'] = reaction.dislike
 
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json_writter.dumps(resp))
     else:
         return redirect(reaction.get_absolute_url())
 

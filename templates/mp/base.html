@@ -16,7 +16,7 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.mp.views.index" %}">{% trans "Messagerie Privée" %}</a></li>
+    <li><a href="{% url "mp-list" %}">{% trans "Messagerie Privée" %}</a></li>
 {% endblock %}
 
 
@@ -29,7 +29,7 @@
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-        <a href="{% url "zds.mp.views.new" %}" class="new-btn ico-after more blue">
+        <a href="{% url 'mp-new' %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle conversation" %}
         </a>
         {% block sidebar_actions %}{% endblock %}

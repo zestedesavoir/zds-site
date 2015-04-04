@@ -83,10 +83,17 @@
         {% block canonical %}{% endblock %}
     {% endif %}
 
+    <!--[if IE 9]>
+        <link rel="stylesheet" href="{% static "css/only-ie.min.css" %}">
+    <![endif]-->
+
 
     {# Webfont async loading #}
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
 
+
+    {% block extra_css %}
+    {% endblock %}
 
     {# favicons #}
     <link rel="shortcut icon" type="image/png" href="{% static "images/favicon.png" %}">
@@ -104,12 +111,15 @@
 
     {# RSS links #}
     <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
+
+    {# OpenSearch plugin autodiscovery #}
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "zds.search.views.opensearch" %}">
 </head>
 <body class="{% block body_class %}{% endblock %}"
       itemscope
       itemtype="http://schema.org/WebPage"
 >
-    <!--[if lt IE 8]>
+    <!--[if lt IE 9]>
         <p class="chromeframe">Vous utilisez un navigateur <strong>dépassé</strong>. Merci de <a href="http://browsehappy.com/">mettre à jour celui-ci</a> pour améliorer votre expérience.</p>
     <![endif]-->
 
@@ -129,13 +139,13 @@
             </li>
         </ul>
 
-        <div id="cookies-banner">
+        <div id="cookies-eu-banner">
             <span>
                 {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %}
             </span>
-            <button id="reject-cookies">{% trans "ici" %}</button>.
-            <a href="/pages/cookies">{% trans "En savoir plus" %}</a>
-            <button id="accept-cookies">{% trans "OK" %}</button>
+            <button id="cookies-eu-reject">{% trans "ici" %}</button>.
+            <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
+            <button id="cookies-eu-accept">{% trans "OK" %}</button>
         </div>
 
         <div class="header-container">
@@ -195,6 +205,12 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun tutoriel disponible." %}
+                                                    </li>
+                                                </ul>
                                             {% endfor %}
                                         {% endwith %}
                                     </ul>
@@ -227,6 +243,12 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun forum disponible." %}
+                                                    </li>
+                                                </ul>
                                             {% endfor %}
                                             {% if top.tags %}
                                             <li>
@@ -257,9 +279,10 @@
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
                                     {% with unread_topics=topics.unread %}
-                                        <a href="{% url "zds.mp.views.index" %}" class="ico-link">
-                                            {% if unread_topics|length > 0 %}
-                                                <span class="notif-count">{{ unread_topics|length }}</span>
+                                    {% with total_topics=topics.total %}
+                                        <a href="{% url "mp-list" %}" class="ico-link">
+                                            {% if total_topics > 0 %}
+                                                <span class="notif-count">{{ total_topics }}</span>
                                             {% endif %}
                                             <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
                                         </a>
@@ -285,16 +308,17 @@
                                                     {% endwith %}
                                                 {% endfor %}
 
-                                                {% if unread_topics|length = 0 %}
+                                                {% if total_topics = 0 %}
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucun nouveau message" %}
                                                     </li>
-                                                {% endif %}
-                                            </ul>
-                                            <a href="{% url "zds.mp.views.index" %}" class="dropdown-link-all">
-                                                {% trans "Tous les messages" %}
-                                            </a>
-                                        </div>
+                                                    {% endif %}
+                                                </ul>
+                                                <a href="{% url "mp-list" %}" class="dropdown-link-all">
+                                                    {% trans "Tous les messages" %}
+                                                </a>
+                                            </div>
+                                        {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
                                 </div>
@@ -326,7 +350,7 @@
                                                     </li>
                                                 {% endfor %}
 
-                                                {% if unread_posts|length = 0 %}
+                                                {% if unread_posts|length == 0 %}
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucune notification" %}
                                                     </li>
@@ -341,40 +365,42 @@
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
-                                    {% with alerts=user|alerts_list nb_alerts=user|alerts_count %}
-                                        <div>
-                                            <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
-                                                <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
-                                                {% if nb_alerts > 0 %}
-                                                    <span class="notif-count">{{ nb_alerts }}</span>
-                                                {% endif %}
-                                            </a>
-
-                                            <div class="dropdown">
-                                                <span class="dropdown-title">{% trans "Alertes Modération" %}</span>
-                                                <ul class="dropdown-list">
-                                                    {% for alert in alerts %}
-                                                        <li>
-                                                            <a href="{{ alert.url }}">
-                                                                <span class="username">{{ alert.title }}</span>
-                                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
-                                                                <span class="topic">{{ alert.text }}</span>
-                                                            </a>
-                                                        </li>
-                                                    {% empty %}
-                                                        <li class="dropdown-empty-message">
-                                                            {% trans "Aucune alerte" %}
-                                                        </li>
-                                                    {% endfor %}
-                                                </ul>
-                                                <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
-                                                    {% trans "Toutes les alertes" %}
+                                    {% with alerts=user|alerts_list %}
+                                        {%  with nb_alerts=alerts|length %}
+                                            <div>
+                                                <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
+                                                    <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
+                                                    {% if nb_alerts > 0 %}
+                                                        <span class="notif-count">{{ nb_alerts }}</span>
+                                                    {% endif %}
                                                 </a>
+
+                                                <div class="dropdown">
+                                                    <span class="dropdown-title">{% trans "Alertes Modération" %}</span>
+                                                    <ul class="dropdown-list">
+                                                        {% for alert in alerts %}
+                                                            <li>
+                                                                <a href="{{ alert.url }}">
+                                                                    <span class="username">{{ alert.title }}</span>
+                                                                    <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                                                    <span class="topic">{{ alert.text }}</span>
+                                                                </a>
+                                                            </li>
+                                                        {% empty %}
+                                                            <li class="dropdown-empty-message">
+                                                                {% trans "Aucune alerte" %}
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
+                                                        {% trans "Toutes les alertes" %}
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {%  endwith %}
                                     {% endwith %}
                                 {% else %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -386,7 +412,7 @@
 
                             <div>
                                 {% with profile=user.profile %}
-                                    <a href="{% url "zds.member.views.settings_profile" %}"
+                                    <a href="{% url "update-member" %}"
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
                                        title="{% blocktrans %}Mon compte{% endblocktrans %}"
@@ -406,7 +432,7 @@
 
                                     <ul class="dropdown-list">
                                         <li>
-                                            <a href="{% url "zds.member.views.details" user.username %}">{% trans "Mon profil" %}</a>
+                                            <a href="{% url "member-detail" user.username %}">{% trans "Mon profil" %}</a>
                                         </li>
                                         <li>
                                             <a href="{% url "zds.member.views.tutorials" %}">{% trans "Mes tutoriels" %}</a>
@@ -418,7 +444,7 @@
                                             <a href="{% url "zds.gallery.views.gallery_list" %}">{% trans "Galeries d'images" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "zds.member.views.settings_profile" %}">{% trans "Paramètres" %}</a>
+                                            <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                                         </li>
 
                                         {% if perms.tutorial.change_tutorial %}
@@ -448,7 +474,7 @@
 
                         {% else %} {# Not logged #}
                             <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}">{% trans "Connexion" %}</a>
-                            <a href="{% url "zds.member.views.register_view" %}">{% trans "Inscription" %}</a>
+                            <a href="{% url "register-member" %}">{% trans "Inscription" %}</a>
                         {% endif %}
                     </div>
                 </div>
@@ -469,11 +495,11 @@
                         </ol>
                     </div>
                     <div class="search header-right" id="search">
-                        <form action="/rechercher">
-                            <input type="text" name="q" placeholder="Rechercher">
-                            <button type="submit" class="ico-after search-submit" title="Lancer la recherche">{% trans "OK" %}</button>
+                        <form action="{% url "haystack_search" %}">
+                            <input type="text" name="q" placeholder="{% trans "Rechercher" %}">
+                            <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                         </form>
-                        <a href="/rechercher" title="Recherche avancée" class="search-more"></a>
+                        <a href="{% url "haystack_search" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
                     </div>
                 </div>
             </div>
@@ -482,44 +508,46 @@
 
 
         <div class="main-container">
-            {% block pre_content %}
-            {% endblock %}
+            {% block doc_api %}
+                {% block pre_content %}
+                {% endblock %}
 
-            <div class="main wrapper clearfix">
-                <main class="content-container" role="main" id="content">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert-box {{ message.tags }}">
-                                <span>{{ message }}</span>
-                                <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l'alerte" %}</a>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                <div class="main wrapper clearfix">
+                    <main class="content-container" role="main" id="content">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert-box {{ message.tags }}">
+                                    <span>{{ message }}</span>
+                                    <a href="#close-alert-box" class="close-alert-box ico-after cross white">{% trans "Masquer l'alerte" %}</a>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
 
-                    {% block content_out %}
-                        {% captureas schema %}
-                            {% block schema %}{% endblock %}
-                        {% endcaptureas %}
-                        <section class="content-wrapper" {{ schema|safe }}>
-                            <h1 {% if schema %}itemprop="name"{% endif %}>
-                                {% block headline %}{% endblock %}
-                            </h1>
-
-                            {% captureas headlinesub %}
-                                {% block headline_sub %}{% endblock %}
+                        {% block content_out %}
+                            {% captureas schema %}
+                                {% block schema %}{% endblock %}
                             {% endcaptureas %}
+                            <section class="content-wrapper" {{ schema|safe }}>
+                                <h1 {% if schema %}itemprop="name"{% endif %}>
+                                    {% block headline %}{% endblock %}
+                                </h1>
 
-                            {% if headlinesub %}
-                                <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
-                            {% endif %}
+                                {% captureas headlinesub %}
+                                    {% block headline_sub %}{% endblock %}
+                                {% endcaptureas %}
 
-                            {% block content %}{% endblock %}
-                        </section>
-                    {% endblock %}
-                </main>
+                                {% if headlinesub %}
+                                    <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
+                                {% endif %}
 
-                {% block sidebar %}{% endblock %}
-            </div>
+                                {% block content %}{% endblock %}
+                            </section>
+                        {% endblock %}
+                    </main>
+
+                    {% block sidebar %}{% endblock %}
+                </div>
+            {% endblock %}
         </div>
 
 
@@ -527,7 +555,7 @@
         <footer class="page-footer">
             <div class="wrapper">
                 <p class="copyright">
-                    {{app.site.litteral_name}} &bull; {{app.site.year}}
+                    {{app.site.litteral_name}}
                     <span class="version">
                         &bull; {% trans "Version" %} : <a href="{{git_version.url}}">{{git_version.name}}</a>
                     </span>
@@ -546,13 +574,14 @@
                 </ul>
 
                 <ul class="links">
+                    <li><a href="{% url "django.swagger.base.view" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}
                         <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
-                    {% endif %}
-                    {% if user.is_authenticated %}
-                        <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+                        {% endif %}
                     {% endif %}
                     <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
                 </ul>
@@ -560,15 +589,6 @@
         </footer>
     </div>
 
-
-
-
-
-    {# Google Tag Manager #}
-    <noscript id="gtm">
-        <iframe src="//www.googletagmanager.com/ns.html?id=GTM-WH7642"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
 
 
 
@@ -582,6 +602,25 @@
         <script src="{% static "js/all.min.js" %}"></script>
     {% endif %}
 
+    {% block extra_js %}
+    {% endblock %}
+
+
+
+    {# Google Analytics #}
+    {% if app.site.googleAnalyticsID and app.site.googleTagManagerID %}
+        <script>
+            new CookiesEuBanner(function(){
+                dataLayer = [{'gaTrackingId': '{{ app.site.googleAnalyticsID }}'}];
+                (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                })(window,document,'script','dataLayer','{{ app.site.googleTagManagerID }}');
+            });
+        </script>
+    {% endif %}
+
 
 
     {# MathJax #}
@@ -591,6 +630,8 @@
                 inlineMath: [['$', '$']],
                 displayMath: [['$$','$$']],
                 processEscapes: true,
+                processClass: "message-content|article-content",
+                ignoreClass: "page-container"
             },
             TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
             messageStyle: "none",

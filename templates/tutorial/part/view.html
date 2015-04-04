@@ -204,5 +204,5 @@
 
 
 {% block sidebar_blocks %}
-    {% include "tutorial/includes/summary.part.html" with tutorial=part.tutorial parts=part.tutorial.get_parts %}
+    {% include "tutorial/includes/summary.part.html" with parts=tutorial.parts %}
 {% endblock %}

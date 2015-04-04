@@ -121,6 +121,8 @@
                     {{ article.description }}
                 </p>
             </article>
+        {% empty %}
+            <p>{% trans "Aucun article disponible." %}</p>
         {% endfor %}
     </section>
 
@@ -133,6 +135,8 @@
         
         {% for tutorial in last_tutorials %}
             {% include 'tutorial/includes/tutorial_item.part.html' %}
+        {% empty %}
+            <p>{% trans "Aucun tutoriel disponible." %}</p>
         {% endfor %}
     </section>
 {% endblock %}
@@ -156,6 +160,10 @@
                             </a>
                         </li>
                     {% endfor %}
+                </ul>
+            {% empty %}
+                <ul>
+                    <li>{% trans "Aucune catégorie disponible." %}</li>
                 </ul>
             {% endfor %}
         {% endwith %}

@@ -63,7 +63,10 @@
 
     {% include "misc/pagination.part.html" with position="top" %}
 
-        <div class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}">
+        <div 
+            class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
+            data-ajax-output="solve-topic"
+        >
             {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
     
@@ -143,7 +146,17 @@
                 <input type="hidden" name="solved" value="1">
                 {% csrf_token %}
 
-                <button class="solve ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}" type="submit">
+                <button
+                    class="ico-after tick {% if topic.is_solved %}blue{% else %}green{% endif %}"
+                    type="submit" data-ajax-input="solve-topic"
+                    data-content-on-click="
+                        {% if topic.is_solved %}
+                            {% trans "Marquer comme résolu" %}
+                        {% else %}
+                            {% trans "Marquer comme non résolu" %}
+                        {% endif %}
+                    "
+                >
                     {% if topic.is_solved %}
                         {% trans "Marquer comme non résolu" %}
                     {% else %}
@@ -162,7 +175,17 @@
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 
-            <button class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}" type="submit">
+            <button
+                class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}"
+                type="submit" data-ajax-input="follow-topic"
+                data-content-on-click="
+                    {% if topic.is_followed %}
+                        {% trans "Suivre ce sujet" %}
+                    {% else %}
+                        {% trans "Ne plus suivre ce sujet" %}
+                    {% endif %}
+                "
+            >
                 {% if topic.is_followed %}
                     {% trans "Ne plus suivre ce sujet" %}
                 {% else %}
@@ -179,7 +202,17 @@
             <input type="hidden" name="email" value="1">
             {% csrf_token %}
 
-            <button class="email ico-after email {% if not topic.is_email_followed %}blue{% endif %}" type="submit">
+            <button
+                class="email ico-after {% if not topic.is_email_followed %}blue{% endif %}"
+                type="submit" data-ajax-input="follow-topic-by-email"
+                data-content-on-click="
+                    {% if topic.is_email_followed %}
+                        {% trans "Être notifié par courriel" %}
+                    {% else %}
+                        {% trans "Ne plus être notifié par courriel" %}
+                    {% endif %}
+                "
+            >
                 {% if topic.is_email_followed %}
                     {% trans "Ne plus être notifié par courriel" %}
                 {% else %}
@@ -198,19 +231,34 @@
             <h3>{% trans "Modération" %}</h3>
             <ul>
                 <li>
-                    <form action="{% url "zds.forum.views.edit" %}" method="post">
+                    <a href="#lock-open-topic-{{ topic.pk }}" class="open-modal ico-after lock {% if not topic.is_locked %}blue{% endif %}">
+                        {% if topic.is_locked %}
+                            {% trans "Ouvrir le sujet" %}
+                        {% else %}
+                            {% trans "Fermer le sujet" %}
+                        {% endif %}
+                    </a>
+                    <form action="{% url "zds.forum.views.edit" %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-small">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">
                         <input type="hidden" name="lock" value="{% if topic.is_locked %}false{% else %}true{% endif %}">
             			{% csrf_token %}
 
-                        <button class="ico-after lock {% if not topic.is_locked %}blue{% endif %}" type="submit">
-                            {% if topic.is_locked %}
-                                {% trans "Ouvrir le sujet" %}
-                            {% else %}
-                                {% trans "Fermer le sujet" %}
-                            {% endif %}
+                        <p>
+                            {% trans "Voulez-vous confirmer" %}
+                                <em>
+                                    {% if topic.is_locked %}
+                                        {% trans "la réouverture" %}
+                                    {% else %}
+                                        {% trans "la fermeture" %}
+                                    {% endif %}
+                                </em>
+                            {% trans "du sujet ?" %}
+                        </p>
+
+                        <button type="submit" name="lock-open-topic-{{ topic.pk }}">
+                            {% trans "Confirmer" %}
                         </button>
                     </form>
                 </li>

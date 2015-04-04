@@ -98,3 +98,54 @@ Tout est déjà prêt dans les fixtures dédiées à cela :
 ```
 python load_factory_data.py fixtures/advanced/aide_tuto_media.yaml
 ```
+
+Actions à faire pour mettre en prod la version : v1.5
+=====================================================
+
+Issue #1541
+-----------
+
+Désormais les utilisateurs anonyme et auteur externe doit faire partie du groupe "bot".
+
+Il faudra donc :
+
+1. créer le groupe "bot"
+2. vérifier que `settings.ZDS_APP['member']['bot_group']` vaut bien `"bot"`
+3. Aller dans l'interface de promotion des utilisateurs pour ajouter les comptes auteur externe et anonyme au groupe bot
+
+npm
+---
+
+Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lancer la commande `sudo npm install -g npm`.
+
+Faire pointer nginx sur `static/` au lieu de `dist/`.
+
+
+Actions à faire pour mettre en prod la version : v1.6
+=====================================================
+
+Issue #1724
+-----------
+
+Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les fichier statiques :
+
+```python
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
+```
+
+
+Actions à faire pour mettre en prod la version : v1.7
+=====================================================
+
+Issue #2058
+-----------
+
+Rajouter ces lignes dans le `settings_prod.py` :
+
+```python
+ZDS_APP['site']['googleAnalyticsID'] = 'UA-27730868-1'
+ZDS_APP['site']['googleTagManagerID'] = 'GTM-WH7642'
+```
+
+Vérifier que `EMAIL_BACKEND` est bien définit dans le `settings_prod.py` car il a maintenant une valeur par défaut. La configuration par défaut sur la prod devrait être `EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'`.
+

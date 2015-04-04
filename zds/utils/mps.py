@@ -1,11 +1,12 @@
 # coding: utf-8
 
 from datetime import datetime
-from zds.mp.models import PrivateTopic, PrivatePost
-from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
-from django.template import Context
-from django.template.loader import get_template
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
+
+from zds.mp.models import PrivateTopic, PrivatePost
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
@@ -27,8 +28,9 @@ def send_mp(
     """
 
     # Creating the thread
+    limit = PrivateTopic._meta.get_field('title').max_length
     n_topic = PrivateTopic()
-    n_topic.title = title[:80]
+    n_topic.title = title[:limit]
     n_topic.subtitle = subtitle
     n_topic.pubdate = datetime.now()
     n_topic.author = author
@@ -54,52 +56,36 @@ def send_mp(
     # send email
     if send_by_mail:
         if direct:
-            subject = u"{} : {}".format(settings.ZDS_APP['site']['abbr'], n_topic.title)
+            subject = u"{} : {}".format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
             from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                            settings.ZDS_APP['site']['email_noreply'])
             for part in users:
-                message_html = get_template('email/mp/direct.html').render(
-                    Context({
-                        'msg': emarkdown(text)
-                    })
-                )
-                message_txt = get_template('email/mp/direct.txt').render(
-                    Context({
-                        'msg': text
-                    })
-                )
+                message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
+                message_txt = render_to_string('email/direct.txt', {'msg': text})
 
-                msg = EmailMultiAlternatives(
-                    subject, message_txt, from_email, [
-                        part.email])
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
                 msg.attach_alternative(message_html, "text/html")
                 try:
                     msg.send()
                 except:
                     msg = None
         else:
-            subject = u"{} - MP: {}".format(settings.ZDS_APP['site']['abbr'], n_topic.title)
+            subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
+                                             _(u'Message Privé'),
+                                             n_topic.title)
             from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                            settings.ZDS_APP['site']['email_noreply'])
             for part in users:
-                message_html = get_template('email/mp/new.html').render(
-                    Context({
-                        'username': part.username,
-                        'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
-                        'author': author.username
-                    })
-                )
-                message_txt = get_template('email/mp/new.txt').render(
-                    Context({
-                        'username': part.username,
-                        'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
-                        'author': author.username
-                    })
-                )
+                context = {
+                    'username': part.username,
+                    'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
+                    'author': author.username,
+                    'site_name': settings.ZDS_APP['site']['litteral_name']
+                }
+                message_html = render_to_string('email/mp/new.html', context)
+                message_txt = render_to_string('email/mp/new.txt', context)
 
-                msg = EmailMultiAlternatives(
-                    subject, message_txt, from_email, [
-                        part.email])
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
                 msg.attach_alternative(message_html, "text/html")
                 try:
                     msg.send()

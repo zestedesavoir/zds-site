@@ -1,10 +1,8 @@
+{% extends "email/base_from_staff.txt" %}
 {% load i18n %}
-{% trans "Bonjour" %} {{ username }},
 
-{{ author }} {% trans "vous a envoyé un message privé sur" %} {{app.site.litteral_name}}
+{% block content_from_staff %}
+{{ author }} {% trans "vous a envoyé un message privé sur" %} {{ site_name }}.
 
-{% trans "Pour le lire, cliquez ou recopiez l'url suivante" %} : {{ url }}
-
-{% trans "Cordialement" %},
-
-{% trans "L'équipe" %} {{app.site.litteral_name}}
+{% trans "Pour le lire," %} {% trans "cliquez ou recopiez l'url suivante" %} : {{ url }}
+{% endblock %}

@@ -7,7 +7,6 @@ from math import ceil
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import mark_read, never_privateread, PrivateTopicRead
-from zds.utils import slugify
 from zds import settings
 
 # by moment, i wrote the scenario to be simpler
@@ -38,9 +37,7 @@ class PrivateTopicTest(TestCase):
         self.assertEqual(self.topic1.__unicode__(), self.topic1.title)
 
     def test_absolute_url(self):
-        url = reverse(
-            'zds.mp.views.topic',
-            args=[self.topic1.pk, slugify(self.topic1.title)])
+        url = reverse('private-posts-list', args=[self.topic1.pk, self.topic1.slug()])
 
         self.assertEqual(self.topic1.get_absolute_url(), url)
 
@@ -173,7 +170,7 @@ class PrivatePostTest(TestCase):
             position_in_topic=2)
 
     def test_unicode(self):
-        title = u'<Post pour "{0}", #{1}>'.format(
+        title = u'<Post pour « {0} », #{1}>'.format(
             self.post1.privatetopic,
             self.post1.pk)
         self.assertEqual(title, self.post1.__unicode__())
@@ -217,14 +214,10 @@ class PrivateTopicReadTest(TestCase):
     def test_unicode(self):
         """ test the unicode return """
 
-        ref = u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic1,
-                                                       self.profile2.user,
-                                                       self.post2.pk)
+        ref = u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.topic1, self.profile2.user, self.post2.pk)
         mark_read(self.topic1, self.profile2.user)
-        pt = PrivateTopicRead.objects.filter(
-            privatetopic=self.topic1,
-            user=self.profile2.user)
-        self.assertEqual(str(pt[0]), ref)
+        private_topic = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.profile2.user).first()
+        self.assertEqual(private_topic.__unicode__(), ref)
 
 
 class FunctionTest(TestCase):

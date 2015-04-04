@@ -109,7 +109,7 @@
                 </a>
             </li>
             <li>
-                <a  href="{% url "zds.mp.views.new" %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
+                <a  href="{% url 'mp-new' %}?{% for username in authors.all %}&amp;username={{ username }}{% endfor %}"
                     class="ico-after cite blue"
                 >
                     {% trans "Envoyer un MP" %}
@@ -140,7 +140,7 @@
                     <li>
                         <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="ico-after lock blue unread">
+                            <button type="submit" class="ico-after lock blue">
                                 {% trans "Réserver" %}
                             </button>
                         </form>
@@ -180,8 +180,8 @@
                     {% else %}
                         <li>
                             <a href="#unreservation" class="open-modal ico-after lock blue">
-                                {% blocktrans %}
-                                    Réservé par <strong>{{ validation.validator.username }}</strong>, le retirer
+                                {% blocktrans with valido=validation.validator.username %}
+                                    Réservé par <strong>{{ valido }}</strong>, le retirer
                                 {% endblocktrans %}
                             </a>
                             <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">

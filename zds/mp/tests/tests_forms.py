@@ -2,9 +2,11 @@
 
 from django.test import TestCase
 
-from zds.member.factories import ProfileFactory, StaffFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.forms import PrivateTopicForm, PrivatePostForm
 from zds.mp.factories import PrivateTopicFactory
+from zds.settings import ZDS_APP
+from django.contrib.auth.models import Group
 
 
 class PrivateTopicFormTest(TestCase):
@@ -12,14 +14,16 @@ class PrivateTopicFormTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
-        self.staff1 = StaffFactory()
+        self.staff1 = StaffProfileFactory()
+        bot = Group(name=ZDS_APP["member"]["bot_group"])
+        bot.save()
 
     def test_valid_topic_form(self):
         """  Reference valid case """
         data = {
             'participants':
-                self.profile1.user.username
-                + ',' + self.staff1.username,
+                self.profile1.user.username +
+                ',' + self.staff1.user.username,
             'title': 'Test title',
             'subtitle': 'Test subtitle',
             'text': 'blabla'
@@ -123,6 +127,17 @@ class PrivateTopicFormTest(TestCase):
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())
 
+    def test_invalid_topic_form_comma(self):
+        """ Cas when participants is only a comma """
+        data = {
+            'participants': ',',
+            'title': 'Test title',
+            'subtitle': 'Test subtitle',
+            'text': 'Test text'
+        }
+        form = PrivateTopicForm(self.profile1.user.username, data=data)
+        self.assertFalse(form.is_valid())
+
 
 class PrivatePostFormTest(TestCase):
 
@@ -135,7 +150,7 @@ class PrivatePostFormTest(TestCase):
             'text': 'blabla'
         }
 
-        form = PrivatePostForm(self.topic, self.profile.user, data=data)
+        form = PrivatePostForm(self.topic, data=data)
         self.assertTrue(form.is_valid())
 
     def test_invalid_form_post_empty_text(self):
@@ -143,9 +158,9 @@ class PrivatePostFormTest(TestCase):
             'text': ' '
         }
 
-        form = PrivatePostForm(self.topic, self.profile.user, data=data)
+        form = PrivatePostForm(self.topic, data=data)
         self.assertFalse(form.is_valid())
 
     def test_invalid_form_post_no_text(self):
-        form = PrivatePostForm(self.topic, self.profile.user, data={})
+        form = PrivatePostForm(self.topic, data={})
         self.assertFalse(form.is_valid())

@@ -14,7 +14,6 @@ except ImportError:
     except ImportError:
         import json as json_reader
 import json
-import json as json_writer
 import shutil
 import re
 import zipfile
@@ -33,8 +32,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q, Count
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, Actor
@@ -124,7 +123,7 @@ def list_validation(request):
 
     try:
         subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
+    except (KeyError, ValueError, Http404):
         subcategory = None
 
     # Orphan validation. There aren't validator attached to the validations.
@@ -163,9 +162,9 @@ def list_validation(request):
             validations = Validation.objects.filter(
                 Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition").all()
         else:
-            validations = Validation.objects.filter(Q(status="PENDING")
-                                                    | Q(status="PENDING_V"
-                                                        )).filter(tutorial__subcategory__in=[subcategory]) \
+            validations = Validation.objects.filter(Q(status="PENDING") |
+                                                    Q(status="PENDING_V")
+                                                    ).filter(tutorial__subcategory__in=[subcategory]) \
                 .order_by("date_proposition")\
                 .all()
     return render(request, "tutorial/validation/index.html",
@@ -249,7 +248,7 @@ def history_validation(request, tutorial_pk):
 
     try:
         subcategory = get_object_or_404(Category, pk=request.GET["subcategory"])
-    except (KeyError, Http404):
+    except (KeyError, ValueError, Http404):
         subcategory = None
     if subcategory is None:
         validations = \
@@ -295,7 +294,7 @@ def reject_tutorial(request):
         tutorial.pubdate = None
         tutorial.save()
         messages.info(request, _(u"Le tutoriel a bien été refusé."))
-        comment_reject = '\n'.join(['> '+line for line in validation.comment_validator.split('\n')])
+        comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
         # send feedback
         msg = (
             _(u'Désolé, le zeste **{0}** n\'a malheureusement '
@@ -320,14 +319,14 @@ def reject_tutorial(request):
             True,
             direct=False,
         )
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
     else:
         messages.error(request,
                        _(u"Vous devez avoir réservé ce tutoriel "
                          u"pour pouvoir le refuser."))
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
 
 
 @can_write_and_read_now
@@ -392,14 +391,14 @@ def valid_tutorial(request):
             True,
             direct=False,
         )
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
     else:
         messages.error(request,
                        _(u"Vous devez avoir réservé ce tutoriel "
                          u"pour pouvoir le valider."))
-        return redirect(tutorial.get_absolute_url() + "?version="
-                        + validation.version)
+        return redirect(tutorial.get_absolute_url() + "?version=" +
+                        validation.version)
 
 
 @can_write_and_read_now
@@ -428,8 +427,8 @@ def invalid_tutorial(request, tutorial_pk):
     tutorial.pubdate = None
     tutorial.save()
     messages.success(request, _(u"Le tutoriel a bien été dépublié."))
-    return redirect(tutorial.get_absolute_url() + "?version="
-                    + validation.version)
+    return redirect(tutorial.get_absolute_url() + "?version=" +
+                    validation.version)
 
 
 # User actions on tutorial.
@@ -537,6 +536,9 @@ def delete_tutorial(request, tutorial_pk):
         messages.success(request,
                          _(u'Le tutoriel {0} a bien '
                            u'été supprimé.').format(tutorial.title))
+        beta_topic = Topic.objects.get_beta_topic_of(tutorial)
+        if beta_topic is not None:
+            beta_topic.delete()
         tutorial.delete()
     else:
         tutorial.authors.remove(request.user)
@@ -570,11 +572,14 @@ def modify_tutorial(request):
                 tutorial.pk,
                 tutorial.slug,
             ])
-            author_username = request.POST["author"]
+            author_username = request.POST["author"].strip()
             author = None
             try:
                 author = User.objects.get(username=author_username)
+                if author.profile.is_private():
+                    raise User.DoesNotExist
             except User.DoesNotExist:
+                messages.error(request, _(u'Utilisateur inexistant ou introuvable.'))
                 return redirect(redirect_url)
             tutorial.authors.add(author)
             tutorial.save()
@@ -717,8 +722,8 @@ def modify_tutorial(request):
                            u'La beta du tutoriel est de nouveau active.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                    settings.ZDS_APP['site']['url']
-                                                                    + tutorial.get_absolute_url_beta()))
+                                                                    settings.ZDS_APP['site']['url'] +
+                                                                    tutorial.get_absolute_url_beta()))
                     unlock_topic(topic, msg)
                     send_post(topic, msg_up)
 
@@ -759,8 +764,8 @@ def modify_tutorial(request):
                            u'La beta du tutoriel a été mise à jour.'
                            u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
                            u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                    settings.ZDS_APP['site']['url']
-                                                                    + tutorial.get_absolute_url_beta()))
+                                                                    settings.ZDS_APP['site']['url'] +
+                                                                    tutorial.get_absolute_url_beta()))
                     unlock_topic(topic, msg)
                     send_post(topic, msg_up)
                 messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
@@ -947,8 +952,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
             for ext in chapter["extracts"]:
                 ext["position_in_chapter"] = cpt
                 ext["path"] = tutorial.get_prod_path()
-                text = open(os.path.join(tutorial.get_prod_path(), ext["text"]
-                                         + ".html"), "r")
+                text = open(os.path.join(tutorial.get_prod_path(), ext["text"] +
+                                         ".html"), "r")
                 ext["txt"] = text.read()
                 text.close()
                 cpt += 1
@@ -1158,8 +1163,8 @@ def edit_tutorial(request):
     # Retrieve current tutorial;
 
     try:
-        tutorial_pk = request.GET["tutoriel"]
-    except KeyError:
+        tutorial_pk = int(request.GET["tutoriel"])
+    except (KeyError, ValueError):
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
@@ -1312,31 +1317,31 @@ def view_part(
     find = False
     cpt_p = 1
     for part in parts:
+        part["tutorial"] = tutorial
+        part["path"] = tutorial.get_path()
+        part["slug"] = slugify(part["title"])
+        part["position_in_tutorial"] = cpt_p
+
+        cpt_c = 1
+        for chapter in part["chapters"]:
+            chapter["part"] = part
+            chapter["path"] = tutorial.get_path()
+            chapter["slug"] = slugify(chapter["title"])
+            chapter["type"] = "BIG"
+            chapter["position_in_part"] = cpt_c
+            chapter["position_in_tutorial"] = cpt_c * cpt_p
+            cpt_e = 1
+            for ext in chapter["extracts"]:
+                ext["chapter"] = chapter
+                ext["position_in_chapter"] = cpt_e
+                ext["path"] = tutorial.get_path()
+                cpt_e += 1
+            cpt_c += 1
         if part_pk == str(part["pk"]):
             find = True
-            part["tutorial"] = tutorial
-            part["path"] = tutorial.get_path()
-            part["slug"] = slugify(part["title"])
-            part["position_in_tutorial"] = cpt_p
             part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
             part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
-            cpt_c = 1
-            for chapter in part["chapters"]:
-                chapter["part"] = part
-                chapter["path"] = tutorial.get_path()
-                chapter["slug"] = slugify(chapter["title"])
-                chapter["type"] = "BIG"
-                chapter["position_in_part"] = cpt_c
-                chapter["position_in_tutorial"] = cpt_c * cpt_p
-                cpt_e = 1
-                for ext in chapter["extracts"]:
-                    ext["chapter"] = chapter
-                    ext["position_in_chapter"] = cpt_e
-                    ext["path"] = tutorial.get_path()
-                    cpt_e += 1
-                cpt_c += 1
             final_part = part
-            break
         cpt_p += 1
 
     # if part can't find
@@ -1418,7 +1423,7 @@ def view_part_online(
     if not find:
         raise Http404
 
-    return render(request, "tutorial/part/view_online.html", {"part": final_part})
+    return render(request, "tutorial/part/view_online.html", {"tutorial": mandata, "part": final_part})
 
 
 @can_write_and_read_now
@@ -1427,8 +1432,8 @@ def add_part(request):
     """Add a new part."""
 
     try:
-        tutorial_pk = request.GET["tutoriel"]
-    except KeyError:
+        tutorial_pk = int(request.GET["tutoriel"])
+    except (KeyError, ValueError):
         raise Http404
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
@@ -1549,9 +1554,7 @@ def edit_part(request):
 
     try:
         part_pk = int(request.GET["partie"])
-    except KeyError:
-        raise Http404
-    except ValueError:
+    except (KeyError, ValueError):
         raise Http404
 
     part = get_object_or_404(Part, pk=part_pk)
@@ -1653,13 +1656,12 @@ def view_chapter(
     mandata = json_reader.loads(manifest)
     tutorial.load_dic(mandata, sha=sha)
 
-    parts = mandata["parts"]
     cpt_p = 1
     final_chapter = None
     chapter_tab = []
     final_position = 0
     find = False
-    for part in parts:
+    for part in mandata["parts"]:
         cpt_c = 1
         part["slug"] = slugify(part["title"])
         part["get_absolute_url"] = reverse(
@@ -1669,7 +1671,9 @@ def view_chapter(
                 tutorial.slug,
                 part["pk"],
                 part["slug"]])
-        part["tutorial"] = tutorial
+        part["tutorial"] = mandata
+        part["position_in_tutorial"] = cpt_p
+        part["get_chapters"] = part["chapters"]
         for chapter in part["chapters"]:
             chapter["part"] = part
             chapter["path"] = tutorial.get_path()
@@ -1677,8 +1681,8 @@ def view_chapter(
             chapter["type"] = "BIG"
             chapter["position_in_part"] = cpt_c
             chapter["position_in_tutorial"] = cpt_c * cpt_p
-            chapter["get_absolute_url"] = part["get_absolute_url"] \
-                + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
+            chapter["get_absolute_url"] = part["get_absolute_url"] + "{0}/{1}/" \
+                                                                     .format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
                 chapter["intro"] = get_blob(repo.commit(sha).tree,
@@ -1704,10 +1708,8 @@ def view_chapter(
     if not find:
         raise Http404
 
-    prev_chapter = (chapter_tab[final_position - 1] if final_position
-                    > 0 else None)
-    next_chapter = (chapter_tab[final_position + 1] if final_position + 1
-                    < len(chapter_tab) else None)
+    prev_chapter = (chapter_tab[final_position - 1] if final_position > 0 else None)
+    next_chapter = (chapter_tab[final_position + 1] if final_position + 1 < len(chapter_tab) else None)
 
     if tutorial.js_support:
         is_js = "js"
@@ -1834,8 +1836,8 @@ def add_chapter(request):
     """Add a new chapter to given part."""
 
     try:
-        part_pk = request.GET["partie"]
-    except KeyError:
+        part_pk = int(request.GET["partie"])
+    except (KeyError, ValueError):
         raise Http404
     part = get_object_or_404(Part, pk=part_pk)
 
@@ -2000,9 +2002,7 @@ def edit_chapter(request):
 
     try:
         chapter_pk = int(request.GET["chapitre"])
-    except KeyError:
-        raise Http404
-    except ValueError:
+    except (KeyError, ValueError):
         raise Http404
 
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
@@ -2011,8 +2011,8 @@ def edit_chapter(request):
 
     # Make sure the user is allowed to do that
 
-    if (big and request.user not in chapter.part.tutorial.authors.all()
-        or small and request.user not in chapter.tutorial.authors.all())\
+    if (big and request.user not in chapter.part.tutorial.authors.all() or
+        small and request.user not in chapter.tutorial.authors.all())\
             and not request.user.has_perm("tutorial.change_tutorial"):
         raise PermissionDenied
     introduction = os.path.join(chapter.get_path(), "introduction.md")
@@ -2089,9 +2089,7 @@ def add_extract(request):
 
     try:
         chapter_pk = int(request.GET["chapitre"])
-    except KeyError:
-        raise Http404
-    except ValueError:
+    except (KeyError, ValueError):
         raise Http404
 
     chapter = get_object_or_404(Chapter, pk=chapter_pk)
@@ -2150,8 +2148,8 @@ def add_extract(request):
 def edit_extract(request):
     """Edit extract."""
     try:
-        extract_pk = request.GET["extrait"]
-    except KeyError:
+        extract_pk = int(request.GET["extrait"])
+    except (KeyError, ValueError):
         raise Http404
     extract = get_object_or_404(Extract, pk=extract_pk)
     part = extract.chapter.part
@@ -2433,12 +2431,12 @@ def import_content(
         tutorial.authors.add(request.user)
         part_count = 1
         for partie in tree.xpath("/bigtuto/parties/partie"):
-            part_title = tree.xpath("/bigtuto/parties/partie["
-                                    + str(part_count) + "]/titre")[0]
-            part_intro = tree.xpath("/bigtuto/parties/partie["
-                                    + str(part_count) + "]/introduction")[0]
-            part_conclu = tree.xpath("/bigtuto/parties/partie["
-                                     + str(part_count) + "]/conclusion")[0]
+            part_title = tree.xpath("/bigtuto/parties/partie[" +
+                                    str(part_count) + "]/titre")[0]
+            part_intro = tree.xpath("/bigtuto/parties/partie[" +
+                                    str(part_count) + "]/introduction")[0]
+            part_conclu = tree.xpath("/bigtuto/parties/partie[" +
+                                     str(part_count) + "]/conclusion")[0]
             part = Part()
             part.title = part_title.text.strip()
             part.position_in_tutorial = part_count
@@ -2460,9 +2458,9 @@ def import_content(
                 action="add",
             )
             chapter_count = 1
-            for chapitre in tree.xpath("/bigtuto/parties/partie["
-                                       + str(part_count)
-                                       + "]/chapitres/chapitre"):
+            for chapitre in tree.xpath("/bigtuto/parties/partie[" +
+                                       str(part_count) +
+                                       "]/chapitres/chapitre"):
                 chapter_title = tree.xpath(
                     "/bigtuto/parties/partie[" +
                     str(part_count) +
@@ -2510,9 +2508,9 @@ def import_content(
                     action="add",
                 )
                 extract_count = 1
-                for souspartie in tree.xpath("/bigtuto/parties/partie["
-                                             + str(part_count) + "]/chapitres/chapitre["
-                                             + str(chapter_count) + "]/sousparties/souspartie"):
+                for souspartie in tree.xpath("/bigtuto/parties/partie[" +
+                                             str(part_count) + "]/chapitres/chapitre[" +
+                                             str(chapter_count) + "]/sousparties/souspartie"):
                     extract_title = tree.xpath(
                         "/bigtuto/parties/partie[" +
                         str(part_count) +
@@ -2594,10 +2592,10 @@ def import_content(
         chapter.save()
         extract_count = 1
         for souspartie in tree.xpath("/minituto/sousparties/souspartie"):
-            extract_title = tree.xpath("/minituto/sousparties/souspartie["
-                                       + str(extract_count) + "]/titre")[0]
-            extract_text = tree.xpath("/minituto/sousparties/souspartie["
-                                      + str(extract_count) + "]/texte")[0]
+            extract_title = tree.xpath("/minituto/sousparties/souspartie[" +
+                                       str(extract_count) + "]/titre")[0]
+            extract_text = tree.xpath("/minituto/sousparties/souspartie[" +
+                                      str(extract_count) + "]/texte")[0]
             extract = Extract()
             extract.title = extract_title.text.strip()
             extract.position_in_chapter = extract_count
@@ -2709,7 +2707,7 @@ def maj_repo_tuto(
             conclu.close()
             index.add(["conclusion.md"])
         aut_user = str(request.user.pk)
-        aut_email = str(request.user.email)
+        aut_email = request.user.email
         if aut_email is None or aut_email.strip() == "":
             aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
         com = index.commit(
@@ -2770,7 +2768,7 @@ def maj_repo_part(
             index.add([os.path.join(part.get_path(relative=True), "conclusion.md"
                                     )])
     aut_user = str(request.user.pk)
-    aut_email = str(request.user.email)
+    aut_email = request.user.email
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['litteral_name'])
     com_part = index.commit(
@@ -2848,7 +2846,7 @@ def maj_repo_chapter(
         chapter.part.tutorial.dump_json(path=man_path)
     index.add(["manifest.json"])
     aut_user = str(request.user.pk)
-    aut_email = str(request.user.email)
+    aut_email = request.user.email
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     com_ch = index.commit(
@@ -2922,7 +2920,7 @@ def maj_repo_extract(
 
     index.add(["manifest.json"])
     aut_user = str(request.user.pk)
-    aut_email = str(request.user.email)
+    aut_email = request.user.email
     if aut_email is None or aut_email.strip() == "":
         aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     com_ex = index.commit(
@@ -2952,7 +2950,10 @@ def insert_into_zip(zip_file, git_tree):
 
 def download(request):
     """Download a tutorial."""
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    except (KeyError, ValueError):
+        raise Http404
 
     repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], tutorial.get_phy_slug())
     repo = Repo(repo_path)
@@ -2975,8 +2976,10 @@ def download(request):
 @permission_required("tutorial.change_tutorial", raise_exception=True)
 def download_markdown(request):
     """Download a markdown tutorial."""
-
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=int(request.GET["tutoriel"]))
+    except:
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -2992,7 +2995,10 @@ def download_markdown(request):
 def download_html(request):
     """Download a pdf tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=int(request.GET["tutoriel"]))
+    except (KeyError, ValueError):
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3010,7 +3016,10 @@ def download_html(request):
 def download_pdf(request):
     """Download a pdf tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=int(request.GET["tutoriel"]))
+    except (KeyError, ValueError):
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3028,7 +3037,10 @@ def download_pdf(request):
 def download_epub(request):
     """Download an epub tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    try:
+        tutorial = get_object_or_404(Tutorial, pk=request.GET["tutoriel"])
+    except (KeyError, ValueError):
+        raise Http404
     phy_path = os.path.join(
         tutorial.get_prod_path(),
         tutorial.slug +
@@ -3240,19 +3252,19 @@ def mep(tutorial, sha):
     # load pandoc
 
     os.chdir(prod_path)
-    os.system(settings.PANDOC_LOC
-              + "pandoc --latex-engine=xelatex -s -S --toc "
-              + os.path.join(prod_path, tutorial.slug)
-              + ".md -o " + os.path.join(prod_path,
-                                         tutorial.slug) + ".html" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " "
-              + os.path.join(prod_path, tutorial.slug) + ".md "
-              + "-o " + os.path.join(prod_path, tutorial.slug)
-              + ".pdf" + pandoc_debug_str)
-    os.system(settings.PANDOC_LOC + "pandoc -s -S --toc "
-              + os.path.join(prod_path, tutorial.slug)
-              + ".md -o " + os.path.join(prod_path,
-                                         tutorial.slug) + ".epub" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC +
+              "pandoc --latex-engine=xelatex -s -S --toc " +
+              os.path.join(prod_path, tutorial.slug) +
+              ".md -o " + os.path.join(prod_path,
+                                       tutorial.slug) + ".html" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
+              os.path.join(prod_path, tutorial.slug) + ".md " +
+              "-o " + os.path.join(prod_path, tutorial.slug) +
+              ".pdf" + pandoc_debug_str)
+    os.system(settings.PANDOC_LOC + "pandoc -s -S --toc " +
+              os.path.join(prod_path, tutorial.slug) +
+              ".md -o " + os.path.join(prod_path,
+                                       tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.SITE_ROOT)
     return (output, err)
 
@@ -3275,8 +3287,8 @@ def answer(request):
     """Adds an answer from a user to an tutorial."""
 
     try:
-        tutorial_pk = request.GET["tutorial"]
-    except KeyError:
+        tutorial_pk = int(request.GET["tutorial"])
+    except (KeyError, ValueError):
         raise Http404
 
     # Retrieve current tutorial.
@@ -3323,8 +3335,8 @@ def answer(request):
             form = NoteForm(tutorial, request.user,
                             initial={"text": data["text"]})
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(data["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request, "tutorial/comment/new.html", {
                     "tutorial": tutorial,
@@ -3369,7 +3381,10 @@ def answer(request):
 
         if "cite" in request.GET:
             resp = {}
-            note_cite_pk = request.GET["cite"]
+            try:
+                note_cite_pk = request.GET["cite"]
+            except ValueError:
+                raise Http404
             note_cite = Note.objects.get(pk=note_cite_pk)
             if not note_cite.is_visible:
                 raise PermissionDenied
@@ -3458,8 +3473,8 @@ def edit_note(request):
     """Edit the given user's note."""
 
     try:
-        note_pk = request.GET["message"]
-    except KeyError:
+        note_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         raise Http404
     note = get_object_or_404(Note, pk=note_pk)
     g_tutorial = None
@@ -3507,11 +3522,11 @@ def edit_note(request):
         if "preview" in request.POST:
             form = NoteForm(g_tutorial, request.user,
                             initial={"text": request.POST["text"]})
-            form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
-                + "?message=" + str(note_pk)
+            form.helper.form_action = reverse("zds.tutorial.views.edit_note") + \
+                "?message=" + str(note_pk)
             if request.is_ajax():
-                return HttpResponse(json.dumps({"text": emarkdown(request.POST["text"])}),
-                                    content_type='application/json')
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                return StreamingHttpResponse(content)
             else:
                 return render(request,
                               "tutorial/comment/edit.html",
@@ -3530,8 +3545,8 @@ def edit_note(request):
         return redirect(note.get_absolute_url())
     else:
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
-        form.helper.form_action = reverse("zds.tutorial.views.edit_note") \
-            + "?message=" + str(note_pk)
+        form.helper.form_action = reverse("zds.tutorial.views.edit_note") + \
+            "?message=" + str(note_pk)
         return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 
 
@@ -3540,8 +3555,8 @@ def edit_note(request):
 def like_note(request):
     """Like a note."""
     try:
-        note_pk = request.GET["message"]
-    except KeyError:
+        note_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         raise Http404
     resp = {}
     note = get_object_or_404(Note, pk=note_pk)
@@ -3574,7 +3589,7 @@ def like_note(request):
     resp["upvotes"] = note.like
     resp["downvotes"] = note.dislike
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
 
@@ -3585,8 +3600,8 @@ def dislike_note(request):
     """Dislike a note."""
 
     try:
-        note_pk = request.GET["message"]
-    except KeyError:
+        note_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         raise Http404
     resp = {}
     note = get_object_or_404(Note, pk=note_pk)
@@ -3617,44 +3632,167 @@ def dislike_note(request):
     resp["upvotes"] = note.like
     resp["downvotes"] = note.dislike
     if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
+        return HttpResponse(json.dumps(resp))
     else:
         return redirect(note.get_absolute_url())
+
+
+@login_required
+@require_POST
+def warn_typo(request, obj_type, obj_pk):
+    """Warn author(s) about a mistake in its (their) tutorial by sending him/her (them) a private message.
+    `obj` is ["tutorial"|"chapter"]"""
+
+    # need profile :
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # get tutorial (and object)
+    chapter = None
+    if obj_type == 'tutorial':
+        tutorial = get_object_or_404(Tutorial, pk=obj_pk)
+    elif obj_type == 'chapter':
+        chapter = get_object_or_404(Chapter, pk=obj_pk)
+        if chapter.part:
+            tutorial = chapter.part.tutorial
+        else:
+            raise Http404  # normally, warn about mistake in chapter is only possible with big tutorials
+    else:
+        raise Http404  # unknown `obj_type`
+
+    authors_reachable = Profile.objects.contactable_members()\
+        .filter(user__in=tutorial.authors.all())
+    authors = []
+    for author in authors_reachable:
+        authors.append(author.user)
+
+    # check if the warn is done on a public or beta version :
+    is_on_line = False
+    is_beta = False
+
+    if not request.POST['version_tutorial']:
+        raise Http404
+    else:
+        if tutorial.in_beta() and tutorial.sha_beta == request.POST['version_tutorial']:
+            is_beta = True
+        elif tutorial.on_line() and tutorial.sha_public == request.POST['version_tutorial']:
+            is_on_line = True
+        else:
+            raise Http404  # Mistake in draft version. Only possible for (non-author) admin, but useless
+
+    if len(authors) == 0:
+        if tutorial.authors.count() > 1:
+            messages.error(request, _(u"Les auteurs de ce tutoriel sont malheureusement injoignables"))
+        else:
+            messages.error(request, _(u"L'auteur de ce tutoriel est malheureusement injoignable"))
+    else:
+        # then, fetch explanation :
+        explanation = ''
+        if 'explication' not in request.POST or request.POST['explication'] is None:
+            messages.error(request, _(u'Votre proposition de correction est vide'))
+        else:
+            explanation = request.POST['explication']
+            explanation = '\n'.join(['> ' + line for line in explanation.split('\n')])
+
+            # is the user trying to send PM to himself ?
+            if request.user in authors:
+                messages.error(request, _(u'Impossible d\'envoyer la correction car vous êtes auteur de ce tutoriel!'))
+            else:
+                # create message :
+                msg = ''
+                if is_on_line:
+                    msg = _(u'[{}]({}) souhaite vous proposer une correction pour votre tutoriel [{}]({}).\n\n').format(
+                        request.user.username,
+                        settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                        tutorial.title,
+                        settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online()
+                    )
+                    # special case of mistake in chapter :
+                    if obj_type == 'chapter':
+                        msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                            chapter.title,
+                            settings.ZDS_APP['site']['url'] + chapter.get_absolute_url_online(),
+                            chapter.part.title,
+                            settings.ZDS_APP['site']['url'] + chapter.part.get_absolute_url_online()
+                        )
+                elif is_beta:
+                    msg = _(u'[{}]({}) souhaite vous proposer une correction sur votre tutoriel en bêta [{}]({}).\n\n')\
+                        .format(request.user.username,
+                                settings.ZDS_APP['site']['url'] + profile.get_absolute_url(),
+                                tutorial.title,
+                                settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()
+                                )
+                    # special case of mistake in chapter :
+                    if obj_type == 'chapter':
+                        msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
+                            chapter.title,
+                            settings.ZDS_APP['site']['url'] +
+                            chapter.get_absolute_url() +
+                            '?version=' + tutorial.sha_beta,
+                            chapter.part.title,
+                            settings.ZDS_APP['site']['url'] +
+                            chapter.part.get_absolute_url() +
+                            '?version=' + tutorial.sha_beta
+                        )
+
+                msg += _(u'Voici son message :\n\n{}').format(explanation)
+
+                # send it :
+                send_mp(request.user,
+                        authors,
+                        _(u"Proposition de correction"),
+                        tutorial.title,
+                        msg,
+                        leave=False)
+                messages.success(request, _(u'Votre correction a bien été proposée !'))
+
+    # return to page :
+    if obj_type == 'tutorial':
+        if is_on_line:
+            return redirect(tutorial.get_absolute_url_online())
+        elif is_beta:
+            return redirect(tutorial.get_absolute_url_beta())
+    elif obj_type == 'chapter':
+        if is_on_line:
+            return redirect(chapter.get_absolute_url_online())
+        elif is_beta:
+            return redirect(chapter.get_absolute_url() + '?version=' + tutorial.sha_beta)
 
 
 def help_tutorial(request):
     """fetch all tutorials that needs help"""
 
     # Retrieve type of the help. Default value is any help
-    type = request.GET.get('type', None)
+    filterslug = request.GET.get('type', None)
 
-    if type is not None:
-        aide = get_object_or_404(HelpWriting, slug=type)
+    if filterslug is not None:
+        aide = get_object_or_404(HelpWriting, slug=filterslug)
         tutos = Tutorial.objects.filter(helps=aide) \
+                                .order_by('pubdate', '-update') \
                                 .all()
     else:
         tutos = Tutorial.objects.annotate(total=Count('helps'), shasize=Count('sha_beta')) \
                                 .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+                                .order_by('pubdate', '-total', '-update') \
                                 .all()
 
     # Paginator
     paginator = Paginator(tutos, settings.ZDS_APP['tutorial']['helps_per_page'])
-    page = request.GET.get('page')
 
+    # Get the `page` argument (if empty `page = 1` by default)
+    page = request.GET.get('page', 1)
+
+    # Check if `page` is correct (integer and exists)
     try:
-        shown_tutos = paginator.page(page)
         page = int(page)
-    except PageNotAnInteger:
-        shown_tutos = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_tutos = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        shown_tutos = paginator.page(page)
+    except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
+        raise Http404
 
     aides = HelpWriting.objects.all()
 
     return render(request, "tutorial/tutorial/help.html", {
         "tutorials": shown_tutos,
+        "nb_tuto": paginator.count,
         "helps": aides,
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page

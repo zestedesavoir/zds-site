@@ -25,6 +25,7 @@ from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
+from zds.tutorial.managers import TutorialManager
 
 
 TYPE_CHOICES = (
@@ -114,6 +115,8 @@ class Tutorial(models.Model):
 
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
 
+    objects = TutorialManager()
+
     def __unicode__(self):
         return self.title
 
@@ -140,12 +143,12 @@ class Tutorial(models.Model):
 
     def get_absolute_contact_url(self):
         """ Get url to send a new mp for collaboration """
-        get = '?'+urlencode({'title': u'Collaboration - {}'.format(self.title)})
+        get = '?' + urlencode({'title': u'Collaboration - {}'.format(self.title)})
 
         for author in self.authors.all():
-            get += '&'+urlencode({'username': author.username})
+            get += '&' + urlencode({'username': author.username})
 
-        return reverse('zds.mp.views.new')+get
+        return reverse('mp-new') + get
 
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
@@ -220,6 +223,9 @@ class Tutorial(models.Model):
             and self.sha_validation == sha
         mandata['is_on_line'] = self.on_line() and self.sha_public == sha
 
+        if 'licence' in mandata:
+            mandata['licence'] = Licence.objects.filter(code=mandata['licence']).first()
+
         # url:
         mandata['get_absolute_url'] = reverse(
             'zds.tutorial.views.view_tutorial',
@@ -261,8 +267,6 @@ class Tutorial(models.Model):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
-        if 'licence' in data:
-            data['licence'] = Licence.objects.filter(code=data['licence']).first()
         return data
 
     def load_json(self, path=None, online=False):
@@ -279,8 +283,6 @@ class Tutorial(models.Model):
             json_data = open(man_path)
             data = json_reader.load(json_data)
             json_data.close()
-            if 'licence' in data:
-                data['licence'] = Licence.objects.filter(code=data['licence']).first()
             return data
 
     def dump_json(self, path=None):
