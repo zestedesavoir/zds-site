@@ -25,15 +25,17 @@ Un **extrait** est une unité de texte. Il possède un titre (*title*) et un tex
 
 Tout les textes sont formatés en *markdown* (dans la version définie par le ZdS, avec les ajouts).
 
-Conteneur et extraits sont des **objets** (*object*). Dès lors, ils possèdent tout deux un *slug* (litérallement, "limace") : il s'agit d'une chaine de caractère généré à partir du titre de l'objet et qui, tout en restant lisible par un être humain, le simplifie considérablement : un *slug* est uniquement composé de caractères alphanumériques minuscules et non-accentués (`[a-z0-9]*`) ainsi que des caractères `-` (tiret) et `_` (*underscore*)[^underscore]. Ce *slug* a deux utilités : il est employé dans l'URL permetant d'accéder à l'objet et dans le nom de fichier/dossier employer pour le stocker. Dès lors, cette spécification **impose** que ce *slug* soit unique au sein du conteneur parent, et que le *slug* du contenu soit unique au sein de tout les contenu de ZdS (ce qui ne signifie pas que tout les slugs doivent être uniques, tant que ces deux règles sont respectées).
+Conteneur et extraits sont des **objets** (*object*). Dès lors, ils possèdent tout deux un *slug* (litérallement, "limace") : il s'agit d'une chaine de caractère généré à partir du titre de l'objet et qui, tout en restant lisible par un être humain, le simplifie considérablement : un *slug* est uniquement composé de caractères alphanumériques minuscules et non-accentués (``[a-z0-9]*``) ainsi que des caractères ``-`` (tiret) et ``_`` (*underscore*). Ce *slug* a deux utilités : il est employé dans l'URL permetant d'accéder à l'objet et dans le nom de fichier/dossier employer pour le stocker. Dès lors, cette spécification **impose** que ce *slug* soit unique au sein du conteneur parent, et que le *slug* du contenu soit unique au sein de tout les contenu de ZdS (ce qui ne signifie pas que tout les slugs doivent être uniques, tant que ces deux règles sont respectées).
 
-[^underscore]: à noter que l'*underscore* est conservé par compatibilité avec l'ancien système, les nouveaux *slugs* générés par le système d'édition de ZdS n'en contiendront pas.
+.. note::
+
+    À noter que l'*underscore* est conservé par compatibilité avec l'ancien système, les nouveaux *slugs* générés par le système d'édition de ZdS n'en contiendront pas.
 
 .. attention::
 
     Lors du déplacement d'un conteneur ou d'un extrait, les slugs sont modifiés de manière à ce qu'il n'y aie pas de colision.
 
-    À noter que le slug doit être différent de celui donné au nom des introductions et des conclusions éventuelles. L'implémentation du ZdS considère que ceux-ci sont `introduction` et `conclusion`, mais ce n'est pas obligatoire.
+    À noter que le slug doit être différent de celui donné au nom des introductions et des conclusions éventuelles. L'implémentation du ZdS considère que ceux-ci sont ``introduction`` et ``conclusion``, mais ce n'est pas obligatoire.
 
 En fonction de sa position dans l'arborescence du contenu, un conteneur peut aussi bien représenter le tutoriel/article lui-même (s'il est conteneur principal), une partie ou un chapitre. Ainsi, dans l'exemple suivant :
 
@@ -63,7 +65,7 @@ le ``Conteneur 1`` sera rendu par ZdS comme étant un chapitre d'un (moyen-) tut
                +-- Extrait 1
 
 
-le `Conteneur 1` sera rendu par ZdS comme étant une partie d'un (big-) tutoriel, et `Conteneur 2` et `Conteneur 3` comme étant les chapitres de cette partie.
+le ``Conteneur 1`` sera rendu par ZdS comme étant une partie d'un (big-) tutoriel, et ``Conteneur 2`` et ``Conteneur 3`` comme étant les chapitres de cette partie.
 
 Les deux exemples donnés plus haut reprennent l'arboresence typique d'un contenu : Conteneur principal-[conteneur]~*n*~-extraits (ou *n* peut être nul). En fonction de la profondeur de l'arborescence (plus grande distance entre un conteneur enfant et le conteneur principal), le contenu sera nommé de manière différente. S'il s'agit d'un contenu de type tutoriel, on distinguera :
 
@@ -83,15 +85,15 @@ Métadonnées d'un contenu
 
 On distingue actuelement deux types de métadonnées (*metadata*) : celles qui sont versionnées (et donc reprises dans le manifest.json) et celle qui ne le sont pas. La liste exhaustive de ces dernière (à l'heure actuelle) est la suivante :
 
-+ Les *hash* des différentes version du tutoriels (`sha_draft`, `sha_beta`, `sha_public` et `sha_validation`) ;
++ Les *hash* des différentes version du tutoriels (``sha_draft``, ``sha_beta``, ``sha_public`` et ``sha_validation``) ;
 + Les auteurs du contenu ;
 + Les catégories auquel appartient le contenu ;
 + La miniature ;
 + La source du contenu si elle n'as pas été rédigée sur ZdS mais importée avec une licence compatible ;
 + La présence ou pas de JSFiddle dans le contenu ;
-+ Différentes informations temporelles : date de création (`creation_date`), de publication (`pubdate`) et de dernière modification (`update_date`).
++ Différentes informations temporelles : date de création (``creation_date``), de publication (``pubdate``) et de dernière modification (``update_date``).
 
-Ces différentes informations sont stockées dans la base de donnée, au travers du modèle `PublishableContent`. Pour des raisons de facilité, certaines des métadonnées versionnées sont également stockée en base de donnée : le titre, le type de contenu, la licence et la description. En ce qui concerne la version de celle-ci, c'est TOUJOURS celle correspondant **à la version brouillon** qui sont stockées, il ne faut donc **en aucun cas** les employer pour résoudre une URL ou à travers une template correspondant à la version publiée.
+Ces différentes informations sont stockées dans la base de donnée, au travers du modèle ``PublishableContent``. Pour des raisons de facilité, certaines des métadonnées versionnées sont également stockée en base de donnée : le titre, le type de contenu, la licence et la description. En ce qui concerne la version de celle-ci, c'est TOUJOURS celle correspondant **à la version brouillon** qui sont stockées, il ne faut donc **en aucun cas** les employer pour résoudre une URL ou à travers une template correspondant à la version publiée.
 
 Les métadonnées versionnées sont stockées dans le fichier manifest.json
 
@@ -99,7 +101,7 @@ Les métadonnées versionnées sont stockées dans le fichier manifest.json
 Le stockage en pratique
 -----------------------
 
-Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre (dont le nom est le slug du contenu), stocké dans l'endroit défini par la variable `ZDS_APP['content']['repo_path']`. Dans ce dossier ce trouve le fichier manifest.json.
+Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre (dont le nom est le slug du contenu), stocké dans l'endroit défini par la variable ``ZDS_APP['content']['repo_path']``. Dans ce dossier ce trouve le fichier manifest.json.
 
 Pour chaque conteneur, un dossier est créé, qui contient les éventuels fichiers correspondants aux introduction, conclusion et différents extraits, ainsi que des dossiers pour les éventuels conteneurs enfants. Il s'agit de la forme d'un contenu tel que généré par ZdS en utilisant l'éditeur intégré.
 
@@ -120,24 +122,19 @@ Publication d'un contenu ("mise en production")
 Processus de publication
 ------------------------
 
-Apès avoir passé les étapes de validations (`détaillées ailleurs`_), le contenu est près à être publié. Cette action
+Apès avoir passé les étapes de validations (`détaillées ailleurs <./tutorial.html#cycle-de-vie-des-tutoriels>`__), le contenu est près à être publié. Cette action
 est effectuée par un membre du staff. Le but de la publication est
 double : permettre aux visiteurs de lire le contenu, mais aussi
 d’effectuer certains traitements (détaillés par après) afin que celui-ci
 soit sous une forme qui soit plus rapidement affichable par ZdS. C’est
-pourquoi ces contenus ne sont pas stockés au même endroit (voir
-``ZDS_AP['content']['repo_public_path']``
-
-.. _détaillées ailleurs: http://zds-site.readthedocs.org/fr/latest/tutorial/tutorial.html#cycle-de-vie-des-tutoriels
-
-).
+pourquoi ces contenus ne sont pas stockés au même endroit (voir ``ZDS_AP['content']['repo_public_path']``).
 
 La mise en production se passe comme suis :
 
 1. S'il s'agit d'un nouveau contenu (jamais publié), un dossier dont le nom est le slug du contenu est créé. Dans le cas contraire, le contenu de ce dossier est entièrement effacé.
-2. Le manifest.json correspondant à la version de validation (`sha_publication`) est copié dans ce dossier. Il servira principalement à valider les URLs, créer le sommaire et gérer le comportement des boutons "précédents" et "suivants" dans les conteneur dont les enfants sont des extraits (voir ci-dessous).
+2. Le manifest.json correspondant à la version de validation (``sha_publication``) est copié dans ce dossier. Il servira principalement à valider les URLs, créer le sommaire et gérer le comportement des boutons "précédents" et "suivants" dans les conteneur dont les enfants sont des extraits (voir ci-dessous).
 3. L'arborescence des dossiers est conservée pour les conteneur dont les enfants sont des conteneur, et leur éventuelles introduction et conclusion sont parsé en HTML. À l'inverse, pour les conteneurs dont les enfants sont des extraits, un fichier HTML unique est créé, reprenant de manière continue la forme parsée de l'éventuelle introduction, des différents extraits dans l'ordre et de l'éventuelle conclusion.
-4. Le `sha_public` est mis à jour dans la base de donnée et l'objet `Validation` est changé de même.
+4. Le ``sha_public`` est mis à jour dans la base de donnée et l'objet ``Validation`` est changé de même.
 
 Consultation d'un contenu publié
 --------------------------------

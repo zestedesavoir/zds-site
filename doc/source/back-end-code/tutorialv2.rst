@@ -18,6 +18,12 @@ Vues (``views.py``)
 .. automodule:: zds.tutorialv2.views
     :members:
 
+Mixins (``mixins.py``)
+======================
+
+.. automodule:: zds.tutorialv2.mixins
+    :members:
+
 Les importations (``importation.py``)
 =====================================
 
