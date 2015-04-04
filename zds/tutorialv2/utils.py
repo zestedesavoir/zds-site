@@ -113,8 +113,8 @@ def get_last_articles():
 
 
 def never_read(content, user=None):
-    """
-    Check if a content note feed has been read by an user since its last post was added.
+    """Check if a content note feed has been read by an user since its last post was added.
+
     :param content: the content to check
     :return: `True` if it is the case, `False` otherwise
     """
@@ -127,8 +127,8 @@ def never_read(content, user=None):
 
 
 def mark_read(content):
-    """
-    Mark the last tutorial note as read for the user.
+    """Mark the last tutorial note as read for the user.
+
     :param content: the content to mark
     """
     if content.last_note is not None:
@@ -143,15 +143,14 @@ def mark_read(content):
 
 
 def try_adopt_new_child(adoptive_parent, child):
-    """
-    Try the adoptive parent to take the responsability of the child
+    """Try the adoptive parent to take the responsability of the child
+
     :param parent_full_path:
     :param child_slug:
     :param root:
     :raise Http404: if adoptive_parent_full_path is not found on root hierarchy
     :raise TypeError: if the adoptive parent is not allowed to adopt the child due to its type
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
-    :return:
     """
 
     if isinstance(child, Extract):
@@ -166,8 +165,8 @@ def try_adopt_new_child(adoptive_parent, child):
 
 
 def get_target_tagged_tree(movable_child, root):
-    """
-    Gets the tagged tree with deplacement availability
+    """Gets the tagged tree with deplacement availability
+
     :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child
@@ -180,12 +179,12 @@ def get_target_tagged_tree(movable_child, root):
 
 
 def get_target_tagged_tree_for_extract(movable_child, root):
-    """
-    Gets the tagged tree with displacement availability when movable_child is an extract
+    """Gets the tagged tree with displacement availability when movable_child is an extract
+
     :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child
-    tuples are (relative_path, title, level, can_be_a_target)
+    tuples are ``(relative_path, title, level, can_be_a_target)``
     """
     target_tagged_tree = []
     for child in root.traverse(False):
@@ -199,8 +198,8 @@ def get_target_tagged_tree_for_extract(movable_child, root):
 
 
 def get_target_tagged_tree_for_container(movable_child, root):
-    """
-    Gets the tagged tree with displacement availability when movable_child is an extract
+    """Gets the tagged tree with displacement availability when movable_child is an extract
+
     :param movable_child: the container we want to move
     :param root: the VersionnedContent we use as root
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child

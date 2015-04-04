@@ -101,8 +101,8 @@ class Container:
         return isinstance(self.children[0], Extract)
 
     def has_sub_containers(self):
-        """
-        Note : this function rely on the fact that the children can only be of one type.
+        """Note : this function rely on the fact that the children can only be of one type.
+
         :return: `True` if the container has containers as children, `False` otherwise.
         """
         if len(self.children) == 0:
@@ -116,13 +116,14 @@ class Container:
         return len(self.children)
 
     def get_tree_depth(self):
-        """
-        Represent the depth where this container is found
+        """Represent the depth where this container is found
         Tree depth is no more than 2, because there is 3 levels for Containers :
         - PublishableContent (0),
         - Part (1),
         - Chapter (2)
-        Note that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+        .. attention::
+            that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+
         :return: Tree depth
         """
         depth = 0
@@ -133,8 +134,8 @@ class Container:
         return depth
 
     def get_tree_level(self):
-        """
-        Represent the level in the tree of this container, i.e the depth of its deepest child
+        """Represent the level in the tree of this container, i.e the depth of its deepest child
+
         :return: tree level
         """
 
@@ -146,9 +147,9 @@ class Container:
             return 1 + max([i.get_tree_level() for i in self.children])
 
     def has_child_with_path(self, child_path):
-        """
-        Check that the given path represent the full path
+        """Check that the given path represent the full path
         of a child of this container.
+
         :param child_path: the full path (/maincontainer/subc1/subc2/childslug) we want to check
         """
         if self.get_path(True) not in child_path:
@@ -165,9 +166,9 @@ class Container:
         return current
 
     def get_unique_slug(self, title):
-        """
-        Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
+        """Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
         "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
+
         :param title: title from which the slug is generated (with `slugify()`)
         :return: the unique slug
         """
@@ -184,8 +185,8 @@ class Container:
         return new_slug
 
     def add_slug_to_pool(self, slug):
-        """
-        Add a slug to the slug pool to be taken into account when generate a unique slug
+        """Add a slug to the slug pool to be taken into account when generate a unique slug
+
         :param slug: the slug to add
         """
         try:
@@ -224,9 +225,10 @@ class Container:
         return False
 
     def add_container(self, container, generate_slug=False):
-        """
-        Add a child Container, but only if no extract were previously added and tree depth is < 2.
-        Note: this function will also raise an Exception if article, because it cannot contain child container
+        """Add a child Container, but only if no extract were previously added and tree depth is < 2.
+        .. attention::
+            this function will also raise an Exception if article, because it cannot contain child container
+
         :param container: the new container
         :param generate_slug: if `True`, ask the top container an unique slug for this object
         """
@@ -243,8 +245,8 @@ class Container:
             raise InvalidOperationError("Cannot add another level to this container")
 
     def add_extract(self, extract, generate_slug=False):
-        """
-        Add a child container, but only if no container were previously added
+        """Add a child container, but only if no container were previously added
+
         :param extract: the new extract
         :param generate_slug: if `True`, ask the top container an unique slug for this object
         """
@@ -261,8 +263,7 @@ class Container:
             raise InvalidOperationError("Can't add an extract if this container already contains containers.")
 
     def update_children(self):
-        """
-        Update the path for introduction and conclusion for the container and all its children. If the children is an
+        """Update the path for introduction and conclusion for the container and all its children. If the children is an
         extract, update the path to the text instead. This function is useful when `self.slug` has
         changed.
         Note : this function does not account for a different arrangement of the files.
@@ -278,9 +279,9 @@ class Container:
         # TODO : does this function should also rewrite `slug_pool` ?
 
     def get_path(self, relative=False):
-        """
-        Get the physical path to the draft version of the container.
+        """Get the physical path to the draft version of the container.
         Note: this function rely on the fact that the top container is VersionedContainer.
+
         :param relative: if `True`, the path will be relative, absolute otherwise.
         :return: physical path
         """
@@ -290,9 +291,9 @@ class Container:
         return os.path.join(base, self.slug)
 
     def get_prod_path(self):
-        """
-        Get the physical path to the public version of the container.
+        """Get the physical path to the public version of the container.
         Note: this function rely on the fact that the top container is VersionedContainer.
+
         :return: physical path
         """
         base = ''
@@ -353,8 +354,8 @@ class Container:
                             self.conclusion)
 
     def repo_update(self, title, introduction, conclusion, commit_message='', do_commit=True):
-        """
-        Update the container information and commit them into the repository
+        """Update the container information and commit them into the repository
+
         :param title: the new title
         :param introduction: the new introduction text
         :param conclusion: the new conclusion text
@@ -510,9 +511,9 @@ class Container:
             return self.top_container().commit_changes(commit_message)
 
     def move_child_up(self, child_slug):
-        """
-        Change the child's ordering by moving up the child whose slug equals child_slug.
+        """Change the child's ordering by moving up the child whose slug equals child_slug.
         This method **does not** automaticaly update the repo
+
         :param child_slug: the child's slug
         :raise ValueError: if the slug does not refer to an existing child
         :raise IndexError: if the extract is already the first child
@@ -527,9 +528,9 @@ class Container:
         self.children[child_pos - 1].position_in_parent = child_pos
 
     def move_child_down(self, child_slug):
-        """
-        Change the child's ordering by moving down the child whose slug equals child_slug.
+        """Change the child's ordering by moving down the child whose slug equals child_slug.
         This method **does not** automaticaly update the repo
+
         :param child_slug: the child's slug
         :raise ValueError: if the slug does not refer to an existing child
         :raise IndexError: if the extract is already the last child
@@ -544,9 +545,9 @@ class Container:
         self.children[child_pos + 1].position_in_parent = child_pos + 1
 
     def move_child_after(self, child_slug, refer_slug):
-        """
-        Change the child's ordering by moving the child to be below the reference child.
+        """Change the child's ordering by moving the child to be below the reference child.
         This method **does not** automaticaly update the repo
+
         :param child_slug: the child's slug
         :param refer_slug: the referent child's slug.
         :raise ValueError: if one slug does not refer to an existing child
@@ -568,9 +569,9 @@ class Container:
                 self.move_child_up(child_slug)
 
     def move_child_before(self, child_slug, refer_slug):
-        """
-        Change the child's ordering by moving the child to be just above the reference child. .
+        """Change the child's ordering by moving the child to be just above the reference child. .
         This method **does not** automaticaly update the repo
+
         :param child_slug: the child's slug
         :param refer_slug: the referent child's slug.
         :raise ValueError: if one slug does not refer to an existing child
@@ -592,8 +593,8 @@ class Container:
                 self.move_child_up(child_slug)
 
     def traverse(self, only_container=True):
-        """
-        Traverse the container
+        """Traverse the container
+
         :param only_container: if we only want container's paths, not extract
         :return: a generator that traverse all the container recursively (depth traversal)
         """
@@ -906,8 +907,8 @@ class VersionedContent(Container):
             return self.get_absolute_url()
 
     def get_path(self, relative=False, use_current_slug=False):
-        """
-        Get the physical path to the draft version of the Content.
+        """Get the physical path to the draft version of the Content.
+
         :param relative: if `True`, the path will be relative, absolute otherwise.
         :param use_current_slug: if `True`, use `self.slug` instead of `self.slug_last_draft`
         :return: physical path
@@ -923,6 +924,7 @@ class VersionedContent(Container):
     def get_prod_path(self):
         """
         Get the physical path to the public version of the content
+
         :return: physical path
         """
         return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
@@ -952,8 +954,7 @@ class VersionedContent(Container):
         return data
 
     def dump_json(self, path=None):
-        """
-        Write the JSON into file
+        """Write the JSON into file
         :param path: path to the file. If `None`, write in "manifest.json"
         """
         if path is None:
@@ -966,9 +967,9 @@ class VersionedContent(Container):
         json_data.close()
 
     def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message=''):
-        """
-        Update the top container information and commit them into the repository.
+        """Update the top container information and commit them into the repository.
         Note that this is slightly different from the `repo_update()` function, because slug is generated using DB
+
         :param title: the new title
         :param slug: the new slug, according to title (choose using DB!!)
         :param introduction: the new introduction text
@@ -989,7 +990,10 @@ class VersionedContent(Container):
         return self.repo_update(title, introduction, conclusion, commit_message)
 
     def commit_changes(self, commit_message):
-        """Commit change made to the repository"""
+        """Commit change made to the repository
+
+        :param commit_message: The message that will appear in content history
+        """
         cm = self.repository.index.commit(commit_message, **get_commit_author())
 
         self.sha_draft = cm.hexsha
@@ -998,11 +1002,11 @@ class VersionedContent(Container):
         return cm.hexsha
 
     def change_child_directory(self, child, adoptive_parent):
-        """
-        Move an element of this content to a new location.
+        """Move an element of this content to a new location.
         This method changes the repository index and stage every change but does **not** commit.
+
         :param child: the child we want to move, can be either an Extract or a Container object
-        :param adoptive_parent: the container where the child *will be* moved, must be a Container object
+        :param adptive_parent: the container where the child *will be* moved, must be a Container object
         """
 
         old_path = child.get_path(False)  # absolute path because we want to access the address
@@ -1020,8 +1024,8 @@ class VersionedContent(Container):
 
 
 def get_content_from_json(json, sha, slug_last_draft):
-    """
-    Transform the JSON formated data into `VersionedContent`
+    """Transform the JSON formated data into `VersionedContent`
+
     :param json: JSON data from a `manifest.json` file
     :param sha: version
     :return: a `VersionedContent` with all the information retrieved from JSON
@@ -1061,8 +1065,8 @@ def get_content_from_json(json, sha, slug_last_draft):
 
 
 def fill_containers_from_json(json_sub, parent):
-    """
-    Function which call itself to fill container
+    """Function which call itself to fill container
+
     :param json_sub: dictionary from "manifest.json"
     :param parent: the container to fill
     """
@@ -1097,9 +1101,9 @@ def fill_containers_from_json(json_sub, parent):
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
-    """
-    Create a new repository in `settings.ZDS_APP['contents']['private_repo']` to store the files for a new content.
+    """Create a new repository in `settings.ZDS_APP['contents']['private_repo']` to store the files for a new content.
     Note that `db_object.sha_draft` will be set to the good value
+
     :param db_object: `PublishableContent` (WARNING: should have a valid `slug`, so previously saved)
     :param introduction_text: introduction from form
     :param conclusion_text: conclusion from form
@@ -1163,8 +1167,7 @@ def get_commit_author():
 
 
 class PublishableContent(models.Model):
-    """
-    A tutorial whatever its size or an article.
+    """A tutorial whatever its size or an article.
 
     A PublishableContent retains metadata about a content in database, such as
 
@@ -1246,8 +1249,8 @@ class PublishableContent(models.Model):
         super(PublishableContent, self).save(*args, **kwargs)
 
     def get_repo_path(self, relative=False):
-        """
-        Get the path to the tutorial repository
+        """Get the path to the tutorial repository
+
         :param relative: if `True`, the path will be relative, absolute otherwise.
         :return: physical path
         """
@@ -1258,52 +1261,52 @@ class PublishableContent(models.Model):
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
 
     def in_beta(self):
-        """
-        A tutorial is not in beta if sha_beta is `None` or empty
+        """A tutorial is not in beta if sha_beta is `None` or empty
+
         :return: `True` if the tutorial is in beta, `False` otherwise
         """
         return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
 
     def in_validation(self):
-        """
-        A tutorial is not in validation if sha_validation is `None` or empty
+        """A tutorial is not in validation if sha_validation is `None` or empty
+
         :return: `True` if the tutorial is in validation, `False` otherwise
         """
         return (self.sha_validation is not None) and (self.sha_validation.strip() != '')
 
     def in_drafting(self):
-        """
-        A tutorial is not in draft if sha_draft is `None` or empty
+        """A tutorial is not in draft if sha_draft is `None` or empty
+
         :return: `True` if the tutorial is in draft, `False` otherwise
         """
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def in_public(self):
-        """
-        A tutorial is not in on line if sha_public is `None` or empty
+        """A tutorial is not in on line if sha_public is `None` or empty
+
         :return: `True` if the tutorial is on line, `False` otherwise
         """
         return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
     def is_beta(self, sha):
-        """
-        Is this version of the content the beta version ?
+        """Is this version of the content the beta version ?
+
         :param sha: version
         :return: `True` if the tutorial is in beta, `False` otherwise
         """
         return self.in_beta() and sha == self.sha_beta
 
     def is_validation(self, sha):
-        """
-        Is this version of the content the validation version ?
+        """Is this version of the content the validation version ?
+
         :param sha: version
         :return: `True` if the tutorial is in validation, `False` otherwise
         """
         return self.in_validation() and sha == self.sha_validation
 
     def is_public(self, sha):
-        """
-        Is this version of the content the published version ?
+        """Is this version of the content the published version ?
+
         :param sha: version
         :return: `True` if the tutorial is in public, `False` otherwise
         """
@@ -1322,9 +1325,9 @@ class PublishableContent(models.Model):
         return self.type == 'TUTORIAL'
 
     def load_version_or_404(self, sha=None, public=False):
-        """
-        Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
+        """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
+
         :param sha: version
         :param public: if `True`, use `sha_public` instead of `sha_draft` if `sha` is `None`
         :raise Http404: if sha is not None and related version could not be found
@@ -1336,10 +1339,11 @@ class PublishableContent(models.Model):
             raise Http404
 
     def load_version(self, sha=None, public=False):
-        """
-        Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
+        """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
-        Note: for practical reason, the returned object is filled with information form DB.
+        .. attention::
+            for practical reason, the returned object is filled with information from DB.
+
         :param sha: version
         :param public: if `True`, use `sha_public` instead of `sha_draft` if `sha` is `None`
         :raise BadObject: if sha is not None and related version could not be found
@@ -1366,8 +1370,8 @@ class PublishableContent(models.Model):
         return versioned
 
     def insert_data_in_versioned(self, versioned):
-        """
-        Insert some additional data from database in a VersionedContent
+        """Insert some additional data from database in a VersionedContent
+
         :param versioned: the VersionedContent to fill
         """
 
@@ -1446,8 +1450,8 @@ class PublishableContent(models.Model):
             return self.first_note()
 
     def antispam(self, user=None):
-        """
-        Check if the user is allowed to post in an tutorial according to the SPAM_LIMIT_SECONDS value.
+        """Check if the user is allowed to post in an tutorial according to the SPAM_LIMIT_SECONDS value.
+
         :param user: the user to check antispam. If `None`, current user is used.
         :return: `True` if the user is not able to note (the elapsed time is not enough), `False` otherwise.
         """
@@ -1467,8 +1471,8 @@ class PublishableContent(models.Model):
         return False
 
     def change_type(self, new_type):
-        """
-        Allow someone to change the content type, basically from tutorial to article
+        """Allow someone to change the content type, basically from tutorial to article
+
         :param new_type: the new type, either `"ARTICLE"` or `"TUTORIAL"`
         """
         if new_type not in TYPE_CHOICES:
@@ -1476,29 +1480,29 @@ class PublishableContent(models.Model):
         self.type = new_type
 
     def have_markdown(self):
-        """
-        Check if the markdown zip archive is available
+        """Check if the markdown zip archive is available
+
         :return: `True` if available, `False` otherwise
         """
         return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".md"))
 
     def have_html(self):
-        """
-        Check if the html version of the content is available
+        """Check if the html version of the content is available
+
         :return: `True` if available, `False` otherwise
         """
         return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".html"))
 
     def have_pdf(self):
-        """
-        Check if the pdf version of the content is available
+        """Check if the pdf version of the content is available
+
         :return: `True` if available, `False` otherwise
         """
         return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".pdf"))
 
     def have_epub(self):
-        """
-        Check if the standard epub version of the content is available
+        """Check if the standard epub version of the content is available
+
         :return: `True` if available, `False` otherwise
         """
         return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".epub"))
@@ -1589,29 +1593,29 @@ class Validation(models.Model):
         return self.content.title
 
     def is_pending(self):
-        """
-        Check if the validation is pending
+        """Check if the validation is pending
+
         :return: `True` if status is pending, `False` otherwise
         """
         return self.status == 'PENDING'
 
     def is_pending_valid(self):
-        """
-        Check if the validation is pending (but there is a validator)
+        """Check if the validation is pending (but there is a validator)
+
         :return: `True` if status is pending, `False` otherwise
         """
         return self.status == 'PENDING_V'
 
     def is_accept(self):
-        """
-        Check if the content is accepted
+        """Check if the content is accepted
+
         :return: `True` if status is accepted, `False` otherwise
         """
         return self.status == 'ACCEPT'
 
     def is_reject(self):
-        """
-        Check if the content is rejected
+        """Check if the content is rejected
+
         :return: `True` if status is rejected, `False` otherwise
         """
         return self.status == 'REJECT'
