@@ -22,7 +22,8 @@ https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.4.1-zds.12.zip
 easy-thumbnails==2.2
 
 # Api dependencies
-djangorestframework==3.0.2
+djangorestframework==3.1.1
+djangorestframework-xml==1.0.1
 django-filter==0.8
 django-oauth-toolkit==0.7.2
 drf-extensions==0.2.6
