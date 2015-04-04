@@ -1005,7 +1005,7 @@ class VersionedContent(Container):
         :param child: the child we want to move, can be either an Extract or a Container object
         :param adoptive_parent: the container where the child *will be* moved, must be a Container object
         """
-        old_path = child.get_path(False)
+        old_path = child.get_path(False)  # absolute path because we want to access the address
         if isinstance(child, Extract):
             old_parent = child.container
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
