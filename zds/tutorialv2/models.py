@@ -348,7 +348,7 @@ class Container:
         """
         :return: the conclusion from the file in `self.conclusion`
         """
-        if self.introduction:
+        if self.conclusion:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
                             self.conclusion)
 
@@ -362,6 +362,9 @@ class Container:
         :param do_commit: perform the commit in repository if `True`
         :return : commit sha
         """
+
+        if title is None:
+            raise PermissionDenied
 
         repo = self.top_container().repository
 
@@ -384,23 +387,40 @@ class Container:
                 self.parent.children_dict.pop(old_slug)
                 self.parent.children_dict[self.slug] = self
 
-        # update introduction and conclusion
-        rel_path = self.get_path(relative=True)
-        if self.introduction is None:
-            self.introduction = os.path.join(rel_path, 'introduction.md')
-        if self.conclusion is None:
-            self.conclusion = os.path.join(rel_path, 'conclusion.md')
-
+        # update introduction and conclusion (if any)
         path = self.top_container().get_path()
-        f = open(os.path.join(path, self.introduction), "w")
-        f.write(introduction.encode('utf-8'))
-        f.close()
-        f = open(os.path.join(path, self.conclusion), "w")
-        f.write(conclusion.encode('utf-8'))
-        f.close()
+        rel_path = self.get_path(relative=True)
+
+        if introduction is not None:
+            if self.introduction is None:
+                self.introduction = os.path.join(rel_path, 'introduction.md')
+
+            f = open(os.path.join(path, self.introduction), "w")
+            f.write(introduction.encode('utf-8'))
+            f.close()
+            repo.index.add([self.introduction])
+
+        elif self.introduction:
+            repo.index.remove([self.introduction])
+            os.remove(os.path.join(path, self.introduction))
+            self.introduction = None
+
+        if conclusion is not None:
+            if self.conclusion is None:
+                self.conclusion = os.path.join(rel_path, 'conclusion.md')
+
+            f = open(os.path.join(path, self.conclusion), "w")
+            f.write(conclusion.encode('utf-8'))
+            f.close()
+            repo.index.add([self.conclusion])
+
+        elif self.conclusion:
+            repo.index.remove([self.conclusion])
+            os.remove(os.path.join(path, self.conclusion))
+            self.conclusion = None
 
         self.top_container().dump_json()
-        repo.index.add(['manifest.json', self.introduction, self.conclusion])
+        repo.index.add(['manifest.json'])
 
         if commit_message == '':
             commit_message = _(u'Mise à jour de « {} »').format(self.title)
@@ -433,26 +453,12 @@ class Container:
 
         repo.index.add([rel_path])
 
-        # create introduction and conclusion
-        subcontainer.introduction = os.path.join(rel_path, 'introduction.md')
-        subcontainer.conclusion = os.path.join(rel_path, 'conclusion.md')
-
-        f = open(os.path.join(path, subcontainer.introduction), "w")
-        f.write(introduction.encode('utf-8'))
-        f.close()
-        f = open(os.path.join(path, subcontainer.conclusion), "w")
-        f.write(conclusion.encode('utf-8'))
-        f.close()
-
-        # commit
-        self.top_container().dump_json()
-        repo.index.add(['manifest.json', subcontainer.introduction, subcontainer.conclusion])
-
+        # make it
         if commit_message == '':
             commit_message = _(u'Création du conteneur « {} »').format(title)
 
-        if do_commit:
-            return self.top_container().commit_changes(commit_message)
+        return subcontainer.repo_update(
+            title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
 
     def repo_add_extract(self, title, text, commit_message='', do_commit=True):
         """
@@ -470,24 +476,11 @@ class Container:
         except Exception:
             raise PermissionDenied
 
-        # create text
-        repo = self.top_container().repository
-        path = self.top_container().get_path()
-
-        extract.text = extract.get_path(relative=True)
-        f = open(os.path.join(path, extract.text), "w")
-        f.write(text.encode('utf-8'))
-        f.close()
-
-        # commit
-        self.top_container().dump_json()
-        repo.index.add(['manifest.json', extract.text])
-
+        # make it
         if commit_message == '':
             commit_message = _(u'Création de l\'extrait « {} »').format(title)
 
-        if do_commit:
-            return self.top_container().commit_changes(commit_message)
+        return extract.repo_update(title, text, commit_message=commit_message, do_commit=do_commit)
 
     def repo_delete(self, commit_message='', do_commit=True):
         """
@@ -511,7 +504,7 @@ class Container:
         repo.index.add(['manifest.json'])
 
         if commit_message == '':
-            commit_message = u'Suppression du conteneur « {} »'.format(self.title)
+            commit_message = _(u'Suppression du conteneur « {} »').format(self.title)
 
         if do_commit:
             return self.top_container().commit_changes(commit_message)
@@ -727,6 +720,12 @@ class Extract:
         :return: commit sha
         """
 
+        if title is None:
+            raise PermissionDenied
+
+        if text is None:
+            raise PermissionDenied
+
         repo = self.container.top_container().repository
 
         if title != self.title:
@@ -752,12 +751,12 @@ class Extract:
         f.write(text.encode('utf-8'))
         f.close()
 
-        # commit
+        # make it
         self.container.top_container().dump_json()
         repo.index.add(['manifest.json', self.text])
 
         if commit_message == '':
-            commit_message = u'Modification de l\'extrait « {} », situé dans le conteneur « {} »'\
+            commit_message = _(u'Modification de l\'extrait « {} », situé dans le conteneur « {} »')\
                 .format(self.title, self.container.title)
 
         if do_commit:
@@ -785,7 +784,7 @@ class Extract:
         repo.index.add(['manifest.json'])
 
         if commit_message == '':
-            commit_message = u'Suppression de l\'extrait « {} »'.format(self.title)
+            commit_message = _(u'Suppression de l\'extrait « {} »').format(self.title)
 
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)
@@ -1005,7 +1004,8 @@ class VersionedContent(Container):
         :param child: the child we want to move, can be either an Extract or a Container object
         :param adoptive_parent: the container where the child *will be* moved, must be a Container object
         """
-        old_path = child.get_path(False)
+
+        old_path = child.get_path(False)  # absolute path because we want to access the address
         if isinstance(child, Extract):
             old_parent = child.container
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
@@ -1014,7 +1014,6 @@ class VersionedContent(Container):
             old_parent = child.parent
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
             adoptive_parent.add_container(child)
-
         self.repository.index.move([old_path, child.get_path(False)])
 
         self.dump_json()
@@ -1097,7 +1096,7 @@ def fill_containers_from_json(json_sub, parent):
                 raise Exception('Unknown object type' + child['object'])
 
 
-def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=''):
+def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
     """
     Create a new repository in `settings.ZDS_APP['contents']['private_repo']` to store the files for a new content.
     Note that `db_object.sha_draft` will be set to the good value
@@ -1105,6 +1104,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     :param introduction_text: introduction from form
     :param conclusion_text: conclusion from form
     :param commit_message : set a commit message instead of the default one
+    :param do_commit: do commit if `True`
     :return: `VersionedContent` object
     """
     # TODO: should be a static function of an object (I don't know which one yet)
@@ -1116,48 +1116,29 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
     # init repo:
     Repo.init(path, bare=False)
-    repo = Repo(path)
 
-    introduction = 'introduction.md'
-    conclusion = 'conclusion.md'
-    versioned_content = VersionedContent(None,
-                                         db_object.type,
-                                         db_object.title,
-                                         db_object.slug,
-                                         db_object.slug)
+    # create object
+    versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)
 
     # fill some information that are missing :
     versioned_content.licence = db_object.licence
     versioned_content.description = db_object.description
-    versioned_content.introduction = introduction
-    versioned_content.conclusion = conclusion
 
-    # fill intro/conclusion:
-    f = open(os.path.join(path, introduction), "w")
-    f.write(introduction_text.encode('utf-8'))
-    f.close()
-    f = open(os.path.join(path, conclusion), "w")
-    f.write(conclusion_text.encode('utf-8'))
-    f.close()
-
-    versioned_content.dump_json()
-
-    # commit change:
+    # perform changes:
     if commit_message == '':
         commit_message = u'Création du contenu'
-    repo.index.add(['manifest.json', introduction, conclusion])
-    cm = repo.index.commit(commit_message, **get_commit_author())
+
+    sha = versioned_content.repo_update(
+        db_object.title, introduction_text, conclusion_text, commit_message=commit_message, do_commit=do_commit)
 
     # update sha:
-    db_object.sha_draft = cm.hexsha
-    db_object.sha_beta = None
-    db_object.sha_public = None
-    db_object.sha_validation = None
+    if do_commit:
+        db_object.sha_draft = sha
+        db_object.sha_beta = None
+        db_object.sha_public = None
+        db_object.sha_validation = None
 
-    db_object.save()
-
-    versioned_content.current_version = cm.hexsha
-    versioned_content.repository = repo
+        db_object.save()
 
     return versioned_content
 

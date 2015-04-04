@@ -26,14 +26,14 @@ Plus précisément :
 
 - L'incrémentation de X signifie que la nouvelle version est potentiellement incompatible avec la version X-1. Un outil de migration doit alors être créé.
 - L'incrémentation de Y signifie que la nouvelle version est possède une compatibilité descendante avec la version X.Y-1 mais que la compatibilité ascendante n'est pas assurée. C'est à dire que le nouvel interpréteur peut interpréter un manifeste de type X.Y-1
-mais l'ancien interpréteur ne peut pas interpréter un manifeste X.Y. Le cas typique d'incrémentation de Y est le passage d'obligatoire à optionnel d'un champ du manifeste.
+  mais l'ancien interpréteur ne peut pas interpréter un manifeste X.Y. Le cas typique d'incrémentation de Y est le passage d'obligatoire à optionnel d'un champ du manifeste.
 - L'incrémentation de Z assure la compatibilité ascendante ET descendante, les cas typiques d'incrémentation de Z est l'ajout d'un champ optionnel au manifeste.
 
- Sauf cas exceptionnel, la numérotation de X commence à 1, la numérotation de Y commence à 0, la numérotation de Z commence à 0.
+Sauf cas exceptionnel, la numérotation de X commence à 1, la numérotation de Y commence à 0, la numérotation de Z commence à 0.
 
- La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( ```{ version="2.0.0"}```).
- L'absence du champ version est interprétée comme ``̀{version="1.0.0"}```.
- Les 0 non significatifs sont optionnels ainsi ```{version="1"}``` est strictement équivalent à ```{version:"1.0"}``` lui même strictement équivalent à ```{version:"1.0.0"}```.
+La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( ```{ version="2.0.0"}```).
+L'absence du champ version est interprétée comme ``̀{version="1.0.0"}```.
+Les 0 non significatifs sont optionnels ainsi ```{version="1"}``` est strictement équivalent à ```{version:"1.0"}``` lui même strictement équivalent à ```{version:"1.0.0"}```.
 
 Version 1.0
 -----------
@@ -114,33 +114,34 @@ Version 2.0
 .. sourcecode:: json
 
     {
-      version : 2,
-      type : "TUTORIAL",
-      description : "description du tutorial",
-      title : "titre du tutorial",
-      slug : "titre-du-tutorial",
-      introduction : "introduction.md",
-      conclusion : "conclusion.md",
-      licence : "CC-BY-SA",
-      children : [
-        {
-          object : "container",
-          title : "Titre de mon chapitre",
-          slug : "titre-de-mon-chapitre",
-          introduction : "titre-de-mon-chapitre/introduction.md",
-          conclusion : "titre-de-mon-chapitre/conclusion.md",
-          children : [
+        "object": "container",
+        "slug": "un-tutoriel",
+        "title": "Un tutoriel",
+        "introduction": "introduction.md",
+        "conclusion": "conclusion.md",
+        "version": 2,
+        "description": "Une description",
+        "type": "TUTORIAL",
+        "licence": "Beerware",
+        "children": [
             {
-              object : "extract",
-              title : "titre de mon extrait",
-              slug : "titre-de-mon-extrait",
-              text : "titre-de-mon-extrait.md"
+                "object": "container",
+                "slug": "titre-de-mon-chapitre",
+                "title": "Titre de mon chapitre",
+                "introduction": "titre-de-mon-chapitre/introduction.md",
+                "conclusion": "titre-de-mon-chapitre/conclusion.md",
+                "children": [
+                    {
+                        "object": "extract",
+                        "slug": "titre-de-mon-extrait",
+                        "title": "Titre de mon extrait",
+                        "text": "titre-de-mon-chapitre/titre-de-mon-extrait.md"
+                    },
+                    (...)
+                ]
             },
             (...)
-          ]
-        },
-        (...)
-      ]
+        ]
     }
 
 1. type: Le type de contenu, vaut "TUTORIAL" ou "ARTICLE", **obligatoire**
