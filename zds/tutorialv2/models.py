@@ -790,6 +790,23 @@ class Extract:
         if do_commit:
             return self.container.top_container().commit_changes(commit_message)
 
+    def get_tree_depth(self):
+        """
+        Represent the depth where this exrtact is found
+        Tree depth is no more than 3, because there is 3 levels for Containers +1 for extract :
+        - PublishableContent (0),
+        - Part (1),
+        - Chapter (2)
+        Note that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+        :return: Tree depth
+        """
+        depth = 1
+        current = self.container
+        while current.parent is not None:
+            current = current.parent
+            depth += 1
+        return depth
+
 
 class VersionedContent(Container):
     """
@@ -988,6 +1005,7 @@ class VersionedContent(Container):
         :param child: the child we want to move, can be either an Extract or a Container object
         :param adoptive_parent: the container where the child *will be* moved, must be a Container object
         """
+        old_path = child.get_path(False)
         if isinstance(child, Extract):
             old_parent = child.container
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
@@ -996,11 +1014,11 @@ class VersionedContent(Container):
             old_parent = child.parent
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
             adoptive_parent.add_container(child)
+
         self.repository.index.move([old_path, child.get_path(False)])
 
         self.dump_json()
-        
-        
+
 
 def get_content_from_json(json, sha, slug_last_draft):
     """

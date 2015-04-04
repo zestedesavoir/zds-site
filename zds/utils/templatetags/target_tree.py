@@ -6,6 +6,8 @@ from django import template
 
 
 register = template.Library()
+
+
 @register.filter('target_tree')
 def target_tree(child):
     """
