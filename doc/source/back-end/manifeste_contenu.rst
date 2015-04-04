@@ -2,13 +2,13 @@
 Les fichiers de manifeste
 =========================
 
-Chaque contenu publiable (tutoriel, article) est décrit par un fichier de manifeste écrit au format json.
+Chaque contenu publiable (tutoriel, article) est décrit par un fichier de manifeste écrit au format JSON.
 
-Ce fichier de manifeste a pour but d'exprimer, versionner et instancier les informations et méta information du contenu tout au long du workflow de publication.
+Ce fichier de manifeste a pour but d'exprimer, versionner et instancier les informations et méta informations du contenu tout au long du workflow de publication.
 
-Les informations en question sont l'architecture, les titres, les liens vers les sources, les informations de license ainsi que la version du fichier de manifeste lui même.
+Les informations en question sont l'architecture, les titres, les liens vers les sources, les informations de license ainsi que la version du fichier de manifeste lui-même.
 
-Le fichier de manifeste est intrasèquement lié à un interpréteur qui est inclus dans le module de contenu associé.
+Le fichier de manifeste est intrinsèquement lié à un interpréteur qui est inclus dans le module de contenu associé.
 
 Les versions du manifeste
 =========================
@@ -16,16 +16,16 @@ Les versions du manifeste
 Nomenclature
 ------------
 
-La version du manifeste (et de son interpréteur) suit une nomenclature du type "sementic version", c'est à dire que la version est séparée en 3 parties selon le format v X.Y.Z
+La version du manifeste (et de son interpréteur) suit une nomenclature du type "semantic version" (SemVer), c'est-à-dire que la version est séparée en trois parties selon le format v X.Y.Z
 
-- X numéro de version majeur
-- Y numéro de version à ajout fonctionnel mineur
-- Z numéro de version de correction de bug
+- X : numéro de version majeur
+- Y : numéro de version à ajout fonctionnel mineur
+- Z : numéro de version de correction de bug
 
 Plus précisément :
 
 - L'incrémentation de X signifie que la nouvelle version est potentiellement incompatible avec la version X-1. Un outil de migration doit alors être créé.
-- L'incrémentation de Y signifie que la nouvelle version est possède une compatibilité descendante avec la version X.Y-1 mais que la compatibilité ascendante n'est pas assurée. C'est à dire que le nouvel interpréteur peut interpréter un manifeste de type X.Y-1
+- L'incrémentation de Y signifie que la nouvelle version possède une compatibilité descendante avec la version X.Y-1 mais que la compatibilité ascendante n'est pas assurée. C'est-à-dire que le nouvel interpréteur peut interpréter un manifeste de type X.Y-1
   mais l'ancien interpréteur ne peut pas interpréter un manifeste X.Y. Le cas typique d'incrémentation de Y est le passage d'obligatoire à optionnel d'un champ du manifeste.
 - L'incrémentation de Z assure la compatibilité ascendante ET descendante, les cas typiques d'incrémentation de Z est l'ajout d'un champ optionnel au manifeste.
 
@@ -33,7 +33,7 @@ Sauf cas exceptionnel, la numérotation de X commence à 1, la numérotation de 
 
 La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( ```{ version="2.0.0"}```).
 L'absence du champ version est interprétée comme ``̀{version="1.0.0"}```.
-Les 0 non significatifs sont optionnels ainsi ```{version="1"}``` est strictement équivalent à ```{version:"1.0"}``` lui même strictement équivalent à ```{version:"1.0.0"}```.
+Les 0 non significatifs sont optionnels ainsi ```{version="1"}``` est strictement équivalent à ```{version:"1.0"}``` lui-même strictement équivalent à ```{version:"1.0.0"}```.
 
 Version 1.0
 -----------
@@ -144,18 +144,18 @@ Version 2.0
         ]
     }
 
-1. type: Le type de contenu, vaut "TUTORIAL" ou "ARTICLE", **obligatoire**
-2. description : La description du contenu, est affichée comme sous titre dans la page finale, **obligatoire**
-3. title : Le titre du contenu, **obligatoire**
-4. slug : slug du tutoriel qui permet de faire une url SEO friendly, **obligatoire** : ATENTION si ce slug existe déjà sur notre base de données, il est possible qu'un nombre lui soit ajouté
-5. introduction: le nom du fichier .md qui possède l'introduction, il doit pointer vers le dossier courant. *optionnel mais conseillé*
-6. conclusion: le nom du fichier .md qui possède la conclusion, il doit pointer vers le dossier courant. *optionnel mais conseillé*
-7. licence: nom complet de la license. A priori les licences CC et Tous drois réservés sont supportés. le support de toute autre licence dépendra du site utilisant le code de zds (fork) que vous visez. **obligatoire**
-8. children : tableau contenant l'architecture du contenu **obligatoire**
-    1. object : type d'enfant (container ou extract selon que c'est une section ou un texte) **obligatoire**
-    2. title: le titre de l'enfant **obligatoire**
-    3. slug: le slug de l'enfant pour créer une url SEO friendly, doit être unique dans le tutoriel, le slug est utilisé pour trouver le chemin vers l'enfant dans le système de fichier si c'est une section.**obligatoire**
-    4. introduction: nom du fichier contenant l'introduction quand l'enfant est de type container *optionnel mais conseillé*
-    5. conclusion: nom du fichier contenant la conclusion quand l'enfant est de type container *optionnel mais conseillé*
-    6. children: tableau vers les enfants de niveau inférieur si l'enfant est de type container **obligatoire**
-    7. text: nom du fichier contenant le texte quand l'enfant est de type extract, nous conseillons de garder la convention nom de fichier = slug.md mais rien n'est obligatoire **obligatoire**
+1. ``type`` : Le type de contenu, vaut "TUTORIAL" ou "ARTICLE". **Obligatoire**
+2. ``description`` : La description du contenu. Est affichée comme sous-titre dans la page finale. **Obligatoire**
+3. ``title`` : Le titre du contenu. **Obligatoire**
+4. ``slug`` : slug du tutoriel qui permet de faire une url SEO-friendly. **Obligatoire**. ATENTION : si ce slug existe déjà sur notre base de données, il est possible qu'un nombre lui soit ajouté
+5. ``introduction`` : le nom du fichier .md qui possède l'introduction. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
+6. ``conclusion`` : le nom du fichier .md qui possède la conclusion. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
+7. ``licence`` : nom complet de la license. *A priori* les licences "CC" et "Tous drois réservés" sont supportées. Le support de toute autre licence dépendra du site utilisant le code de zds (fork) que vous visez. **Obligatoire**
+8. ``children`` : tableau contenant l'architecture du contenu. **Obligatoire**
+    1. ``object`` : type d'enfant (*container* ou *extract*, selon qu'il s'agit d'une section ou d'un texte). **Obligatoire**
+    2. ``title`` : le titre de l'enfant. **Obligatoire**
+    3. ``slug`` : le slug de l'enfant pour créer une url SEO friendly, doit être unique dans le tutoriel, le slug est utilisé pour trouver le chemin vers l'enfant dans le système de fichier si c'est une section.**obligatoire**
+    4. ``introduction`` : nom du fichier contenant l'introduction quand l'enfant est de type *container*. *Optionnel mais conseillé*
+    5. ``conclusion`` : nom du fichier contenant la conclusion quand l'enfant est de type *container*. *Optionnel mais conseillé*
+    6. ``children`` : tableau vers les enfants de niveau inférieur si l'enfant est de type *container*. **Obligatoire**
+    7. ``text`` : nom du fichier contenant le texte quand l'enfant est de type *extract*. Nous conseillons de garder la convention ``nom de fichier = slug.md`` mais rien n'est obligatoire à ce sujet. **Obligatoire**
