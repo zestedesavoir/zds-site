@@ -53,17 +53,15 @@ class UserGallery(models.Model):
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
     def __unicode__(self):
-        """
-        Human-readable representation of the UserGallery model.
+        """Human-readable representation of the UserGallery model.
 
         :return: UserGalley description
         :rtype: unicode
         """
-        return u'Galerie « {0} » envoyée par {1}'.format(self.gallery, self.user)
+        return u'Galerie « {0} » de {1}'.format(self.gallery, self.user)
 
     def can_write(self):
-        """
-        Check if user can write in the gallery.
+        """Check if user can write in the gallery.
 
         :return: True if user can write in the gallery
         :rtype: bool
@@ -71,8 +69,7 @@ class UserGallery(models.Model):
         return self.mode == GALLERY_WRITE
 
     def can_read(self):
-        """
-        Check if user can read in the gallery.
+        """Check if user can read in the gallery.
 
         :return: True if user can read in the gallery
         :rtype: bool
@@ -80,8 +77,7 @@ class UserGallery(models.Model):
         return self.mode == GALLERY_READ
 
     def get_images(self):
-        """
-        Get all images in the gallery.
+        """Get all images in the gallery.
 
         :return: all images in the gallery
         :rtype: QuerySet
@@ -90,13 +86,14 @@ class UserGallery(models.Model):
 
 
 class Image(models.Model):
+    """Represent an image in database"""
 
     class Meta:
         verbose_name = 'Image'
         verbose_name_plural = 'Images'
 
     gallery = models.ForeignKey('Gallery', verbose_name=('Galerie'), db_index=True)
-    title = models.CharField('Titre', max_length=80, null=True, blank=True)
+    title = models.CharField('Titre', max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path)
     legend = models.CharField('Légende', max_length=80, null=True, blank=True)
@@ -104,8 +101,7 @@ class Image(models.Model):
     update = models.DateTimeField('Date de modification', null=True, blank=True)
 
     def __unicode__(self):
-        """
-        Human-readable representation of the Image model.
+        """Human-readable representation of the Image model.
 
         :return: Image slug
         :rtype: unicode
@@ -113,8 +109,7 @@ class Image(models.Model):
         return self.slug
 
     def get_absolute_url(self):
-        """
-        URL of a single Image.
+        """URL of a single Image.
 
         :return: Image object URL
         :rtype: str
@@ -122,8 +117,7 @@ class Image(models.Model):
         return '{0}/{1}'.format(MEDIA_URL, self.physical)
 
     def get_extension(self):
-        """
-        Get the extension of an image (used in tests).
+        """Get the extension of an image (used in tests).
 
         :return: the extension of the image
         :rtype: unicode
@@ -133,8 +127,7 @@ class Image(models.Model):
 
 @receiver(models.signals.post_delete, sender=Image)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes image from filesystem when corresponding object is deleted.
+    """Deletes image from filesystem when corresponding object is deleted.
 
     :return: nothing
     :rtype: None
@@ -151,14 +144,13 @@ class Gallery(models.Model):
         verbose_name_plural = 'Galeries'
 
     title = models.CharField('Titre', max_length=80)
-    subtitle = models.CharField('Sous titre', max_length=200)
+    subtitle = models.CharField('Sous titre', max_length=200, blank=True)
     slug = models.SlugField(max_length=80)
     pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     update = models.DateTimeField('Date de modification', null=True, blank=True)
 
     def __unicode__(self):
-        """
-        Human-readable representation of the Gallery model.
+        """Human-readable representation of the Gallery model.
 
         :return: Gallery title
         :rtype: unicode
@@ -166,17 +158,15 @@ class Gallery(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        """
-        URL of a single Gallery.
+        """URL of a single Gallery.
 
         :return: Gallery object URL
         :rtype: str
         """
-        return reverse('zds.gallery.views.gallery_details', args=[self.pk, self.slug])
+        return reverse('gallery-details', args=[self.pk, self.slug])
 
     def get_gallery_path(self):
-        """
-        Get the filesystem path to this gallery root.
+        """Get the filesystem path to this gallery root.
 
         :return: filesystem path to this gallery root
         :rtype: unicode
@@ -184,8 +174,7 @@ class Gallery(models.Model):
         return os.path.join(MEDIA_ROOT, 'galleries', str(self.pk))
 
     def get_linked_users(self):
-        """
-        Get all the linked users for this gallery whatever their rights
+        """Get all the linked users for this gallery whatever their rights
 
         :return: all the linked users for this gallery
         :rtype: QuerySet
@@ -193,8 +182,7 @@ class Gallery(models.Model):
         return UserGallery.objects.filter(gallery=self).all()
 
     def get_images(self):
-        """
-        Get all images in the gallery, ordered by publication date.
+        """Get all images in the gallery, ordered by publication date.
 
         :return: all images in the gallery
         :rtype: QuerySet
@@ -202,8 +190,7 @@ class Gallery(models.Model):
         return Image.objects.filter(gallery=self).order_by('pubdate').all()
 
     def get_last_image(self):
-        """
-        Get the last image added in the gallery.
+        """Get the last image added in the gallery.
 
         :return: last image added in the gallery
         :rtype: Image object
@@ -213,8 +200,7 @@ class Gallery(models.Model):
 
 @receiver(models.signals.post_delete, sender=Gallery)
 def auto_delete_image_on_delete(sender, instance, **kwargs):
-    """
-    Deletes image from filesystem when corresponding object is deleted.
+    """Deletes image from filesystem when corresponding object is deleted.
 
     :return: nothing
     :rtype: None

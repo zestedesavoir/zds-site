@@ -63,7 +63,7 @@
     {% if galleries|length = 0 %}
         <p>
             {% trans "Vous n'avez pas encore de galerie" %}. <br>
-            <a href="{% url "zds.gallery.views.new_gallery" %}">{% trans "Créer une galerie" %}</a>.
+            <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
         </p>
     {% endif %}
 {% endblock %}

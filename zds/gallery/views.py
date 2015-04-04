@@ -1,11 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import tempfile
+
 from datetime import datetime
+import time
+
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -13,7 +17,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404, render
 from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
-    GalleryForm, UserGalleryForm, ImageAsAvatarForm
+    GalleryForm, UpdateGalleryForm, UserGalleryForm, ImageAsAvatarForm
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
@@ -24,78 +28,134 @@ from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
-from django.db import transaction
 from django.utils.translation import ugettext as _
 
-
-@login_required
-def gallery_list(request):
-    """Display the gallery list with all their images."""
-
-    galleries = UserGallery.objects.all().filter(user=request.user)
-    return render(request, "gallery/gallery/list.html",
-                           {"galleries": galleries})
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
+from django.utils.decorators import method_decorator
 
 
-@login_required
-def gallery_details(request, gal_pk, gal_slug):
-    """Gallery details."""
+class ListGallery(ListView):
+    """Display the gallery list with all their images"""
 
-    gal = get_object_or_404(Gallery, pk=gal_pk)
+    object = UserGallery
+    template_name = "gallery/gallery/list.html"
+    context_object_name = "galleries"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ListGallery, self).dispatch(*args, **kwargs)
+
+    def get_queryset(self):
+        return UserGallery.objects.all().filter(user=self.request.user)
+
+
+class NewGallery(CreateView):
+    """Create a new gallery"""
+
+    template_name = "gallery/gallery/new.html"
+    form_class = GalleryForm
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(NewGallery, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        gallery = Gallery()
+        gallery.title = form.cleaned_data['title']
+        gallery.subtitle = form.cleaned_data['subtitle']
+        gallery.slug = slugify(form.cleaned_data['title'])
+        gallery.pubdate = datetime.now()
+        gallery.save()
+
+        # Attach user :
+        userg = UserGallery()
+        userg.gallery = gallery
+        userg.mode = "W"
+        userg.user = self.request.user
+        userg.save()
+
+        return HttpResponseRedirect(gallery.get_absolute_url())
+
+
+def ensure_user_access(gallery, user, can_write=False):
+    """
+    :param gallery: the gallery
+    :param user: user who want to access the gallery
+    :param can_write: check if the user has the writing access to the gallery
+    :return: the gallery of the user
+    :rtype: UserGallery
+    :raise PermissionDenied: if the user has not access or no write permission (if applicable)
+    """
+
     try:
-        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-    except:
-        raise PermissionDenied
-    images = gal.get_images()
-    form = UserGalleryForm()
+        user_gallery = UserGallery.objects.get(gallery=gallery, user=user)
 
-    return render(request, "gallery/gallery/details.html", {
-        "gallery": gal,
-        "gallery_mode": gal_mode,
-        "images": images,
-        "form": form,
-    })
-
-
-@can_write_and_read_now
-@login_required
-def new_gallery(request):
-    """Creates a new gallery."""
-
-    if request.method == "POST":
-        form = GalleryForm(request.POST)
-        if form.is_valid():
-            data = form.data
-
-            # Creating the gallery
-
-            gal = Gallery()
-            gal.title = data["title"]
-            gal.subtitle = data["subtitle"]
-            gal.slug = slugify(data["title"])
-            gal.pubdate = datetime.now()
-            gal.save()
-
-            # Attach user
-
-            userg = UserGallery()
-            userg.gallery = gal
-            userg.mode = "W"
-            userg.user = request.user
-            userg.save()
-            return redirect(gal.get_absolute_url())
+        if user_gallery:
+            if can_write and not user_gallery.can_write():
+                raise PermissionDenied
         else:
-            return render(request, "gallery/gallery/new.html", {"form": form})
-    else:
-        form = GalleryForm()
-        return render(request, "gallery/gallery/new.html", {"form": form})
+            raise PermissionDenied
+    except ObjectDoesNotExist:  # the user_gallery does not exists
+        raise PermissionDenied
+
+    return user_gallery
+
+
+class GalleryDetails(DetailView):
+    """Gallery details"""
+
+    model = Gallery
+    template_name = "gallery/gallery/details.html"
+    context_object_name = "gallery"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(GalleryDetails, self).dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(GalleryDetails, self).get_context_data(**kwargs)
+
+        context['gallery_mode'] = ensure_user_access(self.object, self.request.user)
+        context['images'] = self.object.get_images()
+        context['form'] = UserGalleryForm
+
+        return context
+
+
+class EditGallery(UpdateView):
+    """Update gallery information"""
+
+    model = Gallery
+    template_name = "gallery/gallery/edit.html"
+    form_class = UpdateGalleryForm
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(EditGallery, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+
+        pk = self.kwargs.pop('pk', None)
+        slug = self.kwargs.pop('slug', None)
+        gallery = get_object_or_404(Gallery, pk=pk, slug=slug)
+
+        ensure_user_access(gallery, self.request.user, can_write=True)
+
+        return gallery
+
+    def form_valid(self, form):
+
+        self.object.slug = slugify(form.cleaned_data['title'])
+        return super(EditGallery, self).form_valid(form)
 
 
 @can_write_and_read_now
 @require_POST
 @login_required
 def modify_gallery(request):
-    """Modify gallery instance."""
+    """Modify gallery instance: delete galleries or add user to them"""
 
     # Global actions
 
@@ -133,7 +193,7 @@ def modify_gallery(request):
         # Finally delete the selected galleries
 
         Gallery.objects.filter(pk__in=free_galleries).delete()
-        return redirect(reverse("zds.gallery.views.gallery_list"))
+        return redirect(reverse("gallery-list"))
     elif "adduser" in request.POST:
 
         # Gallery-specific actions
@@ -177,230 +237,222 @@ def modify_gallery(request):
                 "images": gallery.get_images(),
                 "form": form,
             })
-    return redirect(gallery.get_absolute_url())
+        return redirect(gallery.get_absolute_url())
 
 
-@login_required
-@can_write_and_read_now
-def edit_image(request, gal_pk, img_pk):
-    """Edit or view an existing image."""
+class GalleryMixin(object):
+    """Mixin that ensure the access to the gallery and fill context data properly"""
 
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    img = get_object_or_404(Image, pk=img_pk)
+    can_write = False  # if `True`, check for user write access
 
-    # Check if user can edit image
-    try:
-        gal_mode = UserGallery.objects.get(user=request.user, gallery=gal)
-        assert gal_mode is not None
-        if not gal_mode.can_write() and request.method != "GET":
-            raise PermissionDenied
-    except (AssertionError, ObjectDoesNotExist):
-        raise PermissionDenied
+    def get_context_data(self, **kwargs):
+        context = super(GalleryMixin, self).get_context_data(**kwargs)
+        pk_gallery = self.kwargs.pop('pk_gallery', None)
 
-    # Check if the image belongs to the gallery
-    if img.gallery != gal:
-        raise PermissionDenied
+        gallery = get_object_or_404(Gallery, pk=pk_gallery)
 
-    if request.method == "POST":
-        form = UpdateImageForm(request.POST, request.FILES)
-        if form.is_valid():
-            if "physical" in request.FILES:
-                if request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
-                    messages.error(request, _(u"Votre image est beaucoup trop lourde, "
-                                              u"réduisez sa taille à moins de {} "
-                                              u"<abbr title=\"kibioctet\">Kio</abbr> "
-                                              u"avant de l'envoyer.").format(
-                                                  str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
-                else:
-                    img.title = request.POST["title"]
-                    img.legend = request.POST["legend"]
-                    img.physical = request.FILES["physical"]
-                    img.slug = slugify(request.FILES["physical"])
-                    img.update = datetime.now()
-                    img.save()
-                    # Redirect to the newly uploaded image edit page after POST
-                    return redirect(reverse("zds.gallery.views.edit_image", args=[gal.pk, img.pk]))
-            else:
-                img.title = request.POST["title"]
-                img.legend = request.POST["legend"]
-                img.update = datetime.now()
-                img.save()
-                # Redirect to the newly uploaded image edit page after POST
-                return redirect(reverse("zds.gallery.views.edit_image", args=[gal.pk, img.pk]))
+        user_gallery = ensure_user_access(gallery, self.request.user, can_write=self.can_write)
 
-    else:
-        form = UpdateImageForm(initial={
-            "title": img.title,
-            "legend": img.legend,
-            "physical": img.physical,
-            "new_image": False,
-        })
+        context['gallery'] = gallery
+        context['gallery_mode'] = user_gallery
 
-    as_avatar_form = ImageAsAvatarForm()
-    return render(
-        request,
-        "gallery/image/edit.html", {
-            "form": form,
-            "gallery_mode": gal_mode,
-            "as_avatar_form": as_avatar_form,
-            "gallery": gal,
-            "image": img
-        })
+        return context
 
 
-@can_write_and_read_now
-@login_required
-@require_POST
-def delete_image(request):
-
-    try:
-        gal_pk = request.POST["gallery"]
-    except KeyError:
-        raise Http404
-    gal = get_object_or_404(Gallery, pk=gal_pk)
-    try:
-        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        assert gal_mode is not None
-
-        # Only allow RW users to modify images
-        if not gal_mode.can_write():
-            raise PermissionDenied
-    except:
-        raise PermissionDenied
-    if "delete" in request.POST:
-        try:
-            img = Image.objects.get(pk=request.POST["image"], gallery=gal)
-            img.delete()
-        except KeyError:
-            pass
-        except:
-            pass
-    elif "delete_multi" in request.POST:
-        l = request.POST.getlist("items")
-        Image.objects.filter(pk__in=l, gallery=gal).delete()
-    return redirect(gal.get_absolute_url())
-
-
-@can_write_and_read_now
-@login_required
-def new_image(request, gal_pk):
+class NewImage(GalleryMixin, CreateView):
     """Creates a new image."""
 
-    gal = get_object_or_404(Gallery, pk=gal_pk)
+    form_class = ImageForm
+    template_name = 'gallery/image/new.html'
+    can_write = True  # only allowed users can insert images
 
-    # check if the user can upload new image in this gallery
-    try:
-        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        assert gal_mode is not None
-        if not gal_mode.can_write():
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(NewImage, self).dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+
+        context = self.get_context_data(**self.kwargs)
+
+        img = Image()
+        img.gallery = context['gallery']
+        img.title = form.cleaned_data['title']
+
+        if form.cleaned_data['legend'] and form.cleaned_data['legend'] != '':
+            img.legend = form.cleaned_data['legend']
+        else:
+            img.legend = img.title
+
+        img.physical = self.request.FILES['physical']
+        img.pubdate = datetime.now()
+        img.save()
+
+        return redirect(reverse("gallery-image-edit", args=[img.gallery.pk, img.pk]))
+
+
+class EditImage(GalleryMixin, UpdateView):
+    """Edit or view an existing image."""
+
+    model = Image
+    form_class = UpdateImageForm
+    template_name = "gallery/image/edit.html"
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(EditImage, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.pop('pk', None)
+        return get_object_or_404(Image, pk=pk)
+
+    def get_context_data(self, **kwargs):
+        context = super(EditImage, self).get_context_data(**kwargs)
+
+        context['as_avatar_form'] = ImageAsAvatarForm()
+
+        return context
+
+    def form_valid(self, form):
+        self.can_write = True  # only allowed users can change images
+        context = self.get_context_data(**self.kwargs)
+        img = self.object
+        gallery = context['gallery']
+
+        if img.gallery != gallery:
             raise PermissionDenied
-    except:
-        raise PermissionDenied
 
-    if request.method == "POST":
-        form = ImageForm(request.POST, request.FILES)
-        if form.is_valid():
-            img = Image()
-            img.physical = request.FILES["physical"]
-            img.gallery = gal
-            img.title = request.POST["title"]
-            img.slug = slugify(request.FILES["physical"])
-            img.legend = request.POST["legend"]
-            img.pubdate = datetime.now()
+        can_change = True
+
+        if 'physical' in self.request.FILES:  # the user request to change the image
+            if self.request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
+                    messages.error(
+                        self.request,
+                        _(u"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} "
+                          u"<abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer.").format(
+                            settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+
+                    can_change = False
+            else:
+                img.physical = self.request.FILES["physical"]
+                img.slug = slugify(self.request.FILES["physical"])
+
+        if can_change:
+            img.title = form.cleaned_data['title']
+            img.legend = form.cleaned_data['legend']
+            img.update = datetime.now()
             img.save()
 
-            # Redirect to the newly uploaded image edit page after POST
-            return redirect(reverse("zds.gallery.views.edit_image",
-                                    args=[gal.pk, img.pk]))
-        else:
-            return render(request, "gallery/image/new.html", {"form": form,
-                                                              "gallery_mode": gal_mode,
-                                                              "gallery": gal})
-    else:
-        form = ImageForm(initial={"new_image": True})  # A empty, unbound form
-        return render(request, "gallery/image/new.html", {"form": form,
-                                                          "gallery_mode": gal_mode,
-                                                          "gallery": gal})
+        return redirect(reverse("gallery-image-edit", args=[img.gallery.pk, img.pk]))
 
 
-@can_write_and_read_now
-@login_required
-@transaction.atomic
-def import_image(request, gal_pk):
+class DeleteImages(DeleteView):
+    """Delete a given image"""
+
+    model = Image
+    http_method_names = ['post', 'delete']
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(DeleteImages, self).dispatch(*args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+
+        pk_gallery = self.request.POST['gallery']
+        gallery = get_object_or_404(Gallery, pk=pk_gallery)
+        ensure_user_access(gallery, request.user, can_write=True)
+
+        if 'delete_multi' in request.POST:
+            l = request.POST.getlist("items")
+            Image.objects.filter(pk__in=l, gallery=gallery).delete()
+        elif 'delete' in request.POST:
+            pk = self.request.POST['image']
+            img = get_object_or_404(Image, pk=pk)
+
+            if img.gallery != gallery:
+                raise PermissionDenied
+
+            img.delete()
+
+        return redirect(gallery.get_absolute_url())
+
+
+class ImportImages(GalleryMixin, FormView):
     """Create images from zip archive."""
 
-    gal = get_object_or_404(Gallery, pk=gal_pk)
+    form_class = ArchiveImageForm
+    http_method_names = ['get', 'post', 'put']
+    template_name = "gallery/image/import.html"
+    can_write = True  # only allowed user can import new images
 
-    try:
-        gal_mode = UserGallery.objects.get(gallery=gal, user=request.user)
-        assert gal_mode is not None
-        if not gal_mode.can_write():
-            raise PermissionDenied
-    except:
-        raise PermissionDenied
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(ImportImages, self).dispatch(*args, **kwargs)
 
-    # if request is POST
-    if request.method == "POST":
-        form = ArchiveImageForm(request.POST, request.FILES)
-        if form.is_valid():
-            archive = request.FILES["file"]
-            temp = os.path.join(settings.SITE_ROOT, "temp")
-            if not os.path.exists(temp):
-                os.makedirs(temp)
-            zfile = zipfile.ZipFile(archive, "a")
-            for i in zfile.namelist():
-                ph_temp = os.path.abspath(os.path.join(temp, i))
-                (dirname, filename) = os.path.split(i)
-                # if directory doesn't exist, created on
-                if not os.path.exists(os.path.dirname(ph_temp)):
-                    os.makedirs(os.path.dirname(ph_temp))
-                # if file is directory, don't create file
-                if filename.strip() == "":
-                    continue
-                data = zfile.read(i)
-                # create file for image
-                fp = open(ph_temp, "wb")
-                fp.write(data)
-                fp.close()
-                title = os.path.basename(i)
-                # if size is too large don't save
-                if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
-                    messages.error(request, _(u"Votre image est beaucoup trop lourde, "
-                                              u"réduisez sa taille à moins de {} "
-                                              u"<abbr title=\"kibioctet\">Kio</abbr> "
-                                              u"avant de l'envoyer.").format(
-                                                  str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)))
-                    continue
-                # if it's not an image, pass
-                try:
-                    ImagePIL.open(ph_temp)
-                except IOError:
-                    continue
-                f = File(open(ph_temp, "rb"))
-                f.name = title
-                # create picture in database
-                pic = Image()
-                pic.gallery = gal
-                pic.title = title
-                pic.pubdate = datetime.now()
-                pic.physical = f
-                pic.save()
-                f.close()
+    def form_valid(self, form):
+        context = self.get_context_data()
+        gallery = context['gallery']
 
-            zfile.close()
+        archive = self.request.FILES["file"]
+        temp = os.path.join(tempfile.gettempdir(), str(time.time()))
 
-            if os.path.exists(temp):
-                shutil.rmtree(temp)
+        if not os.path.exists(temp):
+            os.makedirs(temp)
+        zfile = zipfile.ZipFile(archive, "a")
 
-            # Redirect to the newly uploaded gallery
-            return redirect(reverse("zds.gallery.views.gallery_details",
-                                    args=[gal.pk, gal.slug]))
-        else:
-            return render(request, "gallery/image/new.html", {"form": form,
-                                                              "gallery_mode": gal_mode,
-                                                              "gallery": gal})
-    else:
-        form = ArchiveImageForm(initial={"new_image": True})  # A empty, unbound form
-        return render(request, "gallery/image/new.html", {"form": form,
-                                                          "gallery_mode": gal_mode,
-                                                          "gallery": gal})
+        for i in zfile.namelist():
+            (dirname, filename) = os.path.split(i)
+            # if directory doesn't exist, created on
+            # if not os.path.exists(os.path.dirname(ph_temp)):
+            #    os.makedirs(os.path.dirname(ph_temp))
+            # if file is directory, don't create file
+
+            ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
+
+            if filename.strip() == "":
+                continue
+
+            # create file for image
+            fp = open(ph_temp, "wb")
+            fp.write(zfile.read(i))
+            fp.close()
+            title = os.path.basename(i)
+
+            # if size is too large, don't save
+            if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
+                messages.error(
+                    self.request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
+                                    u'Kio avant de l\'envoyer.').format(
+                                        title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+                continue
+
+            # if it's not an image, pass
+            try:
+                ImagePIL.open(ph_temp)
+            except IOError:
+                continue
+
+            # create picture in database:
+            f = File(open(ph_temp, "rb"))
+            f.name = title
+
+            pic = Image()
+            pic.gallery = gallery
+            pic.title = title
+            pic.pubdate = datetime.now()
+            pic.physical = f
+            pic.save()
+            f.close()
+
+            if os.path.exists(ph_temp):
+                os.remove(ph_temp)
+
+        zfile.close()
+
+        if os.path.exists(temp):
+            shutil.rmtree(temp)
+
+        return redirect(gallery.get_absolute_url())

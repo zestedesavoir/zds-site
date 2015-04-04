@@ -10,19 +10,37 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "zds.gallery.views.gallery_list" %}">{% trans "Galeries" %}</a></li>
+    <li><a href="{% url "gallery-list" %}">{% trans "Galeries" %}</a></li>
 {% endblock %}
 
 
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-        <a href="{% url "zds.gallery.views.new_gallery" %}" class="new-btn ico-after more blue">
+        <a href="{% url "gallery-new" %}" class="new-btn ico-after more blue">
             {% trans "Créer une galerie" %}
         </a>
 
         {% block new_btn %}{% endblock %}
 
-        {% block sidebar_actions %}{% endblock %}
+        {% block sidebar_actions %}
+           {%  if gallery_mode.can_write %}
+                <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+                    <h3>{% trans "Actions" %}</h3>
+                    <ul>
+                        <li>
+                            <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
+                                {% trans "Ajouter une image" %}
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url "gallery-image-import" gallery.pk %}" class="ico-after import blue">
+                                {% trans "Importer une archive" %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+           {% endif %}
+        {% endblock %}
     </aside>
 {% endblock %}

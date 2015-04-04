@@ -26,7 +26,7 @@ class UserGalleryTest(TestCase):
         self.gallery.delete()
 
     def test_unicode(self):
-        result = u'Galerie « {0} » envoyée par {1}'.format(self.gallery, self.profile.user)
+        result = u'Galerie « {0} » de {1}'.format(self.gallery, self.profile.user)
 
         self.assertEqual(result, self.user_gallery.__unicode__())
 
@@ -97,7 +97,7 @@ class GalleryTest(TestCase):
         self.assertEqual(self.gallery.title, self.gallery.__unicode__())
 
     def test_get_absolute_url(self):
-        absolute_url = reverse('zds.gallery.views.gallery_details',
+        absolute_url = reverse('gallery-details',
                                args=[self.gallery.pk, self.gallery.slug])
         self.assertEqual(absolute_url, self.gallery.get_absolute_url())
 

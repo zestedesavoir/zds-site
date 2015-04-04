@@ -197,7 +197,7 @@ class MemberTests(TestCase):
         # redirection to the "next" page.
         result = self.client.post(
             reverse('zds.member.views.login_view') +
-            '?next=' + reverse('zds.gallery.views.gallery_list'),
+            '?next=' + reverse('gallery-list'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},

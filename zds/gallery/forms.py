@@ -14,23 +14,18 @@ from zds.gallery.models import Gallery, Image
 from django.utils.translation import ugettext_lazy as _
 
 
-class GalleryForm(forms.Form):
-    title = forms.CharField(
-        label=_('Titre'),
-        max_length=Gallery._meta.get_field('title').max_length,
-    )
+class GalleryForm(forms.ModelForm):
 
-    subtitle = forms.CharField(
-        label=_('Sous-titre'),
-        max_length=Gallery._meta.get_field('subtitle').max_length,
-        required=False
-    )
+    class Meta:
+        model = Gallery
+
+        fields = ['title', 'subtitle']
 
     def __init__(self, *args, **kwargs):
         super(GalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'clearfix'
-        self.helper.form_action = reverse('zds.gallery.views.new_gallery')
+        self.helper.form_action = reverse('gallery-new')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -53,6 +48,23 @@ class GalleryForm(forms.Form):
                 del cleaned_data['title']
 
         return cleaned_data
+
+
+class UpdateGalleryForm(GalleryForm):
+
+    def __init__(self, *args, **kwargs):
+        super(GalleryForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'clearfix'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('title'),
+            Field('subtitle'),
+            ButtonHolder(
+                StrictButton(_(u'Mettre à jour'), type='submit'),
+            ),
+        )
 
 
 class UserGalleryForm(forms.Form):
@@ -105,18 +117,12 @@ class UserGalleryForm(forms.Form):
         return cleaned_data
 
 
-class ImageForm(forms.Form):
-    title = forms.CharField(
-        label=_(u'Titre'),
-        max_length=Image._meta.get_field('title').max_length,
-        required=True,
-    )
+class ImageForm(forms.ModelForm):
 
-    legend = forms.CharField(
-        label=_(u'Légende'),
-        max_length=Image._meta.get_field('legend').max_length,
-        required=False,
-    )
+    class Meta:
+        model = Image
+
+        fields = ['title', 'legend']
 
     physical = forms.ImageField(
         label=_(u'Sélectionnez votre image'),
@@ -149,6 +155,27 @@ class ImageForm(forms.Form):
                 [_(u'Votre image est trop lourde, la limite autorisée '
                  u'est de {0} Ko').format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
         return cleaned_data
+
+
+class UpdateImageForm(ImageForm):
+
+    def __init__(self, *args, **kwargs):
+        super(UpdateImageForm, self).__init__(*args, **kwargs)
+
+        self.fields['physical'].required = False
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'clearfix'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('title'),
+            Field('legend'),
+            Field('physical'),
+            ButtonHolder(
+                StrictButton(_(u'Mettre à jour'), type='submit'),
+            ),
+        )
 
 
 class ArchiveImageForm(forms.Form):
@@ -185,27 +212,6 @@ class ArchiveImageForm(forms.Form):
                 del cleaned_data['file']
 
         return cleaned_data
-
-
-class UpdateImageForm(ImageForm):
-
-    def __init__(self, *args, **kwargs):
-        super(UpdateImageForm, self).__init__(*args, **kwargs)
-
-        self.fields['physical'].required = False
-
-        self.helper = FormHelper()
-        self.helper.form_class = 'clearfix'
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('legend'),
-            Field('physical'),
-            ButtonHolder(
-                StrictButton(_(u'Mettre à jour'), type='submit'),
-            ),
-        )
 
 
 class ImageAsAvatarForm(forms.Form):
