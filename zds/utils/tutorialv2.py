@@ -11,7 +11,7 @@ def export_extract(extract):
     dct['object'] = 'extract'
     dct['slug'] = extract.slug
     dct['title'] = extract.title
-    dct['text'] = extract.text
+    dct['text'] = extract.get_path(True)
     return dct
 
 

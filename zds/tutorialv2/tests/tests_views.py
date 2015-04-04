@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+from os.path import isdir, isfile
 import shutil
 
 from django.conf import settings
@@ -884,6 +885,7 @@ class ContentTests(TestCase):
         self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter4 = ContainerFactory(parent=self.part2, db_object=self.tuto)
+        self.extract5 = ExtractFactory(container=self.chapter3, db_object=self.tuto)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         # test changing parent for container (smoothly)
@@ -902,7 +904,12 @@ class ContentTests(TestCase):
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         self.assertEqual(2, len(versioned.children_dict[self.part2.slug].children))
+
         chapter = versioned.children_dict[self.part2.slug].children[0]
+        self.assertTrue(isdir(chapter.get_path()))
+        self.assertEqual(1, len(chapter.children))
+        self.assertTrue(isfile(chapter.children[0].get_path()))
+        self.assertEqual(self.extract5.slug, chapter.children[0].slug)
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[1]
         self.assertEqual(self.chapter4.slug, chapter.slug)
@@ -1038,6 +1045,7 @@ class ContentTests(TestCase):
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
+        self.extract5 = ExtractFactory(container=self.chapter3, db_object=self.tuto)
         self.chapter4 = ContainerFactory(parent=self.part2, db_object=self.tuto)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
@@ -1058,6 +1066,9 @@ class ContentTests(TestCase):
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         self.assertEqual(2, len(versioned.children_dict[self.part2.slug].children))
         chapter = versioned.children_dict[self.part2.slug].children[1]
+        self.assertEqual(1, len(chapter.children))
+        self.assertTrue(isfile(chapter.children[0].get_path()))
+        self.assertEqual(self.extract5.slug, chapter.children[0].slug)
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[0]
         self.assertEqual(self.chapter4.slug, chapter.slug)
