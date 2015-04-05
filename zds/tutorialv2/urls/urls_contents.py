@@ -8,8 +8,6 @@ from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, Edi
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive
 
-# from zds.tutorialv2.importation import ImportMarkdownView
-
 urlpatterns = patterns('',
                        url(r'^$', ListContent.as_view(), name='index'),
 
