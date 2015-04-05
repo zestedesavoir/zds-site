@@ -7,6 +7,9 @@
     {% trans "Importer un nouveau contenu" %}
 {% endblock %}
 
+{% block breadcrumb_base %}
+    <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+{% endblock %}
 
 {% block breadcrumb %}
     <li>{% trans "Importer un nouveau contenu" %}</li>
