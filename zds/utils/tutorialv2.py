@@ -52,6 +52,7 @@ def export_content(content):
     dct['description'] = content.description
     dct['type'] = content.type
     if content.licence:
+        print "\n\n\n", type(content.licence), content.licence, "\n\n\n"
         dct['licence'] = content.licence.code
 
     return dct
