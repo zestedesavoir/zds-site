@@ -53,6 +53,15 @@ class InvalidOperationError(RuntimeError):
     pass
 
 
+def default_slug_pool():
+    """
+    :return: the forbidden slugs in the edition system
+    :rtype: dict
+    """
+
+    return {'introduction': 1, 'conclusion': 1}  # forbidden slugs
+
+
 class Container:
     """
     A container, which can have sub-Containers or Extracts.
@@ -86,7 +95,7 @@ class Container:
         self.children = []  # even if you want, do NOT remove this line
         self.children_dict = {}
 
-        self.slug_pool = {'introduction': 1, 'conclusion': 1}  # forbidden slugs
+        self.slug_pool = default_slug_pool()
 
     def __unicode__(self):
         return u'<Conteneur \'{}\'>'.format(self.title)
@@ -769,8 +778,9 @@ class Extract:
         :param do_commit: tells if we have to commit the change now or let the outter program do it
         :return: commit sha, None if no commit is done
         """
-        path = self.get_path(relative=True)
+        path = self.text
         repo = self.container.top_container().repository
+
         repo.index.remove([path])
         os.remove(self.get_path())  # looks like removing from git is not enough
 
@@ -1113,7 +1123,7 @@ def fill_containers_from_json(json_sub, parent):
                     pass
                 new_extract = Extract(child['title'], slug)
                 new_extract.text = child['text']
-                parent.add_extract(new_extract, generate_slug=(slug != ''))
+                parent.add_extract(new_extract, generate_slug=(slug == ''))
             else:
                 raise BadManifestError(_('Type d\'objet inconnu :') + child['object'])
 

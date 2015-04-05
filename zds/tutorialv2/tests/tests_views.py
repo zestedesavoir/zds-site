@@ -3,6 +3,8 @@
 import os
 from os.path import isdir, isfile
 import shutil
+import tempfile
+import zipfile
 
 from django.conf import settings
 from django.test import TestCase
@@ -1463,6 +1465,417 @@ class ContentTests(TestCase):
                     }),
             follow=False)
         self.assertEqual(result.status_code, 200)
+
+    def test_export_content(self):
+        """Test if content is exported well"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        given_title = u'Oh, le beau titre à lire !'
+        some_text = u'À lire à un moment ou un autre, Über utile'  # accentuated characters are important for the test
+
+        # create a tutorial
+        result = self.client.post(
+            reverse('content:create'),
+            {
+                'title': given_title,
+                'description': some_text,
+                'introduction': some_text,
+                'conclusion': some_text,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+
+        tuto = PublishableContent.objects.last()
+        tuto_pk = tuto.pk
+        tuto_slug = tuto.slug
+
+        # add a chapter
+        result = self.client.post(
+            reverse('content:create-container', args=[tuto_pk, tuto_slug]),
+            {
+                'title': given_title,
+                'introduction': some_text,
+                'conclusion': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
+        chapter = versioned.children[-1]
+
+        # add extract to chapter
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': tuto_pk,
+                        'slug': tuto_slug,
+                        'container_slug': chapter.slug
+                    }),
+            {
+                'title': given_title,
+                'text': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # download
+        result = self.client.get(
+            reverse('content:download-zip', args=[tuto_pk, tuto_slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
+        version_1 = versioned.current_version
+        chapter = versioned.children[-1]
+        extract = chapter.children[-1]
+        archive = zipfile.ZipFile(draft_zip_path, 'r')
+
+        self.assertEqual(unicode(archive.read('manifest.json'), 'utf-8'), versioned.get_json())
+
+        found = True
+        try:  # to the person who try to modify this test: I'm sorry, but the test does not say where the error is ;)
+            archive.getinfo('introduction.md')
+            archive.getinfo('conclusion.md')
+            archive.getinfo(os.path.join(chapter.slug, 'introduction.md'))
+            archive.getinfo(os.path.join(chapter.slug, 'conclusion.md'))
+            archive.getinfo(os.path.join(chapter.slug, 'conclusion.md'))
+            archive.getinfo(extract.text)
+        except KeyError:
+            found = False
+
+        self.assertTrue(found)
+
+        where = ['introduction.md', 'conclusion.md', os.path.join(chapter.slug, 'introduction.md'),
+                 os.path.join(chapter.slug, 'conclusion.md'), extract.text]
+
+        for path in where:
+            self.assertEqual(unicode(archive.read(path), 'utf-8'), some_text)
+
+        # add another extract to chapter
+        different_title = u'Un Über titre de la mort qui tue'  # one more times, mind accentuated characters !!
+        different_text = u'þ is a letter as well ? ¶ means paragraph, at least'
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': tuto_pk,
+                        'slug': tuto_slug,
+                        'container_slug': chapter.slug
+                    }),
+            {
+                'title': different_title,
+                'text': different_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # download
+        result = self.client.get(
+            reverse('content:download-zip', args=[tuto_pk, tuto_slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path_2 = os.path.join(tempfile.gettempdir(), '__draft2.zip')
+        f = open(draft_zip_path_2, 'w')
+        f.write(result.content)
+        f.close()
+
+        versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
+        version_2 = versioned.current_version
+        extract2 = versioned.children[-1].children[-1]
+        self.assertNotEqual(extract.slug, extract2.slug)  # just ensure that we don't pick the same extract
+        self.assertNotEqual(version_1, version_2)  # just to ensure that something happen, somehow
+
+        archive = zipfile.ZipFile(draft_zip_path_2, 'r')
+        self.assertEqual(unicode(archive.read('manifest.json'), 'utf-8'), versioned.get_json())
+
+        found = True
+        try:
+            archive.getinfo(extract2.text)
+        except KeyError:
+            found = False
+        self.assertTrue(found)
+
+        self.assertEqual(different_text, unicode(archive.read(extract2.text), 'utf-8'))
+
+        # now, try versioned download:
+        result = self.client.get(
+            reverse('content:download-zip', args=[tuto_pk, tuto_slug]) + '?version=' + version_1,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path_3 = os.path.join(tempfile.gettempdir(), '__draft3.zip')
+        f = open(draft_zip_path_3, 'w')
+        f.write(result.content)
+        f.close()
+
+        archive = zipfile.ZipFile(draft_zip_path_3, 'r')
+
+        found = True
+        try:
+            archive.getinfo(extract2.text)
+        except KeyError:
+            found = False
+        self.assertFalse(found)  # if we download the old version, the new extract introduced in version 2 is not in
+
+        found = True
+        try:
+            archive.getinfo(extract.text)
+        except KeyError:
+            found = False
+        self.assertTrue(found)  # but the extract of version 1 is in !
+
+        # clean up our mess
+        os.remove(draft_zip_path)
+        os.remove(draft_zip_path_2)
+        os.remove(draft_zip_path_3)
+
+    def test_import_create_content(self):
+        """Test if the importation of a tuto is working"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        given_title = u'Une autre histoire captivante'
+        some_text = u'Il était une fois ... La suite.'
+
+        # create a tutorial
+        result = self.client.post(
+            reverse('content:create'),
+            {
+                'title': given_title,
+                'description': some_text,
+                'introduction': some_text,
+                'conclusion': some_text,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+
+        tuto = PublishableContent.objects.last()
+        tuto_pk = tuto.pk
+        tuto_slug = tuto.slug
+
+        # add a chapter
+        result = self.client.post(
+            reverse('content:create-container', args=[tuto_pk, tuto_slug]),
+            {
+                'title': given_title,
+                'introduction': some_text,
+                'conclusion': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
+        chapter = versioned.children[-1]
+
+        # add extract to chapter
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': tuto_pk,
+                        'slug': tuto_slug,
+                        'container_slug': chapter.slug
+                    }),
+            {
+                'title': given_title,
+                'text': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # download
+        result = self.client.get(
+            reverse('content:download-zip', args=[tuto_pk, tuto_slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        first_version = PublishableContent.objects.get(pk=tuto_pk).load_version()
+
+        # then, use the archive to create a new content (which will be a copy of this one)
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(draft_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.count(), 3)
+        new_tuto = PublishableContent.objects.last()
+        self.assertNotEqual(new_tuto.pk, tuto_pk)  # those are two different content !
+
+        # first, test if values are correctly set in DB
+        self.assertEqual(new_tuto.title, tuto.title)
+        self.assertEqual(new_tuto.description, tuto.description)
+        self.assertEqual(new_tuto.licence, tuto.licence)
+        self.assertEqual(new_tuto.type, tuto.type)
+
+        self.assertNotEqual(new_tuto.slug, tuto_slug)  # slug should NEVER be the same !!
+
+        # then, let's do the same for the versioned one
+        versioned = new_tuto.load_version()
+
+        self.assertEqual(first_version.title, versioned.title)
+        self.assertEqual(first_version.description, versioned.description)
+        self.assertEqual(first_version.licence, versioned.licence)
+        self.assertEqual(first_version.type, versioned.type)
+
+        # ensure the content
+        self.assertEqual(versioned.get_introduction(), some_text)
+        self.assertEqual(versioned.get_introduction(), some_text)
+        self.assertEqual(len(versioned.children), 1)
+
+        new_chapter = versioned.children[-1]
+        self.assertEqual(new_chapter.get_introduction(), some_text)
+        self.assertEqual(new_chapter.get_conclusion(), some_text)
+        self.assertEqual(len(new_chapter.children), 1)
+
+        extract = new_chapter.children[-1]
+        self.assertEqual(extract.get_text(), some_text)
+
+    def test_import_in_existing_content(self):
+        """Test if the importation of a content into another is working"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        given_title = u'Parce que le texte change à chaque fois'
+        some_text = u'Sinon, c\'pas drôle'
+
+        # create a tutorial
+        result = self.client.post(
+            reverse('content:create'),
+            {
+                'title': given_title,
+                'description': some_text,
+                'introduction': some_text,
+                'conclusion': some_text,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+
+        tuto = PublishableContent.objects.last()
+        tuto_pk = tuto.pk
+        tuto_slug = tuto.slug
+
+        # add a chapter
+        result = self.client.post(
+            reverse('content:create-container', args=[tuto_pk, tuto_slug]),
+            {
+                'title': given_title,
+                'introduction': some_text,
+                'conclusion': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
+        chapter = versioned.children[-1]
+
+        # add extract to chapter
+        result = self.client.post(
+            reverse('content:create-extract',
+                    kwargs={
+                        'pk': tuto_pk,
+                        'slug': tuto_slug,
+                        'container_slug': chapter.slug
+                    }),
+            {
+                'title': given_title,
+                'text': some_text
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # download
+        result = self.client.get(
+            reverse('content:download-zip', args=[tuto_pk, tuto_slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        first_version = PublishableContent.objects.get(pk=tuto_pk).load_version()
+
+        # then, use the archive to create a new content (which will be a copy of this one)
+        result = self.client.post(
+            reverse('content:import', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'archive': open(draft_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.count(), 2)
+        existing_tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertNotEqual(existing_tuto.pk, tuto_pk)  # those are two different content !
+
+        # first, test if values are correctly set in DB
+        self.assertEqual(existing_tuto.title, tuto.title)
+        self.assertEqual(existing_tuto.description, tuto.description)
+        self.assertEqual(existing_tuto.licence, tuto.licence)
+        self.assertEqual(existing_tuto.type, tuto.type)
+
+        self.assertNotEqual(existing_tuto.slug, tuto_slug)  # slug should NEVER be the same !!
+
+        # then, let's do the same for the versioned one
+        versioned = existing_tuto.load_version()
+
+        self.assertEqual(first_version.title, versioned.title)
+        self.assertEqual(first_version.description, versioned.description)
+        self.assertEqual(first_version.licence, versioned.licence)
+        self.assertEqual(first_version.type, versioned.type)
+
+        # ensure the content
+        self.assertEqual(versioned.get_introduction(), some_text)
+        self.assertEqual(versioned.get_introduction(), some_text)
+        self.assertEqual(len(versioned.children), 1)
+
+        new_chapter = versioned.children[-1]
+        self.assertEqual(new_chapter.get_introduction(), some_text)
+        self.assertEqual(new_chapter.get_conclusion(), some_text)
+        self.assertEqual(len(new_chapter.children), 1)
+
+        extract = new_chapter.children[-1]
+        self.assertEqual(extract.get_text(), some_text)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

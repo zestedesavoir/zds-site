@@ -174,7 +174,7 @@ class DownloadViewMixin(View):
         pass
 
     def get(self, context, **response_kwargs):
-        response = HttpResponse(mimetype=self.get_mimetype())
+        response = HttpResponse(content_type=self.get_mimetype())
         response['Content-Disposition'] = 'filename=' + self.get_filename()
         response.write(self.get_contents())
 

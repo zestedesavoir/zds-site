@@ -47,7 +47,7 @@ from git import Repo, BadObject
 from forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, \
     JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
-    BadManifestError, Extract
+    BadManifestError, Extract, default_slug_pool
 from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
@@ -485,6 +485,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         versioned.children[0].repo_delete(do_commit=False)
                     else:
                         break  # this weird construction ensure that everything is removed
+
+                versioned.slug_pool = default_slug_pool()  # slug pool to its initial value (to avoid weird stuffs)
 
                 # start by copying extra information
                 self.object.insert_data_in_versioned(versioned)  # better have a clean version of those one
