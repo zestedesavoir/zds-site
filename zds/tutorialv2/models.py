@@ -1067,10 +1067,10 @@ def get_content_from_json(json, sha, slug_last_draft):
     else:
         # minimum fallback for version 1.0
         if "type" in json:
-            type = "TUTORIAL"
+            _type = "TUTORIAL"
         else:
-            type = "ARTICLE"
-        versioned = VersionedContent(sha, type, slug_last_draft, slug_last_draft)
+            _type = "ARTICLE"
+        versioned = VersionedContent(sha, _type, slug_last_draft, slug_last_draft)
         if 'description' in json:
             versioned.description = json['description']
         if "introduction" in json:
