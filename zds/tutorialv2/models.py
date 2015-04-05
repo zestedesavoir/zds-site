@@ -961,7 +961,6 @@ class VersionedContent(Container):
             man_path = os.path.join(self.get_path(), 'manifest.json')
         else:
             man_path = path
-
         json_data = open(man_path, "w")
         json_data.write(self.get_json().encode('utf-8'))
         json_data.close()
@@ -1031,10 +1030,10 @@ def get_content_from_json(json, sha, slug_last_draft):
     :return: a `VersionedContent` with all the information retrieved from JSON
     """
     # TODO: should definitely be static
-    # create and fill the container
-    versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
 
     if 'version' in json and json['version'] == 2:
+        # create and fill the container
+        versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
         # fill metadata :
         if 'description' in json:
             versioned.description = json['description']
@@ -1056,10 +1055,20 @@ def get_content_from_json(json, sha, slug_last_draft):
 
         # then, fill container with children
         fill_containers_from_json(json, versioned)
-
     else:
-        raise Exception('Importation of old version is not yet supported')
-        # TODO so here we can support old version !!
+        # minimum fallback for version 1.0
+        if "type" in json:
+            type = "TUTORIAL"
+        else:
+            type = "ARTICLE"
+        versioned = VersionedContent(sha, type, slug_last_draft, slug_last_draft)
+        if 'description' in json:
+            versioned.description = json['description']
+        if "introduction" in json:
+            versioned.introduction = json["introduction"]
+        if "conclusion" in json:
+            versioned.conclusion = json["conclusion"]
+        # as it is just minimum fallback, we do not even try to parse old PART/CHAPTER hierarchy
 
     return versioned
 
