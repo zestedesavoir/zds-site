@@ -45,7 +45,7 @@ from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
 from forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, \
-    JsFiddleActivationForm, ImportMarkdownForm
+    JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract
 from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
@@ -357,10 +357,11 @@ class BadArchiveError(Exception):
         self.message = reason
 
 
-class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    """Update a content using an archive"""
 
     template_name = 'tutorialv2/import/content.html'
-    form_class = ImportMarkdownForm
+    form_class = ImportContentForm
 
     @staticmethod
     def walk_container(container):
@@ -377,7 +378,7 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         for child in container.children:
             if isinstance(child, Container):
-                for _y in ImportContent.walk_container(child):
+                for _y in UpdateContentWithArchive.walk_container(child):
                     yield _y
             else:
                 yield child.text
@@ -390,17 +391,15 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         :type versioned: VersionedContent
         """
 
-        for _y in ImportContent.walk_container(versioned):
+        for _y in UpdateContentWithArchive.walk_container(versioned):
             yield _y
 
     @staticmethod
-    def extract_content_from_zip(zip_archive, old_version):
-        """Check if the data in the zip file are coherents
+    def extract_content_from_zip(zip_archive):
+        """Check if the data in the zip file are coherent
 
         :param zip_archive: the zip archive to analyze
         :type zip_archive: zipfile.ZipFile
-        :param old_version: old version of the content
-        :type old_version: VersionedContent
         :raise BadArchiveError: if something is wrong in the archive
         :return: the content in the archive
         :rtype: VersionedContent
@@ -419,7 +418,7 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             raise BadArchiveError(e.message)
 
         # is there everything in the archive ?
-        for f in ImportContent.walk_content(versioned):
+        for f in UpdateContentWithArchive.walk_content(versioned):
             try:
                 zip_archive.getinfo(f)
             except KeyError:
@@ -452,7 +451,7 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
                     conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False)
-                ImportContent.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
+                UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
 
             elif isinstance(child, Extract):
                 text = unicode(zip_file.read(child.text), 'utf-8')
@@ -463,12 +462,13 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
         if self.request.FILES['archive']:
             zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+            # TODO catch exception here
 
             try:
-                new_version = ImportContent.extract_content_from_zip(zfile, versioned)
+                new_version = UpdateContentWithArchive.extract_content_from_zip(zfile)
             except BadArchiveError as e:
                 messages.error(self.request, e.message)
-                return super(ImportContent, self).form_invalid(form)
+                return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
                 # first, update DB object (in order to get a new slug if needed)
                 self.object.title = new_version.title
@@ -505,7 +505,7 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
                     new_version.title, new_version.slug, introduction, conclusion, do_commit=False)
 
                 # then do the dirty job:
-                ImportContent.update_from_new_version_in_zip(versioned, new_version, zfile)
+                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
@@ -517,11 +517,99 @@ class ImportContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
                 # of course, need to update sha
                 self.object.sha_draft = sha
+                self.object.update_date = datetime.now()
                 self.object.save()
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
-        return super(ImportContent, self).form_valid(form)
+        return super(UpdateContentWithArchive, self).form_valid(form)
+
+
+class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
+    """Create a content using an archive"""
+
+    form_class = ImportNewContentForm
+    template_name = "tutorialv2/import/content-new.html"
+    object = None
+
+    def form_valid(self, form):
+
+        if self.request.FILES['archive']:
+            zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+
+            try:
+                new_content = UpdateContentWithArchive.extract_content_from_zip(zfile)
+            except BadArchiveError as e:
+                messages.error(self.request, e.message)
+                return super(CreateContentFromArchive, self).form_invalid(form)
+            else:
+                # first, create DB object (in order to get a slug)
+                self.object = PublishableContent()
+                self.object.title = new_content.title
+                self.object.description = new_content.description
+                self.object.licence = new_content.licence
+                self.object.type = new_content.type  # change of type is then allowed !!
+                self.object.creation_date = datetime.now()
+
+                self.object.save()
+
+                new_content.slug = self.object.slug  # new slug (choosen via DB)
+
+                # Creating the gallery
+                gal = Gallery()
+                gal.title = new_content.title
+                gal.slug = slugify(new_content.title)
+                gal.pubdate = datetime.now()
+                gal.save()
+
+                # Attach user to gallery
+                userg = UserGallery()
+                userg.gallery = gal
+                userg.mode = "W"  # write mode
+                userg.user = self.request.user
+                userg.save()
+                self.object.gallery = gal
+
+                # Add subcategories on tutorial
+                for subcat in form.cleaned_data["subcategory"]:
+                    self.object.subcategory.add(subcat)
+
+                # We need to save the tutorial before changing its author list since it's a many-to-many relationship
+                self.object.authors.add(self.request.user)
+                self.object.save()
+
+                # ok, now we can import
+                introduction = ''
+                conclusion = ''
+
+                if new_content.introduction:
+                    introduction = unicode(zfile.read(new_content.introduction), 'utf-8')
+                if new_content.conclusion:
+                    conclusion = unicode(zfile.read(new_content.conclusion), 'utf-8')
+
+                commit_message = _(u'Création de « {} »').format(new_content.title)
+                init_new_repo(self.object, introduction, conclusion, commit_message=commit_message)
+
+                # copy all:
+                versioned = self.object.load_version()
+                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+
+                # and end up by a commit !!
+                commit_message = form.cleaned_data['msg_commit']
+
+                if commit_message == '':
+                    commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_content.title)
+
+                sha = versioned.commit_changes(commit_message)
+
+                # of course, need to update sha
+                self.object.sha_draft = sha
+                self.object.update_date = datetime.now()
+                self.object.save()
+
+                self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
+
+        return super(CreateContentFromArchive, self).form_valid(form)
 
 
 class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):

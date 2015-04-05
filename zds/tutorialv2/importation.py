@@ -11,7 +11,7 @@ from django.views.generic import FormView
 from slugify import slugify
 from zds.gallery.models import Gallery, UserGallery
 from zds.member.decorator import can_write_and_read_now
-from zds.tutorialv2.forms import ImportMarkdownForm
+from zds.tutorialv2.forms import ImportContentForm
 from zds.tutorialv2.models import PublishableContent, init_new_repo
 from zds.utils.models import Licence
 from django.utils.translation import ugettext as _
@@ -103,7 +103,7 @@ class ImportMarkdownView(FormView):
     """
 
     model = PublishableContent
-    form_class = ImportMarkdownForm
+    form_class = ImportContentForm
     template_name = 'tutorialv2/import/content.html'
     content = None
 

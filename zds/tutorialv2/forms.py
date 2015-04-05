@@ -291,7 +291,7 @@ class ImportForm(forms.Form):
                 self._errors['images'] = self.error_class([msg])
 
 
-class ImportMarkdownForm(forms.Form):
+class ImportContentForm(forms.Form):
 
     archive = forms.FileField(
         label=_(u"Sélectionnez l'archive de votre tutoriel"),
@@ -310,7 +310,7 @@ class ImportMarkdownForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ImportMarkdownForm, self).__init__(*args, **kwargs)
+        super(ImportContentForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -324,7 +324,7 @@ class ImportMarkdownForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(ImportMarkdownForm, self).clean()
+        cleaned_data = super(ImportContentForm, self).clean()
 
         # Check that the files extensions are correct
         archive = cleaned_data.get('archive')
@@ -337,6 +337,37 @@ class ImportMarkdownForm(forms.Form):
                 self._errors['archive'] = self.error_class([msg])
 
         return cleaned_data
+
+
+class ImportNewContentForm(ImportContentForm):
+
+    subcategory = forms.ModelMultipleChoiceField(
+        label=_(u"Sous catégories de votre contenu. Si aucune catégorie ne convient "
+                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
+        queryset=SubCategory.objects.all(),
+        required=True,
+        widget=forms.SelectMultiple(
+            attrs={
+                'required': 'required',
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ImportContentForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('archive'),
+            Field('subcategory'),
+            Field('msg_commit'),
+            ButtonHolder(
+                StrictButton('Importer l\'archive', type='submit'),
+            ),
+        )
 
 
 class BetaForm(forms.Form):

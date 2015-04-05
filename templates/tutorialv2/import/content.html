@@ -4,7 +4,7 @@
 
 
 {% block title %}
-    Importer une nouvelle version de {{ content.title }}
+    {% trans "Importer une nouvelle version de" %} {{ content.title }}
 {% endblock %}
 
 
@@ -20,7 +20,7 @@
         {% if content.image %}
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
-         {% trans "Importer une nouvelle version" %}  : {{ content.title }}
+        {% trans "Importer une nouvelle version de" %} {{ content.title }}
     </h1>
 
 {% endblock %}

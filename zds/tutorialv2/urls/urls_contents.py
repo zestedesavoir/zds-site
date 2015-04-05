@@ -5,7 +5,8 @@ from django.conf.urls import patterns, url
 from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
-    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, ImportContent
+    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
+    UpdateContentWithArchive, CreateContentFromArchive
 
 # from zds.tutorialv2.importation import ImportMarkdownView
 
@@ -96,8 +97,8 @@ urlpatterns = patterns('',
                        url(r'^supprimer/(?P<pk>\d+)/(?P<slug>.+)/$', DeleteContent.as_view(), name='delete'),
 
                        # markdown import
-                       # url(r'^importer/archive/nouveau/$', ImportMarkdownView.as_view(), name="import_new_archive"),
-                       url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', ImportContent.as_view(), name="import"),
+                       url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
+                       url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
 
                        # validation
                        url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation"),
