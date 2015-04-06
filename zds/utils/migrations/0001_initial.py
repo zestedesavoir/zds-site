@@ -1,327 +1,178 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import easy_thumbnails.fields
+from django.conf import settings
+import zds.utils.models
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Alert'
-        db.create_table(
-            u'utils_alert',
-            ((u'id',
-              self.gf('django.db.models.fields.AutoField')(
-                  primary_key=True)),
-                ('author',
-                 self.gf('django.db.models.fields.related.ForeignKey')(
-                     related_name='alerts',
-                     to=orm['auth.User'])),
-                ('text',
-                 self.gf('django.db.models.fields.TextField')()),
-                ('pubdate',
-                 self.gf('django.db.models.fields.DateTimeField')(
-                     null=True,
-                     blank=True)),
-             ))
-        db.send_create_signal(u'utils', ['Alert'])
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-        # Adding model 'Category'
-        db.create_table(
-            u'utils_category',
-            ((u'id',
-              self.gf('django.db.models.fields.AutoField')(
-                  primary_key=True)),
-                ('title',
-                 self.gf('django.db.models.fields.CharField')(
-                     max_length=80)),
-                ('description',
-                 self.gf('django.db.models.fields.TextField')()),
-                ('slug',
-                 self.gf('django.db.models.fields.SlugField')(
-                     max_length=80)),
-             ))
-        db.send_create_signal(u'utils', ['Category'])
-
-        # Adding model 'SubCategory'
-        db.create_table(
-            u'utils_subcategory', ((u'id', self.gf('django.db.models.fields.AutoField')(
-                primary_key=True)), ('title', self.gf('django.db.models.fields.CharField')(
-                    max_length=80)), ('subtitle', self.gf('django.db.models.fields.CharField')(
-                        max_length=200)), ('image', self.gf('django.db.models.fields.files.ImageField')(
-                            max_length=100, null=True, blank=True)), ('slug', self.gf('django.db.models.fields.SlugField')(
-                                max_length=80)), ))
-        db.send_create_signal(u'utils', ['SubCategory'])
-
-        # Adding model 'CategorySubCategory'
-        db.create_table(
-            u'utils_categorysubcategory', ((u'id', self.gf('django.db.models.fields.AutoField')(
-                primary_key=True)), ('category', self.gf('django.db.models.fields.related.ForeignKey')(
-                    to=orm['utils.Category'])), ('subcategory', self.gf('django.db.models.fields.related.ForeignKey')(
-                        to=orm['utils.SubCategory'])), ('is_main', self.gf('django.db.models.fields.BooleanField')(
-                            default=True)), ))
-        db.send_create_signal(u'utils', ['CategorySubCategory'])
-
-        # Adding model 'Licence'
-        db.create_table(
-            u'utils_licence', ((u'id', self.gf('django.db.models.fields.AutoField')(
-                primary_key=True)), ('code', self.gf('django.db.models.fields.CharField')(
-                    max_length=20)), ('title', self.gf('django.db.models.fields.CharField')(
-                        max_length=80)), ('description', self.gf('django.db.models.fields.TextField')()), ))
-        db.send_create_signal(u'utils', ['Licence'])
-
-        # Adding model 'Comment'
-        db.create_table(
-            u'utils_comment',
-            ((u'id',
-              self.gf('django.db.models.fields.AutoField')(
-                  primary_key=True)),
-                ('author',
-                 self.gf('django.db.models.fields.related.ForeignKey')(
-                     related_name='comments',
-                     to=orm['auth.User'])),
-                ('editor',
-                 self.gf('django.db.models.fields.related.ForeignKey')(
-                     blank=True,
-                     related_name='comments-editor',
-                     null=True,
-                     to=orm['auth.User'])),
-                ('ip_address',
-                 self.gf('django.db.models.fields.CharField')(
-                     max_length=15)),
-                ('position',
-                 self.gf('django.db.models.fields.IntegerField')()),
-                ('text',
-                 self.gf('django.db.models.fields.TextField')()),
-                ('text_html',
-                 self.gf('django.db.models.fields.TextField')()),
-                ('like',
-                 self.gf('django.db.models.fields.IntegerField')(
-                     default=0)),
-                ('dislike',
-                 self.gf('django.db.models.fields.IntegerField')(
-                     default=0)),
-                ('pubdate',
-                 self.gf('django.db.models.fields.DateTimeField')(
-                     auto_now_add=True,
-                     blank=True)),
-                ('update',
-                 self.gf('django.db.models.fields.DateTimeField')(
-                     null=True,
-                     blank=True)),
-                ('is_visible',
-                 self.gf('django.db.models.fields.BooleanField')(
-                     default=True)),
-                ('text_hidden',
-                 self.gf('django.db.models.fields.CharField')(
-                     default='',
-                     max_length=80)),
-             ))
-        db.send_create_signal(u'utils', ['Comment'])
-
-        # Adding M2M table for field alerts on 'Comment'
-        m2m_table_name = db.shorten_name(u'utils_comment_alerts')
-        db.create_table(
-            m2m_table_name, (('id', models.AutoField(
-                verbose_name='ID', primary_key=True, auto_created=True)), ('comment', models.ForeignKey(
-                    orm[u'utils.comment'], null=False)), ('alert', models.ForeignKey(
-                        orm[u'utils.alert'], null=False))))
-        db.create_unique(m2m_table_name, ['comment_id', 'alert_id'])
-
-        # Adding model 'CommentLike'
-        db.create_table(
-            u'utils_commentlike', ((u'id', self.gf('django.db.models.fields.AutoField')(
-                primary_key=True)), ('comments', self.gf('django.db.models.fields.related.ForeignKey')(
-                    to=orm['utils.Comment'])), ('user', self.gf('django.db.models.fields.related.ForeignKey')(
-                        related_name='post_liked', to=orm['auth.User'])), ))
-        db.send_create_signal(u'utils', ['CommentLike'])
-
-        # Adding model 'CommentDislike'
-        db.create_table(
-            u'utils_commentdislike', ((u'id', self.gf('django.db.models.fields.AutoField')(
-                primary_key=True)), ('comments', self.gf('django.db.models.fields.related.ForeignKey')(
-                    to=orm['utils.Comment'])), ('user', self.gf('django.db.models.fields.related.ForeignKey')(
-                        related_name='post_disliked', to=orm['auth.User'])), ))
-        db.send_create_signal(u'utils', ['CommentDislike'])
-
-    def backwards(self, orm):
-        # Deleting model 'Alert'
-        db.delete_table(u'utils_alert')
-
-        # Deleting model 'Category'
-        db.delete_table(u'utils_category')
-
-        # Deleting model 'SubCategory'
-        db.delete_table(u'utils_subcategory')
-
-        # Deleting model 'CategorySubCategory'
-        db.delete_table(u'utils_categorysubcategory')
-
-        # Deleting model 'Licence'
-        db.delete_table(u'utils_licence')
-
-        # Deleting model 'Comment'
-        db.delete_table(u'utils_comment')
-
-        # Removing M2M table for field alerts on 'Comment'
-        db.delete_table(db.shorten_name(u'utils_comment_alerts'))
-
-        # Deleting model 'CommentLike'
-        db.delete_table(u'utils_commentlike')
-
-        # Deleting model 'CommentDislike'
-        db.delete_table(u'utils_commentdislike')
-
-    models = {
-        u'auth.group': {
-            'Meta': {
-                'object_name': 'Group'}, u'id': (
-                'django.db.models.fields.AutoField', [], {
-                    'primary_key': 'True'}), 'name': (
-                        'django.db.models.fields.CharField', [], {
-                            'unique': 'True', 'max_length': '80'}), 'permissions': (
-                                'django.db.models.fields.related.ManyToManyField', [], {
-                                    'to': u"orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})}, u'auth.permission': {
-                                        'Meta': {
-                                            'ordering': "(u'content_type__app_label', u'content_type__model', u'codename')", 'unique_together': "((u'content_type', u'codename'),)", 'object_name': 'Permission'}, 'codename': (
-                                                'django.db.models.fields.CharField', [], {
-                                                    'max_length': '100'}), 'content_type': (
-                                                        'django.db.models.fields.related.ForeignKey', [], {
-                                                            'to': u"orm['contenttypes.ContentType']"}), u'id': (
-                                                                'django.db.models.fields.AutoField', [], {
-                                                                    'primary_key': 'True'}), 'name': (
-                                                                        'django.db.models.fields.CharField', [], {
-                                                                            'max_length': '50'})}, u'auth.user': {
-                                                                                'Meta': {
-                                                                                    'object_name': 'User'}, 'date_joined': (
-                                                                                        'django.db.models.fields.DateTimeField', [], {
-                                                                                            'default': 'datetime.datetime.now'}), 'email': (
-                                                                                                'django.db.models.fields.EmailField', [], {
-                                                                                                    'max_length': '75', 'blank': 'True'}), 'first_name': (
-                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                            'max_length': '30', 'blank': 'True'}), 'groups': (
-                                                                                                                'django.db.models.fields.related.ManyToManyField', [], {
-                                                                                                                    'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Group']"}), u'id': (
-                                                                                                                        'django.db.models.fields.AutoField', [], {
-                                                                                                                            'primary_key': 'True'}), 'is_active': (
-                                                                                                                                'django.db.models.fields.BooleanField', [], {
-                                                                                                                                    'default': 'True'}), 'is_staff': (
-                                                                                                                                        'django.db.models.fields.BooleanField', [], {
-                                                                                                                                            'default': 'False'}), 'is_superuser': (
-                                                                                                                                                'django.db.models.fields.BooleanField', [], {
-                                                                                                                                                    'default': 'False'}), 'last_login': (
-                                                                                                                                                        'django.db.models.fields.DateTimeField', [], {
-                                                                                                                                                            'default': 'datetime.datetime.now'}), 'last_name': (
-                                                                                                                                                                'django.db.models.fields.CharField', [], {
-                                                                                                                                                                    'max_length': '30', 'blank': 'True'}), 'password': (
-                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                            'max_length': '128'}), 'user_permissions': (
-                                                                                                                                                                                'django.db.models.fields.related.ManyToManyField', [], {
-                                                                                                                                                                                    'symmetrical': 'False', 'related_name': "u'user_set'", 'blank': 'True', 'to': u"orm['auth.Permission']"}), 'username': (
-                                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                            'unique': 'True', 'max_length': '30'})}, u'contenttypes.contenttype': {
-                                                                                                                                                                                                'Meta': {
-                                                                                                                                                                                                    'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"}, 'app_label': (
-                                                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                            'max_length': '100'}), u'id': (
-                                                                                                                                                                                                                'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                    'primary_key': 'True'}), 'model': (
-                                                                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                            'max_length': '100'}), 'name': (
-                                                                                                                                                                                                                                'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                    'max_length': '100'})}, u'utils.alert': {
-                                                                                                                                                                                                                                        'Meta': {
-                                                                                                                                                                                                                                            'object_name': 'Alert'}, 'author': (
-                                                                                                                                                                                                                                                'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                    'related_name': "'alerts'", 'to': u"orm['auth.User']"}), u'id': (
-                                                                                                                                                                                                                                                        'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                            'primary_key': 'True'}), 'pubdate': (
-                                                                                                                                                                                                                                                                'django.db.models.fields.DateTimeField', [], {
-                                                                                                                                                                                                                                                                    'null': 'True', 'blank': 'True'}), 'text': (
-                                                                                                                                                                                                                                                                        'django.db.models.fields.TextField', [], {})}, u'utils.category': {
-                                                                                                                                                                                                                                                                            'Meta': {
-                                                                                                                                                                                                                                                                                'object_name': 'Category'}, 'description': (
-                                                                                                                                                                                                                                                                                    'django.db.models.fields.TextField', [], {}), u'id': (
-                                                                                                                                                                                                                                                                                        'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                            'primary_key': 'True'}), 'slug': (
-                                                                                                                                                                                                                                                                                                'django.db.models.fields.SlugField', [], {
-                                                                                                                                                                                                                                                                                                    'max_length': '80'}), 'title': (
-                                                                                                                                                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                            'max_length': '80'})}, u'utils.categorysubcategory': {
-                                                                                                                                                                                                                                                                                                                'Meta': {
-                                                                                                                                                                                                                                                                                                                    'object_name': 'CategorySubCategory'}, 'category': (
-                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                            'to': u"orm['utils.Category']"}), u'id': (
-                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                                                                    'primary_key': 'True'}), 'is_main': (
-                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.BooleanField', [], {
-                                                                                                                                                                                                                                                                                                                                            'default': 'True'}), 'subcategory': (
-                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                    'to': u"orm['utils.SubCategory']"})}, u'utils.comment': {
-                                                                                                                                                                                                                                                                                                                                                        'Meta': {
-                                                                                                                                                                                                                                                                                                                                                            'object_name': 'Comment'}, 'alerts': (
-                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.related.ManyToManyField', [], {
-                                                                                                                                                                                                                                                                                                                                                                    'symmetrical': 'False', 'to': u"orm['utils.Alert']", 'null': 'True', 'blank': 'True'}), 'author': (
-                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                                            'related_name': "'comments'", 'to': u"orm['auth.User']"}), 'dislike': (
-                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.IntegerField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                    'default': '0'}), 'editor': (
-                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                                                            'blank': 'True', 'related_name': "'comments-editor'", 'null': 'True', 'to': u"orm['auth.User']"}), u'id': (
-                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                    'primary_key': 'True'}), 'ip_address': (
-                                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                            'max_length': '15'}), 'is_visible': (
-                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.BooleanField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                    'default': 'True'}), 'like': (
-                                                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.IntegerField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                            'default': '0'}), 'position': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.IntegerField', [], {}), 'pubdate': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                    'django.db.models.fields.DateTimeField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                        'auto_now_add': 'True', 'blank': 'True'}), 'text': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.TextField', [], {}), 'text_hidden': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    'default': "''", 'max_length': '80'}), 'text_html': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.TextField', [], {}), 'update': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.DateTimeField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                'null': 'True', 'blank': 'True'})}, u'utils.commentdislike': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'Meta': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'object_name': 'CommentDislike'}, 'comments': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'to': u"orm['utils.Comment']"}), u'id': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'primary_key': 'True'}), 'user': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'related_name': "'post_disliked'", 'to': u"orm['auth.User']"})}, u'utils.commentlike': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'Meta': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'object_name': 'CommentLike'}, 'comments': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'to': u"orm['utils.Comment']"}), u'id': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'primary_key': 'True'}), 'user': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.related.ForeignKey', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'related_name': "'post_liked'", 'to': u"orm['auth.User']"})}, u'utils.licence': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'Meta': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'object_name': 'Licence'}, 'code': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'max_length': '20'}), 'description': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'django.db.models.fields.TextField', [], {}), u'id': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'primary_key': 'True'}), 'title': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'max_length': '80'})}, u'utils.subcategory': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'Meta': {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'object_name': 'SubCategory'}, u'id': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.AutoField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'primary_key': 'True'}), 'image': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.files.ImageField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'max_length': '100', 'null': 'True', 'blank': 'True'}), 'slug': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.SlugField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'max_length': '80'}), 'subtitle': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            'max_length': '200'}), 'title': (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                'django.db.models.fields.CharField', [], {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    'max_length': '80'})}}
-
-    complete_apps = ['utils']
+    operations = [
+        migrations.CreateModel(
+            name='Alert',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('scope', models.CharField(db_index=True, max_length=1, choices=[(b'A', b"Commentaire d'article"), (b'F', b'Forum'), (b'T', b'Commentaire de tuto')])),
+                ('text', models.TextField(verbose_name=b"Texte d'alerte")),
+                ('pubdate', models.DateTimeField(verbose_name=b'Date de publication', db_index=True)),
+                ('author', models.ForeignKey(related_name='alerts', verbose_name=b'Auteur', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Alerte',
+                'verbose_name_plural': 'Alertes',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Category',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
+                ('description', models.TextField(verbose_name=b'Description')),
+                ('position', models.IntegerField(default=0, verbose_name=b'Position')),
+                ('slug', models.SlugField(max_length=80)),
+            ],
+            options={
+                'verbose_name': 'Categorie',
+                'verbose_name_plural': 'Categories',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CategorySubCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('is_main', models.BooleanField(default=True, db_index=True, verbose_name=b'Est la cat\xc3\xa9gorie principale')),
+                ('category', models.ForeignKey(verbose_name=b'Cat\xc3\xa9gorie', to='utils.Category')),
+            ],
+            options={
+                'verbose_name': 'Hierarchie cat\xe9gorie',
+                'verbose_name_plural': 'Hierarchies cat\xe9gories',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Comment',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('ip_address', models.CharField(max_length=39, verbose_name=b"Adresse IP de l'auteur ")),
+                ('position', models.IntegerField(verbose_name=b'Position', db_index=True)),
+                ('text', models.TextField(verbose_name=b'Texte')),
+                ('text_html', models.TextField(verbose_name=b'Texte en Html')),
+                ('like', models.IntegerField(default=0, verbose_name=b'Likes')),
+                ('dislike', models.IntegerField(default=0, verbose_name=b'Dislikes')),
+                ('pubdate', models.DateTimeField(auto_now_add=True, verbose_name=b'Date de publication', db_index=True)),
+                ('update', models.DateTimeField(null=True, verbose_name=b"Date d'\xc3\xa9dition", blank=True)),
+                ('is_visible', models.BooleanField(default=True, verbose_name=b'Est visible')),
+                ('text_hidden', models.CharField(default=b'', max_length=80, verbose_name=b'Texte de masquage ')),
+                ('author', models.ForeignKey(related_name='comments', verbose_name=b'Auteur', to=settings.AUTH_USER_MODEL)),
+                ('editor', models.ForeignKey(related_name='comments-editor', verbose_name=b'Editeur', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+            ],
+            options={
+                'verbose_name': 'Commentaire',
+                'verbose_name_plural': 'Commentaires',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CommentDislike',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('comments', models.ForeignKey(to='utils.Comment')),
+                ('user', models.ForeignKey(related_name='post_disliked', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Ce message est inutile',
+                'verbose_name_plural': 'Ces messages sont inutiles',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CommentLike',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('comments', models.ForeignKey(to='utils.Comment')),
+                ('user', models.ForeignKey(related_name='post_liked', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'verbose_name': 'Ce message est utile',
+                'verbose_name_plural': 'Ces messages sont utiles',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='HelpWriting',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=20, verbose_name=b'Name')),
+                ('slug', models.SlugField(max_length=20)),
+                ('tablelabel', models.CharField(max_length=150, verbose_name=b'TableLabel')),
+                ('image', easy_thumbnails.fields.ThumbnailerImageField(upload_to=zds.utils.models.image_path_help)),
+            ],
+            options={
+                'verbose_name': 'Aide \xe0 la r\xe9daction',
+                'verbose_name_plural': 'Aides \xe0 la r\xe9daction',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Licence',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(max_length=20, verbose_name=b'Code')),
+                ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
+                ('description', models.TextField(verbose_name=b'Description')),
+            ],
+            options={
+                'verbose_name': 'Licence',
+                'verbose_name_plural': 'Licences',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='SubCategory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
+                ('subtitle', models.CharField(max_length=200, verbose_name=b'Sous-titre')),
+                ('image', models.ImageField(null=True, upload_to=zds.utils.models.image_path_category, blank=True)),
+                ('slug', models.SlugField(max_length=80)),
+            ],
+            options={
+                'verbose_name': 'Sous-categorie',
+                'verbose_name_plural': 'Sous-categories',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Tag',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('title', models.CharField(max_length=20, verbose_name=b'Titre')),
+                ('slug', models.SlugField(max_length=20)),
+            ],
+            options={
+                'verbose_name': 'Tag',
+                'verbose_name_plural': 'Tags',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='categorysubcategory',
+            name='subcategory',
+            field=models.ForeignKey(verbose_name=b'Sous-Cat\xc3\xa9gorie', to='utils.SubCategory'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='alert',
+            name='comment',
+            field=models.ForeignKey(related_name='alerts', verbose_name=b'Commentaire', to='utils.Comment'),
+            preserve_default=True,
+        ),
+    ]
