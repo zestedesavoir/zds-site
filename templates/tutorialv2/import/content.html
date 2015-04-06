@@ -4,22 +4,26 @@
 
 
 {% block title %}
-    {% trans "Importer un tutoriel" %}
+    {% trans "Importer une nouvelle version de" %} {{ content.title }}
 {% endblock %}
+
 
 {% block breadcrumb %}
-    <li>{% trans "Importer un tutoriel" %}</li>
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Importer une nouvelle version" %}</li>
 {% endblock %}
-
 
 
 {% block headline %}
-    <h1>
-        {% trans "Importer un tutoriel" %}
+
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% trans "Importer une nouvelle version de" %} {{ content.title }}
     </h1>
+
 {% endblock %}
-
-
 
 {% block content %}
     {% crispy form %}

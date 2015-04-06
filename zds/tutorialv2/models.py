@@ -53,6 +53,15 @@ class InvalidOperationError(RuntimeError):
     pass
 
 
+def default_slug_pool():
+    """
+    :return: the forbidden slugs in the edition system
+    :rtype: dict
+    """
+
+    return {'introduction': 1, 'conclusion': 1}  # forbidden slugs
+
+
 class Container:
     """
     A container, which can have sub-Containers or Extracts.
@@ -86,7 +95,7 @@ class Container:
         self.children = []  # even if you want, do NOT remove this line
         self.children_dict = {}
 
-        self.slug_pool = {'introduction': 1, 'conclusion': 1}  # forbidden slugs
+        self.slug_pool = default_slug_pool()
 
     def __unicode__(self):
         return u'<Conteneur \'{}\'>'.format(self.title)
@@ -769,8 +778,9 @@ class Extract:
         :param do_commit: tells if we have to commit the change now or let the outter program do it
         :return: commit sha, None if no commit is done
         """
-        path = self.get_path(relative=True)
+        path = self.text
         repo = self.container.top_container().repository
+
         repo.index.remove([path])
         os.remove(self.get_path())  # looks like removing from git is not enough
 
@@ -965,7 +975,7 @@ class VersionedContent(Container):
         json_data.write(self.get_json().encode('utf-8'))
         json_data.close()
 
-    def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message=''):
+    def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message='', do_commit=True):
         """Update the top container information and commit them into the repository.
         Note that this is slightly different from the `repo_update()` function, because slug is generated using DB
 
@@ -974,6 +984,7 @@ class VersionedContent(Container):
         :param introduction: the new introduction text
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
+        :param do_commit: if `True`, also commit change
         :return : commit sha
         """
 
@@ -986,7 +997,7 @@ class VersionedContent(Container):
             self.repository = Repo(new_path)
             self.slug_repository = slug
 
-        return self.repo_update(title, introduction, conclusion, commit_message)
+        return self.repo_update(title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
 
     def commit_changes(self, commit_message):
         """Commit change made to the repository
@@ -1022,9 +1033,17 @@ class VersionedContent(Container):
         self.dump_json()
 
 
-def get_content_from_json(json, sha, slug_last_draft):
-    """Transform the JSON formated data into `VersionedContent`
+class BadManifestError(Exception):
+    """ The exception that is raised when the manifest.json contains errors """
+    message = u''
 
+    def __init__(self, reason):
+        self.message = reason
+
+
+def get_content_from_json(json, sha, slug_last_draft):
+    """
+    Transform the JSON formated data into `VersionedContent`
     :param json: JSON data from a `manifest.json` file
     :param sha: version
     :return: a `VersionedContent` with all the information retrieved from JSON
@@ -1104,9 +1123,9 @@ def fill_containers_from_json(json_sub, parent):
                     pass
                 new_extract = Extract(child['title'], slug)
                 new_extract.text = child['text']
-                parent.add_extract(new_extract, generate_slug=(slug != ''))
+                parent.add_extract(new_extract, generate_slug=(slug == ''))
             else:
-                raise Exception('Unknown object type' + child['object'])
+                raise BadManifestError(_('Type d\'objet inconnu :') + child['object'])
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):

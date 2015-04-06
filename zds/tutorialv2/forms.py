@@ -291,23 +291,82 @@ class ImportForm(forms.Form):
                 self._errors['images'] = self.error_class([msg])
 
 
-class ImportMarkdownForm(forms.Form):
+class ImportContentForm(forms.Form):
 
-    file = forms.FileField(
+    archive = forms.FileField(
         label=_(u"Sélectionnez l'archive de votre tutoriel"),
         required=True
     )
 
+    msg_commit = forms.CharField(
+        label=_(u"Message de suivi"),
+        max_length=80,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Un résumé de vos ajouts et modifications')
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
-        super(ImportMarkdownForm, self).__init__(*args, **kwargs)
+        super(ImportContentForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            Field('file'),
-            Field('tutorial'),
-            Submit('import-archive', _(u"Importer l'archive")),
+            Field('archive'),
+            Field('msg_commit'),
+            ButtonHolder(
+                StrictButton('Importer l\'archive', type='submit'),
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super(ImportContentForm, self).clean()
+
+        # Check that the files extensions are correct
+        archive = cleaned_data.get('archive')
+
+        if archive is not None:
+            ext = archive.name.split(".")[-1]
+            if ext != 'zip':
+                del cleaned_data['archive']
+                msg = _(u'L\'archive doit être au format ZIP')
+                self._errors['archive'] = self.error_class([msg])
+
+        return cleaned_data
+
+
+class ImportNewContentForm(ImportContentForm):
+
+    subcategory = forms.ModelMultipleChoiceField(
+        label=_(u"Sous catégories de votre contenu. Si aucune catégorie ne convient "
+                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
+        queryset=SubCategory.objects.all(),
+        required=True,
+        widget=forms.SelectMultiple(
+            attrs={
+                'required': 'required',
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ImportContentForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('archive'),
+            Field('subcategory'),
+            Field('msg_commit'),
+            ButtonHolder(
+                StrictButton('Importer l\'archive', type='submit'),
+            ),
         )
 
 
