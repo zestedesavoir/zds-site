@@ -104,7 +104,7 @@ Cela permettra aux autres développeurs de répercuter les modifications en util
 
 .. sourcecode:: bash
 
-    python manage.py migrate
+    python manage.py migrate --fake-initial
 
 
 API
