@@ -202,7 +202,7 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         except ObjectDoesNotExist:
             messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
 
-        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug]))
+        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
 
 
 class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
