@@ -81,7 +81,7 @@ def migrate_articles():
 
         versioned.add_extract(article_extract)
         versioned.dump_json()
-        versioned.commit_changes(u"Migration version 2")
+        exported.sha_draft = versioned.commit_changes(u"Migration version 2")
 
         exported.save()
         # todo  : generate mapping
@@ -121,7 +121,7 @@ def migrate_mini_tuto():
             versioned.add_extract(minituto_extract)
         versioned.dump_json()
 
-        versioned.commit_changes(u"Migration version 2")
+        exported.sha_draft = versioned.commit_changes(u"Migration version 2")
         exported.save()
 
 
