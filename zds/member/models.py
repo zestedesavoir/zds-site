@@ -129,7 +129,10 @@ class Profile(models.Model):
         :return: The avatar URL for this profile
         """
         if self.avatar_url:
-            return self.avatar_url
+            if self.avatar_url.startswith(settings.MEDIA_URL):
+                return u"{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
+            else:
+                return self.avatar_url
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
                 md5(self.user.email.lower().encode("utf-8")).hexdigest())
