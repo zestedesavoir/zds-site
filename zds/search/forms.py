@@ -26,10 +26,10 @@ class CustomSearchForm(ModelSearchForm):
         choices = [
             ("%s.%s" %
              (m._meta.app_label,
-              m._meta.module_name),
+              m._meta.model_name),
                 self.get_model_name(
                  m._meta.app_label,
-                 m._meta.module_name,
+                 m._meta.model_name,
                  True)) for m in connections[using].get_unified_index().get_indexed_models()]
         return sorted(choices, key=lambda x: x[1])
 
