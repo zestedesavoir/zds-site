@@ -49,10 +49,10 @@ def state(user):
 
 
 @register.filter('liked')
-def liked(user, comment_pk):
-    return CommentLike.objects.filter(comments__pk=comment_pk, user=user).exists()
+def liked(profile, comment_pk):
+    return CommentLike.objects.filter(comments__pk=comment_pk, user=profile.user).exists()
 
 
 @register.filter('disliked')
-def disliked(user, comment_pk):
-    return CommentDislike.objects.filter(comments__pk=comment_pk, user=user).exists()
+def disliked(profile, comment_pk):
+    return CommentDislike.objects.filter(comments__pk=comment_pk, user=profile.user).exists()
