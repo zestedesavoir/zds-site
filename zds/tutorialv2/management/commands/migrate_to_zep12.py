@@ -1,13 +1,13 @@
 try:
     from zds.article.models import Article  # , ArticleRead, Reaction
-    from zds.tutorial.models import Tutorial  # , Part, Chapter, Comment
+    from zds.tutorial.models import Tutorial, Part, Chapter  # , Comment
     from zds.tutorial.models import Extract as OldExtract
 except ImportError:
     print("The old stack is no more available on your zestedesavoir copy")
     exit()
 
 
-from zds.tutorialv2.models import PublishableContent, Extract  # , VersionedContent, Container
+from zds.tutorialv2.models import PublishableContent, Extract, Container  # , VersionedContent
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery
@@ -103,7 +103,7 @@ def migrate_mini_tuto():
         exported.creation_date = current.create_at
         exported.image = current.image
         exported.description = current.description
-        exported.js_support = current.js_support  # todo: check articles have js_support
+        exported.js_support = current.js_support
         exported.save()
         [exported.subcategory.add(category) for category in current.subcategory.all()]
         [exported.helps.add(help) for help in current.helps.all()]
@@ -117,7 +117,8 @@ def migrate_mini_tuto():
         versioned.type = "TUTORIAL"
 
         for extract in OldExtract.objects.filter(chapter=current.get_chapter()):
-            minituto_extract = Extract(extract.title, extract.text[:-3].split("/")[-1], versioned)
+            minituto_extract = Extract(extract.title, extract.text[:-3].split("/")[-1])
+            minituto_extract.text = extract.text
             versioned.add_extract(minituto_extract)
         versioned.dump_json()
 
@@ -126,7 +127,51 @@ def migrate_mini_tuto():
 
 
 def migrate_big_tuto():
-    pass
+    big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
+    for i in progressbar(xrange(len(big_tutos)), "Exporting articles", 100):
+        current = big_tutos[i]
+        exported = PublishableContent()
+        exported.slug = current.slug
+        exported.type = "TUTORIAL"
+        exported.title = current.title
+        exported.sha_draft = current.sha_draft
+        exported.licence = Licence.objects.filter(code=current.licence).first()
+        exported.creation_date = current.create_at
+        exported.image = current.image
+        exported.description = current.description
+        exported.js_support = current.js_support
+        exported.save()
+        [exported.subcategory.add(category) for category in current.subcategory.all()]
+        [exported.helps.add(help) for help in current.helps.all()]
+        [exported.authors.add(author) for author in current.authors.all()]
+        shutil.copytree(current.get_path(False), exported.get_repo_path(False))
+        # now, re create the manifest.json
+        versioned = exported.load_version()
+        versioned.licence = exported.licence
+        exported.gallery = current.gallery
+        versioned.type = "TUTORIAL"
+        for part in Part.objects.filter(tutorial=current).all():
+            current_part = Container(part.title, str(part.pk) + "_" + slugify(part.title))
+            current_part.introduction = part.introduction
+            current_part.conclusion = part.conclusion
+            versioned.add_container(current_part)
+            for chapter in Chapter.objects.filter(part=part).all():
+                current_chapter = Container(chapter.title, str(chapter.pk) + "_" + slugify(chapter.title))
+                current_chapter.introduction = chapter.introduction
+                current_chapter.conclusion = chapter.conclusion
+                current_part.add_container(current_chapter)
+                for extract in OldExtract.objects.filter(chapter=chapter):
+                    current_extract = Extract(extract.title, extract.text[:-3].split("/")[-1])
+                    current_extract.text = extract.text
+                    current_chapter.add_extract(current_extract)
+                    
+        
+        versioned.dump_json()
+
+        exported.sha_draft = versioned.commit_changes(u"Migration version 2")
+        exported.save()
+        
+        # todo: handle publication, notes etc.
 
 
 @transaction.atomic

@@ -218,3 +218,73 @@ Dès lors, deux cas se présentent :
 + L'utilisateur consulte un conteneur dont les enfants sont eux-mêmes des conteneurs (c'est-à-dire le conteneur principal ou une partie d'un big-tutoriel) : le manifest.json est employé pour générer le sommaire, comme c'est le cas actuellement. L'introduction et la conclusion sont également affichées.
 + L'utilisateur consulte un conteneur dont les enfants sont des extraits : le fichier HTML généré durant la mise en production est employé tel quel par le *template* correspondant, additionné de l'éventuelle possibilité de faire suivant/précédent (qui nécéssite la lecture du manifest.json).
 
+Passage des tutos v1 aux tutos v2
+=================================
+
+Le parseur v2 ne permettant qu'un support minimal des tutoriels à l'ancien format, il est nécessaire de mettre en place des procédures de migration.
+
+Migrer une archive v1 vers une archive v2
+-----------------------------------------
+
+Le premier cas qu'il est possible de rencontrer est la présence d'une archive *hors ligne* d'un tutoriel à la version 1.
+
+La migration de cette archive consistera alors à ne migrer que le fichier de manifeste la nouvelle architecture étant bien plus souple du point de vue des nomenclatures, il ne sera pas nécessaire de l'adapter.
+
+Un outil intégré au code de zds a été mis en place, il vous faudra alors :
+
+- décompresser l'archive
+- exécuter ``python manage.py upgrade_manifest_to_v2 /chemin/vers/archive/decompressee/manifest.json``
+- recompresser l'archive
+
+Si vous désirez implémenter votre propre convertisseur, voici l'algorithme utilisé en python :
+
+.. sourcecode:: python
+
+    with open(_file, "r") as json_file:
+        data = json_reader.load(json_file)
+    _type = "TUTORIAL"
+    if "type" not in data:
+        _type = "ARTICLE"
+    versioned = VersionedContent("", _type, data["title"], slugify(data["title"]))
+    versioned.description = data["description"]
+    versioned.introduction = data["introduction"]
+    versioned.conclusion = data["conclusion"]
+    versioned.licence = Licence.objects.filter(code=data["licence"]).first()
+    versioned.version = "2.0"
+    versioned.slug = slugify(data["title"])
+    if "parts" in data:
+        # if it is a big tutorial
+        for part in data["parts"]:
+            current_part = Container(part["title"],
+                str(part["pk"]) + "_" + slugify(part["title"]))
+            current_part.introduction = part["introduction"]
+            current_part.conclusion = part["conclusion"]
+            versioned.add_container(current_part)
+            for chapter in part["chapters"]:
+                current_chapter = Container(chapter["title"],
+                    str(chapter["pk"]) + "_" + slugify(chapter["title"]))
+                current_chapter.introduction = chapter["introduction"]
+                current_chapter.conclusion = chapter["conclusion"]
+                current_part.add_container(current_chapter)
+                for extract in chapter["extracts"]:
+                    current_extract = Extract(extract["title"],
+                        str(extract["pk"]) + "_" + slugify(extract["title"]))
+                    current_chapter.add_extract(current_extract)
+                    current_extract.text = current_extract.get_path(True)
+                    
+    elif "chapter" in data:
+        # if it is a mini tutorial
+        for extract in data["chapter"]["extracts"]:
+            current_extract = Extract(extract["title"],
+                str(extract["pk"]) + "_" + slugify(extract["title"]))
+            current_extract.text = current_extract.get_path(True)
+            versioned.add_extract(current_extract)
+    elif versioned.type == "ARTICLE":
+        extract = Extract(data["title"], "text")
+        versioned.add_extract(extract)
+
+Migrer la base de données
+-------------------------
+
+Si vous faites tourner une instance du code de zeste de savoir sous la version 1.X et que vous passez à la v2.X, vous allez
+devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécuter la commande ``python manage.py migrate_to_zep12.py ``

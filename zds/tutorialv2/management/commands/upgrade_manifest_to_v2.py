@@ -61,6 +61,9 @@ class Command(BaseCommand):
                         str(extract["pk"]) + "_" + slugify(extract["title"]))
                     current_extract.text = current_extract.get_path(True)
                     versioned.add_extract(current_extract)
+            elif versioned.type == "ARTICLE":
+                extract = Extract(data["title"], "text")
+                versioned.add_extract(extract)
             
             with open(_file, "w") as json_file:
                 json_file.write(versioned.get_json().encode('utf-8'))
