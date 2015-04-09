@@ -233,11 +233,11 @@ class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
         return redirect(reverse('mp-list'))
 
 
-class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
+class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
     """
     Display a thread and its posts using a pager.
     """
-
+    object = None
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
     template_name = 'mp/topic/index.html'
 
