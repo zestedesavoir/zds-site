@@ -53,7 +53,7 @@ class GalleryForm(forms.ModelForm):
 class UpdateGalleryForm(GalleryForm):
 
     def __init__(self, *args, **kwargs):
-        super(GalleryForm, self).__init__(*args, **kwargs)
+        super(UpdateGalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'clearfix'
         self.helper.form_method = 'post'

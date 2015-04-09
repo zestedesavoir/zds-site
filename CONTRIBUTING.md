@@ -22,7 +22,7 @@ Les contributions externes sont les bienvenues !
 9. Poussez votre travail et faites une _pull request_
 
 # Quelques bonnes pratiques
-* Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.6/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/)
+* Respectez [les conventions de code de Django](https://docs.djangoproject.com/en/1.7/internals/contributing/writing-code/coding-style/), ce qui inclut la [PEP 8 de Python](http://legacy.python.org/dev/peps/pep-0008/)
 * Le code et les commentaires sont en anglais
 * Le _workflow_ Git utilisé est le [Git flow](http://nvie.com/posts/a-successful-git-branching-model/). En détail :
     * Les arrivées fonctionnalités et corrections de gros bugs hors release se font via des PR.

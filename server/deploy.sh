@@ -18,7 +18,7 @@ if [ "$#" -ne 1 ]; then
 	exit 1
 fi
 
-read -p "Did you run specific tasks for this version as described in update.md? " -r
+read -p "Did you run specific tasks for this version as described in update.md? [y/N] " -r
 echo    # move to a new line
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
@@ -75,4 +75,4 @@ sudo service nginx reload
 
 # Display current branch and commit
 git status
-echo "Commit deployé : `git rev-parse HEAD`"
+echo "Deployed commit: `git rev-parse HEAD`"
