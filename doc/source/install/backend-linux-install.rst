@@ -17,6 +17,7 @@ Assurez vous que les dépendances suivantes soient résolues :
 - easy_install : ``apt-get install python-setuptools``
 - pip : ``easy_install pip``
 - tox : ``pip install tox``
+- libgeoip-dev : ``apt-get install libgeoip-dev``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
@@ -28,7 +29,7 @@ Ou, en une ligne,
 
 .. sourcecode:: bash
 
-    apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+    apt-get install git python-dev python-setuptools libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
     easy_install pip tox
 
 Installation et configuration de `virtualenv`
