@@ -61,10 +61,24 @@ from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView, DetailView, FormView, DeleteView
+from django.views.generic import ListView, DetailView, FormView, DeleteView, RedirectView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin
+
+
+class RedirectContentSEO(RedirectView):
+    permanent = True
+    
+    def get_redirect_url(self, **kwargs):
+        """Redirects the user to the new url"""
+        obj = PublishableContent.objects.get(old_pk=kwargs["pk"])
+        if obj = None or not obj.is_public():
+            raise Http404
+        
+        obj = search_container_or_404(obj.load_version(public=True, kwargs)
+        
+        return obj.get_prod_path()
 
 
 class ListContent(LoggedWithReadWriteHability, ListView):
@@ -1038,7 +1052,8 @@ class DisplayOnlineContent(DisplayContent):
     """Display online tutorial"""
     type = "TUTORIAL"
     template_name = "tutorial/view_online.html"
-
+    is_public = True
+    
     def get_forms(self, context, content):
 
         # Build form to send a note for the current tutorial.
@@ -1077,6 +1092,8 @@ class DisplayOnlineContent(DisplayContent):
 
     def get_context_data(self, **kwargs):
         content = self.get_object()
+        if self.must_redirect:
+            return redirect(content.get_absolute_url_online()
         # If the tutorial isn't online, we raise 404 error.
         if not content.in_public():
             raise Http404

@@ -82,7 +82,7 @@ def migrate_articles():
         versioned.add_extract(article_extract)
         versioned.dump_json()
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
-
+        exported.old_pk = current.pk
         exported.save()
         # todo  : generate mapping
         # todo: handle notes
@@ -123,6 +123,7 @@ def migrate_mini_tuto():
         versioned.dump_json()
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
+        exported.old_pk = current.pk
         exported.save()
 
 
@@ -169,6 +170,7 @@ def migrate_big_tuto():
         versioned.dump_json()
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
+        exported.old_pk = current.pk
         exported.save()
         
         # todo: handle publication, notes etc.

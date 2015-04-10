@@ -19,6 +19,8 @@ class SingleContentViewMixin(object):
     prefetch_all = True
     only_draft_version = True
     sha = None
+    is_public = False
+    must_redirect = False
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
@@ -27,10 +29,21 @@ class SingleContentViewMixin(object):
                 .prefetch_related("authors") \
                 .prefetch_related("subcategory") \
                 .filter(pk=self.kwargs["pk"])
-
+            
             obj = queryset.first()
         else:
             obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+        
+        if "slug" in self.kwargs and self.kwargs["slug"] != obj.slug and self.is_public:
+            # if slug and pk does not match try to find old pk
+             queryset = PublishableContent.objects \
+                .select_related("licence") \
+                .prefetch_related("authors") \
+                .prefetch_related("subcategory") \
+                .filter(old_pk=self.kwargs["pk"], slug=self.kwargs["slug"])
+             obj = queryset.first()
+             must_redirect = True
+             
         if self.must_be_author and self.request.user not in obj.authors.all():
             if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
                 return obj
@@ -38,6 +51,9 @@ class SingleContentViewMixin(object):
         return obj
 
     def get_versioned_object(self):
+        """
+        Gets the asked version of current content. 
+        """
         sha = self.object.sha_draft
 
         if not self.only_draft_version:
@@ -60,6 +76,7 @@ class SingleContentViewMixin(object):
 
         if 'slug' in self.kwargs \
                 and (versioned.slug != self.kwargs['slug'] and self.object.slug != self.kwargs['slug']):
+
             raise Http404
 
         return versioned
@@ -174,6 +191,10 @@ class DownloadViewMixin(View):
         pass
 
     def get(self, context, **response_kwargs):
+        """
+        Access to a file with only get method then write the file content in response stream.
+        Properly sets Content-Type and Content-Disposition headers
+        """
         response = HttpResponse(content_type=self.get_mimetype())
         response['Content-Disposition'] = 'filename=' + self.get_filename()
         response.write(self.get_contents())

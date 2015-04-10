@@ -105,3 +105,6 @@ urlpatterns = patterns('',
                        url(r'^validation/historique/(?P<pk>\d+)/$', HistoryOfValidationDisplay.as_view(),
                            name="validation_history")
                        )
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/'\
+                           '(?P<p2>\d+)/(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
+                            RedirectContentSEO.as_view(), name="redirect_old_tuto")
