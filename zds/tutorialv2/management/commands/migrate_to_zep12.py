@@ -6,7 +6,7 @@ except ImportError:
     print("The old stack is no more available on your zestedesavoir copy")
     exit()
 
-
+from zds.forum.models import Topic
 from zds.tutorialv2.models import PublishableContent, Extract, Container  # , VersionedContent
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -123,9 +123,22 @@ def migrate_mini_tuto():
         versioned.dump_json()
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
+        if current.is_beta():
+            exported.sha_beta = exported.sha_draft
+        
         exported.old_pk = current.pk
         exported.save()
-
+        # export beta forum post
+        former_topic = Topic.objet.get(key=current.pk)
+        if former_topic is not None:
+            former_topic.related_publishable_content = exported
+            former_topic.save()
+            former_first_post = former_topic.first_post()
+            text = former_first_post.text
+            text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
+            former_first_post.update_content(text)
+            former_first_post.save()
+            
 
 def migrate_big_tuto():
     big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
@@ -171,7 +184,21 @@ def migrate_big_tuto():
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
         exported.old_pk = current.pk
+        if current.is_beta():
+            exported.sha_beta = exported.sha_draft
+        
+        exported.old_pk = current.pk
         exported.save()
+        # export beta forum post
+        former_topic = Topic.objet.get(key=current.pk)
+        if former_topic is not None:
+            former_topic.related_publishable_content = exported
+            former_topic.save()
+            former_first_post = former_topic.first_post()
+            text = former_first_post.text
+            text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
+            former_first_post.update_content(text)
+            former_first_post.save()
         
         # todo: handle publication, notes etc.
 
