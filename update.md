@@ -197,4 +197,4 @@ stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 Issue #2520
 -----------
 
-Vérifier que le paquet `libgoip-dev`, devenu nécéssaire pour employer GeoIP, est installé : `sudo apt-get install libgeoip-dev`
+Vérifier que le paquet `libgoip-dev`, devenu nécessaire pour employer GeoIP, est installé : `sudo apt-get install libgeoip-dev`
