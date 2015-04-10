@@ -96,7 +96,7 @@ Le dossier ``migrations/`` permet à Django de consigner les changements effectu
 
 .. sourcecode:: bash
 
-    python manage.py schemamigration zds.module --auto
+    python manage.py makemigrations
 
 Celle-ci doit être utilisée lorsqu'une variable d'un modèle (dans ``models.py``) est modifiée, ajoutée ou supprimée. Si tel est le cas, n'oubliez pas d'inclure le fichier résultant (de la forme ``xxxx_auto_yyy.py``) dans votre prochain *commit* !
 

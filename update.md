@@ -193,3 +193,8 @@ command = /opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
 stdout_logfile = /opt/zdsenv/logs/supervisor_stdout.log
 stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 ```
+
+Issue #2520
+-----------
+
+Vérifier que le paquet `libgoip-dev`, devenu nécéssaire pour employer GeoIP, est installé : `sudo apt-get install libgeoip-dev`
