@@ -330,7 +330,7 @@
 @media only screen and #{$media-mobile} {
     .topic-list {
         .topic-infos .ico-after:after {
-            margin: 4px 0 0 10px;
+            margin: 4px 0 0 2px;
         }
         .topic-description {
             .topic-subtitle:empty {
