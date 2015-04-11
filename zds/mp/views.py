@@ -65,11 +65,18 @@ class PrivateTopicNew(CreateView):
 
     def get(self, request, *args, **kwargs):
         title = request.GET.get('title') if 'title' in request.GET else None
-        try:
-            participants = User.objects.get(username=request.GET.get('username')).username \
-                if 'username' in request.GET else None
-        except:
-            participants = None
+
+        participants = None
+        if 'username' in request.GET:
+            dest_list = []
+            # check that usernames in url is in the database
+            for username in request.GET.getlist('username'):
+                try:
+                    dest_list.append(User.objects.get(username=username).username)
+                except:
+                    pass
+            if len(dest_list) > 0:
+                participants = ', '.join(dest_list)
 
         form = self.form_class(username=request.user.username,
                                initial={
