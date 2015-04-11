@@ -73,7 +73,7 @@ class PrivateTopicNew(CreateView):
             for username in request.GET.getlist('username'):
                 try:
                     dest_list.append(User.objects.get(username=username).username)
-                except:
+                except ObjectDoesNotExist:
                     pass
             if len(dest_list) > 0:
                 participants = ', '.join(dest_list)
