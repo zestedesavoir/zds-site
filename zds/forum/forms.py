@@ -50,8 +50,10 @@ class TopicForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('title', autocomplete='off'),
-            HTML('<div id="results" ><table id="tb-results" class="topics-entries"></table></div>'),
             Field('subtitle', autocomplete='off'),
+            HTML(u'<div id="topic-suggest" style="display:none;"><label>{0}</label>'
+                 u'<div id="topic-result-container" data-neither="{1}"></div></div>'
+                 .format(_(u'Sujets résolus similaire au votre :'), _(u'Aucun résultat'))),
             CommonLayoutEditor(),
         )
 
