@@ -114,6 +114,7 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
+    'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -319,6 +320,12 @@ CACHES = {
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
+# Change to True to force HTTPS for members
+FORCE_HTTPS_FOR_MEMBERS = False
+# Change to True to force HTTPS on views with `@https_required`
+ENABLE_HTTPS_DECORATOR = False
+
 
 LOGIN_URL = '/membres/connexion'
 
