@@ -198,3 +198,33 @@ Issue #2520
 -----------
 
 Vérifier que le paquet `libgoip-dev`, devenu nécessaire pour employer GeoIP, est installé : `sudo apt-get install libgeoip-dev`
+
+
+Issue #2272
+-----------
+
+#### Arret des services de ZdS.
+
+- `supervisorctl stop solr`
+- `supervisorctl stop zds`
+- `service nginx stop`
+
+#### Commandes manuelles
+
+1. Installez python3 : `apt-get install python3`
+2. Installez python3-dev : `apt-get install python3-dev`
+3. ALlez dans le répertoire d'installation : `cd /opt/`
+3. Sauvegardez l'ancien environnement virtuel : `mv zdsenv zdsenv_python2`
+4. Créez un environnement virtuel avec python3 : `virtualenv zdsenv --python=python3`
+5. Recupérez les anciens configurations : `cp zdsenv_python2/*unicorn* zdsenv/`
+6. Récupérez solr : `cp -R zdsenv_python2/apache-solr zdsenv/`
+7. Allez dans le nouvel environnment virtuel : `cd /opt/zdsenv`
+8. Créez les répertoires utiles : `mkdir logs`
+9. Branchez vous sur le nouvel environnement `source bin/activate`
+10. Cloner le projet `git clone https://github.com/zestedesavoir/zds-site.git ZesteDeSavoir`
+11. Installez le pilote mysql `pip install --allow-all-external mysql-connector-python`
+12. lancez le script de déploiement `ZesteDeSavoir/server/deploy.sh` et suivre les recommandations.
+
+#### Relance des autres services
+
+- `supervisorctl start solr`

@@ -329,7 +329,6 @@ HAYSTACK_CONNECTIONS = {
 }
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 
 # Fake mails (in console)

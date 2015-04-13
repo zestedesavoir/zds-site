@@ -3085,7 +3085,7 @@ def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
     regex = r"(!\[.*?\]\()(.+?)(\))"
-    unknow_path = os.path.join(settings.SITE_ROOT, "fixtures", "noir_black.png")
+    unknow_path = os.path.join(settings.BASE_DIR, "fixtures", "noir_black.png")
 
     # if text is empty don't download
 

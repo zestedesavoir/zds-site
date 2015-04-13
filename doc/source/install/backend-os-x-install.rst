@@ -22,7 +22,7 @@ Installation de virtualenv
 
 .. sourcecode:: bash
 
-    sudo port install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox
+    sudo port install virtualenv_select py34-virtualenv py34-virtualenvwrapper py34-tox
 
     mkdir ~/.virtualenvs
     echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
@@ -37,12 +37,12 @@ Création de votre environnement
     mkvirtualenv zdsenv
 
 
-Récupération de la librairie lxml pour python 2.7 via MacPorts
+Récupération de la librairie lxml pour python 3.4 via MacPorts
 ==============================================================
 
 .. sourcecode:: bash
 
-  sudo port install py27-lxml
+  sudo port install py34-lxml
 
 
 Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml

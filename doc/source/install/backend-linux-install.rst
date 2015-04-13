@@ -13,7 +13,7 @@ Assurez vous que les dépendances suivantes soient résolues :
 
 - git : ``apt-get install git``
 - python3.4 ; ``apt-get install python3``
-- python-dev : ``apt-get install python3-dev``
+- python3-dev : ``apt-get install python3-dev``
 - easy_install : ``apt-get install python-setuptools``
 - pip : ``easy_install pip``
 - tox : ``pip install tox``
@@ -30,7 +30,7 @@ Ou, en une ligne,
 
 .. sourcecode:: bash
 
-    apt-get install git python-dev python-setuptools '^geoip(-bin)?$' libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+    apt-get install git python3 python3-dev python-setuptools '^geoip(-bin)?$' libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
     easy_install pip tox
 
 Installation et configuration de `virtualenv`
@@ -41,7 +41,7 @@ Installation et configuration de `virtualenv`
 .. sourcecode:: bash
 
     pip install virtualenv
-    virtualenv zdsenv --python=python3.4
+    virtualenv zdsenv --python=python3
 
 
 **À chaque fois** que vous souhaitez travailler dans votre environement, activez le via la commande suivante :

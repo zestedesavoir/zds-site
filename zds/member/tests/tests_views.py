@@ -55,9 +55,8 @@ class MemberTests(TestCase):
             position_in_category=1)
         self.staff = StaffProfileFactory().user
 
-        if not Group.objects.filter(name=settings.ZDS_APP["member"]["bot_group"]).exists():
-            bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
-            bot.save()
+        self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        self.bot.save()
 
     def test_list_members(self):
         """
@@ -572,12 +571,6 @@ class MemberTests(TestCase):
             username=staff.user.username,
             password='hostel77')
         self.assertEqual(login_check, True)
-
-        if not Group.objects.filter(name=settings.ZDS_APP["member"]["bot_group"]).exists():
-            bot_group = Group(name=settings.ZDS_APP["member"]["bot_group"])
-            bot_group.save()
-        else:
-            bot_group = Group.objects.get(name=settings.ZDS_APP["member"]["bot_group"])
 
         bot_profile = ProfileFactory()
         bot_profile.user.groups.add(self.bot)
