@@ -15,6 +15,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
+from django.utils.http import urlunquote
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
@@ -60,7 +61,7 @@ class MemberDetail(DetailView):
     template_name = 'member/profile.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, username=self.kwargs['user_name'])
+        return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
