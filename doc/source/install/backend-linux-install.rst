@@ -5,7 +5,7 @@ Installation du backend sous Linux
 Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
-Les commandes suivantes sont génériques et indépendantes de la distribution que vous utilisez.
+Certaines des commandes d'installation (débutant par ``apt-get``) sont données ici pour Debian et ses dérivés, pour lesquels il est sûr qu'elles fonctionnent. Néanmoins, si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré. Les autres commandes sont génériques et indépendantes de la distribution utilisée.
 
 **NB** : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.
 
@@ -17,6 +17,8 @@ Assurez vous que les dépendances suivantes soient résolues :
 - easy_install : ``apt-get install python-setuptools``
 - pip : ``easy_install pip``
 - tox : ``pip install tox``
+- geoip : ``apt-get install geoip`` (peut s'appeler ``geoip-bin`` sur certaines distributions telles que Debian)
+- libgeoip-dev : ``apt-get install libgeoip-dev``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
@@ -28,7 +30,7 @@ Ou, en une ligne,
 
 .. sourcecode:: bash
 
-    apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+    apt-get install git python-dev python-setuptools '^geoip(-bin)?$' libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
     easy_install pip tox
 
 Installation et configuration de `virtualenv`
@@ -85,4 +87,4 @@ Ce qui revient à lancer les commmandes suivantes :
     cabal update
     cabal install pandoc
 
-Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <utils/git-pre-hook.html>`__.
+Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.
