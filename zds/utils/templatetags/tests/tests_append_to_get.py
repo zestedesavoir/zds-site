@@ -2,7 +2,7 @@
 
 
 from django.test import TestCase, RequestFactory
-from django.template import TemplateSyntaxError, Token, TOKEN_TEXT, Context, VariableDoesNotExist, Template
+from django.template.base import TemplateSyntaxError, Token, TOKEN_TEXT, Context, VariableDoesNotExist, Template
 
 from zds.utils.templatetags.append_to_get import easy_tag, AppendGetNode
 
