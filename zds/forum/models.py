@@ -99,7 +99,6 @@ class Forum(models.Model):
     group = models.ManyToManyField(
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
-        null=True,
         blank=True)
     # TODO: A forum defines an image, but it doesn't seems to be used...
     image = models.ImageField(upload_to=image_path_forum)
@@ -205,7 +204,6 @@ class Topic(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Tags du forum',
-        null=True,
         blank=True,
         db_index=True)
 
