@@ -48,11 +48,16 @@
                         {% endfor %}
                     </select>
                     <input type="hidden" name="child_slug" value="{{ child.slug }}">
-                    <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
-                    {% if child.parent.parent and child.parent.parent.slug != content.slug %}
-                        <input type="hidden" name="first_container_slug" value="{{ child.parent.parent.slug }}">
-                    {% else %}
-                       <input type="hidden" name="first_container_slug" value="">
+                    {% if child.text %}
+                        <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
+                        <input type="hidden" name="first_level_slug" value="{{ child.container.parent.slug }}">
+                    {%  else %}
+                        <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
+                        {% if child.parent.parent and child.parent.parent.slug != content.slug %}
+                            <input type="hidden" name="first_level_slug" value="{{ child.parent.parent.slug }}">
+                        {% else %}
+                           <input type="hidden" name="first_level_slug" value="">
+                        {% endif %}
                     {% endif %}
                     <input type="hidden" name="pk" value="{{ content.pk }}">
                     {% csrf_token %}
