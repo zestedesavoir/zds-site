@@ -902,7 +902,7 @@ def list_validation(request):
 
     # Get subcategory to filter validations.
     try:
-        subcategory = get_object_or_404(Category, pk=int(request.GET['subcategory']))
+        subcategory = get_object_or_404(SubCategory, pk=int(request.GET['subcategory']))
     except (KeyError, ValueError, Http404):
         subcategory = None
 
