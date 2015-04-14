@@ -61,7 +61,7 @@ class PublishableContent(models.Model):
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True, db_index=True)
+                                         blank=True, db_index=True)
 
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
