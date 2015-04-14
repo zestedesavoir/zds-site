@@ -62,7 +62,7 @@ class Article(models.Model):
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True, db_index=True)
+                                         blank=True, db_index=True)
 
     image = ThumbnailerImageField(upload_to=image_path, blank=True, null=True)
 
