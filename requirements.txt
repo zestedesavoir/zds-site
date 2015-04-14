@@ -4,7 +4,7 @@ pygments==2.0.2
 python-social-auth==0.2.9
 
 # Explicit dependencies (references in code)
-django==1.7.10
+django==1.8.0
 coverage==4.0.1
 django-crispy-forms==1.4.0
 django-haystack==2.3.1
@@ -31,5 +31,5 @@ drf-extensions==0.2.7
 django-rest-swagger==0.2.9
 django-cors-headers==1.0.0
 
-# Zep 12 dependency 
+# Zep 12 dependency
 django-uuslug==1.0.3

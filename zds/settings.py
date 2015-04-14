@@ -174,7 +174,6 @@ INSTALLED_APPS = (
     'zds.gallery',
     'zds.mp',
     'zds.article',
-    
     'zds.forum',
     'zds.tutorial',
     'zds.tutorialv2',
@@ -360,6 +359,7 @@ GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
     message_constants.INFO: 'info',
@@ -539,10 +539,17 @@ RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+# makemigrations requires this for some reason or it errors
+# Just set to the default value
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
+# tell django where to put the oauth2 migrations
+MIGRATION_MODULES = {
+   # key: app name, value: a fully qualified package name, not the usual `app_label.something_else`
+  'oauth2_provider': 'zds.migrations.oauth2_provider',
+}
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# /!\ WARNING : It will probably open security holes in your site if the proxy behing isn't well configured
-# Read the docs for further informations - https://docs.djangoproject.com/en/1.7/ref/settings/#secure-proxy-ssl-header
 
 # Load the production settings, overwrite the existing ones if needed
 try:
