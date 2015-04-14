@@ -284,6 +284,21 @@ class NewTopicViewTest(TestCase):
             self.profile2.user.username,
             response2.context['form'].initial['participants'])
 
+    def test_success_get_with_multi_username(self):
+
+        profile3 = ProfileFactory()
+
+        response = self.client.get(
+            reverse('mp-new') +
+            '?username=' + self.profile2.user.username +
+            '&username=' + profile3.user.username)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2, len(response.context['form'].initial['participants'].split(', ')))
+        self.assertTrue(self.profile1.user.username not in response.context['form'].initial['participants'])
+        self.assertTrue(self.profile2.user.username in response.context['form'].initial['participants'])
+        self.assertTrue(profile3.user.username in response.context['form'].initial['participants'])
+
     def test_success_get_with_and_without_title(self):
 
         response = self.client.get(reverse('mp-new'))

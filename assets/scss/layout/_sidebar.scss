@@ -282,6 +282,10 @@
                         transition: visibility 0s linear 0, opacity $transition-duration, left $transition-duration;
                     }
                 }
+
+                &.unread {
+                    font-weight: bold;
+                }
             }
 
             button {

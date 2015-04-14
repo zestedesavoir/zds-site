@@ -209,8 +209,7 @@ class MemberListAPITest(APITestCase):
             'password': 'azerty'
         }
         response = self.client.post(reverse('api-member-list'), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIsNotNone(response.data.get('username'))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_register_new_user_without_email(self):
         """
