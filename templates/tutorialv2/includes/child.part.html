@@ -87,10 +87,21 @@
             {% endfor %}
         </ol>
     {%  elif child.has_sub_containers %}
-        <ol>
+        <ol class="summary-part">
             {% for subchild in child.children %}
             <li>
-                <a href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ subchild.title }}</a>
+                <h3>
+                    <a href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ subchild.title }}</a>
+                </h3>
+                <ol class="summary-part">
+                    {% for extract in subchild.children %}
+                        <li>
+                            <h4>
+                                <a href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                            </h4>
+                        </li>
+                    {% endfor %}
+                </ol>
             </li>
             {% endfor %}
         </ol>
