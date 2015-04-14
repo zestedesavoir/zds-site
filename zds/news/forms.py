@@ -2,7 +2,6 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder
-
 from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -70,7 +69,7 @@ class NewsForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.helper.form_action = reverse('news-update')
+        self.helper.form_action = reverse('news-create')
 
         self.helper.layout = Layout(
             Field('title'),
