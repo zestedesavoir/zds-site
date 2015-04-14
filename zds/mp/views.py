@@ -47,7 +47,7 @@ class PrivateTopicList(ZdSPagingListView):
     def get_queryset(self):
         return PrivateTopic.objects \
             .filter(Q(participants__in=[self.request.user.id]) | Q(author=self.request.user.id)) \
-            .select_related("author", "participants") \
+            .select_related("author") \
             .distinct().order_by('-last_message__pubdate').all()
 
 
@@ -131,6 +131,7 @@ class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
     """
     Leaves a MP.
     """
+    permanent = True
     queryset = PrivateTopic.objects.all()
 
     @method_decorator(login_required)
@@ -158,6 +159,7 @@ class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
 
 
 class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
+    permanent = True
     object = None
     queryset = PrivateTopic.objects.all()
 
@@ -216,6 +218,7 @@ class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
     """
     Leaves a list of MP.
     """
+    permanent = True
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
