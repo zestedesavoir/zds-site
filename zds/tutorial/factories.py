@@ -34,9 +34,8 @@ content_light = u'Un contenu light pour quand ce n\'est pas vraiment ça qui est
 class BigTutorialFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tutorial
 
-    title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
-    description = factory.Sequence(
-        lambda n: 'Description du Tutoriel No{0}'.format(n))
+    title = factory.Sequence('Mon Tutoriel No{0}'.format)
+    description = factory.Sequence('Description du Tutoriel No{0}'.format)
     type = 'BIG'
     create_at = datetime.now()
     introduction = 'introduction.md'
@@ -81,9 +80,8 @@ class BigTutorialFactory(factory.DjangoModelFactory):
 class MiniTutorialFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Tutorial
 
-    title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
-    description = factory.Sequence(
-        lambda n: 'Description du Tutoriel No{0}'.format(n))
+    title = factory.Sequence('Mon Tutoriel No{0}'.format)
+    description = factory.Sequence('Description du Tutoriel No{0}'.format)
     type = 'MINI'
     create_at = datetime.now()
     introduction = 'introduction.md'
@@ -132,7 +130,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 class PartFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Part
 
-    title = factory.Sequence(lambda n: 'Ma partie No{0}'.format(n))
+    title = factory.Sequence('Ma partie No{0}'.format)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -189,7 +187,7 @@ class PartFactory(factory.DjangoModelFactory):
 class ChapterFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Chapter
 
-    title = factory.Sequence(lambda n: 'Mon Chapitre No{0}'.format(n))
+    title = factory.Sequence('Mon Chapitre No{0}'.format)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -284,7 +282,7 @@ class ChapterFactory(factory.DjangoModelFactory):
 class ExtractFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Extract
 
-    title = factory.Sequence(lambda n: 'Mon Extrait No{0}'.format(n))
+    title = factory.Sequence('Mon Extrait No{0}'.format)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -322,9 +320,9 @@ class NoteFactory(factory.DjangoModelFactory):
 class SubCategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubCategory
 
-    title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
-    subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
-    slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))
+    title = factory.Sequence('Sous-Categorie {0} pour Tuto'.format)
+    subtitle = factory.Sequence('Sous titre de Sous-Categorie {0} pour Tuto'.format)
+    slug = factory.Sequence('sous-categorie-{0}'.format)
 
 
 class ValidationFactory(factory.DjangoModelFactory):
