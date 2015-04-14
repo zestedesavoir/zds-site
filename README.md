@@ -48,7 +48,7 @@ Après avoir mis à jour votre dépôt, vous devez exécuter les commandes suiva
 
 ```console
 pip install --upgrade -r requirements.txt -r requirements-dev.txt
-python manage.py migrate
+python manage.py migrate --fake-initial
 ```
 
 
