@@ -14,7 +14,7 @@ from zds.settings import SITE_ROOT
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.member.models import Profile, KarmaNote
+from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
 from zds.tutorial.factories import MiniTutorialFactory, PublishedMiniTutorial
@@ -25,6 +25,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
+from zds.utils.models import CommentLike
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -54,10 +55,19 @@ class MemberTests(TestCase):
             position_in_category=1)
         self.staff = StaffProfileFactory().user
 
+        self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        self.bot.save()
+
     def test_list_members(self):
         """
         To test the listing of the members with and without page parameter.
         """
+
+        # create strange member
+        weird = ProfileFactory()
+        weird.user.username = u"ïtrema718"
+        weird.user.email = u"foo@\xfbgmail.com"
+        weird.user.save()
 
         # list of members.
         result = self.client.get(
@@ -108,6 +118,56 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 404)
 
+    def test_profile_page_of_weird_member_username(self):
+
+        # create some user with weird username
+        user_1 = ProfileFactory()
+        user_2 = ProfileFactory()
+        user_3 = ProfileFactory()
+        user_1.user.username = u"ïtrema"
+        user_1.user.save()
+        user_2.user.username = u"&#34;a"
+        user_2.user.save()
+        user_3.user.username = u"_`_`_`_"
+        user_3.user.save()
+
+        # profile pages of weird users.
+        result = self.client.get(
+            reverse('member-detail', args=[user_1.user.username]),
+            follow=True
+        )
+        self.assertEqual(result.status_code, 200)
+        result = self.client.get(
+            reverse('member-detail', args=[user_2.user.username]),
+            follow=True
+        )
+        self.assertEqual(result.status_code, 200)
+        result = self.client.get(
+            reverse('member-detail', args=[user_3.user.username]),
+            follow=True
+        )
+        self.assertEqual(result.status_code, 200)
+
+    def test_modify_member(self):
+
+        # we need staff right for update other profile
+        self.client.logout()
+        self.client.login(username=self.staff.username, password="hostel77")
+
+        # an inexistant member return 404
+        result = self.client.get(
+            reverse('zds.member.views.settings_mini_profile', args=["xkcd"]),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 404)
+
+        # an existant member return 200
+        result = self.client.get(
+            reverse('zds.member.views.settings_mini_profile', args=[self.mas.user.username]),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+
     def test_login(self):
         """
         To test user login.
@@ -136,8 +196,8 @@ class MemberTests(TestCase):
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
         result = self.client.post(
-            reverse('zds.member.views.login_view')
-            + '?next=' + reverse('zds.gallery.views.gallery_list'),
+            reverse('zds.member.views.login_view') +
+            '?next=' + reverse('zds.gallery.views.gallery_list'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
@@ -148,11 +208,11 @@ class MemberTests(TestCase):
         # a next parameter.
         self.client.logout()
         result = self.client.get(
-            reverse('zds.member.views.login_view')
-            + '?next=' + reverse('zds.gallery.views.gallery_list'))
+            reverse('zds.member.views.login_view') +
+            '?next=' + reverse('zds.gallery.views.gallery_list'))
         self.assertContains(result,
-                            reverse('zds.member.views.login_view')
-                            + '?next=' + reverse('zds.gallery.views.gallery_list'),
+                            reverse('zds.member.views.login_view') +
+                            '?next=' + reverse('zds.gallery.views.gallery_list'),
                             count=1)
 
     def test_register(self):
@@ -268,6 +328,12 @@ class MemberTests(TestCase):
         edited_answer = PostFactory(topic=answered_topic, author=user.user, position=3)
         edited_answer.editor = user.user
         edited_answer.save()
+
+        upvoted_answer = PostFactory(topic=answered_topic, author=user2.user, position=4)
+        upvoted_answer.like += 1
+        upvoted_answer.save()
+        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
+
         private_topic = PrivateTopicFactory(author=user.user)
         private_topic.participants.add(user2.user)
         private_topic.save()
@@ -342,6 +408,37 @@ class MemberTests(TestCase):
         self.assertEquals(alone_gallery.get_linked_users().count(), 1)
         self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
+
+    def test_forgot_password(self):
+        """To test nominal scenario of a lost password."""
+
+        # Empty the test outbox
+        mail.outbox = []
+
+        result = self.client.post(
+            reverse('zds.member.views.forgot_password'),
+            {
+                'username': self.mas.user.username,
+                'email': '',
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has been sent
+        self.assertEquals(len(mail.outbox), 1)
+
+        # clic on the link which has been sent in mail
+        user = User.objects.get(username=self.mas.user.username)
+
+        token = TokenForgotPassword.objects.get(user=user)
+        result = self.client.get(
+            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
 
     def test_sanctions(self):
         """
@@ -467,10 +564,35 @@ class MemberTests(TestCase):
         self.assertEqual(ban.text, u'Texte de test pour BAN TEMP')
         self.assertEquals(len(mail.outbox), 6)
 
+    def test_failed_bot_sanctions(self):
+
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        bot_profile = ProfileFactory()
+        bot_profile.user.groups.add(self.bot)
+        bot_profile.user.save()
+
+        # Test: LS
+        result = self.client.post(
+            reverse(
+                'zds.member.views.modify_profile', kwargs={
+                    'user_pk': bot_profile.user.id}), {
+                'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
+        user = Profile.objects.get(id=bot_profile.id)    # Refresh profile from DB
+        self.assertEqual(result.status_code, 403)
+        self.assertTrue(user.can_write)
+        self.assertTrue(user.can_read)
+        self.assertIsNone(user.end_ban_write)
+        self.assertIsNone(user.end_ban_read)
+
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
-        result = self.client.get(reverse('zds.member.views.login_view') + '?next='
-                                 + reverse('member-detail', args=[user.user.username]),
+        result = self.client.get(reverse('zds.member.views.login_view') + '?next=' +
+                                 reverse('member-detail', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
 
@@ -701,7 +823,7 @@ class MemberTests(TestCase):
         # Now access some unknow user
         result = self.client.post(
             reverse('zds.member.views.modify_karma'),
-            {'profile_pk': -1,
+            {'profile_pk': 9999,
              'warning': 'Good tester is good !',
              'points': '10'},
             follow=False)
@@ -732,7 +854,7 @@ class MemberTests(TestCase):
 
         # Now access without post
         result = self.client.get(reverse('zds.member.views.modify_karma'), follow=False)
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 405)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):

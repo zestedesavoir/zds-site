@@ -8,7 +8,9 @@ python:
 
 env:
   - TEST_APP="-e back_mysql zds.tutorial"
+    CFLAGS="-O0"
   - TEST_APP="-e back_mysql zds.article zds.forum zds.member zds.utils zds.gallery zds.mp zds.pages"
+    CFLAGS="-O0" 
   - TEST_APP="-e front"
 
 notifications:

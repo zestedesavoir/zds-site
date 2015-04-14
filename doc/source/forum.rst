@@ -69,11 +69,11 @@ Dans un forum
 
 Il existe actuellement 3 filtres pour filtrer les sujets dans un forum :
 
-* Sujets résolus (`solve`)
-* Sujets non résolus (`unsolve`)
-* Sujets sans réponse (`noanswer`)
+* Sujets résolus (``solve``)
+* Sujets non résolus (``unsolve``)
+* Sujets sans réponse (``noanswer``)
 
-Il suffit d'ajouter `?filter=<filtre>` à l'URL en remplaçant `<filtre>` par un des 3 filtre ci-dessus.
+Il suffit d'ajouter ``?filter=<filtre>`` à l'URL en remplaçant ``<filtre>`` par un des 3 filtre ci-dessus.
 
 Suivre un sujet
 ===============
@@ -85,7 +85,7 @@ Nous permettons à nos membres de "suivre" un sujet directement sur le site. "Su
 
 Dès lors vous pourrez par un simple clic allé au dernier message non lu.
 
-Pour repérer qu'un message est lu ou pas, nous utilisons côté backend la classe `̀zds.forum.models.TopicRead`` qui retient la date de dernière lecture du topic.
+Pour repérer qu'un message est lu ou pas, nous utilisons côté backend la classe ``zds.forum.models.TopicRead`` qui retient la date de dernière lecture du topic.
 De la même manière nous utilisons la classe ``zds.forum.models.TopicFollowed`` pour retenir le fait que vous suivez ou non un sujet.
 
 Pour suivre un sujet, deux méthodes sont envisageables :

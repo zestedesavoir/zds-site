@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db import models
 from hashlib import md5
 from django.http import HttpRequest
+from django.utils.http import urlquote
 from django.contrib.sessions.models import Session
 from django.contrib.auth import logout
 import os
@@ -103,8 +104,7 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('member-detail',
-                       kwargs={'user_name': self.user.username})
+        return reverse('member-detail', kwargs={'user_name': urlquote(self.user.username)})
 
     def get_city(self):
         """return physical adress by geolocalisation."""
@@ -129,10 +129,14 @@ class Profile(models.Model):
             return self.avatar_url
         else:
             return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
-                md5(self.user.email.lower()).hexdigest())
+                md5(self.user.email.lower().encode("utf-8")).hexdigest())
 
     def get_post_count(self):
         """Number of messages posted."""
+        return Post.objects.filter(author__pk=self.user.pk, is_visible=True).count()
+
+    def get_post_count_as_staff(self):
+        """Number of messages posted (view as staff)."""
         return Post.objects.filter(author__pk=self.user.pk).count()
 
     def get_topic_count(self):

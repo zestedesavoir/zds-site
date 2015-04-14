@@ -317,9 +317,14 @@
             padding: 0 5px;
         }
 
-        mathjax {
-            font-size: 16px;
-            font-size: 1.6rem;
+        .mathjax-wrapper {
+            max-width: 100%;
+            overflow: auto;
+
+            mathjax {
+                font-size: 16px;
+                font-size: 1.6rem;
+            }
         }
 
         .footnote {

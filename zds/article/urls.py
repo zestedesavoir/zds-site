@@ -56,4 +56,6 @@ urlpatterns = patterns('',
                            'zds.article.views.like_reaction'),
                        url(r'^message/dislike/$',
                            'zds.article.views.dislike_reaction'),
+                       url(r'^message/typo/article/(?P<article_pk>\d+)/$',
+                           'zds.article.views.warn_typo'),
                        )

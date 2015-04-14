@@ -14,17 +14,19 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
+from django.utils.http import urlunquote
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView
-
-from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, ChangePasswordForm, ChangeUserForm, \
-    ForgotPasswordForm, NewPasswordForm, OldTutoForm, PromoteMemberForm, KarmaForm
+from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
+    ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
+    OldTutoForm, PromoteMemberForm, KarmaForm
+from zds.utils.models import Comment, CommentLike, CommentDislike
 from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
@@ -35,7 +37,6 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorial.models import Tutorial
-from zds.utils.models import Comment
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -60,7 +61,7 @@ class MemberDetail(DetailView):
     template_name = 'member/profile.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, username=self.kwargs['user_name'])
+        return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
@@ -298,6 +299,15 @@ def unregister(request):
                 article.authors.add(external)
             article.authors.remove(current)
             article.save()
+    # comments likes / dislikes
+    for like in CommentLike.objects.filter(user=current):
+        like.comments.like -= 1
+        like.comments.save()
+        like.delete()
+    for dislike in CommentDislike.objects.filter(user=current):
+        dislike.comments.dislike -= 1
+        dislike.comments.save()
+        dislike.delete()
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author=current):
         message.author = anonymous
@@ -356,6 +366,8 @@ def modify_profile(request, user_pk):
     """Modifies sanction of a user if there is a POST request."""
 
     profile = get_object_or_404(Profile, user__pk=user_pk)
+    if profile.is_private():
+        raise PermissionDenied
 
     if 'ls' in request.POST:
         state = ReadingOnlySanction(request.POST)
@@ -492,8 +504,7 @@ def settings_mini_profile(request, user_name):
     """Minimal settings of users for staff."""
 
     # extra information about the current user
-
-    profile = Profile.objects.get(user__username=user_name)
+    profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
         form = MiniProfileForm(request.POST)
         c = {"form": form, "profile": profile}
@@ -607,12 +618,21 @@ def forgot_password(request):
     if request.method == "POST":
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
+
+            # Get data from form
             data = form.data
             username = data["username"]
-            usr = get_object_or_404(User, username=username)
+            email = data["email"]
+
+            # Fetch the user, we need his email adress
+            usr = None
+            if username:
+                usr = get_object_or_404(User, Q(username=username))
+
+            if email:
+                usr = get_object_or_404(User, Q(email=email))
 
             # Generate a valid token during one hour.
-
             uuid_token = str(uuid.uuid4())
             date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
@@ -621,20 +641,19 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['abbr'])
+            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['litteral_name'])
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
-            message_html = get_template("email/forgot_password/confirm.html").render(Context(
-                {"username": usr.username,
-                 "site_name": settings.ZDS_APP['site']['name'],
-                 "site_url": settings.ZDS_APP['site']['url'],
-                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-            message_txt = get_template("email/forgot_password/confirm.txt").render(Context(
-                {"username": usr.username,
-                 "site_name": settings.ZDS_APP['site']['name'],
-                 "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-            msg = EmailMultiAlternatives(subject, message_txt, from_email,
-                                         [usr.email])
+            context = {
+                "username": usr.username,
+                "site_name": settings.ZDS_APP['site']['litteral_name'],
+                "site_url": settings.ZDS_APP['site']['url'],
+                "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()
+            }
+            message_html = render_to_string("email/member/confirm_forgot_password.html", context)
+            message_txt = render_to_string("email/member/confirm_forgot_password.txt", context)
+
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [usr.email])
             msg.attach_alternative(message_html, "text/html")
             msg.send()
             return render(request, "member/forgot_password/success.html")
@@ -734,7 +753,7 @@ def active_account(request):
     send_mp(
         bot,
         [usr],
-        _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['name']),
+        _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
         _(u"Le manuel du nouveau membre"),
         msg,
         True,
@@ -763,21 +782,19 @@ def generate_token_account(request):
     token.save()
 
     # send email
-
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['abbr'])
+    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
     from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
-    message_html = get_template("email/register/confirm.html") \
-        .render(Context({"username": token.user.username,
-                         "site_url": settings.ZDS_APP['site']['url'],
-                         "site_name": settings.ZDS_APP['site']['name'],
-                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-    message_txt = get_template("email/register/confirm.txt") \
-        .render(Context({"username": token.user.username,
-                         "site_name": settings.ZDS_APP['site']['name'],
-                         "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()}))
-    msg = EmailMultiAlternatives(subject, message_txt, from_email,
-                                 [token.user.email])
+    context = {
+        "username": token.user.username,
+        "site_url": settings.ZDS_APP['site']['url'],
+        "site_name": settings.ZDS_APP['site']['litteral_name'],
+        "url": settings.ZDS_APP['site']['url'] + token.get_absolute_url()
+    }
+    message_html = render_to_string("email/member/confirm_registration.html", context)
+    message_txt = render_to_string("email/member/confirm_registration.txt", context)
+
+    msg = EmailMultiAlternatives(subject, message_txt, from_email, [token.user.email])
     msg.attach_alternative(message_html, "text/html")
     try:
         msg.send()
@@ -986,30 +1003,34 @@ def member_from_ip(request, ip):
 
 
 @login_required
+@require_POST
 def modify_karma(request):
     """ Add a Karma note to the user profile """
 
     if not request.user.has_perm("member.change_profile"):
         raise PermissionDenied
 
-    if request.method == "POST":
+    try:
         profile_pk = request.POST["profile_pk"]
-        profile = get_object_or_404(Profile, pk=profile_pk)
-
-        note = KarmaNote()
-        note.user = profile.user
-        note.staff = request.user
-        note.comment = request.POST["warning"]
-        try:
-            note.value = int(request.POST["points"])
-        except (KeyError, ValueError):
-            note.value = 0
-
-        note.save()
-
-        profile.karma += note.value
-        profile.save()
-
-        return redirect(reverse("member-detail", args=[profile.user.username]))
-    else:
+    except (KeyError, ValueError):
         raise Http404
+
+    profile = get_object_or_404(Profile, pk=profile_pk)
+    if profile.is_private():
+        raise PermissionDenied
+
+    note = KarmaNote()
+    note.user = profile.user
+    note.staff = request.user
+    note.comment = request.POST["warning"]
+    try:
+        note.value = int(request.POST["points"])
+    except (KeyError, ValueError):
+        note.value = 0
+
+    note.save()
+
+    profile.karma += note.value
+    profile.save()
+
+    return redirect(reverse("member-detail", args=[profile.user.username]))

@@ -10,14 +10,14 @@ var gulp = require("gulp"),
 var sourceDir = "assets/",
     destDir = "dist/",
     appFile = "js/app.js"
-    styleFile = "main.scss",
+    stylesFiles = ["main.scss", "only-ie.scss"],
     sassDir = "scss/",
     imagesDir = "images/",
     scriptsDir = "js/",
     vendorsDir = "vendors/",
     spriteDir = "sprite/",
     vendorsCSS = ["node_modules/normalize.css/normalize.css"],
-    vendorsJS = ["node_modules/jquery/dist/jquery.js"],
+    vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
     autoprefixerConfig = ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"]
     imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
 
@@ -113,7 +113,11 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
  * Compiles SASS files
  */
 gulp.task("stylesheet", ["sprite", "vendors"], function() {
-  return gulp.src(sourceDir + sassDir + styleFile)
+  var files = [];
+  for (var i = 0; i < stylesFiles.length; i++) {
+    files.push(sourceDir + sassDir + stylesFiles[i]);
+  }
+  return gulp.src(files)
     .pipe($.sass({
       sass: sourceDir + sassDir,
       imagePath: sourceDir + imagesDir
@@ -136,7 +140,11 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
  * Error-pages stylesheet
  */
 gulp.task("errors", ["clean-errors"], function() {
-  return gulp.src(errorsDir + sassDir + styleFile)
+  var files = [];
+  for (var i = 0; i < stylesFiles.length; i++) {
+    files.push(sourceDir + sassDir + stylesFiles[i]);
+  }
+  return gulp.src(files)
     .pipe($.sass({
       sass: errorsDir + sassDir,
       imagePath: errorsDir + imagesDir,
@@ -157,7 +165,7 @@ gulp.task("sprite", function() {
     .pipe(sprite({
       name: "sprite",
       style: "_sprite.scss",
-      cssPath: "../images",
+      cssPath: "../" + imagesDir,
       retina: true,
       prefix: "sprite-icon",
       processor: "scss",

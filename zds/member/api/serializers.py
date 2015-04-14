@@ -57,9 +57,9 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'show_email', 'email', 'is_active',
-                  'site', 'avatar_url', 'biography', 'sign', 'email_for_answer',
-                  'last_visit', 'date_joined')
+        fields = ('pk', 'username', 'email', 'is_active', 'date_joined',
+                  'site', 'avatar_url', 'biography', 'sign', 'show_email',
+                  'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit')
 
     def __init__(self, *args, **kwargs):
         """
@@ -82,20 +82,23 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
 
     username = serializers.CharField(source='user.username', required=False, allow_blank=True)
     email = serializers.EmailField(source='user.email', required=False, allow_blank=True)
+    is_active = serializers.BooleanField(source='user.is_active', required=False)
+    date_joined = serializers.DateTimeField(source='user.date_joined', required=False)
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'email', 'site', 'avatar_url', 'biography',
-                  'sign', 'show_email', 'show_sign', 'hover_or_click',
-                  'email_for_answer')
+        fields = ('pk', 'username', 'email', 'is_active', 'date_joined',
+                  'site', 'avatar_url', 'biography', 'sign', 'show_email',
+                  'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit')
+        read_only_fields = ('is_active', 'date_joined', 'last_visit',)
 
     def update(self, instance, validated_data):
         """
         Update and return an existing `Profile` instance, given the validated data.
         """
-        instance.user.username = validated_data.get('user').get('username',
-                                                                instance.user.username) or instance.user.username
-        instance.user.email = validated_data.get('user').get('email', instance.user.email) or instance.user.email
+        if validated_data.get('user') is not None:
+            instance.user.username = validated_data.get('user').get('username', instance.user.username)
+            instance.user.email = validated_data.get('user').get('email', instance.user.email)
         instance.site = validated_data.get('site', instance.site) or instance.site
         instance.avatar_url = validated_data.get('avatar_url', instance.avatar_url) or instance.avatar_url
         instance.biography = validated_data.get('biography', instance.biography) or instance.biography

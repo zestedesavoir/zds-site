@@ -1,0 +1,8 @@
+{% load i18n %}
+{% trans "Bonjour" %} {{ username }},
+
+{% block content_from_staff %}{% endblock %}
+
+{% trans "Cordialement," %}
+
+{% trans "L'équipe" %} {{ site_name }}

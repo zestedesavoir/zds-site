@@ -1,4 +1,5 @@
 {% extends "member/base.html" %}
+
 {% load emarkdown %}
 {% load email_obfuscator %}
 {% load date %}
@@ -79,7 +80,7 @@
             {% endif %}
         </ul>
 
-        {% if perms.member.change_profile %}
+        {% if perms.member.change_profile and not profile.is_private %}
             <div>
                 {% trans "Remarques sur cet utilisateur" %} ({{ profile.karma }}) :
                 <ul>
@@ -137,7 +138,7 @@
 
     {% if profile.biography %}
         <hr class="clearfix" />
-        <section class="full-content-wrapper without-margin">
+        <section class="full-content-wrapper without-margin article-content">
             <h2 id="biographie">{% trans "Biographie" %}</h2>
             {{ profile.biography|emarkdown }}
         </section>
@@ -218,7 +219,7 @@
                 <ul>
                     {% if usr != user and not profile.is_private %}
                         <li>
-                            <a href="{% url "zds.mp.views.new" %}?username={{ usr.username }}" class="ico-after cite blue">
+                            <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
                             </a>
                         </li>
@@ -397,7 +398,7 @@
             {% endif %}
         {% endwith %}
 
-        {% if profile.get_post_count > 0 %}
+        {% if perms.member.change_post and profile.get_post_count_as_staff > 0 or profile.get_post_count > 0 %}
             <h4>{% trans "Forums" %}</h4>
             <ul>
                 <li>
@@ -409,7 +410,13 @@
                 <li>
                     <a href="{% url "zds.forum.views.find_post" usr.pk %}">
                         {% trans "Messages postés" %}
-                        <span class="count">{{ profile.get_post_count }}</span>
+                        <span class="count">
+                            {% if perms.member.change_post %}
+                                {{ profile.get_post_count_as_staff }}
+                            {% else %}
+                                {{ profile.get_post_count }}
+                            {% endif %}
+                        </span>
                     </a>
                 </li>
             </ul>
@@ -424,7 +431,7 @@
         {% endif %}
     </div>
 
-    {% if perms.member.change_profile %}
+    {% if perms.member.change_profile and profile.user.is_active %}
         <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Modération" %}'>
             <h3>{% trans "Modération" %}</h3>
 
@@ -444,6 +451,7 @@
                 </li>
             </ul>
 
+            {% if not profile.is_private %}
             <h4>{% trans "Sanctions" %}</h4>
             <ul>
                 {% if profile.can_write_now %}
@@ -552,6 +560,7 @@
                     </li>
                 {% endif %}
             </ul>
+            {% endif %}
         </div>
     {% endif %}
 {% endblock %}

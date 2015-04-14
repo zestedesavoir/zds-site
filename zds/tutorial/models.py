@@ -148,7 +148,7 @@ class Tutorial(models.Model):
         for author in self.authors.all():
             get += '&' + urlencode({'username': author.username})
 
-        return reverse('zds.mp.views.new') + get
+        return reverse('mp-new') + get
 
     def get_edit_url(self):
         return reverse('zds.tutorial.views.modify_tutorial') + \
@@ -223,6 +223,9 @@ class Tutorial(models.Model):
             and self.sha_validation == sha
         mandata['is_on_line'] = self.on_line() and self.sha_public == sha
 
+        if 'licence' in mandata:
+            mandata['licence'] = Licence.objects.filter(code=mandata['licence']).first()
+
         # url:
         mandata['get_absolute_url'] = reverse(
             'zds.tutorial.views.view_tutorial',
@@ -264,8 +267,6 @@ class Tutorial(models.Model):
         repo = Repo(self.get_path())
         mantuto = get_blob(repo.commit(sha).tree, 'manifest.json')
         data = json_reader.loads(mantuto)
-        if 'licence' in data:
-            data['licence'] = Licence.objects.filter(code=data['licence']).first()
         return data
 
     def load_json(self, path=None, online=False):
@@ -282,8 +283,6 @@ class Tutorial(models.Model):
             json_data = open(man_path)
             data = json_reader.load(json_data)
             json_data.close()
-            if 'licence' in data:
-                data['licence'] = Licence.objects.filter(code=data['licence']).first()
             return data
 
     def dump_json(self, path=None):

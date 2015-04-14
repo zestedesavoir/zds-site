@@ -18,10 +18,19 @@
         this.data(dataAttribute, text);
     };
 
+    function synchText() {
+        $("#mobile-menu [data-ajax-input]").each(function () {
+            var dataAjaxInput = $(this).data("ajax-input");
+            console.log($(this).text(), $(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text(), dataAjaxInput);
+
+            $(this).text($(".sidebar").find("button[data-ajax-input='" + dataAjaxInput + "']").text());
+        });
+    }
+
     /**
      * Karma of the messages
      */
-    $(".topic-message").on("click", ".upvote, .downvote", function(e){
+    $(".topic-message").on("click", "button.upvote, button.downvote", function(e){
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
             $karma = $thumb.parents(".message-karma:first"),
@@ -69,6 +78,8 @@
                 } else {
                     $downvote.removeClass("more-voted");
                 }
+
+                $thumb.blur();
             }
         });
 
@@ -115,6 +126,8 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("blue yellow");
+
+                synchText();
             }
         });
 
@@ -162,6 +175,8 @@
 
                 $act.toggleText("content-on-click");
                 $act.toggleClass("blue");
+
+                synchText();
             }
         });
         e.stopPropagation();
@@ -200,6 +215,8 @@
                 $act.toggleText("content-on-click");
                 $act.toggleClass("green blue");
                 $("[data-ajax-output='solve-topic']").toggleClass("empty");
+
+                synchText();
             }
         });
         e.stopPropagation();
@@ -272,6 +289,34 @@
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
         });
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    /*
+     * Mark a message useful
+     */
+    $(".topic-message").on("click", "[data-ajax-input='mark-message-as-useful']", function(e){
+        var $button = $(this),
+            $form = $button.parents("form:first"),
+            $message = $form.parents("article"),
+            $usefulText = $message.find("[data-ajax-output='mark-message-as-useful']"),
+            csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            data: {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken
+            },
+            success: function(){
+                $message.toggleClass("helpful");
+                $button.toggleText("content-on-click");
+                $usefulText.toggleClass("hidden");
+                $button.blur();
+            }
+        });
+
         e.stopPropagation();
         e.preventDefault();
     });

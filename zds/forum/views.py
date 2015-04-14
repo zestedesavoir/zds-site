@@ -15,8 +15,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext as _
 
@@ -231,8 +230,8 @@ def new(request):
     """Creates a new topic in a forum."""
 
     try:
-        forum_pk = request.GET["forum"]
-    except KeyError:
+        forum_pk = int(request.GET["forum"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=forum_pk)
@@ -351,8 +350,8 @@ def move_topic(request):
     if not request.user.has_perm("forum.change_topic"):
         raise PermissionDenied
     try:
-        topic_pk = request.GET["sujet"]
-    except KeyError:
+        topic_pk = int(request.GET["sujet"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     forum = get_object_or_404(Forum, pk=request.POST["forum"])
@@ -382,8 +381,8 @@ def edit(request):
     """Edit the given topic."""
 
     try:
-        topic_pk = request.POST["topic"]
-    except KeyError:
+        topic_pk = request.POST['topic']
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     if "page" in request.POST:
@@ -411,9 +410,13 @@ def edit(request):
 
         if "lock" in data:
             g_topic.is_locked = data["lock"] == "true"
-            messages.success(request,
-                             u"Le sujet {0} est désormais verrouillé."
-                             .format(g_topic.title))
+
+            if g_topic.is_locked:
+                success_message = u"Le sujet {0} est désormais verrouillé.".format(g_topic.title)
+            else:
+                success_message = u"Le sujet {0} est désormais déverrouillé.".format(g_topic.title)
+
+            messages.success(request, success_message)
         if 'sticky' in data:
             if data['sticky'] == 'true':
                 g_topic.is_sticky = True
@@ -447,8 +450,8 @@ def answer(request):
     """Adds an answer from a user to a topic."""
 
     try:
-        topic_pk = request.GET["sujet"]
-    except KeyError:
+        topic_pk = int(request.GET["sujet"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
 
@@ -516,11 +519,14 @@ def answer(request):
                 post.save()
                 g_topic.last_message = post
                 g_topic.save()
+
                 # Send mail
-                subject = u"{} - Notification : {}".format(settings.ZDS_APP['site']['abbr'],
-                                                           g_topic.title)
-                from_email = "{0} <{1}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                                settings.ZDS_APP['site']['email_noreply'])
+                subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
+                                                 _(u'Forum'),
+                                                 g_topic.title)
+                from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                              settings.ZDS_APP['site']['email_noreply'])
+
                 followers = g_topic.get_followers_by_email()
                 for follower in followers:
                     receiver = follower.user
@@ -532,24 +538,17 @@ def answer(request):
                         post__position=pos,
                         user=receiver).count()
                     if last_read > 0:
-                        message_html = get_template('email/notification/new.html') \
-                            .render(
-                                Context({
-                                    'username': receiver.username,
-                                    'title': g_topic.title,
-                                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                                    'author': request.user.username
-                                }))
-                        message_txt = get_template('email/notification/new.txt').render(
-                            Context({
-                                'username': receiver.username,
-                                'title': g_topic.title,
-                                'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                                'author': request.user.username
-                            }))
-                        msg = EmailMultiAlternatives(
-                            subject, message_txt, from_email, [
-                                receiver.email])
+                        context = {
+                            'username': receiver.username,
+                            'title': g_topic.title,
+                            'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                            'author': request.user.username,
+                            'site_name': settings.ZDS_APP['site']['litteral_name']
+                        }
+                        message_html = render_to_string('email/forum/new_post.html', context)
+                        message_txt = render_to_string('email/forum/new_post.txt', context)
+
+                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
                         msg.attach_alternative(message_html, "text/html")
                         msg.send()
 
@@ -576,7 +575,10 @@ def answer(request):
 
         if "cite" in request.GET:
             resp = {}
-            post_cite_pk = request.GET["cite"]
+            try:
+                post_cite_pk = request.GET["cite"]
+            except ValueError:
+                raise Http404
             post_cite = Post.objects.get(pk=post_cite_pk)
             if not post_cite.is_visible:
                 raise PermissionDenied
@@ -694,16 +696,27 @@ def edit_post(request):
                 })
         else:
             # The user just sent data, handle them
-            if request.POST["text"].strip() != "":
+            if "text" in request.POST:
                 form = TopicForm(request.POST)
+                form_post = PostForm(post.topic, request.user, request.POST)
 
-                if not form.is_valid() and g_topic:
-                    return render(request, "forum/post/edit.html", {
-                        "post": post,
-                        "topic": post.topic,
-                        "text": post.text,
-                        "form": form,
-                    })
+                if not form.is_valid():
+                    if g_topic:
+                        return render(request, "forum/post/edit.html", {
+                            "post": post,
+                            "topic": post.topic,
+                            "text": post.text,
+                            "form": form,
+                        })
+                    elif not form_post.is_valid():
+                        form = PostForm(post.topic, request.user, initial={"text": post.text})
+                        form._errors = form_post._errors
+                        return render(request, "forum/post/edit.html", {
+                            "post": post,
+                            "topic": post.topic,
+                            "text": post.text,
+                            "form": form,
+                        })
 
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
@@ -757,8 +770,8 @@ def useful_post(request):
     """Marks a message as useful (for the OP)"""
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -775,6 +788,10 @@ def useful_post(request):
             raise PermissionDenied
     post.is_useful = not post.is_useful
     post.save()
+
+    if request.is_ajax():
+        return HttpResponse(json.dumps(post.is_useful), content_type='application/json')
+
     return redirect(post.get_absolute_url())
 
 
@@ -784,8 +801,8 @@ def unread_post(request):
     """Marks a message as unread """
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     post = get_object_or_404(Post, pk=post_pk)
@@ -821,8 +838,8 @@ def like_post(request):
     """Like a post."""
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     resp = {}
@@ -869,8 +886,8 @@ def dislike_post(request):
     """Dislike a post."""
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
     resp = {}
@@ -953,8 +970,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         shown_topics = paginator.page(1)
         page = 1
     except EmptyPage:
-        shown_topics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+        raise Http404
     return render(request, "forum/find/topic_by_tag.html", {
         "topics": shown_topics,
         "tag": tag,

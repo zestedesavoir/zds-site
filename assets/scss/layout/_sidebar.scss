@@ -140,12 +140,25 @@
                 /**
                  * Sidebar link variations / icons
                  */
-                &.unread {
+                &.selected {
                     font-weight: bold;
                 }
 
                 img {
                     border-right: 7px solid transparent;
+                }
+
+                img, span {
+                    vertical-align: middle;
+                }
+
+                .icon {
+                    border-right: 7px solid transparent;
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    margin: 7px 5px;
+                    line-height:30px;
                 }
 
                 &.ico-after {
@@ -269,6 +282,10 @@
                         transition: visibility 0s linear 0, opacity $transition-duration, left $transition-duration;
                     }
                 }
+
+                &.unread {
+                    font-weight: bold;
+                }
             }
 
             button {
@@ -322,6 +339,10 @@
             padding-top: 5px;
             margin-bottom: 5px;
             background-color: #FFF;
+
+            & + a {
+                font-weight: bold;
+            }
 
             ol {
                 margin-top: 5px;

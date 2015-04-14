@@ -398,7 +398,7 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
                     'code': u"GPL v3",
                     'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
                     'provider_name': u"Progdupeupl",
-                    'provider_url': u"http://progdupeu.pl",
+                    'provider_url': u"http://pdp.microjoe.org/",
                 },
                 'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
                 'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'

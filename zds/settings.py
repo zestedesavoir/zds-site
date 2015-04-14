@@ -223,13 +223,15 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.XMLParser',
+        #'rest_framework.parsers.XMLParser',
+        'rest_framework_xml.parsers.XMLParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.XMLRenderer',
+        #'rest_framework.renderers.XMLRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_THROTTLE_CLASSES': (
@@ -351,6 +353,9 @@ HAYSTACK_CONNECTIONS = {
 }
 
 GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+
+# Fake mails (in console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {

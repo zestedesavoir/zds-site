@@ -19,12 +19,12 @@ register = template.Library()
 def top_categories(user):
     cats = {}
 
-    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").all()
+    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").distinct().all()
     if user and user.is_authenticated():
         forums_prv = Forum\
             .objects\
             .filter(group__isnull=False, group__in=user.groups.all())\
-            .select_related("category").all()
+            .select_related("category").distinct().all()
         forums = list(forums_pub | forums_prv)
     else:
         forums = list(forums_pub)

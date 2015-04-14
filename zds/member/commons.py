@@ -8,8 +8,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
-from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string
+from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile, TokenRegister, Ban, logout_user
 from zds.settings import SITE_ROOT
@@ -146,19 +146,18 @@ class TokenGenerator(object):
         :return: nothing
         :rtype: None
         """
-        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['abbr'])
+        subject = _(u'{} - Confirmation d\'inscription').format(settings.ZDS_APP['site']['litteral_name'])
         from_email = u'{} <{}>'.format(settings.ZDS_APP['site']['litteral_name'],
                                        settings.ZDS_APP['site']['email_noreply'])
-        template_context = Context(
-            {
-                'username': user.username,
-                'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-                'site_name': settings.ZDS_APP['site']['name'],
-                'site_url': settings.ZDS_APP['site']['url']
-            }
-        )
-        message_html = get_template('email/register/confirm.html').render(template_context)
-        message_txt = get_template('email/register/confirm.txt').render(template_context)
+        context = {
+            'username': user.username,
+            'url': settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+            'site_name': settings.ZDS_APP['site']['litteral_name'],
+            'site_url': settings.ZDS_APP['site']['url']
+        }
+        message_html = render_to_string('email/member/confirm_registration.html', context)
+        message_txt = render_to_string('email/member/confirm_registration.txt', context)
+
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [user.email])
         msg.attach_alternative(message_html, 'text/html')
         try:
@@ -251,7 +250,7 @@ class MemberSanctionState(object):
                  u'Ce qui signifie que {2}\n\n'
                  u'Le motif de votre sanction est :\n\n'
                  u'> {3}\n\n'
-                 u'Cordialement, L\'équipe {4}.')
+                 u'Cordialement, \n\nL\'équipe {4}.')
 
     def get_message_sanction(self):
         """
@@ -265,7 +264,7 @@ class MemberSanctionState(object):
                  u'La sanction est de type *{2}*, ce qui signifie que {3}\n\n'
                  u'Le motif de votre sanction est :\n\n'
                  u'> {4}\n\n'
-                 u'Cordialement, L\'équipe {5}.')
+                 u'Cordialement, \n\nL\'équipe {5}.')
 
     def notify_member(self, ban, msg):
         """
@@ -302,7 +301,7 @@ class ReadingOnlySanction(MemberSanctionState):
         return self.array_infos.get('ls-text', '')
 
     def get_detail(self):
-        return (_(u'Vous ne pouvez plus poster dans les forums, ni dans les '
+        return (_(u'vous ne pouvez plus poster dans les forums, ni dans les '
                   u'commentaires d\'articles et de tutoriels.'))
 
     def apply_sanction(self, profile, ban):
@@ -324,9 +323,10 @@ class TemporaryReadingOnlySanction(MemberSanctionState):
         return self.array_infos.get('ls-text', '')
 
     def get_detail(self):
-        return (_(u'Vous ne pouvez plus poster dans les forums, ni dans les '
-                  u'commentaires d\'articles et de tutoriels pendant {0} jours.')
-                .format(self.array_infos.get("ls-jrs")))
+        jrs = int(self.array_infos.get("ls-jrs"))
+        return (_(u'vous ne pouvez plus poster dans les forums, ni dans les '
+                  u'commentaires d\'articles et de tutoriels pendant {0} jour{1}.')
+                .format(jrs, pluralize(jrs)))
 
     def apply_sanction(self, profile, ban):
         day = int(self.array_infos.get("ls-jrs"))
@@ -393,9 +393,11 @@ class TemporaryBanSanction(MemberSanctionState):
         return self.array_infos.get('ban-text', '')
 
     def get_detail(self):
-        return (_(u'Vous ne pouvez plus vous connecter sur {0} pendant {1} jours.')
+        jrs = int(self.array_infos.get("ban-jrs"))
+        return (_(u'vous ne pouvez plus vous connecter sur {0} pendant {1} jour{2}.')
                 .format(settings.ZDS_APP['site']['litteral_name'],
-                        self.array_infos.get("ban-jrs")))
+                        jrs,
+                        pluralize(jrs)))
 
     def apply_sanction(self, profile, ban):
         day = int(self.array_infos.get("ban-jrs"))

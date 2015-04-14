@@ -132,3 +132,21 @@ Rajouter cette ligne dans le fichier `zds/settings_prod.py` pour versionner les 
 ```python
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
 ```
+
+
+Actions à faire pour mettre en prod la version : v1.7
+=====================================================
+
+Issue #2058
+-----------
+
+Rajouter ces lignes dans le `settings_prod.py` :
+
+```python
+ZDS_SITE['site']['googleAnalyticsID'] = 'UA-27730868-1'
+ZDS_SITE['site']['googleTagManagerID'] = 'GTM-WH7642'
+```
+Actions à faire pour mettre en prod la version : v1.6
+=====================================================
+
+Vérifier que `EMAIL_BACKEND` est bien définit dans le `settings_prod.py` car il a maintenant une valeur par défaut. La configuration par défaut sur la prod devrait être `EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'`.

@@ -7,6 +7,9 @@ from zds.settings import ZDS_APP
 
 
 class ZdSPagingListView(ListView):
+    paginator = None
+    page = 1
+
     def get_context_data(self, **kwargs):
         """
         Get the context for this view. This method is surcharged to modify the paginator
@@ -15,14 +18,14 @@ class ZdSPagingListView(ListView):
         queryset = kwargs.pop('object_list', self.object_list)
         page_size = self.get_paginate_by(queryset)
         context_object_name = self.get_context_object_name(queryset)
-        paginator, page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
+        self.paginator, self.page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
         if page_size:
             context = {
-                'paginator': paginator,
-                'page_obj': page,
+                'paginator': self.paginator,
+                'page_obj': self.page,
                 'is_paginated': is_paginated,
                 'object_list': queryset,
-                'pages': paginator_range(page.number, paginator.num_pages),
+                'pages': paginator_range(self.page.number, self.paginator.num_pages),
             }
         else:
             context = {
@@ -36,6 +39,22 @@ class ZdSPagingListView(ListView):
             context[context_object_name] = queryset
         context.update(kwargs)
         return super(MultipleObjectMixin, self).get_context_data(**context)
+
+    def build_list(self):
+        """
+        For some list paginated, we would like to display the last item of the previous page.
+        This function returns the list paginated with this previous item.
+        """
+        list = []
+        # If necessary, add the last item in the previous page.
+        if self.page.number != 1:
+            last_page = self.paginator.page(self.page.number - 1).object_list
+            last_item = (last_page)[len(last_page) - 1]
+            list.append(last_item)
+        # Adds all items of the list paginated.
+        for item in self.object_list:
+            list.append(item)
+        return list
 
 
 def paginator_range(current, stop, start=1):

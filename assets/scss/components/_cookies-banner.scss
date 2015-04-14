@@ -1,4 +1,4 @@
-#cookies-banner {
+#cookies-eu-banner {
     padding: 0 2.5%;
     background: #062E41;
     display: none;
@@ -11,7 +11,7 @@
         line-height: 23px;
     }
 
-    a {
+    #cookies-eu-more {
         display: inline-block;
         color: #EEE;
         padding: 4px 13px;
@@ -26,7 +26,7 @@
         }
     }
 
-    #reject-cookies {
+    #cookies-eu-reject {
         display: inline-block;
         background: none;
         border: none;
@@ -41,7 +41,7 @@
         }
     }
 
-    #accept-cookies {
+    #cookies-eu-accept {
         text-decoration: none;
         background: #EEE;
         color: $color-primary;
@@ -59,15 +59,15 @@
 }
 
 @media only screen and #{$media-mega-wide} {
-    #cookies-banner {
-        #accept-cookies {
+    #cookies-eu-banner {
+        #cookies-eu-accept {
             float: right;
         }
     }
 }
 
 @media only screen and #{$media-mobile} {
-    #cookies-banner {
+    #cookies-eu-banner {
         position: absolute;
         top: 50px;
         right: 0;
@@ -75,12 +75,12 @@
         left: 0;
         z-index: 10;
 
-        p {
+        span {
             margin-top: 40px;
             padding: 0 20px;
         }
 
-        a, #accept-cookies {
+        #cookies-eu-more, #cookies-eu-accept {
             display: block;
             width: 100%;
             height: 40px;
@@ -88,7 +88,7 @@
             margin: 15px 0 0 0 !important;
             text-align: center;
         }
-        a {
+        #cookies-eu-more {
             margin-top: 40px !important;
             line-height: 40px;
         }

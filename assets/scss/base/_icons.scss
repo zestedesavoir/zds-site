@@ -16,7 +16,7 @@
         background-repeat: no-repeat;
         @include sprite();
     }
-    
+
     &.alert:after {
         @include sprite-position($alert);
     }
@@ -130,6 +130,18 @@
         }
         &.light:after {
             @include sprite-position($email-light);
+        }
+    }
+
+    &.diaspora {
+        &:after {
+            @include sprite-position($diaspora);
+        }
+        &.blue:after {
+            @include sprite-position($diaspora-blue);
+        }
+        &.light:after {
+            @include sprite-position($diaspora-light);
         }
     }
 

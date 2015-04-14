@@ -215,8 +215,7 @@ class MemberListAPITest(APITestCase):
             'password': 'azerty'
         }
         response = self.client.post(reverse('api-member-list'), data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIsNotNone(response.data.get('username'))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_register_new_user_without_email(self):
         """
@@ -335,15 +334,17 @@ class MemberMyDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(profile.pk, response.data.get('pk'))
         self.assertEqual(profile.user.username, response.data.get('username'))
+        self.assertEqual(profile.user.email, response.data.get('email'))
         self.assertEqual(profile.user.is_active, response.data.get('is_active'))
+        self.assertIsNotNone(response.data.get('date_joined'))
         self.assertEqual(profile.site, response.data.get('site'))
         self.assertEqual(profile.avatar_url, response.data.get('avatar_url'))
         self.assertEqual(profile.biography, response.data.get('biography'))
         self.assertEqual(profile.sign, response.data.get('sign'))
-        self.assertEqual(profile.email_for_answer, response.data.get('email_for_answer'))
-        self.assertIsNotNone(response.data.get('date_joined'))
         self.assertFalse(response.data.get('show_email'))
-        self.assertEqual(profile.user.email, response.data.get('email'))
+        self.assertEqual(profile.show_sign, response.data.get('show_sign'))
+        self.assertEqual(profile.hover_or_click, response.data.get('hover_or_click'))
+        self.assertEqual(profile.email_for_answer, response.data.get('email_for_answer'))
 
     def test_detail_of_the_member_not_authenticated(self):
         """
@@ -372,15 +373,17 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.profile.pk, response.data.get('pk'))
         self.assertEqual(self.profile.user.username, response.data.get('username'))
+        self.assertIsNone(response.data.get('email'))
         self.assertEqual(self.profile.user.is_active, response.data.get('is_active'))
+        self.assertIsNotNone(response.data.get('date_joined'))
         self.assertEqual(self.profile.site, response.data.get('site'))
         self.assertEqual(self.profile.avatar_url, response.data.get('avatar_url'))
         self.assertEqual(self.profile.biography, response.data.get('biography'))
         self.assertEqual(self.profile.sign, response.data.get('sign'))
-        self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
-        self.assertIsNotNone(response.data.get('date_joined'))
         self.assertFalse(response.data.get('show_email'))
-        self.assertIsNone(response.data.get('email'))
+        self.assertEqual(self.profile.show_sign, response.data.get('show_sign'))
+        self.assertEqual(self.profile.hover_or_click, response.data.get('hover_or_click'))
+        self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
 
     def test_detail_of_a_member_who_accepts_to_show_his_email(self):
         """
@@ -417,16 +420,21 @@ class MemberDetailAPITest(APITestCase):
         Updates a member but without any changes.
         """
         response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]))
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.profile.pk, response.data.get('pk'))
         self.assertEqual(self.profile.user.username, response.data.get('username'))
+        self.assertEqual(self.profile.user.email, response.data.get('email'))
+        self.assertEqual(self.profile.user.is_active, response.data.get('is_active'))
+        self.assertIsNotNone(response.data.get('date_joined'))
         self.assertEqual(self.profile.site, response.data.get('site'))
         self.assertEqual(self.profile.avatar_url, response.data.get('avatar_url'))
         self.assertEqual(self.profile.biography, response.data.get('biography'))
         self.assertEqual(self.profile.sign, response.data.get('sign'))
-        self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
         self.assertFalse(response.data.get('show_email'))
-        self.assertEqual(self.profile.user.email, response.data.get('email'))
+        self.assertEqual(self.profile.show_sign, response.data.get('show_sign'))
+        self.assertEqual(self.profile.hover_or_click, response.data.get('hover_or_click'))
+        self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
 
     def test_update_member_details_not_exist(self):
         """

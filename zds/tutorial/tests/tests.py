@@ -15,6 +15,7 @@ except:
     except:
         import json as json_reader
 from django.db.models import Q
+from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -26,6 +27,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.gallery.factories import UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
+from zds.forum.models import Topic
 from zds.settings import SITE_ROOT
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
     ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
@@ -147,7 +149,7 @@ class BigTutorialTests(TestCase):
 
         mail.outbox = []
 
-    def test_public_tutorial(self):
+    def create_basic_big_tutorial(self):
         future_tutorial = BigTutorialFactory()
         future_tutorial.authors.add(self.user_author)
         future_tutorial.gallery = GalleryFactory()
@@ -179,6 +181,11 @@ class BigTutorialTests(TestCase):
             part=part2,
             position_in_part=2,
             position_in_tutorial=5)
+
+        return future_tutorial
+
+    def test_public_tutorial(self):
+        future_tutorial = self.create_basic_big_tutorial()
 
         staff = StaffProfileFactory().user
 
@@ -219,6 +226,103 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(pub.status_code, 302)
         self.assertEquals(len(mail.outbox), 1)
+
+    def test_delete_tutorial_never_beta(self):
+        future_tutorial = self.create_basic_big_tutorial()
+        future_tutorial_pk = future_tutorial.pk
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # delete tutorial
+        response = self.client.post(
+            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            {},
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(Tutorial.objects.filter(pk=future_tutorial_pk).first())
+
+    def test_delete_tutorial_on_beta(self):
+        future_tutorial = self.create_basic_big_tutorial()
+        future_tutorial_pk = future_tutorial.pk
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # then active the beta on tutorial
+        self.assertIsNone(Topic.objects.get_beta_topic_of(future_tutorial))
+        sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
+        self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': future_tutorial_pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        topic = Topic.objects.get_beta_topic_of(future_tutorial)
+        self.assertIsNotNone(topic)
+        topic_pk = topic.pk
+        # delete tutorial
+        self.client.post(
+            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            {},
+            follow=False
+        )
+        self.assertIsNone(Tutorial.objects.filter(pk=future_tutorial_pk).first())
+        self.assertIsNone(Topic.objects.filter(pk=topic_pk).first())
+
+    def test_delete_tutorial_on_desactivate_beta(self):
+        future_tutorial = self.create_basic_big_tutorial()
+        future_tutorial_pk = future_tutorial.pk
+
+        login_check = self.client.login(
+            username=self.user_author.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+
+        # then active the beta on tutorial
+        self.assertIsNone(Topic.objects.get_beta_topic_of(future_tutorial))
+        sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
+        self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': future_tutorial_pk,
+                'activ_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        topic = Topic.objects.get_beta_topic_of(future_tutorial)
+        self.assertIsNotNone(topic)
+        topic_pk = topic.pk
+        # then desactive the beta on tutorial
+        self.assertIsNone(Topic.objects.filter(pk=topic_pk, is_locked=True).first())
+        sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
+        self.client.post(
+            reverse('zds.tutorial.views.modify_tutorial'),
+            {
+                'tutorial': future_tutorial_pk,
+                'desactiv_beta': True,
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertIsNotNone(Topic.objects.filter(pk=topic_pk, is_locked=True).first())
+        # delete tutorial
+        self.client.post(
+            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            {},
+            follow=False
+        )
+        self.assertIsNone(Tutorial.objects.filter(pk=future_tutorial_pk).first())
+        self.assertIsNone(Topic.objects.filter(pk=topic_pk).first())
 
     def test_import_archive(self):
         login_check = self.client.login(
@@ -2265,7 +2369,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, new_licence.code)
+        self.assertEquals(json['licence'], new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2299,7 +2403,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2356,7 +2460,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a big tutorial"""
@@ -2651,6 +2755,9 @@ class BigTutorialTests(TestCase):
         """
         Add a non-regression test about warning the author(s) of a typo in tutorial
         """
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
         typo_text = u'T\'as fait une faute, t\'es nul'
 
@@ -4066,7 +4173,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, new_licence.code)
+        self.assertEquals(json['licence'], new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -4100,7 +4207,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -4157,7 +4264,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEquals(json['licence'], self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a mini tutorial"""
@@ -4460,6 +4567,9 @@ class MiniTutorialTests(TestCase):
         """
         Add a non-regression test about warning the author(s) of a typo in tutorial
         """
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
         typo_text = u'T\'as fait une faute, t\'es nul'
 

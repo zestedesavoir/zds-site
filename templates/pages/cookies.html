@@ -90,7 +90,7 @@
     {% url "zds.pages.views.cookies" as cook_url %}
     {% if app.site.licenses.cookies %}
         <p>
-            {% blocktrans with site_name=app.site.litteral_name url_license=app.site.licenses.cookies.url_license cook_desc=app.site.licenses.cookies.description cook_title=app.site.licenses.cookies.title cook_img=app.site.licenses.cookies.url_image %}
+            {% blocktrans with site_name=app.site.litteral_name url_license=app.site.licenses.cookies.url_license cook_descr=app.site.licenses.cookies.description cook_title=app.site.licenses.cookies.title cook_img=app.site.licenses.cookies.url_image %}
             <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="{{ cook_title }}" style="border-width:0" src="{{ cook_img }}" /></a>
             <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a href="{{cook_url}}">{{site_name}}</a> est mis à disposition selon les termes de la <a rel="license" href="{{ url_license }}">{{ cook_descr }}</a>.
             {% endblocktrans %}
@@ -129,11 +129,11 @@
     <p>{% trans "Faites fondre le beurre, ajoutez-y les &oelig;ufs. Incorporez le tout à la préparation" %}.</p>
     <p>{% trans "Ajoutez les morceaux de chocolat et mélangez avec soin" %}.</p>
     <h4>{% trans "Cuisson" %}</h4>
-    <p>{% trans "Préchauffez votre four à 220°C / thermostat 7-8, grille en position basse" %}.</p>
+    <p>{% trans "Préchauffez votre four à 220°C (200°C en chaleur tournante) / thermostat 7-8, grille en position basse" %}.</p>
     <p>{% trans "Façonnez des cookies d'environ 10 cm de côté sur la plaque recouverte de papier sulfurisé. Attention, espacez-les parce qu'ils s'étalent à la cuisson" %}.</p>
     <p>{% trans "Enfournez-les environ 10 minutes, ils sont cuits lorsqu'ils prennent une belle couleur dorée" %} !</p>
     <h4>{% trans "Conseils divers" %}</h4>
     <p>{% trans "Si vous avez la flemme de découper le chocolat, vous pouvez utiliser des pépites de chocolat mais en général c'est moins bon. Surtout pas de chocolat à déguster : ces chocolats manquent de sucre pour la patisserie" %} !</p>
     <p>{% trans "La cuisson parfaite se joue à quelques secondes près (sérieusement), alors surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. Ce qui serait dommage" %} !</p>
-    <p>{% blocktrans %} On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> reste le cookie au chocolat" {% endblocktrans %}.</p>
+    <p>{% blocktrans %} On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> reste le cookie au chocolat". Bien qu'avec un peu de noix de coco ça ne se refuse pas !{% endblocktrans %}</p>
 {% endblock %}

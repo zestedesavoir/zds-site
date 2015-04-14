@@ -126,3 +126,39 @@ Pour pouvoir communiquer entre modérateur, il est utile d'avoir un outil de sui
 Cet outil à deux rôles. Permettre d'identifier les membres *perturbateurs* mais aussi les membres *moteurs* qui pourrait faire l'objet d'un article ou d'une mise en avant de leurs projets.
 
 Pour modifier le karma d'un membre, il faut donc être modérateur sur le site. Sur la fiche profil d'un membre apparait alors un formulaire pour ajouter un bonus/malus et une liste des modifications précédentes montrant l'impact (+/-), le message, l'auteur du bonus/malus et la date d'effet de ce dernier.
+
+L'interface de réinitialisation de mot de passe
+-----------------------------------------------
+
+Quand le membre du site oublie son mot de passe, il peut le réinitialiser. L'ancien mot de passe est supprimé et l'utilisateur peut en choisir un nouveau.
+Pour cela, il se rend sur la page de réinitialisation de mot de passe (``membres/reinitialisation/``) à partir de la page de connexion.
+
+    .. figure:: images/member/reinitialisation-mot-de-passe-1.png
+
+Sur cette page l'utilisateur, doit rentrer son nom d'utilisateur ou son adresse de courriel. Pour cela, il clique sur le lien pour que le formullaire apparaisse.
+Quand l'utilisateur clique sur le bouton de validation, un jeton est généré aléatoirement et est stocké dans une base de données.
+
+Un message est envoyé à l'adresse de courriel de l'utilisateur. Ce courriel contient un lien de réinitialisation. Ce lien contient un paramètre, le jeton de réinitialisation et dirige l'utilisateur vers l'adresse ``membres/new_password/``.
+
+    .. figure:: images/member/reinitialisation-mot-de-passe-2.png
+
+Cette page permet de changer le mot de passe de l'utilisateur. L'utilisateur remplit le formulaire et clique sur le bouton de validation.
+Si le mot de passe et le champ confirmation correspondent et que le mot de passe respecte les règles métiers, le mot de passe est changé.
+Le systéme affiche un message de confirmation du changement du mot de passe.
+
+.. attention::
+
+    - Il n'existe aucune restriction sur le nombre de demande de réinitialisation
+    - Un utilisateur peut avoir le même nom d'utilisateur que l'adresse email de quelqu'un d'autre. Exemple:
+
+         ================  =======================
+          username        	email
+         ================  =======================
+          firm1 	       firm1@gmail.com
+          firm1@gmail.com  firm1@zestedesavoir.com
+         ================  =======================
+.. attention::
+
+    - Le mot de passe doit faire au moins 6 caractères.
+    - Le lien est valable une heure. Si l'utilisateur ne clique pas sur le lien dans le temps imparti, un message d'erreur est affiché.
+    - Le jeton de réinitialisation de mot de passe n'est valide qu'une seule fois. Si l'utilisateur tente de changer son mot de passe avec le même jeton, une page 404 est affiché à l'utilisateur.

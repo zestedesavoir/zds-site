@@ -164,11 +164,12 @@
                     {% trans "Reprise du dernier message de la page précédente" %}
                 </p>
             {% endif %}
-            {% if message.is_useful and not is_creator %}
-                <p class="message-helpful tick ico-after green">
-                    {% trans "Cette réponse a aidé l'auteur du sujet" %}
-                </p>
-            {% endif %}
+             <p
+                class="message-helpful tick ico-after green {% if not message.is_useful or is_creator %}hidden{% endif %}"
+                data-ajax-output="mark-message-as-useful"
+             >
+                {% trans "Cette réponse a aidé l'auteur du sujet" %}
+            </p>
 
             {% if message.is_visible != False %}
                 <div itemprop="text">
@@ -246,11 +247,21 @@
                                 {% if topic.author = user or perms_change %}
                                     <form action="{{ helpful_link }}" method="post">
                                         {% csrf_token %}
-                                        <button type="submit" class="tick ico-after {% if message.is_useful %}green{% endif %}">
+                                        <button
+                                            type="submit"
+                                            class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                            data-ajax-input="mark-message-as-useful"
+                                            data-content-on-click="
+                                                {% if message.is_useful %}
+                                                    {% trans "Cette réponse m'a aidé" %}
+                                                {% else %}
+                                                    {% trans "Cette réponse ne m'a pas aidé" %}
+                                                {% endif %}"
+                                        >
                                             {% if message.is_useful %}
-                                                Cette réponse {% if topic.author == user %}ne m'{% else %}n'{% endif %}a pas aidé
+                                                {% trans "Cette réponse ne m'a pas aidé" %}
                                             {% else %}
-                                                Cette réponse {% if topic.author == user %}m'{% endif %}a aidé
+                                                {% trans "Cette réponse m'a aidé" %}
                                             {% endif %}
                                         </button>
                                     </form>
@@ -320,9 +331,7 @@
                                 </span>
                             </span>
                         {% endif %}
-                    {% if upvote_link %}
-                        </div>
-                    {% endif %}
+                    </div>
                 {% endif %}
             </div>
         {% endif %}
