@@ -12,7 +12,7 @@ class PrivateTopicManager(models.Manager):
     def get_private_topics_of_user(self, user_id):
         return super(PrivateTopicManager, self).get_queryset() \
             .filter(Q(participants__in=[user_id]) | Q(author=user_id)) \
-            .select_related("author", "participants") \
+            .select_related("author") \
             .distinct().order_by('-last_message__pubdate').all()
 
     def get_private_topics_selected(self, user_id, pks):
