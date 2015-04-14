@@ -27,7 +27,7 @@
         <ul>
             {% for new in news %}
                 <li>
-                    <a href="{{ new.url }}">
+                    <a href="{% url 'news-update' new.pk %}">
                         {{ new.title }}
                     </a>
                 </li>
@@ -43,8 +43,8 @@
 {% endblock %}
 
 {% block sidebar %}
-    <aside class="sidebar accordeon mobile-menu-bloc" data-title="Action sur les unes">
-        <a href="{% url 'news-new' %}" class="new-btn ico-after more blue">
+    <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans 'Action sur les unes' %}">
+        <a href="{% url 'news-create' %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle une" %}
         </a>
     </aside>

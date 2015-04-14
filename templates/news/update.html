@@ -1,0 +1,26 @@
+{% extends "news/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Modification d'une une" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Modification d'une une" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans "Modification d'une une" %}</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}
