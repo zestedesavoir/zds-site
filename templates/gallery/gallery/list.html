@@ -28,7 +28,7 @@
                     <input
                         name="items"
                         type="checkbox"
-                        {% if not gallery.is_write %}
+                        {% if not gallery.can_write %}
                             disabled="true"
                         {% endif %}
                         value="{{ gallery.gallery.pk }}"
@@ -63,7 +63,7 @@
     {% if galleries|length = 0 %}
         <p>
             {% trans "Vous n'avez pas encore de galerie" %}. <br>
-            <a href="{% url "zds.gallery.views.new_gallery" %}">{% trans "Créer une galerie" %}</a>.
+            <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
         </p>
     {% endif %}
 {% endblock %}
