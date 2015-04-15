@@ -21,7 +21,11 @@
 
 
 {% block sidebar %}
-    <aside class="sidebar mobile-menu-hide">
+    <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans 'Action sur les unes' %}">
+        <a href="{% url 'news-create' %}" class="new-btn ico-after more blue">
+            {% trans "Nouvelle une" %}
+        </a>
+
         {% block sidebar_actions %}{% endblock %}
     </aside>
 {% endblock %}
