@@ -2,8 +2,7 @@
 {% load append_to_get %}
 {% load i18n %}
 
-
-{% if page_obj|length > 1 %}
+{% if paginator.num_pages > 1 %}
     {% captureas full_anchor %}
         {% if anchor %}
             #{{ anchor }}

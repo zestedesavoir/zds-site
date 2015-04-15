@@ -40,11 +40,12 @@ class ZdSPagingListView(ListView):
         context.update(kwargs)
         return super(MultipleObjectMixin, self).get_context_data(**context)
 
-    def build_list(self):
+    def build_list_with_previous_item(self, queryset):
         """
         For some list paginated, we would like to display the last item of the previous page.
         This function returns the list paginated with this previous item.
         """
+        original_list = queryset.all()
         list = []
         # If necessary, add the last item in the previous page.
         if self.page.number != 1:
@@ -52,7 +53,7 @@ class ZdSPagingListView(ListView):
             last_item = (last_page)[len(last_page) - 1]
             list.append(last_item)
         # Adds all items of the list paginated.
-        for item in self.object_list:
+        for item in original_list:
             list.append(item)
         return list
 

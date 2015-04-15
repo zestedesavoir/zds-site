@@ -263,7 +263,7 @@ class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
         context['topic'] = self.object
         context['last_post_pk'] = self.object.last_message.pk
         context['form'] = PrivatePostForm(self.object)
-        context['posts'] = self.build_list()
+        context['posts'] = self.build_list_with_previous_item(context['object_list'])
         if never_privateread(self.object):
             mark_read(self.object)
         return context
