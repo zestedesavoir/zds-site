@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 
 from zds import settings
@@ -68,7 +72,7 @@ class NewsCreate(CreateView):
             news.authors.add(current_author)
         news.save()
 
-        return redirect(reverse('zds.pages.views.home'))
+        return redirect(reverse('news-list'))
 
 
 class NewsUpdate(UpdateView):
@@ -96,7 +100,7 @@ class NewsUpdate(UpdateView):
             'authors': ", ".join([author.user.username for author in self.news.authors.all()])
         })
         form.helper.form_action = reverse('news-update', args=[self.news.pk])
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'news': self.news})
 
     def post(self, request, *args, **kwargs):
         self.news = self.get_object()
@@ -105,7 +109,7 @@ class NewsUpdate(UpdateView):
         if form.is_valid():
             return self.form_valid(form)
 
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'form': form, 'news': self.news})
 
     def form_valid(self, form):
         self.news.title = form.data.get('title')
@@ -130,6 +134,27 @@ class NewsUpdate(UpdateView):
         return form
 
 
+class NewsDeleteDetail(SingleObjectMixin, RedirectView):
+    """
+    Deletes a news
+    """
+    queryset = News.objects.all()
+
+    @method_decorator(login_required)
+    @method_decorator(transaction.atomic)
+    @method_decorator(permission_required('news.change_news', raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(NewsDeleteDetail, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        news = self.get_object()
+        news.delete()
+
+        messages.success(request, _(u'La une a été supprimée avec succès.'))
+
+        return redirect(reverse('news-list'))
+
+
 class NewsDeleteList(MultipleObjectMixin, RedirectView):
     """
     Deletes a list of news
@@ -147,4 +172,7 @@ class NewsDeleteList(MultipleObjectMixin, RedirectView):
     def post(self, request, *args, **kwargs):
         for news in self.get_queryset():
             news.delete()
+
+        messages.success(request, _(u'Les unes ont été supprimées avec succès.'))
+
         return redirect(reverse('news-list'))
