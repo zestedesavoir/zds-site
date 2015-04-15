@@ -327,13 +327,13 @@ class EditImage(GalleryMixin, UpdateView):
 
         if 'physical' in self.request.FILES:  # the user request to change the image
             if self.request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
-                    messages.error(
-                        self.request,
-                        _(u"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} "
-                          u"<abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer.").format(
-                            settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+                messages.error(
+                    self.request,
+                    _(u"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} "
+                      u"<abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer.").format(
+                        settings.ZDS_APP['gallery']['image_max_size'] / 1024))
 
-                    can_change = False
+                can_change = False
             else:
                 img.physical = self.request.FILES["physical"]
                 img.slug = slugify(self.request.FILES["physical"])
