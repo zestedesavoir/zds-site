@@ -2,7 +2,7 @@
 
 from django.conf.urls import patterns, url
 
-import views
+import zds.gallery.views
 
 
 urlpatterns = patterns('',
