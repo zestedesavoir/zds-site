@@ -83,6 +83,10 @@
         <section class="home-pinned-content">
             <h2 class="home-heading heading-white" itemprop="name">
                 {% trans "A la une" %}
+
+                {% if perms.news.change_news %}
+                    <a href="{% url "news-list" %}" class="btn btn-grey">{% trans "Toutes les unes" %}</a>
+                {% endif %}
             </h2>
 
             <div class="featured-row">

@@ -21,26 +21,54 @@
 
 
 {% block content %}
-    {% include "misc/paginator.html" with position="top" %}
+    {% if news_list %}
+        <form id="form" name="form" method="post" action="{% url "news-list-delete" %}">
+            {% csrf_token %}
 
-    <div class="featured-item">
-        <ul>
-            {% for new in news %}
-                <li>
-                    <a href="{% url 'news-update' new.pk %}">
-                        {{ new.title }}
-                    </a>
-                </li>
-            {% empty %}
-                <li>
-                    {% trans "Aucune une pour le moment." %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+            <button class="btn btn-cancel" name="delete_multi">
+                {% trans "Supprimer la sélection" %}
+            </button>
 
-    {% include "misc/paginator.html" with position="bottom" %}
+            <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
+                {% trans "Vue grille" %}
+            </button>
+
+            <div class="gallery topic-list list-view clearfix navigable-list">
+                {% for news in news_list %}
+                    <div class="topic gallery-item navigable-elem">
+                        <div class="topic-infos">
+                            <input name="items" type="checkbox" value="{{ news.pk }}">
+                        </div>
+                        <div class="topic-description">
+                            <a href="{% url 'news-update' news.pk %}" class="topic-title-link navigable-link">
+                                <img src="{{ news.image_url }}"
+                                    data-caption="{{ news.title }}"
+                                    alt="{{ news.title }}"
+                                    class="topic-image"
+                                >
+                                <span class="topic-title">{{ news.title }}</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+             <button class="btn btn-cancel" name="delete_multi">
+                {% trans "Supprimer la sélection" %}
+            </button>
+
+            <button class="toggle-gallery-view btn btn-grey" type="button" title="{% trans 'Alterner entre les modes de vue grille et liste' %}">
+                {% trans "Vue grille" %}
+            </button>
+        </form>
+    {% else %}
+        <p>
+            {% trans "Aucune une pour le moment." %}
+        </p>
+    {% endif %}
 {% endblock %}
+
+
 
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans 'Action sur les unes' %}">

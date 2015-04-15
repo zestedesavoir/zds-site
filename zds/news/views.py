@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, RedirectView, UpdateView
+from django.views.generic.list import MultipleObjectMixin
 
 from zds import settings
 from zds.member.models import Profile
@@ -19,7 +20,7 @@ class NewsList(ZdSPagingListView):
     Displays the list of news.
     """
 
-    context_object_name = 'news'
+    context_object_name = 'news_list'
     paginate_by = settings.ZDS_APP['news']['news_per_page']
     queryset = News.objects.all()
     template_name = 'news/index.html'
@@ -127,3 +128,23 @@ class NewsUpdate(UpdateView):
         form = self.form_class(self.request.POST)
         form.helper.form_action = reverse('news-update', args=[self.news.pk])
         return form
+
+
+class NewsDeleteList(MultipleObjectMixin, RedirectView):
+    """
+    Deletes a list of news
+    """
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('news.change_news', raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(NewsDeleteList, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        list = self.request.POST.getlist('items')
+        return News.objects.filter(pk__in=list)
+
+    def post(self, request, *args, **kwargs):
+        for news in self.get_queryset():
+            news.delete()
+        return redirect(reverse('news-list'))
