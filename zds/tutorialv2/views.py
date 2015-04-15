@@ -749,6 +749,9 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
+        if 'preview' in self.request.POST:
+            return self.form_invalid(form)  # using the preview button
+
         sha = parent.repo_add_extract(form.cleaned_data['title'],
                                       form.cleaned_data['text'],
                                       form.cleaned_data['msg_commit'])
@@ -788,6 +791,9 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def form_valid(self, form):
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
+
+        if 'preview' in self.request.POST:
+            return self.form_invalid(form)  # using the preview button
 
         sha = extract.repo_update(form.cleaned_data['title'],
                                   form.cleaned_data['text'],
