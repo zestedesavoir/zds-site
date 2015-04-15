@@ -137,9 +137,9 @@ class EditGallery(UpdateView):
 
     def get_object(self, queryset=None):
 
-        pk = self.kwargs.pop('pk', None)
+        pkey = self.kwargs.pop('pk', None)
         slug = self.kwargs.pop('slug', None)
-        gallery = get_object_or_404(Gallery, pk=pk, slug=slug)
+        gallery = get_object_or_404(Gallery, pk=pkey, slug=slug)
 
         ensure_user_access(gallery, self.request.user, can_write=True)
 
@@ -160,11 +160,11 @@ def modify_gallery(request):
     # Global actions
 
     if "delete_multi" in request.POST:
-        l = request.POST.getlist("items")
+        list_items = request.POST.getlist("items")
 
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
-        for g_pk in l:
+        for g_pk in list_items:
             if Tutorial.objects.filter(gallery__pk=g_pk).exists():
                 gallery = Gallery.objects.get(pk=g_pk)
                 messages.error(
@@ -304,8 +304,8 @@ class EditImage(GalleryMixin, UpdateView):
         return super(EditImage, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
-        pk = self.kwargs.pop('pk', None)
-        return get_object_or_404(Image, pk=pk)
+        pkey = self.kwargs.pop('pk', None)
+        return get_object_or_404(Image, pk=pkey)
 
     def get_context_data(self, **kwargs):
         context = super(EditImage, self).get_context_data(**kwargs)
@@ -327,13 +327,13 @@ class EditImage(GalleryMixin, UpdateView):
 
         if 'physical' in self.request.FILES:  # the user request to change the image
             if self.request.FILES["physical"].size > settings.ZDS_APP['gallery']['image_max_size']:
-                    messages.error(
-                        self.request,
-                        _(u"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} "
-                          u"<abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer.").format(
-                            settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+                messages.error(
+                    self.request,
+                    _(u"Votre image est beaucoup trop lourde, réduisez sa taille à moins de {:.0f} "
+                      u"<abbr title=\"kibioctet\">Kio</abbr> avant de l'envoyer.").format(
+                        settings.ZDS_APP['gallery']['image_max_size'] / 1024))
 
-                    can_change = False
+                can_change = False
             else:
                 img.physical = self.request.FILES["physical"]
                 img.slug = slugify(self.request.FILES["physical"])
@@ -365,11 +365,11 @@ class DeleteImages(DeleteView):
         ensure_user_access(gallery, request.user, can_write=True)
 
         if 'delete_multi' in request.POST:
-            l = request.POST.getlist("items")
-            Image.objects.filter(pk__in=l, gallery=gallery).delete()
+            list_items = request.POST.getlist("items")
+            Image.objects.filter(pk__in=list_items, gallery=gallery).delete()
         elif 'delete' in request.POST:
-            pk = self.request.POST['image']
-            img = get_object_or_404(Image, pk=pk)
+            pkey = self.request.POST['image']
+            img = get_object_or_404(Image, pk=pkey)
 
             if img.gallery != gallery:
                 raise PermissionDenied
@@ -404,21 +404,17 @@ class ImportImages(GalleryMixin, FormView):
         zfile = zipfile.ZipFile(archive, "a")
 
         for i in zfile.namelist():
-            (dirname, filename) = os.path.split(i)
-            # if directory doesn't exist, created on
-            # if not os.path.exists(os.path.dirname(ph_temp)):
-            #    os.makedirs(os.path.dirname(ph_temp))
-            # if file is directory, don't create file
+            filename = os.path.split(i)[1]
 
             ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
 
-            if filename.strip() == "":
+            if filename.strip() == "":  # don't deal with directory
                 continue
 
             # create file for image
-            fp = open(ph_temp, "wb")
-            fp.write(zfile.read(i))
-            fp.close()
+            f_im = open(ph_temp, "wb")
+            f_im.write(zfile.read(i))
+            f_im.close()
             title = os.path.basename(i)
 
             # if size is too large, don't save
@@ -436,16 +432,16 @@ class ImportImages(GalleryMixin, FormView):
                 continue
 
             # create picture in database:
-            f = File(open(ph_temp, "rb"))
-            f.name = title
+            f_im = File(open(ph_temp, "rb"))
+            f_im.name = title
 
             pic = Image()
             pic.gallery = gallery
             pic.title = title
             pic.pubdate = datetime.now()
-            pic.physical = f
+            pic.physical = f_im
             pic.save()
-            f.close()
+            f_im.close()
 
             if os.path.exists(ph_temp):
                 os.remove(ph_temp)

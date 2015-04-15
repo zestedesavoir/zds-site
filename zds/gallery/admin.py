@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from models import Gallery, Image, UserGallery
+from zds.gallery.models import Gallery, Image, UserGallery
 
 
 class GalleryAdmin(admin.ModelAdmin):
