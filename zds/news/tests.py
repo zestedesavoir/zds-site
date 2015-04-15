@@ -124,3 +124,45 @@ class NewsUpdateViewTest(TestCase):
         response = self.client.get(reverse('news-update', args=[42]))
 
         self.assertEqual(403, response.status_code)
+
+
+class NewsListDeleteViewTest(TestCase):
+    def test_success_list_delete_news(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        news = NewsFactory()
+        news2 = NewsFactory()
+        self.assertEqual(1, News.objects.all().count())
+        response = self.client.post(
+            reverse('news-list-delete'),
+            {
+                'items': [news.pk, news2.pk]
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, News.objects.filter(pk=news.pk).count())
+        self.assertEqual(0, News.objects.filter(pk=news2.pk).count())
+
+    def test_failure_list_delete_news_with_unauthenticated_user(self):
+        response = self.client.get(reverse('news-list-delete'))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_list_delete_news_with_user_not_staff(self):
+        profile = ProfileFactory()
+        login_check = self.client.login(
+            username=profile.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('news-list-delete'))
+
+        self.assertEqual(403, response.status_code)
