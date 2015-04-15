@@ -14,7 +14,7 @@ $content-border-color: #DEDEDE;
     flex: 1 1 300px;
 
     &.mini {
-      max-width: 270px;
+        max-width: 270px;
     }
 
     & > * {
@@ -66,44 +66,44 @@ $content-border-color: #DEDEDE;
     }
 
     .content-meta {
-      color: $color-secondary;
+        color: $color-secondary;
     }
 
     &.write-tutorial {
-      background-color: $color-primary;
-      border-color: $color-primary;
-      align-items: center;
-      color: white;
-      height: 96px;
+        background-color: $color-primary;
+        border-color: $color-primary;
+        align-items: center;
+        color: white;
+        height: 96px;
 
-      .write-tutorial-text {
-        flex: 1;
-        text-align: center;
+        .write-tutorial-text {
+            flex: 1;
+            text-align: center;
 
-        p {
-          margin: 0;
-          font-size: 16px;
+            p {
+                margin: 0;
+                font-size: 16px;
 
-          &.lead {
-            font-size: 18px;
-            font-weight: bold;
-          }
+                &.lead {
+                    font-size: 18px;
+                    font-weight: bold;
+                }
+            }
         }
-      }
 
-      .btn-write-tutorial {
-        background-color: #19526c;
-        margin-right: 28px;
+        .btn-write-tutorial {
+            background-color: #19526c;
+            margin-right: 28px;
 
-        &:hover, &:focus {
-          background-color: lighten(#19526c, 6%);
+            &:hover, &:focus {
+                background-color: lighten(#19526c, 6%);
+            }
         }
-      }
     }
 }
 
 .content-item-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
