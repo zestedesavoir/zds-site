@@ -135,9 +135,9 @@ class Tutorial(models.Model):
 
     def get_absolute_url_beta(self):
         if self.sha_beta is not None:
-            return reverse('zds.tutorial.views.view_tutorial', args=[
+            return reverse('zds.tutorial.views.view_tutorial_beta', args=[
                 self.pk, slugify(self.title)
-            ]) + '?version=' + self.sha_beta
+            ])
         else:
             return self.get_absolute_url()
 
@@ -234,9 +234,8 @@ class Tutorial(models.Model):
 
         if self.in_beta():
             mandata['get_absolute_url_beta'] = reverse(
-                'zds.tutorial.views.view_tutorial',
-                args=[self.pk, mandata['slug']]
-            ) + '?version=' + self.sha_beta
+                'zds.tutorial.views.view_tutorial_beta',
+                args=[self.pk, mandata['slug']])
 
         else:
             mandata['get_absolute_url_beta'] = reverse(
@@ -591,6 +590,14 @@ class Part(models.Model):
             self.slug,
         ])
 
+    def get_absolute_url_beta(self):
+        return reverse('zds.tutorial.views.view_part_beta', args=[
+            self.tutorial.pk,
+            self.tutorial.slug,
+            self.pk,
+            self.slug,
+        ])
+
     def get_absolute_url_online(self):
         return reverse('zds.tutorial.views.view_part_online', args=[
             self.tutorial.pk,
@@ -756,6 +763,12 @@ class Chapter(models.Model):
 
         else:
             return reverse('zds.tutorial.views.index')
+
+    def get_absolute_url_beta(self):
+        if self.tutorial:
+            return self.tutorial.get_absolute_url_beta()
+        elif self.part:
+            return self.part.get_absolute_url_beta() + '{0}/{1}/'.format(self.pk, self.slug)
 
     def get_absolute_url_online(self):
         if self.tutorial:
@@ -964,6 +977,13 @@ class Extract(models.Model):
     def get_absolute_url(self):
         return '{0}#{1}-{2}'.format(
             self.chapter.get_absolute_url(),
+            self.position_in_chapter,
+            slugify(self.title)
+        )
+
+    def get_absolute_url_beta(self):
+        return '{0}#{1}-{2}'.format(
+            self.chapter.get_absolute_url_beta(),
             self.position_in_chapter,
             slugify(self.title)
         )

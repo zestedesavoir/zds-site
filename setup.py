@@ -17,7 +17,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='zds',
-    version='1.6',
+    version='1.7',
     packages=['zds'],
     include_package_data=True,
     license='GPLv3',

@@ -65,11 +65,18 @@ class PrivateTopicNew(CreateView):
 
     def get(self, request, *args, **kwargs):
         title = request.GET.get('title') if 'title' in request.GET else None
-        try:
-            participants = User.objects.get(username=request.GET.get('username')).username \
-                if 'username' in request.GET else None
-        except:
-            participants = None
+
+        participants = None
+        if 'username' in request.GET:
+            dest_list = []
+            # check that usernames in url is in the database
+            for username in request.GET.getlist('username'):
+                try:
+                    dest_list.append(User.objects.get(username=username).username)
+                except ObjectDoesNotExist:
+                    pass
+            if len(dest_list) > 0:
+                participants = ', '.join(dest_list)
 
         form = self.form_class(username=request.user.username,
                                initial={
@@ -202,7 +209,7 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         except ObjectDoesNotExist:
             messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
 
-        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug]))
+        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
 
 
 class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
@@ -233,11 +240,11 @@ class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
         return redirect(reverse('mp-list'))
 
 
-class PrivatePostList(SingleObjectMixin, ZdSPagingListView):
+class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
     """
     Display a thread and its posts using a pager.
     """
-
+    object = None
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
     template_name = 'mp/topic/index.html'
 

@@ -4,22 +4,17 @@ import os
 
 from django.utils.translation import gettext_lazy as _
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 # INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
-
-ADMINS = (
-    ('user', 'mail'),
-)
-
-MANAGERS = ADMINS
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'base.db',
+        'NAME': os.path.join(BASE_DIR, 'base.db'),
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -37,8 +32,6 @@ TIME_ZONE = 'Europe/Paris'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr-fr'
 
-SITE_ID = 1
-
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -55,12 +48,9 @@ LANGUAGES = (
     ('en', _('Anglais')),
 )
 
-
-SITE_ROOT = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
-
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = os.path.join(SITE_ROOT, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -71,7 +61,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -82,7 +72,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, 'dist'),
+    os.path.join(BASE_DIR, 'dist'),
 )
 
 # List of finder classes that know how to find static files in
@@ -93,17 +83,10 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-FIXTURE_DIRS = (os.path.join(SITE_ROOT, 'fixtures'))
+FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'))
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    #     'django.template.loaders.eggs.Loader',
-)
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -134,7 +117,7 @@ TEMPLATE_DIRS = [
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    os.path.join(SITE_ROOT, 'templates')
+    os.path.join(BASE_DIR, 'templates')
 ]
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -168,7 +151,6 @@ INSTALLED_APPS = (
 
     'easy_thumbnails',
     'easy_thumbnails.optimize',
-    'south',
     'crispy_forms',
     'haystack',
     'munin',
@@ -195,10 +177,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
-SOUTH_MIGRATION_MODULES = {
-    'easy_thumbnails': 'easy_thumbnails.south_migrations',
-}
-
 THUMBNAIL_ALIASES = {
     '': {
         'avatar': {'size': (60, 60), 'crop': True},
@@ -224,13 +202,15 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
-        'rest_framework.parsers.XMLParser',
+        #'rest_framework.parsers.XMLParser',
+        'rest_framework_xml.parsers.XMLParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.XMLRenderer',
+        #'rest_framework.renderers.XMLRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_THROTTLE_CLASSES': (
@@ -325,7 +305,6 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
-AUTH_PROFILE_MODULE = 'member.Profile'
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
@@ -351,7 +330,7 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
-GEOIP_PATH = os.path.join(SITE_ROOT, 'geodata')
+GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -368,7 +347,7 @@ MESSAGE_TAGS = {
 SDZ_TUTO_DIR = ''
 
 LOCALE_PATHS = (
-    os.path.join(SITE_ROOT, 'conf/locale/'),
+    os.path.join(BASE_DIR, 'conf/locale/'),
 )
 
 ZDS_APP = {
@@ -445,11 +424,11 @@ ZDS_APP = {
     },
     'article': {
         'home_number': 5,
-        'repo_path': os.path.join(SITE_ROOT, 'articles-data')
+        'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
-        'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
-        'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
+        'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
+        'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
         'default_license_pk': 7,
         'home_number': 5,
         'helps_per_page': 20,
@@ -504,8 +483,13 @@ SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
 
+# To remove a useless warning in Django 1.7.
+# See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
 except ImportError:
     pass
+

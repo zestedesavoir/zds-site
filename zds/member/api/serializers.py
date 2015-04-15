@@ -54,6 +54,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
+    avatar_url = serializers.CharField(source='get_avatar_url')
 
     class Meta:
         model = Profile
@@ -96,9 +97,9 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
         """
         Update and return an existing `Profile` instance, given the validated data.
         """
-        instance.user.username = validated_data.get('user').get('username',
-                                                                instance.user.username) or instance.user.username
-        instance.user.email = validated_data.get('user').get('email', instance.user.email) or instance.user.email
+        if validated_data.get('user') is not None:
+            instance.user.username = validated_data.get('user').get('username', instance.user.username)
+            instance.user.email = validated_data.get('user').get('email', instance.user.email)
         instance.site = validated_data.get('site', instance.site) or instance.site
         instance.avatar_url = validated_data.get('avatar_url', instance.avatar_url) or instance.avatar_url
         instance.biography = validated_data.get('biography', instance.biography) or instance.biography

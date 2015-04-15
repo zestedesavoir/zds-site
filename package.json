@@ -1,7 +1,7 @@
 {
   "name": "zds-site",
   "version": "0.2.0",
-  "description": "Site internet communautaire codé à l'aide du Framework Django 1.6",
+  "description": "Site internet communautaire codé à l'aide du Framework Django 1.7",
   "directories": {
     "doc": "doc"
   },
@@ -23,7 +23,7 @@
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
     "browserify": "^8.1.0",
-    "cookies-eu-banner": "^1.2.3",
+    "cookies-eu-banner": "1.2.6",
     "css-sprite": "^0.9.0",
     "del": "^1.1.1",
     "gulp": "^3.7.0",

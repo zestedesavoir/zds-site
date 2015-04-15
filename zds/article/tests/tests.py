@@ -28,15 +28,15 @@ from zds.article.factories import ArticleFactory, ReactionFactory,   \
 from zds.article.models import Validation, Reaction, Article, Licence
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import PrivateTopic
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.utils.models import Alert
 
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['article']['repo_path'] = os.path.join(SITE_ROOT, 'article-data-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ArticleTests(TestCase):
 
@@ -110,7 +110,7 @@ class ArticleTests(TestCase):
     def test_delete_image_on_change(self):
         """test que l'image est bien supprimée quand on la change"""
 
-        root = settings.SITE_ROOT
+        root = settings.BASE_DIR
         if not os.path.isdir(settings.MEDIA_ROOT):
             os.mkdir(settings.MEDIA_ROOT)
         shutil.copyfile(

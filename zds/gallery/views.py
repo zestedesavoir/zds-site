@@ -344,7 +344,7 @@ def import_image(request, gal_pk):
         form = ArchiveImageForm(request.POST, request.FILES)
         if form.is_valid():
             archive = request.FILES["file"]
-            temp = os.path.join(settings.SITE_ROOT, "temp")
+            temp = os.path.join(settings.BASE_DIR, "temp")
             if not os.path.exists(temp):
                 os.makedirs(temp)
             zfile = zipfile.ZipFile(archive, "a")
