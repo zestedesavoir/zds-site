@@ -73,11 +73,11 @@ class RedirectContentSEO(RedirectView):
     def get_redirect_url(self, **kwargs):
         """Redirects the user to the new url"""
         obj = PublishableContent.objects.get(old_pk=kwargs["pk"])
-        if obj = None or not obj.is_public():
+        if obj is None or not obj.is_public():
             raise Http404
         
-        obj = search_container_or_404(obj.load_version(public=True, kwargs)
-        
+        obj = search_container_or_404(obj.load_version(public=True), kwargs)
+
         return obj.get_prod_path()
 
 
@@ -1093,7 +1093,7 @@ class DisplayOnlineContent(DisplayContent):
     def get_context_data(self, **kwargs):
         content = self.get_object()
         if self.must_redirect:
-            return redirect(content.get_absolute_url_online()
+            return redirect(content.get_absolute_url_online())
         # If the tutorial isn't online, we raise 404 error.
         if not content.in_public():
             raise Http404

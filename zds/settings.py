@@ -167,10 +167,11 @@ INSTALLED_APPS = (
     'zds.gallery',
     'zds.mp',
     'zds.article',
+    'zds.tutorialv2',
     'zds.forum',
     'zds.tutorial',
-    'zds.tutorialv2',
     'zds.member',
+
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -436,8 +437,8 @@ ZDS_APP = {
         'feed_length': 5
     },
     'content': {
-        'repo_private_path': os.path.join(SITE_ROOT, 'contents-private'),
-        'repo_public_path': os.path.join(SITE_ROOT, 'contents-public'),
+        'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
+        'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
         'max_tree_depth': 3,
         'default_license_pk': 7
     },
