@@ -11,10 +11,15 @@ $content-border-color: #DEDEDE;
 
     overflow: hidden; // Temporary, until the items are completely styled
 
-    flex: 1 1 300px;
+    flex: 1 1 100%;
 
     &.mini {
-        max-width: 270px;
+        flex-basis: 49%;
+    }
+
+    /* If there is a content-description, display the childs of content-meta inline */
+    .content-description + .content-meta > * {
+        display: inline-block;
     }
 
     & > * {
@@ -23,10 +28,6 @@ $content-border-color: #DEDEDE;
 
     a {
         text-decoration: none;
-    }
-
-    .content-illu {
-        flex: 0 0 96px;
     }
 
     .content-info {
