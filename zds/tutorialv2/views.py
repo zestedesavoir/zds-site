@@ -936,7 +936,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                  subtitle=u"{}".format(beta_version.description),
                                  text=msg,
                                  related_publishable_content=self.object)
-                    topic = Topic.objects.get(related_publishable_content=self.object)
+                    topic = self.object.beta_topic
 
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
@@ -954,7 +954,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             False)
                 else:
                     if not already_in_beta:
-                        unlock_topic(topic, msg)
+                        unlock_topic(topic)
                         msg_post = render_to_string(
                             'tutorialv2/messages/beta_reactivate.msg.html',
                             {

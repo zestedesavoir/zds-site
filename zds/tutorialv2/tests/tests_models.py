@@ -6,7 +6,7 @@ import shutil
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory
@@ -15,11 +15,11 @@ from zds.gallery.factories import GalleryFactory
 # from zds.tutorialv2.models import Container, Extract, VersionedContent
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['content']['repo_private_path'] = os.path.join(SITE_ROOT, 'contents-private-test')
-overrided_zds_app['content']['repo_public_path'] = os.path.join(SITE_ROOT, 'contents-public-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 
 
-@override_settings(MEDIA_ROOT=os.path.join(SITE_ROOT, 'media-test'))
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentTests(TestCase):
 
