@@ -15,8 +15,8 @@ urlpatterns = patterns('',
 
                        url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/quitter/$', PrivateTopicLeaveDetail.as_view(),
                            name='mp-delete'),
-                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/editer/$', PrivateTopicEdit.as_view(),
-                           name='mp-edit'),
+                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/editer/topic/$', PrivateTopicEdit.as_view(),
+                           name='mp-edit-topic'),
                        url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/editer/participants/$',
                            PrivateTopicAddParticipant.as_view(), name='mp-edit-participant'),
 
