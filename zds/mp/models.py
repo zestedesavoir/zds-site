@@ -21,7 +21,7 @@ class PrivateTopic(models.Model):
         verbose_name_plural = u'Messages privés'
 
     title = models.CharField(u'Titre', max_length=130)
-    subtitle = models.CharField(u'Sous-titre', max_length=200)
+    subtitle = models.CharField(u'Sous-titre', max_length=200, blank=True)
     author = models.ForeignKey(User, verbose_name=u'Auteur', related_name='author', db_index=True)
     participants = models.ManyToManyField(User, verbose_name=u'Participants', related_name='participants',
                                           db_index=True)
