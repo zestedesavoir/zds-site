@@ -900,8 +900,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             raise PermissionDenied  # version does not exists !
 
         # topic of the beta version:
-        topic = Topic.objects.filter(related_publishable_content=self.object,
-                                     forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
+        topic = self.object.beta_topic
         # perform actions:
         if self.action == 'inactive':
             self.object.sha_beta = None

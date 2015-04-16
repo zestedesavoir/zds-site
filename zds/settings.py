@@ -167,9 +167,10 @@ INSTALLED_APPS = (
     'zds.gallery',
     'zds.mp',
     'zds.article',
-    'zds.tutorialv2',
+    
     'zds.forum',
     'zds.tutorial',
+    'zds.tutorialv2',
     'zds.member',
 
     # Uncomment the next line to enable the admin:

@@ -34,6 +34,7 @@ from zds.utils.tutorials import get_blob
 from zds.utils.tutorialv2 import export_content
 from zds.settings import ZDS_APP
 from zds.utils.models import HelpWriting
+from zds.forum.models import Topic
 from uuslug import uuslug
 
 TYPE_CHOICES = (
@@ -1245,7 +1246,10 @@ class PublishableContent(models.Model):
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
-
+    beta_topic = models.ForeignKey(Topic,
+                                                    verbose_name='Contenu associé',
+                                                    default=None,
+                                                    null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)

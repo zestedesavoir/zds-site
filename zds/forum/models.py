@@ -17,7 +17,6 @@ from zds.forum.managers import TopicManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
-from zds.tutorialv2.models import PublishableContent
 
 
 def sub_tag(g):
@@ -195,11 +194,6 @@ class Topic(models.Model):
     # In Tuto logic we can found something like this: `Topic.objet.get(key=tutorial.pk)`
     # TODO: 1. Use a better name, 2. maybe there can be a cleaner way to do this
     key = models.IntegerField('cle', null=True, blank=True)
-
-    related_publishable_content = models.ForeignKey(PublishableContent,
-                                                    verbose_name='Contenu associé',
-                                                    default=None,
-                                                    null=True)
 
     objects = TopicManager()
 
