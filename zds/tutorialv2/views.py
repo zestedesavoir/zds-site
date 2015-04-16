@@ -54,14 +54,13 @@ from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, Log
 from zds.member.views import get_client_ip
 from zds.utils import slugify
 from zds.utils.models import Alert
-from zds.utils.models import Category, CommentLike, CommentDislike, \
-    SubCategory, HelpWriting
+from zds.utils.models import CommentLike, CommentDislike, SubCategory, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
-from django.views.generic import ListView, DetailView, FormView, DeleteView, RedirectView
+from django.views.generic import ListView, FormView, DeleteView, RedirectView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin
@@ -1186,37 +1185,62 @@ class DisplayOnlineArticle(DisplayOnlineContent):
 
 
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """List the validations, with possibilities of filters"""
+
     permissions = ["tutorial.change_tutorial"]
     context_object_name = "validations"
     template_name = "tutorialv2/validation/index.html"
 
     def get_queryset(self):
-        """
 
-        :return: a query set containing all validation according to the type and subcategory optional parameters
-        """
+        # TODO: many filter at the same time ?
+        # TODO: paginate ?
+
+        queryset = Validation.objects\
+            .prefetch_related("validator")\
+            .prefetch_related("content")\
+            .prefetch_related("content__authors")\
+            .filter(Q(status="PENDING") | Q(status="PENDING_V"))
+
+        # filtering by type
         try:
-            type = self.request.GET["type"]
-            if type == "orphan":
-                queryset = Validation.objects.filter(
+            type_ = self.request.GET["type"]
+            if type_ == "orphan":
+                queryset = queryset.filter(
                     validator__isnull=True,
                     status="PENDING")
-            elif type == "reserved":
-                queryset = Validation.objects.filter(
+            if type_ == "reserved":
+                queryset = queryset.filter(
                     validator__isnull=True,
-                    status="PENDING")
+                    status="PENDING_V")
+            if type_ == "article":
+                queryset = queryset.filter(
+                    content__type="ARTICLE")
+            if type_ == "tuto":
+                queryset = queryset.filter(
+                    content__type="TUTORIAL")
             else:
                 raise KeyError()
         except KeyError:
-            queryset = Validation.objects.filter(
-                Q(status="PENDING") | Q(status="PENDING_V")).order_by("date_proposition")
+            pass
 
+        # filtering by category
         try:
-            category = get_object_or_404(Category, pk=self.request.GET["subcategory"])
-            queryset = queryset.filter(content__subcategory__in=[category]).order_by("date_proposition").all()
+            category = get_object_or_404(SubCategory, pk=self.request.GET["subcategory"])
+            queryset = queryset.filter(content__subcategory__in=[category])
         except KeyError:
-            queryset = queryset.order_by("date_proposition").all()
-        return queryset
+            pass
+
+        return queryset.order_by("date_proposition").all()
+
+    def get_context_data(self, **kwargs):
+        context = super(ValidationListView, self).get_context_data(**kwargs)
+
+        if 'subcategory' in self.request.GET:
+            context['category'] = get_object_or_404(SubCategory, pk=self.request.GET["subcategory"])
+            # TODO : two times the same request, here
+
+        return context
 
 
 class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, FormView):
@@ -1299,6 +1323,8 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
 
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    """Reserve or remove the reservation on a content"""
+
     permissions = ["tutorial.change_tutorial"]
 
     def post(self, request, *args, **kwargs):
@@ -1324,23 +1350,20 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentViewMixin, DetailView):
+class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentDetailViewMixin):
+
     model = PublishableContent
     permissions = ["tutorial.change_tutorial"]
-    context_object_name = "content"
     template_name = "tutorialv2/validation/history.html"
 
     def get_context_data(self, **kwargs):
         context = super(HistoryOfValidationDisplay, self).get_context_data()
-        content = self.get_object()
-        try:
-            subcategory = get_object_or_404(Category, pk=self.request.GET["subcategory"])
-        except (KeyError, Http404):
-            subcategory = None
-        validations_queryset = Validation.objects.filter(content__pk=content.pk)
-        if subcategory is not None:
-            validations_queryset = validations_queryset.filter(content__subcategory__in=[subcategory])
-        context["validations"] = validations_queryset.order_by("date_proposition").all()
+
+        context["validations"] = Validation.objects\
+            .prefetch_related("validator")\
+            .filter(content__pk=self.object.pk)\
+            .order_by("date_proposition").all()
+
         return context
 
 

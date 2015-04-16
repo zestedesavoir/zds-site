@@ -1,4 +1,4 @@
-{% extends "tutorial/base_online.html" %}
+{% extends "tutorialv2/base.html" %}
 {% load date %}
 {% load captureas %}
 {% load i18n %}
@@ -30,6 +30,13 @@
                     / {% trans "Reservés" %}
                 {% elif request.GET.type == "orphan" %}
                     / {% trans "Non-reservés" %}
+                {% elif request.GET.type == "article" %}
+                    / {% trans "Articles" %}
+                {% elif request.GET.type == "tuto" %}
+                    / {% trans "Tutoriels" %}
+                {% endif %}
+                {%  if category %}
+                    / {{ category.title }}
                 {% endif %}
                 ({{ validations|length }})
             {% endblock %}
@@ -48,6 +55,7 @@
                     <thead>
                         <tr>
                             <th>{% trans "Titre" %}</th>
+                            <th width="5%">{% trans "Type" %}</th>
                             <th width="15%">{% trans "Auteur(s)" %}</th>
                             <th width="10%">{% trans "Propos" %}é</th>
                             <th width="24%">{% trans "Statut" %}</th>
@@ -68,10 +76,18 @@
                                                 -
                                             {% endif %}
                                             <a href="{% url "content:list_validation" %}?subcategory={{ subcategory.pk }}">
-                                                {{ subcategory.title }}</a>
+                                                {{ subcategory.title }}
+                                            </a>
                                         {% endfor %}
                                     {% else %}
                                         <em>{% trans "Aucune catégorie" %}</em>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if validation.content.type == "ARTICLE" %}
+                                        <a href="{% url "content:list_validation" %}?type=article">Article</a>
+                                    {% else %}
+                                        <a href="{% url "content:list_validation" %}?type=tuto">Tutoriel</a>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -84,7 +100,7 @@
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
-                                        {% url "content:reserve_validation" validation.pk %}
+                                        {% url "content:reserve-validation" validation.pk %}
                                     {% endcaptureas %}
                                     {% include "misc/validation.part.html" %}
                                 </td>
@@ -94,7 +110,10 @@
                 </table>
             {% else %}
                 <p>
-                    {% trans "Aucun tutoriel soumis en validation" %}.
+                    {% trans "Aucun contenu en validation" %}
+                    {% if request.GET.type %}
+                        {% trans " ne répond à ce critère" %}
+                    {% endif %}
                 </p>
             {% endif %}
         {% endblock %}
@@ -118,9 +137,19 @@
                     {% trans "En attente de validateur" %}
                 </a>
             </li>
-            {% if request.GET.type %}
+            <li>
+                <a href="{% url "content:list_validation" %}?type=article" class="ico-after view {% if request.GET.type == "article" %}unread{% endif %}">
+                    {% trans "Articles" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "content:list_validation" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}unread{% endif %}">
+                    {% trans "Tutoriels" %}
+                </a>
+            </li>
+            {% if request.GET.type or request.GET.subcategory %}
                 <li>
-                    <a href="{% url "content:list_validation" %}" class="ico-after cross blue">
+                    <a href="{% url "content:list_validation" %}" class="ico-after cross red">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>

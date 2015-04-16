@@ -101,11 +101,12 @@ urlpatterns = patterns('',
                        # validation
                        url(r'^valider/proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
                            name="ask-validation"),
+                       url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(),
+                           name="reserve-validation"),
 
                        url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation"),
-                       url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(), name="reserve_validation"),
-                       url(r'^validation/historique/(?P<pk>\d+)/$', HistoryOfValidationDisplay.as_view(),
-                           name="validation_history"),
+                       url(r'^validation/historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),
+                           name="history-validation"),
 
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
                            r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',

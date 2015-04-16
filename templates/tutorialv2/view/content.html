@@ -274,10 +274,27 @@
 
 {% block sidebar_blocks %}
     {% if perms.tutorial.change_tutorial %}
-        {#  more actions only for validators?!? #}
+
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>{% trans "Validation" %}</h3>
             <ul>
+                <li>
+                    <a href="{% url "content:history-validation" content.pk content.slug %}" class="ico-after history blue">
+                        {% trans "Historique de validation" %}
+                    </a>
+                </li>
+                <li>
+                    <a  href="{% url 'mp-new' %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
+                        class="ico-after cite blue"
+                    >
+                        {% trans "Envoyer un MP" %}
+                        {% if content.authors.all|length > 1 %}
+                            {% trans "aux auteurs" %}
+                        {% else %}
+                            à {% trans "l'auteur" %}
+                        {% endif %}
+                    </a>
+                </li>
                 <li>
                     {% if is_js %}
                         <a href="#js-activation" class="open-modal ico-after cross red">
@@ -292,6 +309,76 @@
                 <div id="js-activation" class="modal modal-small">
                     {% crispy formJs %}
                 </div>
+
+                {% if content.is_public %}
+                    <li>
+                        <a href="#unpublish" class="ico-after open-modal cross blue">{% trans "Dépublier" %}</a>
+                        <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
+                        	{% csrf_token %}
+                            <p>
+                                {% blocktrans with tutorial_title=tutorial.title %}
+                                    Êtes-vous certains de vouloir <strong>dépublier</strong> le tutoriel "<em>{{ tutorial_title }}</em>"
+                                {% endblocktrans %}
+                            </p>
+                            <button type="submit">
+                                {% trans "Confirmer" %}
+                            </button>
+                        </form>
+                    </li>
+                {% endif %}
+
+                {% if content.in_validation %}
+                    {% if validation.is_pending %}
+                        <li>
+                            <form action="{% url "content:reserve-validation" validation.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="ico-after lock blue">
+                                    {% trans "Réserver" %}
+                                </button>
+                            </form>
+                        </li>
+                    {% elif validation.is_pending_valid %}
+                        {% if validation.validator == user %}
+                            <li>
+                                <form action="{% url "content:reserve-validation" validation.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="ico-after lock blue">
+                                        {% trans "Annuler la réservation" %}
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <a href="#valid-publish" class="open-modal ico-after tick green">{% trans "Valider et publier" %}</a>
+                                <div class="modal modal-big" id="valid-publish">
+                                    {% crispy formValid %}
+                                </div>
+                            </li>
+                            <li>
+                                <a href="#reject" class="open-modal ico-after cross red">{% trans "Rejeter" %}</a>
+                                <div class="modal modal-big" id="reject">
+                                    {% crispy formReject %}
+                                </div>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="#unreservation" class="open-modal ico-after lock blue">
+                                    {% blocktrans with validator_name=validation.validator.username %}
+                                        Réservé par <strong>{{ validator_name }}</strong>, le retirer
+                                    {% endblocktrans %}
+                                </a>
+                                <form action="{% url "content:reserve-validation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                    {% csrf_token %}
+                                    <p>
+                                        {% trans "La validation de ce tutoriel est actuellement réservée par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
+                                    </p>
+                                    <button type="submit">
+                                        {% trans "Confirmer" %}
+                                    </button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
             </ul>
         </div>
     {% endif %}
