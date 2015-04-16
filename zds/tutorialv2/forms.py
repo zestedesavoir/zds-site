@@ -457,20 +457,24 @@ class AskValidationForm(forms.Form):
         )
     )
 
+    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+
     def __init__(self, *args, **kwargs):
+        content = kwargs.pop('content', None)
+
         super(AskValidationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:ask_validation')
+        self.helper.form_action = reverse('content:ask-validation', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
+            Field('version'),
             StrictButton(
                 _(u'Confirmer'),
-                type='submit'),
-            Hidden('pk', '{{ content.pk }}'),
-            Hidden('version', '{{ version }}'), )
+                type='submit')
+        )
 
 
 class ValidForm(forms.Form):
@@ -485,11 +489,13 @@ class ValidForm(forms.Form):
             }
         )
     )
+
     is_major = forms.BooleanField(
         label=_(u'Version majeure ?'),
         required=False,
         initial=True
     )
+
     source = forms.CharField(
         label='',
         required=False,
@@ -500,6 +506,8 @@ class ValidForm(forms.Form):
         )
     )
 
+    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+
     def __init__(self, *args, **kwargs):
         super(ValidForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -509,10 +517,10 @@ class ValidForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
+            Field('version'),
             Field('is_major'),
             StrictButton(_(u'Publier'), type='submit'),
-            Hidden('tutorial', '{{ tutorial.pk }}'),
-            Hidden('version', '{{ version }}'),
+            Hidden('tutorial', '{{ content.pk }}')
         )
 
 
@@ -529,6 +537,8 @@ class RejectForm(forms.Form):
         )
     )
 
+    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+
     def __init__(self, *args, **kwargs):
         super(RejectForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -537,12 +547,13 @@ class RejectForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
+            Field('version'),
             ButtonHolder(
                 StrictButton(
                     _(u'Rejeter'),
                     type='submit'),),
-            Hidden('tutorial', '{{ tutorial.pk }}'),
-            Hidden('version', '{{ version }}'), )
+            Hidden('tutorial', '{{ tutorial.pk }}')
+        )
 
 
 class JsFiddleActivationForm(forms.Form):

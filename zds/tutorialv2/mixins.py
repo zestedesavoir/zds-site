@@ -29,21 +29,21 @@ class SingleContentViewMixin(object):
                 .prefetch_related("authors") \
                 .prefetch_related("subcategory") \
                 .filter(pk=self.kwargs["pk"])
-            
+
             obj = queryset.first()
         else:
             obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-        
+
         if "slug" in self.kwargs and self.kwargs["slug"] != obj.slug and self.is_public:
             # if slug and pk does not match try to find old pk
-             queryset = PublishableContent.objects \
+            queryset = PublishableContent.objects \
                 .select_related("licence") \
                 .prefetch_related("authors") \
                 .prefetch_related("subcategory") \
                 .filter(old_pk=self.kwargs["pk"], slug=self.kwargs["slug"])
-             obj = queryset.first()
-             must_redirect = True
-             
+            obj = queryset.first()
+            self.must_redirect = True
+
         if self.must_be_author and self.request.user not in obj.authors.all():
             if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
                 return obj
@@ -52,7 +52,7 @@ class SingleContentViewMixin(object):
 
     def get_versioned_object(self):
         """
-        Gets the asked version of current content. 
+        Gets the asked version of current content.
         """
         sha = self.object.sha_draft
 

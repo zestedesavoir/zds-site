@@ -24,7 +24,7 @@ def create_topic(
     n_topic.subtitle = subtitle
     n_topic.pubdate = datetime.now()
     n_topic.author = author
-    
+
     n_topic.save()
     if related_publishable_content is not None:
         related_publishable_content.beta_topic = n_topic
