@@ -6,7 +6,7 @@ from operator import attrgetter
 from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
-from zds.forum.models import Forum, Topic
+from zds.forum.models import Forum
 from zds.tutorialv2.forms import BetaForm, MoveElementForm
 from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get_target_tagged_tree
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
@@ -44,8 +44,8 @@ from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
-from forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, ValidForm, RejectForm, \
-    JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
+from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, ValidForm, \
+    RejectForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract, default_slug_pool
 from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
@@ -69,13 +69,13 @@ from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin
 
 class RedirectContentSEO(RedirectView):
     permanent = True
-    
+
     def get_redirect_url(self, **kwargs):
         """Redirects the user to the new url"""
         obj = PublishableContent.objects.get(old_pk=kwargs["pk"])
-        if obj is None or not obj.is_public():
+        if obj is None or not obj.in_public():
             raise Http404
-        
+
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
 
         return obj.get_prod_path()
@@ -191,17 +191,20 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
     def get_forms(self, context):
         """get all the auxiliary forms about validation, js fiddle..."""
+
         validation = Validation.objects.filter(content__pk=self.object.pk) \
             .order_by("-date_proposition") \
             .first()
+
         form_js = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
 
-        if self.object.source:
-            form_ask_validation = AskValidationForm(initial={"source": self.object.source})
-            form_valid = ValidForm(initial={"source": self.object.source})
-        else:
-            form_ask_validation = AskValidationForm()
-            form_valid = ValidForm()
+        form_ask_validation = AskValidationForm(content=self.versioned_object,
+                                                initial={
+                                                    "source": self.object.source,
+                                                    'version': self.sha
+                                                })
+
+        form_valid = ValidForm(initial={"source": self.object.source})
         form_reject = RejectForm()
 
         context["validation"] = validation
@@ -1063,7 +1066,7 @@ class DisplayOnlineContent(DisplayContent):
     type = "TUTORIAL"
     template_name = "tutorial/view_online.html"
     is_public = True
-    
+
     def get_forms(self, context, content):
 
         # Build form to send a note for the current tutorial.
@@ -1224,55 +1227,64 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
         return redirect(content.load_version().get_absolute_url())
 
 
-class AskValidationForContent(LoggedWithReadWriteHability, SingleContentPostMixin, FormView):
+class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     """User ask validation for his tutorial. Staff member can also to that"""
+
     prefetch_all = False
     form_class = AskValidationForm
 
-    def form_valid(self, form):
-        content = self.get_object()
-        old_validation = Validation.objects.filter(content__pk=content.pk,
-                                                   status__in=['PENDING_V']).first()
-        if old_validation is not None:
-            old_validator = old_validation.validator
-        else:
-            old_validator = None
-            Validation.objects.filter(content__pk=content.pk,
-                                      status__in=['PENDING', 'PENDING_V']) \
-                .delete()
-        # We create and save validation object of the tutorial.
+    def get_form_kwargs(self):
+        kwargs = super(AskValidationForContent, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
 
+    def form_valid(self, form):
+        old_validation = Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING_V']).first()
+
+        if old_validation:
+            old_validator = old_validation.validator
+        else:  # if and old validation object exists, we can update it
+            old_validator = None
+            Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).delete()
+
+        # create a "validation" object
         validation = Validation()
-        validation.content = content
+        validation.content = self.object
         validation.date_proposition = datetime.now()
-        validation.comment_authors = form.cleaned_data["text"]
-        # Todo: check if version really exists
-        validation.version = self.request.POST["version"]
-        # Todo: put everything in cleaned_data, needs form class remake
-        if old_validator is not None:
+        validation.comment_authors = form.cleaned_data['text']
+        validation.version = form.cleaned_data['version']
+        validation.save()
+
+        # warn the former validator that an update has been made, if any
+        if old_validator:
             validation.validator = old_validator
-            validation.date_reserve
+            # TODO: why not let the validator be the same using PENDING_V ?
+
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = \
                 (_(u'Bonjour {0},'
                    u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
                    u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
                    u'consulter l\'historique des versions'
-                   u'\n\n> Merci').format(old_validator.username, content.title))
+                   u'\n\n> Merci').format(old_validator.username, self.versioned_object.title))
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Mise à jour de tuto : {0}").format(content.title),
+                _(u"Mise à jour de tuto : {0}").format(self.versioned_object.title),
                 _(u"En validation"),
                 msg,
                 False,
             )
-        validation.save()
-        validation.content.source = form.cleaned_data["source"]
-        validation.content.sha_validation = validation.version
-        validation.content.save()
+
+        # update the content with the source and the version of the validation
+        self.object.source = form.cleaned_data["source"]
+        self.object.sha_validation = validation.version
+        self.object.save()
+
         messages.success(self.request, _(u"Votre demande de validation a été envoyée à l'équipe."))
-        return redirect(reverse('content:view', args=[content.pk, content.slug]))
+
+        self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
+        return super(AskValidationForContent, self).form_valid(form)
 
 
 # User actions on tutorial.

@@ -97,7 +97,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
         if light:
             real_content = content_light
-        path = tuto.get_repo_path()
+        path = tuto.get_path()
         if not os.path.isdir(path):
             os.makedirs(path, mode=0o777)
 

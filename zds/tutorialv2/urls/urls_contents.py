@@ -69,7 +69,7 @@ urlpatterns = patterns('',
                        url(r'^deplacer/$', MoveChild.as_view(), name='move-element'),
 
                        url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayHistory.as_view(), name="history"),
-                       url(r'^comparaison/(?P<pk>\d+)/RedirectContentSEO(?P<slug>.+)/$', DisplayDiff.as_view(), name="diff"),
+                       url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name="diff"),
 
                        # beta:
                        url(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
@@ -99,12 +99,14 @@ urlpatterns = patterns('',
                        url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
 
                        # validation
+                       url(r'^valider/proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
+                           name="ask-validation"),
+
                        url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation"),
-                       url(r'^valider/proposer/$', AskValidationForContent.as_view(), name="ask_validation"),
                        url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(), name="reserve_validation"),
                        url(r'^validation/historique/(?P<pk>\d+)/$', HistoryOfValidationDisplay.as_view(),
                            name="validation_history"),
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/'\
-                           '(?P<p2>\d+)/(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
-                            RedirectContentSEO.as_view(), name="redirect_old_tuto")
-                        )
+
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
+                           r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
+                           RedirectContentSEO.as_view(), name="redirect_old_tuto"))

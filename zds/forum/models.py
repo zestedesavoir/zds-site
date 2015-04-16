@@ -18,7 +18,6 @@ from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
 
-
 def sub_tag(g):
     start = g.group('start')
     end = g.group('end')

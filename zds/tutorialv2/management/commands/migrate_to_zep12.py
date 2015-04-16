@@ -128,7 +128,7 @@ def migrate_mini_tuto():
         if current.is_beta():
             exported.sha_beta = exported.sha_draft
             exported.beta_topic = Topic.objects.get(key=current.pk).first()
-        
+
         exported.old_pk = current.pk
         exported.save()
         # export beta forum post
@@ -141,7 +141,7 @@ def migrate_mini_tuto():
             text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
             former_first_post.update_content(text)
             former_first_post.save()
-            
+
 
 def migrate_big_tuto():
     big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
@@ -189,7 +189,7 @@ def migrate_big_tuto():
         if current.is_beta():
             exported.sha_beta = exported.sha_draft
             exported.beta_topic = Topic.objects.get(key=current.pk).first()
-        
+
         exported.old_pk = current.pk
         exported.save()
 
@@ -203,7 +203,6 @@ def migrate_big_tuto():
             text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
             former_first_post.update_content(text)
             former_first_post.save()
-        
 
         # todo: handle publication, notes etc.
 
