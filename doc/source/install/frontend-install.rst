@@ -4,6 +4,7 @@ Installation du frontend
 
 Vous voulez nous aider au développement du frontend ? Installez Node.js et npm grâce aux instructions qui suivent !
 
+
 Installation de Node.js et npm
 ==============================
 
@@ -132,6 +133,7 @@ L'installation de Gulp, ainsi que des différentes dépendances et bibliothèque
 
     npm install
 
+
 Utilisation des outils
 ======================
 
@@ -142,25 +144,20 @@ Présentation de Gulp
 
 Gulp est un outil permettant d'automatiser les tâches liées au front. Dans notre cas, il permet de :
 
-- Vérifier la syntaxe Javascript
-- Minimiser les fichiers Javascript et les rassembler en un fichier
-- Compiler les fichiers SCSS pour les transformer CSS
-- Compresser les images et créer un sprite
-
-.. note::
-
-    Vous voulez en savoir plus ?
-    Venez `ici <../front-end/design.html>`_ ! ;)
+- vérifier la syntaxe Javascript ;
+- minimiser les fichiers Javascript et les rassembler en un fichier ;
+- compiler les fichiers SCSS pour les transformer CSS ;
+- compresser les images et créer un sprite.
 
 Utilisation de Gulp
 -------------------
 
 Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer. Les différentes tâches sont :
 
- - ``clean`` : Nettoie le dossier ``dist/``
- - ``build`` : Compile tout (SCSS, JS et images)
- - ``test`` : Lance les tests (grâce à JSHint)
- - ``watch`` : Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement ; ``Ctrl+C`` pour arrêter)
+ - ``build`` qui compile tout (SCSS, JS et images) ;
+ - ``clean`` qui supprime les fichiers compilés du dossier ``dist/`` ;
+ - ``test`` qui vérifie la forme du code (indentation, doubles guillemets, etc) ;
+ - ``watch`` qui compile les différents fichiers (comme ``build``) dès qu'ils sont modifiés (utile pour le développement ; ``Ctrl+C`` pour arrêter).
 
 Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
 
@@ -168,11 +165,26 @@ Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pa
 
 Pour information, la commande ``npm run`` est un raccourci de la commande ``npm run-script``, donc les deux commandes sont identiques !
 
-Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``npm run gulp -- [tâche]``, il vous faut lancer cette commande avec les droits administrateurs :
+Si vous voulez utiliser directement la commande ``gulp -- [tâche]`` au lieu de ``npm run gulp -- [tâche]``, vous pouvez tout simplement créer un alias :
 
 .. sourcecode:: bash
 
-    sudo npm install -g gulp
+    alias gulp="npm run gulp"
+
+
+Règles à respecter lors d'une contribution
+==========================================
+
+Avant chaque *commit*, il est important de lancer la commande ``npm test`` ou ``npm run gulp test`` qui vérifie par le biais de JSHint la forme
+du code (indentation, doubles guillemets, etc). Si le code ne respecte pas ces règles, le script va sortir une liste
+d'erreurs (*errors*) et/ou d'avertissements (*warnings*) que vous devez corriger.
+
+
+.. seealso::
+
+    Vous voulez en savoir plus ?
+    Venez voir `la documentation consacrée au front-end <../front-end.html>`_ ! ;)
+
 
 Nettoyage des outils
 ====================

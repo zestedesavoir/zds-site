@@ -1,18 +1,17 @@
-===================================
-Elements de templates personnalisés
-===================================
+==================================
+Elements de gabarits personnalisés
+==================================
 
-Le package ``zds/utils/templatetags`` contient un ensemble de tags et filtres personnalisés pouvant être utilisés
-dans les templates rendues par Django.
+Le dossier ``zds/utils/templatetags`` contient un ensemble de `tags et filtres personnalisés pouvant être utilisés dans les gabarits (*templates*) <https://docs.djangoproject.com/fr/1.7/howto/custom-template-tags/>`_ rendus par Django.
 
-La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
+La majorité de ces modules proposent aussi des fonctions permettant les mêmes fonctionnalités depuis le reste du code
 Python.
 
 append_to_get
 =============
 
 L'élément ``append_to_get`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
-``module/toto``, le code de template suivant :
+``module/toto``, le code de gabarit suivant :
 
 .. sourcecode:: html
 
@@ -25,12 +24,12 @@ produira le code suivant :
 
     <a href="module/toto?key1=1&key2=2">Mon lien</a>
 
-si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``
+si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
 
 captureas
 =========
 
-L'élément ``captureas`` permet de demander d'effectuer le rendu d'un bloc de template et de stocker son contenu dans
+L'élément ``captureas`` permet de demander d'effectuer le rendu d'un bloc de gabarit et de stocker son contenu dans
 une variable. Ainsi le code suivant :
 
 .. sourcecode:: html
@@ -43,7 +42,7 @@ une variable. Ainsi le code suivant :
     {% endcaptureas %}
 
 ne produit rien en sortie mais affecte le résultat du bloc entre les éléments ``{% captureas var2 %}`` et
-``{% endcaptureas %}``, soit ``0123456789``, dans la variable de template ``var2``
+``{% endcaptureas %}``, soit ``0123456789``, dans la variable de gabarit ``var2``
 
 date
 ====
@@ -89,17 +88,17 @@ emarkdown
 Markdown vers HTML
 ------------------
 
-Permet de rendre un texte markdown en HTML :
+Il permet de rendre un texte Markdown en HTML. Il y a deux commandes :
 
-- ``emarkdown`` : Transforamtion classique
-- ``emarkdown_inline`` : Transforamtion uniquement des éléments *inline* et donc pas de blocs. Utilisés pour les
-  signatures des membres.
+- ``emarkdown`` pour une transformation classique ;
+- ``emarkdown_inline`` pour une transformation uniquement des éléments *inline* et donc pas de blocs (c'est utilisé pour les
+  signatures des membres).
 
 
 Markdown vers Markdown
 ----------------------
 
-Ces élements sont utilisés dans le cadre de la transformation du markdown avant d'être traité par ``Pandoc`` lors de la
+Ces élements sont utilisés dans le cadre de la transformation du Markdown avant d'être traité par ``Pandoc`` lors de la
 génération des fichiers PDF et EPUB des tutos :
 
 - ``decale_header_1`` : Décale les titres de 1 niveau (un titre de niveau 1 devient un titre de niveau 2, etc.)
@@ -110,13 +109,13 @@ génération des fichiers PDF et EPUB des tutos :
 email_obfuscator
 ================
 
-Ces templatetags sont principalement fondés sur https://github.com/morninj/django-email-obfuscator.
+Ces *templatetags* sont principalement fondés sur https://github.com/morninj/django-email-obfuscator.
 
 
 obfuscate
 ---------
 
-L'email va être encodé avec des caractères ASCII pour le protéger des bots :
+L'adresse de courriel va être encodée avec des caractères ASCII pour la protéger des robots :
 
 
 .. sourcecode:: html
@@ -128,7 +127,7 @@ L'email va être encodé avec des caractères ASCII pour le protéger des bots :
 obfuscate_mailto
 ----------------
 
-Ce templatetag ajoute en plus un ``mailto``. Il prend un paramètre optionnel qui permet d'avoir un text personnalisé dans
+Ce *templatetag* ajoute en plus un ``mailto``. Il prend un paramètre optionnel qui permet d'avoir un texte personnalisé dans
 la balise <a> :
 
 .. sourcecode:: html
@@ -146,7 +145,7 @@ Ce qui donnera :
 obfuscate_mailto_top_subject
 ----------------------------
 
-Identique sur le fonctionnement à ``obfuscate_mailto``, ce templatetag ajoute en plus un sujet (qui remplace le champ
+Identique sur le fonctionnement à ``obfuscate_mailto``, ce *templatetag* ajoute en plus un sujet (qui remplace le champ
 pouvant être inséré entre les balises ``<a>`` et ``</a>``) ainsi que ``target="_top"``.
 
 Il est utilisé sur la page « Contact ».
