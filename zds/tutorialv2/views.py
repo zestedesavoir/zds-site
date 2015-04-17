@@ -44,8 +44,8 @@ from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
-from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, ValidForm, \
-    RejectForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
+from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, \
+    AcceptContentForm, RejectForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract, default_slug_pool
 from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
@@ -65,6 +65,7 @@ from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin
 from git import GitCommandError
+from zds.tutorialv2.utils import publish_content, FailureDuringPublication
 
 
 class RedirectContentSEO(RedirectView):
@@ -204,14 +205,16 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
                                                     'version': self.sha
                                                 })
 
-        form_valid = ValidForm(initial={"source": self.object.source})
-        form_reject = RejectForm()
+        if validation:
+            context["formValid"] = AcceptContentForm(instance=validation,
+                                                     initial={
+                                                         "source": self.object.source
+                                                     })
+            context["formReject"] = RejectForm()
 
         context["validation"] = validation
         context["formAskValidation"] = form_ask_validation
         context["formJs"] = form_js
-        context["formValid"] = form_valid
-        context["formReject"] = form_reject
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -1325,6 +1328,8 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Reserve or remove the reservation on a content"""
 
+    # TODO: not a FormView ?
+
     permissions = ["tutorial.change_tutorial"]
 
     def post(self, request, *args, **kwargs):
@@ -1367,7 +1372,59 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
         return context
 
 
+class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    """Reserve or remove the reservation on a content"""
+
+    permissions = ["tutorial.change_tutorial"]
+    form_class = AcceptContentForm
+
+    def get_form_kwargs(self):
+        kwargs = super(AcceptValidation, self).get_form_kwargs()
+        kwargs['instance'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
+        return kwargs
+
+    def form_valid(self, form):
+
+        user = self.request.user
+        validation = form.validation
+
+        if validation.validator != user:
+            raise PermissionDenied
+
+        # get database representation and validated version
+        db_object = validation.content
+        versioned = db_object.load_version(sha=validation.version)
+        self.success_url = versioned.get_absolute_url(version=validation.version)
+
+        try:
+            published = publish_content(db_object, versioned)
+        except FailureDuringPublication as e:
+            messages.error(self.request, e.message)
+        else:
+            # save in database
+            db_object.sha_public = validation.version
+            db_object.pubdate = datetime.now()
+            db_object.source = form.cleaned_data['source']
+            db_object.sha_validation = None
+            db_object.save()
+
+            # save validation object
+            validation.comment_validator = form.cleaned_data['text']
+            validation.status = "ACCEPT"
+            validation.date_validation = datetime.now()
+            validation.save()
+
+            # TODO: send PM and stuff !
+            # TODO: handle minor/major version (!?) → just update `pubdate` or not
+
+            messages.success(self.request, _(u'Le contenu a bien été validé.'))
+            self.success_url = published.get_absolute_url_public()
+
+        return super(AcceptValidation, self).form_valid(form)
+
+
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
+
     model = PublishableContent
     permissions = ["tutorial.change_tutorial"]
     form_class = MoveElementForm

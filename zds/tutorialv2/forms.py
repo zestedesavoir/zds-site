@@ -477,7 +477,9 @@ class AskValidationForm(forms.Form):
         )
 
 
-class ValidForm(forms.Form):
+class AcceptContentForm(forms.Form):
+
+    validation = None
 
     text = forms.CharField(
         label='',
@@ -506,22 +508,35 @@ class ValidForm(forms.Form):
         )
     )
 
-    version = forms.CharField(widget=forms.HiddenInput(), required=True)
-
     def __init__(self, *args, **kwargs):
-        super(ValidForm, self).__init__(*args, **kwargs)
+
+        self.validation = kwargs.pop('instance', None)
+
+        super(AcceptContentForm, self).__init__(*args, **kwargs)
+
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.valid_tutorial')
+        self.helper.form_action = reverse('content:accept-validation', kwargs={'pk': self.validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
-            Field('version'),
             Field('is_major'),
-            StrictButton(_(u'Publier'), type='submit'),
-            Hidden('tutorial', '{{ content.pk }}')
+            StrictButton(_(u'Publier'), type='submit')
         )
+
+    def clean(self):
+        cleaned_data = super(AcceptContentForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
 
 
 class RejectForm(forms.Form):

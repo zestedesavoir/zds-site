@@ -313,7 +313,7 @@
                 {% if content.is_public %}
                     <li>
                         <a href="#unpublish" class="ico-after open-modal cross blue">{% trans "Dépublier" %}</a>
-                        <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
+                        <form action="{% url "zds.tutorial.views.invalid_tutorial" content.pk %}" method="post" class="modal modal-small" id="unpublish">
                         	{% csrf_token %}
                             <p>
                                 {% blocktrans with tutorial_title=tutorial.title %}

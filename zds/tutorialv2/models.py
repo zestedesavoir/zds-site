@@ -1552,6 +1552,40 @@ class PublishableContent(models.Model):
             shutil.rmtree(self.get_prod_path())
 
 
+class PublishedContent(models.Model):
+    """A class that contains information on the published version of a content.
+
+    Used for quick url resolution, quick listing, and to know where the public version of the files are.
+
+    Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related("content")`` !!
+    """
+
+    # TODO: by playing with this class, it may solve most of the SEO problems !!
+
+    class Meta:
+        verbose_name = 'Contenu publié'
+        verbose_name_plural = 'Contenus publiés'
+
+    content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
+
+    content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
+    content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
+    content_pk = models.IntegerField('Pk du contenu publié', db_index=True)
+
+    publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
+    sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
+
+    def __unicode__(self):
+        return _('Version publique de "{}"').format(self.content.title)
+
+    def get_path(self):
+        return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
+
+    def get_absolute_url_public(self):
+        # TODO: manage type (article:view or tutorial:view !!)
+        return reverse('content:view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+
+
 class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent he just read.
@@ -1604,8 +1638,8 @@ class Validation(models.Model):
                                 verbose_name='Contenu proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
-    date_proposition = models.DateTimeField('Date de proposition', db_index=True)
-    comment_authors = models.TextField('Commentaire de l\'auteur')
+    date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
+    comment_authors = models.TextField('Commentaire de l\'auteur', null=True, blank=True)
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_content_validations',

@@ -1,9 +1,13 @@
 # coding: utf-8
 
+import shutil
+import os
+from datetime import datetime
 
 from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 
-from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract
+from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract, PublishedContent
 from zds import settings
 from zds.utils import get_current_user
 
@@ -218,3 +222,52 @@ def get_target_tagged_tree_for_container(movable_child, root):
                                        enabled and child != movable_child and child != root))
 
     return target_tagged_tree
+
+
+class FailureDuringPublication(Exception):
+    """Exception raised if something goes wrong during publication process
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FailureDuringPublication, self).__init__(*args, **kwargs)
+
+
+def publish_content(db_object, versioned):
+    """Publish a given content
+    :param db_object: Database representation of the content
+    :type db_object: PublishableContent
+    :param versioned: version of the content to publish
+    :type versioned: VersionedContent
+    :raise FailureDuringPublication: if something goes wrong
+    :return: the published representation
+    :rtype: PublishedContent
+    """
+
+    try:
+        public_version = PublishedContent.objects.get(content=db_object)
+
+        # the content have been published in the past, so clean old files
+        old_path = public_version.get_path()
+        shutil.rmtree(old_path)
+
+    except ObjectDoesNotExist:
+        public_version = PublishedContent()
+
+    # make the new public version
+    public_version.content_public_slug = versioned.slug
+    public_version.content_type = versioned.type
+    public_version.content_pk = db_object.pk
+    public_version.content = db_object
+    public_version.save()
+
+    # create directory(ies)
+    repo_path = public_version.get_path()
+    os.makedirs(repo_path)
+    versioned.dump_json(os.path.join(repo_path, 'manifest.json'))
+
+    # save public version
+    public_version.publication_date = datetime.now()
+    public_version.sha_public = versioned.current_version
+    public_version.save()
+
+    return public_version

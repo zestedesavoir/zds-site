@@ -6,7 +6,7 @@ from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, Edi
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
-    UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO
+    UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation
 
 urlpatterns = patterns('',
                        url(r'^$', ListContent.as_view(), name='index'),
@@ -101,12 +101,15 @@ urlpatterns = patterns('',
                        # validation
                        url(r'^valider/proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
                            name="ask-validation"),
+                       url(r'^valider/historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),
+                           name="history-validation"),
+
                        url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(),
                            name="reserve-validation"),
+                       url(r'^valider/accepter/(?P<pk>\d+)/$', AcceptValidation.as_view(),
+                           name="accept-validation"),
 
                        url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation"),
-                       url(r'^validation/historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),
-                           name="history-validation"),
 
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
                            r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
