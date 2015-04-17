@@ -12,47 +12,47 @@ register = template.Library()
 
 
 @register.filter('profile')
-def profile(user):
+def profile(the_user):
     try:
-        profile = user.profile
+        user_profile = the_user.profile
     except Profile.DoesNotExist:
-        profile = None
-    return profile
+        user_profile = None
+    return user_profile
 
 
 @register.filter('user')
-def user(pk):
+def user(user_pk):
     try:
-        user = User.objects.get(pk=pk)
+        the_user = User.objects.get(pk=user_pk)
     except:
-        user = None
-    return user
+        the_user = None
+    return the_user
 
 
 @register.filter('state')
-def state(user):
+def state(the_user):
     try:
-        profile = user.profile
-        if not profile.user.is_active:
-            state = 'DOWN'
-        elif not profile.can_read_now():
-            state = 'BAN'
-        elif not profile.can_write_now():
-            state = 'LS'
-        elif user.has_perm('forum.change_post'):
-            state = 'STAFF'
+        user_profile = the_user.profile
+        if not user_profile.user.is_active:
+            user_state = 'DOWN'
+        elif not user_profile.can_read_now():
+            user_state = 'BAN'
+        elif not user_profile.can_write_now():
+            user_state = 'LS'
+        elif the_user.has_perm('forum.change_post'):
+            user_state = 'STAFF'
         else:
-            state = None
+            user_state = None
     except Profile.DoesNotExist:
-        state = None
-    return state
+        user_state = None
+    return user_state
 
 
 @register.filter('liked')
-def liked(user, comment_pk):
-    return CommentLike.objects.filter(comments__pk=comment_pk, user=user).exists()
+def liked(the_user, comment_pk):
+    return CommentLike.objects.filter(comments__pk=comment_pk, user=the_user).exists()
 
 
 @register.filter('disliked')
-def disliked(user, comment_pk):
-    return CommentDislike.objects.filter(comments__pk=comment_pk, user=user).exists()
+def disliked(the_user, comment_pk):
+    return CommentDislike.objects.filter(comments__pk=comment_pk, user=the_user).exists()
