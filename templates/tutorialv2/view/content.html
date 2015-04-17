@@ -108,9 +108,17 @@
         </p>
     {% endif %}
 
-
-
-    <hr />
+    {% if content.has_extracts %}
+        <ul>
+            {% for extract in content.children %}
+                <li>
+                    <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
+                        {{ extract.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     {% for child in content.children %}
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
@@ -247,11 +255,13 @@
             </a>
         </li>
         {% if not content.in_validation %}
-            <li>
-                <a href="#ask-validation" class="open-modal ico-after tick green">
-                    {% trans "Demander la validation" %}
-                </a>
-            </li>
+            {% if content.current_version != content.sha_public %}
+                <li>
+                    <a href="#ask-validation" class="open-modal ico-after tick green">
+                        {% trans "Demander la validation" %}
+                    </a>
+                </li>
+            {% endif %}
         {% else %}
             {% if not content.is_validation %}
                 <li>

@@ -99,6 +99,7 @@ urlpatterns = patterns('',
                        url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
 
                        # validation
+                       # TODO: maybe move that in a `urls_validations.py` and give another namespace ?
                        url(r'^valider/proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
                            name="ask-validation"),
                        url(r'^valider/historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),

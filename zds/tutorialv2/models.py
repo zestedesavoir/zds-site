@@ -102,8 +102,8 @@ class Container:
         return u'<Conteneur \'{}\'>'.format(self.title)
 
     def has_extracts(self):
-        """
-        Note : this function rely on the fact that the children can only be of one type.
+        """Note : this function rely on the fact that the children can only be of one type.
+
         :return: `True` if the container has extract as children, `False` otherwise.
         """
         if len(self.children) == 0:
@@ -301,15 +301,20 @@ class Container:
         return os.path.join(base, self.slug)
 
     def get_prod_path(self):
-        """Get the physical path to the public version of the container.
-        Note: this function rely on the fact that the top container is VersionedContainer.
+        """Get the physical path to the public version of the container. If the container have extracts, then it
+        returns the final HTML file.
 
         :return: physical path
         """
         base = ''
         if self.parent:
             base = self.parent.get_prod_path()
-        return os.path.join(base, self.slug)
+        path = os.path.join(base, self.slug)
+
+        if self.has_extracts():
+            path += '.html'
+
+        return path
 
     def get_absolute_url(self):
         """
@@ -933,12 +938,17 @@ class VersionedContent(Container):
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
     def get_prod_path(self):
-        """
-        Get the physical path to the public version of the content
+        """Get the physical path to the public version of the content. If it has extract (so, if its a mini-tutorial or
+        an article), return the HTML file.
 
         :return: physical path
         """
-        return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
+        path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
+
+        if self.has_extracts():
+            path = os.path.join(path, self.slug + '.html')
+
+        return path
 
     def get_list_of_chapters(self):
         """
@@ -1578,7 +1588,7 @@ class PublishedContent(models.Model):
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
-    def get_path(self):
+    def get_prod_path(self):
         return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
 
     def get_absolute_url_public(self):

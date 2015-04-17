@@ -6,10 +6,12 @@ from datetime import datetime
 
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 
 from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract, PublishedContent
 from zds import settings
 from zds.utils import get_current_user
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class TooDeepContainerError(ValueError):
@@ -233,7 +235,11 @@ class FailureDuringPublication(Exception):
 
 
 def publish_content(db_object, versioned):
-    """Publish a given content
+    """Publish a given content.
+
+    Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
+    of extracts.
+
     :param db_object: Database representation of the content
     :type db_object: PublishableContent
     :param versioned: version of the content to publish
@@ -243,11 +249,13 @@ def publish_content(db_object, versioned):
     :rtype: PublishedContent
     """
 
+    # TODO: to avoid errors, some part of this function can be written in a recursive way !
+
     try:
         public_version = PublishedContent.objects.get(content=db_object)
 
         # the content have been published in the past, so clean old files
-        old_path = public_version.get_path()
+        old_path = public_version.get_prod_path()
         shutil.rmtree(old_path)
 
     except ObjectDoesNotExist:
@@ -261,8 +269,79 @@ def publish_content(db_object, versioned):
     public_version.save()
 
     # create directory(ies)
-    repo_path = public_version.get_path()
+    repo_path = public_version.get_prod_path()
     os.makedirs(repo_path)
+
+    template = 'tutorialv2/includes/container_online_template.part.html'
+    # TODO: image stuff
+    # TODO: jsfidle
+
+    # write the files:
+    if versioned.has_extracts():  # it's an article or a mini-tutorial
+        parsed = render_to_string(template, {'container': versioned})
+        f = open(versioned.get_prod_path(), 'w')
+        f.write(parsed.encode('utf-8'))
+        f.close()
+
+        for extract in versioned.children:
+            extract.text = None
+
+        versioned.introduction = None
+        versioned.conclusion = None
+
+    else:  # it's another kind of tutorial
+
+        # we need to write introduction and conclusion in a separate file
+        if versioned.introduction:
+            f = open(os.path.join(repo_path, 'introduction.html'), 'w')
+            f.write(emarkdown(versioned.get_introduction()))
+            versioned.introduction = 'introduction.html'
+        if versioned.conclusion:
+            f = open(os.path.join(repo_path, 'conclusion.html'), 'w')
+            f.write(emarkdown(versioned.get_conclusion()))
+            versioned.conclusion = 'conclusion.html'
+
+        for child in versioned.children:
+            if child.has_extracts():  # it's a middle-size tutorial
+                parsed = render_to_string(template, {'container': child})
+                f = open(child.get_prod_path(), 'w')
+                f.write(parsed.encode('utf-8'))
+                f.close()
+
+                for extract in child.children:
+                    extract.text = None
+
+                child.introduction = None
+                child.conclusion = None
+
+            else:  # it's a big-tutorial
+                directory = child.get_prod_path()
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+
+                if child.introduction:
+                    path = os.path.join(child.get_path(relative=True), 'introduction.html')
+                    f = open(os.path.join(repo_path, path), 'w')
+                    f.write(emarkdown(child.get_introduction()))
+                    child.introduction = path
+                if child.conclusion:
+                    path = os.path.join(child.get_path(relative=True), 'conclusion.html')
+                    f = open(os.path.join(repo_path, path), 'w')
+                    f.write(emarkdown(child.get_conclusion()))
+                    child.conclusion = path
+
+                for chapter in child.children:
+                    parsed = render_to_string(template, {'container': chapter})
+                    f = open(chapter.get_prod_path(), 'w')
+                    f.write(parsed.encode('utf-8'))
+                    f.close()
+
+                    for extract in chapter.children:
+                        extract.text = None
+
+                    chapter.introduction = None
+                    chapter.conclusion = None
+
     versioned.dump_json(os.path.join(repo_path, 'manifest.json'))
 
     # save public version

@@ -219,15 +219,29 @@ class ContentTests(TestCase):
         given_title = u'La vie secrète de Clem\''
         some_text = u'Tous ces secrets (ou pas)'
         versioned = self.tuto.load_version()
-        versioned.repo_add_container(given_title, None, None)  # add a new part with `None` for intro and conclusion
+        # add a new part with `None` for intro and conclusion
+        version = versioned.repo_add_container(given_title, None, None)
 
+        # check on the model :
         new_part = versioned.children[-1]
         self.assertIsNone(new_part.introduction)
         self.assertIsNone(new_part.conclusion)
 
-        new_part.repo_update(given_title, None, None)  # still `None`
+        # it remains when loading the manifest !
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].introduction)
+        self.assertIsNone(versioned.children[-1].conclusion)
+
+        version = new_part.repo_update(given_title, None, None)  # still `None`
         self.assertIsNone(new_part.introduction)
         self.assertIsNone(new_part.conclusion)
+
+        # does it still remains ?
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].introduction)
+        self.assertIsNone(versioned.children[-1].conclusion)
 
         new_part.repo_update(given_title, some_text, some_text)
         self.assertIsNotNone(new_part.introduction)  # now, value given
@@ -238,15 +252,71 @@ class ContentTests(TestCase):
         self.assertTrue(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))
         self.assertTrue(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
 
-        new_part.repo_update(given_title, None, None)  # and we go back to `None`
+        # when loaded the manifest, not None, this time
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNotNone(versioned.children[-1].introduction)
+        self.assertIsNotNone(versioned.children[-1].conclusion)
+
+        version = new_part.repo_update(given_title, None, None)  # and we go back to `None`
         self.assertIsNone(new_part.introduction)
         self.assertIsNone(new_part.conclusion)
         self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))  # introduction is deleted
         self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
 
+        # does it go back to None ?
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].introduction)
+        self.assertIsNone(versioned.children[-1].conclusion)
+
         new_part.repo_update(given_title, '', '')  # empty string != `None`
         self.assertIsNotNone(new_part.introduction)
         self.assertIsNotNone(new_part.conclusion)
+
+    def extract_is_none(self):
+        """Test the case of a null extract"""
+
+        versioned = self.tuto.load_version()
+        given_title = u'Peu importe, en fait, ça compte peu'
+        some_text = u'Disparaitra aussi vite que possible'
+        # add a new extract with `None` for text
+        version = versioned.repo_add_extract(given_title, None)
+
+        # check on the model :
+        new_extract = versioned.children[-1]
+        self.assertIsNone(new_extract.text)
+
+        # it remains when loading the manifest !
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].text)
+
+        version = new_extract.repo_update(given_title, None)
+        self.assertIsNone(new_extract.text)
+
+        # it remains
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].text)
+
+        version = new_extract.repo_update(given_title, some_text)
+        self.assertIsNotNone(new_extract.text)
+        self.assertEqual(some_text, new_extract.get_text())
+
+        # now it change
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNotNone(versioned.children[-1].text)
+
+        # ... and lets go back
+        version = new_extract.repo_update(given_title, None)
+        self.assertIsNone(new_extract.text)
+
+        # it has changed
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].text)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
