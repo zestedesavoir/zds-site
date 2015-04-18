@@ -5,16 +5,17 @@ var gulp = require("gulp"),
     del = require("del");
 
 var sourceDir = "assets",
+    destDir = "dist",
     errorsDir = "errors",
-    stylesFiles = ["main.scss", "only-ie.scss"],
     sassDir = "scss",
     imagesDir = "images",
     scriptsDir = "js",
     vendorsDir = "vendors",
     spriteDir = "sprite",
+    stylesFiles = ["main.scss", "only-ie.scss"],
     vendorsCSS = ["node_modules/normalize.css/normalize.css"],
     vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
-    autoprefixerConfig = ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"]
+    autoprefixerConfig = ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"],
     imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
 
 /**
