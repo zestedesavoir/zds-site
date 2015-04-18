@@ -34,7 +34,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.files import File
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q, Count
@@ -48,7 +47,7 @@ from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteFo
     AcceptContentForm, RejectForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract, default_slug_pool, PublishedContent
-from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
+from utils import search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
@@ -56,14 +55,13 @@ from zds.utils import slugify
 from zds.utils.models import Alert
 from zds.utils.models import CommentLike, CommentDislike, SubCategory, HelpWriting, CategorySubCategory
 from zds.utils.mps import send_mp
-from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, FormView, DeleteView, RedirectView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
-    SingleContentDetailViewMixin, SingleContentDownloadViewMixin
+    SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin
 from git import GitCommandError
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication
 
@@ -229,6 +227,41 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         self.get_forms(context)
 
         return context
+
+
+class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
+    """Base class that can show any online content"""
+
+    model = PublishedContent
+    template_name = 'tutorialv2/view/content_online.html'
+
+    content_type = ""
+    verbose_type_name = _(u'contenu')
+    verbose_type_name_plural = _(u'contenus')
+
+    def get_context_data(self, **kwargs):
+        """Show the given tutorial if exists."""
+        context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
+
+        # TODO: deal with messaging and stuff like this !!
+
+        return context
+
+
+class DisplayOnlineArticle(DisplayOnlineContent):
+    """Displays the list of published articles"""
+
+    content_type = "ARTICLE"
+    verbose_type_name = _(u'article')
+    verbose_type_name_plural = _(u'articles')
+
+
+class DisplayOnlineTutorial(DisplayOnlineContent):
+    """Displays the list of published tutorials"""
+
+    content_type = "TUTORIAL"
+    verbose_type_name = _(u'tutoriel')
+    verbose_type_name_plural = _(u'tutoriels')
 
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -679,11 +712,43 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
         context = super(DisplayContainer, self).get_context_data(**kwargs)
         context['container'] = search_container_or_404(context['content'], self.kwargs)
         context['containers_target'] = get_target_tagged_tree(context['container'], context['content'])
+
         # pagination: search for `previous` and `next`, if available
         if context['content'].type != 'ARTICLE' and not context['content'].has_extracts():
             chapters = context['content'].get_list_of_chapters()
             try:
                 position = chapters.index(context['container'])
+            except ValueError:
+                pass  # this is not (yet?) a chapter
+            else:
+                context['has_pagination'] = True
+                context['previous'] = None
+                context['next'] = None
+                if position > 0:
+                    context['previous'] = chapters[position - 1]
+                if position < len(chapters) - 1:
+                    context['next'] = chapters[position + 1]
+
+        return context
+
+
+class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
+    """Base class that can show any content in any state"""
+
+    template_name = 'tutorialv2/view/container_online.html'
+    content_type = "TUTORIAL"  # obviously, an article cannot have container !
+
+    def get_context_data(self, **kwargs):
+        context = super(DisplayOnlineContainer, self).get_context_data(**kwargs)
+        container = search_container_or_404(self.versioned_object, self.kwargs)
+
+        context['container'] = container
+
+        # pagination: search for `previous` and `next`, if available
+        if not self.versioned_object.has_extracts():
+            chapters = self.versioned_object.get_list_of_chapters()
+            try:
+                position = chapters.index(container)
             except ValueError:
                 pass  # this is not (yet?) a chapter
             else:
@@ -1001,17 +1066,13 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         return super(ManageBetaContent, self).form_valid(form)
 
 
-class ListOnlineContents(ListView):
+class ListOnlineContents(ContentTypeMixin, ListView):
     """Displays the list of published contents"""
 
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
     template_name = 'tutorialv2/index_online.html'
     tag = None
-
-    content_type = ""
-    verbose_type_name = _(u'contenu')
-    verbose_type_name_plural = _(u'contenus')
 
     def top_categories(self):
         """Get all the categories and their related subcategories associated with existing contents.
@@ -1067,9 +1128,6 @@ class ListOnlineContents(ListView):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
 
         context['tag'] = self.tag
-        context['content_type'] = self.content_type
-        context['verbose_type_name'] = self.verbose_type_name
-        context['verbose_type_name_plural'] = self.verbose_type_name_plural
         context['top_categories'] = self.top_categories()
 
         return context
@@ -1079,16 +1137,12 @@ class ListArticles(ListOnlineContents):
     """Displays the list of published articles"""
 
     content_type = "ARTICLE"
-    verbose_type_name = _(u'article')
-    verbose_type_name_plural = _(u'articles')
 
 
 class ListTutorials(ListOnlineContents):
     """Displays the list of published tutorials"""
 
     content_type = "TUTORIAL"
-    verbose_type_name = _(u'tutoriel')
-    verbose_type_name_plural = _(u'tutoriels')
 
 
 class TutorialWithHelp(ListTutorials):
@@ -1119,119 +1173,6 @@ class TutorialWithHelp(ListTutorials):
 
 
 # TODO ArticleWithHelp
-
-
-class DisplayOnlineContent(DisplayContent):
-    """Display online tutorial"""
-    type = "TUTORIAL"
-    template_name = "tutorial/view_online.html"
-    is_public = True
-
-    def get_forms(self, context, content):
-
-        # Build form to send a note for the current tutorial.
-        context['form'] = NoteForm(content, self.request.user)
-
-    def compatibility_parts(self, content, repo, sha, dictionary, cpt_p):
-        dictionary["tutorial"] = content
-        dictionary["path"] = content.get_repo_path()
-        dictionary["slug"] = slugify(dictionary["title"])
-        dictionary["position_in_tutorial"] = cpt_p
-
-        cpt_c = 1
-        for chapter in dictionary["chapters"]:
-            chapter["part"] = dictionary
-            chapter["slug"] = slugify(chapter["title"])
-            chapter["position_in_part"] = cpt_c
-            chapter["position_in_tutorial"] = cpt_c * cpt_p
-            self.compatibility_chapter(content, repo, sha, chapter)
-            cpt_c += 1
-
-    def compatibility_chapter(self, content, repo, sha, dictionary):
-        """enable compatibility with old version of mini tutorial and chapter implementations"""
-        dictionary["path"] = content.get_prod_path()
-        dictionary["type"] = self.type
-        dictionary["pk"] = Container.objects.get(parent=content).pk  # TODO : find better name
-        dictionary["intro"] = open(os.path.join(content.get_prod_path(), "introduction.md" + ".html"), "r")
-        dictionary["conclu"] = open(os.path.join(content.get_prod_path(), "conclusion.md" + ".html"), "r")
-        # load extracts
-        cpt = 1
-        for ext in dictionary["extracts"]:
-            ext["position_in_chapter"] = cpt
-            ext["path"] = content.get_prod_path()
-            text = open(os.path.join(content.get_prod_path(), ext["text"] + ".html"), "r")
-            ext["txt"] = text.read()
-            cpt += 1
-
-    def get_context_data(self, **kwargs):
-        content = self.get_object()
-        if self.must_redirect:
-            return redirect(content.get_absolute_url_online())
-        # If the tutorial isn't online, we raise 404 error.
-        if not content.in_public():
-            raise Http404
-        self.sha = content.sha_public
-        context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
-
-        context["tutorial"]["update"] = content.update
-        context["tutorial"]["get_note_count"] = content.get_note_count()
-
-        if self.request.user.is_authenticated():
-            # If the user is authenticated, he may want to tell the world how cool the content is
-            # We check if he can post a not or not with
-            # antispam filter.
-            context['tutorial']['antispam'] = content.antispam()
-
-            # If the user has never read this before, we mark this tutorial read.
-            if never_read(content):
-                mark_read(content)
-
-        # Find all notes of the tutorial.
-
-        notes = ContentReaction.objects.filter(related_content__pk=content.pk).order_by("position").all()
-
-        # Retrieve pk of the last note. If there aren't notes for the tutorial, we
-        # initialize this last note at 0.
-
-        last_note_pk = 0
-        if content.last_note:
-            last_note_pk = content.last_note.pk
-
-        # Handle pagination
-
-        paginator = Paginator(notes, settings.ZDS_APP['forum']['posts_per_page'])
-        try:
-            page_nbr = int(self.request.GET.get("page"))
-        except KeyError:
-            page_nbr = 1
-        except ValueError:
-            raise Http404
-
-        try:
-            notes = paginator.page(page_nbr)
-        except PageNotAnInteger:
-            notes = paginator.page(1)
-        except EmptyPage:
-            raise Http404
-
-        res = []
-        if page_nbr != 1:
-            # Show the last note of the previous page
-
-            last_page = paginator.page(page_nbr - 1).object_list
-            last_note = last_page[len(last_page) - 1]
-            res.append(last_note)
-        for note in notes:
-            res.append(note)
-
-        context['notes'] = res
-        context['last_note_pk'] = last_note_pk
-        context['pages'] = paginator_range(page_nbr, paginator.num_pages)
-        context['nb'] = page_nbr
-
-
-class DisplayOnlineArticle(DisplayOnlineContent):
-    type = "ARTICLE"
 
 
 # Staff actions.
@@ -1466,9 +1407,10 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
             # TODO: send PM and stuff !
             # TODO: handle minor/major version (!?) → just update `pubdate` or not
+            # TODO: deal with other kind of publications (HTML, PDF, archive, ...)
 
             messages.success(self.request, _(u'Le contenu a bien été validé.'))
-            self.success_url = published.get_absolute_url_public()
+            self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
 

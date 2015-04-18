@@ -38,7 +38,7 @@
         </h2>
     {% endif %}
 
-    {% if user.user in content.authors.all %}
+    {% if can_edit %}
         {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
     {% else %}
         {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
