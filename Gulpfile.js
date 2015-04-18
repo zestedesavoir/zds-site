@@ -157,7 +157,7 @@ gulp.task("scripts", function() {
  * Check JS code style and syntax using JSHint
  */
 gulp.task("jshint", function() {
-  return gulp.src([path.join(sourceDir, scriptsDir, "*.js"), "!", path.join(sourceDir, scriptsDir, "_custom.modernizr.js")])
+  return gulp.src([path.join(sourceDir, scriptsDir, "*.js"), "!" + path.join(sourceDir, scriptsDir, "_custom.modernizr.js")])
     .pipe($.jshint())
     .pipe($.jshint.reporter("jshint-stylish"));
 });
