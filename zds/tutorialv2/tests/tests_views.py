@@ -1877,6 +1877,42 @@ class ContentTests(TestCase):
         extract = new_chapter.children[-1]
         self.assertEqual(extract.get_text(), some_text)
 
+    def test_diff_for_new_content(self):
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # create tutorial
+        intro = u'une intro'
+        conclusion = u'une conclusion'
+        description = u'une description'
+        title = u'un titre'
+        result = self.client.post(
+            reverse('content:create'),
+            {
+                'title': title,
+                'description': description,
+                'introduction': intro,
+                'conclusion': conclusion,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+        new_content = PublishableContent.objects.last()
+        result = self.client.get(
+            reverse('content:diff', kwargs={
+                'pk': new_content.pk,
+                'slug': new_content.slug
+            })
+        )
+        self.assertEqual(200, result.status_code)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])

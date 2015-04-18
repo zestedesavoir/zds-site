@@ -65,6 +65,7 @@ from django.views.generic import ListView, DetailView, FormView, DeleteView, Red
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin
+from git import GitCommandError
 
 
 class RedirectContentSEO(RedirectView):
@@ -878,14 +879,21 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         # open git repo and find diff between displayed version and head
         repo = self.versioned_object.repository
         current_version_commit = repo.commit(self.sha)
-        diff_with_head = current_version_commit.diff("HEAD~1")
+        try:
+            diff_with_head = current_version_commit.diff("HEAD~1")
+            context['commit_msg'] = current_version_commit.message
+            context["path_add"] = diff_with_head.iter_change_type("A")
+            context["path_ren"] = diff_with_head.iter_change_type("R")
+            context["path_del"] = diff_with_head.iter_change_type("D")
+            context["path_maj"] = diff_with_head.iter_change_type("M")
 
-        context['commit_msg'] = current_version_commit.message
+        except GitCommandError:
+            context['commit_msg'] = _(u"La création est le seul commit disponible")
 
-        context["path_add"] = diff_with_head.iter_change_type("A")
-        context["path_ren"] = diff_with_head.iter_change_type("R")
-        context["path_del"] = diff_with_head.iter_change_type("D")
-        context["path_maj"] = diff_with_head.iter_change_type("M")
+            context["path_add"] = []
+            context["path_ren"] = []
+            context["path_del"] = []
+            context["path_maj"] = []
 
         return context
 
