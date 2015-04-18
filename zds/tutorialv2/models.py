@@ -1591,9 +1591,21 @@ class PublishedContent(models.Model):
     def get_prod_path(self):
         return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
 
-    def get_absolute_url_public(self):
-        # TODO: manage type (article:view or tutorial:view !!)
+    def get_absolute_url_online(self):
+        """reversed_ = ''
+
+        if self.is_article():
+            reversed_ = 'article'
+        elif self.is_tutorial():
+            reversed_ = 'tutorial'"""
+
         return reverse('content:view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+
+    def is_article(self):
+        return self.content_type == "ARTICLE"
+
+    def is_tutorial(self):
+        return self.content_type == "TUTORIAL"
 
 
 class ContentReaction(Comment):
@@ -1666,7 +1678,7 @@ class Validation(models.Model):
         default='PENDING')
 
     def __unicode__(self):
-        return self.content.title
+        return _(u'Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending

@@ -441,7 +441,10 @@ ZDS_APP = {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
         'max_tree_depth': 3,
-        'default_license_pk': 7
+        'default_license_pk': 7,
+        'content_per_page': 50,
+        'helps_per_page': 20,
+        'feed_length': 5
     },
     'forum': {
         'posts_per_page': 21,

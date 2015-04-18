@@ -47,14 +47,14 @@ from git import Repo, BadObject
 from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, \
     AcceptContentForm, RejectForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
-    BadManifestError, Extract, default_slug_pool
+    BadManifestError, Extract, default_slug_pool, PublishedContent
 from utils import never_read, mark_read, search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
 from zds.utils import slugify
 from zds.utils.models import Alert
-from zds.utils.models import CommentLike, CommentDislike, SubCategory, HelpWriting
+from zds.utils.models import CommentLike, CommentDislike, SubCategory, HelpWriting, CategorySubCategory
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -82,7 +82,7 @@ class RedirectContentSEO(RedirectView):
         return obj.get_prod_path()
 
 
-class ListContent(LoggedWithReadWriteHability, ListView):
+class ListContents(LoggedWithReadWriteHability, ListView):
     """
     Displays the list of offline contents (written by user)
     """
@@ -100,7 +100,7 @@ class ListContent(LoggedWithReadWriteHability, ListView):
 
     def get_context_data(self, **kwargs):
         """Separate articles and tutorials"""
-        context = super(ListContent, self).get_context_data(**kwargs)
+        context = super(ListContents, self).get_context_data(**kwargs)
         context['articles'] = []
         context['tutorials'] = []
         for content in self.get_queryset():
@@ -1001,47 +1001,97 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         return super(ManageBetaContent, self).form_valid(form)
 
 
-class ArticleList(ListView):
-    """
-    Displays the list of published articles.
-    """
-    context_object_name = 'articles'
-    paginate_by = settings.ZDS_APP['tutorial']['content_per_page']
-    type = "ARTICLE"
-    template_name = 'article/index.html'
+class ListOnlineContents(ListView):
+    """Displays the list of published contents"""
+
+    context_object_name = 'public_contents'
+    paginate_by = settings.ZDS_APP['content']['content_per_page']
+    template_name = 'tutorialv2/index_online.html'
     tag = None
 
-    def get_queryset(self):
-        """
-        Filter the content to obtain the list of only articles. If tag parameter is provided, only articles
-        which have this category will be listed.
-        :return: list of articles
-        """
-        if self.request.GET.get('tag') is not None:
-            self.tag = get_object_or_404(SubCategory, title=self.request.GET.get('tag'))
-        query_set = PublishableContent.objects.filter(type=self.type).filter(sha_public__isnull=False) \
-            .exclude(sha_public='')
-        if self.tag is not None:
-            query_set = query_set.filter(subcategory__in=[self.tag])
+    content_type = ""
+    verbose_type_name = _(u'contenu')
+    verbose_type_name_plural = _(u'contenus')
 
-        return query_set.order_by('-pubdate')
+    def top_categories(self):
+        """Get all the categories and their related subcategories associated with existing contents.
+        The result is sorted by alphabetic order."""
+
+        # TODO: since this is gonna be reused, it should go in zds/utils/tutorialsv2.py (and in topbar.py)
+
+        subcategories_contents = PublishedContent.objects\
+            .filter(content_type=self.content_type)\
+            .values('content__subcategory').all()
+
+        categories_from_subcategories = CategorySubCategory.objects\
+            .filter(is_main=True)\
+            .filter(subcategory__in=subcategories_contents)\
+            .order_by('category__position', 'subcategory__title')\
+            .select_related('subcategory', 'category')\
+            .values('category__title', 'subcategory__title', 'subcategory__slug')\
+            .all()
+
+        categories = OrderedDict()
+
+        for csc in categories_from_subcategories:
+            key = csc['category__title']
+
+            if key in categories:
+                categories[key].append((csc['subcategory__title'], csc['subcategory__slug']))
+            else:
+                categories[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
+
+        return categories
+
+    def get_queryset(self):
+        """Filter the contents to obtain the list of given type.
+        If tag parameter is provided, only contents which have this category will be listed.
+
+        :return: list of contents with the good type
+        :rtype: list of PublishedContent
+        """
+
+        query_set = PublishedContent.objects\
+            .prefetch_related("content")\
+            .prefetch_related("content__subcategory")\
+            .prefetch_related("content__authors")\
+            .filter(content_type=self.content_type)
+
+        if 'tag' in self.request.GET:
+            self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
+            query_set = query_set.filter(content__subcategory__in=[self.tag])
+
+        return query_set.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
-        context = super(ArticleList, self).get_context_data(**kwargs)
+        context = super(ListOnlineContents, self).get_context_data(**kwargs)
+
         context['tag'] = self.tag
-        # TODO in database, the information concern the draft, so we have to make stuff here !
+        context['content_type'] = self.content_type
+        context['verbose_type_name'] = self.verbose_type_name
+        context['verbose_type_name_plural'] = self.verbose_type_name_plural
+        context['top_categories'] = self.top_categories()
+
         return context
 
 
-class TutorialList(ArticleList):
-    """Displays the list of published tutorials."""
+class ListArticles(ListOnlineContents):
+    """Displays the list of published articles"""
 
-    context_object_name = 'tutorials'
-    type = "TUTORIAL"
-    template_name = 'tutorialv2/index.html'
+    content_type = "ARTICLE"
+    verbose_type_name = _(u'article')
+    verbose_type_name_plural = _(u'articles')
 
 
-class TutorialWithHelp(TutorialList):
+class ListTutorials(ListOnlineContents):
+    """Displays the list of published tutorials"""
+
+    content_type = "TUTORIAL"
+    verbose_type_name = _(u'tutoriel')
+    verbose_type_name_plural = _(u'tutoriels')
+
+
+class TutorialWithHelp(ListTutorials):
     """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
     for more documentation, have a look to ZEP 03 specification (fr)"""
     context_object_name = 'tutorials'

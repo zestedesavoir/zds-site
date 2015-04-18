@@ -1,0 +1,35 @@
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+
+<article>
+    <img src="{{ public_content.content.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
+    <div class="tutorial-infos">
+        <a href="{{ public_content.get_absolute_url_online }}">
+            <h3>{{ public_content.content.title }}</h3>
+        </a>
+        <span class="article-metadata">
+            {% if public_content.content.subcategory.all %}
+                {% for category in public_content.content.subcategory.all %}
+                    {% if not forloop.first %}
+                        -
+                    {% endif %}
+
+                    {% captureas list_content_url %}
+                        {% if public_content.is_article %}
+                            {% url "article:list" %}
+                        {% elif public_content.is_tutorial %}
+                            {% url "tutorial:list" %}
+                        {% endif %}
+                    {% endcaptureas %}
+
+                    <a href="{{ list_content_url }}?tag={{ category.slug }}">{{ category.title }}</a>
+                {% endfor %}
+            {% else %}
+                {% trans "Aucune catégorie" %}
+            {% endif %}
+            - {{ public_content.publication_date|format_date }}
+        </span>
+    </div>
+</article>

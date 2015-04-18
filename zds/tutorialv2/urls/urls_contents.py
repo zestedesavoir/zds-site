@@ -2,14 +2,14 @@
 
 from django.conf.urls import patterns, url
 
-from zds.tutorialv2.views import ListContent, DisplayContent, CreateContent, EditContent, DeleteContent,\
+from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, EditContent, DeleteContent,\
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation
 
 urlpatterns = patterns('',
-                       url(r'^$', ListContent.as_view(), name='index'),
+                       url(r'^$', ListContents.as_view(), name='index'),
 
                        # view:
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',

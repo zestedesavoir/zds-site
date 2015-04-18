@@ -4,9 +4,7 @@
 
 <article>
     <a href="
-        {% if type == 'public' and content.in_public %}
-            {{ content.get_absolute_url_online }}
-        {% elif type == 'beta' and content.in_beta %}
+        {% if type == 'beta' and content.in_beta %}
             {{ content.get_absolute_url_beta }}
         {% else %}
             {{ content.get_absolute_url }}
@@ -19,6 +17,9 @@
             <span class="article-metadata">
                 {% if content.subcategory.all %}
                     {% for category in content.subcategory.all %}
+                        {% if not forloop.first %}
+                            -
+                        {% endif %}
                         {{ category.title }}
                     {% endfor %}
                 {% else %}
