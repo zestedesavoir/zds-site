@@ -207,11 +207,14 @@ def get_target_tagged_tree_for_container(movable_child, root):
     """
     target_tagged_tree = []
     for child in root.traverse(True):
-        composed_depth = child.get_tree_depth() + movable_child.get_tree_depth()
-        enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
-        target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(),
-                                   child.title, child.get_tree_level(),
-
-                                   enabled and child != movable_child and child != root))
+        if child.get_path(False) == root.get_path(False):
+            continue
+        if child.parent.get_path(False) == movable_child.get_path(False):
+            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(), False))
+        else:
+            composed_depth = child.get_tree_depth() + movable_child.get_tree_depth()
+            enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
+            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(),
+                                       enabled and child != movable_child and child != root))
 
     return target_tagged_tree

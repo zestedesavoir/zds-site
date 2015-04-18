@@ -11,7 +11,6 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory
 from zds.gallery.factories import GalleryFactory
-
 # from zds.tutorialv2.models import Container, Extract, VersionedContent
 
 overrided_zds_app = settings.ZDS_APP

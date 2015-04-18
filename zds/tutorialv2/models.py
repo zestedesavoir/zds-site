@@ -1099,7 +1099,7 @@ def fill_containers_from_json(json_sub, parent):
     :param json_sub: dictionary from "manifest.json"
     :param parent: the container to fill
     """
-    # TODO should be static function of `VersionedContent` ?!?
+    # TODO should be static function of `VersionedContent` ?!ge
     if 'children' in json_sub:
         for child in json_sub['children']:
             if child['object'] == 'container':
