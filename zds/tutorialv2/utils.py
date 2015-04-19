@@ -234,7 +234,7 @@ class FailureDuringPublication(Exception):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
-def publish_content(db_object, versioned):
+def publish_content(db_object, versioned, is_major_update=True):
     """Publish a given content.
 
     Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
@@ -244,6 +244,8 @@ def publish_content(db_object, versioned):
     :type db_object: PublishableContent
     :param versioned: version of the content to publish
     :type versioned: VersionedContent
+    :param is_major_update: if set to `True`, will update the publication date
+    :type is_major_update: bool
     :raise FailureDuringPublication: if something goes wrong
     :return: the published representation
     :rtype: PublishedContent
@@ -345,7 +347,9 @@ def publish_content(db_object, versioned):
     versioned.dump_json(os.path.join(repo_path, 'manifest.json'))
 
     # save public version
-    public_version.publication_date = datetime.now()
+    if is_major_update:
+        public_version.publication_date = datetime.now()
+
     public_version.sha_public = versioned.current_version
     public_version.save()
 

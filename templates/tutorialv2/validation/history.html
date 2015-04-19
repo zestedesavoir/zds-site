@@ -11,8 +11,8 @@
 
 
 
-{% block breadcrumb %}
-    <li><a href="{% url "content:list_validation" %}">{% trans "Validation" %}</a></li>
+{% block breadcrumb_base %}
+    <li><a href="{% url "content:list-validation" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
     <li>{% trans "Historique" %}</li>
 {% endblock %}

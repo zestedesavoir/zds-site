@@ -44,7 +44,7 @@ from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
 from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, \
-    AcceptContentForm, RejectForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
+    AcceptValidationForm, RejectValidationForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract, default_slug_pool, PublishedContent
 from utils import search_container_or_404, search_extract_or_404
@@ -204,11 +204,8 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
                                                 })
 
         if validation:
-            context["formValid"] = AcceptContentForm(instance=validation,
-                                                     initial={
-                                                         "source": self.object.source
-                                                     })
-            context["formReject"] = RejectForm()
+            context["formValid"] = AcceptValidationForm(instance=validation, initial={"source": self.object.source})
+            context["formReject"] = RejectValidationForm(instance=validation)
 
         context["validation"] = validation
         context["formAskValidation"] = form_ask_validation
@@ -1269,9 +1266,9 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
         if old_validation:
             old_validator = old_validation.validator
-        else:  # if and old validation object exists, we can update it
-            old_validator = None
             Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).delete()
+        else:
+            old_validator = None
 
         # create a "validation" object
         validation = Validation()
@@ -1287,17 +1284,19 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             # TODO: why not let the validator be the same using PENDING_V ?
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            msg = \
-                (_(u'Bonjour {0},'
-                   u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
-                   u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
-                   u'consulter l\'historique des versions'
-                   u'\n\n> Merci').format(old_validator.username, self.versioned_object.title))
+            msg = render_to_string(
+                'tutorialv2/messages/validation_change.msg.html',
+                {
+                    'content': self.versioned_object,
+                    'url': self.versioned_object.get_absolute_url() + '?version=' + form.cleaned_data['version'],
+                    'url_history': reverse('content:history', args=[self.object.pk, self.object.slug])
+                })
+
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Mise à jour de tuto : {0}").format(self.versioned_object.title),
-                _(u"En validation"),
+                _(u"Validation : mise à jour de « {} »").format(self.versioned_object.title),
+                _(u"Une nouvelle version a été envoyée en validation"),
                 msg,
                 False,
             )
@@ -1319,8 +1318,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Reserve or remove the reservation on a content"""
 
-    # TODO: not a FormView ?
-
     permissions = ["tutorial.change_tutorial"]
 
     def post(self, request, *args, **kwargs):
@@ -1330,16 +1327,15 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = None
             validation.status = "PENDING"
             validation.save()
-            messages.info(request, _(u"Le tutoriel n'est plus sous réserve."))
+            messages.info(request, _(u"Ce contenu n'est plus réservé"))
             return redirect(reverse("content:list_validation"))
         else:
             validation.validator = request.user
             validation.date_reserve = datetime.now()
             validation.status = "PENDING_V"
             validation.save()
-            messages.info(request,
-                          _(u"Le tutoriel a bien été \
-                          réservé par {0}.").format(request.user.username))
+            messages.info(request, _(u"Ce contenu a bien été réservé par {0}").format(request.user.username))
+
             return redirect(
                 reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
                 "?version=" + validation.version
@@ -1363,11 +1359,66 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
         return context
 
 
-class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
-    """Reserve or remove the reservation on a content"""
+class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    """Reject the publication"""
 
     permissions = ["tutorial.change_tutorial"]
-    form_class = AcceptContentForm
+    form_class = RejectValidationForm
+
+    def get_form_kwargs(self):
+        kwargs = super(RejectValidation, self).get_form_kwargs()
+        kwargs['instance'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
+        return kwargs
+
+    def form_valid(self, form):
+
+        user = self.request.user
+        validation = form.validation
+
+        if validation.validator != user:
+            raise PermissionDenied
+
+        # reject validation:
+        validation.comment_validator = form.cleaned_data['text']
+        validation.status = "REJECT"
+        validation.date_validation = datetime.now()
+        validation.save()
+
+        validation.content.sha_validation = None
+        validation.content.save()
+
+        # send PM
+        versioned = validation.content.load_version(sha=validation.version)
+        msg = render_to_string(
+            'tutorialv2/messages/validation_reject.msg.html',
+            {
+                'content': versioned,
+                'url': versioned.get_absolute_url() + '?version=' + validation.version,
+                'validator': validation.validator,
+                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            validation.content.authors.all(),
+            _(u"Rejet de « {} »").format(validation.content.title),
+            _(u"Désolé"),
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.info(self.request, _(u'Le contenu a bien été refusé'))
+        self.success_url = reverse('content:list-validation')
+        return super(RejectValidation, self).form_valid(form)
+
+
+class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    """Publish the content"""
+
+    permissions = ["tutorial.change_tutorial"]
+    form_class = AcceptValidationForm
 
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()
@@ -1388,15 +1439,19 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         self.success_url = versioned.get_absolute_url(version=validation.version)
 
         try:
-            published = publish_content(db_object, versioned)
+            published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
             # save in database
+            is_update = db_object.sha_public and db_object.sha_public != ''
             db_object.sha_public = validation.version
-            db_object.pubdate = datetime.now()
             db_object.source = form.cleaned_data['source']
             db_object.sha_validation = None
+
+            if form.cleaned_data['is_major']:
+                db_object.pubdate = datetime.now()
+
             db_object.save()
 
             # save validation object
@@ -1405,9 +1460,35 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_validation = datetime.now()
             validation.save()
 
-            # TODO: send PM and stuff !
-            # TODO: handle minor/major version (!?) → just update `pubdate` or not
             # TODO: deal with other kind of publications (HTML, PDF, archive, ...)
+
+            if is_update:
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_accept_update.html',
+                    {
+                        'content': versioned,
+                        'url': published.get_absolute_url_online(),
+                        'validator': validation.validator
+                    })
+            else:
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_accept_content.msg.html',
+                    {
+                        'content': versioned,
+                        'url': published.get_absolute_url_online(),
+                        'validator': validation.validator
+                    })
+
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                db_object.authors.all(),
+                _(u"Publication de « {} »").format(versioned.title),
+                _(u"Merci !"),
+                msg,
+                True,
+                direct=False
+            )
 
             messages.success(self.request, _(u'Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()

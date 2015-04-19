@@ -1,21 +1,24 @@
-{% extends "tutorialv2/base.html" %}
+{% extends "tutorialv2/base_online.html" %}
 {% load date %}
 {% load captureas %}
 {% load i18n %}
 
+{% block title_base %}
+    &bull; {% trans "Validation" %}
+{% endblock %}
 
 {% block title %}
     {% trans "Validation" %}
     {% if request.GET.type == "reserved" %}
-        / {% trans "Reservés" %}
+        / {% trans "Réservés" %}
     {% elif request.GET.type == "orphan" %}
-        / {% trans "Non-reservés" %}
+        / {% trans "Non-réservés" %}
     {% endif %}
 {% endblock %}
 
 
 
-{% block breadcrumb %}
+{% block breadcrumb_base %}
     <li>{% trans "Validation" %}</li>
 {% endblock %}
 
@@ -75,7 +78,7 @@
                                             {% if not forloop.first %}
                                                 -
                                             {% endif %}
-                                            <a href="{% url "content:list_validation" %}?subcategory={{ subcategory.pk }}">
+                                            <a href="{% url "content:list-validation" %}?subcategory={{ subcategory.pk }}">
                                                 {{ subcategory.title }}
                                             </a>
                                         {% endfor %}
@@ -85,9 +88,9 @@
                                 </td>
                                 <td>
                                     {% if validation.content.type == "ARTICLE" %}
-                                        <a href="{% url "content:list_validation" %}?type=article">Article</a>
+                                        <a href="{% url "content:list-validation" %}?type=article">Article</a>
                                     {% else %}
-                                        <a href="{% url "content:list_validation" %}?type=tuto">Tutoriel</a>
+                                        <a href="{% url "content:list-validation" %}?type=tuto">Tutoriel</a>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -128,28 +131,28 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "content:list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}unread{% endif %}">
                     {% trans "En cours de validation" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "content:list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}unread{% endif %}">
                     {% trans "En attente de validateur" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "content:list_validation" %}?type=article" class="ico-after view {% if request.GET.type == "article" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=article" class="ico-after view {% if request.GET.type == "article" %}unread{% endif %}">
                     {% trans "Articles" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "content:list_validation" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}unread{% endif %}">
                     {% trans "Tutoriels" %}
                 </a>
             </li>
             {% if request.GET.type or request.GET.subcategory %}
                 <li>
-                    <a href="{% url "content:list_validation" %}" class="ico-after cross red">
+                    <a href="{% url "content:list-validation" %}" class="ico-after cross red">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>

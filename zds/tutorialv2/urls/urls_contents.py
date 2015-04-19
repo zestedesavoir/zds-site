@@ -6,7 +6,7 @@ from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, Ed
     CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
-    UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation
+    UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -107,10 +107,12 @@ urlpatterns = patterns('',
 
                        url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(),
                            name="reserve-validation"),
+                       url(r'^valider/refuser/(?P<pk>\d+)/$', RejectValidation.as_view(),
+                           name="reject-validation"),
                        url(r'^valider/accepter/(?P<pk>\d+)/$', AcceptValidation.as_view(),
                            name="accept-validation"),
 
-                       url(r'^valider/liste/$', ValidationListView.as_view(), name="list_validation"),
+                       url(r'^valider/liste/$', ValidationListView.as_view(), name="list-validation"),
 
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
                            r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',

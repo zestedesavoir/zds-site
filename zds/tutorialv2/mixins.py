@@ -205,9 +205,11 @@ class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
     - by rewriting `get()`, that:
         * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
         * `self.versioned_object` contains a PublicContent object
+        * self.public_content_object contains a PublishedContent object
     - by surcharging `get_context_data()`, that
         * context['content'] contains the
         * context['can_edit'] is set
+        * context['public_object'] is set
     """
 
     model = PublishedContent
@@ -246,6 +248,7 @@ class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
         context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
 
         context['content'] = self.versioned_object
+        context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
 
         return context

@@ -15,10 +15,17 @@
 
 {% if content.update_date %}
     <span class="pubdate">
+    {% if online %}
+        {% trans "Publié" %} :
+        <time datetime="{{ content.update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ public_object.publication_date|format_date }}
+        </time>
+    {% else %}
         {% trans "Dernière mise à jour" %} :
         <time datetime="{{ content.update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
             {{ content.update_date|format_date }}
         </time>
+    {% endif %}
     </span>
 {% endif %}
 

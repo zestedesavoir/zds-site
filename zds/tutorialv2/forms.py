@@ -477,7 +477,7 @@ class AskValidationForm(forms.Form):
         )
 
 
-class AcceptContentForm(forms.Form):
+class AcceptValidationForm(forms.Form):
 
     validation = None
 
@@ -512,7 +512,7 @@ class AcceptContentForm(forms.Form):
 
         self.validation = kwargs.pop('instance', None)
 
-        super(AcceptContentForm, self).__init__(*args, **kwargs)
+        super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:accept-validation', kwargs={'pk': self.validation.pk})
@@ -526,7 +526,7 @@ class AcceptContentForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(AcceptContentForm, self).clean()
+        cleaned_data = super(AcceptValidationForm, self).clean()
 
         text = cleaned_data.get('text')
 
@@ -539,7 +539,7 @@ class AcceptContentForm(forms.Form):
         return cleaned_data
 
 
-class RejectForm(forms.Form):
+class RejectValidationForm(forms.Form):
 
     text = forms.CharField(
         label='',
@@ -552,22 +552,23 @@ class RejectForm(forms.Form):
         )
     )
 
-    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+    validation = None
 
     def __init__(self, *args, **kwargs):
-        super(RejectForm, self).__init__(*args, **kwargs)
+
+        self.validation = kwargs.pop('instance', None)
+
+        super(RejectValidationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.reject_tutorial')
+        self.helper.form_action = reverse('content:reject-validation', kwargs={'pk': self.validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
-            Field('version'),
             ButtonHolder(
                 StrictButton(
                     _(u'Rejeter'),
-                    type='submit'),),
-            Hidden('tutorial', '{{ tutorial.pk }}')
+                    type='submit'))
         )
 
 
