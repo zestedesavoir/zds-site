@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from collections import OrderedDict
+from django.core.cache import cache
 
 from django import template
 from django.conf import settings
@@ -35,13 +36,18 @@ def top_categories(user):
         else:
             cats[key] = [forum]
 
-    tags = (
-        Tag.objects.annotate(num_topic=Count('topic'))
-                   .order_by('-num_topic')
-                   .filter(topic__not_in=Topic.objects.filter(forum__in=forums).all())
-                   .exclude(title__in=settings.ZDS_APP['forum']['top_tag_exclu'])
-        [:settings.ZDS_APP['forum']['top_tag_max']]
-    )
+    tags = cache.get('cache_top_tags', 'has expired')
+    if tags is None or tags == 'has expired':
+
+        tags = (
+            Tag.objects.annotate(num_topic=Count('topic'))
+            .order_by('-num_topic')
+            .filter(topic__not_in=Topic.objects.filter(forum__in=forums).all())
+            .exclude(title__in=settings.ZDS_APP['forum']['top_tag_exclu'])
+            [:settings.ZDS_APP['forum']['top_tag_max']]
+        )
+
+        cache.set('cache_top_tags', tags, settings.ZDS_APP['forum']['top_tag_cache'])
 
     return {"tags": tags, "categories": cats}
 
