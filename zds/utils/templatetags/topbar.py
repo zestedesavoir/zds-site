@@ -39,6 +39,7 @@ def top_categories(user):
         Tag.objects.annotate(num_topic=Count('topic'))
                    .order_by('-num_topic')
                    .filter(topic__not_in=Topic.objects.filter(forum__in=forums).all())
+                   .exclude(title__in=settings.ZDS_APP['forum']['top_tag_exclu'])
         [:settings.ZDS_APP['forum']['top_tag_max']]
     )
 

@@ -2,6 +2,7 @@
 from django.contrib.auth.models import Group
 
 from django.test import TestCase
+from zds import settings
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -67,3 +68,10 @@ class TopBarTests(TestCase):
         top_tags_for_staff = top_categories(self.staff1.user).get('tags')
         self.assertEqual(top_tags_for_staff[2].title, 'stafftag')
 
+        # Now we want to exclude a tag
+        settings.ZDS_APP['forum']['top_tag_exclu'] = {'php'}
+        top_tags = top_categories(user).get('tags')
+
+        # Assert
+        self.assertEqual(top_tags[0].title, 'c#')
+        self.assertEqual(len(top_tags), 1)
