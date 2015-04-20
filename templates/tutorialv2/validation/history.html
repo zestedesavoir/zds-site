@@ -1,4 +1,4 @@
-{% extends "tutorialv2/validation/index.html" %}
+{% extends "tutorialv2/base.html" %}
 {% load date %}
 {% load captureas %}
 {% load emarkdown %}
@@ -11,8 +11,8 @@
 
 
 
-{% block breadcrumb %}
-    <li><a href="{% url "content:list_validation" %}">{% trans "Validation" %}</a></li>
+{% block breadcrumb_base %}
+    <li><a href="{% url "content:list-validation" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
     <li>{% trans "Historique" %}</li>
 {% endblock %}
@@ -20,19 +20,27 @@
 
 
 {% block headline %}
-    {{ content.title }}
-{% endblock %}
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {{ content.title }}
+    </h1>
 
+    <h2 class="subtitle">
+        {% trans "Historique de validation" %}
+    </h2>
 
-{% block headline_sub %}
-    {% trans "Historique de validation" %}
+    {% if user.user in content.authors.all %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
+    {% else %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block content %}
-    {% include "tutorial/includes/tags_authors.part.html" %}
-
     {% if validations %}
         <table class="fullwidth">
             <thead>
@@ -60,7 +68,7 @@
                         </td>
                         <td>
                             {% captureas reservation_url %}
-                                {% url "content:reserve_validation" validation.pk %}
+                                {% url "content:reserve-validation" validation.pk %}
                             {% endcaptureas %}
                             {% include "misc/validation.part.html" %}
                         </td>

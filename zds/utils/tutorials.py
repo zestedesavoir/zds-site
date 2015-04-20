@@ -187,7 +187,7 @@ def export_tutorial_to_md(tutorial, sha=None):
         cpt_p = 1
         for part in parts:
             part['tutorial'] = tutorial
-            part['path'] = tutorial.get_repo_path()
+            part['path'] = tutorial.get_path()
             part['slug'] = slugify(part['title'])
             part['position_in_tutorial'] = cpt_p
             intro = open(
@@ -208,7 +208,7 @@ def export_tutorial_to_md(tutorial, sha=None):
             cpt_c = 1
             for chapter in part['chapters']:
                 chapter['part'] = part
-                chapter['path'] = tutorial.get_repo_path()
+                chapter['path'] = tutorial.get_path()
                 chapter['slug'] = slugify(chapter['title'])
                 chapter['type'] = 'BIG'
                 chapter['position_in_part'] = cpt_c
@@ -230,7 +230,7 @@ def export_tutorial_to_md(tutorial, sha=None):
                 for ext in chapter['extracts']:
                     ext['chapter'] = chapter
                     ext['position_in_chapter'] = cpt_e
-                    ext['path'] = tutorial.get_repo_path()
+                    ext['path'] = tutorial.get_path()
                     text = open(
                         os.path.join(
                             tutorial.get_prod_path(sha),

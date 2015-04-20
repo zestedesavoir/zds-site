@@ -11,7 +11,10 @@ def export_extract(extract):
     dct['object'] = 'extract'
     dct['slug'] = extract.slug
     dct['title'] = extract.title
-    dct['text'] = extract.get_path(True)
+
+    if extract.text:
+        dct['text'] = extract.get_path(True)
+
     return dct
 
 
@@ -25,8 +28,13 @@ def export_container(container):
     dct['object'] = "container"
     dct['slug'] = container.slug
     dct['title'] = container.title
-    dct['introduction'] = container.introduction
-    dct['conclusion'] = container.conclusion
+
+    if container.introduction:
+        dct['introduction'] = container.introduction
+
+    if container.conclusion:
+        dct['conclusion'] = container.conclusion
+
     dct['children'] = []
 
     if container.has_sub_containers():

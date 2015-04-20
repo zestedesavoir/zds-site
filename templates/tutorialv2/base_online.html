@@ -1,0 +1,38 @@
+{% extends "tutorialv2/base.html" %}
+{% load captureas %}
+{% load i18n %}
+
+
+{% block title_base %}
+    &bull; {{ verbose_type_name_plural|title }}
+{% endblock %}
+
+
+
+{% block canonical %}
+    {% if content.source and content.source != "" %}
+    	<link rel="canonical" href="{{ content.source }}">
+    {% endif %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+        <a
+            {% if content_type == "ARTICLE" %}
+                href="{% url "article:list" %}"
+            {% elif content_type == "TUTORIAL" %}
+                href="{% url "tutorial:list" %}"
+            {% endif %}
+            itemprop="url">
+            <span itemprop="title">{{ verbose_type_name_plural|title }}</span>
+        </a>
+    </li>
+{% endblock %}
+
+
+
+{% block article_schema %}
+    itemscope itemtype="http://schema.org/Article"
+{% endblock %}

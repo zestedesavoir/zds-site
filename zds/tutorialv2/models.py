@@ -102,8 +102,8 @@ class Container:
         return u'<Conteneur \'{}\'>'.format(self.title)
 
     def has_extracts(self):
-        """
-        Note : this function rely on the fact that the children can only be of one type.
+        """Note : this function rely on the fact that the children can only be of one type.
+
         :return: `True` if the container has extract as children, `False` otherwise.
         """
         if len(self.children) == 0:
@@ -301,21 +301,36 @@ class Container:
         return os.path.join(base, self.slug)
 
     def get_prod_path(self):
-        """Get the physical path to the public version of the container.
-        Note: this function rely on the fact that the top container is VersionedContainer.
+        """Get the physical path to the public version of the container. If the container have extracts, then it
+        returns the final HTML file.
 
         :return: physical path
         """
         base = ''
         if self.parent:
             base = self.parent.get_prod_path()
-        return os.path.join(base, self.slug)
+        path = os.path.join(base, self.slug)
+
+        if self.has_extracts():
+            path += '.html'
+
+        return path
 
     def get_absolute_url(self):
         """
         :return: url to access the container
         """
         return self.top_container().get_absolute_url() + self.get_path(relative=True) + '/'
+
+    def get_absolute_url_online(self):
+        base = ''
+
+        if self.parent:
+            base = self.parent.get_absolute_url_online()
+
+        base += self.slug + '/'
+
+        return base
 
     def get_edit_url(self):
         """
@@ -362,6 +377,22 @@ class Container:
         if self.conclusion:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
                             self.conclusion)
+
+    def get_introduction_online(self):
+        if self.introduction:
+            path = os.path.join(self.top_container().get_prod_path(), self.introduction)
+            if os.path.isfile(path):
+                return open(path, 'r').read()
+
+    def get_conclusion_online(self):
+        if self.conclusion:
+            path = os.path.join(self.top_container().get_prod_path(), self.conclusion)
+            if os.path.isfile(path):
+                return open(path, 'r').read()
+
+    def get_content_online(self):
+        if os.path.isfile(self.get_prod_path()):
+            return open(self.get_prod_path(), 'r').read()
 
     def repo_update(self, title, introduction, conclusion, commit_message='', do_commit=True):
         """Update the container information and commit them into the repository
@@ -734,9 +765,6 @@ class Extract:
         if title is None:
             raise PermissionDenied
 
-        if text is None:
-            raise PermissionDenied
-
         repo = self.container.top_container().repository
 
         if title != self.title:
@@ -757,14 +785,24 @@ class Extract:
         # edit text
         path = self.container.top_container().get_path()
 
-        self.text = self.get_path(relative=True)
-        f = open(os.path.join(path, self.text), "w")
-        f.write(text.encode('utf-8'))
-        f.close()
+        if text is not None:
+            self.text = self.get_path(relative=True)
+            f = open(os.path.join(path, self.text), "w")
+            f.write(text.encode('utf-8'))
+            f.close()
+
+            repo.index.add([self.text])
+
+        elif self.text:
+            if os.path.exists(os.path.join(path, self.text)):
+                repo.index.remove([self.text])
+                os.remove(os.path.join(path, self.text))
+
+            self.text = None
 
         # make it
         self.container.top_container().dump_json()
-        repo.index.add(['manifest.json', self.text])
+        repo.index.add(['manifest.json'])
 
         if commit_message == '':
             commit_message = _(u'Modification de l\'extrait « {} », situé dans le conteneur « {} »')\
@@ -831,6 +869,8 @@ class VersionedContent(Container):
     current_version = None
     slug_repository = ''
     repository = None
+
+    PUBLIC = False  # this variable is set to true when the VersionedContent is created from the public repository
 
     # Metadata from json :
     description = ''
@@ -904,9 +944,15 @@ class VersionedContent(Container):
 
     def get_absolute_url_online(self):
         """
-        :return: the url to access the tutorial when online
+        :return: the url to access the content when online
         """
-        return reverse('zds.tutorialv2.views.view_tutorial_online', args=[self.slug])
+        _reversed = ''
+
+        if self.is_article:
+            _reversed = 'article'
+        elif self.is_tutorial:
+            _reversed = 'tutorial'
+        return reverse(_reversed + ':view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
         """
@@ -933,12 +979,17 @@ class VersionedContent(Container):
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
     def get_prod_path(self):
-        """
-        Get the physical path to the public version of the content
+        """Get the physical path to the public version of the content. If it has extract (so, if its a mini-tutorial or
+        an article), return the HTML file.
 
         :return: physical path
         """
-        return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
+        path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
+
+        if self.has_extracts():
+            path = os.path.join(path, self.slug + '.html')
+
+        return path
 
     def get_list_of_chapters(self):
         """
@@ -1042,18 +1093,23 @@ class BadManifestError(Exception):
         self.message = reason
 
 
-def get_content_from_json(json, sha, slug_last_draft):
+def get_content_from_json(json, sha, slug_last_draft, public=False):
     """
     Transform the JSON formated data into `VersionedContent`
     :param json: JSON data from a `manifest.json` file
     :param sha: version
-    :return: a `VersionedContent` with all the information retrieved from JSON
+    :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
+    :return: a Public/VersionedContent with all the information retrieved from JSON
     """
     # TODO: should definitely be static
 
     if 'version' in json and json['version'] == 2:
         # create and fill the container
-        versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
+        if not public:
+            versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
+        else:
+            versioned = PublicContent(sha, 'TUTORIAL', json['title'], json['slug'])
+
         # fill metadata :
         if 'description' in json:
             versioned.description = json['description']
@@ -1081,7 +1137,12 @@ def get_content_from_json(json, sha, slug_last_draft):
             _type = "TUTORIAL"
         else:
             _type = "ARTICLE"
-        versioned = VersionedContent(sha, _type, slug_last_draft, slug_last_draft)
+
+        if not public:
+            versioned = VersionedContent(sha, _type, json['title'], slug_last_draft)
+        else:
+            versioned = PublicContent(sha, _type, json['title'], slug_last_draft)
+
         if 'description' in json:
             versioned.description = json['description']
         if "introduction" in json:
@@ -1099,7 +1160,7 @@ def fill_containers_from_json(json_sub, parent):
     :param json_sub: dictionary from "manifest.json"
     :param parent: the container to fill
     """
-    # TODO should be static function of `VersionedContent` ?!ge
+    # TODO should be static function of `VersionedContent` ?!
     if 'children' in json_sub:
         for child in json_sub['children']:
             if child['object'] == 'container':
@@ -1123,10 +1184,13 @@ def fill_containers_from_json(json_sub, parent):
                 except KeyError:
                     pass
                 new_extract = Extract(child['title'], slug)
-                new_extract.text = child['text']
-                parent.add_extract(new_extract, generate_slug=(slug == ''))
+
+                if 'text' in child:
+                    new_extract.text = child['text']
+
+                parent.add_extract(new_extract, generate_slug=(slug != ''))
             else:
-                raise BadManifestError(_('Type d\'objet inconnu :') + child['object'])
+                raise BadManifestError(_(u'Type d\'objet inconnu : {}').format(child['object']))
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
@@ -1174,6 +1238,25 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         db_object.save()
 
     return versioned_content
+
+
+class PublicContent(VersionedContent):
+    """This is the public version of a VersionedContent, created from public repository
+    """
+
+    def __init__(self, current_version, _type, title, slug):
+        """ This initialisation function avoid the loading of the Git repository
+
+        :param current_version: version of the content
+        :param _type: either "TUTORIAL" or "ARTICLE"
+        :param title: title of the content
+        :param slug: slug of the content
+        """
+
+        Container.__init__(self, title, slug)
+        self.current_version = current_version
+        self.type = _type
+        self.PUBLIC = True  # this is a public version
 
 
 def get_commit_author():
@@ -1356,12 +1439,13 @@ class PublishableContent(models.Model):
         """
         return self.type == 'TUTORIAL'
 
-    def load_version_or_404(self, sha=None, public=False):
+    def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
 
         :param sha: version
-        :param public: if `True`, use `sha_public` instead of `sha_draft` if `sha` is `None`
+        :param public: if set with the right object, return the public version
+        :type public: PublishedContent
         :raise Http404: if sha is not None and related version could not be found
         :return: the versioned content
         """
@@ -1370,17 +1454,21 @@ class PublishableContent(models.Model):
         except (BadObject, IOError):
             raise Http404
 
-    def load_version(self, sha=None, public=False):
+    def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
         .. attention::
             for practical reason, the returned object is filled with information from DB.
 
         :param sha: version
-        :param public: if `True`, use `sha_public` instead of `sha_draft` if `sha` is `None`
+        :param public: if set with the right object, return the public version
+        :type public: PublishedContent
         :raise BadObject: if sha is not None and related version could not be found
+        :raise IOError: if the path to the repository is wrong
+        :raise NotAPublicVersion: if the sha does not correspond to a public version
         :return: the versioned content
         """
+
         # load the good manifest.json
         if sha is None:
             if not public:
@@ -1388,17 +1476,33 @@ class PublishableContent(models.Model):
             else:
                 sha = self.sha_public
 
-        path = self.get_repo_path()
+        if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
+            path = public.get_prod_path()
+            slug = public.content_public_slug
 
-        if not os.path.isdir(path):
-            raise IOError(path)
+            if not os.path.isdir(path):
+                raise IOError(path)
 
-        repo = Repo(path)
-        data = get_blob(repo.commit(sha).tree, 'manifest.json')
-        json = json_reader.loads(data)
-        versioned = get_content_from_json(json, sha, self.slug)
+            if sha != public.sha_public:
+                raise NotAPublicVersion
+
+            manifest = open(os.path.join(path, 'manifest.json'), 'r')
+            json = json_reader.loads(manifest.read())
+            versioned = get_content_from_json(json, public.sha_public, slug, public=True)
+
+        else:  # draft version, use the repository (slower, but allows manipulation)
+            path = self.get_repo_path()
+            slug = self.slug
+
+            if not os.path.isdir(path):
+                raise IOError(path)
+
+            repo = Repo(path)
+            data = get_blob(repo.commit(sha).tree, 'manifest.json')
+            json = json_reader.loads(data)
+            versioned = get_content_from_json(json, sha, self.slug)
+
         self.insert_data_in_versioned(versioned)
-
         return versioned
 
     def insert_data_in_versioned(self, versioned):
@@ -1552,6 +1656,62 @@ class PublishableContent(models.Model):
             shutil.rmtree(self.get_prod_path())
 
 
+class NotAPublicVersion(Exception):
+    """Exception raised when a given version is not a public version as it should be"""
+
+    def __init__(self, *args, **kwargs):
+        super(NotAPublicVersion, self).__init__(self, *args, **kwargs)
+
+
+class PublishedContent(models.Model):
+    """A class that contains information on the published version of a content.
+
+    Used for quick url resolution, quick listing, and to know where the public version of the files are.
+
+    Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related("content")`` !!
+    """
+
+    # TODO: by playing with this class, it may solve most of the SEO problems !!
+
+    class Meta:
+        verbose_name = 'Contenu publié'
+        verbose_name_plural = 'Contenus publiés'
+
+    content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
+
+    content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
+    content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
+    content_pk = models.IntegerField('Pk du contenu publié', db_index=True)
+
+    publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
+    sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
+
+    def __unicode__(self):
+        return _('Version publique de "{}"').format(self.content.title)
+
+    def get_prod_path(self):
+        return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
+
+    def get_absolute_url_online(self):
+        """
+        :return: the URL of the published content
+        """
+        reversed_ = ''
+
+        if self.is_article():
+            reversed_ = 'article'
+        elif self.is_tutorial():
+            reversed_ = 'tutorial'
+
+        return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+
+    def is_article(self):
+        return self.content_type == "ARTICLE"
+
+    def is_tutorial(self):
+        return self.content_type == "TUTORIAL"
+
+
 class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent he just read.
@@ -1604,8 +1764,8 @@ class Validation(models.Model):
                                 verbose_name='Contenu proposé', db_index=True)
     version = models.CharField('Sha1 de la version',
                                blank=True, null=True, max_length=80, db_index=True)
-    date_proposition = models.DateTimeField('Date de proposition', db_index=True)
-    comment_authors = models.TextField('Commentaire de l\'auteur')
+    date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
+    comment_authors = models.TextField('Commentaire de l\'auteur', null=True, blank=True)
     validator = models.ForeignKey(User,
                                   verbose_name='Validateur',
                                   related_name='author_content_validations',
@@ -1622,7 +1782,7 @@ class Validation(models.Model):
         default='PENDING')
 
     def __unicode__(self):
-        return self.content.title
+        return _(u'Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending

@@ -1,11 +1,17 @@
 # coding: utf-8
 
+import shutil
+import os
+from datetime import datetime
 
 from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 
-from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract
+from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract, PublishedContent
 from zds import settings
 from zds.utils import get_current_user
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class TooDeepContainerError(ValueError):
@@ -218,3 +224,161 @@ def get_target_tagged_tree_for_container(movable_child, root):
                                        enabled and child != movable_child and child != root))
 
     return target_tagged_tree
+
+
+class FailureDuringPublication(Exception):
+    """Exception raised if something goes wrong during publication process
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FailureDuringPublication, self).__init__(*args, **kwargs)
+
+
+def publish_content(db_object, versioned, is_major_update=True):
+    """Publish a given content.
+
+    Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
+    of extracts.
+
+    :param db_object: Database representation of the content
+    :type db_object: PublishableContent
+    :param versioned: version of the content to publish
+    :type versioned: VersionedContent
+    :param is_major_update: if set to `True`, will update the publication date
+    :type is_major_update: bool
+    :raise FailureDuringPublication: if something goes wrong
+    :return: the published representation
+    :rtype: PublishedContent
+    """
+
+    # TODO: to avoid errors, some part of this function can be written in a recursive way !
+
+    try:
+        public_version = PublishedContent.objects.get(content=db_object)
+
+        # the content have been published in the past, so clean old files
+        old_path = public_version.get_prod_path()
+        shutil.rmtree(old_path)
+
+    except ObjectDoesNotExist:
+        public_version = PublishedContent()
+
+    # make the new public version
+    public_version.content_public_slug = versioned.slug
+    public_version.content_type = versioned.type
+    public_version.content_pk = db_object.pk
+    public_version.content = db_object
+    public_version.save()
+
+    # create directory(ies)
+    repo_path = public_version.get_prod_path()
+    os.makedirs(repo_path)
+
+    template = 'tutorialv2/includes/container_online_template.part.html'
+    # TODO: image stuff
+    # TODO: jsfidle
+
+    # write the files:
+    if versioned.has_extracts():  # it's an article or a mini-tutorial
+        parsed = render_to_string(template, {'container': versioned})
+        f = open(versioned.get_prod_path(), 'w')
+        f.write(parsed.encode('utf-8'))
+        f.close()
+
+        for extract in versioned.children:
+            extract.text = None
+
+        versioned.introduction = None
+        versioned.conclusion = None
+
+    else:  # it's another kind of tutorial
+
+        # we need to write introduction and conclusion in a separate file
+        if versioned.introduction:
+            f = open(os.path.join(repo_path, 'introduction.html'), 'w')
+            f.write(emarkdown(versioned.get_introduction()))
+            versioned.introduction = 'introduction.html'
+        if versioned.conclusion:
+            f = open(os.path.join(repo_path, 'conclusion.html'), 'w')
+            f.write(emarkdown(versioned.get_conclusion()))
+            versioned.conclusion = 'conclusion.html'
+
+        for child in versioned.children:
+            if child.has_extracts():  # it's a middle-size tutorial
+                parsed = render_to_string(template, {'container': child})
+                f = open(child.get_prod_path(), 'w')
+                f.write(parsed.encode('utf-8'))
+                f.close()
+
+                for extract in child.children:
+                    extract.text = None
+
+                child.introduction = None
+                child.conclusion = None
+
+            else:  # it's a big-tutorial
+                directory = child.get_prod_path()
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+
+                if child.introduction:
+                    path = os.path.join(child.get_path(relative=True), 'introduction.html')
+                    f = open(os.path.join(repo_path, path), 'w')
+                    f.write(emarkdown(child.get_introduction()))
+                    child.introduction = path
+                if child.conclusion:
+                    path = os.path.join(child.get_path(relative=True), 'conclusion.html')
+                    f = open(os.path.join(repo_path, path), 'w')
+                    f.write(emarkdown(child.get_conclusion()))
+                    child.conclusion = path
+
+                for chapter in child.children:
+                    parsed = render_to_string(template, {'container': chapter})
+                    f = open(chapter.get_prod_path(), 'w')
+                    f.write(parsed.encode('utf-8'))
+                    f.close()
+
+                    for extract in chapter.children:
+                        extract.text = None
+
+                    chapter.introduction = None
+                    chapter.conclusion = None
+
+    versioned.dump_json(os.path.join(repo_path, 'manifest.json'))
+
+    # save public version
+    if is_major_update:
+        public_version.publication_date = datetime.now()
+
+    public_version.sha_public = versioned.current_version
+    public_version.save()
+
+    return public_version
+
+
+def unpublish_content(db_object):
+    """Remove the given content from the public view
+
+    :param db_object: Database representation of the content
+    :type db_object: PublishableContent
+    :return; `True` if unpublished, `False otherwise`
+    """
+
+    try:
+        public_version = PublishedContent.objects.get(content=db_object)
+
+        # clean files
+        old_path = public_version.get_prod_path()
+
+        if os.path.exists(old_path):
+            shutil.rmtree(old_path)
+
+        # remove public_version:
+        public_version.delete()
+
+        return True
+
+    except (ObjectDoesNotExist, IOError):
+        pass
+
+    return False

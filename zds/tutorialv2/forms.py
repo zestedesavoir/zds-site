@@ -476,12 +476,27 @@ class AskValidationForm(forms.Form):
                 type='submit')
         )
 
+    def clean(self):
+        cleaned_data = super(AskValidationForm, self).clean()
 
-class ValidForm(forms.Form):
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
+
+
+class AcceptValidationForm(forms.Form):
+
+    validation = None
 
     text = forms.CharField(
         label='',
-        required=False,
+        required=True,
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Commentaire de publication.'),
@@ -506,29 +521,42 @@ class ValidForm(forms.Form):
         )
     )
 
-    version = forms.CharField(widget=forms.HiddenInput(), required=True)
-
     def __init__(self, *args, **kwargs):
-        super(ValidForm, self).__init__(*args, **kwargs)
+
+        self.validation = kwargs.pop('instance', None)
+
+        super(AcceptValidationForm, self).__init__(*args, **kwargs)
+
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.valid_tutorial')
+        self.helper.form_action = reverse('content:accept-validation', kwargs={'pk': self.validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
-            Field('version'),
             Field('is_major'),
-            StrictButton(_(u'Publier'), type='submit'),
-            Hidden('tutorial', '{{ content.pk }}')
+            StrictButton(_(u'Publier'), type='submit')
         )
 
+    def clean(self):
+        cleaned_data = super(AcceptValidationForm, self).clean()
 
-class RejectForm(forms.Form):
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
+
+
+class RejectValidationForm(forms.Form):
 
     text = forms.CharField(
         label='',
-        required=False,
+        required=True,
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Commentaire de rejet.'),
@@ -537,23 +565,80 @@ class RejectForm(forms.Form):
         )
     )
 
-    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+    def __init__(self, *args, **kwargs):
+
+        validation = kwargs.pop('instance', None)
+
+        super(RejectValidationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('content:reject-validation', kwargs={'pk': validation.pk})
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton(
+                    _(u'Rejeter'),
+                    type='submit'))
+        )
+
+    def clean(self):
+        cleaned_data = super(RejectValidationForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
+
+
+class RevokeValidationForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Pourquoi dépublier ce contenu ?'),
+                'rows': '6'
+            }
+        )
+    )
 
     def __init__(self, *args, **kwargs):
-        super(RejectForm, self).__init__(*args, **kwargs)
+        content = kwargs.pop('instance', None)
+
+        super(RevokeValidationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.reject_tutorial')
+        self.helper.form_action = reverse('content:revoke-validation', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('version'),
-            ButtonHolder(
-                StrictButton(
-                    _(u'Rejeter'),
-                    type='submit'),),
-            Hidden('tutorial', '{{ tutorial.pk }}')
+            StrictButton(
+                _(u'Dépublier'),
+                type='submit')
         )
+
+    def clean(self):
+        cleaned_data = super(RevokeValidationForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
 
 
 class JsFiddleActivationForm(forms.Form):

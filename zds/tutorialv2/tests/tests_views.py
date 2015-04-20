@@ -15,7 +15,7 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory
-from zds.tutorialv2.models import PublishableContent
+from zds.tutorialv2.models import PublishableContent, Validation, PublishedContent
 from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
@@ -1912,6 +1912,774 @@ class ContentTests(TestCase):
             })
         )
         self.assertEqual(200, result.status_code)
+
+    def test_validation_workflow(self):
+        """test the different case of validation"""
+
+        text_validation = u'Valide moi ce truc, s\'il te plait'
+        source = u'http://example.com'  # thanks the IANA on that one ;-)
+        different_source = u'http://example.org'
+        text_accept = u'C\'est de la m***, mais ok, j\'accepte'
+        text_reject = u'Je refuse ce truc, arbitrairement !'
+
+        # let's create a medium-size tutorial
+        midsize_tuto = PublishableContentFactory(type='TUTORIAL')
+
+        midsize_tuto.authors.add(self.user_author)
+        midsize_tuto.gallery = GalleryFactory()
+        midsize_tuto.licence = self.licence
+        midsize_tuto.save()
+
+        # populate with 2 chapters (1 extract each)
+        midsize_tuto_draft = midsize_tuto.load_version()
+        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        ExtractFactory(container=chapter1, db_object=midsize_tuto)
+        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        ExtractFactory(container=chapter2, db_object=midsize_tuto)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': midsize_tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        self.assertEqual(PublishableContent.objects.get(pk=midsize_tuto.pk).source, source)  # source is set
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertEqual(validation.comment_authors, text_validation)
+        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+        self.assertEqual(validation.status, 'PENDING')
+
+        # ensure that author cannot publish himself
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).last().status, 'PENDING')
+
+        # logout, then login with guest
+        self.client.logout()
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 302)  # no, public cannot access a tutorial in validation ...
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 403)  # ... Same for guest ...
+
+        # then try with staff
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('content:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}) +
+            '?version=' + validation.version,
+            follow=False)
+        self.assertEqual(result.status_code, 200)  # ... But staff can, obviously !
+
+        # reserve tuto:
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        # unreserve
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING')
+        self.assertEqual(validation.validator, None)
+
+        # re-reserve
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        # let's modify the tutorial and ask for a new validation :
+        ExtractFactory(container=chapter2, db_object=midsize_tuto)
+        midsize_tuto = PublishableContent.objects.get(pk=midsize_tuto.pk)
+        midsize_tuto_draft = midsize_tuto.load_version()
+
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': midsize_tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        # ... Therefore, a new Validation object is created
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+        self.assertEqual(validation.status, 'PENDING')
+        self.assertEqual(validation.validator, None)
+        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+
+        self.assertEqual(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation,
+                         midsize_tuto_draft.current_version)
+
+        self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
+
+        # re-re-reserve (!)
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        # ensure that author cannot publish himself
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).last().status, 'PENDING_V')
+
+        # reject it with staff !
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:reject-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_reject
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'REJECT')
+        self.assertEqual(validation.comment_validator, text_reject)
+
+        self.assertIsNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
+
+        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received a PM
+
+        # re-ask for validation
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': midsize_tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 2)
+
+        # a new object is created !
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+        self.assertEqual(validation.status, 'PENDING')
+        self.assertEqual(validation.validator, None)
+        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+
+        # accept
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_accept,
+                'is_major': True,
+                'source': different_source  # because ;)
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'ACCEPT')
+        self.assertEqual(validation.comment_validator, text_accept)
+
+        self.assertIsNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
+
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
+        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
+
+        self.assertEqual(PublishedContent.objects.filter(content=midsize_tuto).count(), 1)
+        published = PublishedContent.objects.filter(content=midsize_tuto).first()
+
+        self.assertEqual(published.content.source, different_source)
+        self.assertEqual(published.content_public_slug, midsize_tuto_draft.slug)
+        self.assertTrue(os.path.exists(published.get_prod_path()))
+        # ... another test cover the file creation and so all, lets skip this part
+
+        # ensure that author cannot revoke his own publication
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_reject,
+                'version': published.sha_public
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).last().status, 'ACCEPT')
+
+        # revoke publication with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_reject,
+                'version': published.sha_public
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING')
+
+        self.assertIsNotNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
+
+        self.assertEqual(PublishedContent.objects.filter(content=midsize_tuto).count(), 0)
+        self.assertFalse(os.path.exists(published.get_prod_path()))
+
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 3)
+        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
+
+    def test_public_access(self):
+        """Test that everybody have access to a content after its publication"""
+
+        text_validation = u'Valide moi ce truc, please !'
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+
+        # 1. Article:
+        article = PublishableContentFactory(type='ARTICLE')
+
+        article.authors.add(self.user_author)
+        article.gallery = GalleryFactory()
+        article.licence = self.licence
+        article.save()
+
+        # populate the article
+        article_draft = article.load_version()
+        ExtractFactory(container=article_draft, db_object=article)
+        ExtractFactory(container=article_draft, db_object=article)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=article).last()
+
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=article).first()
+        self.assertIsNotNone(published)
+
+        # test access to staff
+        result = self.client.get(reverse('article:view', kwargs={'pk': article.pk, 'slug': article_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        # test access to public
+        self.client.logout()
+        result = self.client.get(reverse('article:view', kwargs={'pk': article.pk, 'slug': article_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        # test access for guest user
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse('article:view', kwargs={'pk': article.pk, 'slug': article_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        # 2. middle-size tutorial (just to test the access to chapters)
+        midsize_tuto = PublishableContentFactory(type='TUTORIAL')
+
+        midsize_tuto.authors.add(self.user_author)
+        midsize_tuto.gallery = GalleryFactory()
+        midsize_tuto.licence = self.licence
+        midsize_tuto.save()
+
+        # populate the midsize_tuto
+        midsize_tuto_draft = midsize_tuto.load_version()
+        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto)
+        ExtractFactory(container=chapter1, db_object=midsize_tuto)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': midsize_tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=midsize_tuto).first()
+        self.assertIsNotNone(published)
+
+        # test access to staff
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': midsize_tuto.pk,
+                        'slug': midsize_tuto_draft.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        # test access to public
+        self.client.logout()
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': midsize_tuto.pk,
+                        'slug': midsize_tuto_draft.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        # test access for guest user
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': midsize_tuto.pk,
+                        'slug': midsize_tuto_draft.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        # 3. a big tutorial (just to test the access to parts and chapters)
+        bigtuto = PublishableContentFactory(type='TUTORIAL')
+
+        bigtuto.authors.add(self.user_author)
+        bigtuto.gallery = GalleryFactory()
+        bigtuto.licence = self.licence
+        bigtuto.save()
+
+        # populate the bigtuto
+        bigtuto_draft = bigtuto.load_version()
+        part1 = ContainerFactory(parent=bigtuto_draft, db_object=bigtuto)
+        chapter1 = ContainerFactory(parent=part1, db_object=bigtuto)
+        ExtractFactory(container=chapter1, db_object=bigtuto)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': bigtuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=bigtuto).last()
+
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=bigtuto).first()
+        self.assertIsNotNone(published)
+
+        # test access to staff
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': bigtuto.pk, 'slug': bigtuto_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'container_slug': part1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'parent_container_slug': part1.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        # test access to public
+        self.client.logout()
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': bigtuto.pk, 'slug': bigtuto_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'container_slug': part1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'parent_container_slug': part1.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        # test access for guest user
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': bigtuto.pk, 'slug': bigtuto_draft.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'container_slug': part1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'parent_container_slug': part1.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 200)
+
+        # just for the fun of it, lets then revoke publication
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:revoke-validation', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
+            {
+                'text': u'Pour le fun',
+                'version': bigtuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # now, let's get a whole bunch of good old fashioned 404 (and not 403 or 302 !!)
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': bigtuto.pk, 'slug': bigtuto_draft.slug}))
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'container_slug': part1.slug
+                    }))
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'parent_container_slug': part1.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 404)
+
+        # test access to public
+        self.client.logout()
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': bigtuto.pk, 'slug': bigtuto_draft.slug}))
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'container_slug': part1.slug
+                    }))
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'parent_container_slug': part1.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 404)
+
+        # test access for guest user
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse('tutorial:view', kwargs={'pk': bigtuto.pk, 'slug': bigtuto_draft.slug}))
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'container_slug': part1.slug
+                    }))
+        self.assertEqual(result.status_code, 404)
+
+        result = self.client.get(
+            reverse('tutorial:view-container',
+                    kwargs={
+                        'pk': bigtuto.pk,
+                        'slug': bigtuto_draft.slug,
+                        'parent_container_slug': part1.slug,
+                        'container_slug': chapter1.slug
+                    }))
+        self.assertEqual(result.status_code, 404)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

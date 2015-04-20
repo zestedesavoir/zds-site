@@ -1,10 +1,12 @@
 from django.views.generic import View
 
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, FormView
-from zds.tutorialv2.models import PublishableContent
+from django.utils.translation import ugettext as _
+
+from zds.tutorialv2.models import PublishableContent, PublishedContent
 
 
 class SingleContentViewMixin(object):
@@ -166,6 +168,91 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
 
         if self.sha != self.object.sha_draft:
             context["version"] = self.sha
+
+        return context
+
+
+class ContentTypeMixin(object):
+    """This class deals with the type of contents and fill context according to that"""
+
+    content_type = None
+
+    def get_context_data(self, **kwargs):
+        context = super(ContentTypeMixin, self).get_context_data(**kwargs)
+
+        v_type_name = _(u'contenu')
+        v_type_name_plural = _(u'contenus')
+
+        if self.content_type == 'ARTICLE':
+            v_type_name = _(u'article')
+            v_type_name_plural = _(u'articles')
+
+        if self.content_type == 'TUTORIAL':
+            v_type_name = _(u'tutoriel')
+            v_type_name_plural = _(u'tutoriels')
+
+        context['content_type'] = self.content_type
+        context['verbose_type_name'] = v_type_name
+        context['verbose_type_name_plural'] = v_type_name_plural
+
+        return context
+
+
+class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
+    """
+    This enhanced DetailView ensure,
+
+    - by rewriting `get()`, that:
+        * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
+        * `self.versioned_object` contains a PublicContent object
+        * self.public_content_object contains a PublishedContent object
+    - by surcharging `get_context_data()`, that
+        * context['content'] contains the
+        * context['can_edit'] is set
+        * context['public_object'] is set
+    """
+
+    model = PublishedContent
+
+    object = None
+    public_content_object = None
+    versioned_object = None
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.pop('pk', None)
+        slug = self.kwargs.pop('slug', '')
+
+        try:
+            obj = PublishedContent.objects\
+                .filter(content_pk=pk, content_public_slug=slug, content_type=self.content_type)\
+                .prefetch_related('content')\
+                .prefetch_related("content__authors")\
+                .prefetch_related("content__subcategory")\
+                .first()
+        except ObjectDoesNotExist:
+            raise Http404
+
+        if obj is None:
+            raise Http404
+
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        self.public_content_object = self.get_object()
+        self.object = self.public_content_object.content
+
+        self.versioned_object = self.object.load_version_or_404(sha=self.public_content_object.sha_public,
+                                                                public=self.public_content_object)
+
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
+
+        context['content'] = self.versioned_object
+        context['public_object'] = self.public_content_object
+        context['can_edit'] = self.request.user in self.object.authors.all()
 
         return context
 
