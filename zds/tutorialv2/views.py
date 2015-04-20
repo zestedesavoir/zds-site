@@ -7,7 +7,7 @@ from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
 from zds.forum.models import Forum
-from zds.tutorialv2.forms import BetaForm, MoveElementForm
+from zds.tutorialv2.forms import BetaForm, MoveElementForm, RevokeValidationForm
 from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get_target_tagged_tree
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 
@@ -32,7 +32,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -63,7 +63,7 @@ from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin
 from git import GitCommandError
-from zds.tutorialv2.utils import publish_content, FailureDuringPublication
+from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
 
 
 class RedirectContentSEO(RedirectView):
@@ -93,7 +93,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
         :return: list of articles
         """
         query_set = PublishableContent.objects.all().filter(authors__in=[self.request.user])
-        # TODO: prefetch !
+        # TODO: prefetch !tutorial.change_tutorial
         return query_set
 
     def get_context_data(self, **kwargs):
@@ -197,22 +197,21 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         form_js = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
 
-        form_ask_validation = AskValidationForm(content=self.versioned_object,
-                                                initial={
-                                                    "source": self.object.source,
-                                                    'version': self.sha
-                                                })
+        context["formAskValidation"] = AskValidationForm(
+            content=self.versioned_object, initial={"source": self.object.source, 'version': self.sha})
 
         if validation:
             context["formValid"] = AcceptValidationForm(instance=validation, initial={"source": self.object.source})
             context["formReject"] = RejectValidationForm(instance=validation)
 
+        if self.versioned_object.sha_public:
+            context['formRevokeValidation'] = RevokeValidationForm(
+                instance=self.versioned_object, initial={'version': self.versioned_object.sha_public})
+
         context["validation"] = validation
-        context["formAskValidation"] = form_ask_validation
         context["formJs"] = form_js
 
     def get_context_data(self, **kwargs):
-        """Show the given tutorial if exists."""
         context = super(DisplayContent, self).get_context_data(**kwargs)
 
         # check whether this tuto support js fiddle
@@ -241,6 +240,10 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
 
         # TODO: deal with messaging and stuff like this !!
+
+        if self.request.user.has_perm("tutorial.change_tutorial"):
+            context['formRevokeValidation'] = RevokeValidationForm(
+                instance=self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         return context
 
@@ -1328,7 +1331,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.status = "PENDING"
             validation.save()
             messages.info(request, _(u"Ce contenu n'est plus réservé"))
-            return redirect(reverse("content:list_validation"))
+            return redirect(reverse("content:list-validation"))
         else:
             validation.validator = request.user
             validation.date_reserve = datetime.now()
@@ -1373,9 +1376,16 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     def form_valid(self, form):
 
         user = self.request.user
-        validation = form.validation
+
+        try:
+            validation = Validation.objects.filter(pk=self.kwargs['pk']).last()
+        except ObjectDoesNotExist:
+            raise PermissionDenied
 
         if validation.validator != user:
+            raise PermissionDenied
+
+        if validation.status != 'PENDING_V':
             raise PermissionDenied
 
         # reject validation:
@@ -1494,6 +1504,69 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
+
+
+class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
+    """Unpublish a content and reverse the situation back to a pending validation"""
+
+    permissions = ["tutorial.change_tutorial"]
+    form_class = RevokeValidationForm
+
+    def get_form_kwargs(self):
+        kwargs = super(RevokeValidation, self).get_form_kwargs()
+        kwargs['instance'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+
+        versioned = self.versioned_object
+
+        if form.cleaned_data['version'] != self.object.sha_public:
+            raise PermissionDenied
+
+        try:
+            validation = Validation.objects.filter(
+                content=self.object,
+                version=self.object.sha_public).latest("date_proposition")
+        except ObjectDoesNotExist:
+            raise PermissionDenied
+
+        unpublish_content(self.object)
+
+        validation.status = "PENDING"
+        validation.date_validation = None
+        validation.save()
+
+        self.object.sha_public = None
+        self.object.sha_validation = validation.version
+        self.object.pubdate = None
+        self.object.save()
+
+        # send PM
+        msg = render_to_string(
+            'tutorialv2/messages/validation_revoke.msg.html',
+            {
+                'content': versioned,
+                'url': versioned.get_absolute_url() + '?version=' + validation.version,
+                'admin': self.request.user,
+                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            validation.content.authors.all(),
+            _(u"Dépublication de « {} »").format(validation.content.title),
+            _(u"Désolé ..."),
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.success(self.request, _(u"Le tutoriel a bien été dépublié."))
+        self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
+
+        return super(RevokeValidation, self).form_valid(form)
 
 
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):

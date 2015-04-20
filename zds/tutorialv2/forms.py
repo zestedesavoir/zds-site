@@ -476,6 +476,19 @@ class AskValidationForm(forms.Form):
                 type='submit')
         )
 
+    def clean(self):
+        cleaned_data = super(AskValidationForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
+
 
 class AcceptValidationForm(forms.Form):
 
@@ -483,7 +496,7 @@ class AcceptValidationForm(forms.Form):
 
     text = forms.CharField(
         label='',
-        required=False,
+        required=True,
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Commentaire de publication.'),
@@ -543,7 +556,7 @@ class RejectValidationForm(forms.Form):
 
     text = forms.CharField(
         label='',
-        required=False,
+        required=True,
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Commentaire de rejet.'),
@@ -552,15 +565,13 @@ class RejectValidationForm(forms.Form):
         )
     )
 
-    validation = None
-
     def __init__(self, *args, **kwargs):
 
-        self.validation = kwargs.pop('instance', None)
+        validation = kwargs.pop('instance', None)
 
         super(RejectValidationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:reject-validation', kwargs={'pk': self.validation.pk})
+        self.helper.form_action = reverse('content:reject-validation', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -570,6 +581,64 @@ class RejectValidationForm(forms.Form):
                     _(u'Rejeter'),
                     type='submit'))
         )
+
+    def clean(self):
+        cleaned_data = super(RejectValidationForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
+
+
+class RevokeValidationForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Pourquoi dépublier ce contenu ?'),
+                'rows': '6'
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        content = kwargs.pop('instance', None)
+
+        super(RevokeValidationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('content:revoke-validation', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            Field('version'),
+            StrictButton(
+                _(u'Dépublier'),
+                type='submit')
+        )
+
+    def clean(self):
+        cleaned_data = super(RevokeValidationForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez écrire une réponse !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
 
 
 class JsFiddleActivationForm(forms.Form):

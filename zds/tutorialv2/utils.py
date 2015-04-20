@@ -354,3 +354,31 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.save()
 
     return public_version
+
+
+def unpublish_content(db_object):
+    """Remove the given content from the public view
+
+    :param db_object: Database representation of the content
+    :type db_object: PublishableContent
+    :return; `True` if unpublished, `False otherwise`
+    """
+
+    try:
+        public_version = PublishedContent.objects.get(content=db_object)
+
+        # clean files
+        old_path = public_version.get_prod_path()
+
+        if os.path.exists(old_path):
+            shutil.rmtree(old_path)
+
+        # remove public_version:
+        public_version.delete()
+
+        return True
+
+    except (ObjectDoesNotExist, IOError):
+        pass
+
+    return False

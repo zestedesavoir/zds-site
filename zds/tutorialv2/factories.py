@@ -10,14 +10,14 @@ from zds.tutorialv2.models import PublishableContent, Validation, ContentReactio
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 
-text_content = u'Ceci est un texte bidon'
+text_content = u'Ceci est un texte bidon, **avec markown**'
 
 
 class PublishableContentFactory(factory.DjangoModelFactory):
     FACTORY_FOR = PublishableContent
 
-    title = factory.Sequence(lambda n: 'Mon Tutoriel No{0}'.format(n))
-    description = factory.Sequence(lambda n: 'Description du Tutoriel No{0}'.format(n))
+    title = factory.Sequence(lambda n: 'Mon contenu No{0}'.format(n))
+    description = factory.Sequence(lambda n: 'Description du contenu No{0}'.format(n))
     type = 'TUTORIAL'
     creation_date = datetime.now()
 

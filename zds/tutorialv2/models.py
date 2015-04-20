@@ -765,9 +765,6 @@ class Extract:
         if title is None:
             raise PermissionDenied
 
-        if text is None:
-            raise PermissionDenied
-
         repo = self.container.top_container().repository
 
         if title != self.title:
@@ -788,14 +785,24 @@ class Extract:
         # edit text
         path = self.container.top_container().get_path()
 
-        self.text = self.get_path(relative=True)
-        f = open(os.path.join(path, self.text), "w")
-        f.write(text.encode('utf-8'))
-        f.close()
+        if text is not None:
+            self.text = self.get_path(relative=True)
+            f = open(os.path.join(path, self.text), "w")
+            f.write(text.encode('utf-8'))
+            f.close()
+
+            repo.index.add([self.text])
+
+        elif self.text:
+            if os.path.exists(os.path.join(path, self.text)):
+                repo.index.remove([self.text])
+                os.remove(os.path.join(path, self.text))
+
+            self.text = None
 
         # make it
         self.container.top_container().dump_json()
-        repo.index.add(['manifest.json', self.text])
+        repo.index.add(['manifest.json'])
 
         if commit_message == '':
             commit_message = _(u'Modification de l\'extrait « {} », situé dans le conteneur « {} »')\

@@ -232,6 +232,9 @@ class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
         except ObjectDoesNotExist:
             raise Http404
 
+        if obj is None:
+            raise Http404
+
         return obj
 
     def get(self, request, *args, **kwargs):

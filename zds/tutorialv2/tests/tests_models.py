@@ -274,12 +274,15 @@ class ContentTests(TestCase):
         self.assertIsNotNone(new_part.introduction)
         self.assertIsNotNone(new_part.conclusion)
 
-    def extract_is_none(self):
+    def test_extract_is_none(self):
         """Test the case of a null extract"""
 
-        versioned = self.tuto.load_version()
+        article = PublishableContentFactory(type="ARTICLE")
+        versioned = article.load_version()
+
         given_title = u'Peu importe, en fait, ça compte peu'
         some_text = u'Disparaitra aussi vite que possible'
+
         # add a new extract with `None` for text
         version = versioned.repo_add_extract(given_title, None)
 
@@ -288,7 +291,7 @@ class ContentTests(TestCase):
         self.assertIsNone(new_extract.text)
 
         # it remains when loading the manifest !
-        versioned2 = self.tuto.load_version(sha=version)
+        versioned2 = article.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].text)
 
@@ -296,7 +299,7 @@ class ContentTests(TestCase):
         self.assertIsNone(new_extract.text)
 
         # it remains
-        versioned2 = self.tuto.load_version(sha=version)
+        versioned2 = article.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].text)
 
@@ -305,7 +308,7 @@ class ContentTests(TestCase):
         self.assertEqual(some_text, new_extract.get_text())
 
         # now it change
-        versioned2 = self.tuto.load_version(sha=version)
+        versioned2 = article.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNotNone(versioned.children[-1].text)
 
@@ -314,7 +317,7 @@ class ContentTests(TestCase):
         self.assertIsNone(new_extract.text)
 
         # it has changed
-        versioned2 = self.tuto.load_version(sha=version)
+        versioned2 = article.load_version(sha=version)
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].text)
 

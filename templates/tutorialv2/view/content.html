@@ -322,18 +322,12 @@
 
                 {% if content.is_public %}
                     <li>
-                        <a href="#unpublish" class="ico-after open-modal cross blue">{% trans "Dépublier" %}</a>
-                        <form action="{% url "zds.tutorial.views.invalid_tutorial" content.pk %}" method="post" class="modal modal-small" id="unpublish">
-                        	{% csrf_token %}
-                            <p>
-                                {% blocktrans with tutorial_title=tutorial.title %}
-                                    Êtes-vous certains de vouloir <strong>dépublier</strong> le tutoriel "<em>{{ tutorial_title }}</em>"
-                                {% endblocktrans %}
-                            </p>
-                            <button type="submit">
-                                {% trans "Confirmer" %}
-                            </button>
-                        </form>
+                        <a href="#unpublish" class="ico-after open-modal cross blue">
+                            {% trans "Dépublier" %}
+                        </a>
+                        <div class="modal modal-big" id="unpublish">
+                            {% crispy formRevokeValidation %}
+                        </div>
                     </li>
                 {% endif %}
 
