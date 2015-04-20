@@ -31,6 +31,8 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 class ContentTests(TestCase):
 
     def setUp(self):
+        self.staff = StaffProfileFactory().user
+
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
@@ -2681,7 +2683,47 @@ class ContentTests(TestCase):
                     }))
         self.assertEqual(result.status_code, 404)
 
+    def test_js_fiddle_activation(self):
+
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('content:activate-jsfiddle'),
+            {
+                "pk": self.tuto.pk,
+                "js_support": True
+            }, follow=True)
+        self.assertEqual(result.status_code, 200)
+        updated = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertTrue(updated.js_support)
+        result = self.client.post(
+            reverse('content:activate-jsfiddle'),
+            {
+                "pk": self.tuto.pk,
+                "js_support": False
+            }, follow=True)
+        self.assertEqual(result.status_code, 200)
+        updated = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertFalse(updated.js_support)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:activate-jsfiddle'),
+            {
+                "pk": self.tuto.pk,
+                "js_support": True
+            })
+        self.assertEqual(result.status_code, 403)
+
+
     def tearDown(self):
+
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
         if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
