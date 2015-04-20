@@ -32,7 +32,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -1377,9 +1377,9 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
         user = self.request.user
 
-        try:
-            validation = Validation.objects.filter(pk=self.kwargs['pk']).last()
-        except ObjectDoesNotExist:
+        validation = Validation.objects.filter(pk=self.kwargs['pk']).last()
+
+        if not validation:
             raise PermissionDenied
 
         if validation.validator != user:
@@ -1439,6 +1439,9 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
         user = self.request.user
         validation = form.validation
+
+        if not validation:
+            raise PermissionDenied
 
         if validation.validator != user:
             raise PermissionDenied
@@ -1524,11 +1527,11 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         if form.cleaned_data['version'] != self.object.sha_public:
             raise PermissionDenied
 
-        try:
-            validation = Validation.objects.filter(
-                content=self.object,
-                version=self.object.sha_public).latest("date_proposition")
-        except ObjectDoesNotExist:
+        validation = Validation.objects.filter(
+            content=self.object,
+            version=self.object.sha_public).latest("date_proposition")
+
+        if not validation:
             raise PermissionDenied
 
         unpublish_content(self.object)

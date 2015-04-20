@@ -1960,7 +1960,7 @@ class ContentTests(TestCase):
 
         self.assertEqual(PublishableContent.objects.get(pk=midsize_tuto.pk).source, source)  # source is set
 
-        validation = Validation.objects.get(content=midsize_tuto)
+        validation = Validation.objects.filter(content=midsize_tuto).last()
         self.assertIsNotNone(validation)
 
         self.assertEqual(validation.comment_authors, text_validation)
@@ -2032,7 +2032,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.get(content=midsize_tuto)
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, self.user_staff)
 
@@ -2045,7 +2045,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.get(content=midsize_tuto)
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING')
         self.assertEqual(validation.validator, None)
 
@@ -2058,7 +2058,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.get(content=midsize_tuto)
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, self.user_staff)
 
@@ -2078,8 +2078,8 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
 
-        # ... Therefore, the validation object is in pending status again
-        validation = Validation.objects.get(content=midsize_tuto)
+        # ... Therefore, a new Validation object is created
+        validation = Validation.objects.filter(content=midsize_tuto).last()
         self.assertEqual(validation.status, 'PENDING')
         self.assertEqual(validation.validator, None)
         self.assertEqual(validation.version, midsize_tuto_draft.current_version)
@@ -2098,7 +2098,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.get(content=midsize_tuto)
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, self.user_staff)
 
@@ -2136,7 +2136,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.get(content=midsize_tuto)
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'REJECT')
         self.assertEqual(validation.comment_validator, text_reject)
 
@@ -2170,7 +2170,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, self.user_staff)
         self.assertEqual(validation.version, midsize_tuto_draft.current_version)
@@ -2186,7 +2186,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'ACCEPT')
         self.assertEqual(validation.comment_validator, text_accept)
 
@@ -2236,7 +2236,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING')
 
         self.assertIsNotNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
