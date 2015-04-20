@@ -960,6 +960,9 @@ class PrivateTopicEditTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
+        self.topic1.title = 'super title'
+        self.topic1.subtitle = 'super subtitle'
+        self.topic1.save()
 
         # get
         response = self.client.get(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), follow=True)
@@ -981,8 +984,8 @@ class PrivateTopicEditTest(TestCase):
             '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
-        self.assertEqual('Mon Sujet No1', topic.title)
-        self.assertEqual('Sous Titre du sujet No1', topic.subtitle)
+        self.assertEqual('super title', topic.title)
+        self.assertEqual('super subtitle', topic.subtitle)
 
     def test_success_edit_topic(self):
         self.assertTrue(
