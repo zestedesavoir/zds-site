@@ -2721,7 +2721,6 @@ class ContentTests(TestCase):
             })
         self.assertEqual(result.status_code, 403)
 
-
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
