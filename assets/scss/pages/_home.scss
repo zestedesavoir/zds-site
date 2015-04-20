@@ -27,15 +27,9 @@ $content-width: 1145px;
         margin: 0 auto;
     }
 
-    $gap: 20px;
     .home-row {
         display: flex;
-        margin: 0 -($gap/2);
-
-        & > section {
-            flex: 1;
-            margin: 0 $gap/2;
-        }
+        margin-bottom: 10px;
     }
 
     .home-header {
@@ -301,6 +295,16 @@ $content-width: 1145px;
 
 @media only screen and #{$media-wide} {
     .home {
+        $gap: 2%;
+        .home-row {
+            margin-right: -($gap/2);
+            margin-left: -($gap/2);
+
+            & > section {
+                margin: 0 $gap/2;
+                width: 50%-$gap;
+            }
+        }
         .home-description {
             .column {
                 h2 {
