@@ -302,8 +302,8 @@ $content-width: 1145px;
 
             & > section {
                 margin: 0 $gap/2;
-		flex: 1;
-		min-width: 300px; // must be specified to have the elements correctely sized
+                flex: 1;
+                min-width: 300px; // must be specified to have the elements correctely sized
             }
         }
         .home-description {
