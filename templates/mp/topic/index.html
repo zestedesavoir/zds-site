@@ -113,6 +113,12 @@
                         <button type="submit">{% trans "Ajouter" %}</button>
                     </form>
                 </li>
+
+                <li>
+                    <a href="{% url "mp-edit-topic" topic.pk topic.slug %}" class="ico-after edit blue">
+                        {% trans "Éditer la conversation" %}
+                    </a>
+                </li>
             {% endif %}
 
             <li>

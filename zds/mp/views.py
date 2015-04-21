@@ -26,7 +26,7 @@ from zds.member.models import Profile
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
-from .forms import PrivateTopicForm, PrivatePostForm
+from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
 
@@ -125,6 +125,26 @@ class PrivateTopicNew(CreateView):
                           False)
 
         return redirect(p_topic.get_absolute_url())
+
+
+class PrivateTopicEdit(UpdateView):
+    """ Update mp informations """
+
+    model = PrivateTopic
+    template_name = "mp/topic/edit.html"
+    form_class = PrivateTopicEditForm
+    pk_url_kwarg = "pk"
+    context_object_name = "topic"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PrivateTopicEdit, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        topic = super(PrivateTopicEdit, self).get_object(queryset)
+        if topic is not None and not topic.author == self.request.user:
+            raise PermissionDenied
+        return topic
 
 
 class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
