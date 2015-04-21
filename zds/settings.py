@@ -369,7 +369,7 @@ ZDS_APP = {
                             u"la communauté.",
         'association': {
             'name': u"Zeste de Savoir",
-            'fee': u"30 €",
+            'fee': u"20 €",
             'email': u"association@zestedesavoir.com",
             'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
         },
