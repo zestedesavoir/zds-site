@@ -85,8 +85,6 @@ after_success:
     COMMIT_MSG=`git rev-list --format=%B --max-count=1 $TRAVIS_COMMIT`
     if [[ "$TEST_APP" == *"front"* ]] && [[ "$TRAVIS_PULL_REQUEST" == false ]] && [[ ! -z "$TRAVIS_TAG" ]] && [[ ! "$TRAVIS_TAG" == *"-build" ]]
     then
-      echo "Pushing front to GitHub"
-
       # Adding GitHub OAuth token to login
       echo "machine github.com login $GITHUB_TOKEN password x-oauth-basic" > ~/.netrc
       git config --global url."https://".insteadOf git://
@@ -94,16 +92,7 @@ after_success:
       git config --global user.email "zestedesavoir@gmail.com"
       git config --global push.default simple
 
-      # Detaching from head
-      git checkout --detach
-
-      # Adding dist/ and commiting
-      git add --force dist/
-      git commit -m "Automatic front build"
-
-      # Creating tag and pushing
-      TAG_NAME="$TRAVIS_TAG-build"
-      git tag -a $TAG_NAME -m "$TRAVIS_TAG with builded front files"
-      git push origin $TAG_NAME
+      # Run script
+      ./scripts/push_front.sh
     fi
 
