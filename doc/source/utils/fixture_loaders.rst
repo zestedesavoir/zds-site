@@ -28,6 +28,8 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
     - Anonymous/anonymous : le compte d'anonymisation
     - External/external: le compte pour accueillir les cours externes des auteurs ne voulant pas devenir membre ou quittant le site
 
+De ce fait, le moyen le plus simple de charger l'ensemble des données de base est ``python manage.py loaddata fixtures/*.yaml``
+
 Les données complexes voire les scénarios
 -----------------------------------------
 
