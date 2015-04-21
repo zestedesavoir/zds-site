@@ -2,6 +2,15 @@
 Installation du backend sous Windows
 ====================================
 
+-----------
+
+.. Attention::
+
+    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne, ou non, ou partiellement. Les tests unitaires peuvent aussi fonctionner, ou pas, ou partiellement... Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des dev' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_.
+
+-----------
+
+
 Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
