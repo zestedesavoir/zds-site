@@ -1097,7 +1097,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         topic = self.object.beta_topic
         topic.tags.clear()
         for tag in all_tags:
-            topic.tags.add(tags)
+            topic.tags.add(tag)
         topic.save()
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
         return super(ManageBetaContent, self).form_valid(form)
