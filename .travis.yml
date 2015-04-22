@@ -7,7 +7,8 @@ python:
   - 2.7
 
 env:
-  - TEST_APP="-e back_mysql"
+  - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages"
+  - TEST_APP="-e back_mysql_tuto -- zds.article zds.tutorial zds.tutorialv2"
   - TEST_APP="-e front"
 
 notifications:
