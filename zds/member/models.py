@@ -97,7 +97,7 @@ class Profile(models.Model):
 
     objects = ProfileManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def is_private(self):
@@ -338,7 +338,7 @@ class TokenRegister(models.Model):
         """
         return reverse('zds.member.views.active_account') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0} - {1}".format(self.user.username, self.date_end)
 
 

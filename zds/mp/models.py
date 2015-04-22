@@ -29,7 +29,7 @@ class PrivateTopic(models.Model):
                                      verbose_name=u'Dernier message')
     pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivateTopic model.
 
@@ -186,7 +186,7 @@ class PrivatePost(models.Model):
     update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
     position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivatePost model.
 
@@ -223,7 +223,7 @@ class PrivateTopicRead(models.Model):
     privatepost = models.ForeignKey(PrivatePost, db_index=True)
     user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivateTopicRead model.
 

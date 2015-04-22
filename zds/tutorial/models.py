@@ -117,7 +117,7 @@ class Tutorial(models.Model):
 
     objects = TutorialManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_phy_slug(self):
@@ -483,7 +483,7 @@ class Note(Comment):
 
     tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a post."""
         return u'<Tutorial pour "{0}", #{1}>'.format(self.tutorial, self.pk)
 
@@ -512,7 +512,7 @@ class TutorialRead(models.Model):
     note = models.ForeignKey(Note, db_index=True)
     user = models.ForeignKey(User, related_name='tuto_notes_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
                                                            self.user,
                                                            self.note.pk)
@@ -575,7 +575,7 @@ class Part(models.Model):
         self.slug = slugify(self.title)
         super(Part, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Partie pour {0}, {1}>' \
             .format(self.tutorial.title, self.position_in_tutorial)
 
@@ -742,7 +742,7 @@ class Chapter(models.Model):
         self.slug = slugify(self.title)
         super(Chapter, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.tutorial:
             return u'<minituto \'{0}\'>'.format(self.tutorial.title)
         elif self.part:
@@ -971,7 +971,7 @@ class Extract(models.Model):
         null=True,
         max_length=200)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<extrait \'{0}\'>'.format(self.title)
 
     def get_absolute_url(self):
@@ -1128,7 +1128,7 @@ class Validation(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.tutorial.title
 
     def is_pending(self):

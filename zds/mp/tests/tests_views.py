@@ -970,7 +970,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + urllib.request.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
 
         # post
         response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
@@ -981,7 +981,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('zds.member.views.login_view') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + urllib.request.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertEqual('super title', topic.title)

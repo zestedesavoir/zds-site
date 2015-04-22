@@ -19,7 +19,7 @@ class GalleryListViewTest(TestCase):
         response = self.client.get(reverse('gallery-list'), follow=True)
         self.assertRedirects(response,
                              reverse('zds.member.views.login_view') +
-                             '?next=' + urllib.request.quote(reverse('gallery_list'), ''))
+                             '?next=' + urllib.request.quote(reverse('gallery-list'), ''))
 
     def test_list_galeries_belong_to_member(self):
         profile = ProfileFactory()
@@ -51,7 +51,7 @@ class GalleryDetailViewTest(TestCase):
                                            args=['89', 'test-gallery']), follow=True)
         self.assertRedirects(response,
                              reverse('zds.member.views.login_view') +
-                             '?next=' + urllib.request.quote(reverse('gallery_details',
+                             '?next=' + urllib.request.quote(reverse('gallery-details',
                                                                      args=['89', 'test-gallery']), ''))
 
     def test_fail_gallery_no_exist(self):
