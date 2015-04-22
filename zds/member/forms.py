@@ -207,7 +207,8 @@ class MiniProfileForm(forms.Form):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre biographie au format Markdown.')
+                'placeholder': _(u'Votre biographie au format Markdown.'),
+                'class': 'md-editor'
             }
         )
     )
