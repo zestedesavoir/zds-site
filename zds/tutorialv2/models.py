@@ -1267,7 +1267,10 @@ def get_commit_author():
 
     if user:
         aut_user = str(user.pk)
-        aut_email = str(user.email)
+        aut_email = None
+
+        if user.email:
+            aut_email = user.email
 
     else:
         aut_user = ZDS_APP['member']['bot_account']

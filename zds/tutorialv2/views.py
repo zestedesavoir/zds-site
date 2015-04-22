@@ -983,7 +983,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        super(ManageBetaContent, self).dispatch(*args, **kwargs)
+        return super(ManageBetaContent, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         # check version:
@@ -997,6 +997,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
         # topic of the beta version:
         topic = self.object.beta_topic
+
         # perform actions:
         if self.action == 'inactive':
             self.object.sha_beta = None
@@ -1008,6 +1009,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
         elif self.action == 'set':
             already_in_beta = self.object.in_beta()
+            all_tags = []
+
             if not already_in_beta or self.object.sha_beta != sha_beta:
                 self.object.sha_beta = sha_beta
                 self.versioned_object.in_beta = True
@@ -1032,7 +1035,6 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     existing_tags = Tag.objects.filter(title__in=names).all()
                     existing_tags_names = [tag.title for tag in existing_tags]
                     unexisting_tags = list(set(names) - set(existing_tags_names))
-                    all_tags = []
                     for tag in unexisting_tags:
                         new_tag = Tag()
                         new_tag.title = tag[:20]
@@ -1093,16 +1095,21 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         )
                     send_post(topic, msg_post)
 
+            # finally set the tags on the topic
+            if topic:
+                topic.tags.clear()
+                for tag in all_tags:
+                    topic.tags.add(tag)
+                topic.save()
+
         self.object.save()
-        topic = self.object.beta_topic
-        topic.tags.clear()
-        for tag in all_tags:
-            topic.tags.add(tag)
-        topic.save()
+
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
+
         if self.object.is_beta(sha_beta):
             self.success_url = self.versioned_object.get_absolute_url_beta()
-        return redirect(self.success_url)
+
+        return super(ManageBetaContent, self).form_valid(form)
 
 
 class ListOnlineContents(ContentTypeMixin, ListView):
