@@ -1008,9 +1008,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
         elif self.action == 'set':
             already_in_beta = self.object.in_beta()
-            if already_in_beta and self.object.sha_beta == sha_beta:
-                pass  # no need to perform additional actions
-            else:
+            if not already_in_beta or self.object.sha_beta != sha_beta:
                 self.object.sha_beta = sha_beta
                 self.versioned_object.in_beta = True
                 self.versioned_object.sha_beta = sha_beta
@@ -1032,8 +1030,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     categories = self.object.subcategory.all()
                     names = [smart_text(category.title).lower() for category in categories]
                     existing_tags = Tag.objects.filter(title__in=names).all()
-                    existing_tags_names =[tag.title for tag in existing_tags]
-                    unexisting_tags = list(set(names) - set(existing_tags_names) )
+                    existing_tags_names = [tag.title for tag in existing_tags]
+                    unexisting_tags = list(set(names) - set(existing_tags_names))
                     all_tags = []
                     for tag in unexisting_tags:
                         new_tag = Tag()
@@ -1048,7 +1046,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                  subtitle=u"{}".format(beta_version.description),
                                  text=msg,
                                  related_publishable_content=self.object)
-
+                    topic = self.object.beta_topic
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
                         'tutorialv2/messages/beta_activate_pm.msg.html',
@@ -1067,8 +1065,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     categories = self.object.subcategory.all()
                     names = [smart_text(category.title).lower() for category in categories]
                     existing_tags = Tag.objects.filter(title__in=names).all()
-                    existing_tags_names =[tag.title for tag in existing_tags]
-                    unexisting_tags = list(set(names) - set(existing_tags_names) )
+                    existing_tags_names = [tag.title for tag in existing_tags]
+                    unexisting_tags = list(set(names) - set(existing_tags_names))
                     all_tags = []
                     for tag in unexisting_tags:
                         new_tag = Tag()
