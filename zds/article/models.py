@@ -93,7 +93,7 @@ class Article(models.Model):
 
     objects = ArticleManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def delete_entity_and_tree(self):
@@ -187,7 +187,7 @@ class Article(models.Model):
         dct = export_article(self)
         data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
-        json_data.write(data.encode('utf-8'))
+        json_data.write(data)
         json_data.close()
 
     def get_text(self):
@@ -196,7 +196,7 @@ class Article(models.Model):
         txt_contenu = txt.read()
         txt.close()
 
-        return txt_contenu.decode('utf-8')
+        return txt_contenu
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
@@ -340,7 +340,7 @@ class Reaction(Comment):
     """A reaction article written by an user."""
     article = models.ForeignKey(Article, verbose_name='Article', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a post."""
         return u'<Article pour "{0}", #{1}>'.format(self.article, self.pk)
 
@@ -369,7 +369,7 @@ class ArticleRead(models.Model):
     reaction = models.ForeignKey(Reaction, db_index=True)
     user = models.ForeignKey(User, related_name='reactions_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Article "{0}" lu par {1}, #{2}>'.format(self.article,
                                                           self.user,
                                                           self.reaction.pk)
@@ -427,7 +427,7 @@ class Validation(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.article.title
 
     def is_pending(self):

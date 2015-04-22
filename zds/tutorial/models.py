@@ -117,7 +117,7 @@ class Tutorial(models.Model):
 
     objects = TutorialManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_phy_slug(self):
@@ -293,7 +293,7 @@ class Tutorial(models.Model):
         dct = export_tutorial(self)
         data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
         json_data = open(man_path, "w")
-        json_data.write(data.encode('utf-8'))
+        json_data.write(data)
         json_data.close()
 
     def get_introduction(self, sha=None):
@@ -321,7 +321,7 @@ class Tutorial(models.Model):
             intro_contenu = intro.read()
             intro.close()
 
-            return intro_contenu.decode('utf-8')
+            return intro_contenu
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -348,7 +348,7 @@ class Tutorial(models.Model):
             conclu_contenu = conclu.read()
             conclu.close()
 
-            return conclu_contenu.decode('utf-8')
+            return conclu_contenu
 
     def delete_entity_and_tree(self):
         """deletes the entity and its filesystem counterpart"""
@@ -483,7 +483,7 @@ class Note(Comment):
 
     tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a post."""
         return u'<Tutorial pour "{0}", #{1}>'.format(self.tutorial, self.pk)
 
@@ -512,7 +512,7 @@ class TutorialRead(models.Model):
     note = models.ForeignKey(Note, db_index=True)
     user = models.ForeignKey(User, related_name='tuto_notes_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.tutorial,
                                                            self.user,
                                                            self.note.pk)
@@ -575,7 +575,7 @@ class Part(models.Model):
         self.slug = slugify(self.title)
         super(Part, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Partie pour {0}, {1}>' \
             .format(self.tutorial.title, self.position_in_tutorial)
 
@@ -650,7 +650,7 @@ class Part(models.Model):
         intro_contenu = intro.read()
         intro.close()
 
-        return intro_contenu.decode('utf-8')
+        return intro_contenu
 
     def get_conclusion(self, sha=None):
 
@@ -684,7 +684,7 @@ class Part(models.Model):
         conclu_contenu = conclu.read()
         conclu.close()
 
-        return conclu_contenu.decode('utf-8')
+        return conclu_contenu
 
     def update_children(self):
         self.introduction = os.path.join(self.get_phy_slug(), "introduction.md")
@@ -742,7 +742,7 @@ class Chapter(models.Model):
         self.slug = slugify(self.title)
         super(Chapter, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.tutorial:
             return u'<minituto \'{0}\'>'.format(self.tutorial.title)
         elif self.part:
@@ -877,7 +877,7 @@ class Chapter(models.Model):
                 intro_contenu = intro.read()
                 intro.close()
 
-                return intro_contenu.decode('utf-8')
+                return intro_contenu
             else:
                 return None
         else:
@@ -932,11 +932,11 @@ class Chapter(models.Model):
                 conclu_contenu = conclu.read()
                 conclu.close()
 
-                return conclu_contenu.decode('utf-8')
+                return conclu_contenu
             else:
                 return None
 
-            return conclu_contenu.decode('utf-8')
+            return conclu_contenu
         else:
             return None
 
@@ -971,7 +971,7 @@ class Extract(models.Model):
         null=True,
         max_length=200)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<extrait \'{0}\'>'.format(self.title)
 
     def get_absolute_url(self):
@@ -1095,7 +1095,7 @@ class Extract(models.Model):
             text_contenu = text.read()
             text.close()
 
-            return text_contenu.decode('utf-8')
+            return text_contenu
         else:
             return None
 
@@ -1128,7 +1128,7 @@ class Validation(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.tutorial.title
 
     def is_pending(self):

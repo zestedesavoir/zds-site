@@ -1,10 +1,9 @@
 # coding: utf-8
 
 import os
-from string import lower
-from uuid import uuid4
-
 from easy_thumbnails.fields import ThumbnailerImageField
+import uuid
+import shutil
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -32,8 +31,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split('.')[-1]
-    filename = u'{0}.{1}'.format(str(uuid4()), lower(ext))
-
+    filename = u'{0}.{1}'.format(str(uuid.uuid4()), ext.lower())
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
 
@@ -53,7 +51,7 @@ class UserGallery(models.Model):
     gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the UserGallery model.
 
         :return: UserGalley description
@@ -101,7 +99,7 @@ class Image(models.Model):
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the Image model.
 
         :return: Image slug
@@ -150,7 +148,7 @@ class Gallery(models.Model):
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the Gallery model.
 
         :return: Gallery title
@@ -208,3 +206,5 @@ def auto_delete_image_on_delete(sender, instance, **kwargs):
     """
     for image in instance.get_images():
         image.delete()
+    if os.path.exists(instance.get_gallery_path()):
+        shutil.rmtree(instance.get_gallery_path())

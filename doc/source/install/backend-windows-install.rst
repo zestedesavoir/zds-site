@@ -12,7 +12,7 @@ Prérequis
     - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_
     - `Git <http://git-scm.com/download/win>`_ (Git pour Eclipse ne suffit pas ; associez les .sh)
     - `gettext <https://www.gnu.org/software/gettext/>`_
-- `Téléchargez et installez Python 2.7 <https://www.python.org/download/releases/2.7/>`_
+- `Téléchargez et installez Python 3.4 <https://www.python.org/downloads/release/python-34/>`_
 - Installez setuptools : Démarrez `Powershell <http://fr.wikipedia.org/wiki/Windows_PowerShell>`_ **en mode administrateur** et lancez la commande suivante : ``(Invoke-WebRequest https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py).Content | python -``
 - Redémarrez Powershell
 - Installez pip : ``easy_install pip``

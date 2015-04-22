@@ -276,7 +276,7 @@ class MemberListAPITest(APITestCase):
         response = self.client.post(reverse('api-member-list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_register_new_user_create_a_token(self):
         """
@@ -310,7 +310,7 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
-        for user in xrange(0, number_of_users):
+        for user in range(0, number_of_users):
             ProfileFactory()
 
 

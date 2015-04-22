@@ -12,13 +12,19 @@ Windows
 
 Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <http://nodejs.org/download/>`__. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
 
+Il faut aussi `télécharger et installer Python 2 <https://www.python.org/download/releases/2.7/>`_.
+
 Mac OS X
 --------
 
 Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à `cette adresse <http://nodejs.org/download/>`_. Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
 
+Il faut aussi `télécharger et installer Python 2 <https://www.python.org/download/releases/2.7/>`_.
+
 Linux
 -----
+
+Il faut installer Python 2. Sauf cas exceptionnel, votre gestionnaire de paquets contient cette version sous le nom ``python2.7``. Si ce n'est pas le cas, vous pouvez `le télécharger et l'installer par le biais du site officiel <https://www.python.org/download/releases/2.7/>`_.
 
 Ubuntu
 ~~~~~~
@@ -110,6 +116,16 @@ Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devr
 
 Installation des dépendances npm
 --------------------------------
+
+Une de nos dépendances utilise le paquet ``node-gyp`` qui ne supporte pas Python 3. Nous devons donc indiquer à npm d'utiliser Python 2 par la commande :
+
+.. sourcecode:: bash
+
+    npm config set python <chemin-vers-python-2>
+
+Il faut replacer ``<chemin-vers-python-2>`` par le chemin vers le fichier binaire de Python 2 (quelque chose comme ``C:\chemin\vers\python.exe`` ou ``/chemin/vers/python2``). Sur certaines distributions, il est possible de mettre directement la commande (par exemple ``python2``).
+
+-----
 
 L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet :
 

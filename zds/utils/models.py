@@ -42,7 +42,7 @@ class Category(models.Model):
 
     slug = models.SlugField(max_length=80)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
@@ -101,7 +101,7 @@ class SubCategory(models.Model):
 
     slug = models.SlugField(max_length=80)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
@@ -136,7 +136,7 @@ class CategorySubCategory(models.Model):
     subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
     is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
         if self.is_main:
             return u'[{0}][main]: {1}'.format(
@@ -159,7 +159,7 @@ class Licence(models.Model):
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Licence Form."""
         return self.title
 
@@ -238,7 +238,7 @@ class Alert(models.Model):
         utils."""
         return Comment.objects.get_subclass(id=self.comment.id)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0}'.format(self.text)
 
     class Meta:
@@ -278,7 +278,7 @@ class Tag(models.Model):
     title = models.CharField(max_length=20, verbose_name='Titre')
     slug = models.SlugField(max_length=20)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
         return u"{0}".format(self.title)
 
@@ -310,7 +310,7 @@ class HelpWriting(models.Model):
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Help Form."""
         return self.title
 

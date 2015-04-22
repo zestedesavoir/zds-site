@@ -34,6 +34,6 @@ smileys_base = {
 }
 
 smileys = {}
-for imageFile, symboles in smileys_base.iteritems():
+for imageFile, symboles in smileys_base.items():
     for symbole in symboles:
         smileys[symbole] = os.path.join(smileys_baseURL, imageFile)

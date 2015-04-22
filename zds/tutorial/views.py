@@ -3,9 +3,9 @@
 from collections import OrderedDict
 from datetime import datetime
 from operator import attrgetter
-from urllib import urlretrieve
+from urllib.request import urlretrieve
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from urlparse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs
 try:
     import ujson as json_reader
 except ImportError:
@@ -39,9 +39,9 @@ from django.views.decorators.http import require_POST
 from git import Repo, Actor
 from lxml import etree
 
-from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
+from .forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
     ExtractForm, ImportForm, ImportArchiveForm, NoteForm, AskValidationForm, ValidForm, RejectForm, ActivJsForm
-from models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
+from .models import Tutorial, Part, Chapter, Extract, Validation, never_read, \
     mark_read, Note, HelpWriting
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now
@@ -2394,7 +2394,7 @@ def upload_images(images, tutorial):
 
 
 def replace_real_url(md_text, dict):
-    for (dt_old, dt_new) in dict.iteritems():
+    for (dt_old, dt_new) in dict.items():
         md_text = md_text.replace(dt_old, dt_new)
     return md_text
 
@@ -3084,7 +3084,7 @@ def download_epub(request):
 def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
-    regex = ur"(!\[.*?\]\()(.+?)(\))"
+    regex = r"(!\[.*?\]\()(.+?)(\))"
     unknow_path = os.path.join(settings.BASE_DIR, "fixtures", "noir_black.png")
 
     # if text is empty don't download
@@ -3184,7 +3184,7 @@ def sub_urlimg(g):
 
 
 def markdown_to_out(md_text):
-    return re.sub(ur"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
+    return re.sub(r"(?P<start>)(?P<mark>!\[.*?\]\()(?P<url>.+?)(?P<end>\))", sub_urlimg,
                   md_text)
 
 
@@ -3242,7 +3242,7 @@ def mep(tutorial, sha):
         # convert to out format
         out_file = open(os.path.join(prod_path, fichier), "w")
         if md_file_contenu is not None:
-            out_file.write(markdown_to_out(md_file_contenu.encode("utf-8")))
+            out_file.write(markdown_to_out(md_file_contenu))
         out_file.close()
         target = os.path.join(prod_path, fichier + ".html")
         os.chdir(os.path.dirname(target))

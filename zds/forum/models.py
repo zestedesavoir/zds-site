@@ -58,7 +58,7 @@ class Category(models.Model):
                             "d'URL et sont donc interdits : notifications "
                             "resolution_alerte sujet sujets message messages")
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a category."""
         return self.title
 
@@ -102,7 +102,7 @@ class Forum(models.Model):
 
     slug = models.SlugField(max_length=80, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -196,7 +196,7 @@ class Topic(models.Model):
 
     objects = TopicManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -367,7 +367,7 @@ class Post(Comment):
 
     is_useful = models.BooleanField('Est utile', default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
@@ -396,7 +396,7 @@ class TopicRead(models.Model):
     post = models.ForeignKey(Post, db_index=True)
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
@@ -416,7 +416,7 @@ class TopicFollowed(models.Model):
     user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
     email = models.BooleanField('Notification par courriel', default=False, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
                                                      self.user.username)
 

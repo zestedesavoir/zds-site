@@ -55,7 +55,7 @@ def render_markdown(text, inline=False, js_support=False):
     :return: Equivalent html string.
     :rtype: str
     """
-    return get_markdown_instance(inline=inline, js_support=js_support).convert(text).encode('utf-8').strip()
+    return get_markdown_instance(inline=inline, js_support=js_support).convert(text).strip()
 
 
 @register.filter(needs_autoescape=False)
@@ -111,7 +111,7 @@ def decale_header(text, count):
     :return: Filtered text.
     :rtype: str
     """
-    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text.encode('utf-8'))
+    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text)
 
 
 @register.filter('decale_header_1')

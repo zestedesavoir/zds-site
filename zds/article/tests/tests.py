@@ -101,7 +101,7 @@ class ArticleTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
         mail.outbox = []
 
         bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
@@ -199,7 +199,7 @@ class ArticleTests(TestCase):
             PrivateTopic.objects.filter(
                 author=self.user).count(),
             1)
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_add_reaction(self):
         """To test add reaction for article."""
@@ -466,7 +466,7 @@ class ArticleTests(TestCase):
 
         # test change in JSON :
         json = article.load_json()
-        self.assertEquals(json['licence'].code, new_licence.code)
+        self.assertEqual(json['licence'].code, new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -498,7 +498,7 @@ class ArticleTests(TestCase):
 
         # test change in JSON :
         json = article.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEqual(json['licence'].code, self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -551,7 +551,7 @@ class ArticleTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = article.load_json()
-        self.assertEquals(json['licence'].code, self.licence.code)
+        self.assertEqual(json['licence'].code, self.licence.code)
 
     def test_workflow_archive_article(self):
         """ensure the behavior of archive with an article"""
@@ -592,7 +592,7 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
         # 2. online version :
@@ -603,7 +603,7 @@ class ArticleTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         online_zip_path = os.path.join(tempfile.gettempdir(), '__online.zip')
-        f = open(online_zip_path, 'w')
+        f = open(online_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -612,14 +612,15 @@ class ArticleTests(TestCase):
         online_zip = zipfile.ZipFile(online_zip_path, 'r')
 
         # first, test in manifest
-        online_manifest = json_reader.loads(online_zip.read('manifest.json'))
+        online_manifest = json_reader.loads(online_zip.read('manifest.json').decode('utf-8'))
         self.assertNotEqual(online_manifest['title'], article_title)  # title has not changed in online version
 
-        draft_manifest = json_reader.loads(draft_zip.read('manifest.json'))
+        draft_manifest = json_reader.loads(draft_zip.read('manifest.json').decode('utf-8'))
         self.assertNotEqual(online_manifest['title'], article_title)  # title has not changed in online version
 
-        self.assertNotEqual(online_zip.read(online_manifest['text']), article_content)
-        self.assertEqual(draft_zip.read(draft_manifest['text']), article_content)  # content is good in draft
+        self.assertNotEqual(online_zip.read(online_manifest['text']).decode('utf-8'), article_content)
+        # content is good in draft
+        self.assertEqual(draft_zip.read(draft_manifest['text']).decode('utf-8'), article_content)
 
         draft_zip.close()
         online_zip.close()
@@ -801,7 +802,7 @@ class ArticleTests(TestCase):
             {},
             follow=True)
         self.assertEqual(result.status_code, 200)
-        self.assertIn(self.article.title, result.content)
+        self.assertContains(result, self.article.title)
 
     def test_list_article_with_subcategory(self):
         # Test with tag restriction
@@ -826,9 +827,9 @@ class ArticleTests(TestCase):
             {},
             follow=True)
         self.assertEqual(result.status_code, 200)
-        self.assertNotIn(self.article.title, result.content)
-        self.assertNotIn(article_with_other_tag.title, result.content)
-        self.assertIn(article_with_tag.title, result.content)
+        self.assertNotContains(result, self.article.title)
+        self.assertNotContains(result, article_with_other_tag.title)
+        self.assertContains(result, article_with_tag.title)
 
         # Launch test with no subcategory
         result = self.client.post(
@@ -836,9 +837,9 @@ class ArticleTests(TestCase):
             {},
             follow=True)
         self.assertEqual(result.status_code, 200)
-        self.assertIn(self.article.title, result.content)
-        self.assertIn(article_with_other_tag.title, result.content)
-        self.assertIn(article_with_tag.title, result.content)
+        self.assertContains(result, self.article.title)
+        self.assertContains(result, article_with_other_tag.title)
+        self.assertContains(result, article_with_tag.title)
 
     def test_new_article(self):
         # Create a Gallery

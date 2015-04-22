@@ -9,7 +9,7 @@ Avant de vous lancez dans l'installation de l'environnement de zds, il faut quel
 
 - Installer `XCode <http://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12>`_ pour pouvoir exécuter des commandes (g)cc.
 - Installer `MacPorts <http://www.macports.org/>`_ pour récupérer certains paquets utiles pour l'installation des dépendances de ce projet.
-- Installer python 2.7
+- Installer python 3.4
 - Installer pip
 - Installer git
 - Installer `gettext <https://www.gnu.org/software/gettext/>`_
@@ -22,7 +22,7 @@ Installation de virtualenv
 
 .. sourcecode:: bash
 
-    sudo port install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox
+    sudo port install virtualenv_select py34-virtualenv py34-virtualenvwrapper py34-tox
 
     mkdir ~/.virtualenvs
     echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
@@ -37,12 +37,12 @@ Création de votre environnement
     mkvirtualenv zdsenv
 
 
-Récupération de la librairie lxml pour python 2.7 via MacPorts
+Récupération de la librairie lxml pour python 3.4 via MacPorts
 ==============================================================
 
 .. sourcecode:: bash
 
-  sudo port install py27-lxml
+  sudo port install py34-lxml
 
 
 Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml

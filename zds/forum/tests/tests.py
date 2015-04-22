@@ -212,7 +212,7 @@ class ForumMemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEquals(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 2)
 
         # check topic's number
         self.assertEqual(Topic.objects.all().count(), 1)

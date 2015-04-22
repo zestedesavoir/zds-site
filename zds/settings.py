@@ -105,7 +105,6 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
-    'zds.middlewares.profile.ProfileMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -315,7 +314,7 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 PANDOC_LOC = ''
-PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V mainfont=Merriweather -V monofont=\"Andale Mono\" -V fontsize=12pt -V geometry:margin=1in "
+PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V fontsize=12pt -V geometry:margin=1in "
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -330,6 +329,7 @@ HAYSTACK_CONNECTIONS = {
 }
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
+
 
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

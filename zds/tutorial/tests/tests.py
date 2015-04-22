@@ -145,7 +145,7 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.bigtuto = Tutorial.objects.get(pk=self.bigtuto.pk)
         self.assertEqual(pub.status_code, 302)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         mail.outbox = []
 
@@ -225,7 +225,7 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         self.assertEqual(pub.status_code, 302)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_delete_tutorial_never_beta(self):
         future_tutorial = self.create_basic_big_tutorial()
@@ -332,7 +332,7 @@ class BigTutorialTests(TestCase):
         # create temporary data directory
         temp = os.path.join(tempfile.gettempdir(), "temp")
         if not os.path.exists(temp):
-            os.makedirs(temp, mode=0777)
+            os.makedirs(temp)
         # download zip
         repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.bigtuto.get_phy_slug())
         repo = Repo(repo_path)
@@ -343,7 +343,7 @@ class BigTutorialTests(TestCase):
 
         zip_dir = os.path.join(temp, self.bigtuto.get_phy_slug())
         if not os.path.exists(zip_dir):
-            os.makedirs(zip_dir, mode=0777)
+            os.makedirs(zip_dir)
 
         # Extract zip
         with zipfile.ZipFile(zip_path) as zip_file:
@@ -353,10 +353,10 @@ class BigTutorialTests(TestCase):
                 if not filename:
                     continue
                 if not os.path.exists(os.path.dirname(os.path.join(zip_dir, member))):
-                    os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
+                    os.makedirs(os.path.dirname(os.path.join(zip_dir, member)))
                 # copy file (taken from zipfile's extract)
                 source = zip_file.open(member)
-                target = file(os.path.join(zip_dir, filename), "wb")
+                target = open(os.path.join(zip_dir, filename), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
         self.assertTrue(os.path.isdir(zip_dir))
@@ -400,7 +400,7 @@ class BigTutorialTests(TestCase):
                     os.path.join(
                         temp,
                         os.path.join(temp, self.bigtuto.get_phy_slug() + ".zip")),
-                    'r'),
+                    'rb'),
                 'tutorial': self.bigtuto.pk,
                 'import-archive': "importer"},
             follow=False)
@@ -420,7 +420,7 @@ class BigTutorialTests(TestCase):
 
         temp = os.path.join(tempfile.gettempdir(), "temp")
         if not os.path.exists(temp):
-            os.makedirs(temp, mode=0777)
+            os.makedirs(temp)
 
         # test fail import
         with open(os.path.join(temp, 'test.py'), 'a') as f:
@@ -433,7 +433,7 @@ class BigTutorialTests(TestCase):
                     os.path.join(
                         temp,
                         'test.py'),
-                    'r'),
+                    'rb'),
                 'tutorial': self.bigtuto.pk,
                 'import-archive': "importer"},
             follow=False
@@ -714,7 +714,7 @@ class BigTutorialTests(TestCase):
                         'tuto',
                         'temps-reel-avec-irrlicht',
                         'temps-reel-avec-irrlicht.tuto'),
-                    'r'),
+                    'rb'),
                 'images': open(
                     os.path.join(
                         settings.BASE_DIR,
@@ -722,7 +722,7 @@ class BigTutorialTests(TestCase):
                         'tuto',
                         'temps-reel-avec-irrlicht',
                         'images.zip'),
-                    'r'),
+                    'rb'),
                 'import-tuto': "importer"},
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1989,7 +1989,7 @@ class BigTutorialTests(TestCase):
             PrivateTopic.objects.filter(
                 author=self.user).count(),
             1)
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_add_remove_authors(self):
         user1 = ProfileFactory().user
@@ -2365,7 +2365,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], new_licence.code)
+        self.assertEqual(json['licence'], new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2399,7 +2399,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEqual(json['licence'], self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -2456,7 +2456,7 @@ class BigTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEqual(json['licence'], self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a big tutorial"""
@@ -2496,7 +2496,7 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
         # 2. online version :
@@ -2507,7 +2507,7 @@ class BigTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         online_zip_path = os.path.join(tempfile.gettempdir(), '__online.zip')
-        f = open(online_zip_path, 'w')
+        f = open(online_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -2517,7 +2517,7 @@ class BigTutorialTests(TestCase):
         online_zip = zipfile.ZipFile(online_zip_path, 'r')
 
         # first, test in manifest
-        online_manifest = json_reader.loads(online_zip.read('manifest.json'))
+        online_manifest = json_reader.loads(online_zip.read('manifest.json').decode('utf-8'))
         found = False
         for part in online_manifest['parts']:
             if part['pk'] == self.part2.pk:
@@ -2528,7 +2528,7 @@ class BigTutorialTests(TestCase):
                                 found = True
         self.assertFalse(found)  # extract cannot exists in the online version
 
-        draft_manifest = json_reader.loads(draft_zip.read('manifest.json'))
+        draft_manifest = json_reader.loads(draft_zip.read('manifest.json').decode('utf-8'))
         extract_in_manifest = []
         for part in draft_manifest['parts']:
             if part['pk'] == self.part2.pk:
@@ -2555,7 +2555,8 @@ class BigTutorialTests(TestCase):
         except KeyError:
             found = False
         self.assertTrue(found)  # extract exists in the draft one
-        self.assertEqual(draft_zip.read(extract_in_manifest['text']), extract_content)  # content is good
+        # content is good
+        self.assertEqual(draft_zip.read(extract_in_manifest['text']).decode('utf-8'), extract_content)
 
         draft_zip.close()
         online_zip.close()
@@ -3005,7 +3006,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(pub.status_code, 302)
         self.minituto = Tutorial.objects.get(pk=self.minituto.pk)
         self.assertEqual(self.minituto.on_line(), True)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         mail.outbox = []
 
@@ -3017,7 +3018,7 @@ class MiniTutorialTests(TestCase):
         # create temporary data directory
         temp = os.path.join(tempfile.gettempdir(), "temp")
         if not os.path.exists(temp):
-            os.makedirs(temp, mode=0777)
+            os.makedirs(temp)
         # download zip
         repo_path = os.path.join(settings.ZDS_APP['tutorial']['repo_path'], self.minituto.get_phy_slug())
         repo = Repo(repo_path)
@@ -3028,7 +3029,7 @@ class MiniTutorialTests(TestCase):
 
         zip_dir = os.path.join(temp, self.minituto.get_phy_slug())
         if not os.path.exists(zip_dir):
-            os.makedirs(zip_dir, mode=0777)
+            os.makedirs(zip_dir)
 
         # Extract zip
         with zipfile.ZipFile(zip_path) as zip_file:
@@ -3038,10 +3039,10 @@ class MiniTutorialTests(TestCase):
                 if not filename:
                     continue
                 if not os.path.exists(os.path.dirname(os.path.join(zip_dir, member))):
-                    os.makedirs(os.path.dirname(os.path.join(zip_dir, member)), mode=0777)
+                    os.makedirs(os.path.dirname(os.path.join(zip_dir, member)))
                 # copy file (taken from zipfile's extract)
                 source = zip_file.open(member)
-                target = file(os.path.join(zip_dir, filename), "wb")
+                target = open(os.path.join(zip_dir, filename), "wb")
                 with source, target:
                     shutil.copyfileobj(source, target)
         self.assertTrue(os.path.isdir(zip_dir))
@@ -3068,7 +3069,7 @@ class MiniTutorialTests(TestCase):
                     os.path.join(
                         temp,
                         os.path.join(temp, self.minituto.get_phy_slug() + ".zip")),
-                    'r'),
+                    'rb'),
                 'tutorial': self.minituto.pk,
                 'import-archive': "importer"},
             follow=False)
@@ -3088,7 +3089,7 @@ class MiniTutorialTests(TestCase):
 
         temp = os.path.join(tempfile.gettempdir(), "temp")
         if not os.path.exists(temp):
-            os.makedirs(temp, mode=0777)
+            os.makedirs(temp)
 
         # test fail import
         with open(os.path.join(temp, 'test.py'), 'a') as f:
@@ -3101,7 +3102,7 @@ class MiniTutorialTests(TestCase):
                     os.path.join(
                         temp,
                         'test.py'),
-                    'r'),
+                    'rb'),
                 'tutorial': self.minituto.pk,
                 'import-archive': "importer"},
             follow=False
@@ -3417,7 +3418,7 @@ class MiniTutorialTests(TestCase):
                         'tuto',
                         'securisez-vos-mots-de-passe-avec-lastpass',
                         'securisez-vos-mots-de-passe-avec-lastpass.tuto'),
-                    'r'),
+                    'rb'),
                 'images': open(
                     os.path.join(
                         settings.BASE_DIR,
@@ -3425,7 +3426,7 @@ class MiniTutorialTests(TestCase):
                         'tuto',
                         'securisez-vos-mots-de-passe-avec-lastpass',
                         'images.zip'),
-                    'r'),
+                    'rb'),
                 'import-tuto': "importer"},
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -3594,7 +3595,7 @@ class MiniTutorialTests(TestCase):
             PrivateTopic.objects.filter(
                 author=self.user).count(),
             1)
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_add_remove_authors(self):
         user1 = ProfileFactory().user
@@ -4165,7 +4166,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], new_licence.code)
+        self.assertEqual(json['licence'], new_licence.code)
 
         # then logout ...
         self.client.logout()
@@ -4199,7 +4200,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEqual(json['licence'], self.licence.code)
 
         # then logout ...
         self.client.logout()
@@ -4256,7 +4257,7 @@ class MiniTutorialTests(TestCase):
 
         # test change in JSON (normaly, nothing has) :
         json = tuto.load_json()
-        self.assertEquals(json['licence'], self.licence.code)
+        self.assertEqual(json['licence'], self.licence.code)
 
     def test_workflow_archive_tuto(self):
         """ensure the behavior of archive with a mini tutorial"""
@@ -4296,7 +4297,7 @@ class MiniTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft.zip')
-        f = open(draft_zip_path, 'w')
+        f = open(draft_zip_path, 'wb')
         f.write(result.content)
         f.close()
         # 2. online version :
@@ -4307,7 +4308,7 @@ class MiniTutorialTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
         online_zip_path = os.path.join(tempfile.gettempdir(), '__online.zip')
-        f = open(online_zip_path, 'w')
+        f = open(online_zip_path, 'wb')
         f.write(result.content)
         f.close()
 
@@ -4316,14 +4317,14 @@ class MiniTutorialTests(TestCase):
         online_zip = zipfile.ZipFile(online_zip_path, 'r')
 
         # first, test in manifest
-        online_manifest = json_reader.loads(online_zip.read('manifest.json'))
+        online_manifest = json_reader.loads(online_zip.read('manifest.json').decode('utf-8'))
         found = False
         for extract in online_manifest['chapter']['extracts']:
             if extract['pk'] == added_extract.pk:
                 found = True
         self.assertFalse(found)  # extract cannot exists in the online version
 
-        draft_manifest = json_reader.loads(draft_zip.read('manifest.json'))
+        draft_manifest = json_reader.loads(draft_zip.read('manifest.json').decode('utf-8'))
         extract_in_manifest = []
         for extract in draft_manifest['chapter']['extracts']:
             if extract['pk'] == added_extract.pk:
@@ -4346,7 +4347,8 @@ class MiniTutorialTests(TestCase):
         except KeyError:
             found = False
         self.assertTrue(found)  # extract exists in the draft one
-        self.assertEqual(draft_zip.read(extract_in_manifest['text']), extract_content)  # content is good
+        # content is good
+        self.assertEqual(draft_zip.read(extract_in_manifest['text']).decode('utf-8'), extract_content)
 
         draft_zip.close()
         online_zip.close()

@@ -56,17 +56,6 @@ def followed_topics(user):
     return topics
 
 
-def comp(d1, d2):
-    v1 = int(time.mktime(d1['pubdate'].timetuple()))
-    v2 = int(time.mktime(d2['pubdate'].timetuple()))
-    if v1 > v2:
-        return -1
-    elif v1 < v2:
-        return 1
-    else:
-        return 0
-
-
 @register.filter('interventions_topics')
 def interventions_topics(user):
     topicsfollowed = TopicFollowed.objects.filter(user=user).values("topic").distinct().all()
@@ -123,7 +112,7 @@ def interventions_topics(user):
                              'title': top.topic.title,
                              'url': content.get_absolute_url()})
 
-    posts_unread.sort(cmp=comp)
+    posts_unread.sort(key=lambda post: int(time.mktime(post['pubdate'].timetuple())))
 
     return posts_unread
 

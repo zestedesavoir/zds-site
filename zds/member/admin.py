@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from models import Profile, Ban, TokenRegister, TokenForgotPassword, KarmaNote
+from .models import Profile, Ban, TokenRegister, TokenForgotPassword, KarmaNote
 
 
 class ProfileAdmin(admin.ModelAdmin):
