@@ -175,6 +175,38 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             }
         }
     }
+
+    &.topic-item {
+        max-width: calc(50% - 10px);
+
+        .content-info {
+            padding: 14px 26px;
+            height: 68px;
+        }
+
+        .content-title {
+            font-size: 19px;
+            font-size: 1.9rem;
+            line-height: 24px;
+            color: $color-primary;
+        }
+
+        .content-description {
+            color: #505050;
+            font-size: 16px;
+            font-size: 1.6rem;
+
+            .member-item {
+                font-style: italic;
+            }
+        }
+
+        .content-meta {
+            font-size: 14px;
+            font-size: 1.4rem;
+            line-height: 16px;
+        }
+    }
 }
 
 .content-item-list {

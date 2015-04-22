@@ -11,15 +11,19 @@
             </a>
         </h3>
 
-        <p class="content-meta">
-            <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
-                {{ article.pubdate|format_date|capfirst }}
-            </time>
+        <p class="content-description">
+            {{ topic.forum.title }},
+            {% trans "par" %}{% include "misc/member_item.part.html" with member=topic.author %}
+            - {{ topic.pubdate|format_date|capfirst }}
+        </p>
 
+        <p class="content-meta">
             {% with answer=topic.get_last_answer %}
-                <p class="content-authors" itemscope itemprop="author" itemtype="http://schema.org/Person">
-                    {{ answer.author }}
-                </p>
+                {% trans "Dernière réponse:" %}
+                {% include "misc/member_item.part.html" with member=topic.author %} -
+                <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
+                    {{ answer.pubdate|format_date|capfirst }}
+                </time>
             {% endwith %}
         </p>
     </div>
