@@ -1100,7 +1100,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             topic.tags.add(tag)
         topic.save()
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
-        if self.object.is_beta():
+        if self.object.is_beta(sha_beta):
             self.success_url = self.versioned_object.get_absolute_url_beta()
         return redirect(self.success_url)
 
