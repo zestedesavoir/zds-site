@@ -1,5 +1,6 @@
 $content-border-color: #DEDEDE;
 $content-illu-size: 96px;
+$content-reaction-offset: -14px; // -30px to not offset the meta
 
 .content-item {
     background: #FFF;
@@ -37,10 +38,13 @@ $content-illu-size: 96px;
 
     &.expand-description:not(.mini) {
         .content-description {
-          height: 36px; // 2 lines + 4px
+          height: 36px; // 2 lines
           display: flex;
           align-items: center;
           white-space: normal;
+          font-size: 14px;
+          font-size: 1.4rem;
+          line-height: 18px;
         }
 
         .content-meta {
@@ -60,7 +64,7 @@ $content-illu-size: 96px;
     }
 
     .content-illu {
-        flex: 1 0 $content-illu-size;
+        flex: 0 0 $content-illu-size;
         height: $content-illu-size;
 
         &:not(.has-illu) {
@@ -71,6 +75,31 @@ $content-illu-size: 96px;
     .content-info {
         padding: 10px 14px;
         height: 76px;
+        flex: 1;
+        position: relative;
+    }
+
+    .content-reactions {
+        position: absolute;
+        bottom: 6px;
+        left: $content-reaction-offset;
+        height: 32px;
+        width: 32px;
+        padding-left: 1px;
+
+        @include sprite();
+        @include sprite-position($chat-bubble);
+
+        color: $color-secondary;
+        text-align: center;
+        line-height: 32px;
+        font-weight: bold;
+        font-size: 14px;
+        font-size: 1.4rem;
+
+        & + .content-meta {
+            padding-left: 32px - 14px + $content-reaction-offset + 10px; // bubble width - container padding + bubble offset + spacing
+        }
     }
 
     .content-title {
@@ -79,7 +108,7 @@ $content-illu-size: 96px;
         font-size: 17px;
         font-size: 1.7rem;
         font-weight: normal;
-        line-height: 24px;
+        line-height: 20px;
 
         overflow: hidden;
         text-overflow: ellipsis;
@@ -87,7 +116,6 @@ $content-illu-size: 96px;
 
         a {
             color: #424242;
-            display: block;
             max-height: 48px; // Prevents to have the text centered if there is more than 4 lines
         }
     }
@@ -98,10 +126,11 @@ $content-illu-size: 96px;
 
     .content-description {
         margin: 0;
-        font-size: 14px;
-        font-size: 1.4rem;
-        line-height: 16px;
+        font-size: 15px;
+        font-size: 1.5rem;
+        line-height: 26px;
         color: #999;
+        margin-bottom: 2px;
 
         overflow: hidden;
         text-overflow: ellipsis;

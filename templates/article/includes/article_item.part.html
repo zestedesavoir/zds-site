@@ -11,12 +11,11 @@
 {% endif %}
 
 <article class="content-item article-item">
-    {% if article.image %}
-        <a href="{{ link }}" tabindex="-1" class="content-illu">
-
+    <a href="{{ link }}" tabindex="-1" class="content-illu{% if article.image %} has-illu{% endif %}">
+        {% if article.image %}
             <img src="{{ article.image.content_thumb.url }}" alt="">
-        </a>
-    {% endif %}
+        {% endif %}
+    </a>
 
     <div class="content-info">
         <h3 class="content-title" itemprop="itemListElement">
@@ -29,30 +28,26 @@
             <p class="content-description">{{ article.description }}</p>
         {% endif %}
 
-        <!-- This is the code used for the link to the comments of the article ; Temporary unused before the design is ready
-
-        <a href="
+        <a class="content-reactions" href="
             {% if article.last_read_reaction %}
                 {{ article.last_read_reaction.get_absolute_url }}
             {% else %}
                 {{ article.get_absolute_url_online }}#reactions
             {% endif %}"
         >
-            {% if article.get_reaction_count == 0 %}
-                {% trans "Aucune réaction" %}
-            {% else %}
-                {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
+            {% if article.get_reaction_count != 0 %}
+                {{ article.get_reaction_count }}
             {% endif %}
-        </a>-->
+        </a>
 
-        <p class="content-meta">
+        <div class="content-meta">
             <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
                 {{ article.pubdate|format_date|capfirst }}
             </time>
 
             {% if article.sha_public %}
                 <p class="content-authors">
-                    {% for author in authors.all %}
+                    {% for author in article.authors.all %}
                         {% if forloop.first %}
                             {% trans "par" %}
                         {% elif forloop.last %}
@@ -85,6 +80,6 @@
                     {% trans "Brouillon" %}
                 </p>
             {% endif %}
-        </p>
+        </div>
     </div>
 </article>
