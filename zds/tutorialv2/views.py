@@ -11,6 +11,7 @@ from zds.tutorialv2.forms import BetaForm, MoveElementForm, RevokeValidationForm
 from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get_target_tagged_tree
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 from zds.utils.models import Tag
+from django.utils.decorators import method_decorator
 
 try:
     import ujson as json_reader
@@ -979,6 +980,10 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     authorized_for_staff = False
 
     action = None
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        super(ManageBetaContent, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         # check version:
