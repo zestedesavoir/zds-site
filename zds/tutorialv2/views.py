@@ -10,6 +10,7 @@ from zds.forum.models import Forum
 from zds.tutorialv2.forms import BetaForm, MoveElementForm, RevokeValidationForm
 from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get_target_tagged_tree
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
+from zds.utils.models import Tag
 
 try:
     import ujson as json_reader
@@ -64,6 +65,7 @@ from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin
 from git import GitCommandError
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
+from django.utils.encoding import smart_text
 
 
 class RedirectContentSEO(RedirectView):
@@ -1019,6 +1021,19 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 if not topic:
                     # if first time putting the content in beta, send a message on the forum and a PM
                     forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
+                    categories = self.object.subcategory.all()
+                    names = [smart_text(category.title).lower() for category in categories]
+                    existing_tags = Tag.objects.filter(title__in=names).all()
+                    existing_tags_names =[tag.title for tag in existing_tags]
+                    unexisting_tags = list(set(names) - set(existing_tags_names) )
+                    all_tags = []
+                    for tag in unexisting_tags:
+                        new_tag = Tag()
+                        new_tag.title = tag
+                        new_tag.save()
+                        all_tags.append(new_tag)
+                    all_tags += existing_tags
+
                     create_topic(author=self.request.user,
                                  forum=forum,
                                  title=_(u"[beta][tutoriel]{0}").format(beta_version.title),
@@ -1026,7 +1041,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                  text=msg,
                                  related_publishable_content=self.object)
                     topic = self.object.beta_topic
-
+                    topic.tags = all_tags
+                    topic.save()
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
                         'tutorialv2/messages/beta_activate_pm.msg.html',

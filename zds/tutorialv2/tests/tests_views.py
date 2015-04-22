@@ -20,6 +20,8 @@ from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
+from django.utils.encoding import smart_text
+
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -48,6 +50,7 @@ class ContentTests(TestCase):
         self.tuto.authors.add(self.user_author)
         self.tuto.gallery = GalleryFactory()
         self.tuto.licence = self.licence
+        self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
@@ -540,7 +543,8 @@ class ContentTests(TestCase):
 
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
-
+        self.assertEqual(beta_topic.tags.count(), 1)
+        self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower())
         # test access for public
         self.client.logout()
 
@@ -2720,7 +2724,6 @@ class ContentTests(TestCase):
                 "js_support": True
             })
         self.assertEqual(result.status_code, 403)
-
 
     def tearDown(self):
 
