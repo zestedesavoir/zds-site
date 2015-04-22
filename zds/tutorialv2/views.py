@@ -1041,7 +1041,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                  text=msg,
                                  related_publishable_content=self.object)
                     topic = self.object.beta_topic
-                    topic.tags = all_tags
+                    topic.tags.add(all_tags)
                     topic.save()
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
