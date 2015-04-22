@@ -10,12 +10,12 @@
     {% endif %}
 {% endcaptureas %}
 
-<article class="content-item tutorial-item{{ item_class }}">
-    {% if tutorial.image %}
-        <a href="{{ link }}" tabindex="-1" class="content-illu">
+<article class="content-item expand-description tutorial-item{{ item_class }}">
+    <a href="{{ link }}" tabindex="-1" class="content-illu{% if tutorial.image %} has-illu{% endif %}">
+        {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
-        </a>
-    {% endif %}
+        {% endif %}
+    </a>
 
     <div class="content-info">
         <h3 class="content-title" itemprop="itemListElement">
@@ -56,11 +56,13 @@
                         ,
                     {% endif %}
 
+                    <i>
                     {% if author == user %}
                         {% trans "vous" %}
                     {% else %}
                         {{ author.username }}
                     {% endif %}
+                    </i>
                 {% endfor %}
             </p>
         {% endif %}

@@ -1,4 +1,5 @@
 $content-border-color: #DEDEDE;
+$content-illu-size: 96px;
 
 .content-item {
     background: #FFF;
@@ -14,12 +15,40 @@ $content-border-color: #DEDEDE;
     flex: 1 1 100%;
 
     &.mini {
-        flex-basis: 49%;
+        max-width: calc(50% - 10px);
+
+        .content-description {
+            display: none;
+        }
+
+        .content-title {
+            white-space: normal;
+            font-size: 14px;
+            line-height: 15px;
+            height: 45px; // 3 lines
+            display: flex; // To center when there is only 2 lines
+            align-items: center;
+        }
+
+        .content-meta {
+          padding-top: 1px;
+        }
     }
 
-    /* If there is a content-description, display the childs of content-meta inline */
-    .content-description + .content-meta > * {
-        display: inline-block;
+    &.expand-description:not(.mini) {
+        .content-description {
+          height: 36px; // 2 lines + 4px
+          display: flex;
+          align-items: center;
+          white-space: normal;
+        }
+
+        .content-meta {
+          line-height: 16px;
+          & > * {
+            display: inline-block;
+          }
+        }
     }
 
     & > * {
@@ -30,6 +59,15 @@ $content-border-color: #DEDEDE;
         text-decoration: none;
     }
 
+    .content-illu {
+        flex: 1 0 $content-illu-size;
+        height: $content-illu-size;
+
+        &:not(.has-illu) {
+          background-color: $content-border-color;
+        }
+    }
+
     .content-info {
         padding: 10px 14px;
         height: 76px;
@@ -38,9 +76,10 @@ $content-border-color: #DEDEDE;
     .content-title {
         margin: 0;
 
-        font-size: 1.7rem;
         font-size: 17px;
+        font-size: 1.7rem;
         font-weight: normal;
+        line-height: 24px;
 
         overflow: hidden;
         text-overflow: ellipsis;
@@ -48,6 +87,8 @@ $content-border-color: #DEDEDE;
 
         a {
             color: #424242;
+            display: block;
+            max-height: 48px; // Prevents to have the text centered if there is more than 4 lines
         }
     }
 
@@ -57,8 +98,9 @@ $content-border-color: #DEDEDE;
 
     .content-description {
         margin: 0;
-        font-size: 1.5rem;
-        font-size: 15px;
+        font-size: 14px;
+        font-size: 1.4rem;
+        line-height: 16px;
         color: #999;
 
         overflow: hidden;
@@ -68,6 +110,9 @@ $content-border-color: #DEDEDE;
 
     .content-meta {
         color: $color-secondary;
+        font-size: 13px;
+        font-size: 1.3rem;
+        line-height: 15px;
     }
 
     &.write-tutorial {
