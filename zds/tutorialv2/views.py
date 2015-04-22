@@ -1021,6 +1021,9 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 if not topic:
                     # if first time putting the content in beta, send a message on the forum and a PM
                     forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
+
+                    # find tags
+                    # TODO: make a util's function of it
                     categories = self.object.subcategory.all()
                     names = [smart_text(category.title).lower() for category in categories]
                     existing_tags = Tag.objects.filter(title__in=names).all()
@@ -1040,9 +1043,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                  subtitle=u"{}".format(beta_version.description),
                                  text=msg,
                                  related_publishable_content=self.object)
-                    topic = self.object.beta_topic
-                    topic.tags.add(all_tags)
-                    topic.save()
+
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
                         'tutorialv2/messages/beta_activate_pm.msg.html',
@@ -1058,6 +1059,18 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             msg_pm,
                             False)
                 else:
+                    categories = self.object.subcategory.all()
+                    names = [smart_text(category.title).lower() for category in categories]
+                    existing_tags = Tag.objects.filter(title__in=names).all()
+                    existing_tags_names =[tag.title for tag in existing_tags]
+                    unexisting_tags = list(set(names) - set(existing_tags_names) )
+                    all_tags = []
+                    for tag in unexisting_tags:
+                        new_tag = Tag()
+                        new_tag.title = tag
+                        new_tag.save()
+                        all_tags.append(new_tag)
+                    all_tags += existing_tags
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
@@ -1078,6 +1091,9 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     send_post(topic, msg_post)
 
         self.object.save()
+        topic = self.object.beta_topic
+        topic.tags.add(all_tags)
+        topic.save()
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
         return super(ManageBetaContent, self).form_valid(form)
 
