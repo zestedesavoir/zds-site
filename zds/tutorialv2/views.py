@@ -1568,7 +1568,8 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
 
         validation = Validation.objects.filter(
             content=self.object,
-            version=self.object.sha_public).latest("date_proposition")
+            version=self.object.sha_public,
+            status='ACCEPT').last()
 
         if not validation:
             raise PermissionDenied
