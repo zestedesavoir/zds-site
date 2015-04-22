@@ -544,7 +544,7 @@ class ContentTests(TestCase):
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
-        self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower())
+        self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
         # test access for public
         self.client.logout()
 

@@ -1037,7 +1037,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     all_tags = []
                     for tag in unexisting_tags:
                         new_tag = Tag()
-                        new_tag.title = tag
+                        new_tag.title = tag[:20]
                         new_tag.save()
                         all_tags.append(new_tag)
                     all_tags += existing_tags
@@ -1072,7 +1072,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     all_tags = []
                     for tag in unexisting_tags:
                         new_tag = Tag()
-                        new_tag.title = tag
+                        new_tag.title = tag[:20]
                         new_tag.save()
                         all_tags.append(new_tag)
                     all_tags += existing_tags
