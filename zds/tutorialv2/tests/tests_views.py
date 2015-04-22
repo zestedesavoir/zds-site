@@ -2242,7 +2242,9 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 2)
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
         self.assertEqual(validation.status, 'PENDING')
 
         self.assertIsNotNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
