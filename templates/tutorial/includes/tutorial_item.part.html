@@ -33,7 +33,7 @@
             </p>
         {% endif %}
 
-        <div class="content-meta">
+        <div class="content-meta"{% if tutorial.pubdate %} title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }}"{% endif %}>
             {% if tutorial.subcategory %}
                 <p class="content-categories">
                     {% for category in tutorial.subcategory.all %}
