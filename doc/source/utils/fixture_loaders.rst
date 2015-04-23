@@ -12,14 +12,14 @@ Les données sérialisables pour une base fonctionnelle
 
 Un premier ensemble de données simples est accessible par la commande intégrée à django `python manage.py loaddata`.
 
-Cette commande s'attend à une liste de fichier au format yaml et supporte les widecards.
+Cette commande s'attend à une liste de fichier au format yaml et supporte les *wildcards*.
 Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
 
 - ``categories.yaml`` : contient le chargement de 3 catégories de tutoriels, 2 sous catégories de tutoriels rangées dans les bonnes catégories parentes
 - ``forums.yaml`` : contient le chargment de 4 catégories de forum et de 10 forums dans ces catégories
 - ``licences.yaml`` : contient le chargement de 2 licences dont la licence par défaut (tous droit réservés)
-- ``mps.yaml`` : /!\ nécessite le chargement des users, contient la création d'un MP d'un membre à un admin
-- ``topics.yaml``: /!\ nécessite le chargement des users, contient la création de plusieurs topics dans les forums dont un résolu
+- ``mps.yaml`` : **nécessite le chargement des users**, contient la création d'un MP d'un membre à un admin
+- ``topics.yaml``: **nécessite le chargement des users**, contient la création de plusieurs topics dans les forums dont un résolu
 - ``users.yaml``: Crée 6 utilisateurs:
     - admin/admin avec les droits d'administration
     - staff/admin faisant partie du groupe staff
@@ -28,7 +28,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
     - Anonymous/anonymous : le compte d'anonymisation
     - External/external: le compte pour accueillir les cours externes des auteurs ne voulant pas devenir membre ou quittant le site
 
-De ce fait, le moyen le plus simple de charger l'ensemble des données de base est ``python manage.py loaddata fixtures/*.yaml``
+De ce fait, le moyen le plus simple de charger l'ensemble des données de base est ``python manage.py loaddata fixtures/*.yaml``.
 
 Les données complexes voire les scénarios
 -----------------------------------------
@@ -60,7 +60,7 @@ Le format du fichier est celui-ci:
 Les fichiers de factory déjà existant sont rangés dans le dossier ``fixtures/advanced``.
 
 Pour utiliser un fichier yaml de factory, il vous suffit de lancer la commande ``python manage.py load_factory_data chemin_vers_vos_fichier.yaml``.
-Cette méthode est compatible avec les widecards.
+Cette méthode est compatible avec les *wildcards*.
 
 Pour utiliser les factories, il vous faudra vous référer à la documentation de ces dernières puisque les champs associés peuvent
 être de deux types :
