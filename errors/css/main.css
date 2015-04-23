@@ -3,11 +3,11 @@
    ---------------------------------
    Maintenance and error pages style
    ========================================================================== */
-/*! normalize.css v3.0.1 | MIT License | git.io/normalize */
+/*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
 /**
  * 1. Set default font family to sans-serif.
- * 2. Prevent iOS text size adjust after orientation change, without disabling
- *    user zoom.
+ * 2. Prevent iOS and IE text size adjust after device orientation change,
+ *    without disabling user zoom.
  */
 html {
   font-family: sans-serif;
@@ -27,10 +27,11 @@ body {
    ========================================================================== */
 /**
  * Correct `block` display not defined for any HTML5 element in IE 8/9.
- * Correct `block` display not defined for `details` or `summary` in IE 10/11 and Firefox.
+ * Correct `block` display not defined for `details` or `summary` in IE 10/11
+ * and Firefox.
  * Correct `block` display not defined for `main` in IE 11.
  */
-article, aside, details, figcaption, figure, footer, header, hgroup, main, nav, section, summary {
+article, aside, details, figcaption, figure, footer, header, hgroup, main, menu, nav, section, summary {
   display: block; }
 
 /**
@@ -43,7 +44,7 @@ audio, canvas, progress, video {
   vertical-align: baseline;
   /* 2 */ }
 
-/*
+/**
  * Prevent modern browsers from displaying `audio` without controls.
  * Remove excess height in iOS 5 devices.
  */
@@ -51,9 +52,9 @@ audio:not([controls]) {
   display: none;
   height: 0; }
 
-/*
+/**
  * Address `[hidden]` styling not present in IE 8/9/10.
- * Hide the `template` element in IE 8/9/11, Safari, and Firefox < 22.
+ * Hide the `template` element in IE 8/9/10/11, Safari, and Firefox < 22.
  */
 [hidden], template {
   display: none; }
@@ -64,10 +65,11 @@ audio:not([controls]) {
  * Remove the gray background color from active links in IE 10.
  */
 a {
-  background: transparent; }
+  background-color: transparent; }
 
 /**
- * Improve readability when focused and also mouse hovered in all browsers.
+ * Improve readability of focused elements when they are also in an
+ * active/hover state.
  */
 a:active, a:hover {
   outline: 0; }
@@ -137,7 +139,7 @@ img {
   border: 0; }
 
 /**
- * Correct overflow not hidden in IE 8/9/10/11.
+ * Correct overflow not hidden in IE 9/10/11.
  */
 svg:not(:root) {
   overflow: hidden; }
@@ -154,8 +156,6 @@ figure {
  * Address differences between Firefox and other browsers.
  */
 hr {
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
   box-sizing: content-box;
   height: 0; }
 
@@ -248,8 +248,6 @@ input {
  * 2. Remove excess padding in IE 8/9/10.
  */
 input[type="checkbox"], input[type="radio"] {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
   /* 1 */
   padding: 0;
@@ -265,16 +263,13 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
 
 /**
  * 1. Address `appearance` set to `searchfield` in Safari and Chrome.
- * 2. Address `box-sizing` set to `border-box` in Safari and Chrome
- *    (include `-moz` to future-proof).
+ * 2. Address `box-sizing` set to `border-box` in Safari and Chrome.
  */
 input[type="search"] {
   -webkit-appearance: textfield;
   /* 1 */
-  -moz-box-sizing: content-box;
-  -webkit-box-sizing: content-box;
-  /* 2 */
-  box-sizing: content-box; }
+  box-sizing: content-box;
+  /* 2 */ }
 
 /**
  * Remove inner padding and search cancel button in Safari and Chrome on OS X.
@@ -324,7 +319,7 @@ table {
   border-collapse: collapse;
   border-spacing: 0; }
 
-th, td {
+td, th {
   padding: 0; }
 
 html, body {
@@ -333,9 +328,8 @@ html, body {
 
 body {
   background: #19516b;
-  background-image: -webkit-radial-gradient(top center, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0));
-  background-image: -o-radial-gradient(top center, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0));
-  background-image: radial-gradient(top center, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0));
+  background-image: -webkit-radial-gradient(top center, rgba(255, 255, 255, 0.1), transparent);
+  background-image: radial-gradient(top center, rgba(255, 255, 255, 0.1), transparent);
   background-repeat: no-repeat;
   color: #FFF;
   text-align: center;
