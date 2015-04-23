@@ -6,8 +6,8 @@ from zds.member.models import Profile
 from zds.article.models import Article, Validation as AValidation
 from zds.tutorial.models import Tutorial, Validation as TValidation
 from zds.forum.models import Forum, Topic, Category as FCategory
-from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory
-
+from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
+    HelpWriting
 from zds.member.factories import ProfileFactory
 
 
@@ -32,6 +32,13 @@ class CommandsTestCase(TestCase):
         self.assertTrue(TCategory.objects.count() > 0)
         self.assertTrue(CategorySubCategory.objects.count() > 0)
         self.assertTrue(SubCategory.objects.count() > 0)
+
+    def test_load_factory_data(self):
+        args = ["fixtures/advanced/aide_tuto_media.yaml"]
+        opts = {}
+        call_command('load_factory_data', *args, **opts)
+
+        self.assertTrue(HelpWriting.objects.count() > 0)
 
     def test_profiler(self):
         result = self.client.get("/?prof", follow=True)
