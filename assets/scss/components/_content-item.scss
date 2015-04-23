@@ -14,33 +14,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     overflow: hidden; // Temporary, until the items are completely styled
 
     flex: 1 1 100%;
+    width: 100%;
 
-    &.mini {
-        max-width: calc(50% - 10px);
-
-        .content-description {
-            display: none;
-        }
-
-        .content-title {
-            white-space: normal;
-            font-size: 14px;
-            line-height: 15px;
-            height: 45px; // 3 lines
-            display: flex; // To center when there is only 2 lines
-            align-items: center;
-        }
-
-        .content-meta {
-            padding-top: 1px;
-
-            .content-pubdate {
-                display: none;
-            }
-        }
-    }
-
-    &.expand-description:not(.mini) {
+    &.expand-description {
         .content-description {
           height: 36px; // 2 lines
           display: flex;
@@ -49,6 +25,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
           font-size: 14px;
           font-size: 1.4rem;
           line-height: 18px;
+
+          & > a {
+              max-height: 36px; // Prevents to be have the text centered if >= 3 lines
+          }
         }
 
         .content-meta {
@@ -217,8 +197,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     }
 
     &.topic-item {
-        max-width: calc(50% - 10px);
-
         .content-info {
             padding: 14px 26px;
             height: 68px;
@@ -253,4 +231,53 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    width: 100%; // prevents some weird margin bug...
+}
+
+@media only screen and #{$media-tablet} {
+    .content-item {
+        &.topic-item {
+            max-width: calc(50% - 10px);
+        }
+        &.mini {
+            max-width: calc(50% - 10px);
+
+            .content-description {
+                display: none;
+            }
+
+            .content-title {
+                white-space: normal;
+                font-size: 14px;
+                line-height: 15px;
+                height: 45px; // 3 lines
+                display: flex; // To center when there is only 2 lines
+                align-items: center;
+            }
+
+            .content-meta {
+                padding-top: 1px;
+
+                .content-pubdate {
+                    display: none;
+                }
+
+                & > * {
+                  display: block;
+                }
+            }
+        }
+    }
+}
+
+@media only screen and #{$media-mobile} {
+    .content-item {
+        &.write-tutorial {
+            display: none;
+        }
+
+        .content-tags {
+            display: none;
+        }
+    }
 }
