@@ -1785,7 +1785,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
             # Making sure the user is allowed to do that
 
             if self.add_class.objects.filter(user__pk=user.pk,
-                                          comments__pk=note_pk).count() == 0:
+                                             comments__pk=note_pk).count() == 0:
                 like = self.add_class()
                 like.user = user
                 like.comments = note
@@ -1794,7 +1794,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
                 note.save()
                 like.save()
                 if self.remove_class.objects.filter(user__pk=user.pk,
-                                                 comments__pk=note_pk).count() > 0:
+                                                    comments__pk=note_pk).count() > 0:
                     self.remove_class.objects.filter(
                         user__pk=user.pk,
                         comments__pk=note_pk).all().delete()
@@ -1803,7 +1803,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
                     note.save()
             else:
                 self.add_class.objects.filter(user__pk=user.pk,
-                                           comments__pk=note_pk).all().delete()
+                                              comments__pk=note_pk).all().delete()
                 note.like = note.like - self.add_like
                 note.dislike = note.dislike - self.add_dislike
                 note.save()
