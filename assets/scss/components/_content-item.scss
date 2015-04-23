@@ -144,6 +144,38 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         line-height: 15px;
     }
 
+    .content-tags {
+        padding: 6px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        li {
+            padding: 0;
+            flex: 0 0 22px;
+            background-color: #EEE;
+            margin-bottom: 2px;
+            color: #777;
+            display: block;
+            text-align: right;
+
+            a {
+                color: inherit;
+                padding: 0 12px;
+                line-height: 22px;
+                height: 22px;
+                display: block; // to have the click zone matching the parent box
+                transition: none; // because the fading color is just weird
+
+            }
+
+            &:hover {
+                color: #EEE;
+                background-color: #777;
+            }
+        }
+    }
+
     &.write-tutorial {
         background-color: $color-primary;
         border-color: $color-primary;

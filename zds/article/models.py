@@ -176,6 +176,7 @@ class Article(models.Model):
                                                              args=[self.pk, slugify(article_version['title'])])
         article_version['update'] = self.update
         article_version['authors'] = self.authors
+        article_version['tags'] = self.subcategory
 
         return article_version
 

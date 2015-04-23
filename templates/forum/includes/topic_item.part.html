@@ -27,4 +27,16 @@
             {% endwith %}
         </p>
     </div>
+
+    {% if topic.tags.all %}
+        <ul class="content-tags" itemprop="keywords">
+            {% for tag in topic.tags.all|slice:":3" %}
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" title="Tag {{ tag.title }}">
+                        {{ tag.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </article>

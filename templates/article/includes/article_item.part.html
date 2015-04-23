@@ -82,4 +82,16 @@
             {% endif %}
         </div>
     </div>
+
+    {% if article.tags.all %}
+        <ul class="content-tags" itemprop="keywords">
+            {% for tag in article.tags.all|slice:":3" %}
+                <li>
+                  <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                    {{ tag.title }}
+                  </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </article>
