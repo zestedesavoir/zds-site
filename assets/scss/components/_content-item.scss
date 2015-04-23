@@ -32,7 +32,11 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         }
 
         .content-meta {
-          padding-top: 1px;
+            padding-top: 1px;
+
+            .content-pubdate {
+                display: none;
+            }
         }
     }
 
@@ -113,11 +117,15 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        color: #424242;
 
         a {
-            color: #424242;
             max-height: 48px; // Prevents to have the text centered if there is more than 4 lines
         }
+    }
+
+    .content-title a, .content-description a {
+        color: inherit;
     }
 
     p {

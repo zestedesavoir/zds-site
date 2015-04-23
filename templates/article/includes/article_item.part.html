@@ -25,7 +25,11 @@
         </h3>
 
         {% if article.description and show_description %}
-            <p class="content-description">{{ article.description }}</p>
+            <p class="content-description">
+                <a href="{{ link }}" title="{{ article.description }}">
+                    {{ article.description }}
+                </a>
+            </p>
         {% endif %}
 
         <a class="content-reactions" href="
@@ -35,9 +39,7 @@
                 {{ article.get_absolute_url_online }}#reactions
             {% endif %}"
         >
-            {% if article.get_reaction_count != 0 %}
-                {{ article.get_reaction_count }}
-            {% endif %}
+            {{ article.get_reaction_count }}
         </a>
 
         <div class="content-meta">

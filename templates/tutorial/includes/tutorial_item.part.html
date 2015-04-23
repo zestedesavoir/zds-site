@@ -1,6 +1,7 @@
 {% load captureas %}
 {% load thumbnail %}
 {% load i18n %}
+{% load date %}
 
 {% captureas link %}
     {% if beta %}
@@ -25,47 +26,57 @@
         </h3>
 
         {% if tutorial.description and show_description %}
-            <p class="content-description">{{ tutorial.description }}</p>
+            <p class="content-description">
+                <a href="{{ link }}" title="{{ tutorial.description }}">
+                    {{ tutorial.description }}
+                </a>
+            </p>
         {% endif %}
 
         <div class="content-meta">
-        {% if tutorial.subcategory %}
-            <p class="content-categories">
-                {% for category in tutorial.subcategory.all %}
-                    {% if forloop.first %}
-                        {% trans "dans" %}
-                    {% elif forloop.last %}
-                        {% trans "et" %}
-                    {% else %}
-                        ,
-                    {% endif %}
+            {% if tutorial.subcategory %}
+                <p class="content-categories">
+                    {% for category in tutorial.subcategory.all %}
+                        {% if forloop.first %}
+                            {% trans "dans" %}
+                        {% elif forloop.last %}
+                            {% trans "et" %}
+                        {% else %}
+                            ,
+                        {% endif %}
 
-                    {{ category.title }}
-                {% endfor %}
-            </p>
-        {% endif %}
+                        {{ category.title }}
+                    {% endfor %}
+                </p>
+            {% endif %}
 
-        {% if tutorial.authors %}
-            <p class="content-authors">
-                {% for author in tutorial.authors.all %}
-                    {% if forloop.first %}
-                        {% trans "par" %}
-                    {% elif forloop.last %}
-                        {% trans "et" %}
-                    {% else %}
-                        ,
-                    {% endif %}
+            {% if tutorial.authors %}
+                <p class="content-authors">
+                    {% for author in tutorial.authors.all %}
+                        {% if forloop.first %}
+                            {% trans "par" %}
+                        {% elif forloop.last %}
+                            {% trans "et" %}
+                        {% else %}
+                            ,
+                        {% endif %}
 
-                    <i>
-                    {% if author == user %}
-                        {% trans "vous" %}
-                    {% else %}
-                        {{ author.username }}
-                    {% endif %}
-                    </i>
-                {% endfor %}
-            </p>
-        {% endif %}
+                        <i>
+                        {% if author == user %}
+                            {% trans "vous" %}
+                        {% else %}
+                            {{ author.username }}
+                        {% endif %}
+                        </i>
+                    {% endfor %}
+                </p>
+            {% endif %}
+
+            {% if tutorial.pubdate %}
+                <time class="content-pubdate" pubdate="{{ tutorial.pubdate|date:"c" }}">
+                    - {{ tutorial.pubdate|format_date|capfirst }}
+                </time>
+            {% endif %}
         </div>
     </div>
 </article>
