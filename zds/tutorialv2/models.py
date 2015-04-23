@@ -1794,7 +1794,7 @@ class ContentRead(models.Model):
         verbose_name_plural = 'Contenu lus'
 
     content = models.ForeignKey(PublishableContent, db_index=True)
-    note = models.ForeignKey(ContentReaction, db_index=True, is_null=True)
+    note = models.ForeignKey(ContentReaction, db_index=True, null=True)
     user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
 
     def save(self, force_insert=False, force_update=False, using=None,
