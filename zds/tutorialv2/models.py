@@ -925,7 +925,7 @@ class VersionedContent(Container):
         else:
             self.slug_repository = slug
 
-        if os.path.exists(self.get_path()):
+        if self.slug != '' and os.path.exists(self.get_path()):
             self.repository = Repo(self.get_path())
 
     def __unicode__(self):
@@ -1121,8 +1121,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
         else:
-            versioned.licence = \
-                Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
+            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
 
         if 'introduction' in json:
             versioned.introduction = json['introduction']
@@ -1132,9 +1131,12 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
         # then, fill container with children
         fill_containers_from_json(json, versioned)
     else:
-        # minimum fallback for version 1.0
+        # MINIMUM (!) fallback for version 1.0
         if "type" in json:
-            _type = "TUTORIAL"
+            if json['type'] == 'article':
+                _type = 'ARTICLE'
+            else:
+                _type = "TUTORIAL"
         else:
             _type = "ARTICLE"
 
@@ -1149,7 +1151,51 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
             versioned.introduction = json["introduction"]
         if "conclusion" in json:
             versioned.conclusion = json["conclusion"]
-        # as it is just minimum fallback, we do not even try to parse old PART/CHAPTER hierarchy
+        if 'licence' in json:
+            versioned.licence = Licence.objects.filter(code=json['licence']).first()
+        else:
+            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
+
+        if _type == 'ARTICLE':
+            extract = Extract(json['title'], '')
+            if 'text' in json:
+                extract.text = json['text']  # probably "text.md" !
+            versioned.add_extract(extract, generate_slug=True)
+
+        else:  # it's a tutorial
+            if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
+                for extract in json['chapter']['extracts']:
+                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'], slugify(extract['title'])))
+                    if 'text' in extract:
+                        new_extract.text = extract['text']
+                    versioned.add_extract(new_extract, generate_slug=False)
+
+            elif json['type'] == 'BIG' and 'parts' in json:
+                for part in json['parts']:
+                    new_part = Container(part['title'], '{}_{}'.format(part['pk'], slugify(part['title'])))
+                    if 'introduction' in part:
+                        new_part.introduction = part['introduction']
+                    if 'conclusion' in part:
+                        new_part.conclusion = part['conclusion']
+                    versioned.add_container(new_part, generate_slug=False)
+
+                    if 'chapters' in part:
+                        for chapter in part['chapters']:
+                            new_chapter = Container(
+                                chapter['title'], '{}_{}'.format(chapter['pk'], slugify(chapter['title'])))
+                            if 'introduction' in chapter:
+                                new_chapter.introduction = chapter['introduction']
+                            if 'conclusion' in chapter:
+                                new_chapter.conclusion = chapter['conclusion']
+                            new_part.add_container(new_chapter, generate_slug=False)
+
+                            if 'extracts' in chapter:
+                                for extract in chapter['extracts']:
+                                    new_extract = Extract(
+                                        extract['title'], '{}_{}'.format(extract['pk'], slugify(extract['title'])))
+                                    if 'text' in extract:
+                                        new_extract.text = extract['text']
+                                    new_chapter.add_extract(new_extract, generate_slug=False)
 
     return versioned
 
@@ -1267,7 +1313,10 @@ def get_commit_author():
 
     if user:
         aut_user = str(user.pk)
-        aut_email = str(user.email)
+        aut_email = None
+
+        if user.email:
+            aut_email = user.email
 
     else:
         aut_user = ZDS_APP['member']['bot_account']
