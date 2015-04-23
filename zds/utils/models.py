@@ -176,7 +176,7 @@ class Comment(models.Model):
     author = models.ForeignKey(User, verbose_name='Auteur',
                                related_name='comments', db_index=True)
     editor = models.ForeignKey(User, verbose_name='Editeur',
-                               related_name='comments-editor',
+                               related_name='comments-editor+',
                                null=True, blank=True)
     ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
 

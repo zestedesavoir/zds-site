@@ -83,8 +83,6 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'))
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
 
@@ -143,7 +141,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
@@ -477,6 +474,16 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+# makemigrations requires this for some reason or it errors
+# Just set to the default value
+OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
+# tell django where to put the oauth2 migrations
+MIGRATION_MODULES = {
+   # key: app name, value: a fully qualified package name, not the usual `app_label.something_else`
+  'oauth2_provider': 'zds.migrations.oauth2_provider',
+}
 
 # Load the production settings, overwrite the existing ones if needed
 try:
