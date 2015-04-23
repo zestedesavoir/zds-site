@@ -23,6 +23,7 @@ class SingleContentViewMixin(object):
     sha = None
     is_public = False
     must_redirect = False
+    denied_if_lock = False
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
@@ -50,6 +51,10 @@ class SingleContentViewMixin(object):
             if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
                 return obj
             raise PermissionDenied
+
+        if self.denied_if_lock and self.is_public and obj.is_locked:
+            raise PermissionDenied
+
         return obj
 
     def get_versioned_object(self):

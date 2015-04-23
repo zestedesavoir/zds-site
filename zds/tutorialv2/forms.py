@@ -387,11 +387,11 @@ class NoteForm(forms.Form):
         )
     )
 
-    def __init__(self, tutorial, user, *args, **kwargs):
+    def __init__(self, content, user, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse(
-            'zds.tutorial.views.answer') + '?tutorial=' + str(tutorial.pk)
+            'content:add-reaction') + '?pk=' + str(content.pk)
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -399,7 +399,7 @@ class NoteForm(forms.Form):
             Hidden('last_note', '{{ last_note_pk }}'),
         )
 
-        if tutorial.antispam(user):
+        if content.antispam(user):
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
@@ -407,7 +407,7 @@ class NoteForm(forms.Form):
                                   u'au moins 15 minutes entre deux messages consécutifs '
                                   u'afin de limiter le flood.'),
                     disabled=True)
-        elif tutorial.is_locked:
+        elif content.is_locked:
             self.helper['text'].wrap(
                 Field,
                 placeholder=_(u'Ce tutoriel est verrouillé.'),

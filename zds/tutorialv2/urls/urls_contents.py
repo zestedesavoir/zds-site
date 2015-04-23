@@ -7,7 +7,7 @@ from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, Ed
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation, \
-    RevokeValidation
+    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -24,6 +24,10 @@ urlpatterns = patterns('',
 
                        url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(), name='download-zip'),
 
+                       # reactions:
+                       url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
+                       url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
+                       url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
                        # create:
                        url(r'^nouveau/$', CreateContent.as_view(), name='create'),
 

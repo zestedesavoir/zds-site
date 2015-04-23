@@ -1536,7 +1536,7 @@ class PublishableContent(models.Model):
         """
         :return : umber of notes in the tutorial.
         """
-        return ContentReaction.objects.filter(tutorial__pk=self.pk).count()
+        return ContentReaction.objects.filter(content__pk=self.pk).count()
 
     def get_last_note(self):
         """
@@ -1745,8 +1745,18 @@ class ContentRead(models.Model):
         verbose_name_plural = 'Contenu lus'
 
     content = models.ForeignKey(PublishableContent, db_index=True)
-    note = models.ForeignKey(ContentReaction, db_index=True)
+    note = models.ForeignKey(ContentReaction, db_index=True, is_null=True)
     user = models.ForeignKey(User, related_name='content_notes_read', db_index=True)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        """
+        Save this model but check that if we have not a related note it is because the user is content author.
+        """
+        if not self.user in self.content.authors.all() and self.note is None:
+            raise ValueError("Must be related to a note or be an author")
+
+        return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 
     def __unicode__(self):
         return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.content, self.user, self.note.pk)

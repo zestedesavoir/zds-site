@@ -48,7 +48,7 @@ from git import Repo, BadObject
 from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, \
     AcceptValidationForm, RejectValidationForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
-    BadManifestError, Extract, default_slug_pool, PublishedContent
+    BadManifestError, Extract, default_slug_pool, PublishedContent, ContentRead
 from utils import search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
@@ -1705,137 +1705,113 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
-@can_write_and_read_now
-@login_required
-@require_POST
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-def reject_tutorial(request):
-    """Staff reject tutorial of an author."""
+class SendNoteFormView(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormView):
+    is_public = True
+    denied_if_lock = True
+    form_class = NoteForm
 
-    # Retrieve current tutorial;
+    def form_valid(self, form):
 
-    try:
-        tutorial_pk = request.POST["tutorial"]
-    except KeyError:
-        raise Http404
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
-    validation = Validation.objects.filter(
-        tutorial__pk=tutorial_pk,
-        version=tutorial.sha_validation).latest("date_proposition")
+        if self.object.antispam(self.request.user):
+            raise PermissionDenied
+        if "message" in self.request.GET:
 
-    if request.user == validation.validator:
-        validation.comment_validator = request.POST["text"]
-        validation.status = "REJECT"
-        validation.date_validation = datetime.now()
-        validation.save()
+            if not self.request.GET["message"].isdigit():
+                raise Http404
+            reaction = ContentReaction.objects\
+                .filter(pk=int(self.request.GET["message"]), author=self.request.user)
+            if reaction is None:
+                raise Http404
+        else:
+            reaction = ContentReaction()
+        reaction.related_content = self.object
+        reaction.update_content(form.cleaned_data["text"])
+        reaction.pubdate = datetime.now()
+        reaction.position = self.object.get_note_count() + 1
+        reaction.ip_address = get_client_ip(self.request)
+        reaction.author = self.request.user
 
-        # Remove sha_validation because we rejected this version of the tutorial.
-
-        tutorial.sha_validation = None
-        tutorial.pubdate = None
-        tutorial.save()
-        messages.info(request, _(u"Le tutoriel a bien été refusé."))
-        comment_reject = '\n'.join(['> ' + line for line in validation.comment_validator.split('\n')])
-        # send feedback
-        msg = (
-            _(u'Désolé, le zeste **{0}** n\'a malheureusement '
-              u'pas passé l’étape de validation. Mais ne désespère pas, '
-              u'certaines corrections peuvent surement être faite pour '
-              u'l’améliorer et repasser la validation plus tard. '
-              u'Voici le message que [{1}]({2}), ton validateur t\'a laissé:\n\n`{3}`\n\n'
-              u'N\'hésite pas a lui envoyer un petit message pour discuter '
-              u'de la décision ou demander plus de détail si tout cela te '
-              u'semble injuste ou manque de clarté.')
-            .format(tutorial.title,
-                    validation.validator.username,
-                    settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(),
-                    comment_reject))
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            tutorial.authors.all(),
-            _(u"Refus de Validation : {0}").format(tutorial.title),
-            "",
-            msg,
-            True,
-            direct=False,
-        )
-        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
-    else:
-        messages.error(request,
-                       _(u"Vous devez avoir réservé ce tutoriel "
-                         u"pour pouvoir le refuser."))
-        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
+        reaction.save()
+        self.object.last_note = reaction
+        self.object.save()
+        read_note = ContentRead()
+        read_note.content = self.object
+        read_note.user = self.request.user
+        read_note.note = reaction
+        read_note.save()
+        self.success_url = reaction.get_absolute_url()
+        return super(SendNoteFormView, self).form_valid(form)
 
 
-@can_write_and_read_now
-@login_required
-@require_POST
-@permission_required("tutorial.change_tutorial", raise_exception=True)
-def valid_tutorial(request):
-    """Staff valid tutorial of an author."""
+class UpvoteReaction(LoginRequiredMixin, FormView):
 
-    # Retrieve current tutorial;
+    add_class = CommentLike
+    """
+    :var add_class: The model class where the vote will be added
+    """
 
-    try:
-        tutorial_pk = request.POST["tutorial"]
-    except KeyError:
-        raise Http404
-    tutorial = get_object_or_404(PublishableContent, pk=tutorial_pk)
-    validation = Validation.objects.filter(
-        tutorial__pk=tutorial_pk,
-        version=tutorial.sha_validation).latest("date_proposition")
+    remove_class = CommentDislike
+    """
+    :var remove_class: The model class where the vote will be removed if exists
+    """
 
-    if request.user == validation.validator:
-        (output, err) = mep(tutorial, tutorial.sha_validation)
-        messages.info(request, output)
-        messages.error(request, err)
-        validation.comment_validator = request.POST["text"]
-        validation.status = "ACCEPT"
-        validation.date_validation = datetime.now()
-        validation.save()
+    add_like = 1
+    """
+    :var add_like: The value that will be added to like total
+    """
 
-        # Update sha_public with the sha of validation. We don't update sha_draft.
-        # So, the user can continue to edit his tutorial in offline.
+    add_dislike = 0
+    """
+    :var add_dislike: The value that will be added to the dislike total
+    """
 
-        if request.POST.get('is_major', False) or tutorial.sha_public is None or tutorial.sha_public == '':
-            tutorial.pubdate = datetime.now()
-        tutorial.sha_public = validation.version
-        tutorial.source = request.POST["source"]
-        tutorial.sha_validation = None
-        tutorial.save()
-        messages.success(request, _(u"Le tutoriel a bien été validé."))
+    def post(self, request, *args, **kwargs):
+        if "message" not in self.request.GET or not self.request.GET["message"].isdigit():
+            raise Http404
+        note_pk = int(self.request.GET["message"])
+        note = get_object_or_404(ContentReaction, pk=note_pk)
+        resp = {}
+        user = self.request.user
+        if note.author.pk != user.pk:
 
-        # send feedback
+            # Making sure the user is allowed to do that
 
-        msg = (
-            _(u'Félicitations ! Le zeste [{0}]({1}) '
-              u'a été publié par [{2}]({3}) ! Les lecteurs du monde entier '
-              u'peuvent venir l\'éplucher et réagir a son sujet. '
-              u'Je te conseille de rester a leur écoute afin '
-              u'd\'apporter des corrections/compléments.'
-              u'Un Tutoriel vivant et a jour est bien plus lu '
-              u'qu\'un sujet abandonné !')
-            .format(tutorial.title,
-                    settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
-                    validation.validator.username,
-                    settings.ZDS_APP['site']['url'] + validation.validator.profile.get_absolute_url(), ))
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        send_mp(
-            bot,
-            tutorial.authors.all(),
-            _(u"Publication : {0}").format(tutorial.title),
-            "",
-            msg,
-            True,
-            direct=False,
-        )
-        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
-    else:
-        messages.error(request,
-                       _(u"Vous devez avoir réservé ce tutoriel "
-                         u"pour pouvoir le valider."))
-        return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
+            if self.add_class.objects.filter(user__pk=user.pk,
+                                          comments__pk=note_pk).count() == 0:
+                like = self.add_class()
+                like.user = user
+                like.comments = note
+                note.like += self.add_like
+                note.dislike += self.add_dislike
+                note.save()
+                like.save()
+                if self.remove_class.objects.filter(user__pk=user.pk,
+                                                 comments__pk=note_pk).count() > 0:
+                    self.remove_class.objects.filter(
+                        user__pk=user.pk,
+                        comments__pk=note_pk).all().delete()
+                    note.dislike = note.dislike - self.add_like
+                    note.like = note.like - self.add_dislike
+                    note.save()
+            else:
+                self.add_class.objects.filter(user__pk=user.pk,
+                                           comments__pk=note_pk).all().delete()
+                note.like = note.like - self.add_like
+                note.dislike = note.dislike - self.add_dislike
+                note.save()
+        resp["upvotes"] = note.like
+        resp["downvotes"] = note.dislike
+        if request.is_ajax():
+            return HttpResponse(json_writer.dumps(resp))
+        else:
+            return redirect(note.get_absolute_url())
+
+
+class DownvoteReaction(UpvoteReaction):
+    add_class = CommentDislike
+    remove_class = CommentLike
+    add_like = 0
+    add_dislike = 1
 
 
 @can_write_and_read_now
@@ -2505,90 +2481,3 @@ def edit_note(request):
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
         form.helper.form_action = reverse("zds.tutorial.views.edit_note") + "?message=" + str(note_pk)
         return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
-
-
-@can_write_and_read_now
-@login_required
-def like_note(request):
-    """Like a note."""
-    try:
-        note_pk = request.GET["message"]
-    except KeyError:
-        raise Http404
-    resp = {}
-    note = get_object_or_404(ContentReaction, pk=note_pk)
-
-    user = request.user
-    if note.author.pk != request.user.pk:
-
-        # Making sure the user is allowed to do that
-
-        if CommentLike.objects.filter(user__pk=user.pk,
-                                      comments__pk=note_pk).count() == 0:
-            like = CommentLike()
-            like.user = user
-            like.comments = note
-            note.like = note.like + 1
-            note.save()
-            like.save()
-            if CommentDislike.objects.filter(user__pk=user.pk,
-                                             comments__pk=note_pk).count() > 0:
-                CommentDislike.objects.filter(
-                    user__pk=user.pk,
-                    comments__pk=note_pk).all().delete()
-                note.dislike = note.dislike - 1
-                note.save()
-        else:
-            CommentLike.objects.filter(user__pk=user.pk,
-                                       comments__pk=note_pk).all().delete()
-            note.like = note.like - 1
-            note.save()
-    resp["upvotes"] = note.like
-    resp["downvotes"] = note.dislike
-    if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
-    else:
-        return redirect(note.get_absolute_url())
-
-
-@can_write_and_read_now
-@login_required
-def dislike_note(request):
-    """Dislike a note."""
-
-    try:
-        note_pk = request.GET["message"]
-    except KeyError:
-        raise Http404
-    resp = {}
-    note = get_object_or_404(ContentReaction, pk=note_pk)
-    user = request.user
-    if note.author.pk != request.user.pk:
-
-        # Making sure the user is allowed to do that
-
-        if CommentDislike.objects.filter(user__pk=user.pk,
-                                         comments__pk=note_pk).count() == 0:
-            dislike = CommentDislike()
-            dislike.user = user
-            dislike.comments = note
-            note.dislike = note.dislike + 1
-            note.save()
-            dislike.save()
-            if CommentLike.objects.filter(user__pk=user.pk,
-                                          comments__pk=note_pk).count() > 0:
-                CommentLike.objects.filter(user__pk=user.pk,
-                                           comments__pk=note_pk).all().delete()
-                note.like = note.like - 1
-                note.save()
-        else:
-            CommentDislike.objects.filter(user__pk=user.pk,
-                                          comments__pk=note_pk).all().delete()
-            note.dislike = note.dislike - 1
-            note.save()
-    resp["upvotes"] = note.like
-    resp["downvotes"] = note.dislike
-    if request.is_ajax():
-        return HttpResponse(json_writer.dumps(resp))
-    else:
-        return redirect(note.get_absolute_url())
