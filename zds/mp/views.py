@@ -396,7 +396,7 @@ class PrivatePostAnswer(CreateView):
         self.topic.save()
 
         # send email
-        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['abbr'],
+        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
                                          _(u'Message Privé'),
                                          self.topic.title)
         from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
