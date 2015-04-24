@@ -61,6 +61,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         height: 76px;
         flex: 1;
         position: relative;
+        min-width: 100px;
     }
 
     .content-reactions {
