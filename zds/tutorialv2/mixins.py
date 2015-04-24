@@ -27,11 +27,18 @@ class SingleContentViewMixin(object):
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
-            queryset = PublishableContent.objects \
-                .select_related("licence") \
-                .prefetch_related("authors") \
-                .prefetch_related("subcategory") \
-                .filter(pk=self.kwargs["pk"])
+            if "pk" in self.request.GET and "pk" not in self.kwargs:
+                queryset = PublishableContent.objects \
+                    .select_related("licence") \
+                    .prefetch_related("authors") \
+                    .prefetch_related("subcategory") \
+                    .filter(pk=self.request.GET["pk"])
+            else:
+                queryset = PublishableContent.objects \
+                    .select_related("licence") \
+                    .prefetch_related("authors") \
+                    .prefetch_related("subcategory") \
+                    .filter(pk=self.kwargs["pk"])
 
             obj = queryset.first()
         else:
@@ -46,7 +53,8 @@ class SingleContentViewMixin(object):
                 .filter(old_pk=self.kwargs["pk"], slug=self.kwargs["slug"])
             obj = queryset.first()
             self.must_redirect = True
-
+        if self.is_public and not self.must_redirect:
+            self.sha = obj.sha_public
         if self.must_be_author and self.request.user not in obj.authors.all():
             if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
                 return obj
@@ -74,7 +82,10 @@ class SingleContentViewMixin(object):
 
         # if beta, user can also access to it
         is_beta = self.object.is_beta(sha)
-        if self.request.user not in self.object.authors.all() and not is_beta:
+        if self.object.is_public(sha):
+            pass
+        elif self.request.user not in self.object.authors.all() and not is_beta and self.must_be_author:
+
             if not self.request.user.has_perm("tutorial.change_tutorial"):
                 raise PermissionDenied
 

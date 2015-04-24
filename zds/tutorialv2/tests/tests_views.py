@@ -14,8 +14,8 @@ from django.core.urlresolvers import reverse
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    SubCategoryFactory
-from zds.tutorialv2.models import PublishableContent, Validation, PublishedContent
+    SubCategoryFactory, PublishedContentFactory
+from zds.tutorialv2.models import PublishableContent, Validation, PublishedContent, ContentReaction
 from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
@@ -2726,6 +2726,26 @@ class ContentTests(TestCase):
                 "js_support": True
             })
         self.assertEqual(result.status_code, 403)
+
+    def test_add_note(self):
+        tuto = PublishedContentFactory(author_list=[self.user_author])
+        published_obj = PublishedContent.objects\
+            .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type)\
+            .prefetch_related('content')\
+            .prefetch_related("content__authors")\
+            .prefetch_related("content__subcategory")\
+            .first()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(reverse("content:add-reaction")+"?pk=" + str(tuto.pk), {
+            "text": u"Ce tuto est tellement cool :p \\o/ éè"
+        })
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(ContentReaction.objects.count(), 1)
 
     def tearDown(self):
 

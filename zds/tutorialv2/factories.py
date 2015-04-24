@@ -9,6 +9,7 @@ import factory
 from zds.tutorialv2.models import PublishableContent, Validation, ContentReaction, Container, Extract
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
+from zds.tutorialv2.utils import publish_content
 
 text_content = u'Ceci est un texte bidon, **avec markown**'
 
@@ -23,8 +24,13 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
+        auths = []
+        if "author_list" in kwargs:
+            auths = kwargs.pop("author_list")
 
+        publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
+        for auth in auths:
+            publishable_content.authors.add(auth)
         publishable_content.gallery = GalleryFactory()
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery)
@@ -90,6 +96,23 @@ class ContentReactionFactory(factory.DjangoModelFactory):
             content.save()
         return note
 
+
+class PublishedContentFactory(PublishableContentFactory):
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        """create a new PublishableContent and then publish it.
+         .. attention:
+           this method does **not** send you the PublisedContent object that is generated during the publication,
+            you will have to fetch it by your own means
+
+        :param create:
+        :param kwargs:
+        :return: The generated publishable content.
+        """
+        content = super(PublishedContentFactory, cls)._prepare(create, **kwargs)
+        publish_content(content, content.load_version(), True)
+        return content
 
 class SubCategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubCategory

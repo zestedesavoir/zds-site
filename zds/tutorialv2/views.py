@@ -1713,10 +1713,15 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
-class SendNoteFormView(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormView):
+class SendNoteFormView(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     is_public = True
     denied_if_lock = True
+    must_be_author = False
+    only_draft_version = False
     form_class = NoteForm
+
+    def get_form(self, form_class):
+        return NoteForm(self.object, self.request.user, *self.args, **self.kwargs)
 
     def form_valid(self, form):
 
