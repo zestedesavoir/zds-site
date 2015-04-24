@@ -10,6 +10,11 @@
     {% endcaptureas %}
 {% endif %}
 
+{# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
+{% captureas authors_text %}
+    {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %} {% endfor %}
+{% endcaptureas %}
+
 <article class="content-item article-item">
     <a href="{{ link }}" tabindex="-1" class="content-illu{% if article.image %} has-illu{% endif %}">
         {% if article.image %}
@@ -38,6 +43,7 @@
             {% else %}
                 {{ article.get_absolute_url_online }}#reactions
             {% endif %}"
+            title="{% if article.get_reaction_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_reaction_count }}{% endif %} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}"
         >
             {{ article.get_reaction_count }}
         </a>
@@ -49,29 +55,7 @@
 
             {% if article.sha_public %}
                 <p class="content-authors">
-                    {% for author in article.authors.all %}
-                        {% if forloop.first %}
-                            {% trans "par" %}
-                        {% elif forloop.last %}
-                            {% trans "et" %}
-                        {% else %}
-                            ,
-                        {% endif %}
-
-                        {% if author == user %}
-                            {% trans "vous" %}
-                        {% else %}
-                            {{ author.username }}
-                        {% endif %}
-                    {% endfor %}
-                        {% for author in authors.all %}
-                            <li itemscope itemprop="author"
-                                itemtype="http://schema.org/Person"
-                            >
-                                {{ author.username }}
-                            </li>
-                        {% endfor %}
-                    </ul>
+                    {{ authors_text }}
                 </p>
             {% elif article.sha_validation %}
                 <p class="content-state">

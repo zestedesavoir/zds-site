@@ -11,6 +11,16 @@
     {% endif %}
 {% endcaptureas %}
 
+{# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
+{% captureas authors_text %}
+    {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %} {% endfor %}
+{% endcaptureas %}
+
+{# Categories (in X, Y and Z) #}
+{% captureas categories_text %}
+    {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
+{% endcaptureas %}
+
 <article class="content-item expand-description tutorial-item{{ item_class }}">
     <a href="{{ link }}" tabindex="-1" class="content-illu{% if tutorial.image %} has-illu{% endif %}">
         {% if tutorial.image %}
@@ -33,42 +43,16 @@
             </p>
         {% endif %}
 
-        <div class="content-meta"{% if tutorial.pubdate %} title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }}"{% endif %}>
+        <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
             {% if tutorial.subcategory %}
                 <p class="content-categories">
-                    {% for category in tutorial.subcategory.all %}
-                        {% if forloop.first %}
-                            {% trans "dans" %}
-                        {% elif forloop.last %}
-                            {% trans "et" %}
-                        {% else %}
-                            ,
-                        {% endif %}
-
-                        {{ category.title }}
-                    {% endfor %}
+                    {{ categories_text }}
                 </p>
             {% endif %}
 
             {% if tutorial.authors %}
                 <p class="content-authors">
-                    {% for author in tutorial.authors.all %}
-                        {% if forloop.first %}
-                            {% trans "par" %}
-                        {% elif forloop.last %}
-                            {% trans "et" %}
-                        {% else %}
-                            ,
-                        {% endif %}
-
-                        <i>
-                        {% if author == user %}
-                            {% trans "vous" %}
-                        {% else %}
-                            {{ author.username }}
-                        {% endif %}
-                        </i>
-                    {% endfor %}
+                    {{ authors_text }}
                 </p>
             {% endif %}
 
