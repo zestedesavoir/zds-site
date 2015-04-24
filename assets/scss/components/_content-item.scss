@@ -52,7 +52,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         height: $content-illu-size;
 
         &:not(.has-illu) {
-          background-color: $content-border-color;
+            background-color: $content-border-color;
         }
     }
 
