@@ -441,6 +441,8 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+        'top_tag_exclu': {},
+        'top_tag_cache': 60*60*24,# cache for top tag in second
         'home_number': 5,
     },
     'paginator': {
