@@ -21,6 +21,8 @@ from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
+from zds.utils.models import HelpWriting
+from zds.utils.factories import HelpWritingFactory
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -2746,6 +2748,185 @@ class ContentTests(TestCase):
         })
         self.assertEqual(result.status_code, 200)
         self.assertEqual(ContentReaction.objects.count(), 1)
+
+    def test_help_to_perfect_tuto(self):
+        """ This test aim to unit test the "help me to write my tutorial" interface.
+        It is testing if the back-end is always sending back good datas"""
+
+        # create some helps:
+        num_of_helps = 5  # note: should be at least "2" for this test to be performed
+        for i in range(num_of_helps):
+            a = HelpWritingFactory()
+            a.save()
+
+        helps = HelpWriting.objects.all()
+
+        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 0)
+
+        # then active the beta on tutorial :
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        sha_draft = PublishableContent.objects.get(pk=self.tuto.pk).sha_draft
+        response = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = PublishableContent.objects.get(pk=self.tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # However if we ask with a filter we will still get 0 !
+        for helping in helps:
+            response = self.client.get(
+                reverse('content:helps') +
+                u'?need={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            contents = response.context['contents']
+            self.assertEqual(len(contents), 0)
+
+        # now tutorial is positive for every options
+        # if we ask for any help we should get a positive answer for every filter !
+        self.tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        for helping in helps:
+            self.tuto.helps.add(helping)
+        self.tuto.save()
+
+        for helping in helps:
+            response = self.client.get(
+                reverse('content:helps') +
+                u'?need={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            contents = response.context['contents']
+            self.assertEqual(len(contents), 1)
+
+        # now, add an article
+        article = PublishableContentFactory(type="ARTICLE")
+        article.authors.add(self.user_author)
+        article.subcategory.add(self.subcategory)
+        article.save()
+
+        # in the helps, there should still be only one results
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # test "type" filter
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=article',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 0)  # no article yet
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=tuto',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # add an help
+        an_help = HelpWriting.objects.first()
+        article.helps.add(an_help)
+        article.save()
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 2)  # ... then this time, we get two results !
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?need={}'.format(an_help.slug),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 2)  # same with the help
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?need={}'.format(HelpWriting.objects.last().slug),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)  # but only one if we ask for another need
+
+        # test "type" filter:
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=article',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=tuto',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # test pagination page doesn't exist
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?page=1534',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)
+
+        # test pagination page not an integer
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?page=abcd',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)
+>>>>>>> Re-implemente la ZEP-03
 
     def tearDown(self):
 

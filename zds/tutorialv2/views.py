@@ -42,6 +42,8 @@ from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.encoding import smart_str
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from zds.utils.paginator import paginator_range
 from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
@@ -1191,11 +1193,14 @@ class ListTutorials(ListOnlineContents):
     content_type = "TUTORIAL"
 
 
-class TutorialWithHelp(ListTutorials):
+class ContentsWithHelps(ListView):
     """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
     for more documentation, have a look to ZEP 03 specification (fr)"""
-    context_object_name = 'tutorials'
+
+    context_object_name = 'objects'
     template_name = 'tutorialv2/view/help.html'
+
+    specific_need = None
 
     def get_queryset(self):
         """get only tutorial that need help and handle filtering if asked"""
@@ -1203,22 +1208,54 @@ class TutorialWithHelp(ListTutorials):
             .annotate(total=Count('helps'), shasize=Count('sha_beta')) \
             .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
             .all()
-        try:
-            type_filter = self.request.GET.get('type')
-            query_set = query_set.filter(helps_title__in=[type_filter])
-        except KeyError:
-            # if no filter, no need to change
-            pass
+        if 'need' in self.request.GET:
+            self.specific_need = self.request.GET.get('need')
+            if self.specific_need != '':
+                query_set = query_set.filter(helps__slug__in=[self.specific_need])
+        if 'type' in self.request.GET:
+            filter_type = None
+            if self.request.GET['type'] == 'article':
+                filter_type = 'ARTICLE'
+            elif self.request.GET['type'] == 'tuto':
+                filter_type = 'TUTORIAL'
+            if filter_type:
+                query_set = query_set.filter(type=filter_type)
         return query_set
 
     def get_context_data(self, **kwargs):
         """Add all HelpWriting objects registered to the context so that the template can use it"""
-        context = super(TutorialWithHelp, self).get_context_data(**kwargs)
-        context['helps'] = HelpWriting.objects.all()
+        context = super(ContentsWithHelps, self).get_context_data(**kwargs)
+        objects = context[self.context_object_name]
+
+        # paginate
+        paginator = Paginator(objects, settings.ZDS_APP['content']['helps_per_page'])
+        page = self.request.GET.get('page', 1)
+
+        # Check if `page` is correct (integer and exists)
+        try:
+            page = int(page)
+            shown_objects = paginator.page(page)
+        except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
+            raise Http404
+
+        shown_contents = []
+        for obj in shown_objects:
+            versioned = obj.load_version()
+            versioned.helps = obj.helps
+            shown_contents.append(versioned)
+
+        helps = HelpWriting.objects
+
+        if self.specific_need:
+            context['specific_need'] = helps.filter(slug=self.specific_need).first()
+
+        context['helps'] = helps.all()
+        context['pages'] = paginator_range(page, paginator.num_pages)
+        context['nb'] = page
+        context['total_contents_number'] = objects.count()
+        context['contents'] = shown_contents
+
         return context
-
-
-# TODO ArticleWithHelp
 
 
 # Staff actions.

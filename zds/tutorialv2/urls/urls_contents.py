@@ -7,10 +7,12 @@ from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, Ed
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation, \
-    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction
+    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction, ContentsWithHelps
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
+
+                       url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
 
                        # view:
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
