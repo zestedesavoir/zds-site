@@ -19,7 +19,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.news.models import News
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
-from zds.tutorial.models import get_last_tutorials
+from zds.tutorial.models import get_last_tutorials, get_tutorials_count
 from zds.utils.models import Alert
 from django.utils.translation import ugettext as _
 
@@ -50,6 +50,7 @@ def home(request):
         'last_articles': articles,
         'last_news': News.objects.get_last_news(),
         'last_topics': Topic.objects.get_last_topics(),
+        'tutorials_count': get_tutorials_count(),
         'quote': quote.replace('\n', ''),
     })
 

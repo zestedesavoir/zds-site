@@ -128,10 +128,10 @@
                     {% endfor %}
                     <div class="content-item write-tutorial">
                         <div class="write-tutorial-text">
-                            <p>{% trans "Il y a 452 tutoriels sur Zeste de Savoir." %}</p>
+                            <p>{% blocktrans %}Il y a {{ tutorials_count }} tutoriels sur Zeste de Savoir.{% endblocktrans %}</p>
                             <p class="lead">{% trans "Pourquoi pas le votre ?" %}</p>
                         </div>
-                        <a href="#" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
+                        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
                     </div>
                 </div>
             </section>
