@@ -165,9 +165,18 @@ $content-width: 1145px;
             min-width: 170px;
             z-index: 0;
 
-            img {
-                position: relative;
+            .featured-illu {
+                position: absolute;
                 z-index: 1;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: auto;
+            }
+
+            .illu-fallback {
+                position: relative;
+                z-index: -1;
                 width: 100%;
                 height: auto;
             }

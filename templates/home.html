@@ -99,7 +99,8 @@
                 {% for news in last_news %}
                 <article class="featured-item">
                     <a href="{{ news.url }}">
-                        <img src="{{ news.image_url }}" alt="" class="content-illu">
+                        <img src="{% static "images/1x1-blue.png" %}" class="illu-fallback" />
+                        <img src="{{ news.image_url }}" alt="" class="featured-illu">
                         <div class="featured-meta">
                             <h3>{{ news.title }}</h3>
                             <p class="featured-description">{% trans "Un" %} {{ news.type }} {% for author in news.authors.all %} {% if forloop.first %}{% trans "par" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} <i>{{ author }}</i>{% endfor %}</p>
