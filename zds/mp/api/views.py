@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
-from zds.mp.api.permissions import IsParticipant
 
-from zds.mp.api.serializers import PrivateTopicSerializer
+from zds.mp.api.permissions import IsParticipant
+from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer
 from zds.mp.models import PrivateTopic
 
 
@@ -78,14 +78,13 @@ class PrivateTopicListAPI(ListAPIView):
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 
-class PrivateTopicDetailAPI(RetrieveAPIView):
+class PrivateTopicDetailAPI(RetrieveUpdateAPIView):
     """
     Private topic resource to display details of a private topic.
     """
 
     permission_classes = (IsAuthenticated, IsParticipant)
     queryset = PrivateTopic.objects.all()
-    serializer_class = PrivateTopicSerializer
     obj_key_func = DetailKeyConstructor()
 
     @etag(obj_key_func)
@@ -103,7 +102,50 @@ class PrivateTopicDetailAPI(RetrieveAPIView):
         responseMessages:
             - code: 401
               message: Not authenticated
+            - code: 403
+              message: Not permissions
             - code: 404
               message: Not found
         """
         return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates a MP given by its identifier of the current user authenticated.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+            - name: title
+              description: New title of the MP.
+              required: false
+              paramType: form
+            - name: subtitle
+              description: New subtitle of the MP.
+              required: false
+              paramType: form
+            - name: participants
+              description: If you would like to add a participant, you must specify its user identifier and if you
+                            would like to add more than one participant, you must specify this parameter several times.
+              required: false
+              paramType: form
+        responseMessages:
+            - code: 400
+              message: Bad Request
+            - code: 401
+              message: Not authenticated
+            - code: 403
+              message: Not permissions
+            - code: 404
+              message: Not found
+        """
+        return self.update(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PrivateTopicSerializer
+        elif self.request.method == 'PUT':
+            return PrivateTopicUpdateSerializer

@@ -230,3 +230,76 @@ class PrivateTopicDetailAPITest(APITestCase):
 
         response = self.client.get(reverse('api-mp-detail', args=[another_private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_mp_details_without_any_change(self):
+        """
+        Updates a MP but without any changes.
+        """
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), {})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.private_topic.title, response.data.get('title'))
+        self.assertEqual(self.private_topic.subtitle, response.data.get('subtitle'))
+        self.assertEqual(self.private_topic.participants.count(), len(response.data.get('participants')))
+
+    def test_update_mp_title(self):
+        """
+        Update title of a MP.
+        """
+        data = {
+            'title': 'Do you love Tacos?'
+        }
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('title'), data.get('title'))
+
+    def test_update_mp_subtitle(self):
+        """
+        Update subtitle of a MP.
+        """
+        data = {
+            'subtitle': 'If you don\'t love Tacos, you are weird!'
+        }
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('subtitle'), data.get('subtitle'))
+
+    def test_update_mp_participants(self):
+        """
+        Update participants of a MP.
+        """
+        another_profile = ProfileFactory()
+        data = {
+            'participants': another_profile.user.id
+        }
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('participants')[0], data.get('participants'))
+
+    def test_update_mp_with_client_unauthenticated(self):
+        """
+        Updates a private topic with an unauthenticated client must fail.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.put(reverse('api-mp-detail', args=[self.private_topic.id]), {})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_a_private_topic_not_present(self):
+        """
+        Gets an error 404 when the private topic isn't present in the database.
+        """
+        response = self.client.put(reverse('api-mp-detail', args=[42]), {})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_private_topic_not_in_participants(self):
+        """
+        Gets an error 403 when the member doesn't have permission to display details about the private topic.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+
+        response = self.client.put(reverse('api-mp-detail', args=[another_private_topic.id]), {})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

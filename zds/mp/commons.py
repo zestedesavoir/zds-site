@@ -8,7 +8,25 @@ from zds.member.commons import Validator
 from zds.member.models import Profile
 
 
-class ParticipantsValidator(Validator):
+class ParticipantsUserValidator(Validator):
+    def validate_participants(self, value):
+        msg = None
+        if value:
+            if len(value) == 0:
+                msg = _(u'Vous devez spécifier des participants.')
+            else:
+                for participant in value:
+                    if participant.username == self.get_current_user().username:
+                        msg = _(u'Vous ne pouvez pas vous écrire à vous-même !')
+            if msg is not None:
+                self.throw_error('participants', msg)
+        return value
+
+    def get_current_user(self):
+        raise NotImplementedError('`get_current_user()` must be implemented.')
+
+
+class ParticipantsStringValidator(Validator):
     """
     Validates participants field of a MP.
     """
