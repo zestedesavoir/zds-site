@@ -64,8 +64,9 @@ from zds.utils.tutorials import get_blob, export_tutorial_to_md
 from django.utils.translation import ugettext as _
 from django.views.generic import ListView, FormView, DeleteView, RedirectView
 from zds.member.decorator import PermissionRequiredMixin
-from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin, \
-    SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin
+from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin,\
+    SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin,\
+    SingleOnlineContentFormViewMixin
 from git import GitCommandError
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
 from django.utils.encoding import smart_text
@@ -189,7 +190,6 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
     model = PublishableContent
     template_name = 'tutorialv2/view/content.html'
-    online = False
     must_be_author = False  # as in beta state anyone that is logged can access to it
     only_draft_version = False
 
@@ -1255,8 +1255,6 @@ class ContentsWithHelps(ListView):
         context['total_contents_number'] = objects.count()
         context['contents'] = shown_contents
 
-        return context
-
 
 # Staff actions.
 
@@ -1341,6 +1339,8 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
     prefetch_all = False
     form_class = AskValidationForm
+    must_be_author = True
+    authorized_for_staff = True  # an admin could ask validation for a content
 
     def get_form_kwargs(self):
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
@@ -1348,6 +1348,12 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         return kwargs
 
     def form_valid(self, form):
+
+        # test if admin or author
+        """"if not self.request.user in self.object.authors.all() \
+                and not self.request.user.has_perm('tutorial.change_tutorial'):
+            raise PermissionDenied"""
+
         old_validation = Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING_V']).first()
 
         if old_validation:
@@ -1750,15 +1756,31 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
-class SendNoteFormView(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    is_public = True
+class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):
+
     denied_if_lock = True
-    must_be_author = False
-    only_draft_version = False
     form_class = NoteForm
 
-    def get_form(self, form_class):
-        return NoteForm(self.object, self.request.user, *self.args, **self.kwargs)
+    def get_public_object(self):
+        """redefine this function in order to get the object from `pk` in request.GET"""
+        pk = self.request.GET.get('pk', None)
+
+        obj = PublishedContent.objects\
+            .filter(content_pk=int(pk))\
+            .prefetch_related('content')\
+            .first()
+
+        if obj is None:
+            raise Http404
+
+        return obj
+
+    def get_form_kwargs(self):
+        kwargs = super(SendNoteFormView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['content'] = self.object
+
+        return kwargs
 
     def form_valid(self, form):
 

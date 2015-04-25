@@ -114,6 +114,7 @@ class PublishedContentFactory(PublishableContentFactory):
         publish_content(content, content.load_version(), True)
         return content
 
+
 class SubCategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubCategory
 

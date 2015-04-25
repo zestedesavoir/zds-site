@@ -2730,22 +2730,29 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
     def test_add_note(self):
-        tuto = PublishedContentFactory(author_list=[self.user_author])
+        tuto = PublishedContentFactory(author_list=[self.user_author], type="TUTORIAL")
+
         published_obj = PublishedContent.objects\
             .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type)\
             .prefetch_related('content')\
             .prefetch_related("content__authors")\
             .prefetch_related("content__subcategory")\
             .first()
+
+        self.assertIsNotNone(published_obj)
+
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
                 password='hostel77'),
             True)
 
-        result = self.client.post(reverse("content:add-reaction")+"?pk=" + str(tuto.pk), {
-            "text": u"Ce tuto est tellement cool :p \\o/ éè"
-        })
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(published_obj.content.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            })
         self.assertEqual(result.status_code, 200)
         self.assertEqual(ContentReaction.objects.count(), 1)
 
@@ -2926,7 +2933,6 @@ class ContentTests(TestCase):
             follow=False
         )
         self.assertEqual(404, response.status_code)
->>>>>>> Re-implemente la ZEP-03
 
     def tearDown(self):
 

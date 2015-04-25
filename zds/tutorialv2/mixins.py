@@ -16,6 +16,9 @@ class SingleContentViewMixin(object):
     sends 403 error if the view is only accessible for author
     """
 
+    object = None
+    versioned_object = None
+
     must_be_author = True
     authorized_for_staff = True
     prefetch_all = True
@@ -23,7 +26,6 @@ class SingleContentViewMixin(object):
     sha = None
     is_public = False
     must_redirect = False
-    denied_if_lock = False
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
@@ -60,9 +62,6 @@ class SingleContentViewMixin(object):
                 return obj
             raise PermissionDenied
 
-        if self.denied_if_lock and self.is_public and obj.is_locked:
-            raise PermissionDenied
-
         return obj
 
     def get_versioned_object(self):
@@ -84,9 +83,9 @@ class SingleContentViewMixin(object):
         is_beta = self.object.is_beta(sha)
         if self.object.is_public(sha):
             pass
-        elif self.request.user not in self.object.authors.all() and not is_beta and self.must_be_author:
-
-            if not self.request.user.has_perm("tutorial.change_tutorial"):
+        elif self.request.user not in self.object.authors.all() and not is_beta:
+            if not self.request.user.has_perm("tutorial.change_tutorial") \
+                    or (not self.authorized_for_staff and self.must_be_author):
                 raise PermissionDenied
 
         # load versioned file
@@ -104,6 +103,7 @@ class SingleContentPostMixin(SingleContentViewMixin):
     """
     Base mixin used to get content from post query
     """
+
     # represent the fact that we have to check if the version given in self.request.POST['version'] exists
     versioned = True
 
@@ -128,9 +128,6 @@ class SingleContentFormViewMixin(SingleContentViewMixin, FormView):
     - by surcharging `get_context_data()`, that
         * context['content'] contains `self.versioned_object`
     """
-
-    object = None
-    versioned_object = None
 
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -158,9 +155,6 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         * context['can_edit'] is set
         * context['version'] is set (if different from `self.object.sha_draft`)
     """
-
-    object = None
-    versioned_object = None
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -214,27 +208,18 @@ class ContentTypeMixin(object):
         return context
 
 
-class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
-    """
-    This enhanced DetailView ensure,
+class SingleOnlineContentViewMixin(ContentTypeMixin):
 
-    - by rewriting `get()`, that:
-        * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
-        * `self.versioned_object` contains a PublicContent object
-        * self.public_content_object contains a PublishedContent object
-    - by surcharging `get_context_data()`, that
-        * context['content'] contains the
-        * context['can_edit'] is set
-        * context['public_object'] is set
     """
-
-    model = PublishedContent
+    Base mixin to get only one content online content
+    sends 404 error if the primary key is not found or the slug is not coherent,
+    """
 
     object = None
     public_content_object = None
     versioned_object = None
 
-    def get_object(self, queryset=None):
+    def get_public_object(self):
         pk = self.kwargs.pop('pk', None)
         slug = self.kwargs.pop('slug', '')
 
@@ -253,12 +238,34 @@ class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
 
         return obj
 
-    def get(self, request, *args, **kwargs):
-        self.public_content_object = self.get_object()
-        self.object = self.public_content_object.content
+    def get_object(self):
 
-        self.versioned_object = self.object.load_version_or_404(sha=self.public_content_object.sha_public,
-                                                                public=self.public_content_object)
+        return self.public_content_object.content
+
+    def get_versioned_object(self):
+
+        return self.object.load_version_or_404(
+            sha=self.public_content_object.sha_public, public=self.public_content_object)
+
+
+class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailView):
+    """
+    This enhanced DetailView ensure,
+
+    - by rewriting `get()`, that:
+        * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
+        * `self.versioned_object` contains a PublicContent object
+        * `self.public_content_object` contains a PublishedContent object
+    - by surcharging `get_context_data()`, that
+        * context['content'] is set
+        * context['can_edit'] is set
+        * context['public_object'] is set
+    """
+
+    def get(self, request, *args, **kwargs):
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+        self.versioned_object = self.get_versioned_object()
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -269,6 +276,40 @@ class SingleOnlineContentDetailViewMixin(ContentTypeMixin, DetailView):
         context['content'] = self.versioned_object
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
+
+        return context
+
+
+class SingleOnlineContentFormViewMixin(SingleOnlineContentViewMixin, FormView):
+    """
+    This enhanced FormView ensure,
+
+    - by surcharging `dispatch()`, that:
+        * `self.public_content_object` contains a PublishedContent object
+        * `self.object` contains the result of `get_object()` (as for DetailView)
+        * `self.versioned_object` contains the results of `get_versioned_object()`
+    - by surcharging `get_context_data()`, that
+        * context['content'] is set
+        * context['public_object'] is set
+    """
+
+    denied_if_lock = False  # denied the use of the form if the content is locked
+
+    def dispatch(self, request, *args, **kwargs):
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+        self.versioned_object = self.get_versioned_object()
+
+        if self.denied_if_lock and self.object.is_locked:
+            raise PermissionDenied
+
+        return super(SingleOnlineContentFormViewMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SingleOnlineContentFormViewMixin, self).get_context_data(**kwargs)
+
+        context['content'] = self.versioned_object
+        context['public_object'] = self.public_content_object
 
         return context
 
@@ -312,9 +353,6 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
     - `self.sha` is set according to `self.request.GET['version']` (if any) and `self.object.sha_draft` otherwise
     - `self.versioned_object` contains the results of `get_versioned_object()`
     """
-
-    object = None
-    versioned_object = None
 
     def get(self, context, **response_kwargs):
         self.object = self.get_object()

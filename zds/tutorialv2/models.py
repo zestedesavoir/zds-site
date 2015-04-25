@@ -1585,7 +1585,7 @@ class PublishableContent(models.Model):
         """
         :return : umber of notes in the tutorial.
         """
-        return ContentReaction.objects.filter(content__pk=self.pk).count()
+        return ContentReaction.objects.filter(related_content__pk=self.pk).count()
 
     def get_last_note(self):
         """
@@ -1644,7 +1644,7 @@ class PublishableContent(models.Model):
             user = get_current_user()
 
         last_user_notes = ContentReaction.objects\
-            .filter(tutorial=self)\
+            .filter(related_content=self)\
             .filter(author=user.pk)\
             .order_by('-position')
 

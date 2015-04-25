@@ -30,6 +30,7 @@ urlpatterns = patterns('',
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
+
                        # create:
                        url(r'^nouveau/$', CreateContent.as_view(), name='create'),
 
