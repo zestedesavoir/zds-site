@@ -9,6 +9,7 @@ from zds import settings
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.mp.models import PrivateTopic
 
 
 overrided_drf = settings.REST_FRAMEWORK
@@ -303,3 +304,69 @@ class PrivateTopicDetailAPITest(APITestCase):
 
         response = self.client.put(reverse('api-mp-detail', args=[another_private_topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_delete_mp_with_client_unauthenticated(self):
+        """
+        Leaves a private topic with an unauthenticated client must fail.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.delete(reverse('api-mp-detail', args=[self.private_topic.id]), {})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_fail_leave_topic_no_exist(self):
+        """
+        Gets an error 404 when the private topic isn't present in the database.
+        """
+        response = self.client.delete(reverse('api-mp-detail', args=[42]), {})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_private_topic_not_in_participants(self):
+        """
+        Gets an error 403 when the member doesn't have permission to display details about the private topic.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+
+        response = self.client.delete(reverse('api-mp-detail', args=[another_private_topic.id]), {})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_success_leave_topic_as_author_no_participants(self):
+        """
+        Leaves a private topic when we are the last participant.
+        """
+        self.private_topic.participants.clear()
+        self.private_topic.save()
+
+        response = self.client.delete(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(0, PrivateTopic.objects.filter(pk=self.private_topic.id).count())
+
+    def test_success_leave_topic_as_author(self):
+        """
+        Leaves a private topic when we are the author and check than a participant become the new author.
+        """
+        another_profile = ProfileFactory()
+        self.private_topic.participants.add(another_profile.user)
+
+        response = self.client.delete(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(1, PrivateTopic.objects.filter(pk=self.private_topic.id).count())
+        self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=self.private_topic.id).author)
+
+    def test_success_leave_topic_as_participant(self):
+        """
+        Leaves a private topic when we are just in participants.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        PrivatePostFactory(author=another_profile.user, privatetopic=another_private_topic, position_in_topic=1)
+        another_private_topic.participants.add(self.profile.user)
+
+        self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).author)
+        self.assertIn(self.profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).participants.all())
+
+        response = self.client.delete(reverse('api-mp-detail', args=[another_private_topic.id]))
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).author)
+        self.assertNotIn(self.profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).participants.all())

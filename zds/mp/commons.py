@@ -103,3 +103,24 @@ class TextValidator(Validator):
             if msg is not None:
                 self.throw_error('text', msg)
         return value
+
+
+class LeavePrivateTopic(object):
+    """
+    Leave a private topic.
+    """
+
+    def perform_destroy(self, instance):
+        if instance.participants.count() == 0:
+            instance.delete()
+        elif self.get_current_user().pk == instance.author.pk:
+            move = instance.participants.first()
+            instance.author = move
+            instance.participants.remove(move)
+            instance.save()
+        else:
+            instance.participants.remove(self.get_current_user())
+            instance.save()
+
+    def get_current_user(self):
+        raise NotImplementedError('`get_current_user()` must be implemented.')

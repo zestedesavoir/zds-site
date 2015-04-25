@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant
+from zds.mp.commons import LeavePrivateTopic
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -145,7 +146,7 @@ class PrivateTopicEdit(UpdateView):
         return topic
 
 
-class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
+class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView):
     """
     Leaves a MP.
     """
@@ -158,21 +159,12 @@ class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
 
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
-
-        if topic.participants.count() == 0:
-            topic.delete()
-        elif request.user.pk == topic.author.pk:
-            move = topic.participants.first()
-            topic.author = move
-            topic.participants.remove(move)
-            topic.save()
-        else:
-            topic.participants.remove(request.user)
-            topic.save()
-
+        self.perform_destroy(topic)
         messages.success(request, _(u'Vous avez quitté la conversation avec succès.'))
-
         return redirect(reverse('mp-list'))
+
+    def get_current_user(self):
+        return self.request.user
 
 
 class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -10,6 +10,7 @@ from rest_framework_extensions.key_constructor.constructors import DefaultKeyCon
 
 from zds.mp.api.permissions import IsParticipant
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer
+from zds.mp.commons import LeavePrivateTopic
 from zds.mp.models import PrivateTopic
 
 
@@ -78,7 +79,7 @@ class PrivateTopicListAPI(ListAPIView):
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 
-class PrivateTopicDetailAPI(RetrieveUpdateAPIView):
+class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
     """
     Private topic resource to display details of a private topic.
     """
@@ -143,6 +144,29 @@ class PrivateTopicDetailAPI(RetrieveUpdateAPIView):
               message: Not found
         """
         return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Leaves a MP given by its identifier of the current user authenticated.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not authenticated
+            - code: 403
+              message: Not permissions
+            - code: 404
+              message: Not found
+        """
+        return self.destroy(request, *args, **kwargs)
+
+    def get_current_user(self):
+        return self.request.user
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
