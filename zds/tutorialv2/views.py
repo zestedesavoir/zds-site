@@ -1255,6 +1255,8 @@ class ContentsWithHelps(ListView):
         context['total_contents_number'] = objects.count()
         context['contents'] = shown_contents
 
+        return context
+
 
 # Staff actions.
 

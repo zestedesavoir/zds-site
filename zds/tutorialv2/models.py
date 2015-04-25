@@ -1315,7 +1315,7 @@ def get_commit_author():
         aut_user = str(user.pk)
         aut_email = None
 
-        if user.email:
+        if hasattr(user, 'email'):
             aut_email = user.email
 
     else:
