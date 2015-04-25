@@ -9,11 +9,11 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     border: solid 1px $content-border-color;
     border-bottom-width: 2px;
-    margin-bottom: 15px;
+    margin: 0 10px 15px;
 
     overflow: hidden; // Temporary, until the items are completely styled
 
-    flex: 1 1 100%;
+    flex: 1 1 400px;
     width: 100%;
 
     &.expand-description {
@@ -246,17 +246,14 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    width: 100%; // prevents some weird margin bug...
+    min-width: 100%; // prevents some weird margin bug...
+    margin: 0 -10px;
 }
 
-@media only screen and #{$media-tablet} {
+@media only screen and #{$media-wide} {
     .content-item {
-        &.topic-item {
-            max-width: calc(50% - 10px);
-        }
         &.mini {
-            max-width: calc(50% - 10px);
-
+            flex-basis: 200px;
             .content-description {
                 display: none;
             }

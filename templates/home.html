@@ -99,7 +99,6 @@
                 {% for news in last_news %}
                 <article class="featured-item">
                     <a href="{{ news.url }}">
-                        <img src="{% static "images/1x1-blue.png" %}" class="illu-fallback" />
                         <img src="{{ news.image_url }}" alt="" class="featured-illu">
                         <div class="featured-meta">
                             <h3>{{ news.title }}</h3>
@@ -144,11 +143,13 @@
 
                 <meta itemprop="itemListOrder" content="Descending">
 
-                {% for article in last_articles %}
-                    {% include 'article/includes/article_item.part.html' with show_description=True %}
-                {% empty %}
-                    <p>{% trans "Aucun article disponible." %}</p>
-                {% endfor %}
+                <div class="content-item-list">
+                    {% for article in last_articles %}
+                        {% include 'article/includes/article_item.part.html' with show_description=True %}
+                    {% empty %}
+                        <p>{% trans "Aucun article disponible." %}</p>
+                    {% endfor %}
+                </div>
             </section>
         </div>
 

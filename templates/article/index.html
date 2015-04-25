@@ -49,9 +49,9 @@
 
         {% block content %}
             {% if articles %}
-                <div class="tutorial-list">
+                <div class="content-item-list">
                     {% for article in articles %}
-                        {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online %}
+                        {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online show_description=True %}
                     {% endfor %}
                 </div>
             {% else %}
