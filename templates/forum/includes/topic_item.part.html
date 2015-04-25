@@ -22,7 +22,8 @@
                 {% trans "Dernière réponse:" %}
                 {% include "misc/member_item.part.html" with member=topic.author %} -
                 <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
-                    {{ answer.pubdate|format_date|capfirst }}
+                    <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
+                    <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
                 </time>
             {% endwith %}
         </p>

@@ -225,6 +225,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
             .member-item {
                 font-style: italic;
+                &:hover, &:focus {
+                    text-decoration: underline;
+                }
             }
         }
 
@@ -232,6 +235,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             font-size: 14px;
             font-size: 1.4rem;
             line-height: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 }
