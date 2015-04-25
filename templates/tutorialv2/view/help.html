@@ -96,7 +96,7 @@
                     </div>
 
                     <div class="tutorial-help">
-                    {% if content.on_line %}
+                    {% if content.in_public %}
                         <a title="{% blocktrans %}Lire la version en ligne{% endblocktrans %}" href="{{ content.get_absolute_url_online }}">
                             <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}En ligne{% endblocktrans %}" />
                         </a>
@@ -181,7 +181,7 @@
                 <a href="{% append_to_get type="article" %}" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">Articles</a>
             </li>
             <li>
-                <a href="{% append_to_get type="tuto" %}" class="ico-after view{% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
+                <a href="{% append_to_get type="tuto" %}" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
             </li>
             {% if request.GET.type %}
                 <li>
