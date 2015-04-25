@@ -14,3 +14,8 @@ class PrivateTopicManager(models.Manager):
             .filter(Q(participants__in=[user_id]) | Q(author=user_id)) \
             .select_related("author", "participants") \
             .distinct().order_by('-last_message__pubdate').all()
+
+    def get_private_topics_selected(self, user_id, pks):
+        return super(PrivateTopicManager, self).get_queryset() \
+            .filter(pk__in=pks) \
+            .filter(Q(participants__in=[user_id]) | Q(author=user_id))

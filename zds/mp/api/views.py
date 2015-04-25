@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from rest_framework import status
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
@@ -28,13 +30,12 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     unique_view_id = bits.UniqueViewIdKeyBit()
 
 
-class PrivateTopicListAPI(ListAPIView):
+class PrivateTopicListAPI(LeavePrivateTopic, ListAPIView, DestroyAPIView):
     """
     Private topic resource to list of a member.
     """
 
     permission_classes = (IsAuthenticated,)
-    serializer_class = PrivateTopicSerializer
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('title',)
     ordering_fields = ('pubdate', 'last_message', 'title')
@@ -73,9 +74,39 @@ class PrivateTopicListAPI(ListAPIView):
             - code: 404
               message: Not found
         """
+        self.serializer_class = PrivateTopicSerializer
         return self.list(request, *args, **kwargs)
 
+    def delete(self, request, *args, **kwargs):
+        """
+        Deletes a list of private topic of the member authenticated.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+            - name: pk
+              description: if you would like to remove more than one private topic,
+                            you must specify this parameter several times.
+              required: true
+              paramType: form
+        responseMessages:
+            - code: 401
+              message: Not authenticated
+        """
+        for topic in self.get_queryset():
+            self.perform_destroy(topic)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_current_user(self):
+        return self.request.user
+
     def get_queryset(self):
+        if self.request.method == 'DELETE':
+            list = self.request.data.getlist('pk')
+            return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list)
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 

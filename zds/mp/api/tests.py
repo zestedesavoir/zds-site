@@ -178,9 +178,29 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
+    def test_leave_private_topics_with_client_unauthenticated(self):
+        """
+        Leaves a private topic with an unauthenticated client must fail.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.delete(reverse('api-mp-list'), {})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_leave_private_topics(self):
+        """
+        Leaves private topics.
+        """
+        private_topics = self.create_multiple_private_topics_for_member(self.profile.user, 1)
+
+        data = {
+            'pk': private_topics[0].id
+        }
+        response = self.client.delete(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(0, PrivateTopic.objects.filter(pk=private_topics[0].id).count())
+
     def create_multiple_private_topics_for_member(self, user, number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
-        for private_topic in xrange(0, number_of_users):
-            PrivateTopicFactory(author=user)
+        return [PrivateTopicFactory(author=user) for private_topic in xrange(0, number_of_users)]
 
 
 class PrivateTopicDetailAPITest(APITestCase):

@@ -11,7 +11,6 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template.loader import render_to_string
@@ -222,7 +221,7 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
 
 
-class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
+class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView):
     """
     Leaves a list of MP.
     """
@@ -233,21 +232,15 @@ class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
 
     def get_queryset(self):
         list = self.request.POST.getlist('items')
-        return PrivateTopic.objects.filter(pk__in=list) \
-            .filter(Q(participants__in=[self.request.user]) | Q(author=self.request.user))
+        return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list)
 
     def post(self, request, *args, **kwargs):
         for topic in self.get_queryset():
-            if topic.participants.all().count() == 0:
-                topic.delete()
-            elif request.user == topic.author:
-                topic.author = topic.participants.all()[0]
-                topic.participants.remove(topic.participants.all()[0])
-                topic.save()
-            else:
-                topic.participants.remove(request.user)
-                topic.save()
+            self.perform_destroy(topic)
         return redirect(reverse('mp-list'))
+
+    def get_current_user(self):
+        return self.request.user
 
 
 class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
