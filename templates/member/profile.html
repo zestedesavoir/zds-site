@@ -43,7 +43,7 @@
                     {% trans "Inscrit" %} {{ usr.date_joined|format_date:True }}
                 </li>
                 <li>
-                    {% trans "Dernière visite sur le site" %} : 
+                    {% trans "Dernière visite sur le site" %} :
                         {% if profile.last_visit %}
                             {{ profile.last_visit|format_date:True }}
                         {% else %}
@@ -120,17 +120,24 @@
     <section class="content-col-2 tutorial-list">
         {% if tutorials %}
             <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">{% trans "Derniers tutoriels" %}</h2>
-            {% for tutorial in tutorials %}
-                {% include 'tutorial/includes/tutorial_item.part.html' %}
-            {% endfor %}
+            <div class="content-item-list">
+                {% for tutorial in tutorials %}
+                    {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True %}
+                {% endfor %}
+		<div class="fill"></div>
+		<div class="fill"></div>
+		<div class="fill"></div>
+            </div>
         {% endif %}
 
 
         {% if articles %}
             <h2 class="ico-after ico-articles" id="derniers-artilces">{% trans "Derniers articles" %}</h2>
-            {% for article in articles %}
-                {% include 'article/includes/article_item.part.html' %}
-            {% endfor %}
+            <div class="content-item-list">
+                {% for article in articles %}
+                    {% include 'article/includes/article_item.part.html' with show_description=True %}
+                {% endfor %}
+            </div>
         {% endif %}
     </section>
 

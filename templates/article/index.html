@@ -53,6 +53,9 @@
                     {% for article in articles %}
                         {% include "article/includes/article_item.part.html" with link=article.get_absolute_url_online show_description=True %}
                     {% endfor %}
+                    <div class="fill"></div>{# to correctly fill the blanks #}
+                    <div class="fill"></div>
+                    <div class="fill"></div>
                 </div>
             {% else %}
                 <p>
