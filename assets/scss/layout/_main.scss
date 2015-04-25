@@ -35,6 +35,12 @@
         &.ico-tutorials:after {
             @include sprite-position($tutorials);
         }
+        &.ico-news:after {
+            @include sprite-position($star-heading-white);
+        }
+        &.ico-forum:after {
+            @include sprite-position($forum-heading);
+        }
 
         &.illu img {
             position: absolute;
@@ -281,6 +287,14 @@
             &.ico-after:after {
                 top: 13px;
                 left: 10px;
+            }
+        }
+    }
+
+    .main .content-container {
+        h1, h2 {
+            &.ico-news:after {
+                @include sprite-position($star-heading);
             }
         }
     }

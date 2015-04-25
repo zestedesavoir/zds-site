@@ -87,7 +87,7 @@
 
     <div class="home-wrapper">
         <section class="home-pinned-content">
-            <h2 class="home-heading heading-white" itemprop="name">
+            <h2 class="home-heading heading-white ico-after ico-news" itemprop="name">
                 {% trans "A la une" %}
 
                 {% if perms.news.change_news %}
@@ -153,7 +153,7 @@
         </div>
 
         <section itemscope itemtype="http://schema.org/ItemList">
-            <h2 class="home-heading" itemprop="name">
+            <h2 class="home-heading ico-after ico-forum" itemprop="name">
                 {% trans "Derniers sujets" %}
                 <a href="{% url "zds.forum.views.index" %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
             </h2>
