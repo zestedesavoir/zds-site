@@ -23,6 +23,7 @@ from django.http import Http404
 from gitdb.exc import BadObject
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
+from django.utils.http import urlencode
 
 from git.repo import Repo
 from git import Actor
@@ -1432,6 +1433,21 @@ class PublishableContent(models.Model):
 
         return ''
 
+    def get_absolute_contact_url(self, title=u'Collaboration'):
+        """ Get url to send a new PM for collaboration
+
+        :param title: what is going to be in the title of the PM before the name of the content
+        :type title: str
+        :return: url to the PM creation form
+        :rtype: str
+        """
+        get = '?' + urlencode({'title': u'{} - {}'.format(title, self.title)})
+
+        for author in self.authors.all():
+            get += '&' + urlencode({'username': author.username})
+
+        return reverse('mp-new') + get
+
     def get_repo_path(self, relative=False):
         """Get the path to the tutorial repository
 
@@ -1587,7 +1603,7 @@ class PublishableContent(models.Model):
 
         fns = [
             'have_markdown', 'have_html', 'have_pdf', 'have_epub', 'in_beta', 'in_validation', 'in_public',
-            'is_article', 'is_tutorial'
+            'is_article', 'is_tutorial', 'get_absolute_contact_url'
         ]
 
         # load functions and attributs in `versioned`
