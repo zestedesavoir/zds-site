@@ -50,7 +50,7 @@ def home(request):
         'last_articles': articles,
         'last_news': News.objects.get_last_news(),
         'last_topics': Topic.objects.get_last_topics(),
-        'quote': quote,
+        'quote': quote.replace('\n', ''),
     })
 
 

@@ -39,6 +39,7 @@ $content-width: 1145px;
         background: url("../images/home-background.png") repeat top center;
         margin-bottom: -170px;
         padding-bottom: 180px;
+        overflow: hidden; // Prevents search image to overflow on the mobile menu
     }
 
     .home-description {
@@ -74,10 +75,10 @@ $content-width: 1145px;
             margin: 0;
 
             &::before {
-                content: "« ";
+                content: "«\00A0";
             }
             &::after {
-                content: " »";
+                content: "\00A0»";
             }
         }
 
@@ -149,7 +150,10 @@ $content-width: 1145px;
         display: flex;
         margin-bottom: 30px;
         padding: 1px 0 1px 1px;
-        background-color: #FFF;
+        background-color: #F7F7F7;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
 
         .featured-item {
             flex: 1;
@@ -158,6 +162,7 @@ $content-width: 1145px;
             position: relative;
             overflow: hidden;
             max-width: 228px;
+            min-width: 170px;
             z-index: 0;
 
             img {
@@ -299,9 +304,22 @@ $content-width: 1145px;
             }
         }
         .home-search-box {
-            padding-left: 50px;
+            padding-left: 40px;
+            margin: 30px 0 0!important;
+
+            &:before {
+                left: -120px;
+            }
+
             label {
                 display: none;
+            }
+        }
+        .featured-row {
+            .featured-item {
+                &:nth-of-type(4) {
+                    display: none;
+                }
             }
         }
     }
@@ -314,7 +332,22 @@ $content-width: 1145px;
         }
         .featured-row {
             .featured-item {
+                margin: 4px;
                 padding: 0 !important;
+                &:last-of-type {
+                    display: none;
+                }
+            }
+        }
+        .home-header {
+            margin-bottom: 0;
+            padding-bottom: 10px;
+        }
+        .home-heading {
+            margin-top: 18px;
+            &.heading-white {
+                color: inherit;
+                border-color: $color-secondary;
             }
         }
         .home-row {
