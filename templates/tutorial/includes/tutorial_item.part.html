@@ -37,7 +37,7 @@
 
         {% if tutorial.description and show_description %}
             <p class="content-description">
-                <a href="{{ link }}" title="{{ tutorial.description }}">
+                <a href="{{ link }}" title="{{ tutorial.description }}" tabindex="-1">
                     {{ tutorial.description }}
                 </a>
             </p>
@@ -58,7 +58,9 @@
 
             {% if tutorial.pubdate %}
                 <time class="content-pubdate" pubdate="{{ tutorial.pubdate|date:"c" }}">
-                    - {{ tutorial.pubdate|format_date|capfirst }}
+                    -
+                    <span class="long">{{ tutorial.pubdate|format_date|capfirst }}</span>
+                    <span class="short">{{ tutorial.pubdate|format_date:True|capfirst }}</span>
                 </time>
             {% endif %}
         </div>

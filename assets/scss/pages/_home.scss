@@ -177,14 +177,16 @@ $content-width: 1145px;
                 z-index: 3;
                 color: white;
                 bottom: 0;
+                right: 0;
+                left: 0;
                 padding: 12px 14px;
-                text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+                text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
 
                 h3 {
                      font-size: 16px;
                      line-height: 20px;
                      font-weight: normal;
-                     margin: 4px 0 0 0;
+                     margin: 0;
                  }
 
                  p {
@@ -192,6 +194,13 @@ $content-width: 1145px;
                     margin: 0;
                     line-height: 12px;
                  }
+            }
+
+            &:focus,
+            &:hover {
+                .featured-meta {
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
             }
 
             .overlay { // Gradient overlay
@@ -202,6 +211,10 @@ $content-width: 1145px;
                 left: 0;
                 z-index: 2;
                 background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, .2));
+            }
+
+            & > a {
+                display: block;
             }
         }
     }

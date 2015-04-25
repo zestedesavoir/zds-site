@@ -31,7 +31,7 @@
 
         {% if article.description and show_description %}
             <p class="content-description">
-                <a href="{{ link }}" title="{{ article.description }}">
+                <a href="{{ link }}" title="{{ article.description }}" tabindex="-1">
                     {{ article.description }}
                 </a>
             </p>

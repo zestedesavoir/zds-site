@@ -102,6 +102,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
         a {
             max-height: 48px; // Prevents to have the text centered if there is more than 4 lines
+            &:focus {
+                text-decoration: underline;
+                outline: none;
+            }
         }
     }
 
@@ -131,6 +135,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         font-size: 13px;
         font-size: 1.3rem;
         line-height: 15px;
+
+        .short {
+            display: none;
+        }
     }
 
     .content-tags {
@@ -279,6 +287,15 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
         .content-tags {
             display: none;
+        }
+
+        .content-meta {
+            .short {
+                display: inline;
+            }
+            .long {
+                display: none;
+            }
         }
     }
 }
