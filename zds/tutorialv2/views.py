@@ -1551,6 +1551,8 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             db_object.source = form.cleaned_data['source']
             db_object.sha_validation = None
 
+            db_object.public_version = published
+
             if form.cleaned_data['is_major']:
                 db_object.pubdate = datetime.now()
 
@@ -1619,7 +1621,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         validation = Validation.objects.filter(
             content=self.object,
             version=self.object.sha_public,
-            status='ACCEPT').last()
+            status='ACCEPT').prefetch_related('content__authors').last()
 
         if not validation:
             raise PermissionDenied

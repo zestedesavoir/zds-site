@@ -2194,6 +2194,8 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 2)
+
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'ACCEPT')
         self.assertEqual(validation.comment_validator, text_accept)
@@ -2752,7 +2754,7 @@ class ContentTests(TestCase):
             {
                 'text': u'message',
                 'last_note': '0'
-            })
+            }, follow=True)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(ContentReaction.objects.count(), 1)
 
