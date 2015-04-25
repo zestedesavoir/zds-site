@@ -1315,7 +1315,7 @@ def get_commit_author():
         aut_user = str(user.pk)
         aut_email = None
 
-        if user.email:
+        if hasattr(user, 'email'):
             aut_email = user.email
 
     else:
@@ -1402,6 +1402,9 @@ class PublishableContent(models.Model):
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
+    public_version = models.ForeignKey(
+        'PublishedContent', verbose_name='Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+
     def __unicode__(self):
         return self.title
 
@@ -1411,6 +1414,23 @@ class PublishableContent(models.Model):
         """
         self.slug = uuslug(self.title, instance=self, max_length=80)
         super(PublishableContent, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
+
+        :return  absolute URL to the draf version the content"""
+
+        return reverse('content:view', kwargs={'pk': self.pk, 'slug': self.slug})
+
+    def get_absolute_url_online(self):
+        """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
+
+        :return  absolute URL to the public version the content, if `self.public_version` is defined"""
+
+        if self.public_version:
+            return self.public_version.get_absolute_url_online()
+
+        return ''
 
     def get_repo_path(self, relative=False):
         """Get the path to the tutorial repository
@@ -1585,7 +1605,7 @@ class PublishableContent(models.Model):
         """
         :return : umber of notes in the tutorial.
         """
-        return ContentReaction.objects.filter(content__pk=self.pk).count()
+        return ContentReaction.objects.filter(related_content__pk=self.pk).count()
 
     def get_last_note(self):
         """
@@ -1644,7 +1664,7 @@ class PublishableContent(models.Model):
             user = get_current_user()
 
         last_user_notes = ContentReaction.objects\
-            .filter(tutorial=self)\
+            .filter(related_content=self)\
             .filter(author=user.pk)\
             .order_by('-position')
 

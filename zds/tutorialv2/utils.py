@@ -253,14 +253,14 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     # TODO: to avoid errors, some part of this function can be written in a recursive way !
 
-    try:
-        public_version = PublishedContent.objects.get(content=db_object)
+    if db_object.public_version:
+        public_version = db_object.public_version
 
         # the content have been published in the past, so clean old files
         old_path = public_version.get_prod_path()
         shutil.rmtree(old_path)
 
-    except ObjectDoesNotExist:
+    else:
         public_version = PublishedContent()
 
     # make the new public version
@@ -375,6 +375,9 @@ def unpublish_content(db_object):
 
         # remove public_version:
         public_version.delete()
+
+        db_object.public_version = None
+        db_object.save()
 
         return True
 

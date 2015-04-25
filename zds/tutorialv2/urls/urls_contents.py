@@ -7,10 +7,12 @@ from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, Ed
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation, \
-    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction
+    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction, ContentsWithHelps
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
+
+                       url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
 
                        # view:
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
@@ -28,6 +30,7 @@ urlpatterns = patterns('',
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
+
                        # create:
                        url(r'^nouveau/$', CreateContent.as_view(), name='create'),
 

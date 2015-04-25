@@ -131,22 +131,22 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "content:list-validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}selected{% endif %}">
                     {% trans "En cours de validation" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "content:list-validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}selected{% endif %}">
                     {% trans "En attente de validateur" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "content:list-validation" %}?type=article" class="ico-after view {% if request.GET.type == "article" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=article" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">
                     {% trans "Articles" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "content:list-validation" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}unread{% endif %}">
+                <a href="{% url "content:list-validation" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">
                     {% trans "Tutoriels" %}
                 </a>
             </li>

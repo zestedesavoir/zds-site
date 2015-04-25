@@ -102,17 +102,16 @@ class PublishedContentFactory(PublishableContentFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         """create a new PublishableContent and then publish it.
-         .. attention:
-           this method does **not** send you the PublisedContent object that is generated during the publication,
-            you will have to fetch it by your own means
-
-        :param create:
-        :param kwargs:
-        :return: The generated publishable content.
         """
+
         content = super(PublishedContentFactory, cls)._prepare(create, **kwargs)
-        publish_content(content, content.load_version(), True)
+        published = publish_content(content, content.load_version(), True)
+
+        content.public_version = published
+        content.save()
+
         return content
+
 
 class SubCategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubCategory

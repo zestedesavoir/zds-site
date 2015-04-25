@@ -390,8 +390,7 @@ class NoteForm(forms.Form):
     def __init__(self, content, user, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse(
-            'content:add-reaction') + '?pk=' + str(content.pk)
+        self.helper.form_action = reverse('content:add-reaction') + u'?pk={}'.format(content.pk)
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

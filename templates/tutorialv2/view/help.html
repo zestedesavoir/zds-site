@@ -1,9 +1,10 @@
-{% extends "tutorial/base_online.html" %}
+{% extends "tutorialv2/base.html" %}
 {% load captureas %}
 {% load staticfiles %}
 {% load thumbnail %}
 {% load i18n %}
 {% load profile %}
+{% load append_to_get %}
 
 
 
@@ -13,103 +14,133 @@
 
 
 
-{% block breadcrumb %}
+{% block breadcrumb_base %}
     <li>{% trans "Aider les auteurs" %}</li>
 {% endblock %}
 
 
-{% block headline %}
-    <h2 class="ico-after ico-tutorials">{% trans "Aider les auteurs de tutoriels" %} ({{ tutorials|length }})</h2>
-{% endblock %}
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tutorials">
+            {% block headline %}
+                {% trans "Aider les auteurs"%}
 
-
-{% block content %}
-    {% include "misc/pagination.part.html" with position="top" %}
-
-    {% if tutorials %}
-        <div class="tutorial-list">
-        {% for tutorial in tutorials %}
-            <article>
-                {% if tutorial.image.physical.tutorial_illu.url %}
-                    <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
+                {% if request.GET.type %}
+                    {% if  request.GET.type == "article" %}
+                        {% trans "d'articles" %}
+                    {% elif request.GET.type == "tuto" %}
+                        {% trans "de tutoriels" %}
+                    {% endif %}
                 {% endif %}
-                <div class="tutorial-infos {% if not tutorial.image.physical.tutorial_illu.url %}no-illu{% endif %}">
-                    <h3 itemprop="itemListElement">{{ tutorial.title }}</h3>
 
-                    <span class="contact">
-                        {% trans "Par " %}
-                        {% for author in tutorial.authors.all %}
-                            {% if not forloop.first %}
-                                {% if forloop.last %}
-                                    {% trans "et" %}
-                                {% else %}
-                                    ,
-                                {% endif %}
-                            {% endif %}
-                            {% if author == user %}
-                                {% trans "vous" %}
+                {% if specific_need %}
+                    / {% trans "demande de" %} {{ specific_need.title|lower }}s
+                {% endif %}
+
+                {% if total_contents_number > 0 %}({{ total_contents_number }}){% endif %}
+            {% endblock %}
+        </h2>
+
+
+
+        {% include "misc/pagination.part.html" with position="top" %}
+
+        {% if contents %}
+            <div class="tutorial-list">
+            {% for content in contents %}
+                <article>
+                    {% if content.image.physical.tutorial_illu.url %}
+                        <img src="{{ content.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
+                    {% endif %}
+                    <div class="tutorial-infos {% if not content.image.physical.tutorial_illu.url %}no-illu{% endif %}">
+                        <h3 itemprop="itemListElement">{{ content.title }}</h3>
+
+                        <span class="contact">
+                            {% if content.is_article %}
+                                <a href="{% append_to_get type="article" %}">{% trans "Article" %}</a>,
                             {% else %}
-                                <strong><a href="{{ author.get_absolute_url }}" title="{% trans "Profil de" %} {{ author.username }}">
-                                {{author.username}}
-                                </a></strong>
+                                <a href="{% append_to_get type="tuto" %}">{% trans "Tutoriel" %}</a>,
                             {% endif %}
-                        {% endfor %}
-                        {% if not user in tutorial.authors.all %}
-                            - <a href="{{ tutorial.get_absolute_contact_url }}">{% trans "Contacter par MP" %}</a>
-                        {% endif %}
-                    </span> <br/>
-
-                    <span class="article-metadata">
-                        {% if tutorial.subcategory %}
-                            {% for category in tutorial.subcategory.all %}
-                                {{ category.title }}
-                                {% if tutorial.subcategory.all.count > 1 and not forloop.last %}
-                                    -
+                            {% trans "par " %}
+                            {% for author in content.authors.all %}
+                                {% if not forloop.first %}
+                                    {% if forloop.last %}
+                                        {% trans "et" %}
+                                    {% else %}
+                                        ,
+                                    {% endif %}
+                                {% endif %}
+                                {% if author == user %}
+                                    {% trans "vous" %}
+                                {% else %}
+                                    <strong><a href="{{ author.get_absolute_url }}" title="{% trans "Profil de" %} {{ author.username }}">
+                                    {{author.username}}
+                                    </a></strong>
                                 {% endif %}
                             {% endfor %}
-                        {% endif %}
-                    </span>
-                </div>
+                            {% if not user in content.authors.all %}
+                                - <a href="{{ content.get_absolute_contact_url }}">{% trans "Contacter par MP" %}</a>
+                            {% endif %}
+                        </span> <br/>
 
-                <div class="tutorial-help">
-                {% if tutorial.on_line %}
-                    <a title="{% blocktrans %}Lire la version en ligne{% endblocktrans %}" href="{{ tutorial.get_absolute_url_online }}">
-                        <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}Tutoriel en ligne{% endblocktrans %}" />
-                    </a>
-                {% else %}
-                    <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}Tutoriel hors-ligne{% endblocktrans %}"
-                    title="{% blocktrans %}Tutoriel jamais publié{% endblocktrans %}" class="light" />
-                {% endif %}
-                {% if tutorial.in_beta %}
-                    <a title="{% blocktrans %}Lire la version bêta{% endblocktrans %}" href="{{ tutorial.get_absolute_url_beta }}">
-                        <img src="{% static "images/beta.png" %}" alt="{% blocktrans %}Bêta Active{% endblocktrans %}" />
-                    </a>
-                {% else %}
-                    <img src="{% static "images/beta.png" %}" alt="{% blocktrans %}Bêta Inactive{% endblocktrans %}"
-                    title="{% blocktrans %}Bêta non activée{% endblocktrans %}" class="light" />
-                {% endif %}
-                {% for help in helps %}
-                    <span>
-                        {% if help in tutorial.helps.all %}
-                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}"
-                            title="{% blocktrans %}Cherche un {% endblocktrans %}{{help.title}}" />
-                        {% else %}
-                            <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}"
-                            title="{% blocktrans %}Ne cherche aucun {% endblocktrans %}{{help.title}}" class="light" />
-                        {% endif %}
-                    </span>
-                {% endfor %}
-                </div>
-            </article>
-        {% endfor %}
-        </div>
-    {% else %}
-    <p>
-        {% trans "Aucun auteur n'a besoin d'aide pour le moment." %}
-    </p>
-    {% endif %}
+                        <span class="article-metadata">
+                            {% if content.subcategory %}
+                                {% for category in content.subcategory.all %}
+                                    {{ category.title }}
+                                    {% if content.subcategory.all.count > 1 and not forloop.last %}
+                                        -
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </span>
+                    </div>
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+                    <div class="tutorial-help">
+                    {% if content.on_line %}
+                        <a title="{% blocktrans %}Lire la version en ligne{% endblocktrans %}" href="{{ content.get_absolute_url_online }}">
+                            <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}En ligne{% endblocktrans %}" />
+                        </a>
+                    {% else %}
+                        <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}Hors-ligne{% endblocktrans %}"
+                        title="{% blocktrans %}Tutoriel jamais publié{% endblocktrans %}" class="light" />
+                    {% endif %}
+                    {% if content.in_beta %}
+                        <a title="{% blocktrans %}Lire la version bêta{% endblocktrans %}" href="{{ content.get_absolute_url_beta }}">
+                            <img src="{% static "images/beta.png" %}" alt="{% blocktrans %}Bêta Active{% endblocktrans %}" />
+                        </a>
+                    {% else %}
+                        <img src="{% static "images/beta.png" %}" alt="{% blocktrans %}Bêta Inactive{% endblocktrans %}"
+                        title="{% blocktrans %}Bêta non activée{% endblocktrans %}" class="light" />
+                    {% endif %}
+                    {% for help in helps %}
+                        <span>
+                            {% if help in content.helps.all %}
+                                <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}"
+                                title="{% blocktrans %}Cherche un {% endblocktrans %}{{help.title}}" />
+                            {% else %}
+                                <img src="{{ help.image.help_illu.url }}" alt="{{help.title}}"
+                                title="{% blocktrans %}Ne cherche aucun {% endblocktrans %}{{help.title}}" class="light" />
+                            {% endif %}
+                        </span>
+                    {% endfor %}
+                    </div>
+                </article>
+            {% endfor %}
+            </div>
+        {% else %}
+        <p>
+            {% if not 'need' in request.GET %}
+                {% trans "Aucun auteur n'a besoin d'aide pour le moment." %}
+            {% else %}
+                {% trans "Aucun auteur n'a besoin de ce type d'aide pour le moment." %}
+            {% endif %}
+        </p>
+        {% endif %}
+
+        <hr class="clearfix" />
+
+        {% include "misc/pagination.part.html" with position="bottom" %}
+    </section>
 {% endblock %}
 
 
@@ -121,9 +152,10 @@
         <ul>
             {% for help in helps %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type and request.GET.type = help.slug %}unread{% endif %}">
-                        <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="{% if request.GET.type and request.GET.type != help.slug %}light{% endif %}" />
-                        <span>{{ help.title }}</span>
+                    <a style="background: url('{{ help.image.help_mini_illu.url }}') no-repeat; padding-left:32px;"
+                       class="{% if request.GET.need and request.GET.need == help.slug %}selected{% endif %}"
+                       href="{% append_to_get need=help.slug %}">
+                        {{ help.title }}
                     </a>
                 </li>
             {% empty %}
@@ -131,9 +163,29 @@
                     {% trans "Aucun besoin disponible." %}
                 </li>
             {% endfor %}
+            {% if request.GET.need %}
+                <li>
+                    <a href="{% append_to_get need="" %}" class="ico-after cross red ">
+                        {% trans "Annuler le filtre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Besoin">
+        <h3>{% trans "Type" %}</h3>
+        <ul>
+            <li>
+                <a href="{% append_to_get type="article" %}" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">Articles</a>
+            </li>
+            <li>
+                <a href="{% append_to_get type="tuto" %}" class="ico-after view{% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
+            </li>
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="ico-after cross red ">
+                    <a href="{% append_to_get type="" %}" class="ico-after cross red ">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>
