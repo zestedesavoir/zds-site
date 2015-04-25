@@ -74,10 +74,10 @@ $content-width: 1145px;
             padding: 0;
             margin: 0;
 
-            &::before {
+            span:first-of-type::before {
                 content: "«\00A0";
             }
-            &::after {
+            span:last-of-type::after {
                 content: "\00A0»";
             }
         }
