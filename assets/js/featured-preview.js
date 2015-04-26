@@ -4,7 +4,6 @@
 
 (function($, undefined) {
     function updatePreview(data, element) {
-        console.log(data);
         var $el = $(element);
         if(data.image) {
             $el.find(".featured-illu").show().attr("src", data.image);
@@ -13,15 +12,9 @@
             $el.find(".featured-illu").hide();
         }
 
-        if(data.title) {
-            $el.find("h3").text(data.title);
-        }
-        if(data.description) {
-            $el.find(".featured-description").html(data.description);
-        }
-        if(data.link) {
-            $el.find("a").attr("href", data.link);
-        }
+        $el.find("h3").text(data.title);
+        $el.find(".featured-description").html(data.description);
+        $el.find("a").attr("href", data.link);
     }
 
     function buildDescription(_authors, type) {
