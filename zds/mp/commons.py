@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.member.commons import Validator
 from zds.member.models import Profile
+from zds.mp.models import never_privateread, mark_read
 
 
 class ParticipantsUserValidator(Validator):
@@ -125,3 +126,13 @@ class LeavePrivateTopic(object):
 
     def get_current_user(self):
         raise NotImplementedError('`get_current_user()` must be implemented.')
+
+
+class MarkPrivateTopicAsRead(object):
+    """
+    Mark as read a private topic.
+    """
+
+    def perform_list(self, instance, user=None):
+        if never_privateread(instance, user):
+            mark_read(instance, user)

@@ -481,3 +481,113 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).author)
         self.assertNotIn(self.profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).participants.all())
+
+
+class PrivatePostListAPI(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+    def test_list_mp_with_client_unauthenticated(self):
+        """
+        Gets list of private posts of a private topic given with an unauthenticated client.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.get(reverse('api-mp-message-list', args=[0]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_of_private_posts(self):
+        """
+        Gets list of private posts of a member.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic)
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_list_of_private_posts_with_several_pages(self):
+        """
+        Gets list of private posts of a member with several pages.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
+                                                      settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.assertIsNotNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_list_of_private_posts_for_a_page_given(self):
+        """
+        Gets list of private posts with several pages and gets a page different that the first one.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
+                                                      settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 11)
+        self.assertEqual(len(response.data.get('results')), 1)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNotNone(response.data.get('previous'))
+
+    def test_list_of_private_posts_for_a_wrong_page_given(self):
+        """
+        Gets an error when the user asks a wrong page.
+        """
+        response = self.client.get(reverse('api-mp-message-list', args=[42]) + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_list_of_private_posts_with_a_custom_page_size(self):
+        """
+        Gets list of private posts with a custom page size. DRF allows to specify a custom
+        size for the pagination.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
+                                                      settings.REST_FRAMEWORK['PAGINATE_BY'] * 2)
+
+        page_size = 'page_size'
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?{}=20'.format(page_size))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 20)
+        self.assertEqual(len(response.data.get('results')), 20)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(settings.REST_FRAMEWORK['PAGINATE_BY_PARAM'], page_size)
+
+    def test_list_of_private_posts_with_a_wrong_custom_page_size(self):
+        """
+        Gets list of private posts with a custom page size but not good according to the
+        value in settings.
+        """
+        page_size_value = settings.REST_FRAMEWORK['MAX_PAGINATE_BY'] + 1
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic, page_size_value)
+
+        response = self.client.get(
+            reverse('api-mp-message-list', args=[private_topic.id]) + '?page_size={}'.format(page_size_value))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), page_size_value)
+        self.assertIsNotNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGINATE_BY'], len(response.data.get('results')))
+
+    def create_multiple_private_posts_for_member(self, user, private_topic,
+                                                 number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
+        list = []
+        for i in xrange(0, number_of_users):
+            private_post = PrivatePostFactory(author=user, privatetopic=private_topic, position_in_topic=i)
+            private_topic.last_message = private_post
+            list.append(private_post)
+        return list

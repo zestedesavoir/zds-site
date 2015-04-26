@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from zds.mp.commons import ParticipantsUserValidator, TitleValidator, TextValidator
-from zds.mp.models import PrivateTopic
+from zds.mp.models import PrivateTopic, PrivatePost
 from zds.utils.mps import send_mp
 
 
@@ -75,3 +75,12 @@ class PrivateTopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, 
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
+
+
+class PrivatePostSerializer(serializers.ModelSerializer):
+    """
+    Serializers of a private post object.
+    """
+
+    class Meta:
+        model = PrivatePost

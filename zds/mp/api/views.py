@@ -2,7 +2,8 @@
 
 from rest_framework import status
 from rest_framework import filters
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, ListAPIView, \
+    get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -10,10 +11,11 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.mp.api.permissions import IsParticipant
-from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer
-from zds.mp.commons import LeavePrivateTopic
-from zds.mp.models import PrivateTopic
+from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost
+from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
+    PrivatePostSerializer
+from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
+from zds.mp.models import PrivateTopic, PrivatePost
 
 
 class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
@@ -27,6 +29,12 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     format = bits.FormatKeyBit()
     language = bits.LanguageKeyBit()
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
+    unique_view_id = bits.UniqueViewIdKeyBit()
+
+
+class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
+    pagination = bits.PaginationKeyBit()
+    list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
 
 
@@ -244,3 +252,46 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
             return PrivateTopicSerializer
         elif self.request.method == 'PUT':
             return PrivateTopicUpdateSerializer
+
+
+class PrivatePostListAPI(MarkPrivateTopicAsRead, ListAPIView):
+    """
+    Private post resource to list of a member.
+    """
+
+    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
+    list_key_func = PagingPrivatePostListKeyConstructor()
+    serializer_class = PrivatePostSerializer
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Lists all private posts of a private topic given of the member authenticated.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+            - name: page
+              description: Displays users of the page given.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets size of the pagination.
+              required: false
+              paramType: query
+        responseMessages:
+            - code: 401
+              message: Not authenticated
+            - code: 404
+              message: Not found
+        """
+        response = self.list(request, *args, **kwargs)
+        self.perform_list(get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic'))), self.request.user)
+        return response
+
+    def get_queryset(self):
+        return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))

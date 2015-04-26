@@ -19,3 +19,11 @@ class PrivateTopicManager(models.Manager):
         return super(PrivateTopicManager, self).get_queryset() \
             .filter(pk__in=pks) \
             .filter(Q(participants__in=[user_id]) | Q(author=user_id))
+
+
+class PrivatePostManager(models.Manager):
+    def get_message_of_a_private_topic(self, private_topic_id):
+        return super(PrivatePostManager, self).get_queryset() \
+            .filter(privatetopic__pk=private_topic_id) \
+            .order_by('position_in_topic') \
+            .all()
