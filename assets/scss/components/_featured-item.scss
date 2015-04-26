@@ -31,8 +31,9 @@
         bottom: 0;
         right: 0;
         left: 0;
-        padding: 12px 14px;
-        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+        padding: 40px 14px 12px;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+        background-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, .2) 30px, rgba(0, 0, 0, .4));
 
         h3 {
              font-size: 16px;
@@ -53,16 +54,6 @@
         .featured-meta {
             background-color: rgba(0, 0, 0, 0.2);
         }
-    }
-
-    .overlay { // Gradient overlay
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 2;
-        background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, .2));
     }
 
     & > a {

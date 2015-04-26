@@ -7,7 +7,6 @@
             <h3>{{ news.title }}</h3>
             <p class="featured-description">{% trans "Un" %} {{ news.type }} {% for author in news.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <i>{{ author }}</i>{% endfor %}</p>
         </div>
-        <div class="overlay"></div>
     </a>
 </article>
 

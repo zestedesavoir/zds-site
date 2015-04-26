@@ -142,7 +142,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     }
 
     .content-tags {
-        padding: 6px 0;
+        padding: 10px 0 0;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
@@ -151,7 +151,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             padding: 0;
             flex: 0 0 22px;
             background-color: #EEE;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
             color: #777;
             display: block;
             text-align: right;
@@ -207,7 +207,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     &.topic-item {
         .content-info {
-            padding: 14px 26px;
+            padding: 14px 20px;
             height: 68px;
         }
 
