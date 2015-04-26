@@ -9,17 +9,18 @@ from zds.member.models import Profile
 
 
 class ParticipantsUserValidator(Validator):
+    can_be_empty = False
+
     def validate_participants(self, value):
         msg = None
-        if value:
-            if len(value) == 0:
-                msg = _(u'Vous devez spécifier des participants.')
-            else:
-                for participant in value:
-                    if participant.username == self.get_current_user().username:
-                        msg = _(u'Vous ne pouvez pas vous écrire à vous-même !')
-            if msg is not None:
-                self.throw_error('participants', msg)
+        if value or self.can_be_empty:
+            for participant in value:
+                if participant.username == self.get_current_user().username:
+                    msg = _(u'Vous ne pouvez pas vous écrire à vous-même !')
+        else:
+            msg = _(u'Vous devez spécifier des participants.')
+        if msg is not None:
+            self.throw_error('participants', msg)
         return value
 
     def get_current_user(self):

@@ -178,6 +178,97 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
+    def test_create_private_topics_with_client_unauthenticated(self):
+        """
+        Creates a private topic with an unauthenticated client must fail.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.post(reverse('api-mp-list'), {})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_of_private_topics(self):
+        """
+        Creates a private topic with the current user, a title, a subtitle and a participant.
+        """
+        another_profile = ProfileFactory()
+        data = {
+            'title': 'I love ice cream!',
+            'subtitle': 'Come eat one with me.',
+            'participants': another_profile.user.id,
+            'text': 'Welcome to this private topic!'
+        }
+        response = self.client.post(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
+        self.assertEqual(1, len(private_topics))
+        self.assertEqual(response.data.get('title'), private_topics[0].title)
+        self.assertEqual(response.data.get('subtitle'), private_topics[0].subtitle)
+        self.assertEqual(response.data.get('participants')[0], private_topics[0].participants.all()[0].id)
+        self.assertEqual(data.get('text'), private_topics[0].last_message.text)
+
+    def test_create_of_private_topics_without_subtitle(self):
+        """
+        Creates a private topic without a subtitle.
+        """
+        another_profile = ProfileFactory()
+        data = {
+            'title': 'I love ice cream!',
+            'participants': another_profile.user.id,
+            'text': 'Welcome to this private topic!'
+        }
+        response = self.client.post(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
+        self.assertEqual(1, len(private_topics))
+        self.assertEqual(response.data.get('title'), private_topics[0].title)
+        self.assertEqual(response.data.get('subtitle'), private_topics[0].subtitle)
+        self.assertEqual(response.data.get('participants')[0], private_topics[0].participants.all()[0].id)
+        self.assertEqual(data.get('text'), private_topics[0].last_message.text)
+
+    def test_create_of_private_topics_without_title(self):
+        """
+        Creates a private topic without a title.
+        """
+        another_profile = ProfileFactory()
+        data = {
+            'subtitle': 'Come eat one with me.',
+            'participants': another_profile.user.id,
+            'text': 'Welcome to this private topic!'
+        }
+        response = self.client.post(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
+        self.assertEqual(0, len(private_topics))
+
+    def test_create_of_private_topics_without_participants(self):
+        """
+        Creates a private topic without participants.
+        """
+        data = {
+            'title': 'I love ice cream!',
+            'subtitle': 'Come eat one with me.',
+            'text': 'Welcome to this private topic!'
+        }
+        response = self.client.post(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
+        self.assertEqual(0, len(private_topics))
+
+    def test_create_of_private_topics_without_text(self):
+        """
+        Creates a private topic without a text.
+        """
+        another_profile = ProfileFactory()
+        data = {
+            'title': 'I love ice cream!',
+            'subtitle': 'Come eat one with me.',
+            'participants': another_profile.user.id,
+        }
+        response = self.client.post(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
+        self.assertEqual(0, len(private_topics))
+
     def test_leave_private_topics_with_client_unauthenticated(self):
         """
         Leaves a private topic with an unauthenticated client must fail.
