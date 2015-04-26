@@ -19,12 +19,16 @@
 
         <p class="content-meta">
             {% with answer=topic.get_last_answer %}
-                {% trans "Dernière réponse :" %}
-                {% include "misc/member_item.part.html" with member=answer.author %} -
-                <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
-                    <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
-                    <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
-                </time>
+                {% if answer %}
+                    {% trans "Dernière réponse :" %}
+                    {% include "misc/member_item.part.html" with member=answer.author %} -
+                    <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
+                        <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
+                        <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
+                    </time>
+                {% else %}
+                    {% trans "Aucune réponse" %}
+                {% endif %}
             {% endwith %}
         </p>
     </div>
