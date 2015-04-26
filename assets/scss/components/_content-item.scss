@@ -102,7 +102,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
         a {
             max-height: 48px; // Prevents to have the text centered if there is more than 4 lines
-            &:focus {
+            &:hover, &:focus {
                 text-decoration: underline;
                 outline: none;
             }
@@ -155,6 +155,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             color: #777;
             display: block;
             text-align: right;
+            transition: color $transition-duration, background-color $transition-duration;
 
             a {
                 color: inherit;
@@ -198,9 +199,11 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         .btn-write-tutorial {
             background-color: #19526c;
             margin-right: 28px;
+            transition: color $transition-duration, background-color $transition-duration;
 
             &:hover, &:focus {
-                background-color: lighten(#19526c, 6%);
+                background-color: #FFF;
+                color: #19526c;
             }
         }
     }
@@ -268,8 +271,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
                 font-size: 14px;
                 line-height: 15px;
                 height: 45px; // 3 lines
-                display: flex; // To center when there is only 2 lines
-                align-items: center;
             }
 
             .content-meta {
