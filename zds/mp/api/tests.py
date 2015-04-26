@@ -591,3 +591,66 @@ class PrivatePostListAPI(APITestCase):
             private_topic.last_message = private_post
             list.append(private_post)
         return list
+
+
+class PrivatePostDetailAPI(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.private_post = PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic,
+                                               position_in_topic=1)
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+    def test_detail_private_post_with_client_unauthenticated(self):
+        """
+        Gets details about a private post with an unauthenticated client.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.get(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_detail_private_post_with_wrong_identifiers(self):
+        """
+        Tries to get details of a private post in a wrong private topic.
+        """
+        another_private_topic = PrivateTopicFactory(author=self.profile.user)
+        response = self.client.get(
+            reverse('api-mp-message-detail', args=[another_private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_detail_private_post_of_a_member(self):
+        """
+        Gets all information about a private post.
+        """
+        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.private_post.id, response.data.get('id'))
+        self.assertEqual(self.private_post.text_html, response.data.get('text_html'))
+        self.assertIsNotNone(response.data.get('pubdate'))
+        self.assertIsNone(response.data.get('update'))
+        self.assertEqual(self.private_post.position_in_topic, response.data.get('position_in_topic'))
+        self.assertEqual(self.private_topic.id, response.data.get('privatetopic'))
+        self.assertEqual(self.profile.user.id, response.data.get('author'))
+
+    def test_detail_of_a_private_topic_not_present(self):
+        """
+        Gets an error 404 when the private post isn't present in the database.
+        """
+        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, 42]))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_detail_of_private_topic_not_in_participants(self):
+        """
+        Gets an error 403 when the member doesn't have permission to display details about the private post.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        another_private_post = PrivatePostFactory(author=self.profile.user, privatetopic=another_private_topic,
+                                                  position_in_topic=1)
+
+        response = self.client.get(
+            reverse('api-mp-message-detail', args=[another_private_topic.id, another_private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -3,7 +3,7 @@
 from rest_framework import status
 from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, ListAPIView, \
-    get_object_or_404
+    get_object_or_404, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -295,3 +295,42 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListAPIView):
 
     def get_queryset(self):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))
+
+
+class PrivatePostDetailAPI(RetrieveAPIView):
+    """
+    Private post resource to display details of a private post.
+    """
+
+    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
+    queryset = PrivatePost.objects.all()
+    obj_key_func = DetailKeyConstructor()
+    serializer_class = PrivatePostSerializer
+
+    @etag(obj_key_func)
+    @cache_response(key_func=obj_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Gets a private post given by its identifier.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 400
+              message: Bad Request if you specify bad identifiers
+            - code: 401
+              message: Not authenticated
+            - code: 403
+              message: Not permissions
+            - code: 404
+              message: Not found
+        """
+        if not (int(self.get_object().id) == int(kwargs.get('pk')) and int(self.get_object().privatetopic.id) == int(
+                kwargs.get('pk_ptopic'))):
+            return Response({'id': [u'Vous devez spécifier des identifiants cohérents.']},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return self.retrieve(request, *args, **kwargs)
