@@ -7,8 +7,12 @@
         console.log(data);
         var $el = $(element);
         if(data.image) {
-            $el.find(".featured-illu").attr("src", data.image);
+            $el.find(".featured-illu").show().attr("src", data.image);
         }
+        else {
+            $el.find(".featured-illu").hide();
+        }
+
         if(data.title) {
             $el.find("h3").text(data.title);
         }
@@ -22,10 +26,11 @@
 
     function buildDescription(_authors, type) {
         var authors = _authors.split(",");
-        authors = $.map(authors, $.trim);
+        authors = authors.map($.trim);
+        authors = authors.filter(function(e) { return e !== "" });
 
         var text = "Un " + type + " par ";
-        $.each(authors, function(index, author) {
+        authors.forEach(function(author, index) {
             text += "<i>" + author + "</i>";
             if(index === authors.length - 2) {
                 text += " et ";
@@ -36,7 +41,7 @@
         return text;
     }
 
-    $(".featured-edit-form form input").on("change", function() {
+    $(".featured-edit-form form input").on("change input", function() {
         updatePreview({
             image: $(".featured-edit-form input[name=image_url]").val(),
             title: $(".featured-edit-form input[name=title]").val(),

@@ -97,7 +97,7 @@
                 this.showDropdown();
             }
         },
- 
+
         handleSubmit: function() {
             var content = this.$input.val();
             if(content.slice(-2) === ", ") {
@@ -146,6 +146,7 @@
 
             this._lastAutocomplete = completion.username;
             this.selected = -1; // Deselect properly
+            this.$input.trigger("input");
         },
 
         updateCache: function(data) {
