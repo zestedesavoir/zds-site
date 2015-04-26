@@ -22,7 +22,7 @@
         authors = authors.map($.trim);
         authors = authors.filter(function(e) { return e !== "" });
 
-        var text = "Un " + type + " par ";
+        var text = type + " par ";
         authors.forEach(function(author, index) {
             text += "<i>" + author + "</i>";
             if(index === authors.length - 2) {

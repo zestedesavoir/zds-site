@@ -22,6 +22,8 @@
         left: 0;
         width: 100%;
         height: auto;
+        transition: $transition-duration ease;
+        transition-property: filter, opacity, transform;
     }
 
     .featured-meta {
@@ -40,6 +42,10 @@
              line-height: 20px;
              font-weight: normal;
              margin: 0;
+             display: table-cell;
+             vertical-align: middle;
+             height: 0;
+             transition: height $transition-duration ease;
          }
 
          p {
@@ -51,8 +57,16 @@
 
     a:focus,
     a:hover {
+        .featured-illu {
+            opacity: 0.4;
+            filter: blur(5px);
+            transform: scale(1.05);
+        }
         .featured-meta {
-            background-color: rgba(0, 0, 0, 0.2);
+            h3 {
+                height: 200px;
+                font-size: 20px;
+            }
         }
     }
 
