@@ -1,0 +1,86 @@
+.featured-item {
+    flex: 1;
+    margin-right: 1px;
+    background-color: #CCC;
+    position: relative;
+    overflow: hidden;
+    max-width: 228px;
+    min-width: 170px;
+    z-index: 0;
+    background-color: $color-primary;
+
+    &::before {
+        content: "";
+        display: block;
+        padding-top: 100%;
+    }
+
+    .featured-illu {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    .featured-meta {
+        position: absolute;
+        z-index: 3;
+        color: white;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        padding: 12px 14px;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+
+        h3 {
+             font-size: 16px;
+             line-height: 20px;
+             font-weight: normal;
+             margin: 0;
+         }
+
+         p {
+            font-size: 12px;
+            margin: 0;
+            line-height: 12px;
+         }
+    }
+
+    a:focus,
+    a:hover {
+        .featured-meta {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    .overlay { // Gradient overlay
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, .2));
+    }
+
+    & > a {
+        display: block;
+    }
+}
+
+.featured-edit-form {
+    display: flex;
+    align-items: flex-start;
+
+    .featured-item {
+        margin-right: 20px;
+        flex-basis: 228px;
+    }
+
+    form {
+        width: auto;
+        flex: 1;
+    }
+}

@@ -22,7 +22,8 @@
 
 
 {% block content %}
-    <div class="content-wrapper">
+    <div class="content-wrapper featured-edit-form">
+        {% include "news/includes/featured_item.part.html" with news=news %}
         {% crispy form %}
     </div>
 {% endblock %}
