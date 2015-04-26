@@ -366,6 +366,7 @@ ZDS_APP = {
         'repository': u"https://github.com/zestedesavoir/zds-site",
         'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
         'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
+        'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
         'short_description': u"",
         'long_description': u"Zeste de Savoir est un site de partage de connaissances "
                             u"sur lequel vous trouverez des tutoriels de tous niveaux, "
