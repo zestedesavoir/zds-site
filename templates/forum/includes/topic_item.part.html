@@ -5,11 +5,11 @@
 
 <article class="content-item topic-item">
     <div class="content-info">
-        <h3 class="content-title" itemprop="itemListElement">
-            <a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">
+        <a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">
+            <h3 class="content-title" itemprop="itemListElement">
                 {{ topic.title }}
-            </a>
-        </h3>
+            </h3>
+        </a>
 
         <p class="content-description">
             {{ topic.forum.title }},

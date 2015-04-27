@@ -39,20 +39,23 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         }
     }
 
-    & > * {
-        margin: 0;
-    }
-
     a {
         text-decoration: none;
+    }
+
+    & > a {
+        display: flex;
     }
 
     .content-illu {
         flex: 0 0 $content-illu-size;
         height: $content-illu-size;
+        background-color: $content-border-color;
 
-        &:not(.has-illu) {
-            background-color: $content-border-color;
+        img {
+            width: 100%;
+            height: 100%;
+            background-color: #FFF;
         }
     }
 
@@ -82,9 +85,38 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         font-size: 14px;
         font-size: 1.4rem;
 
-        & + .content-meta {
-            padding-left: 32px - 14px + $content-reaction-offset + 10px; // bubble width - container padding + bubble offset + spacing
+        span {
+            position: relative;
+            z-index: 2;
         }
+
+        &::before {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            z-index: 1;
+
+            @include sprite();
+            @include sprite-position($chat-bubble-orange);
+
+            opacity: 0;
+            transition: opacity $transition-duration;
+        }
+
+        &:focus, &:hover {
+            color: white;
+            &::before {
+                opacity: 1;
+            }
+        }
+    }
+
+    &.has-reactions .content-meta {
+        padding-left: 32px - 14px + $content-reaction-offset + 10px; // bubble width - container padding + bubble offset + spacing
     }
 
     .content-title {
@@ -99,13 +131,13 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         text-overflow: ellipsis;
         white-space: nowrap;
         color: #424242;
+    }
 
-        a {
-            max-height: 48px; // Prevents to have the text centered if there is more than 4 lines
-            &:hover, &:focus {
-                text-decoration: underline;
-                outline: none;
-            }
+    a:hover, a:focus {
+        outline: none;
+        .content-title {
+            text-decoration: underline;
+            outline: none;
         }
     }
 
@@ -142,6 +174,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     }
 
     .content-tags {
+        margin: 0;
         padding: 10px 0 0;
         display: flex;
         flex-direction: column;
@@ -163,13 +196,11 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
                 line-height: 22px;
                 height: 22px;
                 display: block; // to have the click zone matching the parent box
-                transition: none; // because the fading color is just weird
 
-            }
-
-            &:hover {
-                color: #EEE;
-                background-color: #777;
+                &:hover, &:focus {
+                    color: #EEE;
+                    background-color: #777;
+                }
             }
         }
     }

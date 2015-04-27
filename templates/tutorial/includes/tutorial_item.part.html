@@ -22,47 +22,45 @@
 {% endcaptureas %}
 
 <article class="content-item expand-description tutorial-item{{ item_class }}">
-    <a href="{{ link }}" tabindex="-1" class="content-illu{% if tutorial.image %} has-illu{% endif %}">
-        {% if tutorial.image %}
-            <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
-        {% endif %}
-    </a>
-
-    <div class="content-info">
-        <h3 class="content-title" itemprop="itemListElement">
-            <a href="{{ link }}" title="{{ tutorial.title }}">
-                {{ tutorial.title }}
-            </a>
-        </h3>
-
-        {% if tutorial.description and show_description %}
-            <p class="content-description">
-                <a href="{{ link }}" title="{{ tutorial.description }}" tabindex="-1">
-                    {{ tutorial.description }}
-                </a>
-            </p>
-        {% endif %}
-
-        <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
-            {% if tutorial.subcategory %}
-                <p class="content-categories">
-                    {{ categories_text }}
-                </p>
-            {% endif %}
-
-            {% if tutorial.authors %}
-                <p class="content-authors">
-                    {{ authors_text }}
-                </p>
-            {% endif %}
-
-            {% if tutorial.pubdate %}
-                <time class="content-pubdate" pubdate="{{ tutorial.pubdate|date:"c" }}">
-                    -
-                    <span class="long">{{ tutorial.pubdate|format_date|capfirst }}</span>
-                    <span class="short">{{ tutorial.pubdate|format_date:True|capfirst }}</span>
-                </time>
+    <a href="{{ link }}" title="{{ tutorial.title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
+        <div class="content-illu">
+            {% if tutorial.image %}
+                <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
             {% endif %}
         </div>
-    </div>
+
+        <div class="content-info">
+            <h3 class="content-title" itemprop="itemListElement">
+                {{ tutorial.title }}
+            </h3>
+
+            {% if tutorial.description and show_description %}
+                <p class="content-description">
+                    {{ tutorial.description }}
+                </p>
+            {% endif %}
+
+            <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
+                {% if tutorial.subcategory %}
+                    <p class="content-categories">
+                        {{ categories_text }}
+                    </p>
+                {% endif %}
+
+                {% if tutorial.authors %}
+                    <p class="content-authors">
+                        {{ authors_text }}
+                    </p>
+                {% endif %}
+
+                {% if tutorial.pubdate %}
+                    <time class="content-pubdate" pubdate="{{ tutorial.pubdate|date:"c" }}">
+                        -
+                        <span class="long">{{ tutorial.pubdate|format_date|capfirst }}</span>
+                        <span class="short">{{ tutorial.pubdate|format_date:True|capfirst }}</span>
+                    </time>
+                {% endif %}
+            </div>
+        </div>
+    </a>
 </article>

@@ -15,27 +15,47 @@
     {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %} {% endfor %}
 {% endcaptureas %}
 
-<article class="content-item article-item">
-    <a href="{{ link }}" tabindex="-1" class="content-illu{% if article.image %} has-illu{% endif %}">
+<article class="content-item article-item has-reactions">
+    <a href="{{ link }}" tabindex="-1" class="content-illu">
         {% if article.image %}
             <img src="{{ article.image.content_thumb.url }}" alt="">
         {% endif %}
     </a>
 
     <div class="content-info">
-        <h3 class="content-title" itemprop="itemListElement">
-            <a href="{{ link }}" title="{{ article.title }}">
+        <a href="{{ link }}" title="{{ article.title }}{% if article.description and show_description %} − {{ article.description }}{% endif %}">
+            <h3 class="content-title" itemprop="itemListElement">
                 {{ article.title }}
-            </a>
-        </h3>
+            </h3>
 
-        {% if article.description and show_description %}
-            <p class="content-description">
-                <a href="{{ link }}" title="{{ article.description }}" tabindex="-1">
+            {% if article.description and show_description %}
+                <p class="content-description">
                     {{ article.description }}
-                </a>
-            </p>
-        {% endif %}
+                </p>
+            {% endif %}
+
+
+
+            <div class="content-meta">
+                <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
+                    {{ article.pubdate|format_date|capfirst }}
+                </time>
+
+                {% if article.sha_public %}
+                    <p class="content-authors">
+                        {{ authors_text }}
+                    </p>
+                {% elif article.sha_validation %}
+                    <p class="content-state">
+                        {% trans "En validation" %}
+                    </p>
+                {% else %}
+                    <p class="content-state">
+                        {% trans "Brouillon" %}
+                    </p>
+                {% endif %}
+            </div>
+        </a>
 
         <a class="content-reactions" href="
             {% if article.last_read_reaction %}
@@ -45,28 +65,8 @@
             {% endif %}"
             title="{% if article.get_reaction_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_reaction_count }}{% endif %} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}"
         >
-            {{ article.get_reaction_count }}
+            <span>{{ article.get_reaction_count }}</span>
         </a>
-
-        <div class="content-meta">
-            <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
-                {{ article.pubdate|format_date|capfirst }}
-            </time>
-
-            {% if article.sha_public %}
-                <p class="content-authors">
-                    {{ authors_text }}
-                </p>
-            {% elif article.sha_validation %}
-                <p class="content-state">
-                    {% trans "En validation" %}
-                </p>
-            {% else %}
-                <p class="content-state">
-                    {% trans "Brouillon" %}
-                </p>
-            {% endif %}
-        </div>
     </div>
 
     {% if article.tags.all %}
