@@ -19,16 +19,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     &.expand-description {
         .content-description {
           height: 36px; // 2 lines
-          display: flex;
-          align-items: center;
           white-space: normal;
           font-size: 14px;
           font-size: 1.4rem;
           line-height: 18px;
-
-          & > a {
-              max-height: 36px; // Prevents to be have the text centered if >= 3 lines
-          }
         }
 
         .content-meta {
@@ -43,8 +37,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         text-decoration: none;
     }
 
-    & > a {
+    & > a:not(.btn) {
         display: flex;
+        width: 100%;
     }
 
     .content-illu {
@@ -139,10 +134,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             text-decoration: underline;
             outline: none;
         }
-    }
-
-    .content-title a, .content-description a {
-        color: inherit;
     }
 
     p {
@@ -257,11 +248,11 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             font-size: 16px;
             font-size: 1.6rem;
 
-            .member-item {
-                font-style: italic;
-                &:hover, &:focus {
-                    text-decoration: underline;
-                }
+        }
+
+        .member-item {
+            &:hover, &:focus {
+                text-decoration: underline;
             }
         }
 
