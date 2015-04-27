@@ -64,6 +64,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     .content-reactions {
         position: absolute;
+        z-index: 0;
         bottom: 6px;
         left: $content-reaction-offset;
         height: 32px;
