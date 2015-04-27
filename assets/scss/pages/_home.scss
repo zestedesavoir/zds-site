@@ -34,9 +34,8 @@ $content-width: 1145px;
 
     .home-header {
         border-bottom: solid 1px white;
-        box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
         padding-top: 40px;
-        background: url("../images/home-background.png") repeat top center #224f75;
+        background: #19516b radial-gradient(at top, rgba(255,255,255,0.1),rgba(0,0,0,0) 60%);
         margin-bottom: -170px;
         padding-bottom: 180px;
         overflow: hidden; // Prevents search image to overflow on the mobile menu
