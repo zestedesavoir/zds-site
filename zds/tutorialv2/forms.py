@@ -14,6 +14,7 @@ from zds.tutorialv2.models import PublishableContent, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import User
 
+
 class FormWithTitle(forms.Form):
     title = forms.CharField(
         label=_(u'Titre'),
