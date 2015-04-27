@@ -18,18 +18,22 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
     &.expand-description {
         .content-description {
-          height: 36px; // 2 lines
-          white-space: normal;
-          font-size: 14px;
-          font-size: 1.4rem;
-          line-height: 18px;
+            height: 36px; // 2 lines
+            white-space: normal;
+            font-size: 14px;
+            font-size: 1.4rem;
+            line-height: 18px;
         }
 
         .content-meta {
-          line-height: 16px;
-          & > * {
-            display: inline-block;
-          }
+            line-height: 16px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            & > * {
+                display: inline;
+            }
         }
     }
 
@@ -304,7 +308,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
                 }
 
                 & > * {
-                  display: block;
+                    display: block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                 }
             }
         }
