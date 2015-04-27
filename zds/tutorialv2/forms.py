@@ -12,7 +12,7 @@ from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLay
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import PublishableContent, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
-
+from zds.member.models import User
 
 class FormWithTitle(forms.Form):
     title = forms.CharField(
@@ -155,6 +155,44 @@ class ContentForm(FormWithTitle):
             self.helper['type'].wrap(
                 Field,
                 disabled=True)
+
+
+class AuthorForm(forms.Form):
+
+    username = forms.CharField(
+        label=_(u"Auteurs à ajouter séparés d'une virgule"),
+        required=True
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(AuthorForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('username'),
+            ButtonHolder(
+                StrictButton(_('Ajouter'), type='submit'),
+            )
+        )
+
+    def clean(self):
+        """Check every username and send it to the cleaned_data["user"] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(AuthorForm, self).clean()
+        users = []
+        for username in cleaned_data.get('username').split(","):
+            user = User.objects.filter(username__iexact=username.strip().lower()).first()
+            if user is not None:
+                users.append(user)
+        if len(users) > 0:
+            cleaned_data["users"] = users
+        return cleaned_data
+
+    def is_valid(self):
+        return super(AuthorForm, self).is_valid() and "users" in self.clean()
 
 
 class ContainerForm(FormWithTitle):

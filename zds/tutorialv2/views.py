@@ -7,7 +7,7 @@ from urllib import urlretrieve
 from urlparse import urlparse, parse_qs
 from django.template.loader import render_to_string
 from zds.forum.models import Forum
-from zds.tutorialv2.forms import BetaForm, MoveElementForm, RevokeValidationForm
+from zds.tutorialv2.forms import BetaForm, MoveElementForm, RevokeValidationForm, AuthorForm
 from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get_target_tagged_tree
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 from zds.utils.models import Tag
@@ -1894,6 +1894,29 @@ class DownvoteReaction(UpvoteReaction):
     remove_class = CommentLike
     add_like = 0
     add_dislike = 1
+
+
+class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    only_draft_version = True
+    must_be_author = True
+    form_class = AuthorForm
+    authorized_for_staff = True
+
+    def form_valid(self, form):
+
+        for user in form.cleaned_data["users"]:
+            if user not in self.object.authors.all():
+                self.object.authors.add(user)
+        self.object.save()
+        self.success_url = self.object.get_absolute_url()
+        # todo: send MP
+
+        return super(AddAuthorToContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _(u'Les auteurs sélectionnés n\'existent pas.'))
+        self.success_url = self.object.get_absolute_url()
+        return super(AddAuthorToContent, self).form_valid(form)
 
 
 @can_write_and_read_now

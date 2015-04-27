@@ -2760,7 +2760,7 @@ class ContentTests(TestCase):
         self.assertEqual(self.client.get(reverse("tutorial:view", args=[tuto.pk, tuto.slug])).status_code, 200)
 
     def test_validate_unexisting(self):
-        # login with staff
+
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -2954,6 +2954,30 @@ class ContentTests(TestCase):
             follow=False
         )
         self.assertEqual(404, response.status_code)
+
+    def test_add_author(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:add-author', args=[self.tuto.pk]),
+            {
+                'username': self.user_guest.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
+        # add unexisting user
+        result = self.client.post(
+            reverse('content:add-author', args=[self.tuto.pk]),
+            {
+                'username': "unknown"
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
 
     def tearDown(self):
 

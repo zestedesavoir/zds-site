@@ -112,10 +112,11 @@ class SingleContentPostMixin(SingleContentViewMixin):
             self.kwargs["pk"] = self.request.POST['pk']
         except KeyError:
             raise Http404
-        obj = super(SingleContentPostMixin, self).get_object()
+        self.object = super(SingleContentPostMixin, self).get_object()
+
         if self.versioned and 'version' in self.request.POST['version']:
-            obj.load_version_or_404(sha=self.request.POST['version'])
-        return obj
+            self.object.load_version_or_404(sha=self.request.POST['version'])
+        return self.object
 
 
 class SingleContentFormViewMixin(SingleContentViewMixin, FormView):
