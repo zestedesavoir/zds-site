@@ -295,7 +295,7 @@ $content-width: 1145px;
         .home-heading {
             margin-top: 18px;
             &.heading-white {
-                color: inherit;
+                color: $color-primary;
                 border-color: $color-secondary;
             }
         }
