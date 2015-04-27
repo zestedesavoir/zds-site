@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import Http404
-from gitdb.exc import BadObject
+from gitdb.exc import BadObject, BadName
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 from django.utils.http import urlencode
@@ -1536,7 +1536,7 @@ class PublishableContent(models.Model):
         """
         try:
             return self.load_version(sha, public)
-        except (BadObject, IOError):
+        except (BadObject, BadName, IOError):
             raise Http404
 
     def load_version(self, sha=None, public=None):

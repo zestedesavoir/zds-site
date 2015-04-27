@@ -1343,6 +1343,12 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     form_class = AskValidationForm
     must_be_author = True
     authorized_for_staff = True  # an admin could ask validation for a content
+    only_draft_version = False
+
+    def dispatch(self, *args, **kwargs):
+        if "version" in self.request.POST:
+            self.sha = self.request.POST["version"]
+        return super(AskValidationForContent, self).dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(AskValidationForContent, self).get_form_kwargs()

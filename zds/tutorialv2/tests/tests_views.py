@@ -2757,6 +2757,25 @@ class ContentTests(TestCase):
             }, follow=True)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(ContentReaction.objects.count(), 1)
+        self.assertEqual(self.client.get(reverse("tutorial:view", args=[tuto.pk, tuto.slug])).status_code, 200)
+
+    def test_validate_unexisting(self):
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'text': "blaaaaa",
+                'source': "",
+                'version': "unexistingversion"
+            },
+            follow=False)
+        self.assertEqual(Validation.objects.filter(content__pk=self.tuto.pk).count(), 0)
+        self.assertEqual(result.status_code, 404)
 
     def test_help_to_perfect_tuto(self):
         """ This test aim to unit test the "help me to write my tutorial" interface.
