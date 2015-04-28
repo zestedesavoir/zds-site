@@ -7,7 +7,8 @@ from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, Ed
     ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation, \
-    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction, ContentsWithHelps, AddAuthorToContent
+    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction, ContentsWithHelps, AddAuthorToContent, \
+    RemoveAuthorFromContent
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -79,6 +80,7 @@ urlpatterns = patterns('',
                        url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayHistory.as_view(), name="history"),
                        url(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayDiff.as_view(), name="diff"),
                        url(r'^ajouter-auteur/(?P<pk>\d+)/$', AddAuthorToContent.as_view(), name="add-author"),
+                       url(r'^enlever-auteur/(?P<pk>\d+)/$', RemoveAuthorFromContent.as_view(), name="remove-author"),
                        # beta:
                        url(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
                            name="set-beta"),

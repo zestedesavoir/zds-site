@@ -1905,16 +1905,49 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     def form_valid(self, form):
 
         for user in form.cleaned_data["users"]:
-            if user not in self.object.authors.all():
+            if user not in self.object.authors.all() and user != self.request.user:
                 self.object.authors.add(user)
+                msg = (
+                    _(u'Bonjour **{0}**,\n\n'
+                      u'Tu as été ajouté comme auteur du tutoriel [{1}]({2}).\n'
+                      u'Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
+                      u'"Tutoriels" sur la page de ton profil.\n\n'
+                      u'Tu peux maintenant commencer à rédiger !').format(
+                          user.username,
+                          self.object.title,
+                          settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
+                          settings.ZDS_APP['site']['url'] + reverse("content:index"))
+                )
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                send_mp(
+                    bot,
+                    [user],
+                    _(u"Ajout en tant qu'auteur : {0}").format(self.object.title),
+                    "",
+                    msg,
+                    True,
+                    direct=False,
+                )
         self.object.save()
         self.success_url = self.object.get_absolute_url()
-        # todo: send MP
 
         return super(AddAuthorToContent, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _(u'Les auteurs sélectionnés n\'existent pas.'))
+        self.success_url = self.object.get_absolute_url()
+        return super(AddAuthorToContent, self).form_valid(form)
+
+
+class RemoveAuthorFromContent(AddAuthorToContent):
+
+    def form_valid(self, form):
+        for user in form.cleaned_data["users"]:
+            if user in self.object.authors.all() and user != self.request.user:
+                self.object.authors.remove(user)
+
+        self.object.save()
+
         self.success_url = self.object.get_absolute_url()
         return super(AddAuthorToContent, self).form_valid(form)
 

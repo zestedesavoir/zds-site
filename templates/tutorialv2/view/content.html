@@ -189,6 +189,37 @@
                 </button>
             </form>
         </li>
+        <li>
+            <a href="#manage-authors" class="open-modal ico-after gear blue">
+                {% trans "Gérer les auteurs" %}
+            </a>
+            <form action="{% url "content:remove-author" content.pk  %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+                <table class="fullwidth">
+                    <thead>
+                        <th>{% trans "Auteur" %}</th>
+                        <th>{% trans "Actions" %}</th>
+                    </thead>
+                    <tbody>
+                        {% for member in content.authors.all %}
+                            <tr>
+                                <td>{% include "misc/member_item.part.html" %}</td>
+                                <td>
+                                    {% if tutorial.authors.count > 1 %}
+                                        <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
+                                            {% trans "Supprimer" %}
+                                        </button>
+                                    {% else %}
+                                        {% trans "Vous êtes seul" %} !
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <input type="hidden" name="username" value="1">
+                {% csrf_token %}
+            </form>
+        </li>
         {% if not content.in_beta %}
             <li>
                 <a href="#activ-beta" class="open-modal ico-after beta blue">

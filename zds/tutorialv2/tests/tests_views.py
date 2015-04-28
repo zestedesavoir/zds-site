@@ -2979,6 +2979,40 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
 
+    def test_remove_author(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
+        result = self.client.post(
+            reverse('content:remove-author', args=[tuto.pk]),
+            {
+                'username': self.user_guest.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        # remove unexisting user
+        result = self.client.post(
+            reverse('content:add-author', args=[tuto.pk]),
+            {
+                'username': "unknown"
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        # remove last author must lead to no change
+        result = self.client.post(
+            reverse('content:add-author', args=[tuto.pk]),
+            {
+                'username': self.user_author.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
