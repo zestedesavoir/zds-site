@@ -204,8 +204,8 @@
                             <tr>
                                 <td>{% include "misc/member_item.part.html" %}</td>
                                 <td>
-                                    {% if tutorial.authors.count > 1 %}
-                                        <button type="submit" name="author" value="{{ member.pk }}" class="modal-inner">
+                                    {% if content.authors.count > 1 %}
+                                        <button type="submit" name="author" value="{{ member.username }}" class="modal-inner">
                                             {% trans "Supprimer" %}
                                         </button>
                                     {% else %}
