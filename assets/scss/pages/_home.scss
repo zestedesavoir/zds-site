@@ -143,6 +143,10 @@ $content-width: 1145px;
             border-color: white;
             background-color: #FFF;
         }
+
+        &.close-description {
+            display: none;
+        }
     }
 
     .featured-row {
@@ -241,17 +245,36 @@ $content-width: 1145px;
         .home-description:not(.connected):not(.short) {
             display: none;
         }
+
         .home-description.short {
             display: block;
+
+            &:target {
+                .home-description-button {
+                    display: none;
+
+                    &.close-description {
+                        display: inline-block;
+                    }
+                }
+
+                & ~ .home-description:not(.short) {
+                    display: block;
+                    margin-top: 20px;
+                }
+            }
         }
+
         .home-description .new-feature {
             display: none;
         }
+
         .home-heading {
             .btn {
                 visibility: hidden;
             }
         }
+
         .home-search-box {
             padding-left: 40px;
             margin: 30px 0 0!important;

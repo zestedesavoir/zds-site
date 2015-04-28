@@ -36,6 +36,15 @@
                 </p>
             </section>
         {% else %}
+            <section class="home-description short" id="description">
+                <blockquote><span>{% trans "Zeste de Savoir, le site de partage" %}</span> <span>{% trans "de connaissances, sans pépins !" %}</span></blockquote>
+                <a class="home-description-button" href="#description">
+                    {% trans "En savoir plus" %}
+                </a>
+                <a href="#" class="home-description-button close-description">
+                    {% trans "Fermer" %}
+                </a>
+            </section>
             <section class="home-description">
                 <div class="column">
                     <h2>
@@ -61,17 +70,13 @@
                         {% trans "Tout cela est entièrement gratuit et garanti sans publicité, le site est géré et financé par une association à but non lucratif." %}
                     </p>
                     {% if app.site.contribute_link %}
-                    <p><a class="home-description-button" href="{{ app.site.contribute_link }}">
-                        {% trans "Aider à développer la plateforme" %}
-                    </a></p>
+                    <p>
+                        <a class="home-description-button" href="{{ app.site.contribute_link }}">
+                            {% trans "Aider à développer la plateforme" %}
+                        </a>
+                    </p>
                     {% endif %}
                 </div>
-            </section>
-            <section class="home-description short">
-                <blockquote><span>{% trans "Zeste de Savoir, le site de partage" %}</span> <span>{% trans "de connaissances, sans pépins !" %}</span></blockquote>
-                <a class="home-description-button" href="{% url "zds.pages.views.about" %}">
-                    {% trans "En savoir plus" %}
-                </a>
             </section>
         {% endif %}
 
