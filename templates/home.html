@@ -25,15 +25,15 @@
         {% if user.is_authenticated %}
             <section class="home-description connected">
                 <blockquote><span>{{ quote }}</span></blockquote>
+                {% if message %}
                 <p class="new-feature">
                     <span class="important">{% trans "Nouveau !" %}</span>
-
-                    {% trans "Vous pouvez maintenant aider les auteurs dans la rédaction de leurs tutoriels !" %}
-
-                    <a class="home-description-button" href="#link-to-the-release-article">
+                    {{ message.message }}
+                    <a class="home-description-button" href="{{ message.url }}">
                         {% trans "En savoir plus" %}
                     </a>
                 </p>
+                {% endif %}
             </section>
         {% else %}
             <section class="home-description short" id="description">

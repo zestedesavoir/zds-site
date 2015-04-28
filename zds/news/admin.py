@@ -2,6 +2,7 @@
 
 from django.contrib import admin
 
-from zds.news.models import News
+from zds.news.models import News, MessageNews
 
 admin.site.register(News)
+admin.site.register(MessageNews)

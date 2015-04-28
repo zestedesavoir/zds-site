@@ -14,8 +14,8 @@ from django.views.generic.list import MultipleObjectMixin
 
 from zds import settings
 from zds.member.models import Profile
-from zds.news.forms import NewsForm
-from zds.news.models import News
+from zds.news.forms import NewsForm, MessageNewsForm
+from zds.news.models import News, MessageNews
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -176,3 +176,35 @@ class NewsDeleteList(MultipleObjectMixin, RedirectView):
         messages.success(request, _(u'Les unes ont été supprimées avec succès.'))
 
         return redirect(reverse('news-list'))
+
+
+class MessageNewsCreateUpdate(CreateView):
+    """
+    Creates or updates the new message.
+    """
+
+    form_class = MessageNewsForm
+    template_name = 'news/message/create.html'
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('news.change_news', raise_exception=True))
+    def dispatch(self, request, *args, **kwargs):
+        return super(MessageNewsCreateUpdate, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        last_message = MessageNews.objects.get_last_message()
+        if last_message:
+            last_message.delete()
+        message_news = MessageNews()
+        message_news.message = form.data.get('message')
+        message_news.url = form.data.get('url')
+        message_news.save()
+        return redirect(reverse('zds.pages.views.home'))

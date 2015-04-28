@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.news.factories import NewsFactory
-from zds.news.models import News
+from zds.news.models import News, MessageNews
 
 
 class NewsListViewTest(TestCase):
@@ -205,3 +205,57 @@ class NewsListDeleteViewTest(TestCase):
         response = self.client.get(reverse('news-list-delete'))
 
         self.assertEqual(403, response.status_code)
+
+
+class MessageNewsCreateUpdateViewTest(TestCase):
+    def test_success_list_create_message(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+            reverse('news-message-create'),
+            {
+                'message': 'message',
+                'url': 'url',
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, MessageNews.objects.count())
+
+    def test_create_only_one_message_in_system(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.post(
+            reverse('news-message-create'),
+            {
+                'message': 'message',
+                'url': 'url',
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, MessageNews.objects.count())
+
+        response = self.client.post(
+            reverse('news-message-create'),
+            {
+                'message': 'message',
+                'url': 'url',
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, MessageNews.objects.count())

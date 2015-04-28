@@ -6,7 +6,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from zds.news.models import News
+from zds.news.models import News, MessageNews
 
 
 class NewsForm(forms.ModelForm):
@@ -76,6 +76,47 @@ class NewsForm(forms.ModelForm):
             Field('type'),
             Field('authors'),
             Field('image_url'),
+            Field('url'),
+            ButtonHolder(
+                StrictButton(_(u'Enregistrer'), type='submit'),
+            ),
+        )
+
+
+class MessageNewsForm(forms.ModelForm):
+    class Meta:
+        model = MessageNews
+
+    message = forms.CharField(
+        label=_(u'Message'),
+        max_length=MessageNews._meta.get_field('message').max_length,
+        widget=forms.TextInput(
+            attrs={
+                'required': 'required',
+            }
+        )
+    )
+
+    url = forms.CharField(
+        label=_(u'URL'),
+        max_length=MessageNews._meta.get_field('url').max_length,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Lien vers l\'url du message.'),
+                'required': 'required',
+            }
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(MessageNewsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('news-message-create')
+
+        self.helper.layout = Layout(
+            Field('message'),
             Field('url'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
