@@ -10,7 +10,7 @@ Pour faciliter la tâche, trois outils sont mis à disposition des développeurs
 Les données sérialisables pour une base fonctionnelle
 -----------------------------------------------------
 
-Un premier ensemble de données simples est accessible par la commande intégrée à django `python manage.py loaddata`.
+Un premier ensemble de données simples est accessible par la commande intégrée à django ``python manage.py loaddata``.
 
 Cette commande s'attend à une liste de fichier au format yaml et supporte les *wildcards*.
 Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
@@ -68,6 +68,9 @@ Pour utiliser les factories, il vous faudra vous référer à la documentation d
 - les champs de base qui sont aussi présents avec la même orthographe dans le modèle de données
 - les champs personnalisés qui sont faits pour indiquer des comportements complémentaires à la commande
   par exemple, avec la zds.utils.HelpWrittingFactory, utiliser ``fixture_image_path`` vous permettra de renseigner le chemin relatif de l'image dans le dossier ``fixtures`` plutôt que le chemin absolu.
+
+Bien que ce module soit optionnel, si vous désirez qu'il soit possible de demander de l'aide sur les tutoriels et articles, 
+il vous faudra utiliser ``python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml``.
 
 Tester sur un jeu de données massif
 -----------------------------------
