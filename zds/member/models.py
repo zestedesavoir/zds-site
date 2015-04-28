@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import os
+import pygeoip
 
 from hashlib import md5
 from importlib import import_module
@@ -9,7 +10,6 @@ from importlib import import_module
 from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
-from django.contrib.gis.geoip import GeoIP
 from django.contrib.sessions.models import Session
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -117,11 +117,12 @@ class Profile(models.Model):
         providers.
         :return: The city and the country name of this profile.
         """
-        g = GeoIP()
-        geo = g.city(self.last_ip_address)
-        if geo is not None:
-            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
-        return ''
+        if len(self.last_ip_address) <= 16:
+            gic = pygeoip.GeoIP(os.path.join(settings.GEOIP_PATH, 'GeoLiteCity.dat'))
+        else:
+            gic = pygeoip.GeoIP(os.path.join(settings.GEOIP_PATH, 'GeoLiteCityv6.dat'))
+        geo = gic.record_by_addr(self.last_ip_address)
+        return u'{0}, {1}'.format(geo['city'], geo['country_name'])
 
     def get_avatar_url(self):
         """
