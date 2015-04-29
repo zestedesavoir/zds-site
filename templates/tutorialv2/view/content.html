@@ -206,7 +206,7 @@
                                 <td>
                                     {% if content.authors.count > 1 %}
 
-                                        <button type="submit" data-value="{{ member.username }}" name="author" value="{{ member.username }}" class="modal-inner">
+                                        <button type="submit" data-value="{{ member.username }}" name="username" value="{{ member.username }}" class="modal-inner">
                                             {% trans "Supprimer" %}
                                         </button>
                                     {% else %}
@@ -217,7 +217,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <input type="hidden" id="remove-username" name="username" value="">
+                <!--<input type="hidden" id="remove-username" name="username" value="">-->
                 {% csrf_token %}
             </form>
         </li>
