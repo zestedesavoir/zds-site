@@ -176,7 +176,7 @@
 
 
 {% block sidebar_actions %}
-    {% if can_edit %}
+    {% if can_edit or perms.tutorial.change_tutorial %}
         <li>
             <a href="#add-author" class="open-modal ico-after more blue">
                 {% trans "Ajouter un auteur" %}
