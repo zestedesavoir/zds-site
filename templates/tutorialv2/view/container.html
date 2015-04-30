@@ -165,7 +165,7 @@
                         {% endfor %}
                         <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
                         {% for element in containers_target %}
-                                <option value="after:{{element.0}}" 
+                                <option value="after:{{element.0}}"
                                 {% if not element.3 %} disabled {% endif %}>
                                      &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
                                 </option>

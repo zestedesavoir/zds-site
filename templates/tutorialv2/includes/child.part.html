@@ -50,7 +50,6 @@
                     <input type="hidden" name="child_slug" value="{{ child.slug }}">
                     {% if child.text %}
                         <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
-                        <input type="hidden" name="first_level_slug" value="{{ child.container.parent.slug }}">
                     {%  else %}
                         <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
                         {% if child.parent.get_tree_depth == 2 %}
