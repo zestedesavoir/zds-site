@@ -256,9 +256,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         else:
             context["nb"] = 1
         try:
-            context["notes"] = paginator.page(context["nb"])
+            context["reactions"] = paginator.page(context["nb"])
         except PageNotAnInteger:
-            context["notes"] = paginator.page(1)
+            context["reactions"] = paginator.page(1)
         except EmptyPage:
             raise Http404
 
