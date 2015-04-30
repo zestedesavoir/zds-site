@@ -11,7 +11,8 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory
 from zds.gallery.factories import GalleryFactory
-from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content
+from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
+    get_target_tagged_tree_for_extract
 from zds.tutorialv2.models import PublishableContent, PublishedContent
 
 overrided_zds_app = settings.ZDS_APP
@@ -216,6 +217,19 @@ class UtilsTests(TestCase):
                 self.assertTrue(os.path.isfile(chapter.get_prod_path()))  # an HTML file for each chapter
                 self.assertIsNone(chapter.introduction)
                 self.assertIsNone(chapter.conclusion)
+
+    def test_tagged_tree_extract(self):
+        midsize = PublishableContentFactory(author_list=[self.user_author])
+        midsize_draft = midsize.load_version()
+        first_container = ContainerFactory(parent=midsize_draft, db_object=midsize)
+        second_container = ContainerFactory(parent=midsize_draft, db_object=midsize)
+        first_extract = ExtractFactory(container=first_container, db_object=midsize)
+        second_extract = ExtractFactory(container=second_container, db_object=midsize)
+        tagged_tree = get_target_tagged_tree_for_extract(first_extract, midsize_draft)
+        paths = {i[0]: i[3] for i in tagged_tree}
+        self.assertTrue(paths[second_extract.get_full_slug()])
+        self.assertFalse(paths[second_container.get_path(True)])
+        self.assertFalse(paths[first_container.get_path(True)])
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

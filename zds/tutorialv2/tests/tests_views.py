@@ -827,7 +827,7 @@ class ContentTests(TestCase):
                 'child_slug': self.extract1.slug,
                 'container_slug': self.chapter1.slug,
                 'first_level_slug': self.part1.slug,
-                'moving_method': 'before:' + self.extract4.get_path(True)[:-3],
+                'moving_method': 'before:' + self.extract4.get_full_slug(),
                 'pk': tuto.pk
             },
             follow=True)
@@ -840,6 +840,31 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
+        # test changing parents on a "midsize content" (i.e depth of 1)
+        midsize = PublishableContentFactory(author_list=[self.user_author])
+        midsize_draft = midsize.load_version()
+        first_container = ContainerFactory(parent=midsize_draft, db_object=midsize)
+        second_container = ContainerFactory(parent=midsize_draft, db_object=midsize)
+        first_extract = ExtractFactory(container=first_container, db_object=midsize)
+        second_extract = ExtractFactory(container=second_container, db_object=midsize)
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': first_extract.slug,
+                'container_slug': first_container.get_path(True),
+                'first_level_slug': '',
+                'moving_method': 'before:' + second_extract.get_full_slug(),
+                'pk': midsize.pk
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertFalse(isfile(first_extract.get_path(True)))
+        midsize = PublishableContent.objects.filter(pk=midsize.pk).first()
+        midsize_draft = midsize.load_version()
+        second_container_draft = midsize_draft.children[1]
+        self.assertEqual(second_container_draft.children[0].title, first_extract.title)
+        self.assertTrue(second_container_draft.children[0].get_path(False))
+
         # test try to move to a container that can't get extract
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft

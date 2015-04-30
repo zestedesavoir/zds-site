@@ -13,7 +13,7 @@ def export_extract(extract):
     dct['title'] = extract.title
 
     if extract.text:
-        dct['text'] = extract.get_path(True)
+        dct['text'] = extract.text
 
     return dct
 

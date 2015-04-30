@@ -151,9 +151,9 @@ class Container:
         """
 
         if len(self.children) == 0:
-            return 1
+            return 0
         elif isinstance(self.children[0], Extract):
-            return 2
+            return 1
         else:
             return 1 + max([i.get_tree_level() for i in self.children])
 
@@ -270,6 +270,7 @@ class Container:
             extract.position_in_parent = self.get_last_child_position() + 1
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
+            extract.text = extract.get_path(True)
         else:
             raise InvalidOperationError("Can't add an extract if this container already contains containers.")
 
