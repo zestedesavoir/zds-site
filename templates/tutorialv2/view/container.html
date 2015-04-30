@@ -173,6 +173,8 @@
                 </select>
                 {% if container.get_tree_depth = 2 %}
                     <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
+                {% else %}
+                    <input type="hidden" name="first_level_slug" value="">
                 {% endif %}
                 <input type="hidden" name="child_slug" value="{{ container.slug }}">
                 <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
