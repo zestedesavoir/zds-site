@@ -8,7 +8,7 @@ from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, Ed
     AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
     UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation, \
     RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent
+    RemoveAuthorFromContent, CancelValidation
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -115,6 +115,8 @@ urlpatterns = patterns('',
                        url(r'^valider/historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),
                            name="history-validation"),
 
+                       url(r'^valider/annuler/(?P<pk>\d+)/$', CancelValidation.as_view(),
+                           name="cancel-validation"),
                        url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(),
                            name="reserve-validation"),
                        url(r'^valider/refuser/(?P<pk>\d+)/$', RejectValidation.as_view(),

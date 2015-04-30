@@ -1417,6 +1417,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 'tutorialv2/messages/validation_change.msg.html',
                 {
                     'content': self.versioned_object,
+                    'validator': validation.validator.username,
                     'url': self.versioned_object.get_absolute_url() + '?version=' + form.cleaned_data['version'],
                     'url_history': reverse('content:history', args=[self.object.pk, self.object.slug])
                 })
@@ -1439,6 +1440,65 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
         return super(AskValidationForContent, self).form_valid(form)
+
+
+class CancelValidation(LoginRequiredMixin, FormView):
+    """The user or an admin cancel the validation process"""
+
+    def post(self, request, *args, **kwargs):
+
+        user = self.request.user
+
+        validation = Validation.objects\
+            .filter(pk=self.kwargs['pk'])\
+            .prefetch_related('content')\
+            .prefetch_related('content__authors')\
+            .last()
+
+        if not validation:
+            raise PermissionDenied
+
+        if validation.status not in ['PENDING', 'PENDING_V']:
+            raise PermissionDenied  # cannot cancel a validation that is already accepted or rejected
+
+        if user not in validation.content.authors.all() and not user.has_perms('tutorial.change_tutorial'):
+            raise PermissionDenied
+
+        versioned = validation.content.load_version(sha=validation.version)
+
+        # reject validation:
+        validation.status = "CANCEL"
+        validation.date_validation = datetime.now()
+        validation.save()
+
+        validation.content.sha_validation = None
+        validation.content.save()
+
+        # warn the former validator that the all thing have been canceled
+        if validation.validator:
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            msg = render_to_string(
+                'tutorialv2/messages/validation_cancel.msg.html',
+                {
+                    'content': versioned,
+                    'validator': validation.validator.username,
+                    'url': versioned.get_absolute_url() + '?version=' + validation.version
+                })
+
+            send_mp(
+                bot,
+                [validation.validator],
+                _(u"Validation : annulation de « {} »").format(versioned.title),
+                _(u"La validation de ce contenu a été annulée"),
+                msg,
+                False,
+            )
+
+        messages.info(self.request, _(u'La validation de ce contenu a bien été annulée'))
+
+        return redirect(
+            reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
+            "?version=" + validation.version)
 
 
 # User actions on tutorial.
