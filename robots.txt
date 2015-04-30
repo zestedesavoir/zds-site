@@ -7,3 +7,10 @@ Disallow: /mp/
 Disallow: /tutoriels/off/
 Disallow: /tutoriels/beta/
 Disallow: /articles/off/
+
+# Prevent indexing robots to go on downloading pages (except pdf and epub of tutorials)
+# Articles don't have any pdf and epub
+Allow: /tutoriels/telecharger/epub/
+Allow: /tutoriels/telecharger/pdf/
+Disallow: /tutoriels/telecharger/
+Disallow: /articles/telecharger/
