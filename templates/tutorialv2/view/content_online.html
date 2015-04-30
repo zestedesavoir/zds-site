@@ -185,5 +185,5 @@
         {% url 'content:add-reaction' %}?pk={{ content.pk }}
     {% endcaptureas %}
 
-    {% include "misc/message_form.html" with member=user topic=content %}
+    {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
 {% endblock %}

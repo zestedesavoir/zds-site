@@ -261,6 +261,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         * context['content'] is set
         * context['can_edit'] is set
         * context['public_object'] is set
+        * context['isantispam'] is set
     """
 
     def get(self, request, *args, **kwargs):
@@ -277,7 +278,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context['content'] = self.versioned_object
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
-
+        context['isantispam'] = self.object.antispam(self.request.user)
         return context
 
 
