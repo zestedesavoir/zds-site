@@ -1726,7 +1726,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         else:
             search_params = {}
 
-            if form.data['first_level_slug'] != '':
+            if 'first_level_slug' in form.data and form.data['first_level_slug'] != '':
                 search_params['parent_container_slug'] = form.data['first_level_slug']
                 search_params['container_slug'] = base_container_slug
             else:
