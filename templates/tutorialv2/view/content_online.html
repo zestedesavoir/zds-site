@@ -142,7 +142,7 @@
     </h3>
 
 
-    {% include "misc/pagination.part.html" with position="top" topic=tutorial is_online=True anchor="comments" %}
+    {% include "misc/pagination.part.html" with position="top" topic=content is_online=True anchor="comments" %}
 
 
     {% for message in reactions %}
@@ -177,7 +177,7 @@
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" topic=tutorial is_online=True anchor="comments" %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=content is_online=True anchor="comments" %}
 
 
 
