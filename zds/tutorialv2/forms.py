@@ -497,10 +497,14 @@ class AskValidationForm(forms.Form):
 
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
 
-    def __init__(self, *args, **kwargs):
-        content = kwargs.pop('content', None)
+    previous_page_url = ''
 
+    def __init__(self, content, *args, **kwargs):
         super(AskValidationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = reverse('content:view', kwargs={'pk': content.pk, 'slug': content.slug})
+
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:ask-validation', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
@@ -521,7 +525,13 @@ class AskValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez écrire une réponse !')])
+                [_(u'Vous devez donner un commentaire à la validation')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) < 3:
+            self._errors['text'] = self.error_class(
+                [_(u'Votre commentaire doit faire au moins 3 caractères')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -559,14 +569,16 @@ class AcceptValidationForm(forms.Form):
         )
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, validation, *args, **kwargs):
 
-        self.validation = kwargs.pop('instance', None)
+        # modal form, send back to previous page:
+        self.previous_page_url = reverse(
+            'content:view', kwargs={'pk': validation.content.pk, 'slug': validation.content.slug})
 
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:accept-validation', kwargs={'pk': self.validation.pk})
+        self.helper.form_action = reverse('content:accept-validation', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -583,7 +595,13 @@ class AcceptValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez écrire une réponse !')])
+                [_(u'Vous devez donner un commentaire de validation')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) < 3:
+            self._errors['text'] = self.error_class(
+                [_(u'Votre commentaire doit faire au moins 3 caractères')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -603,11 +621,13 @@ class RejectValidationForm(forms.Form):
         )
     )
 
-    def __init__(self, *args, **kwargs):
-
-        validation = kwargs.pop('instance', None)
-
+    def __init__(self, validation, *args, **kwargs):
         super(RejectValidationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = reverse(
+            'content:view', kwargs={'pk': validation.content.pk, 'slug': validation.content.slug})
+
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:reject-validation', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
@@ -627,7 +647,13 @@ class RejectValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez écrire une réponse !')])
+                [_(u'Vous devez une raison pour le rejet')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) < 3:
+            self._errors['text'] = self.error_class(
+                [_(u'Votre commentaire doit faire au moins 3 caractères')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -649,10 +675,12 @@ class RevokeValidationForm(forms.Form):
         )
     )
 
-    def __init__(self, *args, **kwargs):
-        content = kwargs.pop('instance', None)
-
+    def __init__(self, content, *args, **kwargs):
         super(RevokeValidationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:revoke-validation', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
@@ -672,7 +700,13 @@ class RevokeValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez écrire une réponse !')])
+                [_(u'Vous devez une raison pour la dépublication')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) < 3:
+            self._errors['text'] = self.error_class(
+                [_(u'Votre commentaire doit faire au moins 3 caractères')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
