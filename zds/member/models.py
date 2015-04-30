@@ -111,15 +111,17 @@ class Profile(models.Model):
         return reverse('member-detail', kwargs={'user_name': urlquote(self.user.username)})
 
     def get_city(self):
+<<<<<<< HEAD
         """
         Uses geo-localization to get physical localization of a profile through its last IP address.
         This works relatively good with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
         providers.
         :return: The city and the country name of this profile.
         """
+        last_ip_address = self.last_ip_address
         g = GeoIP()
         geo = g.city(self.last_ip_address)
-        if geo is not None:
+        if not geo is None:
             return u'{0}, {1}'.format(geo['city'], geo['country_name'])
         return ''
 
