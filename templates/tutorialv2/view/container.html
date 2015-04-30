@@ -171,7 +171,7 @@
                                 </option>
                         {% endfor %}
                 </select>
-                {% if container.get_tree_depth = 2 %}
+                {% if container.get_tree_depth == 2 %}
                     <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
                 {% else %}
                     <input type="hidden" name="first_level_slug" value="">
