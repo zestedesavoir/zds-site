@@ -249,6 +249,25 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         if self.request.user.has_perm("tutorial.change_tutorial"):
             context['formRevokeValidation'] = RevokeValidationForm(
                 instance=self.versioned_object, initial={'version': self.versioned_object.sha_public})
+        paginator = Paginator(ContentReaction.objects.filter(related_content=self.object),
+                              settings.ZDS_APP["content"]["notes_per_page"])
+        if "page" in self.request.GET and self.request.GET["page"].isdigit():
+            context["nb"] = int(self.request.GET["page"])
+        else:
+            context["nb"] = 1
+        try:
+            context["notes"] = paginator.page(context["nb"])
+        except PageNotAnInteger:
+            context["notes"] = paginator.page(1)
+        except EmptyPage:
+            raise Http404
+
+        if context["nb"] != 1:
+
+            # Show the last note of the previous page
+
+            context["last_page"] = paginator.page(context["nb"] - 1).object_list
+            context["last_note"] = context["last_page"][len(context["nb"]) - 1]
 
         return context
 

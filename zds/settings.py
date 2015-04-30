@@ -443,6 +443,7 @@ ZDS_APP = {
         'max_tree_depth': 3,
         'default_license_pk': 7,
         'content_per_page': 50,
+        'notes_per_page': 25,
         'helps_per_page': 20,
         'feed_length': 5
     },
