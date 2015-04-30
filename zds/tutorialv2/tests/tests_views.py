@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.contrib.auth.models import Group
 
 import os
 from os.path import isdir, isfile
@@ -65,6 +66,8 @@ class ContentTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""

@@ -1019,12 +1019,15 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
         # topic of the beta version:
         topic = self.object.beta_topic
-
+        _type = self.object.type.lower()
+        if _type == "tutorial":
+            _type = _('tutoriel')
         # perform actions:
         if self.action == 'inactive':
             self.object.sha_beta = None
+
             msg_post = render_to_string(
-                'tutorialv2/messages/beta_desactivate.msg.html', {'content': beta_version}
+                'tutorialv2/messages/beta_desactivate.msg.html', {'content': beta_version, 'type': _type}
             )
             send_post(topic, msg_post)
             lock_topic(topic)
@@ -1042,6 +1045,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     'tutorialv2/messages/beta_activate_topic.msg.html',
                     {
                         'content': beta_version,
+                        'type': _type,
                         'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                     }
                 )
@@ -1076,6 +1080,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         'tutorialv2/messages/beta_activate_pm.msg.html',
                         {
                             'content': beta_version,
+                            'type': _type,
                             'url': settings.ZDS_APP['site']['url'] + topic.get_absolute_url()
                         }
                     )
@@ -1104,6 +1109,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             'tutorialv2/messages/beta_reactivate.msg.html',
                             {
                                 'content': beta_version,
+                                'type': _type,
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
@@ -1112,6 +1118,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             'tutorialv2/messages/beta_update.msg.html',
                             {
                                 'content': beta_version,
+                                'type': _type,
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
@@ -1924,28 +1931,28 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     authorized_for_staff = True
 
     def form_valid(self, form):
-
+        _type = self.object.type.lower()
+        if _type == "tutorial":
+            _type = _('du tutoriel')
+        else:
+            _type = _("de l'article")
         for user in form.cleaned_data["users"]:
             if user not in self.object.authors.all() and user != self.request.user:
                 self.object.authors.add(user)
-                msg = (
-                    _(u'Bonjour **{0}**,\n\n'
-                      u'Tu as été ajouté comme auteur du tutoriel [{1}]({2}).\n'
-                      u'Tu peux retrouver ce tutoriel en [cliquant ici]({3}), ou *via* le lien "En rédaction" du menu '
-                      u'"Tutoriels" sur la page de ton profil.\n\n'
-                      u'Tu peux maintenant commencer à rédiger !').format(
-                          user.username,
-                          self.object.title,
-                          settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                          settings.ZDS_APP['site']['url'] + reverse("content:index"))
-                )
+
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 send_mp(
                     bot,
                     [user],
-                    _(u"Ajout en tant qu'auteur : {0}").format(self.object.title),
+                    u'Ajout à la rédaction ' + _type,
                     "",
-                    msg,
+                    render_to_string("tutorialv2/messages/add_author_pm.msg.html", {
+                        'content': self.object,
+                        'type': _type,
+                        'url': self.object.get_absolute_url(),
+                        'index': settings.ZDS_APP['site']['url'] + reverse("content:index"),
+                        'user': user.username
+                    }),
                     True,
                     direct=False,
                 )

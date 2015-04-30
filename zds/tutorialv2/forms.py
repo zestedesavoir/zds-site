@@ -12,7 +12,7 @@ from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLay
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import PublishableContent, TYPE_CHOICES, HelpWriting
 from django.utils.translation import ugettext_lazy as _
-from zds.member.models import User
+from zds.member.models import Profile
 
 
 class FormWithTitle(forms.Form):
@@ -185,9 +185,9 @@ class AuthorForm(forms.Form):
         cleaned_data = super(AuthorForm, self).clean()
         users = []
         for username in cleaned_data.get('username').split(","):
-            user = User.objects.filter(username__iexact=username.strip().lower()).first()
+            user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower()).first()
             if user is not None:
-                users.append(user)
+                users.append(user.user)
         if len(users) > 0:
             cleaned_data["users"] = users
         return cleaned_data
