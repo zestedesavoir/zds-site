@@ -2758,6 +2758,13 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(ContentReaction.objects.count(), 1)
         self.assertEqual(self.client.get(reverse("tutorial:view", args=[tuto.pk, tuto.slug])).status_code, 200)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?clementine={}'.format(published_obj.content.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+        self.assertEqual(result.status_code, 404)
 
     def test_validate_unexisting(self):
 

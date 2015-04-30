@@ -1794,7 +1794,8 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     def get_public_object(self):
         """redefine this function in order to get the object from `pk` in request.GET"""
         pk = self.request.GET.get('pk', None)
-
+        if pk is None:
+            raise Http404
         obj = PublishedContent.objects\
             .filter(content_pk=int(pk))\
             .prefetch_related('content')\
