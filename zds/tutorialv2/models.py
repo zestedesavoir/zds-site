@@ -151,9 +151,9 @@ class Container:
         """
 
         if len(self.children) == 0:
-            return 0
-        elif isinstance(self.children[0], Extract):
             return 1
+        elif isinstance(self.children[0], Extract):
+            return 2
         else:
             return 1 + max([i.get_tree_level() for i in self.children])
 
