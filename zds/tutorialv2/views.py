@@ -12,6 +12,7 @@ from zds.tutorialv2.utils import try_adopt_new_child, TooDeepContainerError, get
 from zds.utils.forums import send_post, unlock_topic, lock_topic, create_topic
 from zds.utils.models import Tag
 from django.utils.decorators import method_decorator
+from zds.gallery.models import GALLERY_WRITE
 
 try:
     import ujson as json_reader
@@ -1947,7 +1948,13 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     True,
                     direct=False,
                 )
+                new_user = UserGallery()
+                new_user.gallery = self.object.gallery
+                new_user.user = user
+                new_user.mode = GALLERY_WRITE
+                new_user.save()
         self.object.save()
+
         self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
@@ -1963,6 +1970,8 @@ class RemoveAuthorFromContent(AddAuthorToContent):
     def form_valid(self, form):
         for user in form.cleaned_data["users"]:
             if user in self.object.authors.all() and user != self.request.user:
+                gallery = UserGallery.objects.filter(user=user, gallery=self.object.gallery).first()
+                gallery.delete()
                 self.object.authors.remove(user)
 
         self.object.save()

@@ -10,7 +10,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
-
+from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
@@ -2969,6 +2969,9 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
+        gallery = UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first()
+        self.assertIsNotNone(gallery)
+        self.assertEqual(GALLERY_WRITE, gallery.mode)
         # add unexisting user
         result = self.client.post(
             reverse('content:add-author', args=[self.tuto.pk]),
@@ -2994,6 +2997,8 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+
+        self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
         # remove unexisting user
         result = self.client.post(
             reverse('content:add-author', args=[tuto.pk]),
