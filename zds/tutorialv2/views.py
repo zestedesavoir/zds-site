@@ -95,8 +95,8 @@ class ListContents(LoggedWithReadWriteHability, ListView):
     template_name = 'tutorialv2/index.html'
     sorts = {
         '': lambda q: q.order_by('-title'),
-        'creation': [lambda q: q.order_by('-creation_date'), _(u"Par date de création")],
-        'abc': [lambda q: q.order_by('-title'), _(u"Par ordre alphabétique")],
+        'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
+        'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
         'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
     }
     sort = ''
@@ -106,7 +106,11 @@ class ListContents(LoggedWithReadWriteHability, ListView):
 
         :return: list of articles
         """
-        query_set = PublishableContent.objects.all().filter(authors__in=[self.request.user])
+        query_set = PublishableContent.objects \
+            .select_related("licence") \
+            .prefetch_related("authors") \
+            .prefetch_related("subcategory")\
+            .filter(authors__in=[self.request.user])
         if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
             query_set = self.sorts[self.request.GET["sort"].lower()][0](query_set)
             self.sort = self.request.GET["sort"]

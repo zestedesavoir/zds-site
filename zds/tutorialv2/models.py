@@ -127,6 +127,11 @@ class Container:
         """
         return len(self.children)
 
+    def get_first_level_slug(self):
+        if self.get_tree_depth() > 1:
+            return self.parent.parent.slug
+        return ''
+
     def get_tree_depth(self):
         """Represent the depth where this container is found
         Tree depth is no more than 2, because there is 3 levels for Containers :
@@ -724,6 +729,9 @@ class Extract:
         this method is an alias to extract.get_path(True)[:-3] (remove .md extension)
         """
         return self.get_path(True)[:-3]
+
+    def get_first_level_slug(self):
+        return self.container.get_first_level_slug()
 
     def get_delete_url(self):
         """

@@ -52,12 +52,8 @@
                         <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
                     {%  else %}
                         <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
-                        {% if child.parent.get_tree_depth == 2 %}
-                            <input type="hidden" name="first_level_slug" value="{{ child.parent.parent.slug }}">
-                        {% else %}
-                           <input type="hidden" name="first_level_slug" value="">
-                        {% endif %}
                     {% endif %}
+                    <input type="hidden" name="first_level_slug" value="{{ child.get_first_level_slug }}">
                     <input type="hidden" name="pk" value="{{ content.pk }}">
                     {% csrf_token %}
                     <button type="submit">
