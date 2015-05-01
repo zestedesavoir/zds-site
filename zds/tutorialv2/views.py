@@ -1884,7 +1884,6 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             messages.warning(self.request, _(u"L'élément est déjà à la place souhaitée."))
         except TypeError:
             messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit"))
-
         if base_container_slug == versioned.slug:
             return redirect(reverse("content:view", args=[content.pk, content.slug]))
         else:

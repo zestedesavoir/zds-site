@@ -1424,6 +1424,7 @@ class PublishableContent(models.Model):
         Rewrite the `save()` function to handle slug uniqueness
         """
         self.slug = uuslug(self.title, instance=self, max_length=80)
+        self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
