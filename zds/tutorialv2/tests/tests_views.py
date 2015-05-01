@@ -732,7 +732,6 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        old_date = tuto.update_date
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         old_sha = tuto.sha_draft
         # test moving up smoothly
@@ -748,11 +747,9 @@ class ContentTests(TestCase):
             follow=True)
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
-        self.assertGreater(PublishableContent.objects.get(pk=tuto.pk).update_date, old_date)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[0]
         self.assertEqual(self.extract2.slug, extract.slug)
-
         # test moving up the first element
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
@@ -769,7 +766,6 @@ class ContentTests(TestCase):
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
-        self.assertGreater(PublishableContent.objects.get(pk=tuto.pk).update_date, old_date)
         extract = versioned.children_dict[self.part1.slug]\
             .children_dict[self.chapter1.slug].children_dict[self.extract2.slug]
         self.assertEqual(1, extract.position_in_parent)
@@ -803,7 +799,6 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        old_date = tuto.update_date
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         self.extract3 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         old_sha = tuto.sha_draft
@@ -820,7 +815,6 @@ class ContentTests(TestCase):
             follow=True)
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
-        self.assertGreater(PublishableContent.objects.get(pk=tuto.pk).update_date, old_date)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children[0]
         self.assertEqual(self.extract2.slug, extract.slug)
@@ -849,7 +843,6 @@ class ContentTests(TestCase):
         extract = versioned.children_dict[self.part1.slug].children_dict[self.chapter2.slug].children[1]
         self.assertEqual(self.extract4.slug, extract.slug)
         self.assertEqual(2, len(versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children))
-        self.assertGreater(PublishableContent.objects.get(pk=tuto.pk).update_date, old_date)
         # test changing parents on a "midsize content" (i.e depth of 1)
         midsize = PublishableContentFactory(author_list=[self.user_author])
         midsize_draft = midsize.load_version()
