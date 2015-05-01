@@ -1391,11 +1391,14 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 and not self.request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied"""
 
-        old_validation = Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING_V']).first()
+        old_validation = Validation.objects.filter(
+            content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).first()
 
-        if old_validation:
+        if old_validation:  # if an old validation exists, cancel it !
             old_validator = old_validation.validator
-            Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).delete()
+            old_validation.status = 'CANCEL'
+            old_validation.date_validation = datetime.now()
+            old_validation.save()
         else:
             old_validator = None
 
@@ -1736,6 +1739,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         unpublish_content(self.object)
 
         validation.status = "PENDING"
+        validation.validator = None  # remove previous validator
         validation.date_validation = None
         validation.save()
 
