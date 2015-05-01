@@ -1378,8 +1378,8 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 
     def form_valid(self, form):
         """Change the js fiddle support of content and redirect to the view page """
-        content = get_object_or_404(PublishableContent, pk=form.data["pk"])
-        content.js_support = "js_support" in form.cleaned_data and form.data["js_support"] == u"True"
+        content = get_object_or_404(PublishableContent, pk=form.cleaned_data["pk"])
+        content.js_support = form.cleaned_data["js_support"]
         content.save()
         return redirect(content.load_version().get_absolute_url())
 

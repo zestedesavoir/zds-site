@@ -735,6 +735,15 @@ class JsFiddleActivationForm(forms.Form):
                     type='submit'),),
             Hidden('pk', '{{ content.pk }}'), )
 
+    def clean(self):
+        cleaned_data = super(JsFiddleActivationForm, self).clean()
+        cleaned_data["js_support"] = "js_support" in self.data and str(self.data["js_support"]) == "True"
+        if "pk" in self.data and self.data["pk"].isdigit():
+            cleaned_data["pk"] = int(self.data["pk"])
+        else:
+            cleaned_data["pk"] = 0
+        return cleaned_data
+
 
 class MoveElementForm(forms.Form):
 
