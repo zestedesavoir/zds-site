@@ -607,6 +607,32 @@ class PrivatePostListAPI(APITestCase):
         self.assertIsNone(response.data.get('previous'))
         self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGINATE_BY'], len(response.data.get('results')))
 
+    def test_list_of_private_posts_with_x_data_format_html(self):
+        """
+        Gets list of private posts with a Html value for X-Data-Format header.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic, 1)
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]),
+                                   **{'HTTP_X_DATA_FORMAT': 'Html'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data.get('results')[0].get('text_html'))
+        self.assertIsNone(response.data.get('results')[0].get('text'))
+
+    def test_list_of_private_posts_with_x_data_format_markdown(self):
+        """
+        Gets list of private posts with a Markdown value for X-Data-Format header.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic, 1)
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]),
+                                   **{'HTTP_X_DATA_FORMAT': 'Markdown'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNotNone(response.data.get('results')[0].get('text'))
+        self.assertIsNone(response.data.get('results')[0].get('text_html'))
+
     def create_multiple_private_posts_for_member(self, user, private_topic,
                                                  number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
         list = []
@@ -652,7 +678,8 @@ class PrivatePostDetailAPI(APITestCase):
         response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.private_post.id, response.data.get('id'))
-        self.assertEqual(self.private_post.text_html, response.data.get('text_html'))
+        self.assertIsNotNone(response.data.get('text'))
+        self.assertIsNone(response.data.get('text_html'))
         self.assertIsNotNone(response.data.get('pubdate'))
         self.assertIsNone(response.data.get('update'))
         self.assertEqual(self.private_post.position_in_topic, response.data.get('position_in_topic'))

@@ -60,10 +60,21 @@ class ZdSModelSerializer(serializers.ModelSerializer):
     def get_fields(self):
         fields = super(ZdSModelSerializer, self).get_fields()
 
-        expands = self._context.get('request').GET.getlist('expand')
-        if not expands:
+        request = self._context.get('request')
+        if request is None:
             return fields
 
+        expands = request.GET.getlist('expand')
+        if expands:
+            fields = self._update_expand_fields(fields, expands)
+
+        format = request.META.get('HTTP_X_DATA_FORMAT') or 'Markdown'
+        if hasattr(self.Meta, 'formats'):
+            fields = self._update_format_fields(fields, format)
+
+        return fields
+
+    def _update_expand_fields(self, fields, expands):
         assert hasattr(self.Meta, 'serializers'), (
             'Class {serializer_class} missing "Meta.serializers" attribute'.format(
                 serializer_class=self.__class__.__name__
@@ -93,5 +104,18 @@ class ZdSModelSerializer(serializers.ModelSerializer):
                 continue
 
             fields[expand] = current_serializer(**args)
+
+        return fields
+
+    def _update_format_fields(self, fields, format='Markdown'):
+        assert hasattr(self.Meta, 'formats'), (
+            'Class {serializer_class} missing "Meta.formats" attribute'.format(
+                serializer_class=self.__class__.__name__
+            )
+        )
+
+        for current in self.Meta.formats:
+            if current != format:
+                fields.pop(self.Meta.formats[current])
 
         return fields

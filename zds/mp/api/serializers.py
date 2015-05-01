@@ -9,13 +9,15 @@ from zds.mp.models import PrivateTopic, PrivatePost
 from zds.utils.mps import send_mp
 
 
-class PrivatePostSerializer(serializers.ModelSerializer):
+class PrivatePostSerializer(ZdSModelSerializer):
     """
     Serializers of a private post object.
     """
 
     class Meta:
         model = PrivatePost
+        serializers = (UserListSerializer,)
+        formats = {'Html': 'text_html', 'Markdown': 'text'}
 
 
 class PrivateTopicSerializer(ZdSModelSerializer):
