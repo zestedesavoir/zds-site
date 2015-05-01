@@ -1,4 +1,5 @@
 # coding: utf-8
+from collections import OrderedDict
 
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
@@ -177,6 +178,29 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
+
+    def test_list_of_private_topics_without_expand(self):
+        """
+        Gets list of private topics without expand parameter.
+        """
+        self.create_multiple_private_topics_for_member(self.profile.user, 1)
+
+        response = self.client.get(reverse('api-mp-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        author = response.data.get('results')[0].get('author')
+        self.assertEqual(author, self.profile.user.id)
+
+    def test_expand_list_of_private_topics_for_author(self):
+        """
+        Gets list of private topics with author field expanded.
+        """
+        self.create_multiple_private_topics_for_member(self.profile.user, 1)
+
+        response = self.client.get(reverse('api-mp-list') + '?expand=author')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        author = response.data.get('results')[0].get('author')
+        self.assertIsInstance(author, OrderedDict)
+        self.assertEqual(author.get('username'), self.profile.user.username)
 
     def test_create_private_topics_with_client_unauthenticated(self):
         """
