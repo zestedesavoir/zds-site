@@ -2812,7 +2812,7 @@ class ContentTests(TestCase):
             reverse('content:activate-jsfiddle'),
             {
                 "pk": self.tuto.pk,
-                "js_support": True
+                "js_support": "on"
             }, follow=True)
         self.assertEqual(result.status_code, 200)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -2821,7 +2821,6 @@ class ContentTests(TestCase):
             reverse('content:activate-jsfiddle'),
             {
                 "pk": self.tuto.pk,
-                "js_support": False
             }, follow=True)
         self.assertEqual(result.status_code, 200)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)

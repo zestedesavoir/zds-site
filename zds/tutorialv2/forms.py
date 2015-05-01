@@ -737,7 +737,8 @@ class JsFiddleActivationForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(JsFiddleActivationForm, self).clean()
-        cleaned_data["js_support"] = "js_support" in self.data and str(self.data["js_support"]) == "True"
+        if "js_support" not in cleaned_data:
+            cleaned_data["js_support"] = False
         if "pk" in self.data and self.data["pk"].isdigit():
             cleaned_data["pk"] = int(self.data["pk"])
         else:
