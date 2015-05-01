@@ -291,7 +291,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             # Show the last note of the previous page
 
             context["last_page"] = paginator.page(context["nb"] - 1).object_list
-            context["last_note"] = context["last_page"][len(context["nb"]) - 1]
+            context["last_note"] = context["last_page"][context["nb"] - 1]
 
         return context
 
