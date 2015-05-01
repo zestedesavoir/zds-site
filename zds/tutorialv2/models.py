@@ -1078,11 +1078,11 @@ class VersionedContent(Container):
         if isinstance(child, Extract):
             old_parent = child.container
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
-            adoptive_parent.add_extract(child)
+            adoptive_parent.add_extract(child, True)
         else:
             old_parent = child.parent
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
-            adoptive_parent.add_container(child)
+            adoptive_parent.add_container(child, True)
         self.repository.index.move([old_path, child.get_path(False)])
 
         self.dump_json()

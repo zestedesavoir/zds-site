@@ -218,8 +218,8 @@ def get_target_tagged_tree_for_container(movable_child, root):
         if child.parent.get_path(False) == movable_child.get_path(False):
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(), False))
         else:
-            composed_depth = child.get_tree_depth() + movable_child.get_tree_depth()
-            enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth']
+            composed_depth = child.get_tree_depth() + movable_child.get_tree_level()
+            enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth'] and child.can_add_container()
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(),
                                        enabled and child != movable_child and child != root))
 
