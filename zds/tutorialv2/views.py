@@ -93,14 +93,25 @@ class ListContents(LoggedWithReadWriteHability, ListView):
     """
     context_object_name = 'contents'
     template_name = 'tutorialv2/index.html'
+    sorts = {
+        '': lambda q: q.order_by('-title'),
+        'creation': [lambda q: q.order_by('-creation_date'), _(u"Par date de création")],
+        'abc': [lambda q: q.order_by('-title'), _(u"Par ordre alphabétique")],
+        'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
+    }
+    sort = ''
 
     def get_queryset(self):
-        """
-        Filter the content to obtain the list of content written by current user
+        """Filter the content to obtain the list of content written by current user
+
         :return: list of articles
         """
         query_set = PublishableContent.objects.all().filter(authors__in=[self.request.user])
-        # TODO: prefetch !tutorial.change_tutorial
+        if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
+            query_set = self.sorts[self.request.GET["sort"].lower()][0](query_set)
+            self.sort = self.request.GET["sort"]
+        else:
+            query_set = self.sorts[''](query_set)
         return query_set
 
     def get_context_data(self, **kwargs):
@@ -114,6 +125,11 @@ class ListContents(LoggedWithReadWriteHability, ListView):
                 context['articles'].append(versioned)
             else:
                 context['tutorials'].append(versioned)
+        context['sorts'] = []
+        context['sort'] = self.sort.lower()
+        for sort in self.sorts.keys():
+            if sort != '':
+                context['sorts'].append((reverse('content:index') + '?sort=' + sort, self.sorts[sort][1], sort))
         return context
 
 

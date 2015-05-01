@@ -58,3 +58,16 @@
         {% trans "Importer un nouveau contenu" %}
     </a>
 {% endblock %}
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Trier">
+            <h3>Trier</h3>
+            <ul>
+                {% for sorter in sorts %}
+                    <li><a href="{{ sorter.0 }}" class="ico-after gear {% if sort == sorter.2 %}selected{% endif %}">{{ sorter.1 }}</a> </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
