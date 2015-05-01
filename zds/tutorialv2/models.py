@@ -1826,7 +1826,7 @@ class ContentReaction(Comment):
         """
         :return: the url of the comment
         """
-        page = int(ceil(float(self.position) / settings.ZDS_APP['forum']['posts_per_page']))
+        page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
         return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
 
 
