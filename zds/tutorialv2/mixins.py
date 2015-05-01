@@ -1,8 +1,12 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from django.views.generic import View
 
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext as _
 
@@ -119,7 +123,35 @@ class SingleContentPostMixin(SingleContentViewMixin):
         return self.object
 
 
-class SingleContentFormViewMixin(SingleContentViewMixin, FormView):
+class ModalFormView(FormView):
+    """If `self.modal_form` is set `True`, this class will ensure that the redirection is made to the previous page
+    if an error appear"""
+
+    modal_form = False  # `form_invalid()` will behave differently if `True`, see implementation below
+
+    def form_invalid(self, form):
+        """If `self.modal_form` is set `True`, this function is rewritten to send back to the previous page
+        with an error message, instead of using the form template which is normally provided.
+
+        The redirection is made to `form.previous_page_url`, if exists, `content:view` otherwise."""
+
+        if not self.modal_form:
+            return super(ModalFormView, self).form_invalid(form)
+        else:
+            errors = form.errors.as_data()
+            if len(errors) > 0:
+                messages.error(self.request, errors[errors.keys()[0]][0][0])  # only the first error is provided
+            else:
+                messages.error(
+                    self.request, _(u'Une erreur inconnue est survenue durant le traitement des données'))
+
+            if hasattr(form, 'previous_page_url'):
+                return redirect(form.previous_page_url)
+            else:
+                return redirect(reverse('content:view'))  # assume a default url
+
+
+class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
     """
     This enhanced FormView ensure,
 
@@ -282,7 +314,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         return context
 
 
-class SingleOnlineContentFormViewMixin(SingleOnlineContentViewMixin, FormView):
+class SingleOnlineContentFormViewMixin(SingleOnlineContentViewMixin, ModalFormView):
     """
     This enhanced FormView ensure,
 

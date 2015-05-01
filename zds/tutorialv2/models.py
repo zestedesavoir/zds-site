@@ -44,10 +44,11 @@ TYPE_CHOICES = (
 )
 
 STATUS_CHOICES = (
-    ('PENDING', 'En attente d\'un validateur'),
-    ('PENDING_V', 'En cours de validation'),
-    ('ACCEPT', 'Publié'),
-    ('REJECT', 'Rejeté'),
+    ('PENDING', _(u'En attente d\'un validateur')),
+    ('PENDING_V', _(u'En cours de validation')),
+    ('ACCEPT', _(u'Publié')),
+    ('REJECT', _(u'Rejeté')),
+    ('CANCEL', _(u'Annulé'))
 )
 
 
@@ -1906,3 +1907,10 @@ class Validation(models.Model):
         :return: `True` if status is rejected, `False` otherwise
         """
         return self.status == 'REJECT'
+
+    def is_cancel(self):
+        """Check if the content is canceled
+
+        :return: `True` if status is canceled, `False` otherwise
+        """
+        return self.status == 'CANCEL'

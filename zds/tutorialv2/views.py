@@ -67,7 +67,7 @@ from django.views.generic import ListView, FormView, DeleteView, RedirectView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin,\
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin,\
-    SingleOnlineContentFormViewMixin
+    SingleOnlineContentFormViewMixin, ModalFormView
 from git import GitCommandError
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
 from django.utils.encoding import smart_text
@@ -207,12 +207,12 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             content=self.versioned_object, initial={"source": self.object.source, 'version': self.sha})
 
         if validation:
-            context["formValid"] = AcceptValidationForm(instance=validation, initial={"source": self.object.source})
-            context["formReject"] = RejectValidationForm(instance=validation)
+            context["formValid"] = AcceptValidationForm(validation, initial={"source": self.object.source})
+            context["formReject"] = RejectValidationForm(validation)
 
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
-                instance=self.versioned_object, initial={'version': self.versioned_object.sha_public})
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         context["validation"] = validation
         context["formJs"] = form_js
@@ -249,7 +249,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         if self.request.user.has_perm("tutorial.change_tutorial"):
             context['formRevokeValidation'] = RevokeValidationForm(
-                instance=self.versioned_object, initial={'version': self.versioned_object.sha_public})
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
+
         paginator = Paginator(ContentReaction.objects.filter(related_content=self.object),
                               settings.ZDS_APP["content"]["notes_per_page"])
         if "page" in self.request.GET and self.request.GET["page"].isdigit():
@@ -1371,6 +1372,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     must_be_author = True
     authorized_for_staff = True  # an admin could ask validation for a content
     only_draft_version = False
+    modal_form = True
 
     def dispatch(self, *args, **kwargs):
         if "version" in self.request.POST:
@@ -1389,11 +1391,14 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 and not self.request.user.has_perm('tutorial.change_tutorial'):
             raise PermissionDenied"""
 
-        old_validation = Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING_V']).first()
+        old_validation = Validation.objects.filter(
+            content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).first()
 
-        if old_validation:
+        if old_validation:  # if an old validation exists, cancel it !
             old_validator = old_validation.validator
-            Validation.objects.filter(content__pk=self.object.pk, status__in=['PENDING', 'PENDING_V']).delete()
+            old_validation.status = 'CANCEL'
+            old_validation.date_validation = datetime.now()
+            old_validation.save()
         else:
             old_validator = None
 
@@ -1415,6 +1420,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 'tutorialv2/messages/validation_change.msg.html',
                 {
                     'content': self.versioned_object,
+                    'validator': validation.validator.username,
                     'url': self.versioned_object.get_absolute_url() + '?version=' + form.cleaned_data['version'],
                     'url_history': reverse('content:history', args=[self.object.pk, self.object.slug])
                 })
@@ -1437,6 +1443,65 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
         return super(AskValidationForContent, self).form_valid(form)
+
+
+class CancelValidation(LoginRequiredMixin, FormView):
+    """The user or an admin cancel the validation process"""
+
+    def post(self, request, *args, **kwargs):
+
+        user = self.request.user
+
+        validation = Validation.objects\
+            .filter(pk=self.kwargs['pk'])\
+            .prefetch_related('content')\
+            .prefetch_related('content__authors')\
+            .last()
+
+        if not validation:
+            raise PermissionDenied
+
+        if validation.status not in ['PENDING', 'PENDING_V']:
+            raise PermissionDenied  # cannot cancel a validation that is already accepted or rejected
+
+        if user not in validation.content.authors.all() and not user.has_perms('tutorial.change_tutorial'):
+            raise PermissionDenied
+
+        versioned = validation.content.load_version(sha=validation.version)
+
+        # reject validation:
+        validation.status = "CANCEL"
+        validation.date_validation = datetime.now()
+        validation.save()
+
+        validation.content.sha_validation = None
+        validation.content.save()
+
+        # warn the former validator that the all thing have been canceled
+        if validation.validator:
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            msg = render_to_string(
+                'tutorialv2/messages/validation_cancel.msg.html',
+                {
+                    'content': versioned,
+                    'validator': validation.validator.username,
+                    'url': versioned.get_absolute_url() + '?version=' + validation.version
+                })
+
+            send_mp(
+                bot,
+                [validation.validator],
+                _(u"Validation : annulation de « {} »").format(versioned.title),
+                _(u"La validation de ce contenu a été annulée"),
+                msg,
+                False,
+            )
+
+        messages.info(self.request, _(u'La validation de ce contenu a bien été annulée'))
+
+        return redirect(
+            reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
+            "?version=" + validation.version)
 
 
 # User actions on tutorial.
@@ -1486,15 +1551,17 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
         return context
 
 
-class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Reject the publication"""
 
     permissions = ["tutorial.change_tutorial"]
     form_class = RejectValidationForm
 
+    modal_form = True
+
     def get_form_kwargs(self):
         kwargs = super(RejectValidation, self).get_form_kwargs()
-        kwargs['instance'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
+        kwargs['validation'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
         return kwargs
 
     def form_valid(self, form):
@@ -1548,26 +1615,31 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         return super(RejectValidation, self).form_valid(form)
 
 
-class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Publish the content"""
 
     permissions = ["tutorial.change_tutorial"]
     form_class = AcceptValidationForm
 
+    modal_form = True
+
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()
-        kwargs['instance'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
+        kwargs['validation'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
         return kwargs
 
     def form_valid(self, form):
 
         user = self.request.user
-        validation = form.validation
+        validation = Validation.objects.filter(pk=self.kwargs['pk']).last()
 
         if not validation:
             raise PermissionDenied
 
         if validation.validator != user:
+            raise PermissionDenied
+
+        if validation.status != 'PENDING_V':
             raise PermissionDenied
 
         # get database representation and validated version
@@ -1640,10 +1712,13 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
 
     permissions = ["tutorial.change_tutorial"]
     form_class = RevokeValidationForm
+    is_public = True
+
+    modal_form = True
 
     def get_form_kwargs(self):
         kwargs = super(RevokeValidation, self).get_form_kwargs()
-        kwargs['instance'] = self.versioned_object
+        kwargs['content'] = self.versioned_object
         return kwargs
 
     def form_valid(self, form):
@@ -1664,6 +1739,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         unpublish_content(self.object)
 
         validation.status = "PENDING"
+        validation.validator = None  # remove previous validator
         validation.date_validation = None
         validation.save()
 

@@ -1986,6 +1986,17 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
+                'text': '',
+                'source': source,
+                'version': midsize_tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
+
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
                 'text': text_validation,
                 'source': source,
                 'version': midsize_tuto_draft.current_version
@@ -2112,7 +2123,9 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Validation.objects.count(), 1)
+        self.assertEqual(Validation.objects.count(), 2)
+
+        self.assertEqual(Validation.objects.get(pk=validation.pk).status, 'CANCEL')  # previous is canceled
 
         # ... Therefore, a new Validation object is created
         validation = Validation.objects.filter(content=midsize_tuto).last()
@@ -2167,6 +2180,17 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:reject-validation', kwargs={'pk': validation.pk}),
             {
+                'text': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')  # rejection is impossible without text
+
+        result = self.client.post(
+            reverse('content:reject-validation', kwargs={'pk': validation.pk}),
+            {
                 'text': text_reject
             },
             follow=False)
@@ -2190,7 +2214,7 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 2)
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
 
         # a new object is created !
         validation = Validation.objects.filter(content=midsize_tuto).last()
@@ -2215,6 +2239,19 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:accept-validation', kwargs={'pk': validation.pk}),
             {
+                'text': '',
+                'is_major': True,
+                'source': ''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')  # acceptation is not possible without text
+
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
                 'text': text_accept,
                 'is_major': True,
                 'source': different_source  # because ;)
@@ -2222,7 +2259,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 2)
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'ACCEPT')
@@ -2268,16 +2305,28 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
+                'text': '',
+                'version': published.sha_public
+            },
+            follow=False)
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+        self.assertEqual(validation.status, 'ACCEPT')  # with no text, revocation is not possible
+
+        result = self.client.post(
+            reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
                 'text': text_reject,
                 'version': published.sha_public
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 2)
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
 
         validation = Validation.objects.filter(content=midsize_tuto).last()
         self.assertEqual(validation.status, 'PENDING')
+        self.assertEqual(validation.version, midsize_tuto.sha_draft)
 
         self.assertIsNotNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
 
@@ -2286,6 +2335,38 @@ class ContentTests(TestCase):
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 3)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
+
+        # so, reserve it
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        # ... and cancel reservation with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:cancel-validation', kwargs={'pk': validation.pk}), follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+        self.assertEqual(validation.status, 'CANCEL')  # the validation got canceled
+
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
+        self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
 
     def test_public_access(self):
         """Test that everybody have access to a content after its publication"""
