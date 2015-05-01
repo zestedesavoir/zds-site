@@ -129,7 +129,7 @@ class Container:
 
     def get_first_level_slug(self):
         if self.get_tree_depth() > 1:
-            return self.parent.parent.slug
+            return self.parent.slug
         return ''
 
     def get_tree_depth(self):
