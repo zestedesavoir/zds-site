@@ -283,7 +283,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["reactions"] = paginator.page(1)
         except EmptyPage:
             raise Http404
-
+        context["is_js"] = True
+        if not self.object.js_support:
+            context["is_js"] = False
         if context["nb"] != 1:
 
             # Show the last note of the previous page
