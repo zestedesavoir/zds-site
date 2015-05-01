@@ -203,11 +203,14 @@ def get_target_tagged_tree_for_extract(movable_child, root):
     return target_tagged_tree
 
 
-def get_target_tagged_tree_for_container(movable_child, root):
+def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     """Gets the tagged tree with displacement availability when movable_child is an extract
 
     :param movable_child: the container we want to move
     :param root: the VersionnedContent we use as root
+    :param bias: a negative or zero integer that represent the level bias. A value of -1 (default) represent
+    the fact that we want to make the *movable_child* **a sibling** of the tagged child, a value of 0 that we want
+    to make it a sub child.
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child
     extracts are not included
     """
@@ -218,7 +221,7 @@ def get_target_tagged_tree_for_container(movable_child, root):
         if child.parent.get_path(False) == movable_child.get_path(False):
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(), False))
         else:
-            composed_depth = child.get_tree_depth() + movable_child.get_tree_level()
+            composed_depth = child.get_tree_depth() + movable_child.get_tree_level() + bias  # because we want
             enabled = composed_depth <= settings.ZDS_APP['content']['max_tree_depth'] and child.can_add_container()
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(),
                                        enabled and child != movable_child and child != root))
