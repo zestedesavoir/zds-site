@@ -45,8 +45,8 @@ class UtilsTests(TestCase):
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
     def test_get_target_tagged_tree_for_container(self):
-        part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
-        part3 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
+        part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title="part2")
+        part3 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title="part3")
         tagged_tree = get_target_tagged_tree_for_container(self.part1, self.tuto_draft)
 
         self.assertEqual(4, len(tagged_tree))
@@ -60,6 +60,18 @@ class UtilsTests(TestCase):
         self.assertFalse(paths[self.part1.get_path(True)], "can't be moved after or before himself")
         self.assertTrue(paths[part2.get_path(True)], "can be moved after or before part2")
         self.assertTrue(paths[part3.get_path(True)], "can be moved after or before part3")
+        tagged_tree = get_target_tagged_tree_for_container(part3, self.tuto_draft)
+        self.assertEqual(4, len(tagged_tree))
+        paths = {i[0]: i[3] for i in tagged_tree}
+        self.assertTrue(part2.get_path(True) in paths)
+        self.assertTrue(part3.get_path(True) in paths)
+        self.assertTrue(self.chapter1.get_path(True) in paths)
+        self.assertTrue(self.part1.get_path(True) in paths)
+        self.assertFalse(self.tuto_draft.get_path(True) in paths)
+        self.assertTrue(paths[self.chapter1.get_path(True)], "can't be moved to a too deep container")
+        self.assertTrue(paths[self.part1.get_path(True)], "can't be moved after or before himself")
+        self.assertTrue(paths[part2.get_path(True)], "can be moved after or before part2")
+        self.assertFalse(paths[part3.get_path(True)], "can be moved after or before part3")
 
     def test_publish_content(self):
         """test and ensure the behavior of ``publish_content()`` and ``unpublish_content()``"""

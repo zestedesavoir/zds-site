@@ -221,13 +221,18 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
         if child.parent.get_path(False) == movable_child.get_path(False):
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_level(), False))
         else:
+            level = movable_child.get_tree_level()
 
-            enabled = child.can_add_container()
-            if child.get_tree_depth() + bias == 1:
-                enabled = enabled and movable_child.get_tree_level() == 2
+            enabled = child != movable_child and child != root
+            if bias == -1 and child.parent is not None:
+                tested = child.parent
+            else:
+                tested = child
+            enabled = enabled and tested.can_add_container()
+            if level > 2:
+                enabled = enabled and tested == root
 
-            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(),
-                                       enabled and child != movable_child and child != root))
+            target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(), enabled))
 
     return target_tagged_tree
 
