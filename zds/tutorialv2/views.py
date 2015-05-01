@@ -292,6 +292,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
             context["last_page"] = paginator.page(context["nb"] - 1).object_list
             context["last_note"] = context["last_page"][context["nb"] - 1]
+        context["pages"] = paginator_range(context["nb"], paginator.num_pages)
 
         return context
 
