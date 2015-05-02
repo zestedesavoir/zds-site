@@ -268,7 +268,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         # TODO: deal with messaging and stuff like this !!
 
-        if self.request.user.has_perm("tutorial.change_tutorial"):
+        if context['is_staff']:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
@@ -300,6 +300,17 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["last_note"] = context["last_page"][context["nb"] - 1]
         context["pages"] = paginator_range(context["nb"], paginator.num_pages)
 
+        reaction_ids = [reaction.id for reaction in context['reactions']]
+        user_votes = CommentDislike.objects\
+            .select_related('note')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .all()
+        context["user_dislike_dict"] = {reaction.pk: "dislike" for reaction in user_votes}
+        user_votes = CommentLike.objects\
+            .select_related('note')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .all()
+        context["user_like_dict"] = {reaction.pk: "like" for reaction in user_votes}
         return context
 
 
@@ -1901,6 +1912,8 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
     denied_if_lock = True
     form_class = NoteForm
+    check_as = True
+    reaction = None
 
     def get_public_object(self):
         """redefine this function in order to get the object from `pk` in request.GET"""
@@ -1926,7 +1939,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
     def form_valid(self, form):
 
-        if self.object.antispam(self.request.user):
+        if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
         if "message" in self.request.GET:
 
@@ -1936,25 +1949,38 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                 .filter(pk=int(self.request.GET["message"]), author=self.request.user)
             if reaction is None:
                 raise Http404
-        else:
-            reaction = ContentReaction()
-        reaction.related_content = self.object
-        reaction.update_content(form.cleaned_data["text"])
-        reaction.pubdate = datetime.now()
-        reaction.position = self.object.get_note_count() + 1
-        reaction.ip_address = get_client_ip(self.request)
-        reaction.author = self.request.user
+        elif self.reaction is None:
+            self.reaction = ContentReaction()
+        self.reaction.related_content = self.object
+        self.reaction.update_content(form.cleaned_data["text"])
+        self.reaction.pubdate = datetime.now()
+        self.reaction.position = self.object.get_note_count() + 1
+        self.reaction.ip_address = get_client_ip(self.request)
+        self.reaction.author = self.request.user
 
-        reaction.save()
-        self.object.last_note = reaction
+        self.reaction.save()
+        self.object.last_note = self.reaction
         self.object.save()
         read_note = ContentRead()
         read_note.content = self.object
         read_note.user = self.request.user
-        read_note.note = reaction
+        read_note.note = self.reaction
         read_note.save()
-        self.success_url = reaction.get_absolute_url()
+        self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
+
+
+class UpdateNoteView(SendNoteFormView):
+    check_as = False
+
+    def form_valid(self, form):
+        if "note_pk" in self.request.POST and self.request.POST["note_pk"].isdigit():
+            self.reaction = ContentReaction.objects\
+                .filter(pk=int(self.request.POST["note_pk"]), user__pk=self.request.user)\
+                .first()
+            if self.reaction is None:
+                raise Http404
+        return super(UpdateNoteView, self).form_valid(form)
 
 
 class UpvoteReaction(LoginRequiredMixin, FormView):

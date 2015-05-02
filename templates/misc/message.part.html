@@ -280,7 +280,7 @@
                                                ico-after
                                                {% if message.like > message.dislike %}more-voted{% endif %}
                                                {% if message.like > 0 %}has-vote{% endif %}
-                                               {% if profile_user|liked:message.pk %}voted{% endif %}"
+                                               {% if message.pk in user_like_dict or profile_user|liked:message.pk %}voted{% endif %}"
                                     >
                                         +{{ message.like }}
                                     </button>
@@ -295,7 +295,7 @@
                                                ico-after
                                                {% if message.like < message.dislike %}more-voted{% endif %}
                                                {% if message.dislike > 0 %}has-vote{% endif %}
-                                               {% if profile_user|disliked:message.pk %}voted{% endif %}"
+                                               {% if message.pk in user_dislike_dict or profile_user|disliked:message.pk %}voted{% endif %}"
                                     >
                                         -{{ message.dislike }}
                                     </button>
