@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext as _
 
-from zds.tutorialv2.models import PublishableContent, PublishedContent
+from zds.tutorialv2.models import PublishableContent, PublishedContent, ContentRead
 
 
 class SingleContentViewMixin(object):
@@ -302,11 +302,17 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         self.public_content_object = self.get_public_object()
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
-
         context = self.get_context_data(object=self.object)
+        follow = ContentRead.objects.filter(user__pk=self.request.user.pk)\
+            .filter(content__pk=self.object.pk)\
+            .first()
+        if follow is not None:
+            follow.note = self.object.last_note
+            follow.save()
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
+
         context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
 
         context['content'] = self.versioned_object
