@@ -275,6 +275,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         paginator = Paginator(ContentReaction.objects
                               .select_related('author')
                               .select_related('editor')
+                              .prefetch_related('author__post_liked')
+                              .prefetch_related('author__post_disliked')
                               .filter(related_content=self.object),
                               settings.ZDS_APP["content"]["notes_per_page"])
         if "page" in self.request.GET and self.request.GET["page"].isdigit():
