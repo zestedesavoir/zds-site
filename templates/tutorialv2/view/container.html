@@ -128,7 +128,7 @@
 
 
 {% block sidebar_actions %}
-    {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
+    {% if user in tutorial.authors.all or is_staff %}
 
         <li>
             <a href="#move-chapter" class="open-modal ico-after move blue">

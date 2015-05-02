@@ -447,7 +447,7 @@
                                             <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                                         </li>
 
-                                        {% if perms.tutorial.change_tutorial %}
+                                        {% if is_staff %}
                                             <li>
                                                 <a href="{% url "zds.tutorial.views.list_validation" %}">{% trans "Validation des tutoriels" %}</a>
                                             </li>

@@ -59,7 +59,7 @@
                     <h3>{% trans "Télécharger" %}</h3>
                     <ul>
                         {% if tutorial.on_line %}
-                            {% if perms.tutorial.change_tutorial %}
+                            {% if is_staff %}
                                 {% if tutorial.have_markdown %}
                                     <li>
                                         <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">

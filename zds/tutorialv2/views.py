@@ -131,6 +131,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
                 context['tutorials'].append(versioned)
         context['sorts'] = []
         context['sort'] = self.sort.lower()
+        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
         for sort in self.sorts.keys():
             if sort != '':
                 context['sorts'].append((reverse('content:index') + '?sort=' + sort, self.sorts[sort][1], sort))

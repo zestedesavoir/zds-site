@@ -30,6 +30,7 @@ class SingleContentViewMixin(object):
     sha = None
     is_public = False
     must_redirect = False
+    is_staff = False
 
     def get_object(self, queryset=None):
         if self.prefetch_all:
@@ -49,7 +50,7 @@ class SingleContentViewMixin(object):
             obj = queryset.first()
         else:
             obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
-
+        self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
         if "slug" in self.kwargs and self.kwargs["slug"] != obj.slug and self.is_public:
             # if slug and pk does not match try to find old pk
             queryset = PublishableContent.objects \
@@ -62,7 +63,7 @@ class SingleContentViewMixin(object):
         if self.is_public and not self.must_redirect:
             self.sha = obj.sha_public
         if self.must_be_author and self.request.user not in obj.authors.all():
-            if self.authorized_for_staff and self.request.user.has_perm('tutorial.change_tutorial'):
+            if self.authorized_for_staff and self.is_staff:
                 return obj
             raise PermissionDenied
 
@@ -171,7 +172,7 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
     def get_context_data(self, **kwargs):
         context = super(SingleContentFormViewMixin, self).get_context_data(**kwargs)
         context['content'] = self.versioned_object
-
+        context['is_staff'] = self.is_staff
         return context
 
 
@@ -208,7 +209,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
 
         context['content'] = self.versioned_object
         context['can_edit'] = self.request.user in self.object.authors.all()
-
+        context['is_staff'] = self.is_staff
         if self.sha != self.object.sha_draft:
             context["version"] = self.sha
 
@@ -234,6 +235,7 @@ class ContentTypeMixin(object):
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
 
+        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
         context['content_type'] = self.content_type
         context['verbose_type_name'] = v_type_name
         context['verbose_type_name_plural'] = v_type_name_plural
@@ -311,6 +313,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
         context['isantispam'] = self.object.antispam(self.request.user)
+        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
         return context
 
 
