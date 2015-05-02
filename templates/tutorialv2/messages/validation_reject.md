@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans with title=content.title validator_name=validator.username validator_url=validator.get_absolute_url message=message_reject|safe %}
+{% blocktrans with title=content.title|safe validator_name=validator.username|safe validator_url=validator.get_absolute_url message=message_reject|safe %}
 
 Désolé, « [{{ title }}]({{ url }}) » n'a malheureusement pas passé l’étape de validation.
 

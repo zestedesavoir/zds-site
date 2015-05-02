@@ -1068,7 +1068,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             self.object.sha_beta = None
 
             msg_post = render_to_string(
-                'tutorialv2/messages/beta_desactivate.msg.html', {'content': beta_version, 'type': _type}
+                'tutorialv2/messages/beta_desactivate.md', {'content': beta_version, 'type': _type}
             )
             send_post(topic, msg_post)
             lock_topic(topic)
@@ -1083,7 +1083,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 self.versioned_object.sha_beta = sha_beta
 
                 msg = render_to_string(
-                    'tutorialv2/messages/beta_activate_topic.msg.html',
+                    'tutorialv2/messages/beta_activate_topic.md',
                     {
                         'content': beta_version,
                         'type': _type,
@@ -1118,7 +1118,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     topic = self.object.beta_topic
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
-                        'tutorialv2/messages/beta_activate_pm.msg.html',
+                        'tutorialv2/messages/beta_activate_pm.md',
                         {
                             'content': beta_version,
                             'type': _type,
@@ -1127,7 +1127,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     send_mp(bot,
                             self.object.authors.all(),
-                            _(u"Tutoriel en beta : {0}").format(beta_version.title),
+                            _(u"Tutoriel en bêta : {0}").format(beta_version.title),
                             "",
                             msg_pm,
                             False)
@@ -1147,7 +1147,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
-                            'tutorialv2/messages/beta_reactivate.msg.html',
+                            'tutorialv2/messages/beta_reactivate.md',
                             {
                                 'content': beta_version,
                                 'type': _type,
@@ -1156,7 +1156,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         )
                     else:
                         msg_post = render_to_string(
-                            'tutorialv2/messages/beta_update.msg.html',
+                            'tutorialv2/messages/beta_update.md',
                             {
                                 'content': beta_version,
                                 'type': _type,
@@ -1457,7 +1457,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
-                'tutorialv2/messages/validation_change.msg.html',
+                'tutorialv2/messages/validation_change.md',
                 {
                     'content': self.versioned_object,
                     'validator': validation.validator.username,
@@ -1521,7 +1521,7 @@ class CancelValidation(LoginRequiredMixin, FormView):
         if validation.validator:
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
-                'tutorialv2/messages/validation_cancel.msg.html',
+                'tutorialv2/messages/validation_cancel.md',
                 {
                     'content': versioned,
                     'validator': validation.validator.username,
@@ -1631,7 +1631,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         # send PM
         versioned = validation.content.load_version(sha=validation.version)
         msg = render_to_string(
-            'tutorialv2/messages/validation_reject.msg.html',
+            'tutorialv2/messages/validation_reject.md',
             {
                 'content': versioned,
                 'url': versioned.get_absolute_url() + '?version=' + validation.version,
@@ -1715,7 +1715,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
             if is_update:
                 msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_update.html',
+                    'tutorialv2/messages/validation_accept_update.md',
                     {
                         'content': versioned,
                         'url': published.get_absolute_url_online(),
@@ -1723,7 +1723,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                     })
             else:
                 msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_content.msg.html',
+                    'tutorialv2/messages/validation_accept_content.md',
                     {
                         'content': versioned,
                         'url': published.get_absolute_url_online(),
@@ -1790,7 +1790,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
 
         # send PM
         msg = render_to_string(
-            'tutorialv2/messages/validation_revoke.msg.html',
+            'tutorialv2/messages/validation_revoke.md',
             {
                 'content': versioned,
                 'url': versioned.get_absolute_url() + '?version=' + validation.version,
@@ -2076,7 +2076,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     [user],
                     u'Ajout à la rédaction ' + _type,
                     "",
-                    render_to_string("tutorialv2/messages/add_author_pm.msg.html", {
+                    render_to_string("tutorialv2/messages/add_author_pm.md", {
                         'content': self.object,
                         'type': _type,
                         'url': self.object.get_absolute_url(),
