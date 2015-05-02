@@ -89,13 +89,10 @@
         {% endif %}
 
     {% endif %}
+
+    {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+
 {% endblock %}
-
-
-
-{# content after stuffs !! (comments) #}
-
-
 
 {% block sidebar_blocks %}
     {% include "tutorialv2/includes/summary.part.html" with online=True %}

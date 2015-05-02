@@ -92,6 +92,10 @@
     {% endif %}
 
     {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" %}
+
+    {% if content.is_beta and container.has_extracts %}
+        {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+    {% endif %}
 {% endblock %}
 
 

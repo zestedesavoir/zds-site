@@ -340,6 +340,16 @@ class Container:
 
         return base
 
+    def get_absolute_url_beta(self):
+        """
+        :return: url to access the container in beta
+        """
+
+        if self.top_container().sha_beta:
+            return self.get_absolute_url() + '?version={}'.format(self.top_container().sha_beta)
+        else:
+            return self.get_absolute_url()
+
     def get_edit_url(self):
         """
         :return: url to edit the container

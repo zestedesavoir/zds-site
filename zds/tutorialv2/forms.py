@@ -769,3 +769,87 @@ class MoveElementForm(forms.Form):
             Field('first_level_slug'),
             Field('moving_method'),
             Hidden('pk', '{{ content.pk }}'))
+
+
+class WarnTypoForm(forms.Form):
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Expliquez la faute'),
+                'rows': '3'
+            }
+        )
+    )
+
+    target = forms.CharField(widget=forms.HiddenInput(), required=False)
+    version = forms.CharField(widget=forms.HiddenInput(), required=True)
+
+    def __init__(self, content, targeted, public=True, *args, **kwargs):
+        super(WarnTypoForm, self).__init__(*args, **kwargs)
+
+        self.content = content
+        self.targeted = targeted
+
+        # modal form, send back to previous page if any:
+        if public:
+            self.previous_page_url = targeted.get_absolute_url_online()
+        else:
+            self.previous_page_url = targeted.get_absolute_url_beta()
+
+        # add an additional link to send PM if needed
+        type_ = _(u'l\'article') if content.type == 'ARTICLE' else _(u'le tutoriel')
+
+        if targeted.get_tree_depth() == 0:
+            pm_title = _(u'J\'ai trouvé une faute dans {} « {} »').format(type_, targeted.title)
+        else:
+            pm_title = _(u'J\'ai trouvé une faute dans le chapitre « {} »').format(targeted.title)
+
+        usernames = ''
+        num_of_authors = content.authors.count()
+        for index, user in enumerate(content.authors.all()):
+            if index != 0:
+                usernames += '&'
+            usernames += 'username=' + user.username
+
+        msg = _(u'<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
+            reverse('mp-new'), pm_title, usernames, _(u'à l\'auteur') if num_of_authors == 1 else _(u'aux auteurs')
+        )
+
+        version = content.sha_beta
+        if public:
+            version = content.sha_public
+
+        # create form
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('content:warn-typo') + '?pk={}'.format(content.pk)
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('target'),
+            Field('text'),
+            HTML(msg),
+            Hidden('pk', '{{ content.pk }}'),
+            Hidden('version', version),
+            ButtonHolder(StrictButton(_(u'Envoyer'), type='submit'))
+        )
+
+    def clean(self):
+        cleaned_data = super(WarnTypoForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez indiquer la faute commise')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) < 3:
+            self._errors['text'] = self.error_class(
+                [_(u'Votre commentaire doit faire au moins 3 caractères !')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data

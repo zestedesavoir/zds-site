@@ -49,11 +49,13 @@ from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
 from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, \
-    AcceptValidationForm, RejectValidationForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
+    AcceptValidationForm, RejectValidationForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm, \
+    WarnTypoForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract, default_slug_pool, PublishedContent, ContentRead
 from utils import search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
+from zds.member.models import Profile
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
 from zds.utils import slugify
@@ -235,6 +237,9 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
+        if self.versioned_object.is_beta:
+            context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
+
         context["validation"] = validation
         context["formJs"] = form_js
 
@@ -258,7 +263,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
     model = PublishedContent
     template_name = 'tutorialv2/view/content_online.html'
 
-    content_type = ""
+    current_content_type = ""
     verbose_type_name = _(u'contenu')
     verbose_type_name_plural = _(u'contenus')
 
@@ -271,6 +276,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         if context['is_staff']:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+
+        context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
         paginator = Paginator(ContentReaction.objects
                               .select_related('author')
@@ -317,7 +324,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 class DisplayOnlineArticle(DisplayOnlineContent):
     """Displays the list of published articles"""
 
-    content_type = "ARTICLE"
+    current_content_type = "ARTICLE"
     verbose_type_name = _(u'article')
     verbose_type_name_plural = _(u'articles')
 
@@ -325,7 +332,7 @@ class DisplayOnlineArticle(DisplayOnlineContent):
 class DisplayOnlineTutorial(DisplayOnlineContent):
     """Displays the list of published tutorials"""
 
-    content_type = "TUTORIAL"
+    current_content_type = "TUTORIAL"
     verbose_type_name = _(u'tutoriel')
     verbose_type_name_plural = _(u'tutoriels')
 
@@ -776,14 +783,23 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
         context = super(DisplayContainer, self).get_context_data(**kwargs)
-        context['container'] = search_container_or_404(context['content'], self.kwargs)
-        context['containers_target'] = get_target_tagged_tree(context['container'], context['content'])
+        container = search_container_or_404(self.versioned_object, self.kwargs)
+        context['containers_target'] = get_target_tagged_tree(container, self.versioned_object)
+
+        if self.versioned_object.is_beta:
+            context['formWarnTypo'] = WarnTypoForm(
+                self.versioned_object,
+                container,
+                public=False,
+                initial={'target': container.get_path(relative=True)})
+
+        context['container'] = container
 
         # pagination: search for `previous` and `next`, if available
-        if context['content'].type != 'ARTICLE' and not context['content'].has_extracts():
-            chapters = context['content'].get_list_of_chapters()
+        if self.versioned_object.type != 'ARTICLE' and not self.versioned_object.has_extracts():
+            chapters = self.versioned_object.get_list_of_chapters()
             try:
-                position = chapters.index(context['container'])
+                position = chapters.index(container)
             except ValueError:
                 pass  # this is not (yet?) a chapter
             else:
@@ -802,13 +818,16 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
     """Base class that can show any content in any state"""
 
     template_name = 'tutorialv2/view/container_online.html'
-    content_type = "TUTORIAL"  # obviously, an article cannot have container !
+    current_content_type = "TUTORIAL"  # obviously, an article cannot have container !
 
     def get_context_data(self, **kwargs):
         context = super(DisplayOnlineContainer, self).get_context_data(**kwargs)
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         context['container'] = container
+
+        context['formWarnTypo'] = WarnTypoForm(
+            self.versioned_object, container, initial={'target': container.get_path(relative=True)})
 
         # pagination: search for `previous` and `next`, if available
         if not self.versioned_object.has_extracts():
@@ -1068,7 +1087,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             self.object.sha_beta = None
 
             msg_post = render_to_string(
-                'tutorialv2/messages/beta_desactivate.msg.html', {'content': beta_version, 'type': _type}
+                'tutorialv2/messages/beta_desactivate.md', {'content': beta_version, 'type': _type}
             )
             send_post(topic, msg_post)
             lock_topic(topic)
@@ -1083,7 +1102,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 self.versioned_object.sha_beta = sha_beta
 
                 msg = render_to_string(
-                    'tutorialv2/messages/beta_activate_topic.msg.html',
+                    'tutorialv2/messages/beta_activate_topic.md',
                     {
                         'content': beta_version,
                         'type': _type,
@@ -1118,7 +1137,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     topic = self.object.beta_topic
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
-                        'tutorialv2/messages/beta_activate_pm.msg.html',
+                        'tutorialv2/messages/beta_activate_pm.md',
                         {
                             'content': beta_version,
                             'type': _type,
@@ -1127,8 +1146,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     send_mp(bot,
                             self.object.authors.all(),
-                            _(u"Tutoriel en beta : {0}").format(beta_version.title),
-                            "",
+                            _(u"Tutoriel en bêta"),
+                            beta_version.title,
                             msg_pm,
                             False)
                 else:
@@ -1147,7 +1166,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
-                            'tutorialv2/messages/beta_reactivate.msg.html',
+                            'tutorialv2/messages/beta_reactivate.md',
                             {
                                 'content': beta_version,
                                 'type': _type,
@@ -1156,7 +1175,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         )
                     else:
                         msg_post = render_to_string(
-                            'tutorialv2/messages/beta_update.msg.html',
+                            'tutorialv2/messages/beta_update.md',
                             {
                                 'content': beta_version,
                                 'type': _type,
@@ -1182,6 +1201,89 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         return super(ManageBetaContent, self).form_valid(form)
 
 
+class WarnTypo(SingleContentFormViewMixin):
+
+    modal_form = True
+    form_class = WarnTypoForm
+    must_be_author = False
+    only_draft_version = False
+
+    object = None
+
+    def get_form_kwargs(self):
+
+        if 'version' not in self.request.POST:
+            raise PermissionDenied
+
+        kwargs = super(WarnTypo, self).get_form_kwargs()
+
+        versioned = self.object.load_version_or_404(self.request.POST['version'])
+        kwargs['content'] = versioned
+        kwargs['targeted'] = versioned
+
+        if self.request.POST['target']:
+            kwargs['targeted'] = search_container_or_404(versioned, self.request.POST['target'])
+
+        kwargs['public'] = True
+
+        if versioned.is_beta:
+            kwargs['public'] = False
+
+        return kwargs
+
+    def form_valid(self, form):
+
+        user = self.request.user
+
+        authors_reachable = Profile.objects.contactable_members()\
+            .filter(user__in=self.object.authors.all())
+        authors = []
+        for author in authors_reachable:
+            authors.append(author.user)
+
+        # check if the warn is done on a public or beta version :
+        is_public = False
+
+        if form.content.is_public:
+            is_public = True
+        elif not form.content.is_beta:
+            raise Http404
+
+        if len(authors) == 0:
+            if self.object.authors.count() > 1:
+                messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables"))
+            else:
+                messages.error(self.request, _(u"L'auteur est malheureusement injoignable"))
+
+        elif user in authors:  # author try to PM himself
+            messages.error(self.request, _(u'Impossible d\'envoyer la correction car vous êtes parmis les auteurs'))
+
+        else:  # send correction
+            text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
+
+            _type = _(u'l\'article')
+            if form.content.type == 'TUTORIAL':
+                _type = _(u'le tutoriel')
+
+            msg = render_to_string(
+                'tutorialv2/messages/warn_typo.md',
+                {
+                    'user': user,
+                    'content': form.content,
+                    'target': form.targeted,
+                    'type': _type,
+                    'public': is_public,
+                    'text': text
+                })
+
+            # send it :
+            send_mp(user, authors, _(u"Proposition de correction"), form.content.title, msg, leave=False)
+
+            messages.success(self.request, _(u'Merci pour votre proposition de correction'))
+
+        return redirect(form.previous_page_url)
+
+
 class ListOnlineContents(ContentTypeMixin, ListView):
     """Displays the list of published contents"""
 
@@ -1197,7 +1299,7 @@ class ListOnlineContents(ContentTypeMixin, ListView):
         # TODO: since this is gonna be reused, it should go in zds/utils/tutorialsv2.py (and in topbar.py)
 
         subcategories_contents = PublishedContent.objects\
-            .filter(content_type=self.content_type)\
+            .filter(content_type=self.current_content_type)\
             .values('content__subcategory').all()
 
         categories_from_subcategories = CategorySubCategory.objects\
@@ -1232,7 +1334,7 @@ class ListOnlineContents(ContentTypeMixin, ListView):
             .prefetch_related("content")\
             .prefetch_related("content__subcategory")\
             .prefetch_related("content__authors")\
-            .filter(content_type=self.content_type)
+            .filter(content_type=self.current_content_type)
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
@@ -1252,13 +1354,13 @@ class ListOnlineContents(ContentTypeMixin, ListView):
 class ListArticles(ListOnlineContents):
     """Displays the list of published articles"""
 
-    content_type = "ARTICLE"
+    current_content_type = "ARTICLE"
 
 
 class ListTutorials(ListOnlineContents):
     """Displays the list of published tutorials"""
 
-    content_type = "TUTORIAL"
+    current_content_type = "TUTORIAL"
 
 
 class ContentsWithHelps(ListView):
@@ -1457,7 +1559,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
-                'tutorialv2/messages/validation_change.msg.html',
+                'tutorialv2/messages/validation_change.md',
                 {
                     'content': self.versioned_object,
                     'validator': validation.validator.username,
@@ -1468,8 +1570,8 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Validation : mise à jour de « {} »").format(self.versioned_object.title),
                 _(u"Une nouvelle version a été envoyée en validation"),
+                self.versioned_object.title,
                 msg,
                 False,
             )
@@ -1521,7 +1623,7 @@ class CancelValidation(LoginRequiredMixin, FormView):
         if validation.validator:
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
-                'tutorialv2/messages/validation_cancel.msg.html',
+                'tutorialv2/messages/validation_cancel.md',
                 {
                     'content': versioned,
                     'validator': validation.validator.username,
@@ -1531,8 +1633,8 @@ class CancelValidation(LoginRequiredMixin, FormView):
             send_mp(
                 bot,
                 [validation.validator],
-                _(u"Validation : annulation de « {} »").format(versioned.title),
-                _(u"La validation de ce contenu a été annulée"),
+                _(u"Demande de validation annulée").format(),
+                versioned.title,
                 msg,
                 False,
             )
@@ -1631,7 +1733,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         # send PM
         versioned = validation.content.load_version(sha=validation.version)
         msg = render_to_string(
-            'tutorialv2/messages/validation_reject.msg.html',
+            'tutorialv2/messages/validation_reject.md',
             {
                 'content': versioned,
                 'url': versioned.get_absolute_url() + '?version=' + validation.version,
@@ -1643,8 +1745,8 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Rejet de « {} »").format(validation.content.title),
-            _(u"Désolé"),
+            _(u"Rejet de la demande publication").format(),
+            validation.content.title,
             msg,
             True,
             direct=False
@@ -1715,7 +1817,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
             if is_update:
                 msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_update.html',
+                    'tutorialv2/messages/validation_accept_update.md',
                     {
                         'content': versioned,
                         'url': published.get_absolute_url_online(),
@@ -1723,7 +1825,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                     })
             else:
                 msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_content.msg.html',
+                    'tutorialv2/messages/validation_accept_content.md',
                     {
                         'content': versioned,
                         'url': published.get_absolute_url_online(),
@@ -1734,8 +1836,8 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             send_mp(
                 bot,
                 db_object.authors.all(),
-                _(u"Publication de « {} »").format(versioned.title),
-                _(u"Merci !"),
+                _(u"Publication acceptée"),
+                versioned.title,
                 msg,
                 True,
                 direct=False
@@ -1790,7 +1892,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
 
         # send PM
         msg = render_to_string(
-            'tutorialv2/messages/validation_revoke.msg.html',
+            'tutorialv2/messages/validation_revoke.md',
             {
                 'content': versioned,
                 'url': versioned.get_absolute_url() + '?version=' + validation.version,
@@ -1802,8 +1904,8 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Dépublication de « {} »").format(validation.content.title),
-            _(u"Désolé ..."),
+            _(u"Dépublication"),
+            validation.content.title,
             msg,
             True,
             direct=False
@@ -2075,8 +2177,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     bot,
                     [user],
                     u'Ajout à la rédaction ' + _type,
-                    "",
-                    render_to_string("tutorialv2/messages/add_author_pm.msg.html", {
+                    self.versioned_object.title,
+                    render_to_string("tutorialv2/messages/add_author_pm.md", {
                         'content': self.object,
                         'type': _type,
                         'url': self.object.get_absolute_url(),
