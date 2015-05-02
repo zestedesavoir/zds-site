@@ -1233,11 +1233,9 @@ def edit_tutorial(request):
     else:
         json = tutorial.load_json()
         if "licence" in json:
-            licence = json['licence']
+            licence = Licence.objects.get(code=json['licence'])
         else:
-            licence = Licence.objects.get(
-                pk=settings.ZDS_APP['tutorial']['default_license_pk']
-            )
+            licence = Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
         form = TutorialForm(initial={
             "title": json["title"],
             "type": json["type"],
