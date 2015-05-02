@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<article class="featured-item">
+    <a href="{{ featured.url }}">
+        <img src="{{ featured.image_url }}" alt="" class="featured-illu">
+        <div class="featured-meta">
+            <h3>{{ featured.title }}</h3>
+            <p class="featured-description">{% trans "Un" %} {{ featured.type }} {% for author in featured.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <i>{{ author }}</i>{% endfor %}</p>
+        </div>
+    </a>
+</article>
+

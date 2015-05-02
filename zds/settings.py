@@ -170,7 +170,7 @@ INSTALLED_APPS = (
     'zds.forum',
     'zds.tutorial',
     'zds.member',
-    'zds.news',
+    'zds.featured',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -451,8 +451,8 @@ ZDS_APP = {
     'topic': {
         'home_number': 6,
     },
-    'news': {
-        'news_per_page': 100,
+    'featured': {
+        'featured_per_page': 100,
         'home_number': 5,
     },
     'paginator': {

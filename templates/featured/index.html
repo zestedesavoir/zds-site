@@ -1,4 +1,4 @@
-{% extends "news/base.html" %}
+{% extends "featured/base.html" %}
 {% load i18n %}
 
 
@@ -21,8 +21,8 @@
 
 
 {% block content %}
-    {% if news_list %}
-        <form id="form" name="form" method="post" action="{% url "news-list-delete" %}">
+    {% if featured_list %}
+        <form id="form" name="form" method="post" action="{% url "featured-list-delete" %}">
             {% csrf_token %}
 
             <button class="btn btn-cancel" name="delete_multi">
@@ -34,19 +34,19 @@
             </button>
 
             <div class="gallery topic-list list-view clearfix navigable-list">
-                {% for news in news_list %}
+                {% for featured in featured_list %}
                     <div class="topic gallery-item navigable-elem">
                         <div class="topic-infos">
-                            <input name="items" type="checkbox" value="{{ news.pk }}">
+                            <input name="items" type="checkbox" value="{{ featured.pk }}">
                         </div>
                         <div class="topic-description">
-                            <a href="{% url 'news-update' news.pk %}" class="topic-title-link navigable-link">
-                                <img src="{{ news.image_url }}"
-                                    data-caption="{{ news.title }}"
-                                    alt="{{ news.title }}"
+                            <a href="{% url 'featured-update' featured.pk %}" class="topic-title-link navigable-link">
+                                <img src="{{ featured.image_url }}"
+                                    data-caption="{{ featured.title }}"
+                                    alt="{{ featured.title }}"
                                     class="topic-image"
                                 >
-                                <span class="topic-title">{{ news.title }}</span>
+                                <span class="topic-title">{{ featured.title }}</span>
                             </a>
                         </div>
                     </div>

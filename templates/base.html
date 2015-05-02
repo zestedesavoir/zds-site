@@ -459,9 +459,9 @@
                                             </li>
                                         {% endif %}
 
-                                        {% if perms.tutorial.change_tutorial %}
+                                        {% if perms.featured.change_featured %}
                                             <li>
-                                                <a href="{% url 'news-list' %}">{% trans 'Gestion des unes' %}</a>
+                                                <a href="{% url 'featured-list' %}">{% trans 'Gestion des mises en avant' %}</a>
                                             </li>
                                         {% endif %}
                                         <li>

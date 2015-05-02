@@ -3,29 +3,29 @@
 
 
 {% block title_base %}
-    &bull; {% trans "À la une" %}
+    &bull; {% trans "Mise en avant" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    {% trans "À la une" %}
+    {% trans "Mise en avant" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url 'news-list' %}">{% trans "À la une" %}</a></li>
+    <li><a href="{% url 'featured-list' %}">{% trans "Mise en avant" %}</a></li>
 {% endblock %}
 
 
 
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans 'Action sur les unes' %}">
-        <a href="{% url 'news-message-create' %}" class="new-btn ico-after more blue">
+        <a href="{% url 'featured-message-create' %}" class="new-btn ico-after more blue">
             {% trans "Nouveau message" %}
         </a>
-        <a href="{% url 'news-create' %}" class="new-btn ico-after more blue">
+        <a href="{% url 'featured-create' %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle une" %}
         </a>
 

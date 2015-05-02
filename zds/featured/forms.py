@@ -6,16 +6,16 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from zds.news.models import News, MessageNews
+from zds.featured.models import ResourceFeatured, MessageFeatured
 
 
-class NewsForm(forms.ModelForm):
+class ResourceFeaturedForm(forms.ModelForm):
     class Meta:
-        model = News
+        model = ResourceFeatured
 
     title = forms.CharField(
         label=_(u'Titre'),
-        max_length=News._meta.get_field('title').max_length,
+        max_length=ResourceFeatured._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -25,7 +25,7 @@ class NewsForm(forms.ModelForm):
 
     type = forms.CharField(
         label=_(u'Type'),
-        max_length=News._meta.get_field('type').max_length,
+        max_length=ResourceFeatured._meta.get_field('type').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -46,7 +46,7 @@ class NewsForm(forms.ModelForm):
 
     image_url = forms.CharField(
         label='Image URL',
-        max_length=News._meta.get_field('image_url').max_length,
+        max_length=ResourceFeatured._meta.get_field('image_url').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': _(u'Lien vers l\'url de l\'image de la une.')
@@ -56,7 +56,7 @@ class NewsForm(forms.ModelForm):
 
     url = forms.CharField(
         label='URL',
-        max_length=News._meta.get_field('url').max_length,
+        max_length=ResourceFeatured._meta.get_field('url').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': _(u'Lien vers l\'url de la ressource.')
@@ -65,11 +65,11 @@ class NewsForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(NewsForm, self).__init__(*args, **kwargs)
+        super(ResourceFeaturedForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.helper.form_action = reverse('news-create')
+        self.helper.form_action = reverse('featured-create')
 
         self.helper.layout = Layout(
             Field('title'),
@@ -83,13 +83,13 @@ class NewsForm(forms.ModelForm):
         )
 
 
-class MessageNewsForm(forms.ModelForm):
+class MessageFeaturedForm(forms.ModelForm):
     class Meta:
-        model = MessageNews
+        model = MessageFeatured
 
     message = forms.CharField(
         label=_(u'Message'),
-        max_length=MessageNews._meta.get_field('message').max_length,
+        max_length=MessageFeatured._meta.get_field('message').max_length,
         widget=forms.TextInput(
             attrs={
                 'required': 'required',
@@ -99,7 +99,7 @@ class MessageNewsForm(forms.ModelForm):
 
     url = forms.CharField(
         label=_(u'URL'),
-        max_length=MessageNews._meta.get_field('url').max_length,
+        max_length=MessageFeatured._meta.get_field('url').max_length,
         widget=forms.TextInput(
             attrs={
                 'placeholder': _(u'Lien vers l\'url du message.'),
@@ -109,11 +109,11 @@ class MessageNewsForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(MessageNewsForm, self).__init__(*args, **kwargs)
+        super(MessageFeaturedForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.helper.form_action = reverse('news-message-create')
+        self.helper.form_action = reverse('featured-message-create')
 
         self.helper.layout = Layout(
             Field('message'),

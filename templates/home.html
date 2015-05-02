@@ -25,11 +25,11 @@
         {% if user.is_authenticated %}
             <section class="home-description connected">
                 <blockquote><span>{{ quote }}</span></blockquote>
-                {% if message %}
+                {% if message_featured %}
                 <p class="new-feature">
                     <span class="important">{% trans "Nouveau !" %}</span>
-                    {{ message.message }}
-                    <a class="home-description-button" href="{{ message.url }}">
+                    {{ message_featured.message }}
+                    <a class="home-description-button" href="{{ message_featured.url }}">
                         {% trans "En savoir plus" %}
                     </a>
                 </p>
@@ -97,14 +97,14 @@
             <h2 class="home-heading heading-white ico-after ico-news" itemprop="name">
                 {% trans "À la une" %}
 
-                {% if perms.news.change_news %}
-                    <a href="{% url "news-list" %}" class="btn btn-grey">{% trans "Gérer les Unes" %}</a>
+                {% if perms.featured.change_featured %}
+                    <a href="{% url "featured-list" %}" class="btn btn-grey">{% trans "Gérer les Unes" %}</a>
                 {% endif %}
             </h2>
 
             <div class="featured-row">
-                {% for news in last_news %}
-                    {% include "news/includes/featured_item.part.html" with news=news %}
+                {% for featured in last_featured %}
+                    {% include "featured/includes/featured_item.part.html" %}
                 {% endfor %}
             </div>
         </section>

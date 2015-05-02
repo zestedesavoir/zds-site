@@ -4,12 +4,12 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.news.factories import NewsFactory
-from zds.news.models import News, MessageNews
+from zds.featured.factories import ResourceFeaturedFactory
+from zds.featured.models import ResourceFeatured, MessageFeatured
 
 
-class NewsListViewTest(TestCase):
-    def test_success_list_of_news(self):
+class ResourceFeaturedListViewTest(TestCase):
+    def test_success_list_of_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
             username=staff.user.username,
@@ -17,16 +17,16 @@ class NewsListViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('news-list'))
+        response = self.client.get(reverse('featured-list'))
 
         self.assertEqual(200, response.status_code)
 
-    def test_failure_list_of_news_with_unauthenticated_user(self):
-        response = self.client.get(reverse('news-list'))
+    def test_failure_list_of_featured_with_unauthenticated_user(self):
+        response = self.client.get(reverse('featured-list'))
 
         self.assertEqual(302, response.status_code)
 
-    def test_failure_list_of_news_with_user_not_staff(self):
+    def test_failure_list_of_featured_with_user_not_staff(self):
         profile = ProfileFactory()
         login_check = self.client.login(
             username=profile.user.username,
@@ -34,13 +34,13 @@ class NewsListViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('news-list'))
+        response = self.client.get(reverse('featured-list'))
 
         self.assertEqual(403, response.status_code)
 
 
-class NewsCreateViewTest(TestCase):
-    def test_success_create_news(self):
+class ResourceFeaturedCreateViewTest(TestCase):
+    def test_success_create_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
             username=staff.user.username,
@@ -48,9 +48,9 @@ class NewsCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        self.assertEqual(0, News.objects.all().count())
+        self.assertEqual(0, ResourceFeatured.objects.all().count())
         response = self.client.post(
-            reverse('news-create'),
+            reverse('featured-create'),
             {
                 'title': 'title',
                 'type': 'type',
@@ -62,14 +62,14 @@ class NewsCreateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, News.objects.all().count())
+        self.assertEqual(1, ResourceFeatured.objects.all().count())
 
-    def test_failure_create_news_with_unauthenticated_user(self):
-        response = self.client.get(reverse('news-create'))
+    def test_failure_create_featured_with_unauthenticated_user(self):
+        response = self.client.get(reverse('featured-create'))
 
         self.assertEqual(302, response.status_code)
 
-    def test_failure_create_news_with_user_not_staff(self):
+    def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
         login_check = self.client.login(
             username=profile.user.username,
@@ -77,13 +77,13 @@ class NewsCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('news-create'))
+        response = self.client.get(reverse('featured-create'))
 
         self.assertEqual(403, response.status_code)
 
 
-class NewsUpdateViewTest(TestCase):
-    def test_success_update_news(self):
+class ResourceFeaturedUpdateViewTest(TestCase):
+    def test_success_update_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
             username=staff.user.username,
@@ -91,10 +91,10 @@ class NewsUpdateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = NewsFactory()
-        self.assertEqual(1, News.objects.all().count())
+        news = ResourceFeaturedFactory()
+        self.assertEqual(1, ResourceFeatured.objects.all().count())
         response = self.client.post(
-            reverse('news-update', args=[news.pk]),
+            reverse('featured-update', args=[news.pk]),
             {
                 'title': 'title',
                 'type': 'type',
@@ -106,14 +106,14 @@ class NewsUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, News.objects.all().count())
+        self.assertEqual(1, ResourceFeatured.objects.all().count())
 
-    def test_failure_create_news_with_unauthenticated_user(self):
-        response = self.client.get(reverse('news-update', args=[42]))
+    def test_failure_create_featured_with_unauthenticated_user(self):
+        response = self.client.get(reverse('featured-update', args=[42]))
 
         self.assertEqual(302, response.status_code)
 
-    def test_failure_create_news_with_user_not_staff(self):
+    def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
         login_check = self.client.login(
             username=profile.user.username,
@@ -121,13 +121,13 @@ class NewsUpdateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('news-update', args=[42]))
+        response = self.client.get(reverse('featured-update', args=[42]))
 
         self.assertEqual(403, response.status_code)
 
 
-class NewsDeleteViewTest(TestCase):
-    def test_success_delete_news(self):
+class ResourceFeaturedDeleteViewTest(TestCase):
+    def test_success_delete_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
             username=staff.user.username,
@@ -135,23 +135,23 @@ class NewsDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = NewsFactory()
-        self.assertEqual(1, News.objects.all().count())
+        news = ResourceFeaturedFactory()
+        self.assertEqual(1, ResourceFeatured.objects.all().count())
         response = self.client.post(
-            reverse('news-delete', args=[news.pk]),
+            reverse('featured-delete', args=[news.pk]),
             follow=True
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, News.objects.filter(pk=news.pk).count())
+        self.assertEqual(0, ResourceFeatured.objects.filter(pk=news.pk).count())
 
-    def test_failure_delete_news_with_unauthenticated_user(self):
-        news = NewsFactory()
-        response = self.client.get(reverse('news-delete', args=[news.pk]))
+    def test_failure_delete_featured_with_unauthenticated_user(self):
+        news = ResourceFeaturedFactory()
+        response = self.client.get(reverse('featured-delete', args=[news.pk]))
 
         self.assertEqual(302, response.status_code)
 
-    def test_failure_delete_news_with_user_not_staff(self):
+    def test_failure_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
         login_check = self.client.login(
             username=profile.user.username,
@@ -159,14 +159,14 @@ class NewsDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = NewsFactory()
-        response = self.client.get(reverse('news-delete', args=[news.pk]))
+        news = ResourceFeaturedFactory()
+        response = self.client.get(reverse('featured-delete', args=[news.pk]))
 
         self.assertEqual(403, response.status_code)
 
 
-class NewsListDeleteViewTest(TestCase):
-    def test_success_list_delete_news(self):
+class ResourceFeaturedListDeleteViewTest(TestCase):
+    def test_success_list_delete_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
             username=staff.user.username,
@@ -174,11 +174,11 @@ class NewsListDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = NewsFactory()
-        news2 = NewsFactory()
-        self.assertEqual(2, News.objects.all().count())
+        news = ResourceFeaturedFactory()
+        news2 = ResourceFeaturedFactory()
+        self.assertEqual(2, ResourceFeatured.objects.all().count())
         response = self.client.post(
-            reverse('news-list-delete'),
+            reverse('featured-list-delete'),
             {
                 'items': [news.pk, news2.pk]
             },
@@ -186,15 +186,15 @@ class NewsListDeleteViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, News.objects.filter(pk=news.pk).count())
-        self.assertEqual(0, News.objects.filter(pk=news2.pk).count())
+        self.assertEqual(0, ResourceFeatured.objects.filter(pk=news.pk).count())
+        self.assertEqual(0, ResourceFeatured.objects.filter(pk=news2.pk).count())
 
-    def test_failure_list_delete_news_with_unauthenticated_user(self):
-        response = self.client.get(reverse('news-list-delete'))
+    def test_failure_list_delete_featured_with_unauthenticated_user(self):
+        response = self.client.get(reverse('featured-list-delete'))
 
         self.assertEqual(302, response.status_code)
 
-    def test_failure_list_delete_news_with_user_not_staff(self):
+    def test_failure_list_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
         login_check = self.client.login(
             username=profile.user.username,
@@ -202,12 +202,12 @@ class NewsListDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('news-list-delete'))
+        response = self.client.get(reverse('featured-list-delete'))
 
         self.assertEqual(403, response.status_code)
 
 
-class MessageNewsCreateUpdateViewTest(TestCase):
+class MessageFeaturedCreateUpdateViewTest(TestCase):
     def test_success_list_create_message(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -217,7 +217,7 @@ class MessageNewsCreateUpdateViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('news-message-create'),
+            reverse('featured-message-create'),
             {
                 'message': 'message',
                 'url': 'url',
@@ -226,7 +226,7 @@ class MessageNewsCreateUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, MessageNews.objects.count())
+        self.assertEqual(1, MessageFeatured.objects.count())
 
     def test_create_only_one_message_in_system(self):
         staff = StaffProfileFactory()
@@ -237,7 +237,7 @@ class MessageNewsCreateUpdateViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('news-message-create'),
+            reverse('featured-message-create'),
             {
                 'message': 'message',
                 'url': 'url',
@@ -246,10 +246,10 @@ class MessageNewsCreateUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, MessageNews.objects.count())
+        self.assertEqual(1, MessageFeatured.objects.count())
 
         response = self.client.post(
-            reverse('news-message-create'),
+            reverse('featured-message-create'),
             {
                 'message': 'message',
                 'url': 'url',
@@ -258,4 +258,4 @@ class MessageNewsCreateUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, MessageNews.objects.count())
+        self.assertEqual(1, MessageFeatured.objects.count())

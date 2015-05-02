@@ -16,7 +16,7 @@ from zds import settings
 from zds.article.models import get_last_articles
 from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
-from zds.news.models import News, MessageNews
+from zds.featured.models import ResourceFeatured, MessageFeatured
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
 from zds.tutorial.models import get_last_tutorials, get_tutorials_count
@@ -46,10 +46,10 @@ def home(request):
         quote = settings.ZDS_APP['site']['slogan']
 
     return render(request, 'home.html', {
-        'message': MessageNews.objects.get_last_message(),
+        'message_featured': MessageFeatured.objects.get_last_message(),
         'last_tutorials': tutos,
         'last_articles': articles,
-        'last_news': News.objects.get_last_news(),
+        'last_featured': ResourceFeatured.objects.get_last_news(),
         'last_topics': Topic.objects.get_last_topics(),
         'tutorials_count': get_tutorials_count(),
         'quote': quote.replace('\n', ''),

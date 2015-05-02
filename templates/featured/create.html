@@ -1,4 +1,4 @@
-{% extends "news/base.html" %}
+{% extends "featured/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
 
@@ -23,7 +23,7 @@
 
 {% block content %}
     <div class="content-wrapper featured-edit-form">
-        {% include "news/includes/featured_item.part.html" with news=news %}
+        {% include "featured/includes/featured_item.part.html" %}
         {% crispy form %}
     </div>
 {% endblock %}

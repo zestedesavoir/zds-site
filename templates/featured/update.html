@@ -1,4 +1,4 @@
-{% extends "news/base.html" %}
+{% extends "featured/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
 
@@ -23,7 +23,7 @@
 
 {% block content %}
     <div class="content-wrapper featured-edit-form">
-        {% include "news/includes/featured_item.part.html" with news=news %}
+        {% include "featured/includes/featured_item.part.html" with featured=featured %}
         {% crispy form %}
     </div>
 {% endblock %}
@@ -35,10 +35,10 @@
         <h3>{% trans "Actions" %}</h3>
         <ul>
             <li>
-                <a href="#delete-news" class="open-modal ico-after cross blue">
+                <a href="#delete-featured" class="open-modal ico-after cross blue">
                     {% trans "Supprimer la une" %}
                 </a>
-                <form action="{% url "news-delete" news.pk %}" method="post" id="delete-news" class="modal modal-small">
+                <form action="{% url "featured-delete" featured.pk %}" method="post" id="delete-featured" class="modal modal-small">
                     <p>
                         {% trans "Attention, vous vous apprêtez à supprimer définitivement cette une." %}
                     </p>
