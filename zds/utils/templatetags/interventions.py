@@ -130,7 +130,7 @@ def interventions_topics(user):
                              'url': content.get_absolute_url()})
 
     for _content in content_read:
-        content = _content.first_unread_note()
+        content = _content.content.first_unread_note()
         posts_unread.append({'pubdate': content.pubdate,
                              'author': content.author,
                              'title': art.article.title,
