@@ -207,7 +207,8 @@ class MiniProfileForm(forms.Form):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre biographie au format Markdown.')
+                'placeholder': _(u'Votre biographie au format Markdown.'),
+                'class': 'md-editor'
             }
         )
     )
@@ -311,7 +312,7 @@ class ProfileForm(MiniProfileForm):
             Field('site'),
             Field('avatar_url'),
             HTML(u"""
-                <p><a href="{% url 'zds.gallery.views.gallery_list' %}">Choisir un avatar dans une galerie</a><br/>
+                <p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
                    Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
                    Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>
             """),

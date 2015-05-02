@@ -76,6 +76,19 @@ class MemberTests(TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
+        nb_users = len(result.context['members'])
+
+        # Test that inactive user don't show up
+        unactive_user = UserFactory()
+        unactive_user.is_active = False
+        unactive_user.save()
+        result = self.client.get(
+            reverse('member-list'),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(nb_users, len(result.context['members']))
+
         # list of members with page parameter.
         result = self.client.get(
             reverse('member-list') + u'?page=1',
@@ -197,22 +210,22 @@ class MemberTests(TestCase):
         # redirection to the "next" page.
         result = self.client.post(
             reverse('zds.member.views.login_view') +
-            '?next=' + reverse('zds.gallery.views.gallery_list'),
+            '?next=' + reverse('gallery-list'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        self.assertRedirects(result, reverse('zds.gallery.views.gallery_list'))
+        self.assertRedirects(result, reverse('gallery-list'))
 
         # check if the login form will redirect if there is
         # a next parameter.
         self.client.logout()
         result = self.client.get(
             reverse('zds.member.views.login_view') +
-            '?next=' + reverse('zds.gallery.views.gallery_list'))
+            '?next=' + reverse('gallery-list'))
         self.assertContains(result,
                             reverse('zds.member.views.login_view') +
-                            '?next=' + reverse('zds.gallery.views.gallery_list'),
+                            '?next=' + reverse('gallery-list'),
                             count=1)
 
     def test_register(self):

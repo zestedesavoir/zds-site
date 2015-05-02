@@ -409,10 +409,11 @@ def logout_user(username):
     request = HttpRequest()
 
     sessions = Session.objects.filter(expire_date__gt=now)
+    user = User.objects.get(username=username)
 
     for session in sessions:
         user_id = session.get_decoded().get('_auth_user_id')
-        if username == user_id:
+        if user.id == user_id:
             engine = import_module(settings.SESSION_ENGINE)
             request.session = engine.SessionStore(session.session_key)
             logout(request)

@@ -77,6 +77,7 @@ Cela va créer plusieurs entitées :
 * 3 catégories et 2 sous-catégories
 * 4 aides pour l'écriture des tutoriels
 
+Pour en savoir plus sur cette commande, [consulter la documentation](http://zds-site.readthedocs.org/fr/latest/utils/fixture_loaders.html).
 
 ### La documentation complète
 
