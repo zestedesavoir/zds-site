@@ -49,11 +49,13 @@ from django.views.decorators.http import require_POST
 from git import Repo, BadObject
 
 from zds.tutorialv2.forms import ContentForm, ContainerForm, ExtractForm, NoteForm, AskValidationForm, \
-    AcceptValidationForm, RejectValidationForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm
+    AcceptValidationForm, RejectValidationForm, JsFiddleActivationForm, ImportContentForm, ImportNewContentForm, \
+    WarnTypoForm
 from models import PublishableContent, Container, Validation, ContentReaction, init_new_repo, get_content_from_json, \
     BadManifestError, Extract, default_slug_pool, PublishedContent, ContentRead
 from utils import search_container_or_404, search_extract_or_404
 from zds.gallery.models import Gallery, UserGallery, Image
+from zds.member.models import Profile
 from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
 from zds.utils import slugify
@@ -235,6 +237,9 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
+        if self.versioned_object.is_beta:
+            context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
+
         context["validation"] = validation
         context["formJs"] = form_js
 
@@ -271,6 +276,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         if context['is_staff']:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+
+        context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
         paginator = Paginator(ContentReaction.objects
                               .select_related('author')
@@ -776,14 +783,23 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
         context = super(DisplayContainer, self).get_context_data(**kwargs)
-        context['container'] = search_container_or_404(context['content'], self.kwargs)
-        context['containers_target'] = get_target_tagged_tree(context['container'], context['content'])
+        container = search_container_or_404(self.versioned_object, self.kwargs)
+        context['containers_target'] = get_target_tagged_tree(container, self.versioned_object)
+
+        if self.versioned_object.is_beta:
+            context['formWarnTypo'] = WarnTypoForm(
+                self.versioned_object,
+                container,
+                public=False,
+                initial={'target': container.get_path(relative=True)})
+
+        context['container'] = container
 
         # pagination: search for `previous` and `next`, if available
-        if context['content'].type != 'ARTICLE' and not context['content'].has_extracts():
-            chapters = context['content'].get_list_of_chapters()
+        if self.versioned_object.type != 'ARTICLE' and not self.versioned_object.has_extracts():
+            chapters = self.versioned_object.get_list_of_chapters()
             try:
-                position = chapters.index(context['container'])
+                position = chapters.index(container)
             except ValueError:
                 pass  # this is not (yet?) a chapter
             else:
@@ -809,6 +825,9 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         context['container'] = container
+
+        context['formWarnTypo'] = WarnTypoForm(
+            self.versioned_object, container, initial={'target': container.get_path(relative=True)})
 
         # pagination: search for `previous` and `next`, if available
         if not self.versioned_object.has_extracts():
@@ -1127,8 +1146,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     send_mp(bot,
                             self.object.authors.all(),
-                            _(u"Tutoriel en bêta : {0}").format(beta_version.title),
-                            "",
+                            _(u"Tutoriel en bêta"),
+                            beta_version.title,
                             msg_pm,
                             False)
                 else:
@@ -1180,6 +1199,89 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             self.success_url = self.versioned_object.get_absolute_url_beta()
 
         return super(ManageBetaContent, self).form_valid(form)
+
+
+class WarnTypo(SingleContentFormViewMixin):
+
+    modal_form = True
+    form_class = WarnTypoForm
+    must_be_author = False
+    only_draft_version = False
+
+    object = None
+
+    def get_form_kwargs(self):
+
+        if 'version' not in self.request.POST:
+            raise PermissionDenied
+
+        kwargs = super(WarnTypo, self).get_form_kwargs()
+
+        versioned = self.object.load_version_or_404(self.request.POST['version'])
+        kwargs['content'] = versioned
+        kwargs['targeted'] = versioned
+
+        if self.request.POST['target']:
+            kwargs['targeted'] = search_container_or_404(versioned, self.request.POST['target'])
+
+        kwargs['public'] = True
+
+        if versioned.is_beta:
+            kwargs['public'] = False
+
+        return kwargs
+
+    def form_valid(self, form):
+
+        user = self.request.user
+
+        authors_reachable = Profile.objects.contactable_members()\
+            .filter(user__in=self.object.authors.all())
+        authors = []
+        for author in authors_reachable:
+            authors.append(author.user)
+
+        # check if the warn is done on a public or beta version :
+        is_public = False
+
+        if form.content.is_public:
+            is_public = True
+        elif not form.content.is_beta:
+            raise Http404
+
+        if len(authors) == 0:
+            if self.object.authors.count() > 1:
+                messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables"))
+            else:
+                messages.error(self.request, _(u"L'auteur est malheureusement injoignable"))
+
+        elif user in authors:  # author try to PM himself
+            messages.error(self.request, _(u'Impossible d\'envoyer la correction car vous êtes parmis les auteurs'))
+
+        else:  # send correction
+            text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
+
+            _type = _(u'l\'article')
+            if form.content.type == 'TUTORIAL':
+                _type = _(u'le tutoriel')
+
+            msg = render_to_string(
+                'tutorialv2/messages/warn_typo.md',
+                {
+                    'user': user,
+                    'content': form.content,
+                    'target': form.targeted,
+                    'type': _type,
+                    'public': is_public,
+                    'text': text
+                })
+
+            # send it :
+            send_mp(user, authors, _(u"Proposition de correction"), form.content.title, msg, leave=False)
+
+            messages.success(self.request, _(u'Merci pour votre proposition de correction'))
+
+        return redirect(form.previous_page_url)
 
 
 class ListOnlineContents(ContentTypeMixin, ListView):
@@ -1468,8 +1570,8 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Validation : mise à jour de « {} »").format(self.versioned_object.title),
                 _(u"Une nouvelle version a été envoyée en validation"),
+                self.versioned_object.title,
                 msg,
                 False,
             )
@@ -1531,8 +1633,8 @@ class CancelValidation(LoginRequiredMixin, FormView):
             send_mp(
                 bot,
                 [validation.validator],
-                _(u"Validation : annulation de « {} »").format(versioned.title),
-                _(u"La validation de ce contenu a été annulée"),
+                _(u"Demande de validation annulée").format(),
+                versioned.title,
                 msg,
                 False,
             )
@@ -1643,8 +1745,8 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Rejet de « {} »").format(validation.content.title),
-            _(u"Désolé"),
+            _(u"Rejet de la demande publication").format(),
+            validation.content.title,
             msg,
             True,
             direct=False
@@ -1734,8 +1836,8 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             send_mp(
                 bot,
                 db_object.authors.all(),
-                _(u"Publication de « {} »").format(versioned.title),
-                _(u"Merci !"),
+                _(u"Publication acceptée"),
+                versioned.title,
                 msg,
                 True,
                 direct=False
@@ -1802,8 +1904,8 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Dépublication de « {} »").format(validation.content.title),
-            _(u"Désolé ..."),
+            _(u"Dépublication"),
+            validation.content.title,
             msg,
             True,
             direct=False
@@ -2075,7 +2177,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     bot,
                     [user],
                     u'Ajout à la rédaction ' + _type,
-                    "",
+                    self.versioned_object.title,
                     render_to_string("tutorialv2/messages/add_author_pm.md", {
                         'content': self.object,
                         'type': _type,

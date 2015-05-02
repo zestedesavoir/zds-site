@@ -1,0 +1,22 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% if user.is_authenticated and user not in content.authors.all %}
+
+<a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">
+    {% trans "Signaler une faute dans" %}
+    {% if not container %}
+        {% if content.type == 'ARTICLE' %}
+            {% trans "cet article" %}
+        {% elif content.type == 'TUTORIAL' %}
+            {% trans "ce tutoriel" %}
+        {% endif %}
+    {% else %}
+        {% trans "ce chapitre" %}
+    {% endif %}
+</a>
+<div class="modal modal-big" id="warn-typo-modal">
+    {% crispy formWarnTypo %}
+</div>
+
+{% endif %}
