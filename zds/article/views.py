@@ -680,13 +680,20 @@ def modify(request):
         # A validatir would like to valid an article in validation. We
         # must update sha_public with the current sha of the validation.
         elif 'valid-article' in request.POST:
-            mep(article, article.sha_validation)
+
             validation = Validation.objects\
                 .filter(article__pk=article.pk,
                         version=article.sha_validation)\
                 .latest('date_proposition')
 
             if request.user == validation.validator:
+
+                try:
+                    mep(article, article.sha_validation)
+                except UnicodeErrorInArticle as e:
+                    messages.error(request, e)
+                    return redirect(article.get_absolute_url() + '?version=' + validation.version)
+
                 validation.comment_validator = request.POST['comment-v']
                 validation.status = 'PUBLISHED'
                 validation.date_validation = datetime.now()
@@ -902,7 +909,7 @@ def list_validation(request):
 
     # Get subcategory to filter validations.
     try:
-        subcategory = get_object_or_404(Category, pk=int(request.GET['subcategory']))
+        subcategory = get_object_or_404(SubCategory, pk=int(request.GET['subcategory']))
     except (KeyError, ValueError, Http404):
         subcategory = None
 
@@ -1036,7 +1043,12 @@ def history(request, article_pk, article_slug):
         'article': article, 'logs': logs, 'formJs': form_js
     })
 
+
 # Reactions at an article.
+class UnicodeErrorInArticle(Exception):
+
+    def __init__(self, *args, **kwargs):
+        super(UnicodeErrorInArticle, self).__init__(*args, **kwargs)
 
 
 def mep(article, sha):
@@ -1057,7 +1069,12 @@ def mep(article, sha):
         is_js = "js"
     else:
         is_js = ""
-    html_file.write(emarkdown(md_file_contenu, is_js))
+    try:
+        html_file.write(emarkdown(md_file_contenu, is_js))
+    except (UnicodeError, UnicodeEncodeError):
+        raise UnicodeErrorInArticle(
+            u'Une erreur est survenue lors de la génération du HTML, vérifiez que le code markdown ne contient '
+            u'pas d\'erreurs')
     html_file.close()
 
 

@@ -26,25 +26,3 @@
 {% block content %}
     {% crispy form %}
 {% endblock %}
-
-
-
-{% block sidebar_actions %}
-    {% if gallery_mode.is_write %}
-        <div class="mobile-menu-bloc" data-title="Actions">
-            <h3>{% trans "Actions" %}</h3>
-            <ul>
-                <li>
-                    <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="ico-after more blue">
-                        {% trans "Ajouter une image" %}
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
-                        {% trans "Importer une archive" %}
-                    </a>
-                </li>
-            </ul>
-        </div>
-    {% endif %}
-{% endblock %}

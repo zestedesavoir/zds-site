@@ -54,6 +54,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source='user.email')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
+    avatar_url = serializers.CharField(source='get_avatar_url')
 
     class Meta:
         model = Profile

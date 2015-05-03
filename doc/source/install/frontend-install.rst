@@ -135,7 +135,7 @@ Gulp est un outil permettant d'automatiser les tâches liées au front. Dans not
 .. note::
 
     Vous voulez en savoir plus ?
-    Venez `ici <../design.html>`_ ! ;)
+    Venez `ici <../front-end/design.html>`_ ! ;)
 
 Utilisation de Gulp
 -------------------

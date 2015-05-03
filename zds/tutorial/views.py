@@ -348,9 +348,12 @@ def valid_tutorial(request):
         version=tutorial.sha_validation).latest("date_proposition")
 
     if request.user == validation.validator:
-        (output, err) = mep(tutorial, tutorial.sha_validation)
-        messages.info(request, output)
-        messages.error(request, err)
+        try:
+            mep(tutorial, tutorial.sha_validation)
+        except UnicodeErrorInTutorial as e:
+            messages.error(request, e)
+            return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
+
         validation.comment_validator = request.POST["text"]
         validation.status = "ACCEPT"
         validation.date_validation = datetime.now()
@@ -408,7 +411,7 @@ def valid_tutorial(request):
 def invalid_tutorial(request, tutorial_pk):
     """Staff invalid tutorial of an author."""
 
-    # Retrieve current tutorial
+    # Retrieve current tutorials
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     un_mep(tutorial)
@@ -669,7 +672,7 @@ def modify_tutorial(request):
             )
 
             return redirect(redirect_url)
-        elif "activ_beta" in request.POST:
+        elif ("activ_beta" in request.POST) or ("update_beta" in request.POST):
             if "version" in request.POST:
                 tutorial.sha_beta = request.POST['version']
                 tutorial.save()
@@ -688,7 +691,6 @@ def modify_tutorial(request):
                            settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
-
                     create_topic(author=request.user,
                                  forum=forum,
                                  title=_(u"[beta][tutoriel]{0}").format(tutorial.title),
@@ -696,81 +698,50 @@ def modify_tutorial(request):
                                  text=msg,
                                  key=tutorial.pk
                                  )
-                    tp = Topic.objects.get(key=tutorial.pk)
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                    private_mp = \
-                        (_(u'Bonjour {},\n\n'
-                           u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
-                           u'pourra le consulter afin de vous faire des retours '
-                           u'constructifs avant sa soumission en validation.\n\n'
-                           u'Un sujet dédié pour la beta de votre tutoriel a été '
-                           u'crée dans le forum et est accessible [ici]({})').format(
-                               request.user.username,
-                               tutorial.title,
-                               settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
-                    send_mp(
-                        bot,
-                        [request.user],
-                        _(u"Tutoriel en beta : {0}").format(tutorial.title),
-                        "",
-                        private_mp,
-                        False,
-                    )
+                    if "activ_beta" in request.POST:
+                        tp = Topic.objects.get(key=tutorial.pk)
+                        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                        private_mp = \
+                            (_(u'Bonjour {},\n\n'
+                               u'Vous venez de mettre votre tutoriel **{}** en beta. La communauté '
+                               u'pourra le consulter afin de vous faire des retours '
+                               u'constructifs avant sa soumission en validation.\n\n'
+                               u'Un sujet dédié pour la beta de votre tutoriel a été '
+                               u'crée dans le forum et est accessible [ici]({})').format(
+                                   request.user.username,
+                                   tutorial.title,
+                                   settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
+                        send_mp(
+                            bot,
+                            [request.user],
+                            _(u"Tutoriel en beta : {0}").format(tutorial.title),
+                            "",
+                            private_mp,
+                            False,
+                        )
                 else:
-                    msg_up = \
-                        (_(u'Bonjour,\n\n'
-                           u'La beta du tutoriel est de nouveau active.'
-                           u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
-                           u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                    settings.ZDS_APP['site']['url'] +
-                                                                    tutorial.get_absolute_url_beta()))
-                    unlock_topic(topic, msg)
+                    if "activ_beta" in request.POST:
+                        msg_up = \
+                            (_(u'Bonjour,\n\n'
+                               u'La beta du tutoriel est de nouveau active.'
+                               u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                               u'\n\nMerci pour vos relectures').format(tutorial.title,
+                                                                        settings.ZDS_APP['site']['url'] +
+                                                                        tutorial.get_absolute_url_beta()))
+                        messages.success(request, _(u"La BETA sur ce tutoriel est bien activée."))
+                    elif "update_beta" in request.POST:
+                        msg_up = \
+                            (_(u'Bonjour à tous !\n\n'
+                               u'La beta du tutoriel a été mise à jour.'
+                               u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
+                               u'\n\nMerci pour vos relectures').format(tutorial.title,
+                                                                        settings.ZDS_APP['site']['url'] +
+                                                                        tutorial.get_absolute_url_beta()))
+                        messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
+                    unlock_topic(topic)
                     send_post(topic, msg_up)
-
-                messages.success(request, _(u"La BETA sur ce tutoriel est bien activée."))
             else:
                 messages.error(request, _(u"La BETA sur ce tutoriel n'a malheureusement pas pu être activée."))
-            return redirect(tutorial.get_absolute_url_beta())
-        elif "update_beta" in request.POST:
-            if "version" in request.POST:
-                tutorial.sha_beta = request.POST['version']
-                tutorial.save()
-                topic = Topic.objects.filter(key=tutorial.pk,
-                                             forum__pk=settings.ZDS_APP['forum']['beta_forum_id']).first()
-                msg = \
-                    (_(u'Bonjour à tous,\n\n'
-                       u'J\'ai commencé ({0}) la rédaction d\'un tutoriel dont l\'intitulé est **{1}**.\n\n'
-                       u'J\'aimerai obtenir un maximum de retour sur celui-ci, sur le fond ainsi que '
-                       u'sur la forme, afin de proposer en validation un texte de qualité.'
-                       u'\n\nSi vous êtes intéressé, cliquez ci-dessous '
-                       u'\n\n-> [Lien de la beta du tutoriel : {1}]({2}) <-\n\n'
-                       u'\n\nMerci d\'avance pour votre aide').format(
-                           naturaltime(tutorial.create_at),
-                           tutorial.title,
-                           settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
-                if topic is None:
-                    forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
-
-                    create_topic(author=request.user,
-                                 forum=forum,
-                                 title=u"[beta][tutoriel]{0}".format(tutorial.title),
-                                 subtitle=u"{}".format(tutorial.description),
-                                 text=msg,
-                                 key=tutorial.pk
-                                 )
-                else:
-                    msg_up = \
-                        (_(u'Bonjour à tous !\n\n'
-                           u'La beta du tutoriel a été mise à jour.'
-                           u'\n\n-> [Lien de la beta du tutoriel : {0}]({1}) <-\n\n'
-                           u'\n\nMerci pour vos relectures').format(tutorial.title,
-                                                                    settings.ZDS_APP['site']['url'] +
-                                                                    tutorial.get_absolute_url_beta()))
-                    unlock_topic(topic, msg)
-                    send_post(topic, msg_up)
-                messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
-            else:
-                messages.error(request, _(u"La BETA sur ce tutoriel n'a malheureusement pas pu être mise à jour."))
             return redirect(tutorial.get_absolute_url_beta())
         elif "desactiv_beta" in request.POST:
             tutorial.sha_beta = None
@@ -787,15 +758,11 @@ def modify_tutorial(request):
             return redirect(tutorial.get_absolute_url())
 
     # No action performed, raise 403
-
     raise PermissionDenied
 
 
-# Tutorials.
-
-
 @login_required
-def view_tutorial(request, tutorial_pk, tutorial_slug):
+def view_tutorial(request, tutorial_pk, tutorial_slug, sha=None):
     """Show the given offline tutorial if exists."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
@@ -803,12 +770,16 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
     # Retrieve sha given by the user. This sha must to be exist. If it doesn't
     # exist, we take draft version of the article.
 
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
+    if sha is None:
+        try:
+            sha = request.GET["version"]
+        except KeyError:
+            sha = tutorial.sha_draft
 
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
+
+    if request.path.startswith("/tutoriels/off") and is_beta:
+        return redirect(tutorial.get_absolute_url_beta())
 
     # Only authors of the tutorial and staff can view tutorial in offline.
 
@@ -909,6 +880,12 @@ def view_tutorial(request, tutorial_pk, tutorial_slug):
         "formReject": form_reject,
         "is_js": is_js
     })
+
+
+@login_required
+def view_tutorial_beta(request, tutorial_pk, tutorial_slug):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    return view_tutorial(request, tutorial_pk, tutorial_slug, sha=tutorial.sha_beta)
 
 
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
@@ -1287,14 +1264,16 @@ def view_part(
     tutorial_slug,
     part_pk,
     part_slug,
+    sha=None,
 ):
     """Display a part."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
+    if sha is None:
+        try:
+            sha = request.GET["version"]
+        except KeyError:
+            sha = tutorial.sha_draft
 
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
 
@@ -1342,6 +1321,12 @@ def view_part(
             part["intro"] = get_blob(repo.commit(sha).tree, part["introduction"])
             part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
             final_part = part
+            if request.path.startswith("/tutoriels/off") and is_beta:
+                return redirect(reverse('zds.tutorial.views.view_part_beta', args=[
+                    tutorial_pk,
+                    tutorial_slug,
+                    part_pk,
+                    part_slug]))
         cpt_p += 1
 
     # if part can't find
@@ -1358,6 +1343,18 @@ def view_part(
                             "part": final_part,
                             "version": sha,
                             "is_js": is_js})
+
+
+@login_required
+def view_part_beta(
+    request,
+    tutorial_pk,
+    tutorial_slug,
+    part_pk,
+    part_slug,
+):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    return view_part(request, tutorial_pk, tutorial_slug, part_pk, part_slug, sha=tutorial.sha_beta)
 
 
 def view_part_online(
@@ -1631,15 +1628,17 @@ def view_chapter(
     part_slug,
     chapter_pk,
     chapter_slug,
+    sha=None,
 ):
     """View chapter."""
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
 
-    try:
-        sha = request.GET["version"]
-    except KeyError:
-        sha = tutorial.sha_draft
+    if sha is None:
+        try:
+            sha = request.GET["version"]
+        except KeyError:
+            sha = tutorial.sha_draft
 
     is_beta = sha == tutorial.sha_beta and tutorial.in_beta()
 
@@ -1701,6 +1700,15 @@ def view_chapter(
             if chapter_pk == str(chapter["pk"]):
                 final_chapter = chapter
                 final_position = len(chapter_tab) - 1
+
+                if request.path.startswith("/tutoriels/off") and is_beta:
+                    return redirect(reverse('zds.tutorial.views.view_chapter_beta', args=[
+                        tutorial_pk,
+                        tutorial_slug,
+                        part_pk,
+                        part_slug,
+                        chapter_pk,
+                        chapter_slug]))
             cpt_c += 1
         cpt_p += 1
 
@@ -1724,6 +1732,27 @@ def view_chapter(
         "version": sha,
         "is_js": is_js
     })
+
+
+@login_required
+def view_chapter_beta(
+    request,
+    tutorial_pk,
+    tutorial_slug,
+    part_pk,
+    part_slug,
+    chapter_pk,
+    chapter_slug,
+):
+    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    return view_chapter(request,
+                        tutorial_pk,
+                        tutorial_slug,
+                        part_pk,
+                        part_slug,
+                        chapter_pk,
+                        chapter_slug,
+                        sha=tutorial.sha_beta)
 
 
 def view_chapter_online(
@@ -3059,7 +3088,7 @@ def get_url_images(md_text, pt):
     """find images urls in markdown text and download this."""
 
     regex = ur"(!\[.*?\]\()(.+?)(\))"
-    unknow_path = os.path.join(settings.SITE_ROOT, "fixtures", "noir_black.png")
+    unknow_path = os.path.join(settings.BASE_DIR, "fixtures", "noir_black.png")
 
     # if text is empty don't download
 
@@ -3083,6 +3112,7 @@ def get_url_images(md_text, pt):
                     os.makedirs(os.path.join(pt, "images"))
 
                 # download image
+                filename = filename.decode('utf-8')
                 down_path = os.path.abspath(os.path.join(pt, "images", filename))
                 try:
                     urlretrieve(real_url, down_path)
@@ -3103,7 +3133,7 @@ def get_url_images(md_text, pt):
                     pass
             else:
                 # relative link
-                srcfile = settings.SITE_ROOT + real_url
+                srcfile = settings.BASE_DIR + real_url
                 if os.path.isfile(srcfile):
                     dstroot = pt + real_url
                     dstdir = os.path.dirname(dstroot)
@@ -3162,8 +3192,13 @@ def markdown_to_out(md_text):
                   md_text)
 
 
+class UnicodeErrorInTutorial(Exception):
+
+    def __init__(self, *args, **kwargs):
+        super(UnicodeErrorInTutorial, self).__init__(*args, **kwargs)
+
+
 def mep(tutorial, sha):
-    (output, err) = (None, None)
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     tutorial_version = json_reader.loads(manifest)
@@ -3211,7 +3246,7 @@ def mep(tutorial, sha):
 
         # download images
 
-        get_url_images(md_file_contenu, prod_path)
+        get_url_images(md_file_contenu.encode('utf-8'), prod_path)
 
         # convert to out format
         out_file = open(os.path.join(prod_path, fichier), "w")
@@ -3233,7 +3268,12 @@ def mep(tutorial, sha):
         else:
             is_js = ""
         if md_file_contenu is not None:
-            html_file.write(emarkdown(md_file_contenu, is_js))
+            try:
+                html_file.write(emarkdown(md_file_contenu, is_js))
+            except (UnicodeEncodeError, UnicodeError):
+                raise UnicodeErrorInTutorial(_(u'Une erreur est survenue lors de la génération du HTML à partir '
+                                               u'du fichier « {} », vérifiez que le code markdown correspondant ne '
+                                               u'contient pas d\'erreurs'.format(fichier)))
         html_file.close()
 
     # load markdown out
@@ -3265,8 +3305,7 @@ def mep(tutorial, sha):
               os.path.join(prod_path, tutorial.slug) +
               ".md -o " + os.path.join(prod_path,
                                        tutorial.slug) + ".epub" + pandoc_debug_str)
-    os.chdir(settings.SITE_ROOT)
-    return (output, err)
+    os.chdir(settings.BASE_DIR)
 
 
 def un_mep(tutorial):
@@ -3726,12 +3765,10 @@ def warn_typo(request, obj_type, obj_pk):
                         msg += _(u'La correction concerne le chapitre [{}]({}) de la partie [{}]({}).\n\n').format(
                             chapter.title,
                             settings.ZDS_APP['site']['url'] +
-                            chapter.get_absolute_url() +
-                            '?version=' + tutorial.sha_beta,
+                            chapter.get_absolute_url_beta(),
                             chapter.part.title,
                             settings.ZDS_APP['site']['url'] +
-                            chapter.part.get_absolute_url() +
-                            '?version=' + tutorial.sha_beta
+                            chapter.part.get_absolute_url_beta()
                         )
 
                 msg += _(u'Voici son message :\n\n{}').format(explanation)
@@ -3755,7 +3792,7 @@ def warn_typo(request, obj_type, obj_pk):
         if is_on_line:
             return redirect(chapter.get_absolute_url_online())
         elif is_beta:
-            return redirect(chapter.get_absolute_url() + '?version=' + tutorial.sha_beta)
+            return redirect(chapter.get_absolute_url_beta())
 
 
 def help_tutorial(request):

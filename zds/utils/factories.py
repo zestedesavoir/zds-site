@@ -1,7 +1,7 @@
 # coding: utf-8
 from zds.utils.models import HelpWriting
 from zds.utils import slugify
-from zds.settings import SITE_ROOT, MEDIA_ROOT
+from zds.settings import BASE_DIR, MEDIA_ROOT
 from shutil import copyfile
 from os.path import basename, join
 
@@ -11,7 +11,7 @@ import factory
 class HelpWritingFactory(factory.DjangoModelFactory):
     FACTORY_FOR = HelpWriting
 
-    title = factory.Sequence(lambda n: u"titre de l\'image {0}".format(n))
+    title = factory.Sequence(u"titre de l\'image {0}".format)
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
     tablelabel = factory.LazyAttribute(lambda n: u"Besoin de " + n.title)
 
@@ -22,7 +22,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         fixture_image_path = kwargs.pop('fixture_image_path', None)
 
         if fixture_image_path is not None:
-            image_path = join(SITE_ROOT, "fixtures", fixture_image_path)
+            image_path = join(BASE_DIR, "fixtures", fixture_image_path)
 
         if image_path is not None:
             copyfile(image_path, join(MEDIA_ROOT, basename(image_path)))

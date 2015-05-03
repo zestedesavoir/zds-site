@@ -13,6 +13,7 @@ Avant de vous lancez dans l'installation de l'environnement de zds, il faut quel
 - Installer pip
 - Installer git
 - Installer `gettext <https://www.gnu.org/software/gettext/>`_
+- Installer GeoIP (``brew install geoip``)
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
 
@@ -88,7 +89,5 @@ Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils Lat
 
   sudo port install pandoc
 
-Ajouter un hook de pre-commit a git pour tester flake
------------------------------------------------------
 
-.. include:: includes/git-pre-hook.rst
+Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <utils/git-pre-hook.html>`__.

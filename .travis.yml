@@ -7,10 +7,7 @@ python:
   - 2.7
 
 env:
-  - TEST_APP="-e back_mysql zds.tutorial"
-    CFLAGS="-O0"
-  - TEST_APP="-e back_mysql zds.article zds.forum zds.member zds.utils zds.gallery zds.mp zds.pages"
-    CFLAGS="-O0" 
+  - TEST_APP="-e back_mysql"
   - TEST_APP="-e front"
 
 notifications:
@@ -25,6 +22,13 @@ cache:
   - apt
 
 before_script:
+  # configure mysql
+  - mysql -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'" # Travis default
+  # try to avoid mysql has gone away errors
+  - mysql -e "SET GLOBAL wait_timeout = 36000;"
+  - mysql -e "SET GLOBAL max_allowed_packet = 134209536;"
+  - mysql -e "SHOW VARIABLES LIKE 'max_allowed_packet';"
+  - mysql -e "SHOW VARIABLES LIKE 'wait_timeout';"
   # database services
   - mysql -e 'create database zds_test;'
   - sudo mv zds/settings_test.py zds/settings_prod.py

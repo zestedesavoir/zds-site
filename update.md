@@ -120,7 +120,6 @@ Lancer la commande `npm -v` et voir le résultat. Si le résultat est 1.x.x, lan
 
 Faire pointer nginx sur `static/` au lieu de `dist/`.
 
-
 Actions à faire pour mettre en prod la version : v1.6
 =====================================================
 
@@ -143,10 +142,74 @@ Issue #2058
 Rajouter ces lignes dans le `settings_prod.py` :
 
 ```python
-ZDS_SITE['site']['googleAnalyticsID'] = 'UA-27730868-1'
-ZDS_SITE['site']['googleTagManagerID'] = 'GTM-WH7642'
+ZDS_APP['site']['googleAnalyticsID'] = 'UA-27730868-1'
+ZDS_APP['site']['googleTagManagerID'] = 'GTM-WH7642'
 ```
-Actions à faire pour mettre en prod la version : v1.6
-=====================================================
 
 Vérifier que `EMAIL_BACKEND` est bien définit dans le `settings_prod.py` car il a maintenant une valeur par défaut. La configuration par défaut sur la prod devrait être `EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'`.
+
+Actions à faire pour mettre en prod la version : v1.8
+=====================================================
+
+Issue #1455 Django 1.7
+----------------------
+
+**Avant** de lancer la migration de la base, prévenir Django que `easy_thumbnail` est déjà OK : 
+
+
+```
+python manage.py migrate --fake easy_thumbnails
+```
+
+Le reste l'est aussi mais Django est incapable de le détecter tout seul pour cette app.
+
+**Attention** : il est possible que Django perde l'information du "migrate fake" pendant la migration et donc plante sur cette étape pendant le déploiement. Si c'est le cas, pas de panique, il suffit de releancer les migrations à la main et de redémarrer l'application :
+
+```
+cd /opt/zdsenv/ZesteDeSavoir/
+source ../bin/activate
+python manage.py migrate --fake easy_thumbnails
+python manage.py migrate
+deactivate
+sudo supervisorctl restart zds
+```
+
+Désinstaller south: `pip uninstall south`. La MAJ de Django de la 1.6 à la 1.7 sera faite par le script (via la mise à jour des _requirements_).
+
+Déploiement de Django 1.7
+-------------------------
+
+_(A priori spécifique à zestedesavoir.com, mais ça peut aider selon l'installation qui est faite du site)_
+
+1. Le fichier `unicorn_start` est inutile et peut être supprimé.
+2. La conf `gunicorn_config.py` peut être pas mal simplifiée. Fichier utilisé en **bêta**, quelques adaptations peuvent être nécessaires pour la production :
+
+```python
+command = '/opt/zdsenv/bin/gunicorn'
+pythonpath = '/opt/zdsenv/ZesteDeSavoir'
+bind = 'unix:/opt/zdsenv/bin/gunicorn.sock'
+workers = 7
+user = 'zds'
+group = 'zds'
+errorlog = '/opt/zdsenv/logs/gunicorn_error.log'
+loglevel = 'info'
+
+```
+
+3. Mettre à jour la configuration supervisor pour utiliser la bonne manière de lancer Gunicorn. Fichier utilisé en **bêta**, quelques adaptations peuvent être nécessaires pour la production :
+
+```
+[program:zds]
+directory = /opt/zdsenv/
+command = /opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
+stdout_logfile = /opt/zdsenv/logs/supervisor_stdout.log
+stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
+
+```
+
+4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart` 
+
+Issue #2520
+-----------
+
+Vérifier que le paquet `libgoip-dev`, devenu nécessaire pour employer GeoIP, est installé : `sudo apt-get install libgeoip-dev`

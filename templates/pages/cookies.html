@@ -110,30 +110,31 @@
     <h3>{% trans "Une recette de cookies" %}</h3>
     <p>{% trans "Puisque vous avez réussi à trouver cette page et que vous avez eu le courage de lire jusqu'ici, vous avez bien droit à une récompense : une recette de cookies" %} !</p>
     <h4>{% trans "Ingrédients" %}</h4>
-    <p>{% trans "Pour 30 cookies environ (parce que c'est bon, on va en faire plein" %} !) :</p>
+    <p>{% trans "Pour beaucoup de cookies (parce que le nombre dépend de leur taille) :" %}</p>
     <ul>
         <li>{% trans "500 g de farine" %}</li>
-        <li>{% trans "250 g de beurre" %}</li>
-        <li>{% trans "300 g de chocolat à pâtisser" %}</li>
+        <li>{% trans "500 g de chocolat à pâtisser" %}</li>
+        <li>{% trans "250 g de beurre à température ambiante" %}</li>
         <li>{% trans "200 g de cassonade, ou à défaut de sucre roux" %}</li>
-        <li>{% trans "2&oelig;ufs" %}</li>
-        <li>{% trans "2 sachets de sucre vanillé" %}</li>
+        <li>{% trans "2 &oelig;ufs" %}</li>
+        <li>{% trans "2 cuillers à café de vanille liquide ou à défaut 2 sachets de sucre vanillé" %}</li>
         <li>{% trans "1 pincée de sel" %}</li>
         <li>{% trans "1 sachet de levure" %}</li>
     </ul>
-    <p>{% trans "Préparation : 10 minutes" %}</p>
-    <p>{% trans "Cuisson : 10 minutes" %}</p>
+    <p>{% trans "Préparation : 10 minutes + 15 minutes pour couper le chocolat" %}</p>
+    <p>{% blocktrans %}Cuisson : 10 minutes <strong>par fournée</strong>{% endblocktrans %}</p>
     <h4>{% trans "Préparation" %}</h4>
-    <p>{% trans "Avec un grand couteau bien aiguisé, découpez le chocolat en petits morceaux" %}.</p>
-    <p>{% trans "Dans un grand saladier, mélangez la farine, la cassonade, le sucre vanillé, la levure et le sel" %}.</p>
-    <p>{% trans "Faites fondre le beurre, ajoutez-y les &oelig;ufs. Incorporez le tout à la préparation" %}.</p>
+    <p>{% trans "Avec un grand couteau solide et bien aiguisé, découpez le chocolat en petits morceaux" %}.</p>
+    <p>{% trans "Mélangez en crème le beurre ramolli et le sucre. Incorporez les &oelig;ufs et la vanille liquide (ou le sucre vanillé)." %}</p>
+    <p>{% trans "Ajoutez la farine et la levure. Mélangez bien." %}</p>
     <p>{% trans "Ajoutez les morceaux de chocolat et mélangez avec soin" %}.</p>
     <h4>{% trans "Cuisson" %}</h4>
-    <p>{% trans "Préchauffez votre four à 220°C (200°C en chaleur tournante) / thermostat 7-8, grille en position basse" %}.</p>
-    <p>{% trans "Façonnez des cookies d'environ 10 cm de côté sur la plaque recouverte de papier sulfurisé. Attention, espacez-les parce qu'ils s'étalent à la cuisson" %}.</p>
+    <p>{% trans "Préchauffez votre four à 200°C / thermostat 6-7 (un peu moins si vous utilisez la chaleur tournante), grille en position basse" %}.</p>
+    <p>{% trans "Façonnez des cookies pas trop épais par petite cuillerées sur une plaque de cuisson recouverte de papier sulfurisé. Espacez-les parce qu'ils s'étalent à la cuisson." %}</p>
     <p>{% trans "Enfournez-les environ 10 minutes, ils sont cuits lorsqu'ils prennent une belle couleur dorée" %} !</p>
     <h4>{% trans "Conseils divers" %}</h4>
     <p>{% trans "Si vous avez la flemme de découper le chocolat, vous pouvez utiliser des pépites de chocolat mais en général c'est moins bon. Surtout pas de chocolat à déguster : ces chocolats manquent de sucre pour la patisserie" %} !</p>
-    <p>{% trans "La cuisson parfaite se joue à quelques secondes près (sérieusement), alors surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. Ce qui serait dommage" %} !</p>
-    <p>{% blocktrans %} On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> reste le cookie au chocolat". Bien qu'avec un peu de noix de coco ça ne se refuse pas !{% endblocktrans %}</p>
+    <p>{% trans "Pour découper le chocolat, vous aurez besoin d'un grand couteau solide (donc pas un couteau céramique) et très bien aiguisé. Non, le vôtre n'est pas assez aiguisé. Attaquez la plaque de chocolat côté lisse (carrés sur le dessous), c'est plus simple." %}</p>
+    <p>{% trans "La cuisson parfaite se joue à quelques secondes près (sérieusement), alors surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. Ce qui serait dommage. Les cookies sont assez mous en sortie de four, c'est normal : ils durcissent en refroidissant." %} !</p>
+    <p>{% blocktrans %} On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> reste le cookie au chocolat{% endblocktrans %}.</p>
 {% endblock %}

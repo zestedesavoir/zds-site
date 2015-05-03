@@ -1,0 +1,28 @@
+{% extends "gallery/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Importer une archive" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
+    <li>{% trans "Importer une archive" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Importer une archive" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

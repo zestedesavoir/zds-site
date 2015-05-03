@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# coding: utf-8
 
 from datetime import datetime, timedelta
 import uuid
@@ -85,7 +84,6 @@ class UpdateMember(UpdateView):
     form_class = ProfileForm
     template_name = 'member/settings/profile.html'
 
-    @method_decorator(can_write_and_read_now)
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(UpdateMember, self).dispatch(*args, **kwargs)
@@ -389,13 +387,18 @@ def modify_profile(request, user_pk):
         raise HttpResponseBadRequest
 
     state.apply_sanction(profile, ban)
-    msg = state.get_message_sanction() \
-        .format(ban.user,
-                ban.moderator,
-                ban.type,
-                state.get_detail(),
-                ban.text,
-                settings.ZDS_APP['site']['litteral_name'])
+
+    if 'un-ls' in request.POST or 'un-ban' in request.POST:
+        msg = state.get_message_unsanction()
+    else:
+        msg = state.get_message_sanction()
+
+    msg = msg.format(ban.user,
+                     ban.moderator,
+                     ban.type,
+                     state.get_detail(),
+                     ban.text,
+                     settings.ZDS_APP['site']['litteral_name'])
 
     state.notify_member(ban, msg)
     return redirect(profile.get_absolute_url())

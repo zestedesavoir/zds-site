@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 from oauth2_provider.models import Application, AccessToken
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -14,11 +13,6 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenRegister
 
 
-overrided_drf = settings.REST_FRAMEWORK
-overrided_drf['MAX_PAGINATE_BY'] = 20
-
-
-@override_settings(REST_FRAMEWORK=overrided_drf)
 class MemberListAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
@@ -338,7 +332,7 @@ class MemberMyDetailAPITest(APITestCase):
         self.assertEqual(profile.user.is_active, response.data.get('is_active'))
         self.assertIsNotNone(response.data.get('date_joined'))
         self.assertEqual(profile.site, response.data.get('site'))
-        self.assertEqual(profile.avatar_url, response.data.get('avatar_url'))
+        self.assertEqual(profile.get_avatar_url(), response.data.get('avatar_url'))
         self.assertEqual(profile.biography, response.data.get('biography'))
         self.assertEqual(profile.sign, response.data.get('sign'))
         self.assertFalse(response.data.get('show_email'))
@@ -377,7 +371,7 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(self.profile.user.is_active, response.data.get('is_active'))
         self.assertIsNotNone(response.data.get('date_joined'))
         self.assertEqual(self.profile.site, response.data.get('site'))
-        self.assertEqual(self.profile.avatar_url, response.data.get('avatar_url'))
+        self.assertEqual(self.profile.get_avatar_url(), response.data.get('avatar_url'))
         self.assertEqual(self.profile.biography, response.data.get('biography'))
         self.assertEqual(self.profile.sign, response.data.get('sign'))
         self.assertFalse(response.data.get('show_email'))

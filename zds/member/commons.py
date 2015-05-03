@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile, TokenRegister, Ban, logout_user
-from zds.settings import SITE_ROOT
+from zds.settings import BASE_DIR
 from zds.utils.mps import send_mp
 
 
@@ -72,7 +72,7 @@ class ProfileEmailValidator(Validator):
         if value:
             msg = None
             # Chech if email provider is authorized
-            with open(os.path.join(SITE_ROOT, 'forbidden_email_providers.txt'), 'r') as fh:
+            with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as fh:
                 for provider in fh:
                     if provider.strip() in value:
                         msg = _(u'Utilisez un autre fournisseur d\'adresses courriel.')
@@ -245,12 +245,12 @@ class MemberSanctionState(object):
         :rtype: ugettext_lazy
         """
         return _(u'Bonjour **{0}**,\n\n'
-                 u'**Bonne Nouvelle**, la sanction qui '
+                 u'**Bonne nouvelle**, la sanction qui '
                  u'pesait sur vous a été levée par **{1}**.\n\n'
-                 u'Ce qui signifie que {2}\n\n'
-                 u'Le motif de votre sanction est :\n\n'
-                 u'> {3}\n\n'
-                 u'Cordialement, \n\nL\'équipe {4}.')
+                 u'Ce qui signifie que {3}\n\n'
+                 u'Le motif est :\n\n'
+                 u'> {4}\n\n'
+                 u'Cordialement, \n\n L\'équipe {5}.')
 
     def get_message_sanction(self):
         """
@@ -282,7 +282,7 @@ class MemberSanctionState(object):
             bot,
             [ban.user],
             ban.type,
-            _("Sanction"),
+            "",
             msg,
             True,
             direct=True,
@@ -348,7 +348,7 @@ class DeleteReadingOnlySanction(MemberSanctionState):
         return self.array_infos.get('unls-text', '')
 
     def get_detail(self):
-        return (_(u'Vous pouvez désormais poster sur les forums, dans les '
+        return (_(u'vous pouvez désormais poster sur les forums, dans les '
                   u'commentaires d\'articles et tutoriels.'))
 
     def apply_sanction(self, profile, ban):
