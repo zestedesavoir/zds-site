@@ -1,0 +1,45 @@
+-   model: featured.ResourceFeatured
+    pk: 1
+    fields:
+        title: Première une
+        type: sujet
+        authors: [1]
+        image_url: http://placehold.it/228/00618a/FFFFFF&text=blbl
+        url: http://www.zestedesavoir.com
+        pubdate: 2013-12-21T13:20:30+00:00
+-   model: featured.ResourceFeatured
+    pk: 2
+    fields:
+        title: Seconde une
+        type: tutoriel
+        authors: [1]
+        image_url: http://placehold.it/228/00618a/FFFFFF&text=blbl
+        url: http://www.zestedesavoir.com
+        pubdate: 2013-12-21T13:20:30+00:00
+-   model: featured.ResourceFeatured
+    pk: 3
+    fields:
+        title: Troisième une
+        type: article
+        authors: [1]
+        image_url: http://placehold.it/228/00618a/FFFFFF&text=blbl
+        url: http://www.zestedesavoir.com
+        pubdate: 2013-12-21T13:20:30+00:00
+-   model: featured.ResourceFeatured
+    pk: 4
+    fields:
+        title: Quatrième une
+        type: projet
+        authors: [1]
+        image_url: http://placehold.it/228/00618a/FFFFFF&text=blbl
+        url: http://www.zestedesavoir.com
+        pubdate: 2013-12-21T13:20:30+00:00
+-   model: featured.ResourceFeatured
+    pk: 5
+    fields:
+        title: Cinquième une
+        type: tutoriel
+        authors: [1]
+        image_url: http://placehold.it/228/00618a/FFFFFF&text=blbl
+        url: http://www.zestedesavoir.com
+        pubdate: 2013-12-21T13:20:30+00:00
