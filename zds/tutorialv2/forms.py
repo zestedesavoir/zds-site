@@ -40,124 +40,6 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
-class ContentForm(FormWithTitle):
-
-    description = forms.CharField(
-        label=_(u'Description'),
-        max_length=PublishableContent._meta.get_field('description').max_length,
-        required=False,
-    )
-
-    image = forms.ImageField(
-        label=_(u'Sélectionnez le logo du tutoriel (max. {} Ko)').format(
-            str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
-        required=False
-    )
-
-    introduction = forms.CharField(
-        label=_(u'Introduction'),
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
-            }
-        )
-    )
-
-    conclusion = forms.CharField(
-        label=_('Conclusion'),
-        required=False,
-        widget=forms.Textarea(
-            attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
-            }
-        )
-    )
-
-    type = forms.ChoiceField(
-        choices=TYPE_CHOICES,
-        required=False
-    )
-
-    subcategory = forms.ModelMultipleChoiceField(
-        label=_(u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
-                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
-        queryset=SubCategory.objects.all(),
-        required=True,
-        widget=forms.SelectMultiple(
-            attrs={
-                'required': 'required',
-            }
-        )
-    )
-
-    licence = forms.ModelChoiceField(
-        label=(
-            _(u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>)')
-            .format(
-                settings.ZDS_APP['site']['licenses']['licence_info_title'],
-                settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['name']
-            )
-        ),
-        queryset=Licence.objects.all(),
-        required=True,
-        empty_label=None
-    )
-
-    msg_commit = forms.CharField(
-        label=_(u"Message de suivi"),
-        max_length=80,
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Un résumé de vos ajouts et modifications')
-            }
-        )
-    )
-
-    helps = forms.ModelMultipleChoiceField(
-        label=_(u"Pour m'aider je cherche un..."),
-        queryset=HelpWriting.objects.all(),
-        required=False,
-        widget=forms.SelectMultiple()
-    )
-
-    def __init__(self, *args, **kwargs):
-        super(ContentForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
-        self.helper.form_method = 'post'
-
-        self.helper.layout = Layout(
-            Field('title'),
-            Field('description'),
-            Field('type'),
-            Field('image'),
-            Field('introduction', css_class='md-editor'),
-            Field('conclusion', css_class='md-editor'),
-            Hidden('last_hash', '{{ last_hash }}'),
-            Field('licence'),
-            Field('subcategory'),
-            HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
-                   u"Si vous avez besoin d'un coup de main,"
-                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u"et votre tutoriel apparaitra alors sur <a href="
-                   u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
-                   u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
-            Field('helps'),
-            Field('msg_commit'),
-            ButtonHolder(
-                StrictButton('Valider', type='submit'),
-            ),
-        )
-
-        if 'type' in self.initial:
-            self.helper['type'].wrap(
-                Field,
-                disabled=True)
-
-
 class AuthorForm(forms.Form):
 
     username = forms.CharField(
@@ -229,6 +111,8 @@ class ContainerForm(FormWithTitle):
         )
     )
 
+    last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
+
     def __init__(self, *args, **kwargs):
         super(ContainerForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -240,13 +124,100 @@ class ContainerForm(FormWithTitle):
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
             Field('msg_commit'),
-            Hidden('last_hash', '{{ last_hash }}'),
+            Field('last_hash'),
             ButtonHolder(
                 StrictButton(
                     _(u'Valider'),
                     type='submit'),
             )
         )
+
+
+class ContentForm(ContainerForm):
+
+    description = forms.CharField(
+        label=_(u'Description'),
+        max_length=PublishableContent._meta.get_field('description').max_length,
+        required=False,
+    )
+
+    image = forms.ImageField(
+        label=_(u'Sélectionnez le logo du tutoriel (max. {} Ko)').format(
+            str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
+        required=False
+    )
+
+    type = forms.ChoiceField(
+        choices=TYPE_CHOICES,
+        required=False
+    )
+
+    subcategory = forms.ModelMultipleChoiceField(
+        label=_(u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
+                u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
+        queryset=SubCategory.objects.all(),
+        required=True,
+        widget=forms.SelectMultiple(
+            attrs={
+                'required': 'required',
+            }
+        )
+    )
+
+    licence = forms.ModelChoiceField(
+        label=(
+            _(u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>)')
+            .format(
+                settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                settings.ZDS_APP['site']['licenses']['licence_info_link'],
+                settings.ZDS_APP['site']['name']
+            )
+        ),
+        queryset=Licence.objects.all(),
+        required=True,
+        empty_label=None
+    )
+
+    helps = forms.ModelMultipleChoiceField(
+        label=_(u"Pour m'aider je cherche un..."),
+        queryset=HelpWriting.objects.all(),
+        required=False,
+        widget=forms.SelectMultiple()
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(ContentForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('title'),
+            Field('description'),
+            Field('type'),
+            Field('image'),
+            Field('introduction', css_class='md-editor'),
+            Field('conclusion', css_class='md-editor'),
+            Field('last_hash'),
+            Field('licence'),
+            Field('subcategory'),
+            HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
+                   u"Si vous avez besoin d'un coup de main,"
+                   u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
+                   u"et votre tutoriel apparaitra alors sur <a href="
+                   u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
+                   u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
+            Field('helps'),
+            Field('msg_commit'),
+            ButtonHolder(
+                StrictButton('Valider', type='submit'),
+            ),
+        )
+
+        if 'type' in self.initial:
+            self.helper['type'].wrap(
+                Field,
+                disabled=True)
 
 
 class ExtractForm(FormWithTitle):
@@ -272,6 +243,8 @@ class ExtractForm(FormWithTitle):
         )
     )
 
+    last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
+
     def __init__(self, *args, **kwargs):
         super(ExtractForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -280,7 +253,7 @@ class ExtractForm(FormWithTitle):
 
         self.helper.layout = Layout(
             Field('title'),
-            Hidden('last_hash', '{{ last_hash }}'),
+            Field('last_hash'),
             CommonLayoutVersionEditor(),
         )
 
