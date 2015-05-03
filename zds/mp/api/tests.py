@@ -686,14 +686,14 @@ class PrivatePostDetailAPI(APITestCase):
         self.assertEqual(self.private_topic.id, response.data.get('privatetopic'))
         self.assertEqual(self.profile.user.id, response.data.get('author'))
 
-    def test_detail_of_a_private_topic_not_present(self):
+    def test_detail_of_a_private_post_not_present(self):
         """
         Gets an error 404 when the private post isn't present in the database.
         """
         response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, 42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_detail_of_private_topic_not_in_participants(self):
+    def test_detail_of_private_post_not_in_participants(self):
         """
         Gets an error 403 when the member doesn't have permission to display details about the private post.
         """
@@ -705,3 +705,67 @@ class PrivatePostDetailAPI(APITestCase):
         response = self.client.get(
             reverse('api-mp-message-detail', args=[another_private_topic.id, another_private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_private_post_with_client_unauthenticated(self):
+        """
+        Updates details about a private post with an unauthenticated client.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.put(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_of_private_post_not_in_participants(self):
+        """
+        Gets an error 403 when the member doesn't have permission to update details about the last private post.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        another_private_post = PrivatePostFactory(author=self.profile.user, privatetopic=another_private_topic,
+                                                  position_in_topic=1)
+
+        response = self.client.put(
+            reverse('api-mp-message-detail', args=[another_private_topic.id, another_private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_of_private_post_not_last_one(self):
+        """
+        Tries to update not the last message of the private topic given.
+        """
+        PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic, position_in_topic=2)
+
+        response = self.client.put(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_of_private_post_last_one_but_not_the_author(self):
+        """
+        Tries to update the last message but not the author of this message.
+        """
+        another_profile = ProfileFactory()
+        another_private_post = PrivatePostFactory(author=another_profile.user, privatetopic=self.private_topic,
+                                                  position_in_topic=2)
+
+        response = self.client.put(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, another_private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_of_private_post_without_text(self):
+        """
+        Tries to update the last message without a new text.
+        """
+        response = self.client.put(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_of_private_post_success(self):
+        """
+        Updates the last message of a private topic.
+        """
+        data = {
+            'text': 'A new text'
+        }
+        response = self.client.put(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('text'), data.get('text'))

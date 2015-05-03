@@ -3,7 +3,7 @@
 from rest_framework import status
 from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, ListAPIView, \
-    get_object_or_404, RetrieveAPIView
+    get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -11,9 +11,9 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost
+from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
-    PrivatePostSerializer
+    PrivatePostSerializer, PrivatePostUpdateSerializer
 from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
 from zds.mp.models import PrivateTopic, PrivatePost
 
@@ -297,15 +297,14 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListAPIView):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))
 
 
-class PrivatePostDetailAPI(RetrieveAPIView):
+class PrivatePostDetailAPI(RetrieveUpdateAPIView):
     """
     Private post resource to display details of a private post.
     """
 
-    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
     queryset = PrivatePost.objects.all()
     obj_key_func = DetailKeyConstructor()
-    serializer_class = PrivatePostSerializer
+    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -330,6 +329,35 @@ class PrivatePostDetailAPI(RetrieveAPIView):
               message: Not found
         """
         return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates the last private post of a MP given by its identifier of the current user authenticated.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+        responseMessages:
+            - code: 400
+              message: Bad Request if you specify bad identifiers
+            - code: 401
+              message: Not authenticated
+            - code: 403
+              message: Not permissions
+            - code: 404
+              message: Not found
+        """
+        self.permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser)
+        return self.update(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PrivatePostSerializer
+        elif self.request.method == 'PUT':
+            return PrivatePostUpdateSerializer
 
     def get_queryset(self):
         return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs['pk_ptopic'])

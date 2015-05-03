@@ -22,3 +22,13 @@ class IsParticipantFromPrivatePost(permissions.BasePermission):
     def has_permission(self, request, view):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
         return private_topic.author == request.user or request.user in private_topic.participants.all()
+
+
+class IsLastPrivatePostOfCurrentUser(permissions.BasePermission):
+    """
+    Custom permission to know if it is the last private post in the private topic.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
+        return private_topic.last_message == obj and obj.author == request.user

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -7,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.member.commons import Validator
 from zds.member.models import Profile
 from zds.mp.models import never_privateread, mark_read
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class ParticipantsUserValidator(Validator):
@@ -126,6 +128,19 @@ class LeavePrivateTopic(object):
 
     def get_current_user(self):
         raise NotImplementedError('`get_current_user()` must be implemented.')
+
+
+class UpdatePrivatePost(object):
+    """
+    Updates a private topic.
+    """
+
+    def perform_update(self, instance, data):
+        instance.text = data.get('text')
+        instance.text_html = emarkdown(data.get('text'))
+        instance.update = datetime.now()
+        instance.save()
+        return instance
 
 
 class MarkPrivateTopicAsRead(object):

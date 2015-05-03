@@ -23,7 +23,7 @@ from django.utils.translation import ugettext as _
 
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant
-from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
+from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead, UpdatePrivatePost
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -404,7 +404,7 @@ class PrivatePostAnswer(CreateView):
         return redirect(post.get_absolute_url())
 
 
-class PrivatePostEdit(UpdateView):
+class PrivatePostEdit(UpdateView, UpdatePrivatePost):
     """
     Edits a post on a MP.
     """
@@ -468,9 +468,6 @@ class PrivatePostEdit(UpdateView):
         return form
 
     def form_valid(self, form):
-        self.current_post.text = self.request.POST.get('text')
-        self.current_post.text_html = emarkdown(self.request.POST.get('text'))
-        self.current_post.update = datetime.now()
-        self.current_post.save()
+        self.perform_update(self.current_post, self.request.POST)
 
         return redirect(self.current_post.get_absolute_url())
