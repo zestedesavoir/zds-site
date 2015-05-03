@@ -33,6 +33,7 @@ from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment
 from zds.utils.tutorials import get_blob
 from zds.utils.tutorialv2 import export_content
+from zds.utils.misc import compute_hash
 from zds.settings import ZDS_APP
 from zds.utils.models import HelpWriting
 from zds.forum.models import Topic
@@ -412,6 +413,20 @@ class Container:
         if os.path.isfile(self.get_prod_path()):
             return open(self.get_prod_path(), 'r').read()
 
+    def compute_hash(self):
+        """Compute an MD5 hash from the introduction and conclusion, for comparison purpose
+
+        :return: MD5 hash
+        """
+
+        files = []
+        if self.introduction:
+            files.append(os.path.join(self.top_container().get_path(), self.introduction))
+        if self.conclusion:
+            files.append(os.path.join(self.top_container().get_path(), self.conclusion))
+
+        return compute_hash(files)
+
     def repo_update(self, title, introduction, conclusion, commit_message='', do_commit=True):
         """Update the container information and commit them into the repository
 
@@ -774,6 +789,18 @@ class Extract:
             return get_blob(
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
                 self.text)
+
+    def compute_hash(self):
+        """Compute an MD5 hash from the text, for comparison purpose
+
+        :return: MD5 hash of the text
+        """
+
+        if self.text:
+            return compute_hash([self.get_path()])
+
+        else:
+            return compute_hash([])
 
     def repo_update(self, title, text, commit_message='', do_commit=True):
         """

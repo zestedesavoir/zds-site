@@ -12,14 +12,15 @@ def compute_hash(filenames):
     """returns a md5 hexdigest of group of files to check if they have change"""
     md5_hash = hashlib.md5()
     for filename in filenames:
-        file_handle = open(filename, 'rb')
-        must_continue = True
-        while must_continue:
-            read_bytes = file_handle.read(8096)
-            if not read_bytes:
-                must_continue = False
-            else:
-                md5_hash.update(read_bytes)
+        if filename:
+            file_handle = open(filename, 'rb')
+            must_continue = True
+            while must_continue:
+                read_bytes = file_handle.read(8096)
+                if not read_bytes:
+                    must_continue = False
+                else:
+                    md5_hash.update(read_bytes)
     return md5_hash.hexdigest()
 
 

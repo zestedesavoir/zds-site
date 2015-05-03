@@ -356,12 +356,25 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['subcategory'] = self.object.subcategory.all()
         initial['helps'] = self.object.helps.all()
 
+        initial['last_hash'] = versioned.compute_hash()
+
         return initial
 
     def form_valid(self, form):
         # TODO: tutorial <-> article
         versioned = self.versioned_object
         publishable = self.object
+
+        # check if content has changed:
+        current_hash = versioned.compute_hash()
+        if current_hash != form.cleaned_data['last_hash']:
+            data = form.data.copy()
+            data['last_hash'] = current_hash
+            data['introduction'] = versioned.get_introduction()
+            data['conclusion'] = versioned.get_conclusion()
+            form.data = data
+            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez'))
+            return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
         publishable.title = form.cleaned_data['title']
@@ -870,10 +883,23 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['conclusion'] = container.get_conclusion()
         initial['container'] = container
 
+        initial['last_hash'] = container.compute_hash()
+
         return initial
 
     def form_valid(self, form):
         container = search_container_or_404(self.versioned_object, self.kwargs)
+
+        # check if content has changed:
+        current_hash = container.compute_hash()
+        if current_hash != form.cleaned_data['last_hash']:
+            data = form.data.copy()
+            data['last_hash'] = current_hash
+            data['introduction'] = container.get_introduction()
+            data['conclusion'] = container.get_conclusion()
+            form.data = data
+            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez'))
+            return self.form_invalid(form)
 
         sha = container.repo_update(form.cleaned_data['title'],
                                     form.cleaned_data['introduction'],
@@ -943,10 +969,22 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['text'] = extract.get_text()
         initial['extract'] = extract
 
+        initial['last_hash'] = extract.compute_hash()
+
         return initial
 
     def form_valid(self, form):
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
+
+        # check if content has changed:
+        current_hash = extract.compute_hash()
+        if current_hash != form.cleaned_data['last_hash']:
+            data = form.data.copy()
+            data['last_hash'] = current_hash
+            data['text'] = extract.get_text()
+            form.data = data
+            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez'))
+            return self.form_invalid(form)
 
         if 'preview' in self.request.POST:
             return self.form_invalid(form)  # using the preview button
