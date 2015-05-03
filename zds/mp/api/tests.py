@@ -514,6 +514,8 @@ class PrivatePostListAPI(APITestCase):
         client_oauth2 = create_oauth2_client(self.profile.user)
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
+        self.private_topic = PrivateTopicFactory(author=self.profile.user)
+
     def test_list_mp_with_client_unauthenticated(self):
         """
         Gets list of private posts of a private topic given with an unauthenticated client.
@@ -641,6 +643,54 @@ class PrivatePostListAPI(APITestCase):
             private_topic.last_message = private_post
             list.append(private_post)
         return list
+
+    def test_create_post_with_no_field(self):
+        """
+        Creates a post in a topic but not with according field.
+        """
+        response = self.client.post(reverse('api-mp-message-list', args=[self.private_topic.id]), {})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_post_unauthenticated(self):
+        """
+        Creates a post in a topic with unauthenticated client.
+        """
+        client_unauthenticated = APIClient()
+        response = client_unauthenticated.post(reverse('api-mp-message-list', args=[0]), {})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_post_not_in_participants(self):
+        """
+        Creates a post in a topic with no authorized permission (the user is not in the allowed participants)
+        """
+        other_profile = ProfileFactory()
+        another_topic = PrivateTopicFactory(author=other_profile.user)
+
+        data = {
+            'text': 'Welcome to this private post!'
+        }
+        response = self.client.post(reverse('api-mp-message-list', args=[another_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_post_with_bad_topic_id(self):
+        """
+        Creates a post in a topic with a bad topic id
+        """
+        data = {
+            'text': 'Welcome to this private post!'
+        }
+        response = self.client.post(reverse('api-mp-message-list', args=[99999]), data)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create_post(self):
+        """
+        Creates a post in a topic
+        """
+        data = {
+            'text': 'Welcome to this private post!'
+        }
+        response = self.client.post(reverse('api-mp-message-list', args=[self.private_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class PrivatePostDetailAPI(APITestCase):

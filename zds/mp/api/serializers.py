@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from zds.member.api.generics import ZdSModelSerializer
 from zds.member.api.serializers import UserListSerializer
 from zds.mp.commons import ParticipantsUserValidator, TitleValidator, TextValidator, UpdatePrivatePost
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.utils.mps import send_mp
+from zds.utils.mps import send_mp, send_message_mp
 
 
 class PrivatePostSerializer(ZdSModelSerializer):
@@ -102,6 +103,32 @@ class PrivatePostUpdateSerializer(serializers.ModelSerializer, TextValidator, Up
 
     def update(self, instance, validated_data):
         return self.perform_update(instance, validated_data)
+
+    def throw_error(self, key=None, message=None):
+        raise serializers.ValidationError(message)
+
+
+class PrivatePostCreateSerializer(serializers.ModelSerializer, TextValidator):
+    """
+    Serializer to update the last private post of a private topic.
+    """
+
+    class Meta:
+        model = PrivatePost
+        fields = ('privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        read_only_fields = ('privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
+
+    def create(self, validated_data):
+        # Get topic
+        pk_ptopic = self.context.get('view').kwargs.get('pk_ptopic')
+        topic = get_object_or_404(PrivateTopic, pk=(pk_ptopic))
+
+        # Get author
+        author = self.context.get('view').request.user
+
+        # Send post in mp
+        send_message_mp(author, topic, self.validated_data.get('text'), True, False)
+        return topic.last_message
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)

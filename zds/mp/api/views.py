@@ -2,7 +2,7 @@
 
 from rest_framework import status
 from rest_framework import filters
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, ListAPIView, \
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
     get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -11,9 +11,10 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser
+from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
+    IsAloneInPrivatePost
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
-    PrivatePostSerializer, PrivatePostUpdateSerializer
+    PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
 from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
 from zds.mp.models import PrivateTopic, PrivatePost
 
@@ -254,14 +255,13 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
             return PrivateTopicUpdateSerializer
 
 
-class PrivatePostListAPI(MarkPrivateTopicAsRead, ListAPIView):
+class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
     """
     Private post resource to list of a member.
     """
 
     permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
     list_key_func = PagingPrivatePostListKeyConstructor()
-    serializer_class = PrivatePostSerializer
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -292,6 +292,38 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListAPIView):
         response = self.list(request, *args, **kwargs)
         self.perform_list(get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic'))), self.request.user)
         return response
+
+    def post(self, request, *args, **kwargs):
+        """
+        Create a new post in a Topic.
+        ---
+        parameters:
+            - name: Authorization
+              description: Bearer token to make a authenticated request.
+              required: true
+              paramType: header
+            - name: text
+              description: Text of the first message of the private topic.
+              required: true
+              paramType: form
+        responseMessages:
+            - code: 400
+              message: Bad Request
+            - code: 401
+              message: Not authenticated
+            - code: 403
+              message: Not permissions
+            - code: 404
+              message: Not found
+        """
+        self.permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, IsAloneInPrivatePost)
+        return self.create(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PrivatePostSerializer
+        elif self.request.method == 'POST':
+            return PrivatePostCreateSerializer
 
     def get_queryset(self):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))

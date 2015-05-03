@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from datetime import datetime
 import json
 
 from django.conf import settings
@@ -24,11 +23,10 @@ from django.utils.translation import ugettext as _
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant
 from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead, UpdatePrivatePost
-from zds.utils.mps import send_mp
+from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
-from zds.utils.templatetags.emarkdown import emarkdown
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivatePost, PrivateTopicRead
+from .models import PrivateTopic, PrivatePost
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -359,49 +357,8 @@ class PrivatePostAnswer(CreateView):
         return form_class(self.topic, self.request.POST)
 
     def form_valid(self, form):
-        post = PrivatePost()
-        post.privatetopic = self.topic
-        post.author = self.request.user
-        post.text = form.data.get('text')
-        post.text_html = emarkdown(form.data.get('text'))
-        post.pubdate = datetime.now()
-        post.position_in_topic = self.topic.get_post_count() + 1
-        post.save()
-
-        self.topic.last_message = post
-        self.topic.save()
-
-        # send email
-        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
-                                         _(u'Message Privé'),
-                                         self.topic.title)
-        from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                       settings.ZDS_APP['site']['email_noreply'])
-        parts = list(self.topic.participants.all())
-        parts.append(self.topic.author)
-        parts.remove(self.request.user)
-        for part in parts:
-            profile = part.profile
-            if profile.email_for_answer:
-                pos = post.position_in_topic - 1
-                last_read = PrivateTopicRead.objects.filter(
-                    privatetopic=self.topic,
-                    privatepost__position_in_topic=pos,
-                    user=part).count()
-                if last_read > 0:
-                    context = {
-                        'username': part.username,
-                        'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                        'author': self.request.user.username
-                    }
-                    message_html = render_to_string('email/mp/new.html', context)
-                    message_txt = render_to_string('email/mp/new.txt', context)
-
-                    msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-                    msg.attach_alternative(message_html, "text/html")
-                    msg.send()
-
-        return redirect(post.get_absolute_url())
+        send_message_mp(self.request.user, self.topic, form.data.get('text'), True, False)
+        return redirect(self.topic.last_message.get_absolute_url())
 
 
 class PrivatePostEdit(UpdateView, UpdatePrivatePost):
