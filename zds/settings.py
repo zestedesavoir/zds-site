@@ -176,6 +176,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
+SITE_ID = 1
+
 THUMBNAIL_ALIASES = {
     '': {
         'avatar': {'size': (60, 60), 'crop': True},
