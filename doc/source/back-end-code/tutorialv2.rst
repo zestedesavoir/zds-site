@@ -24,12 +24,6 @@ Mixins (``mixins.py``)
 .. automodule:: zds.tutorialv2.mixins
     :members:
 
-Les importations (``importation.py``)
-=====================================
-
-.. automodule:: zds.tutorialv2.importation
-    :members:
-
 Les forumulaires (``forms.py``)
 ===============================
 
