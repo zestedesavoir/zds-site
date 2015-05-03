@@ -17,7 +17,7 @@ from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet

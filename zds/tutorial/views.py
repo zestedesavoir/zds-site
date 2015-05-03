@@ -58,7 +58,7 @@ from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.tutorials import get_blob, export_tutorial_to_md, move, get_sep, get_text_is_empty, import_archive
 from zds.utils.misc import compute_hash, content_has_changed
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 
 def render_chapter_form(chapter):

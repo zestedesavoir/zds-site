@@ -19,7 +19,7 @@ from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
