@@ -18,7 +18,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant

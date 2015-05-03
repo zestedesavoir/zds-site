@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -11,7 +12,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from zds.gallery.models import Gallery, Image
-from django.utils.translation import ugettext_lazy as _
 
 
 class GalleryForm(forms.ModelForm):
