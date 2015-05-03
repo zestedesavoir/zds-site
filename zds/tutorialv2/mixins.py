@@ -219,7 +219,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
 class ContentTypeMixin(object):
     """This class deals with the type of contents and fill context according to that"""
 
-    content_type = None
+    current_content_type = None
 
     def get_context_data(self, **kwargs):
         context = super(ContentTypeMixin, self).get_context_data(**kwargs)
@@ -227,16 +227,16 @@ class ContentTypeMixin(object):
         v_type_name = _(u'contenu')
         v_type_name_plural = _(u'contenus')
 
-        if self.content_type == 'ARTICLE':
+        if self.current_content_type == 'ARTICLE':
             v_type_name = _(u'article')
             v_type_name_plural = _(u'articles')
 
-        if self.content_type == 'TUTORIAL':
+        if self.current_content_type == 'TUTORIAL':
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
 
         context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
-        context['content_type'] = self.content_type
+        context['current_content_type'] = self.current_content_type
         context['verbose_type_name'] = v_type_name
         context['verbose_type_name_plural'] = v_type_name_plural
 
@@ -260,7 +260,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
         try:
             obj = PublishedContent.objects\
-                .filter(content_pk=pk, content_public_slug=slug, content_type=self.content_type)\
+                .filter(content_pk=pk, content_public_slug=slug, content_type=self.current_content_type)\
                 .prefetch_related('content')\
                 .prefetch_related("content__authors")\
                 .prefetch_related("content__subcategory")\

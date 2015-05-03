@@ -11,6 +11,8 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
+from django.contrib import messages
+
 from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -244,6 +246,7 @@ class ContentTests(TestCase):
         tuto = PublishableContent.objects.last()
         pk = tuto.pk
         slug = tuto.slug
+        versioned = tuto.load_version()
 
         # access to tutorial
         result = self.client.get(
@@ -264,6 +267,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
+                'last_hash': versioned.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -312,7 +316,8 @@ class ContentTests(TestCase):
             {
                 'title': random,
                 'introduction': random,
-                'conclusion': random
+                'conclusion': random,
+                'last_hash': container.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -367,7 +372,8 @@ class ContentTests(TestCase):
             {
                 'title': random,
                 'introduction': random,
-                'conclusion': random
+                'conclusion': random,
+                'last_hash': subcontainer.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -426,7 +432,8 @@ class ContentTests(TestCase):
                     }),
             {
                 'title': random,
-                'text': random
+                'text': random,
+                'last_hash': extract.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -610,7 +617,8 @@ class ContentTests(TestCase):
             {
                 'title': u'Un autre titre',
                 'introduction': u'Introduire la chose',
-                'conclusion': u'Et terminer sur un truc bien'
+                'conclusion': u'Et terminer sur un truc bien',
+                'last_hash': self.part1.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1143,6 +1151,7 @@ class ContentTests(TestCase):
             True)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        versioned = tuto.load_version()
 
         # check access
         result = self.client.get(
@@ -1188,6 +1197,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
+                'last_hash': versioned.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1252,6 +1262,7 @@ class ContentTests(TestCase):
 
         # edit container:
         old_slug_part = self.part1.slug
+        part1 = tuto.load_version().children[0]
         result = self.client.post(
             reverse('content:edit-container', kwargs={
                 'pk': tuto.pk,
@@ -1261,7 +1272,8 @@ class ContentTests(TestCase):
             {
                 'title': random,
                 'introduction': random,
-                'conclusion': random
+                'conclusion': random,
+                'last_hash': part1.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1431,6 +1443,7 @@ class ContentTests(TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         versioned = tuto.load_version()
         sha = versioned.repo_add_container(given_title, None, None)
+        new_container = versioned.children[-1]
         slug_new_container = versioned.children[-1].slug
         tuto.sha_draft = sha
         tuto.save()
@@ -1456,7 +1469,7 @@ class ContentTests(TestCase):
                     kwargs={
                         'pk': tuto.pk,
                         'slug': tuto.slug,
-                        'container_slug': slug_new_container
+                        'container_slug': slug_new_container,
                     }),
             follow=False)
         self.assertEqual(result.status_code, 200)  # access to edition page is ok
@@ -1471,7 +1484,8 @@ class ContentTests(TestCase):
             {
                 'title': given_title,
                 'introduction': some_text,
-                'conclusion': some_text
+                'conclusion': some_text,
+                'last_hash': new_container.compute_hash()
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -3132,6 +3146,399 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in tutorial
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es trop nul'
+
+        # create a tuto, populate, and set beta
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto.authors.add(self.user_author)
+        tuto.gallery = GalleryFactory()
+        tuto.licence = self.licence
+        tuto.subcategory.add(self.subcategory)
+        tuto.save()
+
+        versioned = tuto.load_version()
+        chapter = ContainerFactory(parent=versioned, db_object=tuto)
+        ExtractFactory(container=chapter, db_object=tuto)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        sha_draft = PublishableContent.objects.get(pk=tuto.pk).sha_draft
+        response = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': sha_beta,
+                'text': typo_text,
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': sha_beta,
+                'text': typo_text,
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(versioned.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': sha_beta,
+                'text': typo_text,
+                'target': chapter.get_path(relative=True)
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(chapter.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
+
+        # now, induce change and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        ExtractFactory(container=chapter, db_object=tuto)  # new extract
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('content:ask-validation', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': u'valide moi ça, please',
+                'source': '',
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=tuto).last()
+
+        result = self.client.post(
+            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            {
+                'text': u'ça m\'as l\'air nul, mais je valide',
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=tuto).first()
+        self.assertIsNotNone(published)
+
+        # now, same stuffs on the public version
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': tuto.sha_public,
+                'text': typo_text,
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(versioned.get_absolute_url_online(), sent_pm.last_message.text)  # online url is in message
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': tuto.sha_public,
+                'text': typo_text,
+                'target': chapter.get_path(relative=True)
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(versioned.children[0].get_absolute_url_online(), sent_pm.last_message.text)
+
+    def test_concurent_edition(self):
+        """ensure that an edition is not successfull without provided the good `last_hash` to each form"""
+
+        # create a tuto and populate
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto.authors.add(self.user_author)
+        tuto.gallery = GalleryFactory()
+        tuto.licence = self.licence
+        tuto.subcategory.add(self.subcategory)
+        tuto.save()
+
+        versioned = tuto.load_version()
+        chapter = ContainerFactory(parent=versioned, db_object=tuto)
+        extract = ExtractFactory(container=chapter, db_object=tuto)
+
+        random = u'Il est miniuit 30 et j\'écris un test ;)'
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # no hash, no edition
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': tuto.title,
+                'description': tuto.description,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.assertNotEqual(versioned.get_introduction(), random)
+        self.assertNotEqual(versioned.get_conclusion(), random)
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': tuto.title,
+                'description': tuto.description,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': versioned.compute_hash()  # good hash
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.assertEqual(versioned.get_introduction(), random)
+        self.assertEqual(versioned.get_conclusion(), random)
+
+        # edit container:
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter.slug}),
+            {
+                'title': chapter.title,
+                'introduction': random,
+                'conclusion': random,
+                'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        chapter_version = tuto.load_version().children[0]
+        self.assertNotEqual(chapter_version.get_introduction(), random)
+        self.assertNotEqual(chapter_version.get_conclusion(), random)
+
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter.slug}),
+            {
+                'title': chapter.title,
+                'introduction': random,
+                'conclusion': random,
+                'last_hash': chapter_version.compute_hash()
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        chapter_version = tuto.load_version().children[0]
+        self.assertEqual(chapter_version.get_introduction(), random)
+        self.assertEqual(chapter_version.get_conclusion(), random)
+
+        # edit extract
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random,
+                'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children[0].children[0]
+        self.assertNotEqual(extract.get_text(), random)
+
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random,
+                'last_hash': extract.compute_hash()
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children[0].children[0]
+        self.assertEqual(extract.get_text(), random)
 
     def tearDown(self):
 

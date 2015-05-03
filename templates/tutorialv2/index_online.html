@@ -40,7 +40,7 @@
 
 {% block content_out %}
     <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        <h1 class="ico-after ico-{% if content_type == "TUTORIAL" %}tutorials{% else %}articles{% endif %}" itemprop="name">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% else %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag }}
@@ -81,9 +81,9 @@
         <h3>{% blocktrans %} Catégories <span class="wide">des {{ verbose_type_name_plural }}</span> {% endblocktrans %}</h3>
 
         {% captureas content_list_url %}
-            {% if content_type == "ARTICLE" %}
+            {% if current_content_type == "ARTICLE" %}
                 {% url "article:list" %}
-            {% elif content_type == "TUTORIAL" %}
+            {% elif current_content_type == "TUTORIAL" %}
                 {% url "tutorial:list" %}
             {% endif %}
         {% endcaptureas %}
@@ -112,9 +112,9 @@
             <ul>
                 <li>
                     <a
-                        {% if content_type == "ARTICLE" %}
+                        {% if current_content_type == "ARTICLE" %}
                             href="{% url "article:feed-rss" %}"
-                        {% elif content_type == "TUTORIAL" %}
+                        {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-rss" %}"
                         {% endif %}
                     class="ico-after rss blue">
@@ -123,9 +123,9 @@
                 </li>
                 <li>
                     <a
-                        {% if content_type == "ARTICLE" %}
+                        {% if current_content_type == "ARTICLE" %}
                             href="{% url "article:feed-atom" %}"
-                        {% elif content_type == "TUTORIAL" %}
+                        {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-atom" %}"
                         {% endif %}
                     class="ico-after rss blue">

@@ -20,9 +20,9 @@
 {% block breadcrumb_base %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a
-            {% if content_type == "ARTICLE" %}
+            {% if current_content_type == "ARTICLE" %}
                 href="{% url "article:list" %}"
-            {% elif content_type == "TUTORIAL" %}
+            {% elif current_content_type == "TUTORIAL" %}
                 href="{% url "tutorial:list" %}"
             {% endif %}
             itemprop="url">
