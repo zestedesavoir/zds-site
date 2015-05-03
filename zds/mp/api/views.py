@@ -329,8 +329,7 @@ class PrivatePostDetailAPI(RetrieveAPIView):
             - code: 404
               message: Not found
         """
-        if not (int(self.get_object().id) == int(kwargs.get('pk')) and int(self.get_object().privatetopic.id) == int(
-                kwargs.get('pk_ptopic'))):
-            return Response({'id': [u'Vous devez spécifier des identifiants cohérents.']},
-                            status=status.HTTP_400_BAD_REQUEST)
         return self.retrieve(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs['pk_ptopic'])

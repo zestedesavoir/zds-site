@@ -669,7 +669,7 @@ class PrivatePostDetailAPI(APITestCase):
         another_private_topic = PrivateTopicFactory(author=self.profile.user)
         response = self.client.get(
             reverse('api-mp-message-detail', args=[another_private_topic.id, self.private_post.id]))
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_detail_private_post_of_a_member(self):
         """
