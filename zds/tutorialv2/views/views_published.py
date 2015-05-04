@@ -87,7 +87,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["last_note"] = context["last_page"][context["nb"] - 1]
         context["pages"] = paginator_range(context["nb"], paginator.num_pages)
 
-        reaction_ids = [reaction.id for reaction in context['reactions']]
+        reaction_ids = [reaction.pk for reaction in context['reactions']]
         user_votes = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
@@ -98,6 +98,13 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
             .all()
         context["user_like_dict"] = {reaction.pk: "like" for reaction in user_votes}
+        if self.request.user.has_perm('forum.change_post'):
+            context["user_can_modify"] = reaction_ids
+        else:
+            context["user_can_modify"] = ContentReaction.objects\
+                                                        .filter(author__pk=self.request.user.pk,
+                                                                related_content__pk=self.object.pk)\
+                                                        .values('pk')
         return context
 
 

@@ -50,7 +50,7 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {% if message.author = user or perms_change %}
+                        {% if message.pk in user_can_modify %}
                             {% if can_hide != False %}
                                 <li>
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
@@ -58,7 +58,7 @@
                                     </a>
                                     <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
                                         {% csrf_token %}
-                                        {% if perms_change %}
+                                        {% if message.pk in user_can_modify %}
                                             <p>
                                                 {% trans "Pour quelle raison souhaitez vous masquer ce message" %} ?
                                             </p>
@@ -77,7 +77,7 @@
                             {% endif %}
                         {% endif %}
 
-                        {% if message.author = user or perms_change %}
+                        {% if message.pk in user_can_modify %}
                             {% if can_edit != False %}
                                 <li>
                                     <a href="{{ edit_link|safe }}" class="ico-after edit">
