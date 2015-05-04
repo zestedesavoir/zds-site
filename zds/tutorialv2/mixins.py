@@ -309,6 +309,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         if follow is not None:
             follow.note = self.object.last_note
             follow.save()
+
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):

@@ -335,7 +335,11 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         self.reaction.save()
         self.object.last_note = self.reaction
         self.object.save()
-        read_note = ContentRead()
+        read_note = ContentRead.objects\
+            .filter(user__pk=self.request.user.pk, content__pk=self.object.pk)\
+            .first()
+        if read_note is None:
+            read_note = ContentRead()
         read_note.content = self.object
         read_note.user = self.request.user
         read_note.note = self.reaction
