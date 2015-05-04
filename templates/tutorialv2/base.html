@@ -18,11 +18,13 @@
 {% block breadcrumb_base %}
     {% if user in content.authors.all %}
         <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
-    {% else %}
+    {% elif content %}
         <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-            <a href="{% url "zds.tutorial.views.index" %}" itemprop="url">
-                <span itemprop="title">{% trans "Tutoriels" %}</span>
-            </a>
+            {% if content.type == 'TUTORIAL' %}
+                <a href="{% url "tutorial:list" %}" itemprop="url"><span itemprop="title">{% trans "Tutoriels" %}</span></a>
+            {% elif content.type == 'ARTICLE' %}
+                <a href="{% url 'article:list' %}" itemprop="url"><span itemprop="title">{% trans "Articles" %}</span></a>
+            {% endif %}
         </li>
     {% endif %}
 {% endblock %}

@@ -13,7 +13,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract
-from zds.tutorialv2.models import PublishableContent, PublishedContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')

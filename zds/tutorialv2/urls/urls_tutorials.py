@@ -2,7 +2,8 @@
 
 from django.conf.urls import patterns, url
 
-from zds.tutorialv2.views import ListTutorials, DisplayOnlineTutorial, DisplayOnlineContainer, DownloadOnlineTutorial
+from zds.tutorialv2.views.views_published import ListTutorials, DisplayOnlineTutorial, DisplayOnlineContainer, \
+    DownloadOnlineTutorial
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
 urlpatterns = patterns('',

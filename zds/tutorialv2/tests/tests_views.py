@@ -18,7 +18,7 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory
-from zds.tutorialv2.models import PublishableContent, Validation, PublishedContent, ContentReaction
+from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
 from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
@@ -1998,7 +1998,7 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.count(), 0)
 
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': '',
                 'source': source,
@@ -2009,7 +2009,7 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
 
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
@@ -2030,7 +2030,7 @@ class ContentTests(TestCase):
 
         # ensure that author cannot publish himself
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2038,7 +2038,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
                 'is_major': True,
@@ -2086,7 +2086,7 @@ class ContentTests(TestCase):
 
         # reserve tuto:
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2099,7 +2099,7 @@ class ContentTests(TestCase):
 
         # unreserve
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2112,7 +2112,7 @@ class ContentTests(TestCase):
 
         # re-reserve
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2129,7 +2129,7 @@ class ContentTests(TestCase):
         midsize_tuto_draft = midsize_tuto.load_version()
 
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
@@ -2154,7 +2154,7 @@ class ContentTests(TestCase):
 
         # re-re-reserve (!)
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2173,7 +2173,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
                 'is_major': True,
@@ -2192,7 +2192,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('content:reject-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reject', kwargs={'pk': validation.pk}),
             {
                 'text': ''
             },
@@ -2203,7 +2203,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.status, 'PENDING_V')  # rejection is impossible without text
 
         result = self.client.post(
-            reverse('content:reject-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reject', kwargs={'pk': validation.pk}),
             {
                 'text': text_reject
             },
@@ -2220,7 +2220,7 @@ class ContentTests(TestCase):
 
         # re-ask for validation
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
@@ -2237,7 +2237,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.version, midsize_tuto_draft.current_version)
 
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2251,7 +2251,7 @@ class ContentTests(TestCase):
 
         # accept
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': '',
                 'is_major': True,
@@ -2264,7 +2264,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.status, 'PENDING_V')  # acceptation is not possible without text
 
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
                 'is_major': True,
@@ -2300,7 +2300,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_reject,
                 'version': published.sha_public
@@ -2317,7 +2317,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': '',
                 'version': published.sha_public
@@ -2328,7 +2328,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.status, 'ACCEPT')  # with no text, revocation is not possible
 
         result = self.client.post(
-            reverse('content:revoke-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_reject,
                 'version': published.sha_public
@@ -2352,7 +2352,7 @@ class ContentTests(TestCase):
 
         # so, reserve it
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2371,7 +2371,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('content:cancel-validation', kwargs={'pk': validation.pk}), follow=False)
+            reverse('validation:cancel', kwargs={'pk': validation.pk}), follow=False)
         self.assertEqual(result.status_code, 302)
 
         self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
@@ -2412,7 +2412,7 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.count(), 0)
 
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': article.pk, 'slug': article.slug}),
+            reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
             {
                 'text': text_validation,
                 'source': '',
@@ -2431,7 +2431,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(content=article).last()
 
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2440,7 +2440,7 @@ class ContentTests(TestCase):
 
         # accept
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
                 'is_major': True,
@@ -2492,7 +2492,7 @@ class ContentTests(TestCase):
 
         # ask validation
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_validation,
                 'source': '',
@@ -2511,7 +2511,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(content=midsize_tuto).last()
 
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2520,7 +2520,7 @@ class ContentTests(TestCase):
 
         # accept
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
                 'is_major': True,
@@ -2603,7 +2603,7 @@ class ContentTests(TestCase):
 
         # ask validation
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
+            reverse('validation:ask', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
             {
                 'text': text_validation,
                 'source': '',
@@ -2622,7 +2622,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(content=bigtuto).last()
 
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -2631,7 +2631,7 @@ class ContentTests(TestCase):
 
         # accept
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
                 'is_major': True,
@@ -2729,7 +2729,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('content:revoke-validation', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
             {
                 'text': u'Pour le fun',
                 'version': bigtuto_draft.current_version
@@ -2896,7 +2896,7 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
             {
                 'text': "blaaaaa",
                 'source': "",
@@ -3278,7 +3278,7 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.count(), 0)
 
         result = self.client.post(
-            reverse('content:ask-validation', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': u'valide moi ça, please',
                 'source': '',
@@ -3297,7 +3297,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(content=tuto).last()
 
         result = self.client.post(
-            reverse('content:reserve-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
                 'version': validation.version
             },
@@ -3306,7 +3306,7 @@ class ContentTests(TestCase):
 
         # accept
         result = self.client.post(
-            reverse('content:accept-validation', kwargs={'pk': validation.pk}),
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': u'ça m\'as l\'air nul, mais je valide',
                 'is_major': True,

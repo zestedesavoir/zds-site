@@ -315,7 +315,7 @@
                 <a href="#cancel-validation" class="open-modal ico-after cross blue">
                     {% trans "Annuler la validation" %}
                 </a>
-                <form action="{% url "content:cancel-validation" validation.pk %}" method="post" class="modal modal-small" id="cancel-validation">
+                <form action="{% url "validation:cancel" validation.pk %}" method="post" class="modal modal-small" id="cancel-validation">
                     {% csrf_token %}
                     <p>
                         {% blocktrans with content_title=content.title %}
@@ -353,7 +353,7 @@
             <h3>{% trans "Validation" %}</h3>
             <ul>
                 <li>
-                    <a href="{% url "content:history-validation" content.pk content.slug %}" class="ico-after history blue">
+                    <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
                         {% trans "Historique de validation" %}
                     </a>
                 </li>
@@ -398,7 +398,7 @@
                 {% if content.in_validation %}
                     {% if validation.is_pending %}
                         <li>
-                            <form action="{% url "content:reserve-validation" validation.pk %}" method="post">
+                            <form action="{% url "validation:reserve" validation.pk %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="ico-after lock blue">
                                     {% trans "Réserver" %}
@@ -408,7 +408,7 @@
                     {% elif validation.is_pending_valid %}
                         {% if validation.validator == user %}
                             <li>
-                                <form action="{% url "content:reserve-validation" validation.pk %}" method="post">
+                                <form action="{% url "validation:reserve" validation.pk %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="ico-after lock blue">
                                         {% trans "Annuler la réservation" %}
@@ -434,7 +434,7 @@
                                         Réservé par <strong>{{ validator_name }}</strong>, le retirer
                                     {% endblocktrans %}
                                 </a>
-                                <form action="{% url "content:reserve-validation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
                                     {% csrf_token %}
                                     <p>
                                         {% trans "La validation de ce tutoriel est actuellement réservée par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
