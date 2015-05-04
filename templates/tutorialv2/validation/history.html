@@ -12,7 +12,7 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "content:list-validation" %}">{% trans "Validation" %}</a></li>
+    <li><a href="{% url "validation:list" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
     <li>{% trans "Historique" %}</li>
 {% endblock %}
@@ -68,7 +68,7 @@
                         </td>
                         <td>
                             {% captureas reservation_url %}
-                                {% url "content:reserve-validation" validation.pk %}
+                                {% url "validation:reserve" validation.pk %}
                             {% endcaptureas %}
                             {% include "misc/validation.part.html" %}
                         </td>

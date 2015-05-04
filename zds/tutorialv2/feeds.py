@@ -5,7 +5,7 @@ from django.conf import settings
 
 from django.utils.feedgenerator import Atom1Feed
 
-from models import PublishedContent
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.settings import ZDS_APP
 
 

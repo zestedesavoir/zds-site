@@ -4,13 +4,14 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, \
-    ButtonHolder, Hidden
+from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
-from zds.tutorialv2.models import PublishableContent, TYPE_CHOICES, HelpWriting
+from zds.tutorialv2.models import TYPE_CHOICES
+from zds.utils.models import HelpWriting
+from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 
@@ -479,7 +480,7 @@ class AskValidationForm(forms.Form):
         self.previous_page_url = reverse('content:view', kwargs={'pk': content.pk, 'slug': content.slug})
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:ask-validation', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:ask', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -551,7 +552,7 @@ class AcceptValidationForm(forms.Form):
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:accept-validation', kwargs={'pk': validation.pk})
+        self.helper.form_action = reverse('validation:accept', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -602,7 +603,7 @@ class RejectValidationForm(forms.Form):
             'content:view', kwargs={'pk': validation.content.pk, 'slug': validation.content.slug})
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:reject-validation', kwargs={'pk': validation.pk})
+        self.helper.form_action = reverse('validation:reject', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -655,7 +656,7 @@ class RevokeValidationForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('content:revoke-validation', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:revoke', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

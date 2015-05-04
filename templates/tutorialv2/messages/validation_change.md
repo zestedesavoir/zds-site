@@ -2,7 +2,7 @@
 {% load captureas %}
 
 {% captureas url_list %}
-    {% url "content:list-validation" %}
+    {% url "validation:list" %}
 {% endcaptureas %}
 
 {% blocktrans with title=content.title|safe %}

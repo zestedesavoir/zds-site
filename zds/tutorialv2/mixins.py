@@ -8,9 +8,9 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, FormView
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
-from zds.tutorialv2.models import PublishableContent, PublishedContent, ContentRead
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
 
 
 class SingleContentViewMixin(object):

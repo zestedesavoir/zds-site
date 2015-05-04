@@ -2,14 +2,13 @@
 
 from datetime import datetime
 
-from zds.tutorialv2.models import init_new_repo
-
 import factory
 
-from zds.tutorialv2.models import PublishableContent, Validation, ContentReaction, Container, Extract
+from zds.tutorialv2.models.models_database import PublishableContent, Validation, ContentReaction
+from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.utils.models import SubCategory, Licence
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
-from zds.tutorialv2.utils import publish_content
+from zds.tutorialv2.utils import publish_content, init_new_repo
 
 text_content = u'Ceci est un texte bidon, **avec markown**'
 

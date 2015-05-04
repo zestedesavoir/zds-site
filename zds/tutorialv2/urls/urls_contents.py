@@ -2,13 +2,13 @@
 
 from django.conf.urls import patterns, url
 
-from zds.tutorialv2.views import ListContents, DisplayContent, CreateContent, EditContent, DeleteContent,\
-    CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, DeleteContainerOrExtract, \
-    ManageBetaContent, DisplayHistory, DisplayDiff, ValidationListView, ActivateJSFiddleInContent, \
-    AskValidationForContent, ReserveValidation, HistoryOfValidationDisplay, MoveChild, DownloadContent, \
-    UpdateContentWithArchive, CreateContentFromArchive, RedirectContentSEO, AcceptValidation, RejectValidation, \
-    RevokeValidation, SendNoteFormView, UpvoteReaction, DownvoteReaction, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent, CancelValidation, WarnTypo
+from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, CreateContent, EditContent, \
+    DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
+    DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
+    DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
+    RemoveAuthorFromContent, WarnTypo
+
+from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, DownvoteReaction
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -110,27 +110,6 @@ urlpatterns = patterns('',
                        # markdown import
                        url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
                        url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
-
-                       # validation
-                       # TODO: maybe move that in a `urls_validations.py` and give another namespace ?
-                       url(r'^valider/proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
-                           name="ask-validation"),
-                       url(r'^valider/historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),
-                           name="history-validation"),
-
-                       url(r'^valider/annuler/(?P<pk>\d+)/$', CancelValidation.as_view(),
-                           name="cancel-validation"),
-                       url(r'^valider/reserver/(?P<pk>\d+)/$', ReserveValidation.as_view(),
-                           name="reserve-validation"),
-                       url(r'^valider/refuser/(?P<pk>\d+)/$', RejectValidation.as_view(),
-                           name="reject-validation"),
-                       url(r'^valider/accepter/(?P<pk>\d+)/$', AcceptValidation.as_view(),
-                           name="accept-validation"),
-
-                       url(r'^valider/depublier/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(),
-                           name="revoke-validation"),
-
-                       url(r'^valider/liste/$', ValidationListView.as_view(), name="list-validation"),
 
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
                            r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
