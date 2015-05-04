@@ -332,7 +332,7 @@ class PublishableContent(models.Model):
         :return: the last answer in the thread, if any.
         """
         return ContentReaction.objects.all()\
-            .filter(content__pk=self.pk)\
+            .filter(related_content__pk=self.pk)\
             .order_by('-pubdate')\
             .first()
 
@@ -341,7 +341,7 @@ class PublishableContent(models.Model):
         :return: the first post of a topic, written by topic's author, if any.
         """
         return ContentReaction.objects\
-            .filter(content=self)\
+            .filter(related_content=self)\
             .order_by('pubdate')\
             .first()
 
@@ -367,7 +367,7 @@ class PublishableContent(models.Model):
                 .latest('note__pubdate').note
 
             next_note = ContentReaction.objects.filter(
-                content__pk=self.pk,
+                related_content__pk=self.pk,
                 pubdate__gt=last_note.pubdate)\
                 .select_related("author").first()
             return next_note
