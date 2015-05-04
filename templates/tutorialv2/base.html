@@ -54,48 +54,48 @@
 
         {% block sidebar_blocks %}{% endblock %}
         {% if content %}
-            {% if content.on_line or content.in_beta or can_edit %}
+            {% if content.is_public or content.in_beta or can_edit or is_staff %}
                 <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
                     <h3>{% trans "Télécharger" %}</h3>
                     <ul>
-                        {% if tutorial.on_line %}
+                        {% if public_object %}
                             {% if is_staff %}
-                                {% if tutorial.have_markdown %}
+                                {% if public_object.have_md %}
                                     <li>
-                                        <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                        <a href="{{ public_object.get_absolute_url_md }}" class="ico-after download blue">
                                             {% trans "Markdown" %}
                                         </a>
                                     </li>
                                 {% endif %}
                             {% endif %}
-                            {% if tutorial.have_html %}
+                            {% if public_object.have_html %}
                                 <li>
-                                    <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    <a href="{{ public_object.get_absolute_url_html }}" class="ico-after download blue">
                                         {% trans "HTML" %}
                                     </a>
                                 </li>
                             {% endif %}
-                            {% if tutorial.have_pdf %}
+                            {% if public_object.have_pdf %}
                                 <li>
-                                    <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    <a href="{{ public_object.get_absolute_url_pdf }}" class="ico-after download blue">
                                         {% trans "PDF" %}
                                     </a>
                                 </li>
                             {% endif %}
-                            {% if tutorial.have_epub %}
+                            {% if public_object.have_epub %}
                                 <li>
-                                    <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    <a href="{{ public_object.get_absolute_url_epub }}" class="ico-after download blue">
                                         {% trans "EPUB" %}
                                     </a>
                                 </li>
                             {% endif %}
+                        {% else %}
+                            <li>
+                                <a href="{% url "content:download-zip" content.pk content.slug %}{% if version %}?version={{ version }}{% endif %}" class="ico-after download blue">
+                                    {% trans "Archive" %}
+                                </a>
+                            </li>
                         {% endif %}
-
-                        <li>
-                            <a href="{% url "content:download-zip" content.pk content.slug %}{% if version %}?version={{ version }}{% endif %}" class="ico-after download blue">
-                                {% trans "Archive" %}
-                            </a>
-                        </li>
                     </ul>
                 </div>
             {% endif %}

@@ -3,10 +3,12 @@
 import shutil
 import os
 from datetime import datetime
+import copy
 
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
 
 from zds.tutorialv2.models import PublishableContent, ContentRead, Container, Extract, PublishedContent
 from zds import settings
@@ -245,6 +247,89 @@ class FailureDuringPublication(Exception):
         super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
+def publish_container(db_object, base_dir, container):
+    """ "Publish" a given container, in a recursive way
+
+    :param db_object: database representation of the content
+    :type db_object: PublishableContent
+    :param base_dir: directory of the top container
+    :type base_dir: str
+    :param container: a given container
+    :type container: Container
+    :raise FailureDuringPublication: if anything goes wrong
+    """
+
+    # TODO: images stuff !!
+
+    template = 'tutorialv2/export/chapter.html'
+
+    # jsFiddle support
+    if db_object.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
+    current_dir = os.path.dirname(os.path.join(base_dir, container.get_prod_path(relative=True)))
+
+    if not os.path.isdir(current_dir):
+        os.makedirs(current_dir)
+
+    if container.has_extracts():  # the container can be rendered in one template
+        parsed = render_to_string(template, {'container': container, 'is_js': is_js})
+        f = open(os.path.join(base_dir, container.get_prod_path(relative=True)), 'w')
+
+        try:
+            f.write(parsed.encode('utf-8'))
+        except (UnicodeError, UnicodeEncodeError):
+            raise FailureDuringPublication(
+                _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
+                .format(container.title))
+
+        f.close()
+
+        for extract in container.children:
+            extract.text = None
+
+        container.introduction = None
+        container.conclusion = None
+
+    else:  # separate render of introduction and conclusion
+
+        current_dir = os.path.join(base_dir, container.get_prod_path(relative=True))  # create subdirectory
+
+        if not os.path.isdir(current_dir):
+            os.makedirs(current_dir)
+
+        if container.introduction:
+            path = os.path.join(container.get_prod_path(relative=True), 'introduction.html')
+            f = open(os.path.join(base_dir, path), 'w')
+
+            try:
+                f.write(emarkdown(container.get_introduction(), db_object.js_support))
+            except (UnicodeError, UnicodeEncodeError):
+                raise FailureDuringPublication(
+                    _(u'Une erreur est survenue durant la publication de l\'introduction de « {} »,'
+                      u' vérifiez le code markdown').format(container.title))
+
+            container.introduction = path
+
+        if container.conclusion:
+            path = os.path.join(container.get_prod_path(relative=True), 'conclusion.html')
+            f = open(os.path.join(base_dir, path), 'w')
+
+            try:
+                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
+            except (UnicodeError, UnicodeEncodeError):
+                raise FailureDuringPublication(
+                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
+                      u' vérifiez le code markdown').format(container.title))
+
+            container.conclusion = path
+
+        for child in container.children:
+            publish_container(db_object, base_dir, child)
+
+
 def publish_content(db_object, versioned, is_major_update=True):
     """Publish a given content.
 
@@ -262,12 +347,62 @@ def publish_content(db_object, versioned, is_major_update=True):
     :rtype: PublishedContent
     """
 
-    # TODO: to avoid errors, some part of this function can be written in a recursive way !
+    if is_major_update:
+        versioned.pubdate = datetime.now()
 
+    # First write the files in a temporary directory: if anything goes wrong,
+    # the last published version is not impacted !
+    tmp_path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
+
+    if os.path.exists(tmp_path):
+        shutil.rmtree(tmp_path)  # erase previous attempt, if any
+
+    # render HTML:
+    altered_version = copy.deepcopy(versioned)
+    publish_container(db_object, tmp_path, altered_version)
+    altered_version.dump_json(os.path.join(tmp_path, 'manifest.json'))
+
+    # make room for "extra contents"
+    extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
+    os.makedirs(extra_contents_path)
+
+    base_name = os.path.join(extra_contents_path, versioned.slug)
+
+    # 1. markdown file (base for the others) :
+    parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
+    md_file_path = base_name + '.md'
+    md_file = open(md_file_path, 'w')
+    try:
+        md_file.write(parsed.encode('utf-8'))
+    except (UnicodeError, UnicodeEncodeError):
+        raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
+                                         u'à télécharger, vérifiez le code markdown'))
+    md_file.close()
+
+    pandoc_debug_str = ""
+    if settings.PANDOC_LOG_STATE:
+        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
+
+    os.chdir(extra_contents_path)  # for pandoc
+
+    # 2. HTML
+    os.system(
+        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str)
+    # 3. epub
+    os.system(
+        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str)
+    # 4. PDF
+    os.system(
+        settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
+        md_file_path + " -o " + base_name + ".pdf" + pandoc_debug_str)
+
+    os.chdir(settings.BASE_DIR)
+
+    # ok, now we can really publish the thing !
     if db_object.public_version:
         public_version = db_object.public_version
 
-        # the content have been published in the past, so clean old files
+        # the content have been published in the past, so clean old files !
         old_path = public_version.get_prod_path()
         shutil.rmtree(old_path)
 
@@ -281,81 +416,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.save()
 
-    # create directory(ies)
-    repo_path = public_version.get_prod_path()
-    os.makedirs(repo_path)
-
-    template = 'tutorialv2/includes/container_online_template.part.html'
-    # TODO: image stuff
-    # TODO: jsfidle
-
-    # write the files:
-    if versioned.has_extracts():  # it's an article or a mini-tutorial
-        parsed = render_to_string(template, {'container': versioned})
-        f = open(versioned.get_prod_path(), 'w')
-        f.write(parsed.encode('utf-8'))
-        f.close()
-
-        for extract in versioned.children:
-            extract.text = None
-
-        versioned.introduction = None
-        versioned.conclusion = None
-
-    else:  # it's another kind of tutorial
-
-        # we need to write introduction and conclusion in a separate file
-        if versioned.introduction:
-            f = open(os.path.join(repo_path, 'introduction.html'), 'w')
-            f.write(emarkdown(versioned.get_introduction()))
-            versioned.introduction = 'introduction.html'
-        if versioned.conclusion:
-            f = open(os.path.join(repo_path, 'conclusion.html'), 'w')
-            f.write(emarkdown(versioned.get_conclusion()))
-            versioned.conclusion = 'conclusion.html'
-
-        for child in versioned.children:
-            if child.has_extracts():  # it's a middle-size tutorial
-                parsed = render_to_string(template, {'container': child})
-                f = open(child.get_prod_path(), 'w')
-                f.write(parsed.encode('utf-8'))
-                f.close()
-
-                for extract in child.children:
-                    extract.text = None
-
-                child.introduction = None
-                child.conclusion = None
-
-            else:  # it's a big-tutorial
-                directory = child.get_prod_path()
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
-
-                if child.introduction:
-                    path = os.path.join(child.get_path(relative=True), 'introduction.html')
-                    f = open(os.path.join(repo_path, path), 'w')
-                    f.write(emarkdown(child.get_introduction()))
-                    child.introduction = path
-                if child.conclusion:
-                    path = os.path.join(child.get_path(relative=True), 'conclusion.html')
-                    f = open(os.path.join(repo_path, path), 'w')
-                    f.write(emarkdown(child.get_conclusion()))
-                    child.conclusion = path
-
-                for chapter in child.children:
-                    parsed = render_to_string(template, {'container': chapter})
-                    f = open(chapter.get_prod_path(), 'w')
-                    f.write(parsed.encode('utf-8'))
-                    f.close()
-
-                    for extract in chapter.children:
-                        extract.text = None
-
-                    chapter.introduction = None
-                    chapter.conclusion = None
-
-    versioned.dump_json(os.path.join(repo_path, 'manifest.json'))
+    # move the stuffs into the good position
+    shutil.move(tmp_path, public_version.get_prod_path())
 
     # save public version
     if is_major_update:
