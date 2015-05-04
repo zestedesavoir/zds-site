@@ -309,15 +309,16 @@ class Container:
             base = self.parent.get_path(relative=relative)
         return os.path.join(base, self.slug)
 
-    def get_prod_path(self):
+    def get_prod_path(self, relative=False):
         """Get the physical path to the public version of the container. If the container have extracts, then it
         returns the final HTML file.
 
+        :param relative: return a relative path instead of an absolute one
         :return: physical path
         """
         base = ''
         if self.parent:
-            base = self.parent.get_prod_path()
+            base = self.parent.get_prod_path(relative=relative)
         path = os.path.join(base, self.slug)
 
         if self.has_extracts():
@@ -941,11 +942,6 @@ class VersionedContent(Container):
     is_article = False
     is_tutorial = False
 
-    have_markdown = False
-    have_html = False
-    have_pdf = False
-    have_epub = False
-
     authors = None
     subcategory = None
     image = None
@@ -1026,13 +1022,17 @@ class VersionedContent(Container):
                 slug = self.slug
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], slug)
 
-    def get_prod_path(self):
+    def get_prod_path(self, relative=False):
         """Get the physical path to the public version of the content. If it has extract (so, if its a mini-tutorial or
         an article), return the HTML file.
 
+        :param relative: return the relative path instead of the absolute one
         :return: physical path
         """
-        path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
+        path = ''
+
+        if not relative:
+            path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.slug)
 
         if self.has_extracts():
             path = os.path.join(path, self.slug + '.html')
@@ -1650,8 +1650,7 @@ class PublishableContent(models.Model):
         ]
 
         fns = [
-            'have_markdown', 'have_html', 'have_pdf', 'have_epub', 'in_beta', 'in_validation', 'in_public',
-            'is_article', 'is_tutorial', 'get_absolute_contact_url'
+            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url'
         ]
 
         # load functions and attributs in `versioned`
@@ -1748,34 +1747,6 @@ class PublishableContent(models.Model):
             raise ValueError("This type of content does not exist")
         self.type = new_type
 
-    def have_markdown(self):
-        """Check if the markdown zip archive is available
-
-        :return: `True` if available, `False` otherwise
-        """
-        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".md"))
-
-    def have_html(self):
-        """Check if the html version of the content is available
-
-        :return: `True` if available, `False` otherwise
-        """
-        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".html"))
-
-    def have_pdf(self):
-        """Check if the pdf version of the content is available
-
-        :return: `True` if available, `False` otherwise
-        """
-        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".pdf"))
-
-    def have_epub(self):
-        """Check if the standard epub version of the content is available
-
-        :return: `True` if available, `False` otherwise
-        """
-        return os.path.isfile(os.path.join(self.get_repo_path(), self.slug + ".epub"))
-
     def repo_delete(self):
         """
         Delete the entities and their filesystem counterparts
@@ -1822,8 +1793,11 @@ class PublishedContent(models.Model):
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
-    def get_prod_path(self):
-        return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
+    def get_prod_path(self, relative=False):
+        if not relative:
+            return os.path.join(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug)
+        else:
+            return ''
 
     def get_absolute_url_online(self):
         """
@@ -1843,6 +1817,102 @@ class PublishedContent(models.Model):
 
     def is_tutorial(self):
         return self.content_type == "TUTORIAL"
+
+    def get_extra_contents_directory(self):
+        """
+        :return: path to all the "extra contents"
+        """
+        return os.path.join(self.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
+
+    def have_type(self, type_):
+        """check if a given extra content exists
+
+        :return: `True` if the file exists, `False` otherwhise
+        """
+
+        allowed_types = ['pdf', 'md', 'html', 'epub']
+
+        if type_ in allowed_types:
+            return os.path.isfile(
+                os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_))
+
+        return False
+
+    def have_md(self):
+        """Check if the markdown version of the content is available
+
+        :return: `True` if available, `False` otherwise
+        """
+        return self.have_type('md')
+
+    def have_html(self):
+        """Check if the html version of the content is available
+
+        :return: `True` if available, `False` otherwise
+        """
+        return self.have_type('html')
+
+    def have_pdf(self):
+        """Check if the pdf version of the content is available
+
+        :return: `True` if available, `False` otherwise
+        """
+        return self.have_type('pdf')
+
+    def have_epub(self):
+        """Check if the standard epub version of the content is available
+
+        :return: `True` if available, `False` otherwise
+        """
+        return self.have_type('epub')
+
+    def get_absolute_url_to_extra_content(self, type_):
+        """
+        :return: URL to a given extra content (note that no check for existence is done)
+        """
+
+        allowed_types = ['pdf', 'md', 'html', 'epub']
+
+        if type_ in allowed_types:
+            reversed_ = ''
+
+            if self.is_article():
+                reversed_ = 'article'
+            elif self.is_tutorial():
+                reversed_ = 'tutorial'
+
+            return reverse(
+                reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+
+        return ''
+
+    def get_absolute_url_md(self):
+        """
+        :return: URL to the full markdown version of the published content
+        """
+
+        return self.get_absolute_url_to_extra_content('md')
+
+    def get_absolute_url_html(self):
+        """
+        :return: URL to the HTML version of the published content
+        """
+
+        return self.get_absolute_url_to_extra_content('html')
+
+    def get_absolute_url_pdf(self):
+        """
+        :return: URL to the PDF version of the published content
+        """
+
+        return self.get_absolute_url_to_extra_content('pdf')
+
+    def get_absolute_url_epub(self):
+        """
+        :return: URL to the epub version of the published content
+        """
+
+        return self.get_absolute_url_to_extra_content('epub')
 
 
 class ContentReaction(Comment):

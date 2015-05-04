@@ -2,7 +2,7 @@
 
 from django.conf.urls import patterns, url
 
-from zds.tutorialv2.views import ListArticles, DisplayOnlineArticle
+from zds.tutorialv2.views import ListArticles, DisplayOnlineArticle, DownloadOnlineArticle
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
 urlpatterns = patterns('',
@@ -12,6 +12,16 @@ urlpatterns = patterns('',
 
                        # View
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayOnlineArticle.as_view(), name='view'),
+
+                       # downloads:
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.md$',
+                           DownloadOnlineArticle.as_view(requested_file='md'), name='download-md'),
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.html$',
+                           DownloadOnlineArticle.as_view(requested_file='html'), name='download-html'),
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.pdf$',
+                           DownloadOnlineArticle.as_view(requested_file='pdf'), name='download-pdf'),
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.epub$',
+                           DownloadOnlineArticle.as_view(requested_file='epub'), name='download-epub'),
 
                        # Listing
                        url(r'^$', ListArticles.as_view(), name='list'))

@@ -318,7 +318,7 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 PANDOC_LOC = ''
-PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V mainfont=Merriweather -V monofont=\"Andale Mono\" -V fontsize=12pt -V geometry:margin=1in "
+PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V mainfont=Merriweather -V monofont=\"Andale Mono\" -V fontsize=12pt -V geometry:margin=1in "
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -440,6 +440,7 @@ ZDS_APP = {
     'content': {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
+        'extra_contents_dirname': 'extra_contents',
         'max_tree_depth': 3,
         'default_license_pk': 7,
         'content_per_page': 50,

@@ -68,7 +68,7 @@
 {% if child.text %}
     {# child is an extract #}
 
-    {{ child.get_text|emarkdown }}
+    {{ child.get_text|emarkdown:is_js }}
 
 {% else %}
     {# child is a container #}

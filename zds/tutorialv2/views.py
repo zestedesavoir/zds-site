@@ -69,7 +69,7 @@ from django.views.generic import ListView, FormView, DeleteView, RedirectView
 from zds.member.decorator import PermissionRequiredMixin
 from zds.tutorialv2.mixins import SingleContentViewMixin, SingleContentPostMixin, SingleContentFormViewMixin,\
     SingleContentDetailViewMixin, SingleContentDownloadViewMixin, SingleOnlineContentDetailViewMixin, ContentTypeMixin,\
-    SingleOnlineContentFormViewMixin, ModalFormView
+    SingleOnlineContentFormViewMixin, ModalFormView, SingleOnlineContentViewMixin, DownloadViewMixin
 from git import GitCommandError
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
 from django.utils.encoding import smart_text
@@ -252,6 +252,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         else:
             is_js = ""
         context["is_js"] = is_js
+
         self.get_forms(context)
 
         return context
@@ -296,9 +297,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["reactions"] = paginator.page(1)
         except EmptyPage:
             raise Http404
+
         context["is_js"] = True
         if not self.object.js_support:
             context["is_js"] = False
+
         if context["nb"] != 1:
 
             # Show the last note of the previous page
@@ -486,6 +489,58 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
 
     def get_filename(self):
         return self.get_object().slug + '.zip'
+
+
+class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
+    """ Views that allow users to download "extra contents" of the public version
+    """
+
+    requested_file = None
+    allowed_types = ['md', 'html', 'pdf', 'epub']
+
+    mimetypes = {'html': 'text/html', 'md': 'text/plain', 'pdf': 'application/pdf', 'epub': 'application/epub+zip'}
+
+    def get(self, context, **response_kwargs):
+
+        # fill the variables
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+        self.versioned_object = self.get_versioned_object()
+
+        # check that type is ok
+        if self.requested_file not in self.allowed_types:
+            raise Http404
+
+        # check existence
+        if not self.public_content_object.have_type(self.requested_file):
+            raise Http404
+
+        # set mimetype accordingly
+        self.mimetype = self.mimetypes[self.requested_file]
+
+        return super(DownloadOnlineContent, self).get(context, **response_kwargs)
+
+    def get_filename(self):
+        return self.public_content_object.content_public_slug + '.' + self.requested_file
+
+    def get_contents(self):
+        path = os.path.join(self.public_content_object.get_extra_contents_directory(), self.get_filename())
+        try:
+            response = open(path, 'rb').read()
+        except IOError:
+            raise Http404
+
+        return response
+
+
+class DownloadOnlineArticle(DownloadOnlineContent):
+
+    current_content_type = "ARTICLE"
+
+
+class DownloadOnlineTutorial(DownloadOnlineContent):
+
+    current_content_type = "TUTORIAL"
 
 
 class BadArchiveError(Exception):
@@ -823,6 +878,13 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
                     context['previous'] = chapters[position - 1]
                 if position < len(chapters) - 1:
                     context['next'] = chapters[position + 1]
+
+        # check whether this tuto support js fiddle
+        if self.object.js_support:
+            is_js = "js"
+        else:
+            is_js = ""
+        context["is_js"] = is_js
 
         return context
 

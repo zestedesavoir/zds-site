@@ -4,7 +4,7 @@
 
 
 {% if container.introduction %}
-    {{ container.get_introduction|emarkdown }}
+    {{ container.get_introduction|emarkdown:is_js }}
 {% endif %}
 
 {% if container.children|length != 0 %}
@@ -26,12 +26,12 @@
         </a>
     </h2>
     {% if extract.text %}
-        {{ extract.get_text|emarkdown }}
+        {{ extract.get_text|emarkdown:is_js }}
     {% endif %}
 {% endfor %}
 
 <hr />
 
 {% if container.conclusion %}
-    {{ container.get_conclusion|emarkdown }}
+    {{ container.get_conclusion|emarkdown:is_js }}
 {% endif %}
