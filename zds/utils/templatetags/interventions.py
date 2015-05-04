@@ -11,7 +11,7 @@ from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic
 from zds.tutorial.models import Note, TutorialRead
 from zds.utils.models import Alert
-
+from zds.tutorialv2.models.models_database import ContentRead
 
 register = template.Library()
 
@@ -98,6 +98,12 @@ def interventions_topics(user):
         .filter(tutorial__in=tutorialsfollowed)\
         .exclude(note=F('tutorial__last_note'))
 
+    content_to_read = ContentRead.objects\
+        .select_related('note')\
+        .select_related('content')\
+        .filter(user=user)\
+        .exclude(note__pk=F('content__last_note__pk'))
+
     posts_unread = []
 
     for art in articles_never_read:
@@ -122,6 +128,16 @@ def interventions_topics(user):
                              'author': content.author,
                              'title': top.topic.title,
                              'url': content.get_absolute_url()})
+
+    for content_read in content_to_read:
+        content = content_read.content
+        reaction = content.first_unread_note()
+        if reaction is None:
+            reaction = content.first_note()
+        posts_unread.append({'pubdate': reaction.pubdate,
+                             'author': reaction.author,
+                             'title': content.title,
+                             'url': reaction.get_absolute_url()})
 
     posts_unread.sort(cmp=comp)
 
