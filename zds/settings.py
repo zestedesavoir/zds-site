@@ -451,7 +451,7 @@ ZDS_APP = {
     'topic': {
         'home_number': 6,
     },
-    'featured': {
+    'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
     },

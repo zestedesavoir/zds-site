@@ -4,10 +4,10 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile
-from zds.featured.managers import ResourceFeaturedManager, MessageFeaturedManager
+from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager
 
 
-class ResourceFeatured(models.Model):
+class FeaturedResource(models.Model):
     class Meta:
         verbose_name = _(u'Une')
         verbose_name_plural = _(u'Unes')
@@ -23,22 +23,22 @@ class ResourceFeatured(models.Model):
     )
     pubdate = models.DateTimeField(_(u'Date de publication'), blank=True, null=False, db_index=True)
 
-    objects = ResourceFeaturedManager()
+    objects = FeaturedResourceManager()
 
     def __unicode__(self):
-        """Textual form of a resource featured."""
+        """Textual form of a featured resource."""
         return self.title
 
 
-class MessageFeatured(models.Model):
+class FeaturedMessage(models.Model):
     class Meta:
-        verbose_name = _(u'Nouveau')
-        verbose_name_plural = _(u'Nouveaux')
+        verbose_name = _(u'Message')
+        verbose_name_plural = _(u'Messages')
 
-    message = models.CharField(u'Message', max_length=255)
+    message = models.CharField(_(u'Message'), max_length=255)
     url = models.CharField(_(u'URL du message'), max_length=128, null=False, blank=False)
-    objects = MessageFeaturedManager()
+    objects = FeaturedMessageManager()
 
     def __unicode__(self):
-        """Textual form of a featured."""
+        """Textual form of a featured message."""
         return self.message

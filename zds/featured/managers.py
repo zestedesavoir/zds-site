@@ -5,23 +5,23 @@ from django.db import models
 from zds import settings
 
 
-class ResourceFeaturedManager(models.Manager):
+class FeaturedResourceManager(models.Manager):
     """
-    Custom featured manager.
+    Custom featured resource manager.
     """
 
     def get_last_news(self):
-        queryset = super(ResourceFeaturedManager, self).get_queryset()
-        return queryset.order_by('-pubdate')[:settings.ZDS_APP['featured']['home_number']]
+        queryset = super(FeaturedResourceManager, self).get_queryset()
+        return queryset.order_by('-pubdate')[:settings.ZDS_APP['featured_resource']['home_number']]
 
 
-class MessageFeaturedManager(models.Manager):
+class FeaturedMessageManager(models.Manager):
     """
-    Custom message featured manager.
+    Custom featured message manager.
     """
 
     def get_last_message(self):
         try:
-            return super(MessageFeaturedManager, self).get_queryset().all()[:1].get()
+            return super(FeaturedMessageManager, self).get_queryset().all()[:1].get()
         except ObjectDoesNotExist:
             return None

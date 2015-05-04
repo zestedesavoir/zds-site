@@ -21,8 +21,8 @@
 
 
 {% block content %}
-    {% if featured_list %}
-        <form id="form" name="form" method="post" action="{% url "featured-list-delete" %}">
+    {% if featured_resource_list %}
+        <form id="form" name="form" method="post" action="{% url "featured-resource-list-delete" %}">
             {% csrf_token %}
 
             <button class="btn btn-cancel" name="delete_multi">
@@ -34,19 +34,19 @@
             </button>
 
             <div class="gallery topic-list list-view clearfix navigable-list">
-                {% for featured in featured_list %}
+                {% for featured_resource in featured_resource_list %}
                     <div class="topic gallery-item navigable-elem">
                         <div class="topic-infos">
-                            <input name="items" type="checkbox" value="{{ featured.pk }}">
+                            <input name="items" type="checkbox" value="{{ featured_resource.pk }}">
                         </div>
                         <div class="topic-description">
-                            <a href="{% url 'featured-update' featured.pk %}" class="topic-title-link navigable-link">
-                                <img src="{{ featured.image_url }}"
-                                    data-caption="{{ featured.title }}"
-                                    alt="{{ featured.title }}"
+                            <a href="{% url 'featured-resource-update' featured_resource.pk %}" class="topic-title-link navigable-link">
+                                <img src="{{ featured_resource.image_url }}"
+                                    data-caption="{{ featured_resource.title }}"
+                                    alt="{{ featured_resource.title }}"
                                     class="topic-image"
                                 >
-                                <span class="topic-title">{{ featured.title }}</span>
+                                <span class="topic-title">{{ featured_resource.title }}</span>
                             </a>
                         </div>
                     </div>

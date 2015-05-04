@@ -22,8 +22,8 @@
 
 
 {% block content %}
-    <div class="content-wrapper featured-edit-form">
-        {% include "featured/includes/featured_item.part.html" with featured=featured %}
+    <div class="content-wrapper featured-resource-edit-form">
+        {% include "featured/includes/featured_resource_item.part.html" %}
         {% crispy form %}
     </div>
 {% endblock %}
@@ -35,10 +35,10 @@
         <h3>{% trans "Actions" %}</h3>
         <ul>
             <li>
-                <a href="#delete-featured" class="open-modal ico-after cross blue">
+                <a href="#delete-featured-resource" class="open-modal ico-after cross blue">
                     {% trans "Supprimer la une" %}
                 </a>
-                <form action="{% url "featured-delete" featured.pk %}" method="post" id="delete-featured" class="modal modal-small">
+                <form action="{% url "featured-resource-delete" featured_resource.pk %}" method="post" id="delete-featured-resource" class="modal modal-small">
                     <p>
                         {% trans "Attention, vous vous apprêtez à supprimer définitivement cette une." %}
                     </p>

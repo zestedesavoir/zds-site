@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from zds.featured.models import ResourceFeatured, MessageFeatured
+from zds.featured.models import FeaturedResource, FeaturedMessage
 
-admin.site.register(ResourceFeatured)
-admin.site.register(MessageFeatured)
+admin.site.register(FeaturedResource)
+admin.site.register(FeaturedMessage)

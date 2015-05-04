@@ -4,11 +4,11 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.featured.factories import ResourceFeaturedFactory
-from zds.featured.models import ResourceFeatured, MessageFeatured
+from zds.featured.factories import FeaturedResourceFactory
+from zds.featured.models import FeaturedResource, FeaturedMessage
 
 
-class ResourceFeaturedListViewTest(TestCase):
+class FeaturedResourceListViewTest(TestCase):
     def test_success_list_of_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -17,12 +17,12 @@ class ResourceFeaturedListViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-list'))
+        response = self.client.get(reverse('featured-resource-list'))
 
         self.assertEqual(200, response.status_code)
 
     def test_failure_list_of_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-list'))
+        response = self.client.get(reverse('featured-resource-list'))
 
         self.assertEqual(302, response.status_code)
 
@@ -34,12 +34,12 @@ class ResourceFeaturedListViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-list'))
+        response = self.client.get(reverse('featured-resource-list'))
 
         self.assertEqual(403, response.status_code)
 
 
-class ResourceFeaturedCreateViewTest(TestCase):
+class FeaturedResourceCreateViewTest(TestCase):
     def test_success_create_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -48,9 +48,9 @@ class ResourceFeaturedCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        self.assertEqual(0, ResourceFeatured.objects.all().count())
+        self.assertEqual(0, FeaturedResource.objects.all().count())
         response = self.client.post(
-            reverse('featured-create'),
+            reverse('featured-resource-create'),
             {
                 'title': 'title',
                 'type': 'type',
@@ -62,10 +62,10 @@ class ResourceFeaturedCreateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, ResourceFeatured.objects.all().count())
+        self.assertEqual(1, FeaturedResource.objects.all().count())
 
     def test_failure_create_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-create'))
+        response = self.client.get(reverse('featured-resource-create'))
 
         self.assertEqual(302, response.status_code)
 
@@ -77,12 +77,12 @@ class ResourceFeaturedCreateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-create'))
+        response = self.client.get(reverse('featured-resource-create'))
 
         self.assertEqual(403, response.status_code)
 
 
-class ResourceFeaturedUpdateViewTest(TestCase):
+class FeaturedResourceUpdateViewTest(TestCase):
     def test_success_update_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -91,10 +91,10 @@ class ResourceFeaturedUpdateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = ResourceFeaturedFactory()
-        self.assertEqual(1, ResourceFeatured.objects.all().count())
+        news = FeaturedResourceFactory()
+        self.assertEqual(1, FeaturedResource.objects.all().count())
         response = self.client.post(
-            reverse('featured-update', args=[news.pk]),
+            reverse('featured-resource-update', args=[news.pk]),
             {
                 'title': 'title',
                 'type': 'type',
@@ -106,10 +106,10 @@ class ResourceFeaturedUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, ResourceFeatured.objects.all().count())
+        self.assertEqual(1, FeaturedResource.objects.all().count())
 
     def test_failure_create_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-update', args=[42]))
+        response = self.client.get(reverse('featured-resource-update', args=[42]))
 
         self.assertEqual(302, response.status_code)
 
@@ -121,12 +121,12 @@ class ResourceFeaturedUpdateViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-update', args=[42]))
+        response = self.client.get(reverse('featured-resource-update', args=[42]))
 
         self.assertEqual(403, response.status_code)
 
 
-class ResourceFeaturedDeleteViewTest(TestCase):
+class FeaturedResourceDeleteViewTest(TestCase):
     def test_success_delete_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -135,19 +135,19 @@ class ResourceFeaturedDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = ResourceFeaturedFactory()
-        self.assertEqual(1, ResourceFeatured.objects.all().count())
+        news = FeaturedResourceFactory()
+        self.assertEqual(1, FeaturedResource.objects.all().count())
         response = self.client.post(
-            reverse('featured-delete', args=[news.pk]),
+            reverse('featured-resource-delete', args=[news.pk]),
             follow=True
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, ResourceFeatured.objects.filter(pk=news.pk).count())
+        self.assertEqual(0, FeaturedResource.objects.filter(pk=news.pk).count())
 
     def test_failure_delete_featured_with_unauthenticated_user(self):
-        news = ResourceFeaturedFactory()
-        response = self.client.get(reverse('featured-delete', args=[news.pk]))
+        news = FeaturedResourceFactory()
+        response = self.client.get(reverse('featured-resource-delete', args=[news.pk]))
 
         self.assertEqual(302, response.status_code)
 
@@ -159,13 +159,13 @@ class ResourceFeaturedDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = ResourceFeaturedFactory()
-        response = self.client.get(reverse('featured-delete', args=[news.pk]))
+        news = FeaturedResourceFactory()
+        response = self.client.get(reverse('featured-resource-delete', args=[news.pk]))
 
         self.assertEqual(403, response.status_code)
 
 
-class ResourceFeaturedListDeleteViewTest(TestCase):
+class FeaturedResourceListDeleteViewTest(TestCase):
     def test_success_list_delete_featured(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -174,11 +174,11 @@ class ResourceFeaturedListDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        news = ResourceFeaturedFactory()
-        news2 = ResourceFeaturedFactory()
-        self.assertEqual(2, ResourceFeatured.objects.all().count())
+        news = FeaturedResourceFactory()
+        news2 = FeaturedResourceFactory()
+        self.assertEqual(2, FeaturedResource.objects.all().count())
         response = self.client.post(
-            reverse('featured-list-delete'),
+            reverse('featured-resource-list-delete'),
             {
                 'items': [news.pk, news2.pk]
             },
@@ -186,11 +186,11 @@ class ResourceFeaturedListDeleteViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, ResourceFeatured.objects.filter(pk=news.pk).count())
-        self.assertEqual(0, ResourceFeatured.objects.filter(pk=news2.pk).count())
+        self.assertEqual(0, FeaturedResource.objects.filter(pk=news.pk).count())
+        self.assertEqual(0, FeaturedResource.objects.filter(pk=news2.pk).count())
 
     def test_failure_list_delete_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-list-delete'))
+        response = self.client.get(reverse('featured-resource-list-delete'))
 
         self.assertEqual(302, response.status_code)
 
@@ -202,12 +202,12 @@ class ResourceFeaturedListDeleteViewTest(TestCase):
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-list-delete'))
+        response = self.client.get(reverse('featured-resource-list-delete'))
 
         self.assertEqual(403, response.status_code)
 
 
-class MessageFeaturedCreateUpdateViewTest(TestCase):
+class FeaturedMessageCreateUpdateViewTest(TestCase):
     def test_success_list_create_message(self):
         staff = StaffProfileFactory()
         login_check = self.client.login(
@@ -226,7 +226,7 @@ class MessageFeaturedCreateUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, MessageFeatured.objects.count())
+        self.assertEqual(1, FeaturedMessage.objects.count())
 
     def test_create_only_one_message_in_system(self):
         staff = StaffProfileFactory()
@@ -246,7 +246,7 @@ class MessageFeaturedCreateUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, MessageFeatured.objects.count())
+        self.assertEqual(1, FeaturedMessage.objects.count())
 
         response = self.client.post(
             reverse('featured-message-create'),
@@ -258,4 +258,4 @@ class MessageFeaturedCreateUpdateViewTest(TestCase):
         )
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, MessageFeatured.objects.count())
+        self.assertEqual(1, FeaturedMessage.objects.count())

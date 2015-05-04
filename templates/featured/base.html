@@ -15,7 +15,7 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url 'featured-list' %}">{% trans "Mise en avant" %}</a></li>
+    <li><a href="{% url 'featured-resource-list' %}">{% trans "Mise en avant du site" %}</a></li>
 {% endblock %}
 
 
@@ -25,7 +25,7 @@
         <a href="{% url 'featured-message-create' %}" class="new-btn ico-after more blue">
             {% trans "Nouveau message" %}
         </a>
-        <a href="{% url 'featured-create' %}" class="new-btn ico-after more blue">
+        <a href="{% url 'featured-resource-create' %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle une" %}
         </a>
 

@@ -2,13 +2,14 @@
 
 from django.conf.urls import patterns, url
 
-from zds.featured.views import ResourceFeaturedList, ResourceFeaturedCreate, ResourceFeaturedUpdate, ResourceFeaturedDeleteDetail, ResourceFeaturedDeleteList, MessageFeaturedCreateUpdate
+from zds.featured.views import FeaturedResourceList, FeaturedResourceCreate, FeaturedResourceUpdate, \
+    FeaturedResourceDeleteDetail, FeaturedResourceDeleteList, FeaturedMessageCreateUpdate
 
 urlpatterns = patterns('',
-                       url(r'^$', ResourceFeaturedList.as_view(), name='featured-list'),
-                       url(r'^creer/$', ResourceFeaturedCreate.as_view(), name='featured-create'),
-                       url(r'^editer/(?P<pk>\d+)/$', ResourceFeaturedUpdate.as_view(), name='featured-update'),
-                       url(r'^supprimer/(?P<pk>\d+)/$', ResourceFeaturedDeleteDetail.as_view(), name='featured-delete'),
-                       url(r'^supprimer/$', ResourceFeaturedDeleteList.as_view(), name='featured-list-delete'),
-                       url(r'^message/modifier/$', MessageFeaturedCreateUpdate.as_view(), name='featured-message-create'),
+                       url(r'^$', FeaturedResourceList.as_view(), name='featured-resource-list'),
+                       url(r'^unes/creer/$', FeaturedResourceCreate.as_view(), name='featured-resource-create'),
+                       url(r'^unes/editer/(?P<pk>\d+)/$', FeaturedResourceUpdate.as_view(), name='featured-resource-update'),
+                       url(r'^unes/supprimer/(?P<pk>\d+)/$', FeaturedResourceDeleteDetail.as_view(), name='featured-resource-delete'),
+                       url(r'^unes/supprimer/$', FeaturedResourceDeleteList.as_view(), name='featured-resource-list-delete'),
+                       url(r'^message/modifier/$', FeaturedMessageCreateUpdate.as_view(), name='featured-message-create'),
 )
