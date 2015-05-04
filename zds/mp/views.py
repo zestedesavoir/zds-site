@@ -23,6 +23,7 @@ from django.views.generic.list import MultipleObjectMixin
 from django.utils.translation import ugettext as _
 
 from zds.member.models import Profile
+from zds.mp.decorator import is_participant
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -307,6 +308,7 @@ class PrivatePostAnswer(CreateView):
     queryset = PrivateTopic.objects.all()
 
     @method_decorator(login_required)
+    @method_decorator(is_participant)
     def dispatch(self, request, *args, **kwargs):
         return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
 
@@ -316,9 +318,6 @@ class PrivatePostAnswer(CreateView):
             .filter(privatetopic=self.topic) \
             .prefetch_related() \
             .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
-        if not self.request.user == self.topic.author \
-                and self.request.user not in list(self.topic.participants.all()):
-            raise PermissionDenied
         return self.topic
 
     def get(self, request, *args, **kwargs):
