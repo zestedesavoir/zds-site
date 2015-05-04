@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from rest_framework import status
-from rest_framework import filters
+from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
     get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -12,7 +11,7 @@ from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
-    IsAloneInPrivatePost
+    IsAloneInPrivatePost, IsAuthor
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
     PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
 from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
@@ -77,6 +76,10 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
             - name: ordering
               description: Applies an order at the list. You can order by (-)pubdate, (-)last_message or (-)title.
               paramType: query
+            - name: expand
+              description: Expand a field with an identifier.
+              required: false
+              paramType: query
         responseMessages:
             - code: 401
               message: Not authenticated
@@ -139,7 +142,10 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
             - code: 401
               message: Not authenticated
         """
-        for topic in self.get_queryset():
+        topics = self.get_queryset()
+        if topics.count() == 0:
+            raise exceptions.PermissionDenied()
+        for topic in topics:
             self.perform_destroy(topic)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -180,6 +186,10 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
               description: Bearer token to make a authenticated request.
               required: true
               paramType: header
+            - name: expand
+              description: Expand a field with an identifier.
+              required: false
+              paramType: query
         responseMessages:
             - code: 401
               message: Not authenticated
@@ -223,6 +233,7 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
             - code: 404
               message: Not found
         """
+        self.permission_classes = (IsAuthenticated, IsAuthor,)
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
@@ -263,6 +274,9 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
     permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
     list_key_func = PagingPrivatePostListKeyConstructor()
 
+    def dispatch(self, request, *args, **kwargs):
+        return super(PrivatePostListAPI, self).dispatch(request, *args, **kwargs)
+
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
@@ -275,12 +289,20 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
               description: Bearer token to make a authenticated request.
               required: true
               paramType: header
+            - name: X-Data-Format
+              description: Specify "Html" or "Markdown" for the desired resource, "Markdown is the default value.
+              required: false
+              paramType: header
             - name: page
               description: Displays users of the page given.
               required: false
               paramType: query
             - name: page_size
               description: Sets size of the pagination.
+              required: false
+              paramType: query
+            - name: expand
+              description: Expand a field with an identifier.
               required: false
               paramType: query
         responseMessages:
@@ -350,6 +372,14 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
               description: Bearer token to make a authenticated request.
               required: true
               paramType: header
+            - name: X-Data-Format
+              description: Specify "Html" or "Markdown" for the desired resource, "Markdown is the default value.
+              required: false
+              paramType: header
+            - name: expand
+              description: Expand a field with an identifier.
+              required: false
+              paramType: query
         responseMessages:
             - code: 400
               message: Bad Request if you specify bad identifiers

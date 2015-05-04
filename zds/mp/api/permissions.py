@@ -42,3 +42,12 @@ class IsLastPrivatePostOfCurrentUser(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
         return private_topic.last_message == obj and obj.author == request.user
+
+
+class IsAuthor(permissions.BasePermission):
+    """
+    Custom permission to know if the user is the author of the private topic.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        return obj.author == request.user

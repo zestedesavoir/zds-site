@@ -2,11 +2,12 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from zds.api.serializers import ZdSModelSerializer
 
-from zds.member.api.generics import ZdSModelSerializer
 from zds.member.api.serializers import UserListSerializer
-from zds.mp.commons import ParticipantsUserValidator, TitleValidator, TextValidator, UpdatePrivatePost
+from zds.mp.commons import UpdatePrivatePost
 from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.validators import ParticipantsUserValidator, TitleValidator, TextValidator
 from zds.utils.mps import send_mp, send_message_mp
 
 
@@ -41,7 +42,8 @@ class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, 
 
     class Meta:
         model = PrivateTopic
-        fields = ('title', 'subtitle', 'participants', 'text')
+        fields = ('id', 'title', 'subtitle', 'participants', 'text')
+        read_only_fields = ('id',)
 
     def create(self, validated_data):
         # This hack is necessary because `text` isn't a field of PrivateTopic.
@@ -73,7 +75,8 @@ class PrivateTopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, 
 
     class Meta:
         model = PrivateTopic
-        fields = ('title', 'subtitle', 'participants',)
+        fields = ('id', 'title', 'subtitle', 'participants',)
+        read_only_fields = ('id',)
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -98,8 +101,8 @@ class PrivatePostUpdateSerializer(serializers.ModelSerializer, TextValidator, Up
 
     class Meta:
         model = PrivatePost
-        fields = ('privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
-        read_only_fields = ('privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
 
     def update(self, instance, validated_data):
         return self.perform_update(instance, validated_data)
@@ -115,8 +118,8 @@ class PrivatePostCreateSerializer(serializers.ModelSerializer, TextValidator):
 
     class Meta:
         model = PrivatePost
-        fields = ('privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
-        read_only_fields = ('privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
 
     def create(self, validated_data):
         # Get topic

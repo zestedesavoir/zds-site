@@ -8,8 +8,8 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from zds.mp.commons import ParticipantsStringValidator, TitleValidator, TextValidator
 from zds.mp.models import PrivateTopic
+from zds.mp.validators import ParticipantsStringValidator, TitleValidator, TextValidator
 from zds.utils.forms import CommonLayoutEditor
 
 

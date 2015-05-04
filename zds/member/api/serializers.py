@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator, \
-    ProfileCreate
+from zds.member.commons import ProfileCreate
 from zds.member.models import Profile
+from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
 
 
 class UserListSerializer(serializers.ModelSerializer):

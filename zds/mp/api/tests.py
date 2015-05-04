@@ -1,5 +1,6 @@
 # coding: utf-8
 from collections import OrderedDict
+from django.contrib.auth.models import Group
 
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
@@ -8,9 +9,10 @@ from rest_framework.test import APITestCase, APIClient
 
 from zds import settings
 from zds.member.api.tests import create_oauth2_client, authenticate_client
-from zds.member.factories import ProfileFactory
+from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic
+from zds.settings import ZDS_APP
 
 
 overrided_drf = settings.REST_FRAMEWORK
@@ -24,6 +26,10 @@ class PrivateTopicListAPITest(APITestCase):
         self.client = APIClient()
         client_oauth2 = create_oauth2_client(self.profile.user)
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+        self.bot_group = Group()
+        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.save()
 
     def test_list_mp_with_client_unauthenticated(self):
         """
@@ -293,6 +299,23 @@ class PrivateTopicListAPITest(APITestCase):
         private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
         self.assertEqual(0, len(private_topics))
 
+    def test_create_private_topic_with_unreachable_user(self):
+        """
+        Tries to create a new private topic with an unreachable user.
+        """
+        anonymous_user = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        anonymous_user.groups.add(self.bot_group)
+        anonymous_user.save()
+        data = {
+            'title': 'I love ice cream!',
+            'subtitle': 'Come eat one with me.',
+            'participants': anonymous_user.id,
+        }
+        response = self.client.post(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        private_topics = PrivateTopic.objects.get_private_topics_of_user(anonymous_user.id)
+        self.assertEqual(0, len(private_topics))
+
     def test_leave_private_topics_with_client_unauthenticated(self):
         """
         Leaves a private topic with an unauthenticated client must fail.
@@ -314,6 +337,19 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(0, PrivateTopic.objects.filter(pk=private_topics[0].id).count())
 
+    def test_leave_private_topic_where_the_user_is_not_in_participants(self):
+        """
+        Gets an error 403 when the user try to leave a MP where he isn't present.
+        """
+        another_profile = ProfileFactory()
+        private_topics = self.create_multiple_private_topics_for_member(another_profile.user, 1)
+
+        data = {
+            'pk': private_topics[0].id
+        }
+        response = self.client.delete(reverse('api-mp-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def create_multiple_private_topics_for_member(self, user, number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
         return [PrivateTopicFactory(author=user) for private_topic in xrange(0, number_of_users)]
 
@@ -327,6 +363,10 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.client = APIClient()
         client_oauth2 = create_oauth2_client(self.profile.user)
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+        self.bot_group = Group()
+        self.bot_group.name = ZDS_APP["member"]["bot_group"]
+        self.bot_group.save()
 
     def test_detail_mp_with_client_unauthenticated(self):
         """
@@ -438,6 +478,56 @@ class PrivateTopicDetailAPITest(APITestCase):
         another_private_topic = PrivateTopicFactory(author=another_profile.user)
 
         response = self.client.put(reverse('api-mp-detail', args=[another_private_topic.id]), {})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_private_topic_with_unreachable_user(self):
+        """
+        Tries to update a private topic with an unreachable user.
+        """
+        anonymous_user = UserFactory(username=ZDS_APP["member"]["anonymous_account"])
+        anonymous_user.groups.add(self.bot_group)
+        anonymous_user.save()
+        data = {
+            'participants': anonymous_user.id,
+        }
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotEqual(response.data.get('participants')[0], data.get('participants'))
+
+    def test_update_private_topic_with_user_not_author(self):
+        """
+        Gets an error 403 when we try to update a private topic when we aren't the author.
+        """
+        another_profile = ProfileFactory()
+        self.private_topic.participants.add(another_profile.user)
+
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(another_profile.user)
+        authenticate_client(self.client, client_oauth2, another_profile.user.username, 'hostel77')
+
+        data = {
+            'title': 'Good title',
+        }
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_add_participant_with_an_user_not_author_of_private_topic(self):
+        """
+        Gets an error 403 when we try to update participants of a private topic without to be the author but in
+        participants.
+        """
+        another_profile = ProfileFactory()
+        third_profile = ProfileFactory()
+        self.private_topic.participants.add(another_profile.user)
+
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(another_profile.user)
+        authenticate_client(self.client, client_oauth2, another_profile.user.username, 'hostel77')
+
+        data = {
+            'participants': third_profile.user.id,
+        }
+        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_mp_with_client_unauthenticated(self):

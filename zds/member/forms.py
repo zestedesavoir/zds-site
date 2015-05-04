@@ -12,8 +12,8 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden, Div
 
-from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator
 from zds.member.models import Profile, listing, KarmaNote
+from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
 from zds.utils.forms import CommonLayoutModalText
 
 # Max password length for the user.
