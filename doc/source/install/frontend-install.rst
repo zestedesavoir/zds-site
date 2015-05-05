@@ -11,6 +11,10 @@ Installation de Node.js et npm
 Windows
 -------
 
+.. Attention::
+
+    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
+
 Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <http://nodejs.org/download/>`_. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
 
 Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour mettre à jour npm, vous avez `trois possibilités <https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows)>`_, l'une d'elle est de faire ``npm install npm`` dans le dossier ``C:\Program Files (x86)\nodejs``.
