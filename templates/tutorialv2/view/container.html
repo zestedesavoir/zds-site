@@ -110,7 +110,7 @@
 
             {%  if container.can_add_container %}
                 <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
-                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }}{{ content.get_next_level_as_string }}
+                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }} {{ content.get_next_level_as_string|lower }}
                 </a>
             {% endif %}
 
