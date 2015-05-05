@@ -996,7 +996,7 @@ class ContentTests(TestCase):
             },
             follow=True)
 
-        self.assertEqual(200, result.status_code)
+        self.assertEqual(404, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
         self.assertEqual(2, len(versioned.children_dict[self.part2.slug].children))
