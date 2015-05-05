@@ -982,6 +982,49 @@ class ContentTests(TestCase):
         chapter = versioned.children_dict[self.part2.slug].children[1]
         self.assertEqual(self.chapter4.slug, chapter.slug)
 
+        # test moving before the root
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_sha = tuto.sha_draft
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.part1.slug,
+                'container_slug': self.tuto.slug,
+                'first_level_slug': '',
+                'moving_method': 'before:' + self.tuto.get_path(),
+                'pk': tuto.pk
+            },
+            follow=True)
+
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        self.assertEqual(2, len(versioned.children_dict[self.part2.slug].children))
+        chapter = versioned.children_dict[self.part2.slug].children[0]
+        self.assertEqual(self.chapter3.slug, chapter.slug)
+        chapter = versioned.children_dict[self.part2.slug].children[1]
+        self.assertEqual(self.chapter4.slug, chapter.slug)
+
+        # test moving without permission
+
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': self.chapter2.slug,
+                'container_slug': self.chapter1.slug,
+                'first_level_slug': self.part1.slug,
+                'moving_method': 'up',
+                'pk': tuto.pk
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
     def test_move_extract_after(self):
         # test 1 : move extract after a sibling
         # login with author
