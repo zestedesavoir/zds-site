@@ -62,7 +62,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                               .select_related('editor')
                               .prefetch_related('author__post_liked')
                               .prefetch_related('author__post_disliked')
-                              .filter(related_content=self.object),
+                              .filter(related_content=self.object).order_by("pubdate"),
                               settings.ZDS_APP["content"]["notes_per_page"])
         if "page" in self.request.GET and self.request.GET["page"].isdigit():
             context["nb"] = int(self.request.GET["page"])
