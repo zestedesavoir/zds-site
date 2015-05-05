@@ -1,0 +1,23 @@
+# coding: utf-8
+
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+from zds.mp.models import PrivateTopic, PrivatePost
+
+
+def is_participant(func):
+    """
+    Checks if the current user is a participant of the private topic specified in the URL
+    and if the post specified in the GET parameter `cite` is on the private topic.
+    :param func: the decorated function
+    :return: `True` if the current user can read and write, `False` otherwise.
+    """
+    def _is_participant(request, *args, **kwargs):
+        private_topic = get_object_or_404(PrivateTopic, pk=kwargs.get('pk'))
+        if not request.user == private_topic.author and request.user not in list(private_topic.participants.all()):
+            raise PermissionDenied
+        if 'cite' in request.GET:
+            if PrivatePost.objects.filter(privatetopic=private_topic).filter(pk=request.GET.get('cite')).count() != 1:
+                raise PermissionDenied
+        return func(request, *args, **kwargs)
+    return _is_participant
