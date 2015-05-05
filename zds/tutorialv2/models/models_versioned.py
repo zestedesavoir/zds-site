@@ -631,6 +631,25 @@ class Container:
             elif not only_container:
                 yield child
 
+    def get_level_as_string(self):
+        """
+        :return: The string representation of this level
+        """
+        if self.get_tree_depth() == 0:
+            return self.type
+        elif self.get_tree_depth() == 1:
+            return _(u"Partie")
+        elif self.get_tree_depth() == 2:
+            return _(u"Chapitre")
+        return _(u"Sous-chapitre")
+
+    def get_next_level_as_string(self):
+        if self.get_tree_depth() == 0 and self.can_add_container():
+            return _(u"Partie")
+        elif self.get_tree_depth() == 1 and self.can_add_container():
+            return _(u"Chapitre")
+        else:
+            return _(u"Section")
 
 class Extract:
     """

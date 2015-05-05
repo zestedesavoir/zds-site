@@ -5,6 +5,7 @@
 {% load thumbnail %}
 {% load roman %}
 {% load i18n %}
+{% load feminize %}
 
 
 {% block title %}
@@ -155,13 +156,13 @@
 
             {%  if content.can_add_container %}
                 <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more blue new-btn">
-                    {% trans "Ajouter un conteneur" %}
+                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }}{{ content.get_next_level_as_string }}
                 </a>
             {% endif %}
 
             {%  if content.can_add_extract %}
                 <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more blue new-btn">
-                    {% trans "Ajouter un extrait" %}
+                    {% trans "Ajouter une section" %}
                 </a>
             {%  endif %}
 

@@ -4,7 +4,7 @@
 {%  load emarkdown %}
 {% load i18n %}
 {% load times %}
-
+{% load feminize %}
 
 {% block title %}
     {{ container.title }} - {{ content.title }}
@@ -110,7 +110,7 @@
 
             {%  if container.can_add_container %}
                 <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
-                    {% trans "Ajouter un conteneur" %}
+                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }}{{ content.get_next_level_as_string }}
                 </a>
             {% endif %}
 
@@ -122,7 +122,7 @@
                         {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                     {%  endif %}
                  " class="ico-after more blue new-btn">
-                    {% trans "Ajouter un extrait" %}
+                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }}{{ content.get_next_level_as_string }}
                 </a>
             {%  endif %}
         {% endif %}
@@ -137,7 +137,7 @@
         <li>
             <a href="#move-chapter" class="open-modal ico-after move blue">
                 {% blocktrans %}
-                    Déplacer <span class="wide">le conteneur</span>
+                    Déplacer <span class="wide">{{ "le"|feminize:content.get_level_as_string }}{{ content.get_level_as_string }}</span>
                 {% endblocktrans %}
             </a>
             <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
