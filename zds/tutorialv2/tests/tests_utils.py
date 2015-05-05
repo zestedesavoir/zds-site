@@ -261,13 +261,46 @@ class UtilsTests(TestCase):
         LicenceFactory(code="CC BY")
         args = [os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json")]
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json"), 'r')
+        json = json_reader.loads(manifest.read())
+
+        self.assertTrue(u"version" in json)
+        self.assertTrue(u"licence" in json)
+        self.assertTrue(u"children" in json)
+        self.assertEqual(len(json[u"children"]), 3)
+        self.assertEqual(json[u"children"][0][u"object"], u"extract")
+        args = [os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json")]
+        shutil.copy(
+            os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest.json"),
+            os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json")
+        )
+        call_command('upgrade_manifest_to_v2', *args, **opts)
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json"), 'r')
         json = json_reader.loads(manifest.read())
         shutil.move(
-            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json"),
-            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json")
+            os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json"),
+            os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest.json")
         )
         self.assertTrue(u"version" in json)
+        self.assertTrue(u"licence" in json)
+        self.assertTrue(u"children" in json)
+        self.assertEqual(len(json[u"children"]), 6)
+        self.assertEqual(json[u"children"][0][u"object"], u"container")
+        self.assertEqual(len(json[u"children"][0][u"children"]), 3)
+        self.assertEqual(len(json[u"children"][0][u"children"][0][u"children"]), 4)
+        args = [os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json")]
+        shutil.copy(
+            os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest.json"),
+            os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json")
+        )
+        call_command('upgrade_manifest_to_v2', *args, **opts)
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json"), 'r')
+        json = json_reader.loads(manifest.read())
+
+        self.assertTrue(u"version" in json)
+        self.assertTrue(u"licence" in json)
+        self.assertTrue(u"children" in json)
+        self.assertEqual(len(json[u"children"]), 1)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
