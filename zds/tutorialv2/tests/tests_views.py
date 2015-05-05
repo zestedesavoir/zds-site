@@ -991,7 +991,7 @@ class ContentTests(TestCase):
                 'child_slug': self.part1.slug,
                 'container_slug': self.tuto.slug,
                 'first_level_slug': '',
-                'moving_method': 'before:' + self.tuto.get_path(),
+                'moving_method': 'before:' + self.tuto.load_version().get_path(),
                 'pk': tuto.pk
             },
             follow=True)

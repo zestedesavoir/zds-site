@@ -651,6 +651,7 @@ class Container:
         else:
             return _(u"Section")
 
+
 class Extract:
     """
     A content extract from a Container.
