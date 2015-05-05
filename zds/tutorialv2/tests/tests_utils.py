@@ -284,10 +284,10 @@ class UtilsTests(TestCase):
         self.assertTrue(u"version" in json)
         self.assertTrue(u"licence" in json)
         self.assertTrue(u"children" in json)
-        self.assertEqual(len(json[u"children"]), 6)
+        self.assertEqual(len(json[u"children"]), 5)
         self.assertEqual(json[u"children"][0][u"object"], u"container")
         self.assertEqual(len(json[u"children"][0][u"children"]), 3)
-        self.assertEqual(len(json[u"children"][0][u"children"][0][u"children"]), 4)
+        self.assertEqual(len(json[u"children"][0][u"children"][0][u"children"]), 3)
         args = [os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json")]
         shutil.copy(
             os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest.json"),

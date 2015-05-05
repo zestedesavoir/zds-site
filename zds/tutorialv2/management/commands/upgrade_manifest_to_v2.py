@@ -29,8 +29,10 @@ class Command(BaseCommand):
                 _type = "ARTICLE"
             versioned = VersionedContent("", _type, data["title"], slugify(data["title"]))
             versioned.description = data["description"]
-            versioned.introduction = data["introduction"]
-            versioned.conclusion = data["conclusion"]
+            if "introduction" in data:
+                versioned.introduction = data["introduction"]
+            if "conclusion" in data:
+                versioned.conclusion = data["conclusion"]
             versioned.licence = Licence.objects.filter(code=data["licence"]).first()
             versioned.version = "2.0"
             versioned.slug = slugify(data["title"])
@@ -39,14 +41,18 @@ class Command(BaseCommand):
                 for part in data["parts"]:
                     current_part = Container(part["title"],
                                              str(part["pk"]) + "_" + slugify(part["title"]))
-                    current_part.introduction = part["introduction"]
-                    current_part.conclusion = part["conclusion"]
+                    if "introduction" in part:
+                        current_part.introduction = part["introduction"]
+                    if "conclusion" in part:
+                        current_part.conclusion = part["conclusion"]
                     versioned.add_container(current_part)
                     for chapter in part["chapters"]:
                         current_chapter = Container(chapter["title"],
                                                     str(chapter["pk"]) + "_" + slugify(chapter["title"]))
-                        current_chapter.introduction = chapter["introduction"]
-                        current_chapter.conclusion = chapter["conclusion"]
+                        if "introduction" in chapter:
+                            current_chapter.introduction = chapter["introduction"]
+                        if "conclusion" in chapter:
+                            current_chapter.conclusion = chapter["conclusion"]
                         current_part.add_container(current_chapter)
                         for extract in chapter["extracts"]:
                             current_extract = Extract(extract["title"],
