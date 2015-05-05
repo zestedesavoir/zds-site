@@ -419,6 +419,16 @@ class ForumMemberTests(TestCase):
         # check edit data
         self.assertEqual(Post.objects.get(pk=post2.pk).editor, self.user)
 
+        # if the post pk is altered
+        result = self.client.post(
+            reverse('zds.forum.views.edit_post') + '?message=abcd',
+            {
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 404)
+
     def test_edit_post_with_blank(self):
 
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
@@ -461,6 +471,12 @@ class ForumMemberTests(TestCase):
             topic1.pk, post2.pk), follow=True)
 
         self.assertEqual(result.status_code, 200)
+
+        # if the quote pk is altered
+        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite=abcd'.format(
+            topic1.pk), follow=True)
+
+        self.assertEqual(result.status_code, 404)
 
     def test_signal_post(self):
         """To test when a member signal a post."""
@@ -954,7 +970,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(topic_with_conflict_tags.tags.all().count(), 1)
         topic_with_conflict_tags = TopicFactory(
             forum=self.forum11, author=self.user)
-        topic_with_conflict_tags.title = u"[][ ][	]name"
+        topic_with_conflict_tags.title = u"[][ ][   ]name"
         (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
         topic_with_conflict_tags.add_tags(tags)
         self.assertEqual(topic_with_conflict_tags.tags.all().count(), 0)
