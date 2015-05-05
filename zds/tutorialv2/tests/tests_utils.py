@@ -261,12 +261,9 @@ class UtilsTests(TestCase):
         LicenceFactory(code="CC BY")
         args = [os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json")]
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json"), 'r')
         json = json_reader.loads(manifest.read())
-        shutil.move(
-            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json"),
-            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json")
-        )
+
         self.assertTrue(u"version" in json)
         self.assertTrue(u"licence" in json)
         self.assertTrue(u"children" in json)
@@ -278,7 +275,7 @@ class UtilsTests(TestCase):
             os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json")
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json"), 'r')
         json = json_reader.loads(manifest.read())
         shutil.move(
             os.path.join(BASE_DIR, "fixtures", "tuto", "big_tuto_v1", "manifest2.json"),
@@ -297,12 +294,9 @@ class UtilsTests(TestCase):
             os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json")
         )
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest.json"), 'r')
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json"), 'r')
         json = json_reader.loads(manifest.read())
-        shutil.move(
-            os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest2.json"),
-            os.path.join(BASE_DIR, "fixtures", "tuto", "article_v1", "manifest.json")
-        )
+
         self.assertTrue(u"version" in json)
         self.assertTrue(u"licence" in json)
         self.assertTrue(u"children" in json)
