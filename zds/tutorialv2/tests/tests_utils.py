@@ -14,6 +14,15 @@ from zds.gallery.factories import GalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from django.core.management import call_command
+
+try:
+    import ujson as json_reader
+except ImportError:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -242,6 +251,23 @@ class UtilsTests(TestCase):
         self.assertTrue(paths[second_extract.get_full_slug()])
         self.assertFalse(paths[second_container.get_path(True)])
         self.assertFalse(paths[first_container.get_path(True)])
+
+    def test_update_manifest(self):
+        opts = {}
+        shutil.copy(
+            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json"),
+            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json")
+        )
+        LicenceFactory(code="CC BY")
+        args = [os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json")]
+        call_command('upgrade_manifest_to_v2', *args, **opts)
+        manifest = open(os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json"), 'r')
+        json = json_reader.loads(manifest.read())
+        shutil.move(
+            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest2.json"),
+            os.path.join(BASE_DIR, "fixtures", "tuto", "balise_audio", "manifest.json")
+        )
+        self.assertTrue(u"version" in json)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

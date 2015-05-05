@@ -1,0 +1,12 @@
+{
+    "object": "container", 
+    "slug": "les-balises-audio-et-video-en-html5", 
+    "title": "Les balises audio et vidéo en HTML5", 
+    "introduction": "introduction.md", 
+    "conclusion": "conclusion.md", 
+    "children": [], 
+    "version": 2, 
+    "description": "Le multimédia avec HTML 5", 
+    "type": "TUTORIAL", 
+    "licence": "CC BY"
+}

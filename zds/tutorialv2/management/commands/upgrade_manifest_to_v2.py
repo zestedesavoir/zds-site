@@ -1,4 +1,4 @@
-from zds.tutorialv2.models import Extract, VersionedContent, Container
+from zds.tutorialv2.models.models_versioned import Extract, VersionedContent, Container
 from django.core.management.base import BaseCommand
 from zds.utils.models import Licence
 from zds.utils import slugify
@@ -59,11 +59,13 @@ class Command(BaseCommand):
                 for extract in data["chapter"]["extracts"]:
                     current_extract = Extract(extract["title"],
                                               str(extract["pk"]) + "_" + slugify(extract["title"]))
-                    current_extract.text = current_extract.get_path(True)
                     versioned.add_extract(current_extract)
+                    current_extract.text = current_extract.get_path(True)
+
             elif versioned.type == "ARTICLE":
                 extract = Extract(data["title"], "text")
                 versioned.add_extract(extract)
+                extract.text = extract.get_path(True)
 
             with open(_file, "w") as json_file:
                 json_file.write(versioned.get_json().encode('utf-8'))
