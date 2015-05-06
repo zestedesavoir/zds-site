@@ -3153,6 +3153,37 @@ class ContentTests(TestCase):
             self.chapter1.get_absolute_url().replace(str(self.tuto.slug), u"he-s-dead-jim")
         )
         self.assertEqual(result.status_code, 404)
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content_pk=publishable.pk).first()
+        result = self.client.get(
+            published.get_absolute_url_online().replace(str(published.content_public_slug), u"he-s-dead-jim")
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            published.get_absolute_url_online().replace(str(published.content.pk), u"1000000000")
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            published.get_absolute_url_online().replace(str(published.content.pk), u"he-s-dead-jim")
+        )
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+
+        result = self.client.get(published.get_absolute_url_online() + "?page=2")
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(published.get_absolute_url_online() + "?page=clementine")
+        self.assertEqual(result.status_code, 404)
 
     def tearDown(self):
 

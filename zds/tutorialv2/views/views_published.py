@@ -66,12 +66,12 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                               settings.ZDS_APP["content"]["notes_per_page"])
         if "page" in self.request.GET and self.request.GET["page"].isdigit():
             context["nb"] = int(self.request.GET["page"])
-        else:
+        elif "page" not in self.request.GET:
             context["nb"] = 1
+        else:
+            raise Http404
         try:
             context["reactions"] = paginator.page(context["nb"])
-        except PageNotAnInteger:
-            context["reactions"] = paginator.page(1)
         except EmptyPage:
             raise Http404
 
