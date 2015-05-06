@@ -25,7 +25,7 @@ class Command(BaseCommand):
             with open(_file, "r") as json_file:
                 data = json_reader.load(json_file)
             _type = "TUTORIAL"
-            if "type" not in data:
+            if data["type"].lower() == "article":
                 _type = "ARTICLE"
             versioned = VersionedContent("", _type, data["title"], slugify(data["title"]))
             versioned.description = data["description"]
