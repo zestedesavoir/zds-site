@@ -23,7 +23,7 @@ from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting, CommentLike, CommentDislike, CommentLike
+from zds.utils.models import HelpWriting, CommentDislike, CommentLike
 from zds.utils.factories import HelpWritingFactory
 
 
@@ -3138,11 +3138,11 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.get(
-            self.chapter1.get_absolute_url()[:-2]+"/"
+            self.chapter1.get_absolute_url()[:-2] + "/"
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
-            self.part1.get_absolute_url()[:-2]+"/"
+            self.part1.get_absolute_url()[:-2] + "/"
         )
         self.assertEqual(result.status_code, 404)
         result = self.client.get(
@@ -3187,14 +3187,13 @@ class ContentTests(TestCase):
 
     def test_upvote_downvote(self):
         publishable = PublishedContentFactory(author_list=[self.user_author])
-        published = PublishedContent.objects.filter(content_pk=publishable.pk).first()
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
                 password='hostel77'),
             True)
 
-        result = self.client.post(
+        self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
             {
                 'text': u'message',
