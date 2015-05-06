@@ -28,18 +28,18 @@ class LastContentFeedRSS(Feed):
             .prefetch_related("content__authors")
 
         if self.content_type is not None:
-            contents.filter(content_type=self.content_type)
+            contents = contents.filter(content_type=self.content_type)
 
         return contents.order_by('-publication_date')[:ZDS_APP['content']['feed_length']]
 
     def item_title(self, item):
-        return item.title
+        return item.content.title
 
     def item_pubdate(self, item):
         return item.publication_date
 
     def item_description(self, item):
-        return item.description
+        return item.content.description
 
     def item_author_name(self, item):
         authors_list = item.content.authors.all()
