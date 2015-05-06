@@ -10,6 +10,8 @@ base.db
 /contents-public
 /media
 /articles-data
+contents-private/
+contents-public/
 
 /tutoriels-private-test
 /tutoriels-public-test
