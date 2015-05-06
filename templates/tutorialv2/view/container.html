@@ -110,7 +110,7 @@
 
             {%  if container.can_add_container %}
                 <a href="{% url "content:create-container" content.pk content.slug container.slug %}" class="ico-after more blue new-btn">
-                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }} {{ content.get_next_level_as_string|lower }}
+                    {% trans "Ajouter " %} {{ "un"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
                 </a>
             {% endif %}
 
@@ -122,7 +122,7 @@
                         {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                     {%  endif %}
                  " class="ico-after more blue new-btn">
-                    {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }} {{ content.get_next_level_as_string|lower }}
+                    {% trans "Ajouter " %} {{ "un"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
                 </a>
             {%  endif %}
         {% endif %}
