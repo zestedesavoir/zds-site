@@ -23,7 +23,7 @@ from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting
+from zds.utils.models import HelpWriting, CommentLike, CommentDislike, CommentLike
 from zds.utils.factories import HelpWritingFactory
 
 
@@ -3184,6 +3184,53 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 404)
         result = self.client.get(published.get_absolute_url_online() + "?page=clementine")
         self.assertEqual(result.status_code, 404)
+
+    def test_upvote_downvote(self):
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content_pk=publishable.pk).first()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        reac = ContentReaction.objects.last()
+        result = self.client.post(
+            reverse("content:up-vote") + "?message=" + str(reac.pk),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 1)
+        result = self.client.post(
+            reverse("content:up-vote") + "?message=" + str(reac.pk),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
+        result = self.client.post(
+            reverse("content:up-vote") + "?message=" + str(reac.pk),
+            follow=False
+        )
+        result = self.client.post(
+            reverse("content:down-vote") + "?message=" + str(reac.pk),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
 
     def tearDown(self):
 
