@@ -20,7 +20,7 @@
     function buildDescription(_authors, type) {
         var authors = _authors.split(",");
         authors = authors.map($.trim);
-        authors = authors.filter(function(e) { return e !== "" });
+        authors = authors.filter(function(e) { return e !== ""; });
 
         var text = type + " par ";
         authors.forEach(function(author, index) {
