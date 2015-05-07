@@ -451,7 +451,7 @@ class GetReaction(BaseDetailView):
 
         reaction = self.get_queryset().first()
         if reaction is not None:
-            string = json_writer.dumps(reaction, ensure_ascii=False)
+            string = json_writer.dumps(reaction.text, ensure_ascii=False)
         else:
             string = u"{}"
         return http.HttpResponse(string, content_type='application/json')
