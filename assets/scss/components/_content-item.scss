@@ -211,6 +211,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         .write-tutorial-text {
             flex: 1;
             text-align: center;
+            margin: 10px 14px;
 
             p {
                 margin: 0;
@@ -314,6 +315,15 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
                     white-space: nowrap;
                 }
             }
+        }
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .full-content-wrapper .content-item {
+        .content-info * {
+            margin: 0 !important;
+            padding: 0 !important;
         }
     }
 }
