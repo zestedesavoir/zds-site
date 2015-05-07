@@ -307,7 +307,8 @@ class PublishableContent(models.Model):
         ]
 
         fns = [
-            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url'
+            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url',
+            'get_note_count'
         ]
 
         # load functions and attributs in `versioned`
