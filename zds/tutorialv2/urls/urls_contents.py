@@ -26,12 +26,14 @@ urlpatterns = patterns('',
 
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayContent.as_view(), name='view'),
 
-                       url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(), name='download-zip'),
+                       url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(),
+                           name='download-zip'),
 
                        # reactions:
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
                        url(r'^reactions/ajouter/$', UpdateNoteView.as_view(), name="update-reaction"),
-                       url(r'^reactions/get-json/(?P<pk>\d+)/$', GetReaction.as_view(), name="json-reaction"),
+                       url(r'^reactions/get-json/(?P<pk>\d+)/$',
+                           GetReaction.as_view(), name="json-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
 

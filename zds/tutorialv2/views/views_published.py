@@ -365,7 +365,7 @@ class UpdateNoteView(SendNoteFormView):
             if self.reaction is None:
                 raise Http404
             if self.reaction.author.pk != self.request.user.pk \
-                or not self.request.user.has_perm('forum.change_post'):
+               or not self.request.user.has_perm('forum.change_post'):
                 raise PermissionDenied
         return super(UpdateNoteView, self).form_valid(form)
 
