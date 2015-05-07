@@ -48,9 +48,13 @@ class SingleContentViewMixin(object):
                     .filter(pk=self.kwargs["pk"])
 
             obj = queryset.first()
+            if obj is None:
+                raise Http404
         else:
             obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+
         self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
+
         if "slug" in self.kwargs and self.kwargs["slug"] != obj.slug and self.is_public:
             # if slug and pk does not match try to find old pk
             queryset = PublishableContent.objects \

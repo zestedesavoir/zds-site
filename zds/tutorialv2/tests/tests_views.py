@@ -3184,6 +3184,11 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 404)
         result = self.client.get(published.get_absolute_url_online() + "?page=clementine")
         self.assertEqual(result.status_code, 404)
+        publishable = PublishableContentFactory(author_list=[self.user_author])
+        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), "10000"))
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
+        self.assertEqual(result.status_code, 404)
 
     def test_upvote_downvote(self):
         publishable = PublishedContentFactory(author_list=[self.user_author])

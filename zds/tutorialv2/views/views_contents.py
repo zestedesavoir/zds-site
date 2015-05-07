@@ -49,7 +49,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
     context_object_name = 'contents'
     template_name = 'tutorialv2/index.html'
     sorts = {
-        '': lambda q: q.order_by('-title'),
+        '': lambda q: q.order_by('title'),
         'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
         'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
         'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
