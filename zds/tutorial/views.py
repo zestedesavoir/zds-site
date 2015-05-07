@@ -348,12 +348,9 @@ def valid_tutorial(request):
         version=tutorial.sha_validation).latest("date_proposition")
 
     if request.user == validation.validator:
-        try:
-            mep(tutorial, tutorial.sha_validation)
-        except UnicodeErrorInTutorial as e:
-            messages.error(request, e)
-            return redirect(tutorial.get_absolute_url() + "?version=" + validation.version)
-
+        (output, err) = mep(tutorial, tutorial.sha_validation)
+        messages.info(request, output)
+        messages.error(request, err)
         validation.comment_validator = request.POST["text"]
         validation.status = "ACCEPT"
         validation.date_validation = datetime.now()
@@ -411,7 +408,7 @@ def valid_tutorial(request):
 def invalid_tutorial(request, tutorial_pk):
     """Staff invalid tutorial of an author."""
 
-    # Retrieve current tutorials
+    # Retrieve current tutorial
 
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     un_mep(tutorial)
@@ -1236,9 +1233,11 @@ def edit_tutorial(request):
     else:
         json = tutorial.load_json()
         if "licence" in json:
-            licence = Licence.objects.get(code=json['licence'])
+            licence = json['licence']
         else:
-            licence = Licence.objects.get(pk=settings.ZDS_APP['tutorial']['default_license_pk'])
+            licence = Licence.objects.get(
+                pk=settings.ZDS_APP['tutorial']['default_license_pk']
+            )
         form = TutorialForm(initial={
             "title": json["title"],
             "type": json["type"],
@@ -3110,7 +3109,6 @@ def get_url_images(md_text, pt):
                     os.makedirs(os.path.join(pt, "images"))
 
                 # download image
-                filename = filename.decode('utf-8')
                 down_path = os.path.abspath(os.path.join(pt, "images", filename))
                 try:
                     urlretrieve(real_url, down_path)
@@ -3190,13 +3188,8 @@ def markdown_to_out(md_text):
                   md_text)
 
 
-class UnicodeErrorInTutorial(Exception):
-
-    def __init__(self, *args, **kwargs):
-        super(UnicodeErrorInTutorial, self).__init__(*args, **kwargs)
-
-
 def mep(tutorial, sha):
+    (output, err) = (None, None)
     repo = Repo(tutorial.get_path())
     manifest = get_blob(repo.commit(sha).tree, "manifest.json")
     tutorial_version = json_reader.loads(manifest)
@@ -3244,7 +3237,7 @@ def mep(tutorial, sha):
 
         # download images
 
-        get_url_images(md_file_contenu.encode('utf-8'), prod_path)
+        get_url_images(md_file_contenu, prod_path)
 
         # convert to out format
         out_file = open(os.path.join(prod_path, fichier), "w")
@@ -3266,12 +3259,7 @@ def mep(tutorial, sha):
         else:
             is_js = ""
         if md_file_contenu is not None:
-            try:
-                html_file.write(emarkdown(md_file_contenu, is_js))
-            except (UnicodeEncodeError, UnicodeError):
-                raise UnicodeErrorInTutorial(_(u'Une erreur est survenue lors de la génération du HTML à partir '
-                                               u'du fichier « {} », vérifiez que le code markdown correspondant ne '
-                                               u'contient pas d\'erreurs'.format(fichier)))
+            html_file.write(emarkdown(md_file_contenu, is_js))
         html_file.close()
 
     # load markdown out
@@ -3304,6 +3292,7 @@ def mep(tutorial, sha):
               ".md -o " + os.path.join(prod_path,
                                        tutorial.slug) + ".epub" + pandoc_debug_str)
     os.chdir(settings.BASE_DIR)
+    return (output, err)
 
 
 def un_mep(tutorial):

@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew, PrivateTopicAddParticipant, \
     PrivateTopicLeaveDetail, PrivateTopicLeaveList, \
-    PrivatePostAnswer, PrivatePostEdit, PrivateTopicEdit
+    PrivatePostAnswer, PrivatePostEdit
 
 
 urlpatterns = patterns('',
@@ -15,8 +15,6 @@ urlpatterns = patterns('',
 
                        url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/quitter/$', PrivateTopicLeaveDetail.as_view(),
                            name='mp-delete'),
-                       url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/editer/topic/$', PrivateTopicEdit.as_view(),
-                           name='mp-edit-topic'),
                        url(r'^(?P<pk>\d+)/(?P<topic_slug>.+)/editer/participants/$',
                            PrivateTopicAddParticipant.as_view(), name='mp-edit-participant'),
 

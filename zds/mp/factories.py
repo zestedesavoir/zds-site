@@ -8,8 +8,9 @@ from zds.mp.models import PrivateTopic, PrivatePost
 class PrivateTopicFactory(factory.DjangoModelFactory):
     FACTORY_FOR = PrivateTopic
 
-    title = factory.Sequence('Mon Sujet No{0}'.format)
-    subtitle = factory.Sequence('Sous Titre du sujet No{0}'.format)
+    title = factory.Sequence(lambda n: 'Mon Sujet No{0}'.format(n))
+    subtitle = factory.Sequence(
+        lambda n: 'Sous Titre du sujet No{0}'.format(n))
 
 
 class PrivatePostFactory(factory.DjangoModelFactory):

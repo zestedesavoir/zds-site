@@ -99,6 +99,10 @@
                                                     {% with text=result.object.get_text_online|striptags|safe %}
                                                         {% highlight text with query html_tag "mark" %}
                                                     {% endwith %}
+						{% elif result.object.get_text %}
+                                                    {% with text=result.object.get_text|striptags|safe %}
+                                                        {% highlight text with query html_tag "mark" %}
+                                                    {% endwith %}
                                                 {% elif result.object.topic %}
                                                     {% with text=result.object.text|emarkdown|striptags|safe %}
                                                         {% highlight text with query html_tag "mark" %}
@@ -135,9 +139,9 @@
                                         <a href="{{ result.object.get_absolute_url_online }}">
                                             {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
                                         </a>
-                                    {% elif result.object.chapter.part.tutorial.pubdate %}
+                                    {% elif result.object.chapter.tutorial.pubdate %}
                                         <a href="{{ result.object.get_absolute_url_online }}">
-                                            {{ result.object.chapter.part.tutorial.pubdate|format_date|capfirst }}
+                                            {{ result.object.chapter.tutorial.pubdate|format_date|capfirst }}
                                         </a>
                                     {% endif %}
                                 </div>

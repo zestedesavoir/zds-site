@@ -228,7 +228,7 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
 Solr
 ~~~~
 
-`Voir la documentation de Solr <install-solr.html>`.
+`Voir la documentation de Solr <install-solr.html>`__.
 
 Supervisor
 ~~~~~~~~~~
@@ -345,7 +345,7 @@ Ajouter les métriques suivantes au fichier ``/etc/munin/plugin-conf.d/munin-nod
 Mise à jour d'une instance existante
 ====================================
 
-`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/deploy.sh>` ! ;)
+`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/server/deploy.sh>` ! ;)
 
 Personnalisation d'une instance
 ===============================

@@ -1,26 +1,27 @@
 # coding: utf-8
 
 from datetime import datetime
-from django.conf import settings
-from django.db import models
-from hashlib import md5
-from django.http import HttpRequest
-from django.utils.http import urlquote
-from django.contrib.sessions.models import Session
-from django.contrib.auth import logout
 import os
 
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.dispatch import receiver
+from hashlib import md5
+from importlib import import_module
 
-import pygeoip
+from django.conf import settings
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.contrib.gis.geoip import GeoIP
+from django.contrib.sessions.models import Session
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.dispatch import receiver
+from django.http import HttpRequest
+from django.utils.http import urlquote
+
 from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
 from zds.tutorial.models import Tutorial
 from zds.utils.models import Alert
-from importlib import import_module
 
 
 class Profile(models.Model):
@@ -116,22 +117,11 @@ class Profile(models.Model):
         providers.
         :return: The city and the country name of this profile.
         """
-        # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
-        # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
-        if len(self.last_ip_address) <= 16:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCity.dat'))
-        else:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCityv6.dat'))
-        geo = gic.record_by_addr(self.last_ip_address)
-
-        return u'{0}, {1}'.format(
-            geo['city'], geo['country_name'])
+        g = GeoIP()
+        geo = g.city(self.last_ip_address)
+        if geo is not None:
+            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+        return ''
 
     def get_avatar_url(self):
         """
@@ -419,11 +409,10 @@ def logout_user(username):
     request = HttpRequest()
 
     sessions = Session.objects.filter(expire_date__gt=now)
-    user = User.objects.get(username=username)
 
     for session in sessions:
         user_id = session.get_decoded().get('_auth_user_id')
-        if user.id == user_id:
+        if username == user_id:
             engine = import_module(settings.SESSION_ENGINE)
             request.session = engine.SessionStore(session.session_key)
             logout(request)

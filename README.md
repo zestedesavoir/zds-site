@@ -77,7 +77,6 @@ Cela va créer plusieurs entitées :
 * 3 catégories et 2 sous-catégories
 * 4 aides pour l'écriture des tutoriels
 
-Pour en savoir plus sur cette commande, [consulter la documentation](http://zds-site.readthedocs.org/fr/latest/utils/fixture_loaders.html).
 
 ### La documentation complète
 
@@ -95,7 +94,7 @@ Vous trouverez tout sur [la page dédiée de la documentation](CONTRIBUTING.md)
 
 ## En savoir plus
 
-- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html)
+- [Comment déployer ZDS sur un serveur de production ?](http://zds-site.readthedocs.org/fr/latest/install/deploiement-production.html)
 - [Comment contribuer et conseils de développement](CONTRIBUTING.md)
 - [Comment contribuer : comprendre comment suivre le workflow (sur zds)](http://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/)
 - [Les détails du workflow utilisé sur Zeste de Savoir](http://zds-site.readthedocs.org/fr/latest/workflow.html)

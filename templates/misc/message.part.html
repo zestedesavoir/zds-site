@@ -306,7 +306,8 @@
                                 class="upvote
                                        ico-after
                                        {% if message.like > message.dislike %}more-voted{% endif %}
-                                       {% if message.like > 0 %}has-vote{% endif %}"
+                                       {% if message.like > 0 %}has-vote{% endif %}
+                                       {% if not user.is_authenticated and message.like > message.dislike %}voted{% endif %}"
                                 {% if message.like > 0 %}
                                     title="{{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile"
                                 {% endif %}
@@ -319,7 +320,8 @@
                                 class="downvote
                                        ico-after
                                        {% if message.like < message.dislike %}more-voted{% endif %} 
-                                       {% if message.dislike > 0 %}has-vote{% endif %}"
+                                       {% if message.dislike > 0 %}has-vote{% endif %}
+                                       {% if not user.is_authenticated and message.like < message.dislike %}voted{% endif %}"
                                 {% if message.dislike > 0 %}
                                     title="{{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile"
                                 {% endif %}
