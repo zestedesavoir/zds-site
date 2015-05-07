@@ -43,7 +43,7 @@
 
 
 
-        {% include "misc/pagination.part.html" with position="top" %}
+        {% include "misc/paginator.html" with position="top" %}
 
         {% if contents %}
             <div class="tutorial-list">
@@ -139,7 +139,7 @@
 
         <hr class="clearfix" />
 
-        {% include "misc/pagination.part.html" with position="bottom" %}
+        {% include "misc/paginator.html" with position="bottom" %}
     </section>
 {% endblock %}
 
