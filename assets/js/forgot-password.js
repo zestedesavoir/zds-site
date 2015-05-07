@@ -3,7 +3,7 @@
  */
 (function($, undefined){
     "use strict";
-    if ($("#id_email").val() === "")
+    if ($("#id_email").val() == '')
         $("#form-email").addClass("hidden");
     else
         $("#form-email").removeClass("hidden");
@@ -12,12 +12,12 @@
         $("#form-email").toggleClass("hidden");
         $("#form-username").addClass("hidden");
 
-        $("#id_username").val("");
+        $("#id_username").val('');
 
         e.preventDefault();
     });
 
-    if ($("#id_username").val() === "")
+    if ($("#id_username").val() == '')
         $("#form-username").addClass("hidden");
     else
         $("#form-username").removeClass("hidden");
@@ -26,7 +26,7 @@
         $("#form-username").toggleClass("hidden");
         $("#form-email").addClass("hidden");
 
-        $("#id_email").val("");
+        $("#id_email").val('');
 
         e.preventDefault();
     });

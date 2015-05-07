@@ -23,11 +23,10 @@ from django.views.generic.list import MultipleObjectMixin
 from django.utils.translation import ugettext as _
 
 from zds.member.models import Profile
-from zds.mp.decorator import is_participant
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
-from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
+from .forms import PrivateTopicForm, PrivatePostForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
 
@@ -126,26 +125,6 @@ class PrivateTopicNew(CreateView):
                           False)
 
         return redirect(p_topic.get_absolute_url())
-
-
-class PrivateTopicEdit(UpdateView):
-    """ Update mp informations """
-
-    model = PrivateTopic
-    template_name = "mp/topic/edit.html"
-    form_class = PrivateTopicEditForm
-    pk_url_kwarg = "pk"
-    context_object_name = "topic"
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(PrivateTopicEdit, self).dispatch(*args, **kwargs)
-
-    def get_object(self, queryset=None):
-        topic = super(PrivateTopicEdit, self).get_object(queryset)
-        if topic is not None and not topic.author == self.request.user:
-            raise PermissionDenied
-        return topic
 
 
 class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
@@ -308,7 +287,6 @@ class PrivatePostAnswer(CreateView):
     queryset = PrivateTopic.objects.all()
 
     @method_decorator(login_required)
-    @method_decorator(is_participant)
     def dispatch(self, request, *args, **kwargs):
         return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
 
@@ -318,6 +296,9 @@ class PrivatePostAnswer(CreateView):
             .filter(privatetopic=self.topic) \
             .prefetch_related() \
             .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
+        if not self.request.user == self.topic.author \
+                and self.request.user not in list(self.topic.participants.all()):
+            raise PermissionDenied
         return self.topic
 
     def get(self, request, *args, **kwargs):
@@ -395,7 +376,7 @@ class PrivatePostAnswer(CreateView):
         self.topic.save()
 
         # send email
-        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
+        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['abbr'],
                                          _(u'Message Privé'),
                                          self.topic.title)
         from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],

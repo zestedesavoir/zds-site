@@ -16,8 +16,9 @@ from zds.utils.models import SubCategory
 class ArticleFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Article
 
-    title = factory.Sequence('Mon Article No{0}'.format)
-    description = factory.Sequence('Description de l\'article No{0}'.format)
+    title = factory.Sequence(lambda n: 'Mon Article No{0}'.format(n))
+    description = factory.Sequence(
+        lambda n: 'Description de l\'article No{0}'.format(n))
     text = 'text.md'
     create_at = datetime.now()
 
@@ -94,6 +95,6 @@ class PublishedArticleFactory(ArticleFactory):
 class SubCategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubCategory
 
-    title = factory.Sequence('Sous-Categorie {0} pour l\'article'.format)
-    subtitle = factory.Sequence('Sous titre de Sous-Categorie {0} pour l\'article'.format)
-    slug = factory.Sequence('sous-categorie-{0}'.format)
+    title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour l\'article'.format(n))
+    subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour l\'article'.format(n))
+    slug = factory.Sequence(lambda n: 'sous-categorie-{0}'.format(n))

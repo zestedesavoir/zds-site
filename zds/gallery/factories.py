@@ -9,9 +9,9 @@ from zds.utils import slugify
 class ImageFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Image
 
-    title = factory.Sequence(u"titre de l\'image {0}".format)
+    title = factory.Sequence(lambda n: u"titre de l\'image {0}".format(n))
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
-    legend = factory.Sequence(u"legende de l'image {0}".format)
+    legend = factory.Sequence(lambda n: u"legende de l'image {0}".format(n))
     physical = factory.django.ImageField(color='blue')
 
     @classmethod
@@ -27,8 +27,8 @@ class ImageFactory(factory.DjangoModelFactory):
 class GalleryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Gallery
 
-    title = factory.Sequence(u"titre de la gallerie {0}".format)
-    subtitle = factory.Sequence(u"Sous-titre de la gallerie {0}".format)
+    title = factory.Sequence(lambda n: u"titre de la gallerie {0}".format(n))
+    subtitle = factory.Sequence(lambda n: u"Sous-titre de la gallerie {0}".format(n))
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
 
 

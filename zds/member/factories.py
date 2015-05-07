@@ -14,8 +14,8 @@ class UserFactory(factory.DjangoModelFactory):
     """
     FACTORY_FOR = User
 
-    username = factory.Sequence('firm{0}'.format)
-    email = factory.Sequence('firm{0}@zestedesavoir.com'.format)
+    username = factory.Sequence(lambda n: 'firm{0}'.format(n))
+    email = factory.Sequence(lambda n: 'firm{0}@zestedesavoir.com'.format(n))
     password = 'hostel77'
 
     is_active = True
@@ -39,8 +39,9 @@ class StaffFactory(factory.DjangoModelFactory):
     """
     FACTORY_FOR = User
 
-    username = factory.Sequence('firmstaff{0}'.format)
-    email = factory.Sequence('firmstaff{0}@zestedesavoir.com'.format)
+    username = factory.Sequence(lambda n: 'firmstaff{0}'.format(n))
+    email = factory.Sequence(
+        lambda n: 'firmstaff{0}@zestedesavoir.com'.format(n))
     password = 'hostel77'
 
     is_active = True
@@ -110,7 +111,7 @@ class NonAsciiUserFactory(UserFactory):
     """
     FACTORY_FOR = User
 
-    username = factory.Sequence(u'ïéàçÊÀ{0}'.format)
+    username = factory.Sequence(lambda n: u'ïéàçÊÀ{0}'.format(n))
 
 
 class NonAsciiProfileFactory(ProfileFactory):

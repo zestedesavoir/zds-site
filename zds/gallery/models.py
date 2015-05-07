@@ -3,10 +3,8 @@
 import os
 from string import lower
 from uuid import uuid4
-from shutil import rmtree
 
 from easy_thumbnails.fields import ThumbnailerImageField
-from easy_thumbnails.files import get_thumbnailer
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -136,8 +134,8 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     :rtype: None
     """
     if instance.physical:
-        thumbmanager = get_thumbnailer(instance.physical)
-        thumbmanager.delete(save=False)
+        if os.path.isfile(instance.physical.path):
+            os.remove(instance.physical.path)
 
 
 class Gallery(models.Model):
@@ -208,9 +206,5 @@ def auto_delete_image_on_delete(sender, instance, **kwargs):
     :return: nothing
     :rtype: None
     """
-    # Remove all pictures of the gallery
     for image in instance.get_images():
         image.delete()
-    # Remove the folder of the gallery if it exists
-    if os.path.isdir(instance.get_gallery_path()):
-        rmtree(instance.get_gallery_path())

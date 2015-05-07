@@ -4,7 +4,7 @@ import re
 
 from django import template
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from markdown import Markdown
 from markdown.extensions.zds import ZdsExtension

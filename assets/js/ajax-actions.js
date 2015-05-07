@@ -7,7 +7,7 @@
 
     /**
      * Toggle the text of the element by the text of an attribute
-     *
+     * 
      * @param {string} dataAttribute
      */
     $.fn.toggleText = function(dataAttribute){
@@ -285,7 +285,6 @@
 
                 $(data).insertAfter($form);
 
-                /* global MathJax */
                 if ($(data).find("mathjax").length > 0)
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
