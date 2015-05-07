@@ -7,7 +7,7 @@ from zds.member.api.views import MemberListAPI, MemberDetailAPI, \
 
 urlpatterns = patterns('',
                        url(r'^$', MemberListAPI.as_view(), name='api-member-list'),
-                       url(r'^mon_profil/$', MemberMyDetailAPI.as_view(), name='api-member-profile'),
+                       url(r'^mon-profil/$', MemberMyDetailAPI.as_view(), name='api-member-profile'),
                        url(r'^(?P<pk>[0-9]+)/$', MemberDetailAPI.as_view(), name='api-member-detail'),
                        url(r'^(?P<pk>[0-9]+)/lecture-seule/$', MemberDetailReadingOnly.as_view(),
                            name='api-member-read-only'),
