@@ -9,7 +9,7 @@ from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, Cr
     RemoveAuthorFromContent, WarnTypo
 
 from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, DownvoteReaction, \
-    UpdateNoteView
+    UpdateNoteView, GetReaction
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -31,6 +31,7 @@ urlpatterns = patterns('',
                        # reactions:
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
                        url(r'^reactions/ajouter/$', UpdateNoteView.as_view(), name="update-reaction"),
+                       url(r'^reactions/get-json/$', GetReaction.as_view(), name="json-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
 

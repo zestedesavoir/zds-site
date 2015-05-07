@@ -6,8 +6,10 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils import http
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
+from django.views.generic.detail import BaseDetailView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.views import get_client_ip
@@ -437,3 +439,15 @@ class DownvoteReaction(UpvoteReaction):
     remove_class = CommentLike
     add_like = 0
     add_dislike = 1
+
+
+class GetReaction(BaseDetailView):
+    def render_to_response(self, context):
+        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+            reaction = ContentReaction.objects.filter(pk=int(self.request.GET["message"])).first()
+            if reaction is not None:
+                string = json_writer.dumps(reaction, ensure_ascii=False)
+            else:
+                string = u"{}"
+            return http.HttpResponse(string, content_type='application/json')
+        raise Http404
