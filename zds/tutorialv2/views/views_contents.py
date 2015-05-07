@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Count, Q
@@ -40,7 +39,7 @@ from zds.utils import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
-from zds.utils.paginator import paginator_range
+from zds.utils.paginator import ZdSPagingListView
 
 
 class ListContents(LoggedWithReadWriteHability, ListView):
@@ -1170,12 +1169,13 @@ class WarnTypo(SingleContentFormViewMixin):
         return redirect(form.previous_page_url)
 
 
-class ContentsWithHelps(ListView):
+class ContentsWithHelps(ZdSPagingListView):
     """List all tutorial that needs help, i.e registered as needing at least one HelpWriting or is in beta
     for more documentation, have a look to ZEP 03 specification (fr)"""
 
-    context_object_name = 'objects'
+    context_object_name = 'contents'
     template_name = 'tutorialv2/view/help.html'
+    paginate_by = settings.ZDS_APP['content']['helps_per_page']
 
     specific_need = None
 
@@ -1202,24 +1202,7 @@ class ContentsWithHelps(ListView):
     def get_context_data(self, **kwargs):
         """Add all HelpWriting objects registered to the context so that the template can use it"""
         context = super(ContentsWithHelps, self).get_context_data(**kwargs)
-        objects = context[self.context_object_name]
-
-        # paginate
-        paginator = Paginator(objects, settings.ZDS_APP['content']['helps_per_page'])
-        page = self.request.GET.get('page', 1)
-
-        # Check if `page` is correct (integer and exists)
-        try:
-            page = int(page)
-            shown_objects = paginator.page(page)
-        except (PageNotAnInteger, EmptyPage, KeyError, ValueError):
-            raise Http404
-
-        shown_contents = []
-        for obj in shown_objects:
-            versioned = obj.load_version()
-            versioned.helps = obj.helps
-            shown_contents.append(versioned)
+        queryset = kwargs.pop('object_list', self.object_list)
 
         helps = HelpWriting.objects
 
@@ -1227,11 +1210,7 @@ class ContentsWithHelps(ListView):
             context['specific_need'] = helps.filter(slug=self.specific_need).first()
 
         context['helps'] = helps.all()
-        context['pages'] = paginator_range(page, paginator.num_pages)
-        context['nb'] = page
-        context['total_contents_number'] = objects.count()
-        context['contents'] = shown_contents
-
+        context['total_contents_number'] = queryset.count()
         return context
 
 
@@ -1405,4 +1384,4 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         self.object.save()
 
         self.success_url = self.object.get_absolute_url()
-        return super(AddAuthorToContent, self).form_valid(form)
+        return super(RemoveAuthorFromContent, self).form_valid(form)
