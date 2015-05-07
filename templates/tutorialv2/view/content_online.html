@@ -144,7 +144,7 @@
 
     {% for message in reactions %}
         {% captureas edit_link %}
-            {% url "content:add-reaction" %}?message={{ message.pk }}
+            {% url "content:update-reaction" %}?message={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
 
         {% captureas cite_link %}

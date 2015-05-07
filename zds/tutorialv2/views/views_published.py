@@ -355,12 +355,16 @@ class UpdateNoteView(SendNoteFormView):
     template_name = "tutorialv2/comment/edit.html"
 
     def form_valid(self, form):
-        if "note_pk" in self.request.POST and self.request.POST["note_pk"].isdigit():
+        if "message" in self.request.GET and self.request.GET["message"].isdigit():
             self.reaction = ContentReaction.objects\
-                .filter(pk=int(self.request.POST["note_pk"]), user__pk=self.request.user)\
+                .prefetch_related("author")\
+                .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if self.reaction is None:
                 raise Http404
+            if self.reaction.author.pk != self.request.user.pk \
+                or not self.request.user.has_perm('forum.change_post'):
+                raise PermissionDenied
         return super(UpdateNoteView, self).form_valid(form)
 
 
