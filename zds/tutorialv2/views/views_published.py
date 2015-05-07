@@ -151,6 +151,10 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         # set mimetype accordingly
         self.mimetype = self.mimetypes[self.requested_file]
 
+        # set UTF-8 response for markdown
+        if self.requested_file == 'md':
+            self.mimetype += '; charset=utf-8'
+
         return super(DownloadOnlineContent, self).get(context, **response_kwargs)
 
     def get_filename(self):
