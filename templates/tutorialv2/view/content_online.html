@@ -148,7 +148,7 @@
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "content:add-reaction" %}?pk={{ tutorial.pk }}&amp;cite={{ message.pk }}
+            {% url "content:add-reaction" %}?pk={{ content.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}

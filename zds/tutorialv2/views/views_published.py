@@ -289,6 +289,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     form_class = NoteForm
     check_as = True
     reaction = None
+    template_name = "tutorialv2/comment/new.html"
 
     def get_public_object(self):
         """redefine this function in order to get the object from `pk` in request.GET"""
@@ -351,6 +352,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
 class UpdateNoteView(SendNoteFormView):
     check_as = False
+    template_name = "tutorialv2/comment/edit.html"
 
     def form_valid(self, form):
         if "note_pk" in self.request.POST and self.request.POST["note_pk"].isdigit():

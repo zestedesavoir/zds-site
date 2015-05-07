@@ -113,6 +113,12 @@ class PublishableContent(models.Model):
     def __unicode__(self):
         return self.title
 
+    def textual_type(self):
+        if self.is_article():
+            return _("L'Article")
+        else:
+            return _("Le Tutoriel")
+
     def save(self, *args, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness
@@ -612,7 +618,7 @@ class ContentRead(models.Model):
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 
     def __unicode__(self):
-        return u'<Tutoriel "{0}" lu par {1}, #{2}>'.format(self.content, self.user, self.note.pk)
+        return u'<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
 class Validation(models.Model):
