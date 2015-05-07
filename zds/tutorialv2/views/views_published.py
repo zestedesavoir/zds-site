@@ -445,14 +445,13 @@ class GetReaction(BaseDetailView):
     model = ContentReaction
 
     def get_queryset(self):
-        ContentReaction.objects.filter(pk=int(self.request.GET["message"]))
+        return ContentReaction.objects.filter(pk=int(self.kwargs["pk"]))
 
     def render_to_response(self, context):
-        if "message" in self.request.GET and self.request.GET["message"].isdigit():
-            reaction = self.get_queryset().first()
-            if reaction is not None:
-                string = json_writer.dumps(reaction, ensure_ascii=False)
-            else:
-                string = u"{}"
-            return http.HttpResponse(string, content_type='application/json')
-        raise Http404
+
+        reaction = self.get_queryset().first()
+        if reaction is not None:
+            string = json_writer.dumps(reaction, ensure_ascii=False)
+        else:
+            string = u"{}"
+        return http.HttpResponse(string, content_type='application/json')
