@@ -4,7 +4,6 @@ from datetime import datetime
 import json as json_writer
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, EmptyPage
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
@@ -18,7 +17,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory
-from zds.utils.paginator import paginator_range
+from zds.utils.paginator import make_pagination
 
 
 class RedirectContentSEO(RedirectView):
@@ -57,37 +56,28 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
-        paginator = Paginator(ContentReaction.objects
-                              .select_related('author')
-                              .select_related('editor')
-                              .prefetch_related('author__post_liked')
-                              .prefetch_related('author__post_disliked')
-                              .filter(related_content=self.object).order_by("pubdate"),
-                              settings.ZDS_APP["content"]["notes_per_page"])
-        if "page" in self.request.GET and self.request.GET["page"].isdigit():
-            context["nb"] = int(self.request.GET["page"])
-        elif "page" not in self.request.GET:
-            context["nb"] = 1
-        else:
-            raise Http404
-        try:
-            context["reactions"] = paginator.page(context["nb"])
-        except EmptyPage:
-            raise Http404
+        queryset_reactions = ContentReaction.objects\
+            .select_related('author').select_related('editor')\
+            .prefetch_related('author__post_liked')\
+            .prefetch_related('author__post_disliked')\
+            .filter(related_content=self.object)\
+            .order_by("pubdate")
 
+        # pagination:
+        make_pagination(context,
+                        self.request,
+                        queryset_reactions,
+                        settings.ZDS_APP['content']['notes_per_page'],
+                        context_list_name='reactions',
+                        with_previous_item=True)
+
+        # is JS activated ?
         context["is_js"] = True
         if not self.object.js_support:
             context["is_js"] = False
 
-        if context["nb"] != 1:
-
-            # Show the last note of the previous page
-
-            context["last_page"] = paginator.page(context["nb"] - 1).object_list
-            context["last_note"] = context["last_page"][context["nb"] - 1]
-        context["pages"] = paginator_range(context["nb"], paginator.num_pages)
-
-        reaction_ids = [reaction.pk for reaction in context['reactions']]
+        # optimize requests:
+        reaction_ids = [reaction.pk for reaction in queryset_reactions]
         user_votes = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
