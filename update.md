@@ -217,8 +217,8 @@ Issue #1634
 Exécuter la commande suivante : `sudo apt-get install libffi-dev`
 
 
-Actions à faire pour mettre en prod la version : v1.9
-=====================================================
+Actions à faire pour mettre en prod la version : v15.6
+======================================================
 
 Issue #1511
 -----------
