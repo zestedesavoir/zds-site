@@ -909,3 +909,15 @@ class PrivatePostDetailAPI(APITestCase):
             reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
+
+    def test_update_of_private_post_success_with_special_characters(self):
+        """
+        Updates the last message of a private topic with special characters.
+        """
+        data = {
+            'text': 'éèîïà|ç&$*?!æ'
+        }
+        response = self.client.put(
+            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('text'), data.get('text'))

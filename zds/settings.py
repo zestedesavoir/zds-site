@@ -1,8 +1,14 @@
 # coding: utf-8
 
 import os
+import sys
 
 from django.utils.translation import gettext_lazy as _
+
+# Changes the default encoding of python to UTF-8.
+# Theses instructions don't change encoding python outside Zeste de Savoir.
+reload(sys)
+sys.setdefaultencoding('UTF8')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
