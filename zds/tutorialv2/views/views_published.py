@@ -442,9 +442,14 @@ class DownvoteReaction(UpvoteReaction):
 
 
 class GetReaction(BaseDetailView):
+    model = ContentReaction
+
+    def get_queryset(self):
+        ContentReaction.objects.filter(pk=int(self.request.GET["message"]))
+
     def render_to_response(self, context):
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
-            reaction = ContentReaction.objects.filter(pk=int(self.request.GET["message"])).first()
+            reaction = self.get_queryset().first()
             if reaction is not None:
                 string = json_writer.dumps(reaction, ensure_ascii=False)
             else:
