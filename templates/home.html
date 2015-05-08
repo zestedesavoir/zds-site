@@ -15,6 +15,11 @@
 
 
 
+{# Don't show the subheader on the home page #}
+{% block subheader %}{% endblock %}
+
+
+
 {% block content_out %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
     {% url 'zds.article.views.index' as url_articles %}
