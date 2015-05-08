@@ -156,6 +156,22 @@ $content-width: 1145px;
         flex-wrap: wrap;
         justify-content: center;
         width: 100%;
+
+        .no-feautered-resource {
+            flex: 1;
+            margin: 0;
+            line-height: 0;
+            text-align: center;
+            margin-right: 1px;
+            font-size: 20px;
+            background-color: white;
+
+            &::before, &::after {
+                display: block;
+                content: "";
+                padding-top: 10%;
+            }
+        }
     }
 
     .home-heading {
