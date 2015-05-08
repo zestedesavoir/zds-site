@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
 from django.views.generic.detail import BaseDetailView
@@ -460,7 +461,7 @@ class HideReaction(FormView, LoginRequiredMixin):
 
         try:
             pk = int(self.kwargs["pk"])
-            text = self.request.POST["text"]
+            text = self.request.POST["text_hidden"]
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
@@ -468,5 +469,5 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.text_hidden = text
             reaction.save()
             return redirect(reaction.related_content.get_absolute_url_online())
-        except (IndexError, ValueError):
+        except (IndexError, ValueError, MultiValueDictKeyError):
             raise Http404

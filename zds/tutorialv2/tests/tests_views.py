@@ -3251,9 +3251,9 @@ class ContentTests(TestCase):
             }, follow=True)
         reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
         result = self.client.post(reverse('content:hide-reaction', args=[reaction.pk]),
-                                  {'text': u"Ever notice how you come across somebody "
-                                           u"once in a while you shouldn't "
-                                           u"have fucked with? That's me."}, follow=False)
+                                  {'text_hidden': u"Ever notice how you come across somebody "
+                                                  u"once in a while you shouldn't "
+                                                  u"have fucked with? That's me."}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(ContentReaction.objects.filter(related_content__pk=publishable.pk).first().is_visible)
 
