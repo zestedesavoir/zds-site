@@ -1099,7 +1099,8 @@ class VersionedContent(Container):
             old_parent.children = [c for c in old_parent.children if c.slug != child.slug]
             adoptive_parent.add_container(child, True)
         self.repository.index.move([old_path, child.get_path(False)])
-
+        old_parent.update_children()
+        adoptive_parent.update_children()
         self.dump_json()
 
 
