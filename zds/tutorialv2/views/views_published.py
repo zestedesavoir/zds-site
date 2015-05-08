@@ -356,6 +356,17 @@ class UpdateNoteView(SendNoteFormView):
     check_as = False
     template_name = "tutorialv2/comment/edit.html"
 
+    def get_form_kwargs(self):
+        kwargs = super(UpdateNoteView, self).get_form_kwargs()
+        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+            self.reaction = ContentReaction.objects\
+                .prefetch_related("author")\
+                .filter(pk=int(self.request.GET["message"]))\
+                .first()
+            kwargs["text"] = self.reaction.text
+
+        return kwargs
+
     def form_valid(self, form):
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
             self.reaction = ContentReaction.objects\
