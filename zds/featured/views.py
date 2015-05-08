@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
@@ -57,6 +58,20 @@ class FeaturedResourceCreate(CreateView):
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
+        authors = []
+        for author in form.data.get('authors').split(","):
+            current = author.strip()
+            if current == '':
+                continue
+
+            try:
+                current_author = get_object_or_404(Profile, user__username=current)
+            except Http404:
+                messages.warning(self.request, _(u'L\'utilisateur {} n\'existe pas.').format(current))
+                return render(self.request, self.template_name, {'form': form})
+
+            authors.append(current_author)
+
         featured_resource = FeaturedResource()
         featured_resource.title = form.data.get('title')
         featured_resource.type = form.data.get('type')
@@ -64,12 +79,8 @@ class FeaturedResourceCreate(CreateView):
         featured_resource.url = form.data.get('url')
         featured_resource.pubdate = datetime.now()
         featured_resource.save()
-        for author in form.data.get('authors').split(","):
-            current = author.strip()
-            if current == '':
-                continue
-            current_author = get_object_or_404(Profile, user__username=current)
-            featured_resource.authors.add(current_author)
+
+        featured_resource.authors.add(*authors)
         featured_resource.save()
 
         return redirect(reverse('featured-resource-list'))
@@ -112,18 +123,31 @@ class FeaturedResourceUpdate(UpdateView):
         return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})
 
     def form_valid(self, form):
+        authors = []
+        for author in form.data.get('authors').split(","):
+            current = author.strip()
+            if current == '':
+                continue
+
+            try:
+                current_author = get_object_or_404(Profile, user__username=current)
+            except Http404:
+                messages.warning(self.request, _(u'L\'utilisateur {} n\'existe pas.').format(current))
+                return render(self.request,
+                              self.template_name,
+                              {'form': form, 'featured_resource': self.featured_resource})
+
+            authors.append(current_author)
+
         self.featured_resource.title = form.data.get('title')
         self.featured_resource.type = form.data.get('type')
         self.featured_resource.image_url = form.data.get('image_url')
         self.featured_resource.url = form.data.get('url')
         self.featured_resource.pubdate = datetime.now()
         self.featured_resource.save()
-        for author in form.data.get('authors').split(","):
-            current = author.strip()
-            if current == '':
-                continue
-            current_author = get_object_or_404(Profile, user__username=current)
-            self.featured_resource.authors.add(current_author)
+
+        self.featured_resource.authors.clear()
+        self.featured_resource.authors.add(*authors)
         self.featured_resource.save()
 
         return redirect(reverse('zds.pages.views.home'))
