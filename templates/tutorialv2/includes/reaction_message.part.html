@@ -56,7 +56,7 @@
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         {% trans "Masquer" %}
                                     </a>
-                                    <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
+                                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
                                         {% csrf_token %}
                                         {% if message.pk in user_can_modify %}
                                             <p>
@@ -77,22 +77,22 @@
                             {% endif %}
                         {% endif %}
 
-                        {% if message.pk in user_can_modify %}
-                            {% if can_edit != False %}
-                                <li>
-                                    <a href="{{ edit_link|safe }}" class="ico-after edit">
-                                        {% trans "Éditer" %}
-                                    </a>
-                                </li>
-                            {% endif %}
+
+                        {% if can_edit != False %}
+                            <li>
+                                <a href="{{ edit_link|safe }}" class="ico-after edit">
+                                    {% trans "Éditer" %}
+                                </a>
+                            </li>
                         {% endif %}
+
 
                         {% if can_hide != False %}
                             <li>
                                 <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     {% trans "Signaler" %}
                                 </a>
-                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-big">
+                                <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-big">
                                     {% csrf_token %}
                                     <label for="signal-message-{{ message.id }}-field">
                                         {% trans "Pour quelle raison signalez-vous ce message" %} ?

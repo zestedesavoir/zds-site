@@ -35,7 +35,6 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentTests(TestCase):
-
     def setUp(self):
         self.staff = StaffProfileFactory().user
 
@@ -2446,11 +2445,11 @@ class ContentTests(TestCase):
     def test_add_note(self):
         tuto = PublishedContentFactory(author_list=[self.user_author], type="TUTORIAL")
 
-        published_obj = PublishedContent.objects\
-            .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type)\
-            .prefetch_related('content')\
-            .prefetch_related("content__authors")\
-            .prefetch_related("content__subcategory")\
+        published_obj = PublishedContent.objects \
+            .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type) \
+            .prefetch_related('content') \
+            .prefetch_related("content__authors") \
+            .prefetch_related("content__subcategory") \
             .first()
 
         self.assertIsNotNone(published_obj)
@@ -3235,6 +3234,28 @@ class ContentTests(TestCase):
         self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
+
+    def test_hide_reaction(self):
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+        reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
+        result = self.client.post(reverse('content:hide-reaction', args=[reaction.pk]),
+                                  {'text': u"Ever notice how you come across somebody "
+                                           u"once in a while you shouldn't "
+                                           u"have fucked with? That's me."}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertFalse(ContentReaction.objects.filter(related_content__pk=publishable.pk).first().is_visible)
 
     def tearDown(self):
 

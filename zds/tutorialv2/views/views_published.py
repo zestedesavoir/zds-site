@@ -451,3 +451,22 @@ class GetReaction(BaseDetailView):
         else:
             string = u'{"text":""}'
         return HttpResponse(string, content_type='application/json')
+
+
+class HideReaction(FormView, LoginRequiredMixin):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            pk = int(self.kwargs["pk"])
+            text = self.request.POST["text"]
+            reaction = get_object_or_404(ContentReaction, pk=pk)
+            if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
+                raise PermissionDenied
+            reaction.is_visible = False
+            reaction.text_hidden = text
+            reaction.save()
+            return redirect(reaction.related_content.get_absolute_url_online())
+        except (IndexError, ValueError):
+            raise Http404

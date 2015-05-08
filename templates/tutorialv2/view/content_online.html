@@ -145,6 +145,7 @@
 
 
     {% for message in reactions %}
+
         {% captureas edit_link %}
             {% url "content:update-reaction" %}?message={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
@@ -164,13 +165,23 @@
         {% captureas alert_solve_link %}
 
         {% endcaptureas %}
+        {% captureas alert_link %}
+
+        {% endcaptureas %}
+        {% captureas hide_link %}
+            {% url "content:hide-reaction" message.pk%}
+        {% endcaptureas %}
 
         {% if forloop.first and nb > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
             {% set False as is_repeated_message %}
         {% endif %}
-
+        {% if message.pk in user_can_modify %}
+            {% set True as can_edit %}
+        {% else %}
+            {% set False as can_edit %}
+        {% endif %}
 
         {% include "tutorialv2/includes/reaction_message.part.html" with topic=content comment_schema=True %}
     {% endfor %}
