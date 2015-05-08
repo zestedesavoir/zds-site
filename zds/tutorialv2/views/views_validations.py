@@ -13,7 +13,7 @@ from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
-from zds.tutorialv2.models.models_database import Validation, PublishableContent
+from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
@@ -376,7 +376,11 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             validation.status = "ACCEPT"
             validation.date_validation = datetime.now()
             validation.save()
-
+            for user in db_object.authors.all():
+                read = ContentRead()
+                read.user = user
+                read.content = db_object
+                read.save()
             # TODO: deal with other kind of publications (HTML, PDF, archive, ...)
 
             if is_update:

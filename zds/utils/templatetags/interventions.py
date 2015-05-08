@@ -134,6 +134,8 @@ def interventions_topics(user):
         reaction = content.first_unread_note()
         if reaction is None:
             reaction = content.first_note()
+        if reaction is None:
+            continue
         posts_unread.append({'pubdate': reaction.pubdate,
                              'author': reaction.author,
                              'title': content.title,
