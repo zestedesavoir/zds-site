@@ -51,20 +51,20 @@
          p {
             font-size: 12px;
             margin: 0;
-            line-height: 12px;
+            line-height: 22px;
          }
     }
 
     a:focus,
     a:hover {
-        .featured-illu {
+        .featured-resource-illu {
             opacity: 0.4;
             filter: blur(5px);
             transform: scale(1.05);
         }
         .featured-resource-meta {
             h3 {
-                height: 200px;
+                height: 190px;
                 font-size: 20px;
             }
         }

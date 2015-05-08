@@ -15,7 +15,6 @@ $content-width: 1145px;
         padding: 0;
     }
 
-    // A VIRER POUR FAIRE MIEUX :)
     .sub-header {
         display: none;
     }
@@ -162,6 +161,7 @@ $content-width: 1145px;
     .home-heading {
         height: 40px;
         padding-left: 50px!important;
+        margin-bottom: 18px!important;
 
         &.heading-white {
             color: white;
@@ -194,7 +194,7 @@ $content-width: 1145px;
             left: -28px;
 
             background: url('../images/home-clem.png');
-	    background-size: 100%;
+            background-size: 100%;
             width: 68px;
             height: 134px;
         }
