@@ -3188,7 +3188,7 @@ class ContentTests(TestCase):
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), "10000"))
         self.assertEqual(result.status_code, 404)
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
     def test_upvote_downvote(self):
         publishable = PublishedContentFactory(author_list=[self.user_author])

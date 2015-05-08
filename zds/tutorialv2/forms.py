@@ -384,7 +384,7 @@ class ImportNewContentForm(ImportContentForm):
 
 
 class BetaForm(forms.Form):
-    version = forms.HiddenInput()
+    version = forms.CharField(widget=forms.HiddenInput, required=True)
 
 # Notes
 
@@ -477,7 +477,7 @@ class AskValidationForm(forms.Form):
         super(AskValidationForm, self).__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
-        self.previous_page_url = reverse('content:view', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.previous_page_url = content.get_absolute_url() + '?version=' + content.current_version
 
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:ask', kwargs={'pk': content.pk, 'slug': content.slug})
@@ -547,7 +547,11 @@ class AcceptValidationForm(forms.Form):
 
         # modal form, send back to previous page:
         self.previous_page_url = reverse(
-            'content:view', kwargs={'pk': validation.content.pk, 'slug': validation.content.slug})
+            'content:view',
+            kwargs={
+                'pk': validation.content.pk,
+                'slug': validation.content.slug
+            }) + '?version=' + validation.version
 
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
@@ -600,7 +604,11 @@ class RejectValidationForm(forms.Form):
 
         # modal form, send back to previous page:
         self.previous_page_url = reverse(
-            'content:view', kwargs={'pk': validation.content.pk, 'slug': validation.content.slug})
+            'content:view',
+            kwargs={
+                'pk': validation.content.pk,
+                'slug': validation.content.slug
+            }) + '?version=' + validation.version
 
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:reject', kwargs={'pk': validation.pk})

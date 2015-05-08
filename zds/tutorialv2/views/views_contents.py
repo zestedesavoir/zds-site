@@ -19,7 +19,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.generic import ListView, FormView, DeleteView
 from git import GitCommandError
-from git import BadObject
 import os
 from zds.forum.models import Forum
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
@@ -945,6 +944,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     model = PublishableContent
     form_class = BetaForm
     authorized_for_staff = False
+    only_draft_version = False
 
     action = None
 
@@ -953,14 +953,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         return super(ManageBetaContent, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
-        # check version:
-        try:
-            sha_beta = self.request.POST['version']
-            beta_version = self.object.load_version(sha=sha_beta)
-        except KeyError:
-            raise Http404  # wrong POST data
-        except BadObject:
-            raise PermissionDenied  # version does not exists !
+        beta_version = self.versioned_object
+        sha_beta = beta_version.current_version
 
         # topic of the beta version:
         topic = self.object.beta_topic
@@ -1097,12 +1091,9 @@ class WarnTypo(SingleContentFormViewMixin):
 
     def get_form_kwargs(self):
 
-        if 'version' not in self.request.POST:
-            raise PermissionDenied
-
         kwargs = super(WarnTypo, self).get_form_kwargs()
 
-        versioned = self.object.load_version_or_404(self.request.POST['version'])
+        versioned = self.get_versioned_object()
         kwargs['content'] = versioned
         kwargs['targeted'] = versioned
 
@@ -1113,6 +1104,8 @@ class WarnTypo(SingleContentFormViewMixin):
 
         if versioned.is_beta:
             kwargs['public'] = False
+        elif not versioned.is_public:
+            raise PermissionDenied
 
         return kwargs
 

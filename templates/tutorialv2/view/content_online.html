@@ -97,15 +97,16 @@
 {% block sidebar_blocks %}
     {% include "tutorialv2/includes/summary.part.html" with online=True %}
 
-    {% if is_staff %}
+    {% if is_staff or is_author %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
             <h3>{% blocktrans %}Admin<span class="wide">istration</span>{% endblocktrans %}</h3>
             <ul>
                 <li>
-                    <a href="{{ content.get_absolute_url }}" class="ico-after offline blue">
+                    <a href="{{ content.get_absolute_url }}?version={{ content.sha_public }}" class="ico-after offline blue">
                         {% trans "Version hors-ligne" %}
                     </a>
                 </li>
+                {% if is_staff %}
                 <li>
                     <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
                         {% trans "Historique validation" %}
@@ -119,6 +120,7 @@
                         {% crispy formRevokeValidation %}
                     </div>
                 </li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}

@@ -88,11 +88,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     only_draft_version = False
     modal_form = True
 
-    def dispatch(self, *args, **kwargs):
-        if "version" in self.request.POST:
-            self.sha = self.request.POST["version"]
-        return super(AskValidationForContent, self).dispatch(*args, **kwargs)
-
     def get_form_kwargs(self):
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object

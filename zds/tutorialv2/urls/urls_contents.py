@@ -8,8 +8,8 @@ from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, Cr
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo
 
-from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, DownvoteReaction, \
-    UpdateNoteView, GetReaction
+from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, \
+    DownvoteReaction, UpdateNoteView, GetReaction
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),

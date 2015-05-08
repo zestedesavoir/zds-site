@@ -3,9 +3,9 @@
 from django.views.generic import View
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext_lazy as _
@@ -16,94 +16,110 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 class SingleContentViewMixin(object):
     """
     Base mixin to get only one content, and its corresponding versioned content
-    sends 404 error if the primary key is not found or the slug is not coherent,
-    sends 403 error if the view is only accessible for author
+
+    Deal with URL resolution in the following way:
+
+    1. In `get_object()`:
+        - Fetch the `PublishableContent` according to `self.kwargs['pk']`, `self.request.GET['pk']` or
+        `self.request.POST['pk']` (one of these have to be defined). Raise `Http404` if any.
+        - Then, check permissions with respect to `self.must_be_author` and `self.authorized_for_staff` (and define
+        `self.is_staff`). Raise `PermissionDenied` if any.
+    2. In `get_versioned_object()`:
+        - Deal with sha : assume `self.object.sha_draft` by default, but reset according to
+        `self.request.GET['version']`, if exists. Then, check `self.only_draft_version` and raise `PermissionDenied`
+        if any
+        - Fetch the `VersionedContent`. Due to  the use of `self.object.load_version_or_404(sha)`, raise `Http404`.
+        - Check if its the beta or public version, and allow access if it's the case. Raise `PermissionDenied`.
+        - Check slug if `self.kwargs['slug']` is defined. Raise `Http404` if any.
+
+    Any redefinition of any of these two functions should take care of those points.
     """
 
     object = None
     versioned_object = None
 
+    prefetch_all = True
+    sha = None
     must_be_author = True
     authorized_for_staff = True
-    prefetch_all = True
-    only_draft_version = True
-    sha = None
-    is_public = False
-    must_redirect = False
     is_staff = False
+    is_author = False
+    only_draft_version = True
+    must_redirect = False
 
     def get_object(self, queryset=None):
-        if self.prefetch_all:
-            if "pk" in self.request.GET and "pk" not in self.kwargs:
-                queryset = PublishableContent.objects \
-                    .select_related("licence") \
-                    .prefetch_related("authors") \
-                    .prefetch_related("subcategory") \
-                    .filter(pk=self.request.GET["pk"])
-            else:
-                queryset = PublishableContent.objects \
-                    .select_related("licence") \
-                    .prefetch_related("authors") \
-                    .prefetch_related("subcategory") \
-                    .filter(pk=self.kwargs["pk"])
+        """ Get database representation of the content by its `pk`, then check permissions
+        """
 
-            obj = queryset.first()
-            if obj is None:
-                raise Http404
+        # fetch object:
+        pk = None
+        if 'pk' in self.kwargs:
+            pk = self.kwargs['pk']
+        elif 'pk' in self.request.GET:
+            pk = self.request.GET['pk']
+        elif 'pk' in self.request.POST:
+            pk = self.request.POST['pk']
         else:
-            obj = get_object_or_404(PublishableContent, pk=self.kwargs['pk'])
+            raise Http404
 
-        self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
+        queryset = PublishableContent.objects
 
-        if "slug" in self.kwargs and self.kwargs["slug"] != obj.slug and self.is_public:
-            # if slug and pk does not match try to find old pk
-            queryset = PublishableContent.objects \
-                .select_related("licence") \
+        if self.prefetch_all:
+            queryset = queryset.\
+                select_related("licence") \
                 .prefetch_related("authors") \
                 .prefetch_related("subcategory") \
-                .filter(old_pk=self.kwargs["pk"], slug=self.kwargs["slug"])
-            obj = queryset.first()
-            self.must_redirect = True
-        if self.is_public and not self.must_redirect:
-            self.sha = obj.sha_public
-        if self.must_be_author and self.request.user not in obj.authors.all():
-            if self.authorized_for_staff and self.is_staff:
-                return obj
-            raise PermissionDenied
+
+        obj = queryset.filter(pk=pk).first()
+
+        if not obj:
+            raise Http404
+
+        # check permissions:
+        self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
+        self.is_author = self.request.user in obj.authors.all()
+
+        if self.must_be_author and not self.is_author:
+            if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
+                raise PermissionDenied
 
         return obj
 
     def get_versioned_object(self):
+        """Gets the asked version of current content.
         """
-        Gets the asked version of current content.
-        """
+
+        # fetch version:
         sha = self.object.sha_draft
 
         if not self.only_draft_version:
             if self.sha:
                 sha = self.sha
             else:
-                try:
-                    sha = self.request.GET["version"]
-                except KeyError:
-                    pass
+                if 'version' in self.request.GET:
+                    sha = self.request.GET['version']
+                elif 'version' in self.request.POST:
+                    sha = self.request.POST['version']
 
-        # if beta, user can also access to it
-        is_beta = self.object.is_beta(sha)
-        if self.object.is_public(sha):
-            pass
-        elif self.request.user not in self.object.authors.all() and not is_beta:
-            if not self.request.user.has_perm("tutorial.change_tutorial") \
-                    or (not self.authorized_for_staff and self.must_be_author):
+        self.sha = sha
+
+        # if beta or public version, user can also access to it
+        is_beta = self.object.is_beta(self.sha)
+        is_public = self.object.is_public(self.sha)
+
+        if not is_beta and not is_public and not self.is_author:
+            if not self.is_staff or (not self.authorized_for_staff and self.must_be_author):
                 raise PermissionDenied
 
         # load versioned file
-        versioned = self.object.load_version_or_404(sha)
+        versioned = self.object.load_version_or_404(self.sha)
 
-        if 'slug' in self.kwargs \
-                and (versioned.slug != self.kwargs['slug'] and self.object.slug != self.kwargs['slug']):
-
-            raise Http404
+        # check slug, if any:
+        if 'slug' in self.kwargs:
+            slug = self.kwargs['slug']
+            if versioned.slug != slug:
+                if slug != self.object.slug:  # retro-compatibility, but should raise permanent redirect instead
+                    raise Http404
 
         return versioned
 
@@ -117,10 +133,6 @@ class SingleContentPostMixin(SingleContentViewMixin):
     versioned = True
 
     def get_object(self, queryset=None):
-        try:
-            self.kwargs["pk"] = self.request.POST['pk']
-        except KeyError:
-            raise Http404
         self.object = super(SingleContentPostMixin, self).get_object()
 
         if self.versioned and 'version' in self.request.POST['version']:
@@ -212,7 +224,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context = super(SingleContentDetailViewMixin, self).get_context_data(**kwargs)
 
         context['content'] = self.versioned_object
-        context['can_edit'] = self.request.user in self.object.authors.all()
+        context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff
         if self.sha != self.object.sha_draft:
             context["version"] = self.sha
@@ -258,22 +270,25 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
     public_content_object = None
     versioned_object = None
 
+    is_author = False
+    is_staff = False
+
     def get_public_object(self):
         pk = self.kwargs.pop('pk', None)
         slug = self.kwargs.pop('slug', '')
 
-        try:
-            obj = PublishedContent.objects\
-                .filter(content_pk=pk, content_public_slug=slug, content_type=self.current_content_type)\
-                .prefetch_related('content')\
-                .prefetch_related("content__authors")\
-                .prefetch_related("content__subcategory")\
-                .first()
-        except ObjectDoesNotExist:
-            raise Http404
+        obj = PublishedContent.objects\
+            .filter(content_pk=pk, content_public_slug=slug, content_type=self.current_content_type)\
+            .prefetch_related('content')\
+            .prefetch_related("content__authors")\
+            .prefetch_related("content__subcategory")\
+            .first()
 
         if obj is None:
             raise Http404
+
+        self.is_author = self.request.user in obj.content.authors.all()
+        self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
 
         return obj
 
@@ -324,7 +339,8 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context['public_object'] = self.public_content_object
         context['can_edit'] = self.request.user in self.object.authors.all()
         context['isantispam'] = self.object.antispam(self.request.user)
-        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
+        context['is_staff'] = self.is_staff
+        context['is_author'] = self.is_author
         return context
 
 
