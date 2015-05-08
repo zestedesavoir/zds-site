@@ -6,7 +6,6 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.utils import http
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
 from django.views.generic.detail import BaseDetailView
@@ -428,10 +427,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
                 note.save()
         resp["upvotes"] = note.like
         resp["downvotes"] = note.dislike
-        if request.is_ajax():
-            return HttpResponse(json_writer.dumps(resp))
-        else:
-            return redirect(note.get_absolute_url())
+        return redirect(note.get_absolute_url())
 
 
 class DownvoteReaction(UpvoteReaction):
@@ -451,7 +447,7 @@ class GetReaction(BaseDetailView):
 
         reaction = self.get_queryset().first()
         if reaction is not None:
-            string = json_writer.dumps(reaction.text, ensure_ascii=False)
+            string = json_writer.dumps({"text": reaction.text}, ensure_ascii=False)
         else:
-            string = u"{}"
-        return http.HttpResponse(string, content_type='application/json')
+            string = u'{"text":""}'
+        return HttpResponse(string, content_type='application/json')
