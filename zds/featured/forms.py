@@ -30,6 +30,7 @@ class FeaturedResourceForm(forms.ModelForm):
         max_length=FeaturedResource._meta.get_field('type').max_length,
         widget=forms.TextInput(
             attrs={
+                'placeholder': _(u'ex: Un projet, un article, un tutoriel...'),
                 'required': 'required',
             }
         )

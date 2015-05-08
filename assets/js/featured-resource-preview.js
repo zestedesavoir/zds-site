@@ -6,14 +6,14 @@
     function updatePreview(data, element) {
         var $el = $(element);
         if(data.image) {
-            $el.find(".featured-illu").show().attr("src", data.image);
+            $el.find(".featured-resource-illu").show().attr("src", data.image);
         }
         else {
-            $el.find(".featured-illu").hide();
+            $el.find(".featured-resource-illu").hide();
         }
 
         $el.find("h3").text(data.title);
-        $el.find(".featured-description").html(data.description);
+        $el.find(".featured-resource-description").html(data.description);
         $el.find("a").attr("href", data.link);
     }
 
@@ -34,15 +34,15 @@
         return text;
     }
 
-    $(".featured-edit-form form input").on("change input", function() {
+    $(".featured-resource-edit-form form input").on("change input", function() {
         updatePreview({
-            image: $(".featured-edit-form input[name=image_url]").val(),
-            title: $(".featured-edit-form input[name=title]").val(),
+            image: $(".featured-resource-edit-form input[name=image_url]").val(),
+            title: $(".featured-resource-edit-form input[name=title]").val(),
             description: buildDescription(
-                $(".featured-edit-form input[name=authors]").val(),
-                $(".featured-edit-form input[name=type]").val()
+                $(".featured-resource-edit-form input[name=authors]").val(),
+                $(".featured-resource-edit-form input[name=type]").val()
             ),
             link: $(".featured-edit-form input[name=url]").val(),
-        }, $(".featured-edit-form .featured-item"));
+        }, $(".featured-resource-edit-form .featured-resource-item"));
     });
 })(jQuery);
