@@ -400,7 +400,7 @@ class NoteForm(forms.Form):
         )
     )
 
-    def __init__(self, content, user, *args, **kwargs):
+    def __init__(self, content, user, reaction, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:add-reaction') + u'?pk={}'.format(content.pk)
@@ -411,7 +411,7 @@ class NoteForm(forms.Form):
             Hidden('last_note', '{{ last_note_pk }}'),
         )
 
-        if content.antispam(user):
+        if content.antispam(user) and reaction is not None:
             if 'text' not in self.initial:
                 self.helper['text'].wrap(
                     Field,
@@ -425,6 +425,8 @@ class NoteForm(forms.Form):
                 placeholder=_(u'Ce tutoriel est verrouillé.'),
                 disabled=True
             )
+        if reaction is not None:
+            self.initial.setdefault("text", reaction.text)
 
     def clean(self):
         cleaned_data = super(NoteForm, self).clean()

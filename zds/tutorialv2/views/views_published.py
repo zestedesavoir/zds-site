@@ -312,7 +312,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['content'] = self.object
-
+        kwargs["reaction"] = None
         return kwargs
 
     def form_valid(self, form):
@@ -363,7 +363,7 @@ class UpdateNoteView(SendNoteFormView):
                 .prefetch_related("author")\
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
-            kwargs["text"] = self.reaction.text
+            kwargs["reaction"] = self.reaction
 
         return kwargs
 
