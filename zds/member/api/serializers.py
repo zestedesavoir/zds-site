@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator, \
-    ProfileCreate
+from zds.member.commons import ProfileCreate
 from zds.member.models import Profile
+from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """
+    Serializers of a user object.
+    """
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'is_active', 'date_joined')
 
 
 class ProfileListSerializer(serializers.ModelSerializer):

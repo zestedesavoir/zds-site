@@ -6,7 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
-from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.models import PrivateTopic, PrivatePost, PrivateTopicRead
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
@@ -21,7 +21,6 @@ def send_mp(
         direct=False):
     """
     Send MP at members.
-
     Most of the param are obvious, excepted :
     * direct : send a mail directly without mp (ex : ban members who wont connect again)
     * leave : the author leave the conversation (usefull for the bot : it wont read the response a member could send)
@@ -40,14 +39,44 @@ def send_mp(
     for part in users:
         n_topic.participants.add(part)
 
-    # Addi the first message
+    topic = send_message_mp(author, n_topic, text, send_by_mail, direct)
+
+    if leave:
+        move = topic.participants.first()
+        topic.author = move
+        topic.participants.remove(move)
+        topic.save()
+
+    return topic
+
+
+def send_message_mp(
+        author,
+        n_topic,
+        text,
+        send_by_mail=True,
+        direct=False):
+    """
+    Send a post in an MP.
+    Most of the param are obvious, excepted :
+    * direct : send a mail directly without mp (ex : ban members who wont connect again)
+    * leave : the author leave the conversation (usefull for the bot : it wont read the response a member could send)
+    """
+
+    # Getting the position of the post
+    if n_topic.last_message is None:
+        pos = 1
+    else:
+        pos = n_topic.last_message.position_in_topic + 1
+
+    # Add the first message
     post = PrivatePost()
     post.privatetopic = n_topic
     post.author = author
     post.text = text
     post.text_html = emarkdown(text)
     post.pubdate = datetime.now()
-    post.position_in_topic = 1
+    post.position_in_topic = pos
     post.save()
 
     n_topic.last_message = post
@@ -59,7 +88,7 @@ def send_mp(
             subject = u"{} : {}".format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
             from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                            settings.ZDS_APP['site']['email_noreply'])
-            for part in users:
+            for part in n_topic.participants.all():
                 message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
                 message_txt = render_to_string('email/direct.txt', {'msg': text})
 
@@ -75,26 +104,30 @@ def send_mp(
                                              n_topic.title)
             from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                            settings.ZDS_APP['site']['email_noreply'])
-            for part in users:
-                context = {
-                    'username': part.username,
-                    'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
-                    'author': author.username,
-                    'site_name': settings.ZDS_APP['site']['litteral_name']
-                }
-                message_html = render_to_string('email/mp/new.html', context)
-                message_txt = render_to_string('email/mp/new.txt', context)
+            for part in n_topic.participants.all():
+                profile = part.profile
+                if profile.email_for_answer or pos == 1:
+                    # Don't send the e-mail if the user is already notified.
+                    last_read = PrivateTopicRead.objects.filter(
+                        privatetopic=n_topic,
+                        privatepost__position_in_topic=pos - 1,
+                        user=part).count()
 
-                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-                msg.attach_alternative(message_html, "text/html")
-                try:
-                    msg.send()
-                except:
-                    msg = None
-    if leave:
-        move = n_topic.participants.first()
-        n_topic.author = move
-        n_topic.participants.remove(move)
-        n_topic.save()
+                    if last_read > 0 or pos == 1:
+                        context = {
+                            'username': part.username,
+                            'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
+                            'author': n_topic.author.username,
+                            'site_name': settings.ZDS_APP['site']['litteral_name']
+                        }
+                        message_html = render_to_string('email/mp/new.html', context)
+                        message_txt = render_to_string('email/mp/new.txt', context)
+
+                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
+                        msg.attach_alternative(message_html, "text/html")
+                        try:
+                            msg.send()
+                        except:
+                            msg = None
 
     return n_topic
