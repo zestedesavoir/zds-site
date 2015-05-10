@@ -5,17 +5,21 @@
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
     <a
-    {%  if child.text %}
-        href="{{ child.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ child.position_in_parent }}-{{ child.slug }}"
+    {% if content.is_beta %}
+        href="{{ child.get_absolute_url_beta }}"
     {% else %}
-        href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+        {%  if child.text %}
+            href="{{ child.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ child.position_in_parent }}-{{ child.slug }}"
+        {% else %}
+            href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+        {% endif %}
     {% endif %}
     >
         {{ child.title }}
     </a>
 </h2>
 
-{% if user in content.authors.all or perms.tutorial.change_tutorial %}
+{% if is_author or is_staff %}
     {%  if not version or version == content.sha_draft %}
         <div class="actions-title">
             <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
@@ -77,7 +81,13 @@
         <ol>
             {% for extract in child.children %}
             <li>
-                <a href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                <a
+                    {% if content.is_beta %}
+                        href="{{ extract.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                    {% endif %}
+                >{{ extract.title }}</a>
             </li>
             {% endfor %}
         </ol>
@@ -86,13 +96,25 @@
             {% for subchild in child.children %}
             <li>
                 <h3>
-                    <a href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}">{{ subchild.title }}</a>
+                    <a
+                    {% if content.is_beta %}
+                        href="{{ subchild.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                    >{{ subchild.title }}</a>
                 </h3>
                 <ol class="summary-part">
                     {% for extract in subchild.children %}
                         <li>
                             <h4>
-                                <a href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                                <a
+                                    {% if content.is_beta %}
+                                        href="{{ extract.get_absolute_url_beta }}"
+                                    {% else %}
+                                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                    {% endif %}
+                                >{{ extract.title }}</a>
                             </h4>
                         </li>
                     {% endfor %}

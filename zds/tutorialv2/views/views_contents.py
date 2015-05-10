@@ -210,6 +210,27 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         return context
 
 
+class DisplayBetaContent(DisplayContent):
+
+    sha = None
+
+    def get_object(self, queryset=None):
+        """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
+        obj = super(DisplayBetaContent, self).get_object(queryset)
+
+        if not obj.sha_beta or obj.sha_beta == '':
+            raise Http404
+
+        else:
+            self.sha = obj.sha_beta
+
+        # make the slug always right in URLs resolution:
+        if 'slug' in self.kwargs:
+            self.kwargs['slug'] = obj.slug
+
+        return obj
+
+
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
@@ -661,7 +682,6 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
     model = PublishableContent
     template_name = 'tutorialv2/view/container.html'
-    online = False
     sha = None
     must_be_author = False  # beta state does not need the author
     only_draft_version = False
@@ -705,6 +725,27 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
         context["is_js"] = is_js
 
         return context
+
+
+class DisplayBetaContainer(DisplayContainer):
+
+    sha = None
+
+    def get_object(self, queryset=None):
+        """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
+        obj = super(DisplayBetaContainer, self).get_object(queryset)
+
+        if not obj.sha_beta or obj.sha_beta == '':
+            raise Http404
+
+        else:
+            self.sha = obj.sha_beta
+
+        # make the slug always right in URLs resolution:
+        if 'slug' in self.kwargs:
+            self.kwargs['slug'] = obj.slug
+
+        return obj
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -1009,7 +1050,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     create_topic(author=self.request.user,
                                  forum=forum,
-                                 title=_(u"[beta][tutoriel]{0}").format(beta_version.title),
+                                 title=_(u"[beta][{}]{}").format(_type, beta_version.title),
                                  subtitle=u"{}".format(beta_version.description),
                                  text=msg,
                                  related_publishable_content=self.object)

@@ -2828,6 +2828,7 @@ class ContentTests(TestCase):
         self.assertIn(versioned.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
 
         # check if user can warn typo in chapter of tutorial
+        chapter = versioned.children[-1]
         result = self.client.post(
             reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
             {
