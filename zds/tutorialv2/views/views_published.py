@@ -510,7 +510,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         alert = Alert()
         alert.author = request.user
         alert.comment = note
-        alert.scope = Alert.TUTORIAL
+        alert.scope = Alert.CONTENT
         alert.text = request.POST["signal_text"]
         alert.pubdate = datetime.now()
         alert.save()
@@ -546,7 +546,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
                 send_mp(
                     bot,
                     [alert.author],
-                    _(u"Résolution d'alerte : {0}").format(note.tutorial.title),
+                    _(u"Résolution d'alerte : {0}").format(note.related_content.title),
                     "",
                     msg,
                     False,

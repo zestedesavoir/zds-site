@@ -23,7 +23,7 @@ from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike
+from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
 
 
@@ -3256,6 +3256,57 @@ class ContentTests(TestCase):
                                                   u"have fucked with? That's me."}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(ContentReaction.objects.filter(related_content__pk=publishable.pk).first().is_visible)
+
+    def test_alert_reaction(self):
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+        reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:alert-reaction', args=[reaction.pk]),
+            {
+                "signal_text": 'No. Try not. Do... or do not. There is no try.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNotNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        result = self.client.post(
+            reverse('content:resolve-reaction'),
+            {
+                "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                "text": 'No. Try not. Do... or do not. There is no try.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 403)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:resolve-reaction'),
+            {
+                "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                "text": 'Much to learn, you still have.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
 
     def tearDown(self):
 
