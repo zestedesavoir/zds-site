@@ -211,6 +211,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
 
 class DisplayBetaContent(DisplayContent):
+    """View to get the beta version of a content"""
 
     sha = None
 
@@ -728,6 +729,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
 
 class DisplayBetaContainer(DisplayContainer):
+    """View to get the beta version of a container"""
 
     sha = None
 

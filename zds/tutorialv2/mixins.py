@@ -4,7 +4,7 @@ from django.views.generic import View
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, FormView
@@ -17,13 +17,13 @@ class SingleContentViewMixin(object):
     """
     Base mixin to get only one content, and its corresponding versioned content
 
-    Deal with URL resolution in the following way:
+    Deals with URL resolution in the following way:
 
     1. In `get_object()`:
         - Fetch the `PublishableContent` according to `self.kwargs['pk']`, `self.request.GET['pk']` or
         `self.request.POST['pk']` (one of these have to be defined). Raise `Http404` if any.
         - Then, check permissions with respect to `self.must_be_author` and `self.authorized_for_staff` (and define
-        `self.is_staff`). Raise `PermissionDenied` if any.
+        `self.is_staff` and `self.is_author`). Raise `PermissionDenied` if any.
     2. In `get_versioned_object()`:
         - Deal with sha : assume `self.object.sha_draft` by default, but reset according to
         `self.request.GET['version']`, if exists. Then, check `self.only_draft_version` and raise `PermissionDenied`
@@ -52,7 +52,6 @@ class SingleContentViewMixin(object):
         """
 
         # fetch object:
-        pk = None
         if 'pk' in self.kwargs:
             pk = self.kwargs['pk']
         elif 'pk' in self.request.GET:
@@ -251,7 +250,6 @@ class ContentTypeMixin(object):
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
 
-        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
         context['current_content_type'] = self.current_content_type
         context['verbose_type_name'] = v_type_name
         context['verbose_type_name_plural'] = v_type_name_plural
@@ -259,11 +257,31 @@ class ContentTypeMixin(object):
         return context
 
 
+class MustRedirect(Exception):
+    """Exception raised when this is not the last version of the content which is called"""
+
+    def __init__(self, *args, **kwargs):
+        super(MustRedirect, self).__init__(*args, **kwargs)
+
+
 class SingleOnlineContentViewMixin(ContentTypeMixin):
 
     """
     Base mixin to get only one content online content
-    sends 404 error if the primary key is not found or the slug is not coherent,
+
+    Deals with URL resolution in the following way:
+
+    1. In `get_object()`:
+        - Fetch the `PublicContent` according to `self.kwargs['pk']`, `self.request.GET['pk']` or
+        `self.request.POST['pk']` `(one of these have to be defined). Raise `Http404` if any.
+        - Check if `self.current_content_type` if defined, and use it if it's the case
+        - Check if `slug` is defined, also check object it if it's the case
+        - Then, define `self.is_staff` and `self.is_author`.
+    2. In `get_versioned_object()`: Fetch the `VersionedContent`. Due to  the use of
+        `self.object.load_version_or_404(sha)`, raise `Http404` if any.
+
+    Any redefinition of any of these two functions should take care of those points.
+
     """
 
     object = None
@@ -273,19 +291,44 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
     is_author = False
     is_staff = False
 
-    def get_public_object(self):
-        pk = self.kwargs.pop('pk', None)
-        slug = self.kwargs.pop('slug', '')
+    def get_redirect_url(self, public_version):
+        """Return the most recent url, based on the current public version"""
+        return public_version.content.public_version.get_absolute_url_online()
 
-        obj = PublishedContent.objects\
-            .filter(content_pk=pk, content_public_slug=slug, content_type=self.current_content_type)\
+    def get_public_object(self):
+
+        if 'pk' in self.kwargs:
+            pk = self.kwargs['pk']
+        elif 'pk' in self.request.GET:
+            pk = self.request.GET['pk']
+        elif 'pk' in self.request.POST:
+            pk = self.request.POST['pk']
+        else:
+            raise Http404
+
+        queryset = PublishedContent.objects\
+            .filter(content_pk=pk)\
             .prefetch_related('content')\
             .prefetch_related("content__authors")\
             .prefetch_related("content__subcategory")\
-            .first()
+            .prefetch_related('content__public_version')
 
+        if self.current_content_type:
+            queryset = queryset.filter(content_type=self.current_content_type)
+
+        if 'slug' in self.kwargs:
+            queryset = queryset.filter(content_public_slug=self.kwargs['slug'])
+
+        obj = queryset.last()
         if obj is None:
             raise Http404
+
+        # Redirection ?
+        if obj.must_redirect:
+            if obj.content.public_version:
+                raise MustRedirect(self.get_redirect_url(obj))
+            else:
+                raise Http404  # should only happen if the content is unpublished
 
         self.is_author = self.request.user in obj.content.authors.all()
         self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
@@ -308,17 +351,24 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
 
     - by rewriting `get()`, that:
         * `self.object` contains the result of `get_object()` (as it must be if `get()` was not rewritten)
+        * Redirection is made if we catch `MustRedirect`
         * `self.versioned_object` contains a PublicContent object
         * `self.public_content_object` contains a PublishedContent object
     - by surcharging `get_context_data()`, that
         * context['content'] is set
+        * context['is_staff'] is set
         * context['can_edit'] is set
         * context['public_object'] is set
         * context['isantispam'] is set
     """
 
     def get(self, request, *args, **kwargs):
-        self.public_content_object = self.get_public_object()
+
+        try:
+            self.public_content_object = self.get_public_object()
+        except MustRedirect as redirection_url:
+            return HttpResponsePermanentRedirect(redirection_url)
+
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
         context = self.get_context_data(object=self.object)
@@ -355,6 +405,9 @@ class SingleOnlineContentFormViewMixin(SingleOnlineContentViewMixin, ModalFormVi
     - by surcharging `get_context_data()`, that
         * context['content'] is set
         * context['public_object'] is set
+
+
+    Note: does not catch `MustRedirect`, so you should not use a `slug` with POST request
     """
 
     denied_if_lock = False  # denied the use of the form if the content is locked

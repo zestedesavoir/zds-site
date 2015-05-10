@@ -72,7 +72,7 @@
             {% else %}
                 {% if validation.is_pending %}
                     <p class="content-wrapper alert-box alert">
-                        <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
+                        <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
                             {% trans "Une autre version de ce tutoriel" %}</a>
                         {% trans "est en attente d'un validateur" %}
                     </p>
