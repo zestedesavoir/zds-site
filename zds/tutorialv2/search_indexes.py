@@ -2,7 +2,7 @@
 from haystack import indexes
 
 from zds.tutorialv2.models.models_database import PublishableContent
-from zds.tutorialv2.models.models_versioned import Extract
+from zds.tutorialv2.models.models_versioned import Extract, Container
 
 
 class ContentIndex(indexes.SearchIndex, indexes.Indexable):
@@ -25,7 +25,7 @@ class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
     title = indexes.CharField(model_attr='title')
 
     def get_model(self):
-        return PublishableContent
+        return Container
 
     def index_queryset(self, using=None):
         """Only parts online."""
