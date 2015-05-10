@@ -163,10 +163,10 @@
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
-
+            {% url "content:resolve-reaction" %}
         {% endcaptureas %}
         {% captureas alert_link %}
-
+            {% url "content:alert-reaction" message.pk %}
         {% endcaptureas %}
         {% captureas hide_link %}
             {% url "content:hide-reaction" message.pk%}

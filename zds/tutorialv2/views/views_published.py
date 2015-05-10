@@ -3,10 +3,13 @@ from collections import OrderedDict
 from datetime import datetime
 import json as json_writer
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -20,7 +23,8 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
     ContentTypeMixin, SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from zds.tutorialv2.utils import search_container_or_404
-from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory
+from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory, Alert
+from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination
 
 
@@ -478,7 +482,7 @@ class HideReaction(FormView, LoginRequiredMixin):
 
         try:
             pk = int(self.kwargs["pk"])
-            text = self.request.POST["text_hidden"]
+            text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
@@ -487,4 +491,68 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.save()
             return redirect(reaction.related_content.get_absolute_url_online())
         except (IndexError, ValueError, MultiValueDictKeyError):
+            raise Http404
+
+
+class SendNoteAlert(FormView, LoginRequiredMixin):
+    http_method_names = ["post"]
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(SendNoteAlert, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            note_pk = int(self.kwargs["pk"])
+        except (KeyError, ValueError):
+            raise Http404
+        note = get_object_or_404(ContentReaction, pk=note_pk)
+        alert = Alert()
+        alert.author = request.user
+        alert.comment = note
+        alert.scope = Alert.TUTORIAL
+        alert.text = request.POST["signal_text"]
+        alert.pubdate = datetime.now()
+        alert.save()
+
+        return redirect(note.get_absolute_url())
+
+
+class SolveNoteAlert(FormView, LoginRequiredMixin):
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.has_perm("tutorial.change_note"):
+            raise PermissionDenied
+        try:
+            alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
+            note = ContentReaction.objects.get(pk=alert.comment.id)
+            content = note.related_content
+            if "text" in request.POST and request.POST["text"] != "":
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                msg = render_to_string(
+                    'tutorialv2/messages/resolve_alert.md',
+                    {
+                        'content': content,
+                        'url': content.get_absolute_url_online(),
+                        'name': alert.author.username,
+                        'target_name': note.author.username,
+                        'modo_name': self.request.user.username,
+                        'message': self.request.POST["text"]
+                    })
+                send_mp(
+                    bot,
+                    [alert.author],
+                    _(u"Résolution d'alerte : {0}").format(note.tutorial.title),
+                    "",
+                    msg,
+                    False,
+                )
+            alert.delete()
+            messages.success(self.request, _(u"L'alerte a bien été résolue."))
+            return redirect(note.get_absolute_url())
+        except (KeyError, ValueError):
             raise Http404

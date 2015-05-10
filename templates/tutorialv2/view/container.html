@@ -140,7 +140,7 @@
                     Déplacer <span class="wide">{{ "le"|feminize:content.get_level_as_string }}{{ content.get_level_as_string }}</span>
                 {% endblocktrans %}
             </a>
-            <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
+        <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
                 <input type="hidden" name="pk" value="{{ content.pk }}"/>
 
                 <select name="moving_method" class="select-autosubmit">
