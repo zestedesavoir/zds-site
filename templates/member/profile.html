@@ -237,6 +237,11 @@
                             </div>
                         </li>
                     {% endif %}
+                    {% if profile.is_private and not perms.member.change_profile %}
+                        <li class="inactive mobile-menu-link">
+                            <span>{% trans "Aucune action possible" %}</span>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}
