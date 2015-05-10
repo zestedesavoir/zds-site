@@ -400,7 +400,7 @@
                                         {%  endwith %}
                                     {% endwith %}
                                 {% else %}
-                                    <a href="{% url "update-member" %}"
+                                    <a href="{% url "member-detail" user.username %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -412,11 +412,11 @@
 
                             <div>
                                 {% with profile=user.profile %}
-                                    <a href="{% url "update-member" %}"
+                                    <a href="{% url "member-detail" user.username %}"
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
-                                       title="{% blocktrans %}Mon compte{% endblocktrans %}"
-                                       data-title="{% blocktrans %}Mon compte{% endblocktrans %}"
+                                       title="{% trans 'Mon profil' %}"
+                                       data-title="{% trans 'Mon profil' %}"
 
                                        {% if not perms.forum.change_post %}
                                            data-active="open-my-account"
@@ -427,7 +427,7 @@
                                     </a>
                                 {% endwith %}
 
-                                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="Mon compte">
+                                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="{% trans 'Mon compte' %}">
                                     <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
 
                                     <ul class="dropdown-list">
