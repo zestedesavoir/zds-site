@@ -9,7 +9,7 @@ import string
 import uuid
 
 from django.contrib.auth.models import Group, User
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
@@ -347,6 +347,22 @@ class Topic(models.Model):
         if last_user_post and last_user_post == self.get_last_post():
             t = datetime.now() - last_user_post.pubdate
             if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
+                return True
+
+        return False
+
+    def old_post_warning(self):
+        """
+        Check if the last message was written a long time ago according to `ZDS_APP['forum']['old_post_limit_days']`
+        value.
+
+        :return: `True` if the post is old (users are warned), `False` otherwise.
+        """
+        last_post = self.last_message
+
+        if last_post is not None:
+            t = last_post.pubdate + timedelta(days=settings.ZDS_APP['forum']['old_post_limit_days'])
+            if t < datetime.today():
                 return True
 
         return False

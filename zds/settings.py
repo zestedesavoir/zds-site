@@ -453,6 +453,7 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
         'home_number': 5,
+        'old_post_limit_days': 90
     },
     'topic': {
         'home_number': 6,
