@@ -12,47 +12,17 @@ Une boîte modale est une pseudo-fenêtre qui s'affiche au clique de certains bo
 
    La boîte modale pour ajouter un participant à un message privé
 
-
-.. figure:: ../images/design/boite-modale_desinscription.png
-   :align: center
-
-   La boîte modale pour confirmer sa désinscription
-
-Créer la boîte
---------------
-
-Au niveau du code, il suffit de placer ça n'importe où :
-
-.. sourcecode:: html
-
-   <div id="une-ancre" class="modal">
-       Une super boîte modale !
-   </div>
-
-Par défaut, la boîte modale prend toute la place possible sur l'écran (avec quand même une petite marge). Pour spécifier la taille, il faut simplement ajouter une classe CSS (du plus petit au plus grand) : ``modal-small``, ``modal-medium`` ou ``modal-big``.
-
-Créer le lien
--------------
-
-La création du lien affichant la boîte modale est tout aussi simple : il suffit de mettre une ancre correspondant à l'``id`` de la boîte modale ainsi que la classe ``open-modal`` :
-
-.. sourcecode:: html
-
-   <a href="#une-ancre" class="open-modal">
-       Un super lien !
-   </a>
-
-.. Attention::
-
-   Attention, le texte du lien sera le titre de la boîte modale.
+Une boîte modale est un élément HTML avec la classe CSS ``modal``. Mais ce ne serait pas drôle s'il n'y avait pas des
+spécificités suivant les cas d'utilisation !
 
 Cas courant : quand c'est un formulaire
 ---------------------------------------
 
-On utilise souvent les boîtes modales avec un formulaire que ce soit pour confirmer une action (par exemple, une suppression) ou pour demander à l'utilisateur de remplir des champs de texte (par exemple, ajout de nouveaux participants à une discussion ou nouveaux auteurs à un tutoriel) !
+On utilise souvent les boîtes modales avec un formulaire que ce soit pour confirmer une action (par exemple,
+une suppression) ou pour demander à l'utilisateur de remplir des champs de texte (par exemple, ajout de nouveaux
+participants à une discussion ou nouveaux auteurs à un tutoriel) !
 
 Il arrive souvent d'avoir donc ceci :
-
 
 .. sourcecode:: html
 
@@ -89,6 +59,29 @@ de l'attribut (ici ``Fermez-moi !``) deviendra le texte du bouton.
    <div id="une-ancre" class="modal" data-modal-close="Fermez-moi !">
        Une super boîte modale !
    </div>
+
+Créer le lien
+-------------
+
+La création du lien affichant la boîte modale est tout aussi simple : il suffit de mettre une ancre correspondant à l'``id`` de la boîte modale ainsi que la classe ``open-modal`` :
+
+.. sourcecode:: html
+
+   <a href="#une-ancre" class="open-modal">
+       Un super lien !
+   </a>
+
+.. Attention::
+
+   Attention, le texte du lien sera le titre de la boîte modale.
+
+Changer la taille de la boîte
+-----------------------------
+
+Par défaut, la boîte modale prend toute la place possible sur l'écran (avec quand même une petite marge). Pour
+spécifier la taille, il faut simplement ajouter une classe CSS (du plus petit au plus grand) : ``modal-small``,
+``modal-medium`` ou ``modal-big``.
+
 
 La lecture zen
 ==============

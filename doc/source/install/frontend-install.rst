@@ -146,7 +146,7 @@ Vous avez installé les outils ? Voilà comment on s'en sert dans notre projet !
 Présentation de Gulp
 --------------------
 
-Gulp est un outil permettant d'automatiser les tâches liées au front. Dans notre cas, il permet de :
+Gulp est un outil permettant d'automatiser les tâches liées au *front-end*. Dans notre cas, il permet de :
 
 - vérifier la syntaxe Javascript ;
 - minimiser les fichiers Javascript et les rassembler en un fichier ;
@@ -156,38 +156,70 @@ Gulp est un outil permettant d'automatiser les tâches liées au front. Dans not
 Utilisation de Gulp
 -------------------
 
-Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer. Les différentes tâches sont :
+Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer.
 
- - ``build`` qui compile tout (SCSS, JS et images) ;
- - ``clean`` qui supprime les fichiers compilés du dossier ``dist/`` ;
- - ``test`` qui vérifie la forme du code (indentation, doubles guillemets, etc) ;
- - ``watch`` qui compile les différents fichiers (comme ``build``) dès qu'ils sont modifiés (utile pour le développement ; ``Ctrl+C`` pour arrêter).
+Générer les fichiers avec ``build``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
+``build`` permet de :
+
+- minimiser les fichiers Javascript et les rassembler en un fichier ;
+- compiler les fichiers SCSS pour les transformer CSS ;
+- compresser les images et créer un sprite.
+
+Les fichiers générés sont disponibles dans le dossier ``dist/`` (un aperçu est disponible
+`ici <../front-end/arborescence-des-fichiers.html>`_).
+
+.. note::
+   C'est la tâche que vous utiliserez sûrement le plus souvent car vous devez la lancer à chaque modification
+   de ``assets/`` !
+
+Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le
+cache de votre navigateur !
+
+Supprimer les fichiers générés avec ``clean``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``clean`` supprime les fichiers générés par ``build`` (il supprime simplement le dossier ``dist/``).
+
+Vérifier le code avec ``test``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``test`` vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Si le code ne
+respecte pas ces règles, le script va sortir une liste d'erreurs (*errors*) et/ou d'avertissements (*warnings*)
+que vous devez corriger.
+
+.. note::
+   L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque
+   *pull request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini,
+   il est plus pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``npm run gulp -- test``
+   (ou ``npm test``).
+
+Coder plus simplement avec ``watch``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très
+utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour arrêter cette
+commande, il suffit de presser ``Ctrl+C``.
 
 -----
-
-Pour information, la commande ``npm run`` est un raccourci de la commande ``npm run-script``, donc les deux commandes sont identiques !
-
-Si vous voulez utiliser directement la commande ``gulp -- [tâche]`` au lieu de ``npm run gulp -- [tâche]``, vous pouvez tout simplement créer un alias :
-
-.. sourcecode:: bash
-
-    alias gulp="npm run gulp"
-
-
-Règles à respecter lors d'une contribution
-==========================================
-
-Avant chaque *commit*, il est important de lancer la commande ``npm test`` ou ``npm run gulp test`` qui vérifie par le biais de JSHint la forme
-du code (indentation, doubles guillemets, etc). Si le code ne respecte pas ces règles, le script va sortir une liste
-d'erreurs (*errors*) et/ou d'avertissements (*warnings*) que vous devez corriger.
-
 
 .. seealso::
 
     Vous voulez en savoir plus ?
     Venez voir `la documentation consacrée au front-end <../front-end.html>`_ ! ;)
+
+Quelques informations supplémentaires
+-------------------------------------
+
+La commande ``npm run`` est un raccourci de la commande ``npm run-script``, donc les deux commandes sont identiques !
+
+Si vous voulez utiliser directement la commande ``gulp -- [tâche]`` au lieu de ``npm run gulp -- [tâche]``, vous pouvez
+tout simplement créer un alias :
+
+.. sourcecode:: bash
+
+    alias gulp="npm run gulp"
 
 
 Nettoyage des outils

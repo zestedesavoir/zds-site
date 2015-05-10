@@ -5,7 +5,7 @@ Arborescence des dossiers
 Nous utilisons deux dossiers présents à la racine :
 
 - ``templates/`` pour les fichiers HTML, qui sont agrémentés du `langage de gabarit de Django <https://docs.djangoproject.com/fr/1.7/topics/templates/>`_ ;
-- ``assets/`` pour les images, les smileys et les fichiers SCSS et JS.
+- ``assets/`` pour les images, les smileys ainsi que les fichiers SCSS et JS.
 
 Lors de la compilation, un dossier ``dist/`` contenant les fichiers optimisés venant de ``assets/`` est créé.
 
@@ -18,7 +18,7 @@ Voici un aperçu du dossier :
 .. sourcecode:: bash
 
     assets/
-    ├── images/
+    ├── images/  # Images
     │   ├── sprite/  # Images qui seront dans le sprite
     │   │   ├── arrow-right.png
     │   │   ├── arrow-right-blue.png
@@ -31,28 +31,38 @@ Voici un aperçu du dossier :
     │   ├── logo.png  # Logo moyenne résolution
     │   ...
     │
-    ├── js/
+    ├── js/  # Fichiers Javascript
     │   ├── vendors/  # Toutes les bibliothèques (disponibles après l'installation des outils)
     │   │   ├── jquery.js
     │   │   ...
     │   │
-    │   ├── accessibility-links.js
-    │   ├── data-click.js
+    │   ├── editor.js
+    │   ├── markdown-help.js
+    │   ├── modal.js
+    │   ├── zen-mode.js
     │   ...
     │
-    ├── scss/
-    │   ├── layout/
-    │   │   ├── _header.scss
-    │   │   ├── _sidebar.scss
+    ├── scss/  # Fichiers SCSS
+    │   ├── base/  # Styles de base pour tout le site
+    │   ├── components/  # Commposants spécifiques
+    │   │   ├── _editor.scss  # Ex : l'éditeur
     │   │   ...
-    │   ├── components/
+    │   ├── layout/  # Styles pour la structure du site
+    │   │   ├── _header.scss  # Ex : l'en-tête...
+    │   │   ├── _sidebar.scss  # ... ou la barre latérale
     │   │   ...
+    │   ├── mixins/  # Mixins SCSS
+    │   ├── pages/  # Styles pour certaines pages
+    │   │   ├── _home.scss  # Ex : la page d'accueil
+    │   │   ...
+    │   ├── variables/  # Variables SCSS
     │   │
     │   ├── main.scss  # Fichier de configuation
+    │   ├── only-ie.scss  # Styles pour Internet Explorer 9
     │   ├── sprite-template.mustache  # Fichier servant à la génération du sprite
     │   ...
     │
-    └── smileys/
+    └── smileys/  # Smileys
         ├── ange.png
         ├── angry.gif
         ...
@@ -111,12 +121,12 @@ Voici un extrait du dossier contenant les gabaris :
     templates/
     ├── tutorial/  # Dossier contenant les gabaris des pages du module des tutoriels
     │   ├── tutorial/
-    │   ├── chapter/
+    │   ├── chapter/  # Gabarits pour les chapitres
     │   │   ├── edit.html
     │   │   ├── new.html
     │   │   ...
     │   │
-    │   ├── extract/
+    │   ├── extract/  # Gabarits pour les extraits
     │   │
     │   ├── base.html
     │   ├── export.html
@@ -128,7 +138,7 @@ Voici un extrait du dossier contenant les gabaris :
     │   ...
     │
     ├── misc/  # Dossier contenant des fichiers utilisés dans plusieurs modules
-    │   ├── zen_button.part.html
-    │   ├── previsualization.part.html
+    │   ├── previsualization.part.html  # Ex : la prévisualtion des messages...
+    │   ├── zen_button.part.html  # ... ou le bouton de lecture zen
     │   ...
     ...
