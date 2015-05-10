@@ -5,7 +5,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from zds.tutorialv2.models.models_versioned import Extract
 
 
-class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
+class ContentIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     description = indexes.CharField(model_attr='description')
@@ -17,22 +17,7 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Only tutorials online."""
-        return self.get_model().objects.filter(sha_public__isnull=False, type="TUTORIAL")
-
-
-class ArticleIndex(indexes.SearchIndex, indexes.Indexable):
-    text = indexes.CharField(document=True, use_template=True)
-    title = indexes.CharField(model_attr='title')
-    description = indexes.CharField(model_attr='description')
-    category = indexes.CharField(model_attr='subcategory')
-    sha_public = indexes.CharField(model_attr='sha_public')
-
-    def get_model(self):
-        return PublishableContent
-
-    def index_queryset(self, using=None):
-        """Only tutorials online."""
-        return self.get_model().objects.filter(sha_public__isnull=False, type="ARTICLE")
+        return self.get_model().objects.filter(sha_public__isnull=False)
 
 
 class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
