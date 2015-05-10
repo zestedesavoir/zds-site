@@ -377,10 +377,12 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             validation.date_validation = datetime.now()
             validation.save()
             for user in db_object.authors.all():
-                read = ContentRead()
-                read.user = user
-                read.content = db_object
-                read.save()
+                read = ContentRead.objects.filter(content__pk=db_object.pk, user__pk=user.pk).first()
+                if read is None:
+                    read = ContentRead()
+                    read.user = user
+                    read.content = db_object
+                    read.save()
             # TODO: deal with other kind of publications (HTML, PDF, archive, ...)
 
             if is_update:
