@@ -4,9 +4,11 @@ from datetime import datetime
 import json as json_writer
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.datastructures import MultiValueDictKeyError
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
 from django.views.generic.detail import BaseDetailView
@@ -467,6 +469,10 @@ class GetReaction(BaseDetailView):
 
 class HideReaction(FormView, LoginRequiredMixin):
     http_method_names = ["post"]
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(HideReaction, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
 
