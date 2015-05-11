@@ -301,7 +301,10 @@ class PrivatePostAnswer(CreateView):
 
         # Using the quote button
         if 'cite' in request.GET:
-            post_cite = get_object_or_404(PrivatePost, pk=(request.GET.get('cite')))
+            try:
+                post_cite = get_object_or_404(PrivatePost, pk=int(request.GET.get('cite')))
+            except ValueError:
+                raise Http404
 
             for line in post_cite.text.splitlines():
                 text = text + '> ' + line + '\n'
