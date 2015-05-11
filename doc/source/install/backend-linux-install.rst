@@ -51,6 +51,7 @@ L'installation se fait donc grâce à la commande suivante (sous une distributio
     easy_install pip tox
     
 Et sous Fedora (prenez-garde, l'ordre a son importance) :
+
 .. sourcecode:: bash
 
 sudo dnf install git python python-devel python-setuptools
@@ -73,6 +74,7 @@ Installation et configuration de `virtualenv`
     sudo pip install virtualenv
 
 Commande de création de l'environnement de travail pour le projet Zeste de Savoir :
+
 .. sourcecode:: bash
 
 virtualenv <chemin de répertoires que vous souhaitez + nom de l'environnement virtuel, par
@@ -92,6 +94,7 @@ Tout d'abord, créez-vous un compte GitHub.
 Générez une paire de clés (protocole SSH) pour que GitHub et votre paquet « git » puissent communiquer de manière sécurisée.
 
 Commande pour générer une paire de clé (lorsque vous l'exécuterez, il vous sera demandé de taper deux ou trois petites choses : vous pouvez appuyer directement sur la touche « Entrée » pour passer ces étapes, qui sont facultatives) :
+
 .. sourcecode:: bash
 
 ssh-keygen
@@ -113,6 +116,7 @@ A titre d'information uniquement, votre fork GitHub est accessible à cette URL 
 Créez votre fork local (le lecteur aura compris que le fork local est la copie locale du code-source, et que le fork GitHub est situé sur… GitHub).
 
 Commande pour créer le fork local :
+
 .. sourcecode:: bash
 
 git clone git@github.com:<votre pseudo GitHub>/zds-site.git <répertoire où vous voulez déposer ces sources, par exemple /home/<votre pseudo Fedora>/Documents/zeste-de-savoir-sources>
@@ -143,6 +147,7 @@ Car, en effet, nous n'avions toujours pas installé ce serveur, bien que nous y 
 Les paquets de ces deux fichiers (paquets = « Django » et dépendances de son serveur) seront automatiquement installés avec les commandes suivantes. Attention : il se peut qu'une erreur survienne. Si c'est le cas, supprimez votre environnement virtuel (le répertoire et tout ce qu'il contient). Puis, ré-installez-le (vous n'avez pas besoin de désinstaller puis d'installer de nouveau le paquet virtualenv : ré-installez simplement l'environnement virtuel de Zeste de Savoir – commande virtualenv <nom> –python=python2). Re-tapez ensuite les commandes qui suivent: Commandes pour installer Django (donc indirectement son serveur) et les dépendances de son serveur :
 
 Attention : ne pas exécuter ces commandes en tant que super-utilisateur (donc pas de sudo ou autre).
+
 .. sourcecode:: bash
 
 source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/activate
@@ -164,6 +169,7 @@ Maintenant que tout est prêt, vous pouvez accéder à votre site local de Zeste
 Démarrez votre environnement virtuel.
 
 Commande pour démarrer l'environnement virtuel :
+
 .. sourcecode:: bash
 
 source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/activate
@@ -171,17 +177,20 @@ source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/
 Tapez la commande suivante pour lancer le serveur Python, qui permettra d'afficher le site Web et d'interpréter, bien évidemment, les divers fichiers-sources de votre fork local.
 
 Commande pour démarrer le serveur Python de Django :
+
 .. sourcecode:: bash
 
 python manage.py runserver
 
 Considérez également les deux commandes suivantes.
 Commande pour quitter le serveur Python :
+
 .. sourcecode:: bash
 
 Appuyez sur CTRL + C.
 
 Commande pour quitter l'environnement virtuel :
+
 .. sourcecode:: bash
 
 deactivate
