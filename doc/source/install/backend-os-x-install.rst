@@ -13,6 +13,7 @@ Avant de vous lancez dans l'installation de l'environnement de zds, il faut quel
 - Installer pip
 - Installer git
 - Installer `gettext <https://www.gnu.org/software/gettext/>`_
+- Installer GeoIP (``brew install geoip``)
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
 

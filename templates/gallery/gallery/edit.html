@@ -5,20 +5,20 @@
 
 
 {% block title %}
-    {% trans "Nouvelle image" %}
+    {{ gallery.title }}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
     <li><a href="{{ gallery.get_absolute_url }}">{{ gallery.title }}</a></li>
-    <li>{% trans "Nouvelle image" %}</li>
+    <li> {% trans "Éditer" %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Nouvelle image" %}
+    {{ gallery.title }}
 {% endblock %}
 
 

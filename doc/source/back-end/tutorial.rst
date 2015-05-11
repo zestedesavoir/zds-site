@@ -231,7 +231,7 @@ en bêta, en postant le lien vers la version bêta du tutoriel.
 
 .. attention::
 
-    Le lien de la bêta, peut être trouvé via votre profil utilisateur, vous devez recopier tout le lien avec la partie ``?version=blablabla``. Et pensez bien à modifier ce lien lorsque vous mettez à jour votre version bêta.
+    Le lien de la bêta, peut être trouvé via votre profil utilisateur, et est sous la forme ``/tutoriels/beta/<id>/<slug>``. Le lien est aussi disponible via ``/tutoriel/off/<id>/<slug>/?version=sha``. Seule la première forme doit etre donnée au public.
 
 En fait lorsqu'un tutoriel est en mode bêta, il s'agit d'une version précise qui est mise
 dans ce mode. On peut continuer à mettre à jour la version brouillon pour rajouter de nouveaux chapitres

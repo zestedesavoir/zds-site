@@ -8,7 +8,7 @@
     else
         $("#form-email").removeClass("hidden");
 
-    $(".email").on("click", function(e) {
+    $("[data-forgot-password-button=email]").on("click", function(e) {
         $("#form-email").toggleClass("hidden");
         $("#form-username").addClass("hidden");
 
@@ -22,7 +22,7 @@
     else
         $("#form-username").removeClass("hidden");
 
-    $(".username").on("click", function(e) {
+    $("[data-forgot-password-button=username]").on("click", function(e) {
         $("#form-username").toggleClass("hidden");
         $("#form-email").addClass("hidden");
 

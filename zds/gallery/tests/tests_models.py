@@ -4,6 +4,7 @@ import os
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import ProfileFactory
@@ -26,33 +27,27 @@ class UserGalleryTest(TestCase):
         self.gallery.delete()
 
     def test_unicode(self):
-        result = u'Galerie "{0}" envoye par {1}'.format(self.gallery, self.profile.user)
+        result = _(u'Galerie « {0} » de {1}').format(self.gallery, self.profile.user)
 
         self.assertEqual(result, self.user_gallery.__unicode__())
 
-    def test_is_write(self):
+    def test_can_write(self):
         self.user_gallery.mode = 'W'
 
-        self.assertTrue(self.user_gallery.is_write())
-        self.assertFalse(self.user_gallery.is_read())
+        self.assertTrue(self.user_gallery.can_write())
+        self.assertFalse(self.user_gallery.can_read())
 
-    def test_is_read(self):
+    def test_can_read(self):
         self.user_gallery.mode = 'R'
 
-        self.assertFalse(self.user_gallery.is_write())
-        self.assertTrue(self.user_gallery.is_read())
+        self.assertFalse(self.user_gallery.can_write())
+        self.assertTrue(self.user_gallery.can_read())
 
     def test_get_images(self):
         self.assertEqual(2, len(self.user_gallery.get_images()))
 
         self.assertEqual(self.image1, self.user_gallery.get_images()[0])
         self.assertEqual(self.image2, self.user_gallery.get_images()[1])
-
-    def test_get_gallery(self):
-        gallery_results = self.user_gallery.get_gallery(self.profile.user)
-
-        self.assertEqual(1, len(gallery_results))
-        self.assertEqual(self.gallery, gallery_results[0])
 
 
 class ImageTest(TestCase):
@@ -103,7 +98,7 @@ class GalleryTest(TestCase):
         self.assertEqual(self.gallery.title, self.gallery.__unicode__())
 
     def test_get_absolute_url(self):
-        absolute_url = reverse('zds.gallery.views.gallery_details',
+        absolute_url = reverse('gallery-details',
                                args=[self.gallery.pk, self.gallery.slug])
         self.assertEqual(absolute_url, self.gallery.get_absolute_url())
 

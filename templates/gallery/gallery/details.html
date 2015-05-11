@@ -47,7 +47,7 @@
                 </li>
             {% endfor %}
 
-            {% if gallery_mode.is_write %}
+            {% if gallery_mode.can_write %}
                 <li>
                     <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
                     <div id="add-user-modal" class="modal modal-big">
@@ -58,12 +58,12 @@
         </ul>
     </div>
 
-    <form id="form" name="form" method="post" action="{% url "zds.gallery.views.delete_image" %}">
+    <form id="form" name="form" method="post" action="{% url "gallery-image-delete" %}">
         <input type="hidden" name="gallery" value="{{ gallery.pk }}">
         {% csrf_token %}
 
         {% if gallery.get_images %}
-            {% if gallery_mode.is_write %}
+            {% if gallery_mode.can_write %}
                 <button class="btn btn-cancel" name="delete_multi">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
 
@@ -78,7 +78,7 @@
                             <input name="items" type="checkbox" value="{{ img.pk }}">
                         </div>
                         <div class="topic-description">
-                            <a href="{% url "zds.gallery.views.edit_image" gallery.pk img.pk %}" class="topic-title-link navigable-link">
+                            <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
                                 <img src="{{ img.physical.gallery.url }}"
                                      data-caption="{{ img.title }}"
                                      alt="{{ img.title }}"
@@ -91,10 +91,10 @@
                     </div>
                 {% endfor %}
 
-                <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
+                <a href="{% url "gallery-image-new" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
             </div>
 
-            {% if gallery_mode.is_write %}
+            {% if gallery_mode.can_write %}
                 <button class="btn btn-cancel" name="delete_multi" tabindex="-1">{% trans "Supprimer la sélection" %}</button>
             {% endif %}
 
@@ -104,10 +104,11 @@
         {% else %}
             <p>
                 {% trans "Aucune image" %}. <br>
-                {% if gallery_mode.is_write %}
-                    {% url "zds.gallery.views.new_image" gallery.pk as new_img_url %}
+                {% if gallery_mode.can_write %}
+                    {% url "gallery-image-new" gallery.pk as new_img_url %}
+                    {% url "gallery-image-import" gallery.pk as import_archive %}
                     {% blocktrans %}
-                        Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent !
+                        Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent, ou <a href="{{ import_archive }}">importer une archive</a> !
                     {% endblocktrans %}
                 {% endif %}
             </p>
@@ -115,24 +116,10 @@
     </form>
 {% endblock %}
 
-
-
-{% block sidebar %}
-    {% if gallery_mode.is_write %}
-        <aside class="sidebar mobile-menu-hide">
-            <a href="{% url "zds.gallery.views.new_image" gallery.pk %}" class="new-btn ico-after more blue">
-                {% trans "Ajouter une image" %}
+{% block new_btn %}
+    {% if gallery_mode.can_write %}
+            <a href="{% url "gallery-edit" gallery.pk gallery.slug %}" class="new-btn ico-after edit blue">
+                {% trans "Éditer la galerie" %}
             </a>
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-                <h3>{% trans "Actions" %}</h3>
-                <ul>
-                    <li>
-                        <a href="{% url "zds.gallery.views.import_image" gallery.pk %}" class="ico-after import blue">
-                            {% trans "Importer une archive" %}
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </aside>
     {% endif %}
 {% endblock %}

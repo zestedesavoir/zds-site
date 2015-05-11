@@ -1,14 +1,16 @@
 # coding: utf-8
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Hidden
+from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder
+from crispy_forms.bootstrap import StrictButton
+
 from django import forms
 from django.core.urlresolvers import reverse
-from zds.mp.commons import ParticipantsValidator, TitleValidator, TextValidator
+from django.utils.translation import ugettext_lazy as _
 
+from zds.mp.commons import ParticipantsValidator, TitleValidator, TextValidator
 from zds.mp.models import PrivateTopic
 from zds.utils.forms import CommonLayoutEditor
-from django.utils.translation import ugettext_lazy as _
 
 
 class PrivateTopicForm(forms.Form, ParticipantsValidator, TitleValidator, TextValidator):
@@ -74,6 +76,35 @@ class PrivateTopicForm(forms.Form, ParticipantsValidator, TitleValidator, TextVa
         self._errors[key] = self.error_class([message])
 
 
+class PrivateTopicEditForm(forms.ModelForm, TitleValidator):
+
+    class Meta:
+        model = PrivateTopic
+        fields = ['title', 'subtitle']
+
+    def __init__(self, *args, **kwargs):
+        super(PrivateTopicEditForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('title'),
+            Field('subtitle'),
+            ButtonHolder(
+                StrictButton(_(u'Mettre à jour'), type='submit'),
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super(PrivateTopicEditForm, self).clean()
+        self.validate_title(cleaned_data.get('title'))
+        return cleaned_data
+
+    def throw_error(self, key=None, message=None):
+        self._errors[key] = self.error_class([message])
+
+
 class PrivatePostForm(forms.Form):
     text = forms.CharField(
         label='',
@@ -88,7 +119,7 @@ class PrivatePostForm(forms.Form):
     def __init__(self, topic, *args, **kwargs):
         super(PrivatePostForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('private-posts-new', args=[topic.pk, topic.slug])
+        self.helper.form_action = reverse('private-posts-new', args=[topic.pk, topic.slug()])
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

@@ -26,7 +26,7 @@ from zds.member.models import Profile
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
-from .forms import PrivateTopicForm, PrivatePostForm
+from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
 from .models import PrivateTopic, PrivatePost, \
     never_privateread, mark_read, PrivateTopicRead
 
@@ -65,11 +65,18 @@ class PrivateTopicNew(CreateView):
 
     def get(self, request, *args, **kwargs):
         title = request.GET.get('title') if 'title' in request.GET else None
-        try:
-            participants = User.objects.get(username=request.GET.get('username')).username \
-                if 'username' in request.GET else None
-        except:
-            participants = None
+
+        participants = None
+        if 'username' in request.GET:
+            dest_list = []
+            # check that usernames in url is in the database
+            for username in request.GET.getlist('username'):
+                try:
+                    dest_list.append(User.objects.get(username=username).username)
+                except ObjectDoesNotExist:
+                    pass
+            if len(dest_list) > 0:
+                participants = ', '.join(dest_list)
 
         form = self.form_class(username=request.user.username,
                                initial={
@@ -118,6 +125,26 @@ class PrivateTopicNew(CreateView):
                           False)
 
         return redirect(p_topic.get_absolute_url())
+
+
+class PrivateTopicEdit(UpdateView):
+    """ Update mp informations """
+
+    model = PrivateTopic
+    template_name = "mp/topic/edit.html"
+    form_class = PrivateTopicEditForm
+    pk_url_kwarg = "pk"
+    context_object_name = "topic"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PrivateTopicEdit, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        topic = super(PrivateTopicEdit, self).get_object(queryset)
+        if topic is not None and not topic.author == self.request.user:
+            raise PermissionDenied
+        return topic
 
 
 class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
@@ -202,7 +229,7 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         except ObjectDoesNotExist:
             messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
 
-        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug]))
+        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
 
 
 class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
@@ -256,7 +283,7 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
         context['topic'] = self.object
         context['last_post_pk'] = self.object.last_message.pk
         context['form'] = PrivatePostForm(self.object)
-        context['posts'] = self.build_list()
+        context['posts'] = self.build_list_with_previous_item(context['object_list'])
         if never_privateread(self.object):
             mark_read(self.object)
         return context

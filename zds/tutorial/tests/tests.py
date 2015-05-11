@@ -1456,25 +1456,25 @@ class BigTutorialTests(TestCase):
         # deleted part and section HAVE TO be accessible on beta (get 200)
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_part',
+                'zds.tutorial.views.view_part_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_beta),
+                    p1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_chapter',
+                'zds.tutorial.views.view_chapter_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p2.pk,
                     p2.slug,
                     c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_beta),
+                    c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -1587,25 +1587,25 @@ class BigTutorialTests(TestCase):
         # deleted part and section still accessible on beta (get 200)
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_part',
+                'zds.tutorial.views.view_part_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p1.pk,
-                    p1.slug]) + '?version={}'.format(sha_beta),
+                    p1.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
             reverse(
-                'zds.tutorial.views.view_chapter',
+                'zds.tutorial.views.view_chapter_beta',
                 args=[
                     tuto.pk,
                     tuto.slug,
                     p2.pk,
                     p2.slug,
                     c3.pk,
-                    c3.slug]) + '?version={}'.format(sha_beta),
+                    c3.slug]),
             follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -2064,7 +2064,7 @@ class BigTutorialTests(TestCase):
         # Delete the image of the bigtuto.
 
         response = self.client.post(
-            reverse('zds.gallery.views.delete_image'),
+            reverse('gallery-image-delete'),
             {
                 'gallery': self.bigtuto.gallery.pk,
                 'delete_multi': '',
@@ -2208,11 +2208,10 @@ class BigTutorialTests(TestCase):
             follow=False
         )
         self.assertEqual(302, response.status_code)
-        old_url = url
         url = Tutorial.objects.get(pk=self.bigtuto.pk).get_absolute_url_beta()
         # test access to new beta url (get 200) :
         self.assertEqual(
-            self.client.get(old_url).status_code,
+            self.client.get(url).status_code,
             200)
         # test access for random user to new url (get 200) and old (get 403)
         self.assertEqual(
@@ -2223,9 +2222,6 @@ class BigTutorialTests(TestCase):
         self.assertEqual(
             self.client.get(url).status_code,
             200)
-        self.assertEqual(
-            self.client.get(old_url).status_code,
-            403)
 
         # then desactive beta :
         self.assertEqual(
@@ -2919,7 +2915,7 @@ class BigTutorialTests(TestCase):
         sent_pm = PrivateTopic.objects.filter(author=self.user.pk).last()
         self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
         self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url() + '?version=' + sha_beta,
+        self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url_beta(),
                       sent_pm.last_message.text)  # public url is in message
 
     def tearDown(self):
@@ -3673,7 +3669,7 @@ class MiniTutorialTests(TestCase):
         # Delete the image of the minituto.
 
         response = self.client.post(
-            reverse('zds.gallery.views.delete_image'),
+            reverse('gallery-image-delete'),
             {
                 'gallery': self.minituto.gallery.pk,
                 'delete_multi': '',
@@ -3900,11 +3896,10 @@ class MiniTutorialTests(TestCase):
             follow=False
         )
         self.assertEqual(302, response.status_code)
-        old_url = url
         url = Tutorial.objects.get(pk=self.minituto.pk).get_absolute_url_beta()
         # test access to new beta url (get 200) :
         self.assertEqual(
-            self.client.get(old_url).status_code,
+            self.client.get(url).status_code,
             200)
         # test access for random user to new url (get 200) and old (get 403)
         self.assertEqual(
@@ -3915,9 +3910,6 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(
             self.client.get(url).status_code,
             200)
-        self.assertEqual(
-            self.client.get(old_url).status_code,
-            403)
 
         # then desactive beta :
         self.assertEqual(

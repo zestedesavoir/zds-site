@@ -9,7 +9,6 @@ from zds.settings import ZDS_APP
 class ZdSPagingListView(ListView):
     paginator = None
     page = 1
-    query_paginated = None
 
     def get_context_data(self, **kwargs):
         """
@@ -19,13 +18,13 @@ class ZdSPagingListView(ListView):
         queryset = kwargs.pop('object_list', self.object_list)
         page_size = self.get_paginate_by(queryset)
         context_object_name = self.get_context_object_name(queryset)
-        self.paginator, self.page, self.query_paginated, is_paginated = self.paginate_queryset(queryset, page_size)
+        self.paginator, self.page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
         if page_size:
             context = {
                 'paginator': self.paginator,
                 'page_obj': self.page,
                 'is_paginated': is_paginated,
-                'object_list': self.query_paginated,
+                'object_list': queryset,
                 'pages': paginator_range(self.page.number, self.paginator.num_pages),
             }
         else:
@@ -33,19 +32,20 @@ class ZdSPagingListView(ListView):
                 'paginator': None,
                 'page_obj': None,
                 'is_paginated': False,
-                'object_list': self.query_paginated,
+                'object_list': queryset,
                 'pages': [],
             }
         if context_object_name is not None:
-            context[context_object_name] = self.query_paginated
+            context[context_object_name] = queryset
         context.update(kwargs)
         return super(MultipleObjectMixin, self).get_context_data(**context)
 
-    def build_list(self):
+    def build_list_with_previous_item(self, queryset):
         """
         For some list paginated, we would like to display the last item of the previous page.
         This function returns the list paginated with this previous item.
         """
+        original_list = queryset.all()
         list = []
         # If necessary, add the last item in the previous page.
         if self.page.number != 1:
@@ -53,7 +53,7 @@ class ZdSPagingListView(ListView):
             last_item = (last_page)[len(last_page) - 1]
             list.append(last_item)
         # Adds all items of the list paginated.
-        for item in self.query_paginated:
+        for item in original_list:
             list.append(item)
         return list
 
