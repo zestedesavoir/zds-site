@@ -15,7 +15,7 @@ L'environnement de travail est constitué par… :
 Les sources sont bien évidemment les fichiers que vous ouvrirez, créerez, modifierez ou supprimerez pour apporter des
 corrections de bugs, pour développer des fonctionnalités ou encore pour les tester.
 
-Le serveur Python est utilisé pour tester le résultats de ces différentes opérations (donc pour utiliser le site Web
+Le serveur Python est utilisé pour tester le résultat de ces différentes opérations (donc pour utiliser le site Web
 Zeste de Savoir en local sur votre machine).
 
 L'environnement virtuel contient les paquets logiciels (exclusivement Python) à installer pour que le serveur
