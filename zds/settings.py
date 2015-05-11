@@ -1,8 +1,14 @@
 # coding: utf-8
 
 import os
+import sys
 
 from django.utils.translation import gettext_lazy as _
+
+# Changes the default encoding of python to UTF-8.
+# Theses instructions don't change encoding python outside Zeste de Savoir.
+reload(sys)
+sys.setdefaultencoding('UTF8')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -175,6 +181,8 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+SITE_ID = 1
 
 THUMBNAIL_ALIASES = {
     '': {
@@ -369,7 +377,7 @@ ZDS_APP = {
                             u"la communauté.",
         'association': {
             'name': u"Zeste de Savoir",
-            'fee': u"30 €",
+            'fee': u"20 €",
             'email': u"association@zestedesavoir.com",
             'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
         },

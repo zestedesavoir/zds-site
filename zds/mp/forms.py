@@ -8,12 +8,12 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from zds.mp.commons import ParticipantsValidator, TitleValidator, TextValidator
 from zds.mp.models import PrivateTopic
+from zds.mp.validators import ParticipantsStringValidator, TitleValidator, TextValidator
 from zds.utils.forms import CommonLayoutEditor
 
 
-class PrivateTopicForm(forms.Form, ParticipantsValidator, TitleValidator, TextValidator):
+class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, TextValidator):
     participants = forms.CharField(
         label=_('Participants'),
         widget=forms.TextInput(

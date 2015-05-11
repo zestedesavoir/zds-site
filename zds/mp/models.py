@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from zds.mp.managers import PrivateTopicManager, PrivatePostManager
 
 from zds.utils import get_current_user, slugify
 
@@ -28,6 +29,7 @@ class PrivateTopic(models.Model):
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
                                      verbose_name=u'Dernier message')
     pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
+    objects = PrivateTopicManager()
 
     def __unicode__(self):
         """
@@ -185,6 +187,7 @@ class PrivatePost(models.Model):
     pubdate = models.DateTimeField(u'Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
     position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
+    objects = PrivatePostManager()
 
     def __unicode__(self):
         """

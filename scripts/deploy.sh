@@ -36,6 +36,8 @@ sudo service nginx reload
 # Delete old branch if exists
 git checkout prod
 git branch -D $1
+# Removes dist/ folder to avoid conflicts
+rm -rf ./dist/
 # Switch to new tag
 git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
@@ -44,17 +46,6 @@ git fetch
 git checkout $1
 # Create a branch with the same name - required to have version data in footer
 git checkout -b $1
-
-# Front commands
-[ -s /usr/local/nvm.sh ] && . /usr/local/nvm/nvm.sh
-# Update packages
-npm install --production
-# Remove unused packages
-npm prune --production
-# Clean the front stuff
-npm run clean
-# Build the front stuff
-npm run build
 
 # Update application data
 source ../bin/activate

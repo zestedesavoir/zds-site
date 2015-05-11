@@ -1,8 +1,8 @@
-==========
-*Workflow*
-==========
+===============================
+*Workflow* et détails pratiques
+===============================
 
-Cette page détaille le *workflow* utilisé sur Zeste de Savoir. Elle est là surtout pour satisfaire votre curiosité, à moins d'avoir les droits de faire une Mise En Production (MEP). La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement.
+Cette page détaille le *workflow* utilisé sur Zeste de Savoir. La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement. Ici sera aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
 
 Ce *workflow* est très fortement fondé sur le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`__.
 
@@ -16,7 +16,7 @@ L'idée générale est très simple :
 -  Lorsqu'on juge qu'on a assez de matière pour un nouveau déploiement, on crée une branche dédiée (par exemple ``release-v1.7``) que l'on teste en pré-production (les bugs trouvés seront corrigés sur cette branche) ;
 -  En cas de bug ultra-urgent à corriger en production, on crée une branche spéciale.
 
-La pré-production (ou béta) est disponible via `ce lien <https://beta.zestedesavoir.com>`_. Vous pouvez y accéder avec le nom d'utilisateur "clementine" et le mot de passe "souris".
+La pré-production (ou béta) est disponible via `ce lien <https://beta.zestedesavoir.com>`_. Vous pouvez y accéder avec le nom d'utilisateur "clementine" et le mot de passe "orange".
 
 *Workflow* de développement
 ===========================
@@ -45,8 +45,38 @@ C'est s'assurer que le code fait ce qu'il devrait sans passer des heures à re-t
 -  la vérification que des tests correspondants à la fonctionnalité ou à la correction sont présents, cohérents et passent ;
 -  des tests manuels dans le cas de fonctionnalités ou corrections complexes et/ou critiques (au cas par cas).
 
+Stratégie de *tagging* des tickets
+==================================
+
+Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en différentes catégories (seuls les niveaux 2 représentent les tags utilisables) :
+
+-  Compétences
+   -  Back
+   -  Front
+   -  API
+   -  Documentation
+   -  Infra
+-  Priorité
+   -  Bloquant
+-  Statut
+   -  Evolution
+   -  Bug
+   -  Régression
+-  Difficulté
+   -  Facile
+
+Certains de ces tags possèdent cependant quelques règles d'applications :
+
+-  Le tag **Facile** : Ce tag est facultatif. Il est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
+-  Le tag **Bloquant** : Il ne concerne que les tickets désignant un **bug** ou une **régression** qui empêchent une utilisation correcte du site (connexion impossible, forte atteinte aux performances, etc).
+-  **Régression** ou **Bug** ? : Une régression *est* un bug. La différence est temporelle. Un bug peut apparaitre suite à la mise en place d'une nouvelle fonctionnalité. Une régression quant à elle est un bug apparu suite à une correction incomplète, ratée ou encore si une nouvelle fonctionnalité altère un comportement antérieur.
+
+Dans un monde parfait, les priorités de développement devraient être les suivantes : Bloquant > Régression > Bug > Évolution.
+
 *Workflow* de mise en production
 ================================
+
+Cette partie est là surtout pour satisfaire votre curiosité, à moins d'avoir les droits de faire une Mise En Production (MEP).
 
 Description
 -----------
@@ -75,7 +105,7 @@ Le temps maximum entre la création d'une branche de *release* et sa mise en pro
 En cas de problèmes sur la release
 ----------------------------------
 
-Vous l'avez lu : les corrections de ``master`` **ne sont pas remontées sur ``dev``** au fur et à mesure. La raison est que ça prends du temps, de l'énergie et que ça fait beaucoup de merges croisés. Donc toutes les corrections sont remontées en même temps lors de la mise en production. Conséquences :
+Vous l'avez lu : les corrections de ``master`` **ne sont pas remontées sur** ``dev`` au fur et à mesure. La raison est que ça prends du temps, de l'énergie et que ça fait beaucoup de merges croisés. Donc toutes les corrections sont remontées en même temps lors de la mise en production. Conséquences :
 
 -  Si vous bossez sur ``dev`` pendant qu'une *release* est en cours, pas la peine de corriger un bug déjà corrigé sur la *release* : la PR serait refusée (pour cause de doublon).
 -  Si un *gros* problème est détecté sur la *release* et qu'il est correctible en un temps raisonnable :
@@ -91,4 +121,4 @@ Glossaire
 
 -  **MEP** : Mise En Production
 -  **PR** : *Pull Request* (proposition d'une modification de code à un projet)
--  **QA** : *Quality Assurance* (`Assurance Qualité <https://fr.wikipedia.org/wiki/Assurance_qualit%C3%A9>`_) 
+-  **QA** : *Quality Assurance* (`Assurance Qualité <https://fr.wikipedia.org/wiki/Assurance_qualit%C3%A9>`_)

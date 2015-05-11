@@ -71,12 +71,13 @@ class ImageTest(TestCase):
     def test_get_extension(self):
         self.assertEqual('jpg', self.image.get_extension())
 
-    def test_save_image(self):
+    def test_save_and_delete_image(self):
         test_image = ImageFactory(gallery=self.gallery)
-        self.assertTrue(os.path.isfile(test_image.physical.path))
+        image_path = test_image.physical.path
+        self.assertTrue(os.path.isfile(image_path))
 
         test_image.delete()
-        self.assertFalse(os.path.isfile(test_image.physical.path))
+        self.assertFalse(os.path.isfile(image_path))
 
 
 class GalleryTest(TestCase):
@@ -113,3 +114,23 @@ class GalleryTest(TestCase):
 
     def test_get_last_image(self):
         self.assertEqual(self.image2, self.gallery.get_last_image())
+
+    def test_delete_empty_gallery(self):
+        test_gallery = GalleryFactory()
+        path = test_gallery.get_gallery_path()
+        test_gallery.delete()
+        self.assertFalse(os.path.isdir(path))
+
+    def test_delete_gallery_with_image(self):
+        test_gallery = GalleryFactory()
+        test_image = ImageFactory(gallery=test_gallery)
+
+        path_gallery = test_gallery.get_gallery_path()
+        self.assertTrue(os.path.isdir(path_gallery))
+        path_image = test_image.physical.path
+        self.assertTrue(os.path.isfile(path_image))
+
+        # Destroy the gallery and the image
+        test_gallery.delete()
+        self.assertFalse(os.path.isdir(path_gallery))
+        self.assertFalse(os.path.isfile(path_image))

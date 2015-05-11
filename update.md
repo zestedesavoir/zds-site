@@ -164,6 +164,17 @@ python manage.py migrate --fake easy_thumbnails
 
 Le reste l'est aussi mais Django est incapable de le détecter tout seul pour cette app.
 
+**Attention** : il est possible que Django perde l'information du "migrate fake" pendant la migration et donc plante sur cette étape pendant le déploiement. Si c'est le cas, pas de panique, il suffit de releancer les migrations à la main et de redémarrer l'application :
+
+```
+cd /opt/zdsenv/ZesteDeSavoir/
+source ../bin/activate
+python manage.py migrate --fake easy_thumbnails
+python manage.py migrate
+deactivate
+sudo supervisorctl restart zds
+```
+
 Désinstaller south: `pip uninstall south`. La MAJ de Django de la 1.6 à la 1.7 sera faite par le script (via la mise à jour des _requirements_).
 
 Déploiement de Django 1.7
@@ -172,20 +183,21 @@ Déploiement de Django 1.7
 _(A priori spécifique à zestedesavoir.com, mais ça peut aider selon l'installation qui est faite du site)_
 
 1. Le fichier `unicorn_start` est inutile et peut être supprimé.
-2. La conf `gunicorn_config.py` peut être pas mal simplifiée. **Exemple** de fichier qui fonctionne sur une application Django 1.7, à adapter à la config réelle :
+2. La conf `gunicorn_config.py` peut être pas mal simplifiée. Fichier utilisé en **bêta**, quelques adaptations peuvent être nécessaires pour la production :
 
-```
+```python
 command = '/opt/zdsenv/bin/gunicorn'
-pythonpath = '/opt/zedsenv/ZesteDeSavoir/zds'
-bind = '127.0.0.1:8001'
+pythonpath = '/opt/zdsenv/ZesteDeSavoir'
+bind = 'unix:/opt/zdsenv/bin/gunicorn.sock'
 workers = 7
 user = 'zds'
 group = 'zds'
 errorlog = '/opt/zdsenv/logs/gunicorn_error.log'
 loglevel = 'info'
+
 ```
 
-3. Mettre à jour la configuration supervisor pour utiliser la bonne manière de lancer Gunicorn.  **Exemple** de fichier qui fonctionne sur une application Django 1.7, à adapter à la config réelle :
+3. Mettre à jour la configuration supervisor pour utiliser la bonne manière de lancer Gunicorn. Fichier utilisé en **bêta**, quelques adaptations peuvent être nécessaires pour la production :
 
 ```
 [program:zds]
@@ -193,11 +205,18 @@ directory = /opt/zdsenv/
 command = /opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
 stdout_logfile = /opt/zdsenv/logs/supervisor_stdout.log
 stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
+
 ```
+
 
 
 Issue #1634
 -----------
 
+4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart` 
+
+Issue #2520
+-----------
+
 Exécuter la commande suivante : `sudo apt-get install libffi-dev`
-=======
+

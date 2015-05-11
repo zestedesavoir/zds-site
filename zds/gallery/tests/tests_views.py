@@ -441,6 +441,8 @@ class EditImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
+        nb_files = len(os.listdir(self.gallery.get_gallery_path()))
+
         with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'r') as fp:
 
             response = self.client.post(
@@ -457,9 +459,14 @@ class EditImageViewTest(TestCase):
                 follow=True
             )
         self.assertEqual(200, response.status_code)
+        # should have one picture and 2 thumbnails, so 3 new images
+        self.assertEqual(nb_files + 3, len(os.listdir(self.gallery.get_gallery_path())))
+
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertEqual('edit title', image_test.title)
         image_test.delete()
+        # picture AND thumbnail should be gone
+        self.assertEqual(nb_files, len(os.listdir(self.gallery.get_gallery_path())))
 
     def test_access_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
