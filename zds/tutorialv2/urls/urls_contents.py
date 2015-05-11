@@ -6,7 +6,7 @@ from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, Cr
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent, WarnTypo
+    RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer
 
 from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, \
     DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, SendNoteAlert, SolveNoteAlert
@@ -28,6 +28,16 @@ urlpatterns = patterns('',
 
                        url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(),
                            name='download-zip'),
+
+                       # beta:
+                       url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
+                           DisplayBetaContainer.as_view(),
+                           name='beta-view-container'),
+                       url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
+                           DisplayBetaContainer.as_view(),
+                           name='beta-view-container'),
+
+                       url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayBetaContent.as_view(), name='beta-view'),
 
                        # reactions:
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),

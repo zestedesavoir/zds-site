@@ -298,7 +298,11 @@ class Container:
         """
 
         if self.top_container().sha_beta:
-            return self.get_absolute_url() + '?version={}'.format(self.top_container().sha_beta)
+            base = ''
+            if self.parent:
+                base = self.parent.get_absolute_url_beta()
+
+            return base + self.slug + '/'
         else:
             return self.get_absolute_url()
 
@@ -973,7 +977,7 @@ class VersionedContent(Container):
         :return: the url to access the tutorial when in beta
         """
         if self.in_beta:
-            return self.get_absolute_url() + '?version=' + self.sha_beta
+            return reverse('content:beta-view', args=[self.pk, self.slug])
         else:
             return self.get_absolute_url()
 

@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
@@ -20,7 +20,7 @@ from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.views import get_client_ip
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
-    ContentTypeMixin, SingleOnlineContentFormViewMixin
+    ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory, Alert
@@ -131,10 +131,17 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
     mimetypes = {'html': 'text/html', 'md': 'text/plain', 'pdf': 'application/pdf', 'epub': 'application/epub+zip'}
 
+    def get_redirect_url(self, public_version):
+        return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)
+
     def get(self, context, **response_kwargs):
 
         # fill the variables
-        self.public_content_object = self.get_public_object()
+        try:
+            self.public_content_object = self.get_public_object()
+        except MustRedirect as redirect_url:
+            return HttpResponsePermanentRedirect(redirect_url)
+
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
 
@@ -298,21 +305,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     check_as = True
     reaction = None
     template_name = "tutorialv2/comment/new.html"
-
-    def get_public_object(self):
-        """redefine this function in order to get the object from `pk` in request.GET"""
-        pk = self.request.GET.get('pk', None)
-        if pk is None:
-            raise Http404
-        obj = PublishedContent.objects\
-            .filter(content_pk=int(pk))\
-            .prefetch_related('content')\
-            .first()
-
-        if obj is None:
-            raise Http404
-
-        return obj
 
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
