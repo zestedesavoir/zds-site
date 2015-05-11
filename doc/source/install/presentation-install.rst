@@ -10,7 +10,7 @@ L'environnement de travail est constitué par… :
 
 -Un environnement virtuel* qui contient le serveur précédemment cité.
 
-    *: notion expliquée ci-dessous.
+*: notion expliquée ci-dessous.
 
 Les sources sont bien évidemment les fichiers que vous ouvrirez, créerez, modifierez ou supprimerez pour apporter des
 corrections de bugs, pour développer des fonctionnalités ou encore pour les tester.
