@@ -30,6 +30,7 @@ $content-width: 1145px;
     .home-header {
         border-bottom: solid 1px white;
         padding-top: 40px;
+        background-color: #19516b; // fallback for older browser
         background: #19516b radial-gradient(at top, rgba(255,255,255,0.1),rgba(0,0,0,0) 60%);
         margin-bottom: -170px;
         padding-bottom: 180px;

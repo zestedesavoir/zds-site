@@ -88,10 +88,10 @@
 
              <section class="home-search-box">
                 <form action='{% url "haystack_search" %}'>
-                    <label for="search-box-field">
+                    <label for="search">
                         {% trans "Recherche" %}
                     </label>
-                    <input type="text" name="q" id="search-box-field" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
+                    <input type="text" name="q" id="search" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
                     <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
                 </form>
             </section>
