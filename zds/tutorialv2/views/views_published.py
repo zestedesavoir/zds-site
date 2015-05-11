@@ -3,10 +3,15 @@ from collections import OrderedDict
 from datetime import datetime
 import json as json_writer
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
+from django.db import transaction
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.utils import http
+from django.template.loader import render_to_string
+from django.utils.datastructures import MultiValueDictKeyError
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
 from django.views.generic.detail import BaseDetailView
@@ -15,10 +20,11 @@ from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.views import get_client_ip
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
-    ContentTypeMixin, SingleOnlineContentFormViewMixin
+    ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from zds.tutorialv2.utils import search_container_or_404
-from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory
+from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory, Alert
+from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination
 
 
@@ -125,10 +131,17 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
     mimetypes = {'html': 'text/html', 'md': 'text/plain', 'pdf': 'application/pdf', 'epub': 'application/epub+zip'}
 
+    def get_redirect_url(self, public_version):
+        return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)
+
     def get(self, context, **response_kwargs):
 
         # fill the variables
-        self.public_content_object = self.get_public_object()
+        try:
+            self.public_content_object = self.get_public_object()
+        except MustRedirect as redirect_url:
+            return HttpResponsePermanentRedirect(redirect_url)
+
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
 
@@ -293,26 +306,11 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     reaction = None
     template_name = "tutorialv2/comment/new.html"
 
-    def get_public_object(self):
-        """redefine this function in order to get the object from `pk` in request.GET"""
-        pk = self.request.GET.get('pk', None)
-        if pk is None:
-            raise Http404
-        obj = PublishedContent.objects\
-            .filter(content_pk=int(pk))\
-            .prefetch_related('content')\
-            .first()
-
-        if obj is None:
-            raise Http404
-
-        return obj
-
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['content'] = self.object
-
+        kwargs["reaction"] = None
         return kwargs
 
     def form_valid(self, form):
@@ -355,6 +353,17 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 class UpdateNoteView(SendNoteFormView):
     check_as = False
     template_name = "tutorialv2/comment/edit.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(UpdateNoteView, self).get_form_kwargs()
+        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+            self.reaction = ContentReaction.objects\
+                .prefetch_related("author")\
+                .filter(pk=int(self.request.GET["message"]))\
+                .first()
+            kwargs["reaction"] = self.reaction
+
+        return kwargs
 
     def form_valid(self, form):
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
@@ -428,10 +437,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
                 note.save()
         resp["upvotes"] = note.like
         resp["downvotes"] = note.dislike
-        if request.is_ajax():
-            return HttpResponse(json_writer.dumps(resp))
-        else:
-            return redirect(note.get_absolute_url())
+        return redirect(note.get_absolute_url())
 
 
 class DownvoteReaction(UpvoteReaction):
@@ -451,7 +457,94 @@ class GetReaction(BaseDetailView):
 
         reaction = self.get_queryset().first()
         if reaction is not None:
-            string = json_writer.dumps(reaction.text, ensure_ascii=False)
+            string = json_writer.dumps({"text": reaction.text}, ensure_ascii=False)
         else:
-            string = u"{}"
-        return http.HttpResponse(string, content_type='application/json')
+            string = u'{"text":""}'
+        return HttpResponse(string, content_type='application/json')
+
+
+class HideReaction(FormView, LoginRequiredMixin):
+    http_method_names = ["post"]
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(HideReaction, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            pk = int(self.kwargs["pk"])
+            text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
+            reaction = get_object_or_404(ContentReaction, pk=pk)
+            if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
+                raise PermissionDenied
+            reaction.is_visible = False
+            reaction.text_hidden = text
+            reaction.save()
+            return redirect(reaction.related_content.get_absolute_url_online())
+        except (IndexError, ValueError, MultiValueDictKeyError):
+            raise Http404
+
+
+class SendNoteAlert(FormView, LoginRequiredMixin):
+    http_method_names = ["post"]
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(SendNoteAlert, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            note_pk = int(self.kwargs["pk"])
+        except (KeyError, ValueError):
+            raise Http404
+        note = get_object_or_404(ContentReaction, pk=note_pk)
+        alert = Alert()
+        alert.author = request.user
+        alert.comment = note
+        alert.scope = Alert.CONTENT
+        alert.text = request.POST["signal_text"]
+        alert.pubdate = datetime.now()
+        alert.save()
+
+        return redirect(note.get_absolute_url())
+
+
+class SolveNoteAlert(FormView, LoginRequiredMixin):
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.has_perm("tutorial.change_note"):
+            raise PermissionDenied
+        try:
+            alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
+            note = ContentReaction.objects.get(pk=alert.comment.id)
+            content = note.related_content
+            if "text" in request.POST and request.POST["text"] != "":
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                msg = render_to_string(
+                    'tutorialv2/messages/resolve_alert.md',
+                    {
+                        'content': content,
+                        'url': content.get_absolute_url_online(),
+                        'name': alert.author.username,
+                        'target_name': note.author.username,
+                        'modo_name': self.request.user.username,
+                        'message': self.request.POST["text"]
+                    })
+                send_mp(
+                    bot,
+                    [alert.author],
+                    _(u"Résolution d'alerte : {0}").format(note.related_content.title),
+                    "",
+                    msg,
+                    False,
+                )
+            alert.delete()
+            messages.success(self.request, _(u"L'alerte a bien été résolue."))
+            return redirect(note.get_absolute_url())
+        except (KeyError, ValueError):
+            raise Http404

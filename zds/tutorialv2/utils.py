@@ -408,6 +408,13 @@ def publish_content(db_object, versioned, is_major_update=True):
         old_path = public_version.get_prod_path()
         shutil.rmtree(old_path)
 
+        # if the slug change, instead of using the same object, a new one will be created
+        if versioned.slug != public_version.content_public_slug:
+            public_version.must_redirect = True  # set redirection
+            public_version.save()
+            db_object.public_version = PublishedContent()
+            public_version = db_object.public_version
+
     else:
         public_version = PublishedContent()
 

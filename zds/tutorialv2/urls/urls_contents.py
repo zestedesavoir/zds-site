@@ -6,10 +6,10 @@ from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, Cr
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent, WarnTypo
+    RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer
 
-from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, DownvoteReaction, \
-    UpdateNoteView, GetReaction
+from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, \
+    DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, SendNoteAlert, SolveNoteAlert
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
@@ -29,13 +29,26 @@ urlpatterns = patterns('',
                        url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(),
                            name='download-zip'),
 
+                       # beta:
+                       url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
+                           DisplayBetaContainer.as_view(),
+                           name='beta-view-container'),
+                       url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
+                           DisplayBetaContainer.as_view(),
+                           name='beta-view-container'),
+
+                       url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayBetaContent.as_view(), name='beta-view'),
+
                        # reactions:
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
-                       url(r'^reactions/ajouter/$', UpdateNoteView.as_view(), name="update-reaction"),
+                       url(r'^reactions/edit/$', UpdateNoteView.as_view(), name="update-reaction"),
                        url(r'^reactions/get-json/(?P<pk>\d+)/$',
                            GetReaction.as_view(), name="json-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
+                       url(r'^reactions/hide/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),
+                       url(r'^reactions/alerter/(?P<pk>\d+)/$', SendNoteAlert.as_view(), name="alert-reaction"),
+                       url(r'^reactions/resoudre/$', SolveNoteAlert.as_view(), name="resolve-reaction"),
 
                        # typo:
                        url(r'^reactions/typo/$', WarnTypo.as_view(), name="warn-typo"),

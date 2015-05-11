@@ -209,6 +209,7 @@ class Alert(models.Model):
     ARTICLE = 'A'
     FORUM = 'F'
     TUTORIAL = 'T'
+    CONTENT = 'C'
     SCOPE_CHOICES = (
         (ARTICLE, 'Commentaire d\'article'),
         (FORUM, 'Forum'),

@@ -447,6 +447,9 @@ class PublishedContent(models.Model):
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
 
+    must_redirect = models.BooleanField(
+        'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
+
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
 

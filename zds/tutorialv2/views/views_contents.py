@@ -19,7 +19,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.generic import ListView, FormView, DeleteView
 from git import GitCommandError
-from git import BadObject
 import os
 from zds.forum.models import Forum
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
@@ -209,6 +208,28 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         self.get_forms(context)
 
         return context
+
+
+class DisplayBetaContent(DisplayContent):
+    """View to get the beta version of a content"""
+
+    sha = None
+
+    def get_object(self, queryset=None):
+        """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
+        obj = super(DisplayBetaContent, self).get_object(queryset)
+
+        if not obj.sha_beta or obj.sha_beta == '':
+            raise Http404
+
+        else:
+            self.sha = obj.sha_beta
+
+        # make the slug always right in URLs resolution:
+        if 'slug' in self.kwargs:
+            self.kwargs['slug'] = obj.slug
+
+        return obj
 
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -662,7 +683,6 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
     model = PublishableContent
     template_name = 'tutorialv2/view/container.html'
-    online = False
     sha = None
     must_be_author = False  # beta state does not need the author
     only_draft_version = False
@@ -706,6 +726,28 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
         context["is_js"] = is_js
 
         return context
+
+
+class DisplayBetaContainer(DisplayContainer):
+    """View to get the beta version of a container"""
+
+    sha = None
+
+    def get_object(self, queryset=None):
+        """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
+        obj = super(DisplayBetaContainer, self).get_object(queryset)
+
+        if not obj.sha_beta or obj.sha_beta == '':
+            raise Http404
+
+        else:
+            self.sha = obj.sha_beta
+
+        # make the slug always right in URLs resolution:
+        if 'slug' in self.kwargs:
+            self.kwargs['slug'] = obj.slug
+
+        return obj
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -945,6 +987,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     model = PublishableContent
     form_class = BetaForm
     authorized_for_staff = False
+    only_draft_version = False
 
     action = None
 
@@ -953,14 +996,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         return super(ManageBetaContent, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
-        # check version:
-        try:
-            sha_beta = self.request.POST['version']
-            beta_version = self.object.load_version(sha=sha_beta)
-        except KeyError:
-            raise Http404  # wrong POST data
-        except BadObject:
-            raise PermissionDenied  # version does not exists !
+        beta_version = self.versioned_object
+        sha_beta = beta_version.current_version
 
         # topic of the beta version:
         topic = self.object.beta_topic
@@ -1015,7 +1052,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     create_topic(author=self.request.user,
                                  forum=forum,
-                                 title=_(u"[beta][tutoriel]{0}").format(beta_version.title),
+                                 title=_(u"[beta][{}]{}").format(_type, beta_version.title),
                                  subtitle=u"{}".format(beta_version.description),
                                  text=msg,
                                  related_publishable_content=self.object)
@@ -1097,12 +1134,9 @@ class WarnTypo(SingleContentFormViewMixin):
 
     def get_form_kwargs(self):
 
-        if 'version' not in self.request.POST:
-            raise PermissionDenied
-
         kwargs = super(WarnTypo, self).get_form_kwargs()
 
-        versioned = self.object.load_version_or_404(self.request.POST['version'])
+        versioned = self.get_versioned_object()
         kwargs['content'] = versioned
         kwargs['targeted'] = versioned
 
@@ -1113,6 +1147,8 @@ class WarnTypo(SingleContentFormViewMixin):
 
         if versioned.is_beta:
             kwargs['public'] = False
+        elif not versioned.is_public:
+            raise PermissionDenied
 
         return kwargs
 

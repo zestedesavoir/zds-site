@@ -34,6 +34,8 @@
                 <a class="mobile-menu-link"
                     {% if online %}
                         href="{{ child.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ child.get_absolute_url_beta }}"
                     {% else %}
                         href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                     {% endif %}
@@ -47,7 +49,9 @@
                         <li>
                             <a
                                 {% if online %}
-                                    href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                    href="{{ extract.get_absolute_url_online }}"
+                                {% elif content.is_beta %}
+                                    href="{{ extract.get_absolute_url_beta }}"
                                 {% else %}
                                     href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
                                 {% endif %}
@@ -64,8 +68,10 @@
                             <a data-num="{{ subchild.position_in_parent }}"
                                 {% if online %}
                                     href="{{ subchild.get_absolute_url_online }}"
+                                {% elif content.is_beta %}
+                                     href="{{ subchild.get_absolute_url_beta }}"
                                 {% else %}
-                                    {%  if subchild.text %}
+                                    {% if subchild.text %}
                                         {# subchild is an extract #}
                                         href="{{ subchild.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ subchild.position_in_parent }}-{{ subchild.slug }}"
                                     {% else %}
@@ -82,7 +88,9 @@
                                         <li>
                                             <a
                                                 {% if online %}
-                                                    href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                                    href="{{ extract.get_absolute_url_online }}"
+                                                {% elif content.is_beta %}
+                                                    href="{{ extract.get_absolute_url_beta }}"
                                                 {% else %}
                                                     href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
                                                 {% endif %}

@@ -11,7 +11,7 @@ from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic
 from zds.tutorial.models import Note, TutorialRead
 from zds.utils.models import Alert
-from zds.tutorialv2.models.models_database import ContentRead
+from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
 
 register = template.Library()
 
@@ -134,6 +134,8 @@ def interventions_topics(user):
         reaction = content.first_unread_note()
         if reaction is None:
             reaction = content.first_note()
+        if reaction is None:
+            continue
         posts_unread.append({'pubdate': reaction.pubdate,
                              'author': reaction.author,
                              'title': content.title,
@@ -187,6 +189,13 @@ def alerts_list(user):
         if alert.scope == Alert.TUTORIAL:
             note = Note.objects.select_related('tutorial').get(pk=alert.comment.pk)
             total.append({'title': note.tutorial.title,
+                          'url': note.get_absolute_url(),
+                          'pubdate': alert.pubdate,
+                          'author': alert.author,
+                          'text': alert.text})
+        if alert.scope == Alert.CONTENT:
+            note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
+            total.append({'title': note.related_content.title,
                           'url': note.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,

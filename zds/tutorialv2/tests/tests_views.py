@@ -23,7 +23,7 @@ from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike
+from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
 
 
@@ -35,7 +35,6 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentTests(TestCase):
-
     def setUp(self):
         self.staff = StaffProfileFactory().user
 
@@ -2507,11 +2506,11 @@ class ContentTests(TestCase):
     def test_add_note(self):
         tuto = PublishedContentFactory(author_list=[self.user_author], type="TUTORIAL")
 
-        published_obj = PublishedContent.objects\
-            .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type)\
-            .prefetch_related('content')\
-            .prefetch_related("content__authors")\
-            .prefetch_related("content__subcategory")\
+        published_obj = PublishedContent.objects \
+            .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type) \
+            .prefetch_related('content') \
+            .prefetch_related("content__authors") \
+            .prefetch_related("content__subcategory") \
             .first()
 
         self.assertIsNotNone(published_obj)
@@ -2890,6 +2889,7 @@ class ContentTests(TestCase):
         self.assertIn(versioned.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
 
         # check if user can warn typo in chapter of tutorial
+        chapter = versioned.children[-1]
         result = self.client.post(
             reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
             {
@@ -3249,7 +3249,7 @@ class ContentTests(TestCase):
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), "10000"))
         self.assertEqual(result.status_code, 404)
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
     def test_upvote_downvote(self):
         publishable = PublishedContentFactory(author_list=[self.user_author])
@@ -3297,6 +3297,322 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
 
+    def test_hide_reaction(self):
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+        reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
+        result = self.client.post(reverse('content:hide-reaction', args=[reaction.pk]),
+                                  {'text_hidden': u"Ever notice how you come across somebody "
+                                                  u"once in a while you shouldn't "
+                                                  u"have fucked with? That's me."}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertFalse(ContentReaction.objects.filter(related_content__pk=publishable.pk).first().is_visible)
+
+    def test_alert_reaction(self):
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+        reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:alert-reaction', args=[reaction.pk]),
+            {
+                "signal_text": 'No. Try not. Do... or do not. There is no try.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNotNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        result = self.client.post(
+            reverse('content:resolve-reaction'),
+            {
+                "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                "text": 'No. Try not. Do... or do not. There is no try.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 403)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:resolve-reaction'),
+            {
+                "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                "text": 'Much to learn, you still have.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+
+    def test_ensure_SEO(self):
+        """ Make a test about redirection of beta and public versions
+        """
+
+        text = u'Ce test a été écrit quelque part entre New York et Washington DC (vraiment!)'
+
+        # create a tuto, populate, and set beta
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto.authors.add(self.user_author)
+        tuto.gallery = GalleryFactory()
+        tuto.licence = self.licence
+        tuto.subcategory.add(self.subcategory)
+        tuto.save()
+
+        versioned = tuto.load_version()
+        chapter = ContainerFactory(parent=versioned, db_object=tuto)
+        ExtractFactory(container=chapter, db_object=tuto)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        sha_draft = PublishableContent.objects.get(pk=tuto.pk).sha_draft
+        response = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        first_beta_url_tuto = versioned.get_absolute_url_beta()
+        first_beta_url_chapter = versioned.children[-1].get_absolute_url_beta()
+
+        # test that those URLs are accessible
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        response = self.client.get(first_beta_url_tuto, follow=False)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get(first_beta_url_chapter, follow=False)
+        self.assertEqual(200, response.status_code)
+
+        # then, publish this first version
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text,
+                'source': '',
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=tuto).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=tuto).first()
+        self.assertIsNotNone(published)
+
+        first_public_url_tuto = published.get_absolute_url_online()
+        first_public_url_chapter = versioned.children[-1].get_absolute_url_online()
+
+        # test that those URLs are accessible
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        response = self.client.get(first_public_url_tuto, follow=False)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get(first_public_url_chapter, follow=False)
+        self.assertEqual(200, response.status_code)
+
+        # then, induce a change of title (and therefore a change of slug !)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': text,
+                'description': text,
+                'introduction': text,
+                'conclusion': text,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': versioned.compute_hash()
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        self.assertEqual(versioned.title, text)  # change was done !
+
+        # set beta
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        sha_draft = versioned.sha_draft
+        response = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+
+        # test that beta url are different, but old urls remains accessible# test that those URLs are accessible
+        self.assertNotEqual(versioned.get_absolute_url_beta(), first_beta_url_tuto)
+        self.assertNotEqual(versioned.children[-1].get_absolute_url_beta(), first_beta_url_tuto)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        response = self.client.get(first_beta_url_tuto, follow=False)
+        self.assertEqual(200, response.status_code)
+
+        response = self.client.get(first_beta_url_chapter, follow=False)
+        self.assertEqual(200, response.status_code)
+
+        # then, publish this second version
+        result = self.client.get(reverse("content:index"))
+        self.assertTemplateUsed( result, 'tutorialv2/index.html')
+        self.assertContains(result, self.tuto.title, count=1)
+
+        # ask validation
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text,
+                'source': '',
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and republish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=tuto).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = None
+        published = PublishedContent.objects.filter(content=tuto).first()
+        self.assertIsNotNone(published)
+
+        # test that public url are different and that you get 301 (moved permanently) when used !
+        self.assertNotEqual(versioned.get_absolute_url_online(), first_public_url_tuto)
+        self.assertNotEqual(versioned.children[-1].get_absolute_url_online(), first_public_url_tuto)
+        response = self.client.get(first_public_url_tuto, follow=False)
+        self.assertEqual(301, response.status_code)
+
+        response = self.client.get(first_public_url_chapter, follow=False)
+        self.assertEqual(301, response.status_code)
+
     def test_lists(self):
         self.client.logout()
         result = self.client.get(reverse("content:index"))
@@ -3306,14 +3622,12 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        result = self.client.get(reverse("content:index"))
-        self.assertTemplateUsed( result, 'tutorialv2/index.html')
-        self.assertContains(result, self.tuto.title, count=1)
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
                 password='hostel77'),
             True)
+
         result = self.client.get(reverse("content:index"))
         self.assertTemplateUsed( result, 'tutorialv2/index.html')
         self.assertNotContains(result, self.tuto.title)

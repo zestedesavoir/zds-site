@@ -13,7 +13,7 @@ from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
-from zds.tutorialv2.models.models_database import Validation, PublishableContent
+from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
@@ -87,11 +87,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     authorized_for_staff = True  # an admin could ask validation for a content
     only_draft_version = False
     modal_form = True
-
-    def dispatch(self, *args, **kwargs):
-        if "version" in self.request.POST:
-            self.sha = self.request.POST["version"]
-        return super(AskValidationForContent, self).dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
@@ -381,7 +376,13 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             validation.status = "ACCEPT"
             validation.date_validation = datetime.now()
             validation.save()
-
+            for user in db_object.authors.all():
+                read = ContentRead.objects.filter(content__pk=db_object.pk, user__pk=user.pk).first()
+                if read is None:
+                    read = ContentRead()
+                    read.user = user
+                    read.content = db_object
+                    read.save()
             # TODO: deal with other kind of publications (HTML, PDF, archive, ...)
 
             if is_update:

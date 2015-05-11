@@ -1,13 +1,11 @@
 # coding: utf-8
-
-from django.db.models import Q
-
 from haystack import indexes
 
-from zds.tutorial.models import Tutorial, Part, Chapter, Extract
+from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_versioned import Extract, Container
 
 
-class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
+class ContentIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     description = indexes.CharField(model_attr='description')
@@ -15,48 +13,37 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     sha_public = indexes.CharField(model_attr='sha_public')
 
     def get_model(self):
-        return Tutorial
+        return PublishableContent
 
     def index_queryset(self, using=None):
         """Only tutorials online."""
         return self.get_model().objects.filter(sha_public__isnull=False)
 
 
-class PartIndex(indexes.SearchIndex, indexes.Indexable):
+class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
-    tutorial = indexes.CharField(model_attr='tutorial')
 
     def get_model(self):
-        return Part
+        return Container
 
     def index_queryset(self, using=None):
         """Only parts online."""
-        return self.get_model().objects.filter(
-            tutorial__sha_public__isnull=False)
+        return self.get_model().objects.filter(sha_public__isnull=False)
 
-
-class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
-    text = indexes.CharField(document=True, use_template=True)
-    title = indexes.CharField(model_attr='title')
-    # A Chapter belongs to a Part (big-tuto) **or** a Tutorial (mini-tuto)
-    part = indexes.CharField(model_attr='part', null=True)
-    tutorial = indexes.CharField(model_attr='tutorial', null=True)
-
-    def get_model(self):
-        return Chapter
-
-    def index_queryset(self, using=None):
-        """Only chapters online."""
-        return self.get_model()\
-            .objects.filter(Q(tutorial__sha_public__isnull=False) |
-                            Q(part__tutorial__sha_public__isnull=False))
+    def prepare_title(self):
+        contents = self.index_queryset()
+        part_titles = []
+        for content in contents:
+            versionned = content.load_verstion(None, True)
+            part_titles += [p.title for p in versionned.traverse(True)]
+        return part_titles
 
 
 class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
-    chapter = indexes.CharField(model_attr='chapter')
+    url = indexes.CharField()
     txt = indexes.CharField(model_attr='text')
 
     def get_model(self):
@@ -64,5 +51,28 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
 
     def index_queryset(self, using=None):
         """Only extracts online."""
-        return self.get_model() .objects.filter(Q(chapter__tutorial__sha_public__isnull=False) |
-                                                Q(chapter__part__tutorial__sha_public__isnull=False))
+        return PublishableContent.objects.filter(sha_public__isnull=False)
+
+    def prepare_text(self):
+        contents = self.index_queryset()
+        extracts = []
+        for content in contents:
+            versionned = content.load_verstion(None, False)
+            extracts += [p.get_text() for p in versionned.traverse() if isinstance(p, Extract)]
+        return extracts
+
+    def prepare_title(self):
+        contents = self.index_queryset()
+        extracts = []
+        for content in contents:
+            versionned = content.load_verstion(None, False)
+            extracts += [p.title for p in versionned.traverse() if isinstance(p, Extract)]
+        return extracts
+
+    def prepare_url(self):
+        contents = self.index_queryset()
+        extracts = []
+        for content in contents:
+            versionned = content.load_verstion(None, False)
+            extracts += [p.get_absolute_url_online() for p in versionned.traverse() if isinstance(p, Extract)]
+        return extracts
