@@ -313,6 +313,10 @@ $content-width: 1145px;
 
 @media only screen and #{$media-mobile-tablet} {
     .home {
+        .home-header {
+            padding-top: 10px;
+        }
+
         .home-wrapper {
             padding: 20px 10px;
         }
