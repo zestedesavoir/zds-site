@@ -2,7 +2,7 @@
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from zds.forum.factories import CategoryFactory, ForumFactory
+from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.member.factories import ProfileFactory
 
 
@@ -79,6 +79,85 @@ class ForumsListViewTests(TestCase):
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
         self.assertEqual(response.context['forums'][0], current_category.get_forums(profile.user)[0])
 
+    def test_failure_list_all_topics_of_a_wrong_forum(self):
+        response = self.client.get(reverse('forum-topics-list', args=['x', 'x']))
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_list_all_topics_of_a_forum_we_cannot_read(self):
+        group = Group.objects.create(name="DummyGroup_1")
+        category, forum = create_category(group)
+
+        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_list_all_topics_of_a_forum(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(forum, response.context['forum'])
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(0, len(response.context['sticky_topics']))
+
+    def test_success_list_all_topics_of_a_forum_with_sticky_topics(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        topic_sticky = add_topic_in_a_forum(forum, profile, is_sticky=True)
+
+        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(forum, response.context['forum'])
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(1, len(response.context['sticky_topics']))
+        self.assertEqual(topic_sticky, response.context['sticky_topics'][0])
+
+    def test_success_filter_list_all_topics_solved_of_a_forum(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        topic_solved = add_topic_in_a_forum(forum, profile, is_solved=True)
+
+        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=solve')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(forum, response.context['forum'])
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic_solved, response.context['topics'][0])
+
+    def test_success_filter_list_all_topics_unsolved_of_a_forum(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic_unsolved = add_topic_in_a_forum(forum, profile)
+        add_topic_in_a_forum(forum, profile, is_solved=True)
+
+        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=unsolve')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(forum, response.context['forum'])
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic_unsolved, response.context['topics'][0])
+
+    def test_success_filter_list_all_topics_noanswer_of_a_forum(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        add_topic_in_a_forum(forum, profile, is_solved=True)
+
+        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=noanswer')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(forum, response.context['forum'])
+        self.assertEqual(2, len(response.context['topics']))
+
 
 def create_category(group=None):
     category = CategoryFactory(position=1)
@@ -87,3 +166,12 @@ def create_category(group=None):
         forum.group.add(group)
         forum.save()
     return category, forum
+
+
+def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False):
+    topic = TopicFactory(forum=forum, author=profile.user)
+    topic.is_sticky = is_sticky
+    topic.is_solved = is_solved
+    topic.save()
+    PostFactory(topic=topic, author=profile.user, position=1)
+    return topic

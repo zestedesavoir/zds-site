@@ -14,7 +14,7 @@ from django.core import mail
 
 from zds.forum.models import Post, Topic, TopicFollowed, TopicRead
 from zds.forum.views import get_tag_by_title
-from zds.forum.models import get_topics, Forum
+from zds.forum.models import Forum
 
 
 class ForumMemberTests(TestCase):
@@ -88,12 +88,7 @@ class ForumMemberTests(TestCase):
                     self.category1.slug]))
         self.assertContains(response, self.category1.title)
         # Forum
-        response = self.client.get(
-            reverse(
-                'zds.forum.views.details',
-                args=[
-                    self.category1.slug,
-                    self.forum11.slug]))
+        response = self.client.get(reverse('forum-topics-list', args=[self.category1.slug, self.forum11.slug]))
         self.assertContains(response, self.category1.title)
         self.assertContains(response, self.forum11.title)
 
@@ -1111,12 +1106,7 @@ class ForumGuestTests(TestCase):
                     self.category1.slug]))
         self.assertContains(response, self.category1.title)
         # Forum
-        response = self.client.get(
-            reverse(
-                'zds.forum.views.details',
-                args=[
-                    self.category1.slug,
-                    self.forum11.slug]))
+        response = self.client.get(reverse('forum-topics-list', args=[self.category1.slug, self.forum11.slug]))
         self.assertContains(response, self.category1.title)
         self.assertContains(response, self.forum11.title)
 
@@ -1475,3 +1465,28 @@ class ForumGuestTests(TestCase):
             topic_solved_sticky,
             get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
         )
+
+
+def get_topics(forum_pk, is_sticky, filter=None):
+    """
+    Get topics for a forum.
+    The optional filter allows to retrieve only solved, unsolved or "non-answered" (i.e. with only the 1st post) topics.
+    :param forum_pk: the primary key of forum
+    :param is_sticky: indicates if the sticky topics must or must not be retrieved
+    :param filter: optional filter to retrieve only specific topics.
+    :return:
+    """
+
+    if filter == 'solve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=True)
+    elif filter == 'unsolve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=False)
+    elif filter == 'noanswer':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, last_message__position=1)
+    else:
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
+
+    return topics.order_by('-last_message__pubdate')\
+        .select_related('author__profile')\
+        .prefetch_related('last_message', 'tags')\
+        .all()

@@ -19,24 +19,27 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, DetailView
+from django.views.generic.detail import SingleObjectMixin
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed, get_topics
+    mark_read, TopicFollowed
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import slugify
+from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
-from zds.utils.paginator import paginator_range
+from zds.utils.paginator import paginator_range, ZdSPagingListView
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class CategoriesForumsListView(ListView):
+
     context_object_name = 'categories'
     template_name = 'forum/index.html'
     queryset = Category.objects.all()
@@ -60,47 +63,46 @@ class CategoryForumsDetailView(DetailView):
         return context
 
 
-def details(request, cat_slug, forum_slug):
-    """
-    Displays a forum with all its topic, if the current use is allowed to read it.
-    The topic list is paginated (`settings.ZDS_APP['forum']['topics_per_page']` topics per page) and can be filtered.
-    :param cat_slug: As a forum slug is unique through the database, this is unused.
-    :param forum_slug: The slug of the forum to display.
-    """
+class TopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
-    forum = get_object_or_404(Forum, slug=forum_slug)
-    if not forum.can_read(request.user):
-        raise PermissionDenied
-    if 'filter' in request.GET:
-        filter = request.GET['filter']
-    else:
-        filter = None
-    sticky_topics = get_topics(forum_pk=forum.pk, is_sticky=True, filter=filter)
-    topics = get_topics(forum_pk=forum.pk, is_sticky=False, filter=filter)
+    context_object_name = 'topics'
+    paginate_by = settings.ZDS_APP['forum']['topics_per_page']
+    template_name = 'forum/category/forum.html'
+    queryset = Topic.objects.filter(is_sticky=False).all()
+    filter_url_kwarg = 'filter'
+    default_filter_param = 'all'
+    object = None
 
-    # Paginator
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.can_read(self.request.user):
+            raise PermissionDenied
+        return super(TopicsListView, self).get(request, *args, **kwargs)
 
-    paginator = Paginator(topics, settings.ZDS_APP['forum']['topics_per_page'])
-    page = request.GET.get("page")
-    try:
-        shown_topics = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_topics = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_topics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
+    def get_context_data(self, **kwargs):
+        context = super(TopicsListView, self).get_context_data(**kwargs)
+        context.update({
+            'forum': self.object,
+            'sticky_topics': self.filter_queryset(Topic.objects.filter(is_sticky=True).all(), context['filter']),
+        })
+        return context
 
-    return render(request, "forum/category/forum.html", {
-        "forum": forum,
-        "sticky_topics": sticky_topics,
-        "topics": shown_topics,
-        "page": 1,
-        "pages": paginator_range(page, paginator.num_pages),
-        "nb": page,
-        "filter": filter,
-    })
+    def get_object(self, queryset=None):
+        return get_object_or_404(Forum, slug=self.kwargs.get('forum_slug'))
+
+    def filter_queryset(self, queryset, filter_param):
+        if filter_param == 'solve':
+            queryset = queryset.filter(forum__pk=self.object.pk, is_solved=True)
+        elif filter_param == 'unsolve':
+            queryset = queryset.filter(forum__pk=self.object.pk, is_solved=False)
+        elif filter_param == 'noanswer':
+            queryset = queryset.filter(forum__pk=self.object.pk, last_message__position=1)
+        else:
+            queryset = queryset.filter(forum__pk=self.object.pk)
+        return queryset\
+            .order_by('-last_message__pubdate')\
+            .select_related('author__profile')\
+            .prefetch_related('last_message', 'tags').all()
 
 
 def topic(request, topic_pk, topic_slug):
@@ -870,7 +872,7 @@ def unread_post(request):
         else:
             t.delete()
 
-    return redirect(reverse("zds.forum.views.details", args=[post.topic.forum.category.slug, post.topic.forum.slug]))
+    return redirect(reverse("forum-topics-list", args=[post.topic.forum.category.slug, post.topic.forum.slug]))
 
 
 # TODO nécessite une transaction ?

@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from . import feeds
-from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView
+from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, TopicsListView
 
 
 urlpatterns = patterns('',
@@ -66,7 +66,7 @@ urlpatterns = patterns('',
                        url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),
 
                        # Forum details
-                       url(r'^(?P<cat_slug>.+)/(?P<forum_slug>.+)/$','zds.forum.views.details'),
+                       url(r'^(?P<cat_slug>.+)/(?P<forum_slug>.+)/$', TopicsListView.as_view(), name='forum-topics-list'),
 
                        # Forums belonging to one category
                        url(r'^(?P<slug>.+)/$',CategoryForumsDetailView.as_view(), name='cat-forums-list'),
