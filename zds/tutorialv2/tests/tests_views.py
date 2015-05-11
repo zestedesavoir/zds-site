@@ -3236,6 +3236,37 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
 
+    def test_lists(self):
+        self.client.logout()
+        result = self.client.get(reverse("content:index"))
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("content:index"))
+        self.assertTemplateUsed( result, 'tutorialv2/index.html')
+        self.assertContains(result, self.tuto.title, count=1)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("content:index"))
+        self.assertTemplateUsed( result, 'tutorialv2/index.html')
+        self.assertNotContains(result, self.tuto.title)
+        content = PublishedContentFactory(author_list=[self.user_author])
+        self.client.logout()
+        result = self.client.get(reverse("tutorial:list"))
+        self.assertTemplateUsed( result, 'tutorialv2/index_online.html')
+        self.assertContains(result, content.title, count=1)
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        self.client.logout()
+        result = self.client.get(reverse("article:list"))
+        self.assertTemplateUsed( result, 'tutorialv2/index_online.html')
+        self.assertContains(result, article.title, count=1)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
