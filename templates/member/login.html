@@ -40,6 +40,15 @@
                 <div class="content-col-2">
                     <h2>{% trans "Connexion classique" %}</h2>
                     {% crispy form %}
+                    <p>
+                        <a href="{% url "zds.member.views.forgot_password" %}" class="form-sub-link">
+                            Mot de passe oublié ?
+                        </a>
+                        <br />
+                        <a href="{% url "send-validation-email" %}" class="form-sub-link">
+                            Vous n'avez pas reçu le courriel d'activation ?
+                        </a>
+                    </p>
                 </div>
                 <div class="content-col-2">
                     <h2>{% trans "Connexion via réseaux sociaux" %}</h2>

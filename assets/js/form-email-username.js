@@ -1,5 +1,5 @@
 /**
- * Display the form for recorvering a password.
+ * Used by recovering password and send again validation email functionality.
  */
 (function($, undefined){
     "use strict";
@@ -8,7 +8,7 @@
     else
         $("#form-email").removeClass("hidden");
 
-    $("[data-forgot-password-button=email]").on("click", function(e) {
+    $("[data-email-button=email]").on("click", function(e) {
         $("#form-email").toggleClass("hidden");
         $("#form-username").addClass("hidden");
 
@@ -22,7 +22,7 @@
     else
         $("#form-username").removeClass("hidden");
 
-    $("[data-forgot-password-button=username]").on("click", function(e) {
+    $("[data-username-button=username]").on("click", function(e) {
         $("#form-username").toggleClass("hidden");
         $("#form-email").addClass("hidden");
 
