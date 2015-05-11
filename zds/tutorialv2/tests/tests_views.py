@@ -1552,6 +1552,67 @@ class ContentTests(TestCase):
             })
         )
         self.assertEqual(200, result.status_code)
+        result = self.client.get(reverse('content:history', kwargs={
+                'pk': new_content.pk,
+                'slug': new_content.slug
+            }))
+        self.assertContains(result, new_content.sha_draft)
+        self.assertContains(result, "initial")
+
+    def test_diff(self):
+        content = PublishableContentFactory(author_list=[self.user_author])
+        old_sha = content.sha_draft
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        extract = ExtractFactory(container=content.load_version(), db_object=self.tuto)
+        result = self.client.get(reverse('content:history', kwargs={
+                'pk': content.pk,
+                'slug': content.slug
+            }))
+        self.assertTemplateUsed(result, 'tutorialv2/view/history.html')
+        self.assertContains(result, old_sha)
+        self.assertContains(result, content.sha_draft)
+        self.assertContains(result, "<tr>", count=3)
+        result = self.client.get(
+            reverse('content:diff', kwargs={
+                'pk': content.pk,
+                'slug': content.slug
+            })
+        )
+        self.assertEqual(200, result.status_code)
+        self.assertTemplateUsed(result, "tutorialv2/view/diff.html")
+
+        result = self.client.get(
+            reverse('content:diff', kwargs={
+                'pk': content.pk,
+                'slug': content.slug + "oO"
+            })
+        )
+        self.assertEqual(404, result.status_code)
+        result = self.client.get(
+            reverse('content:diff', kwargs={
+                'pk': 100000,
+                'slug': content.slug
+            })
+        )
+        self.assertEqual(404, result.status_code)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('content:diff', kwargs={
+                'pk': content.pk,
+                'slug': content.slug
+            })
+        )
+        self.assertEqual(403, result.status_code)
 
     def test_validation_workflow(self):
         """test the different case of validation"""
