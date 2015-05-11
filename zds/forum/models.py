@@ -63,8 +63,7 @@ class Category(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('zds.forum.views.cat_details',
-                       kwargs={'cat_slug': self.slug})
+        return reverse('cat-forums-list', kwargs={'slug': self.slug})
 
     def get_forums(self, user):
         """

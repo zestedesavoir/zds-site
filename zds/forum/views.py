@@ -18,7 +18,7 @@ from django.shortcuts import redirect, get_object_or_404, render, render_to_resp
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
@@ -45,6 +45,18 @@ class CategoriesForumsListView(ListView):
         context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
         for category in context.get('categories'):
             category.forums = category.get_forums(self.request.user)
+        return context
+
+
+class CategoryForumsDetailView(DetailView):
+
+    context_object_name = 'category'
+    template_name = 'forum/category/index.html'
+    queryset = Category.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(CategoryForumsDetailView, self).get_context_data(**kwargs)
+        context['forums'] = context.get('category').get_forums(self.request.user)
         return context
 
 
@@ -89,34 +101,6 @@ def details(request, cat_slug, forum_slug):
         "nb": page,
         "filter": filter,
     })
-
-
-def cat_details(request, cat_slug):
-    """
-    Displays a category and all its forums the current user can read.
-    :param cat_slug: The slug of the category to display.
-    """
-
-    category = get_object_or_404(Category, slug=cat_slug)
-
-    forums_pub = Forum.objects\
-        .filter(group__isnull=True, category__pk=category.pk)\
-        .select_related("category").all()
-    if request.user.is_authenticated():
-        forums_prv = Forum.objects\
-            .filter(group__isnull=False,
-                    group__in=request.user.groups.all(),
-                    category__pk=category.pk)\
-            .select_related("category")\
-            .all()
-        forums = forums_pub | forums_prv
-    else:
-        forums = forums_pub
-
-    return render(request, "forum/category/index.html", {"category": category,
-                                                         "forums": forums,
-                                                         "nb": settings.ZDS_APP['forum']['topics_per_page'],
-                                                         "page": 1})
 
 
 def topic(request, topic_pk, topic_slug):
@@ -476,7 +460,7 @@ def edit(request):
         return HttpResponse(json.dumps(resp), content_type='application/json')
     else:
         if not g_topic.forum.can_read(request.user):
-            return redirect(reverse('forums-list'))
+            return redirect(reverse('cats-forums-list'))
         else:
             return redirect(u"{}?page={}".format(g_topic.get_absolute_url(),
                                                  page))
@@ -1009,7 +993,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
 
     tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
-        return redirect(reverse('forums-list'))
+        return redirect(reverse('cats-forums-list'))
     u = request.user
     if "filter" in request.GET:
         filter = request.GET["filter"]

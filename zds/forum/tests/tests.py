@@ -78,12 +78,12 @@ class ForumMemberTests(TestCase):
         """Test forum display (full: root, category, forum) Topic display test
         is in creation topic test."""
         # Forum root
-        response = self.client.get(reverse('forums-list'))
+        response = self.client.get(reverse('cats-forums-list'))
         self.assertContains(response, 'Liste des forums')
         # Category
         response = self.client.get(
             reverse(
-                'zds.forum.views.cat_details',
+                'cat-forums-list',
                 args=[
                     self.category1.slug]))
         self.assertContains(response, self.category1.title)
@@ -1101,12 +1101,12 @@ class ForumGuestTests(TestCase):
         """Test forum display (full: root, category, forum) Topic display test
         is in creation topic test."""
         # Forum root
-        response = self.client.get(reverse('forums-list'))
+        response = self.client.get(reverse('cats-forums-list'))
         self.assertContains(response, 'Liste des forums')
         # Category
         response = self.client.get(
             reverse(
-                'zds.forum.views.cat_details',
+                'cat-forums-list',
                 args=[
                     self.category1.slug]))
         self.assertContains(response, self.category1.title)

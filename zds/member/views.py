@@ -754,7 +754,7 @@ def active_account(request):
                 tutorials_url=settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
                 articles_url=settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
                 members_url=settings.ZDS_APP['site']['url'] + reverse("member-list"),
-                forums_url=settings.ZDS_APP['site']['url'] + reverse('forums-list'),
+                forums_url=settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
                 site_name=settings.ZDS_APP['site']['litteral_name'])
     send_mp(
         bot,

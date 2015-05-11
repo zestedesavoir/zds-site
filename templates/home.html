@@ -23,7 +23,7 @@
 {% block content_out %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
     {% url 'zds.article.views.index' as url_articles %}
-    {% url 'forums-list' as url_forums %}
+    {% url 'cats-forums-list' as url_forums %}
 
     <section class="home-header">
         <div class="home-wrapper">
@@ -162,7 +162,7 @@
         <section itemscope itemtype="http://schema.org/ItemList">
             <h2 class="home-heading ico-after ico-forum" itemprop="name">
                 {% trans "Derniers sujets" %}
-                <a href="{% url 'forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
             </h2>
 
             <meta itemprop="itemListOrder" content="Descending">
