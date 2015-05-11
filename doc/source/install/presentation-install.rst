@@ -27,3 +27,6 @@ la notion d'environnement virtuel : il y a un environnement virtuel par projet (
 Savoir). Cela permet d'utiliser telle version de chaque paquet pour tel projet, et telle autre version de chaque paquet
 pour tel autre projet. Chaque projet peut donc utiliser telle ou telle version de chaque paquet. Enfin, notons que
 l'environnement virtuel contient le serveur Python : c'est un paquet logiciel comme un autre.
+
+
+Pour installer l'environnement de travail, consultez les parties "Installation back-end" et "Installation front-end".
