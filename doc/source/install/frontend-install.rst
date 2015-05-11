@@ -6,6 +6,16 @@ Vous voulez nous aider au développement du frontend ? Installez Node.js et npm 
 
 Installation de Node.js et npm
 ==============================
+Le serveur Python nécessite notamment deux paquets logiciels issus du JavaScript, deux dépendances :
+
+- node.js (couche logicielle installable sur un serveur Web pour utiliser le langage JavaScript côté-serveur),
+- npm (gestionnaire de modules de node.js – car oui, node.js est modulaire : on peut étoffer ses fonctionnalités en installant divers modules).
+
+Normalement et en toute rigueur, ces dépendances sont à installer dans un environnement virtuel JavaScript. Cependant, son existence n'a pas encore été décidée par l'équipe de développement de Zeste de Savoir. Rappelons que le seul environnement virtuel existant est dédié au serveur Python et à ses dépendances qui sont des paquets exclusivement Python. Ainsi, il ne faut pas y installer de paquet JavaScript.
+
+Il est donc nécessaire d'installer node.js et npm directement sur votre distribution Fedora. Si vous refusez catégoriquement de la polluer et que vous souhaitez ardement contribuer au projet Zeste de Savoir, nous vous invitons à nous rejoindre ou à nous contacter afin de mettre en place avec nos développeurs un environnement virtuel JavaScript.
+
+
 
 Windows
 -------
@@ -74,8 +84,7 @@ Il vous faut tout simplement faire :
 
 .. sourcecode:: bash
 
-    sudo curl -sL https://rpm.nodesource.com/setup | bash -
-    sudo yum install -y nodejs
+    sudo dnf install -y nodejs
 
 Arch Linux
 ~~~~~~~~~~
@@ -173,6 +182,14 @@ Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``n
 .. sourcecode:: bash
 
     sudo npm install -g gulp
+    
+    
+  Rendez-vous dans votre fork local avec la commande « cd ». Il s'agit désormais de générer les fichiers-sources du front avec Gulp, la boîte à outils !
+
+Commande de génération du front-end :
+.. sourcecode:: bash
+  npm run gulp – build
+
 
 Nettoyage des outils
 ====================
