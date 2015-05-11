@@ -341,6 +341,13 @@ $content-width: 1145px;
         .home-search-box {
             margin: 30px 40px 0;
         }
+        .home-description {
+            &.connected {
+                // Rules to don't be hidden by the .home-search-box::before background-image
+                width: auto;
+                padding: 0 80px;
+            }
+        }
     }
 }
 
@@ -363,6 +370,11 @@ $content-width: 1145px;
                     font-size: 22px;
                     font-size: 2.2rem;
                 }
+            }
+            &.connected {
+                // Rules to don't be hidden by the .home-search-box::before background-image
+                max-width: 740px;
+                margin: 0px auto;
             }
         }
     }
