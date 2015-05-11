@@ -27,6 +27,7 @@ Assurez vous que les dépendances suivantes soient résolues :
 - libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev``
 
 Si vous utilisez la distribution Fedora, ces noms de paquets changent. Considérez ainsi la liste suivante :
+
 - git
 - python
 - python-devel
