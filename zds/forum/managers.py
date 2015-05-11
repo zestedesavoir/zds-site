@@ -5,6 +5,20 @@ from django.db import models
 from django.db.models import Q
 
 
+class ForumManager(models.Manager):
+    """
+    Custom forum manager.
+    """
+
+    def get_public_forums_of_category(self, category):
+        return self.filter(category=category, group__isnull=True).select_related("category").distinct().all()
+
+    def get_private_forums_of_category(self, category, user):
+        return self.filter(category=category, group__in=user.groups.all())\
+            .order_by('position_in_category')\
+            .select_related("category").distinct().all()
+
+
 class TopicManager(models.Manager):
     """
     Custom topic manager.

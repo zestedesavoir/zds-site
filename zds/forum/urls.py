@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from . import feeds
-from . import views
+from zds.forum.views import CategoriesForumsListView
 
 
 urlpatterns = patterns('',
@@ -22,8 +22,8 @@ urlpatterns = patterns('',
                        # Developers warning: if you update something here, check and update help_text
                        # on Category slug field
 
-                       # Home
-                       url(r'^$', 'zds.forum.views.index'),
+                       # Categories and forums list.
+                       url(r'^$', CategoriesForumsListView.as_view(), name='forums-list'),
 
                        # Followed topics
                        url(r'^notifications/$',

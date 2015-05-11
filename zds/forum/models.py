@@ -13,7 +13,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
-from zds.forum.managers import TopicManager
+from zds.forum.managers import TopicManager, ForumManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
@@ -66,13 +66,15 @@ class Category(models.Model):
         return reverse('zds.forum.views.cat_details',
                        kwargs={'cat_slug': self.slug})
 
-    def get_forums(self):
+    def get_forums(self, user):
         """
         :return: All forums in category, ordered by forum's position in category
         """
-        return Forum.objects.all()\
-            .filter(category=self)\
-            .order_by('position_in_category')
+        forums_pub = Forum.objects.get_public_forums_of_category(self)
+        if user.is_authenticated():
+            forums_private = Forum.objects.get_private_forums_of_category(self, user)
+            return list(forums_pub | forums_private)
+        return forums_pub
 
 
 class Forum(models.Model):
@@ -101,6 +103,7 @@ class Forum(models.Model):
                                                null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
+    objects = ForumManager()
 
     def __unicode__(self):
         return self.title
@@ -114,7 +117,7 @@ class Forum(models.Model):
         """
         :return: the number of threads in the forum.
         """
-        return Topic.objects.all().filter(forum__pk=self.pk).count()
+        return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
         """
@@ -122,13 +125,12 @@ class Forum(models.Model):
         """
         return Post.objects.filter(topic__forum=self).count()
 
-    # TODO: Rename this method for something clearer
     def get_last_message(self):
         """
         :return: the last message on the forum, if there are any.
         """
         try:
-            return Post.objects.all().filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
+            return Post.objects.filter(topic__forum=self).order_by('-pubdate').all()[0]
         except IndexError:
             return None
 

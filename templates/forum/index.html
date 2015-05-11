@@ -39,11 +39,11 @@
     <div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
         <meta itemprop="itemListOrder" content="Unordered">
 
-        {% for title, forums in categories.categories.items %}
+        {% for category in categories %}
             <h2 class="group-title content-wrapper">
-                {{ title }}
+                {{ category.title }}
             </h2>
-            {% include "forum/includes/forums.part.html" with forum=forums %}
+            {% include "forum/includes/forums.part.html" with forums=category.forums %}
         {% empty %}
             <p>{% trans "Aucun forum disponible." %}</p>
         {% endfor %}

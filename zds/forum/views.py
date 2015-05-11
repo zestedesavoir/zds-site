@@ -18,6 +18,7 @@ from django.shortcuts import redirect, get_object_or_404, render, render_to_resp
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import ListView
 
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
@@ -33,20 +34,18 @@ from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.utils.templatetags.topbar import top_categories
 
 
-def index(request):
-    """
-    The forum index. Displays the category list with all their forums the current user can read.
-    """
+class CategoriesForumsListView(ListView):
+    context_object_name = 'categories'
+    template_name = 'forum/index.html'
+    queryset = Category.objects.all()
 
-    categories = top_categories(request.user)
-
-    return render(request, "forum/index.html", {"categories": categories,
-                                                "user": request.user,
-                                                "nb": settings.ZDS_APP['forum']['topics_per_page'],
-                                                "page": 1})
+    def get_context_data(self, **kwargs):
+        context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
+        for category in context.get('categories'):
+            category.forums = category.get_forums(self.request.user)
+        return context
 
 
 def details(request, cat_slug, forum_slug):
@@ -477,7 +476,7 @@ def edit(request):
         return HttpResponse(json.dumps(resp), content_type='application/json')
     else:
         if not g_topic.forum.can_read(request.user):
-            return redirect(reverse("zds.forum.views.index"))
+            return redirect(reverse('forums-list'))
         else:
             return redirect(u"{}?page={}".format(g_topic.get_absolute_url(),
                                                  page))
@@ -1010,7 +1009,7 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
 
     tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
     if tag is None:
-        return redirect(reverse("zds.forum.views.index"))
+        return redirect(reverse('forums-list'))
     u = request.user
     if "filter" in request.GET:
         filter = request.GET["filter"]
