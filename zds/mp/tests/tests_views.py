@@ -504,6 +504,13 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(403, response.status_code)
 
+    def test_fail_cite_weird_pk(self):
+
+        response = self.client.get(reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug()]) +
+                                   '?cite=abcd')
+
+        self.assertEqual(404, response.status_code)
+
     def test_success_cite_post(self):
 
         response = self.client.get(reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug()]) +
