@@ -9,7 +9,7 @@ from git import Repo, Actor
 from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from zds.utils import slugify
 from zds.utils.models import Licence

@@ -19,7 +19,8 @@ from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import string_concat
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView
 from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
@@ -960,15 +961,15 @@ def settings_promote(request, user_pk):
                 u'Un administrateur vient de modifier les groupes '
                 u'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg += _(u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n')
+            msg = string_concat(msg, _(u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
             for group in usergroups:
                 msg += u'* {0}\n'.format(group.name)
         else:
-            msg += _(u'* Vous ne faites partie d\'aucun groupe')
+            msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
         msg += u'\n\n'
         if user.is_superuser:
-            msg += _(u'Vous avez aussi rejoint le rang des super utilisateurs. '
-                     u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !')
+            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super utilisateurs. '
+                                       u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !'))
         send_mp(
             bot,
             [user],
