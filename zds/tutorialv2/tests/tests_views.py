@@ -1552,9 +1552,9 @@ class ContentTests(TestCase):
         )
         self.assertEqual(200, result.status_code)
         result = self.client.get(reverse('content:history', kwargs={
-                'pk': new_content.pk,
-                'slug': new_content.slug
-            }))
+            'pk': new_content.pk,
+            'slug': new_content.slug
+        }))
         self.assertContains(result, new_content.sha_draft)
         self.assertContains(result, "initial")
 
@@ -1567,11 +1567,12 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        extract = ExtractFactory(container=content.load_version(), db_object=self.tuto)
-        result = self.client.get(reverse('content:history', kwargs={
-                'pk': content.pk,
-                'slug': content.slug
-            }))
+        ExtractFactory(container=content.load_version(), db_object=self.tuto)
+        result = self.client.get(reverse('content:history',
+                                         kwargs={
+                                             'pk': content.pk,
+                                             'slug': content.slug
+                                         }))
         self.assertTemplateUsed(result, 'tutorialv2/view/history.html')
         self.assertContains(result, old_sha)
         self.assertContains(result, content.sha_draft)
@@ -3556,9 +3557,11 @@ class ContentTests(TestCase):
         self.assertEqual(200, response.status_code)
 
         # then, publish this second version
-        result = self.client.get(reverse("content:index"))
-        self.assertTemplateUsed( result, 'tutorialv2/index.html')
-        self.assertContains(result, self.tuto.title, count=1)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
 
         # ask validation
 
@@ -3622,6 +3625,10 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
+        result = self.client.get(reverse("content:index"))
+        self.assertTemplateUsed(result, 'tutorialv2/index.html')
+        self.assertContains(result, self.tuto.title, count=1)
+
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
@@ -3629,17 +3636,17 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.get(reverse("content:index"))
-        self.assertTemplateUsed( result, 'tutorialv2/index.html')
+        self.assertTemplateUsed(result, 'tutorialv2/index.html')
         self.assertNotContains(result, self.tuto.title)
         content = PublishedContentFactory(author_list=[self.user_author])
         self.client.logout()
         result = self.client.get(reverse("tutorial:list"))
-        self.assertTemplateUsed( result, 'tutorialv2/index_online.html')
+        self.assertTemplateUsed(result, 'tutorialv2/index_online.html')
         self.assertContains(result, content.title, count=1)
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         self.client.logout()
         result = self.client.get(reverse("article:list"))
-        self.assertTemplateUsed( result, 'tutorialv2/index_online.html')
+        self.assertTemplateUsed(result, 'tutorialv2/index_online.html')
         self.assertContains(result, article.title, count=1)
 
     def tearDown(self):
