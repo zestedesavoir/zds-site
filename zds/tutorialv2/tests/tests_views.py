@@ -11,10 +11,11 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.contrib import messages
+import datetime
 
 from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.settings import BASE_DIR
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
@@ -68,6 +69,9 @@ class ContentTests(TestCase):
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         bot.save()
+        self.external = UserFactory(
+            username=settings.ZDS_APP["member"]["external_account"],
+            password="anything")
 
     def test_ensure_access(self):
         """General access test for author, user, guest and staff"""
@@ -3307,6 +3311,41 @@ class ContentTests(TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+
+    def test_warn_typo_without_accessible_author(self):
+        publishable = PublishedContentFactory(author_list=[self.external])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(publishable.pk),
+            {
+                'pk': publishable.pk,
+                'version': publishable.sha_public,
+                'text': u'This is how they controlled it. '
+                        u'It took us 15 years and three supercomputers to MacGyver a system for the gate on Earth. ',
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertIsNone(PrivateTopic.objects.filter(participants__in=[self.external]).first())
+        user_banned = ProfileFactory(can_write=False, end_ban_write=datetime.date(2048, 01, 01),
+                                     can_read=False, end_ban_read=datetime.date(2048, 01, 01))
+        publishable.authors.add(user_banned.user)
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(publishable.pk),
+            {
+                'pk': publishable.pk,
+                'version': publishable.sha_public,
+                'text': u'This is how they controlled it. '
+                        u'It took us 15 years and three supercomputers to MacGyver a system for the gate on Earth. ',
+                'target': ''
+            },
+            follow=True)
+        self.assertIsNone(PrivateTopic.objects.filter(participants__in=[self.external]).first())
+        self.assertEqual(result.status_code, 200)
 
     def tearDown(self):
 

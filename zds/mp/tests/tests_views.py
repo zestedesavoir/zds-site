@@ -492,6 +492,25 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(404, response.status_code)
 
+    def test_fail_cite_post_not_in_current_topic(self):
+        another_topic = PrivateTopicFactory(author=self.profile2.user)
+        another_post = PrivatePostFactory(
+            privatetopic=another_topic,
+            author=self.profile2.user,
+            position_in_topic=1)
+
+        response = self.client.get(reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug()]) +
+                                   '?cite={}'.format(another_post.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_cite_post(self):
+
+        response = self.client.get(reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug()]) +
+                                   '?cite={}'.format(self.post2.pk))
+
+        self.assertEqual(200, response.status_code)
+
     def test_success_preview_answer(self):
 
         response = self.client.post(

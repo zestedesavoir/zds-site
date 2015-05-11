@@ -105,7 +105,7 @@ class PublishedContentFactory(PublishableContentFactory):
 
         content = super(PublishedContentFactory, cls)._prepare(create, **kwargs)
         published = publish_content(content, content.load_version(), True)
-
+        content.sha_public = content.sha_draft
         content.public_version = published
         content.save()
 

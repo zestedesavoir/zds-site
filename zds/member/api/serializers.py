@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
 
 from rest_framework import serializers
 
-from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator, \
-    ProfileCreate
+from zds.member.commons import ProfileCreate
 from zds.member.models import Profile
+from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """
+    Serializers of a user object.
+    """
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'is_active', 'date_joined')
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
@@ -104,12 +115,15 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
         instance.avatar_url = validated_data.get('avatar_url', instance.avatar_url) or instance.avatar_url
         instance.biography = validated_data.get('biography', instance.biography) or instance.biography
         instance.sign = validated_data.get('sign', instance.sign) or instance.sign
-        instance.show_email = validated_data.get('show_email', instance.show_email) or instance.show_email
-        instance.show_sign = validated_data.get('show_sign', instance.show_sign) or instance.show_sign
-        instance.hover_or_click = validated_data.get('hover_or_click',
-                                                     instance.hover_or_click) or instance.hover_or_click
-        instance.email_for_answer = validated_data.get('email_for_answer',
-                                                       instance.email_for_answer) or instance.email_for_answer
+
+        if validated_data.get('show_email', instance.show_email) != instance.show_email:
+            instance.show_email = validated_data.get('show_email', instance.show_email)
+        if validated_data.get('show_sign', instance.show_sign) != instance.show_sign:
+            instance.show_sign = validated_data.get('show_sign', instance.show_sign)
+        if validated_data.get('hover_or_click', instance.hover_or_click) != instance.hover_or_click:
+            instance.hover_or_click = validated_data.get('hover_or_click', instance.hover_or_click)
+        if validated_data.get('email_for_answer', instance.email_for_answer) != instance.email_for_answer:
+            instance.email_for_answer = validated_data.get('email_for_answer', instance.email_for_answer)
         instance.user.save()
         instance.save()
         return instance

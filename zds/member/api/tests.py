@@ -539,12 +539,26 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_email'), data.get('show_email'))
 
+        data = {
+            'show_email': False
+        }
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('show_email'), data.get('show_email'))
+
     def test_update_member_details_show_sign(self):
         """
         Updates show sign of a member given.
         """
         data = {
             'show_sign': True
+        }
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('show_sign'), data.get('show_sign'))
+
+        data = {
+            'show_sign': False
         }
         response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -561,12 +575,26 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('hover_or_click'), data.get('hover_or_click'))
 
+        data = {
+            'hover_or_click': False
+        }
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('hover_or_click'), data.get('hover_or_click'))
+
     def test_update_member_details_email_for_answer(self):
         """
         Updates email for answer of a member given.
         """
         data = {
             'email_for_answer': True
+        }
+        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('email_for_answer'), data.get('email_for_answer'))
+
+        data = {
+            'email_for_answer': False
         }
         response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

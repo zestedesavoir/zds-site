@@ -262,6 +262,18 @@ class MemberModelsTest(TestCase):
         self.assertEqual(len(topicsfollowed), 1)
         self.assertEqual(self.forumtopic, topicsfollowed[0])
 
+    def test_get_city_with_wrong_ip(self):
+        # Set a local IP to the user
+        self.user1.last_ip_address = '127.0.0.1'
+        # Then the get_city is not found and return empty string
+        self.assertEqual('', self.user1.get_city())
+
+        # Same goes for IPV6
+        # Set a local IP to the user
+        self.user1.last_ip_address = '0000:0000:0000:0000:0000:0000:0000:0001'
+        # Then the get_city is not found and return empty string
+        self.assertEqual('', self.user1.get_city())
+
     def test_reachable_manager(self):
         # profile types
         profile_normal = ProfileFactory()
