@@ -6,6 +6,8 @@
                 <a
                     {% if online %}
                         href="{{ previous.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ previous.get_absolute_url_beta }}"
                     {% else %}
                         href="{{ previous.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                     {% endif %}
@@ -21,6 +23,8 @@
                 <a
                     {% if online %}
                         href="{{ next.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ next.get_absolute_url_beta }}"
                     {% else %}
                         href="{{ next.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
                     {% endif %}
