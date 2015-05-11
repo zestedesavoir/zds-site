@@ -622,7 +622,7 @@ def answer(request):
         if "cite" in request.GET:
             resp = {}
             try:
-                post_cite_pk = request.GET["cite"]
+                post_cite_pk = int(request.GET["cite"])
             except ValueError:
                 raise Http404
             post_cite = Post.objects.get(pk=post_cite_pk)
@@ -662,8 +662,8 @@ def edit_post(request):
     """
 
     try:
-        post_pk = request.GET["message"]
-    except KeyError:
+        post_pk = int(request.GET["message"])
+    except (KeyError, ValueError):
         # problem in variable format
         raise Http404
 

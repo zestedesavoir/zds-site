@@ -237,6 +237,11 @@
                             </div>
                         </li>
                     {% endif %}
+                    {% if profile.is_private and not perms.member.change_profile %}
+                        <li class="inactive mobile-menu-link">
+                            <span>{% trans "Aucune action possible" %}</span>
+                        </li>
+                    {% endif %}
                 </ul>
             </div>
         {% endif %}
@@ -295,60 +300,68 @@
         </ul>
     </div>
 
-    <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Activité" %}'>
+    <div class="mobile-menu-bloc" data-title='{% trans "Activité" %}'>
         <h3>{% trans "Activité" %}</h3>
 
         {% with draft_tutos_count=profile.get_draft_tutos.count public_tutos_count=profile.get_public_tutos.count beta_tutos_count=profile.get_beta_tutos.count validate_tutos_count=profile.get_validate_tutos.count %}
             {% if public_tutos_count > 0 or beta_tutos_count > 0 or validate_tutos_count > 0 or draft_tutos_count > 0 %}
-                <h4>{% trans "Tutoriels" %}</h4>
+                <h4 class="mobile-menu-link" data-title="{% trans 'Tutoriels' %}">{% trans "Tutoriels" %}</h4>
                 <ul>
                     {% if public_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">
-                                {% trans "En ligne" %}
+                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
                                 <span class="count">{{ public_tutos_count }}</span>
+                                {% trans "En ligne" %}
                             </a>
                         </li>
                     {% endif %}
                     {% if beta_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta">
-                                {% trans "En version bêta" %}
+                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
                                 <span class="count">{{ beta_tutos_count }}</span>
+                                {% trans "En version bêta" %}
                             </a>
                         </li>
                     {% endif %}
                     {% if profile.user == user %}
                         {% if validate_tutos_count > 0 %}
                             <li>
-                                <a href="{% url "zds.member.views.tutorials" %}?type=validate">
-                                    {% trans "En validation" %}
+                                <a href="{% url "zds.member.views.tutorials" %}?type=validate"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
                                     <span class="count">{{ validate_tutos_count }}</span>
+                                    {% trans "En validation" %}
                                 </a>
                             </li>
                         {% endif %}
                         {% if draft_tutos_count > 0 %}
                             <li>
-                                <a href="{% url "zds.member.views.tutorials" %}?type=draft">
-                                    {% trans "En rédaction" %}
+                                <a href="{% url "zds.member.views.tutorials" %}?type=draft"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
                                     <span class="count">{{ draft_tutos_count }}</span>
+                                    {% trans "En rédaction" %}
                                 </a>
                             </li>
                         {% endif %}
                     {% else %}
                         {% if validate_tutos_count > 0 %}
-                            <li class="inactive">
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
                                 <span>
-                                    {% trans "En validation" %}
                                     <span class="count">{{ validate_tutos_count }}</span>
+                                    {% trans "En validation" %}
                                 </span>
                             </li>
                         {% endif %}
                         {% if draft_tutos_count > 0 %}
-                            <li class="inactive">
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
                                 <span>
-                                    {% trans "En rédaction" %}
                                     <span class="count">{{ draft_tutos_count }}</span>
+                                    {% trans "En rédaction" %}
                                 </span>
                             </li>
                         {% endif %}
@@ -359,38 +372,44 @@
 
         {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count %}
             {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 %}
-                <h4>Articles</h4>
+                <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">Articles</h4>
                 <ul>
                     <li>
-                        <a href="{% url "zds.article.views.find_article" usr.pk %}">
-                            {% trans "En ligne" %}
+                        <a href="{% url "zds.article.views.find_article" usr.pk %}"
+                           class="mobile-menu-link mobile-menu-sublink"
+                        >
                             <span class="count">{{ articles_public_count }}</span>
+                            {% trans "En ligne" %}
                         </a>
                     </li>
                     {% if profile.user == user %}
                         <li>
-                            <a href="{% url "zds.member.views.articles" %}?type=validate">
-                                {% trans "En validation" %}
+                            <a href="{% url "zds.member.views.articles" %}?type=validate"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
                                 <span class="count">{{ articles_validation_count }}</span>
+                                {% trans "En validation" %}
                             </a>
                         </li>
                         <li>
-                            <a href="{% url "zds.member.views.articles" %}?type=draft">
-                                {% trans "En rédaction" %}
+                            <a href="{% url "zds.member.views.articles" %}?type=draft"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
                                 <span class="count">{{ articles_draft_count }}</span>
+                                {% trans "En rédaction" %}
                             </a>
                         </li>
                     {% else %}
-                        <li class="inactive">
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
                             <span>
-                                {% trans "En validation" %}
                                 <span class="count">{{ articles_validation_count }}</span>
+                                {% trans "En validation" %}
                             </span>
                         </li>
-                        <li class="inactive">
+                        <li class="inactive mobile-menu-link mobile-menu-sublink">
                             <span>
-                                {% trans "En rédaction" %}
                                 <span class="count">{{ articles_draft_count }}</span>
+                                {% trans "En rédaction" %}
                             </span>
                         </li>
                     {% endif %}
@@ -399,17 +418,20 @@
         {% endwith %}
 
         {% if perms.member.change_post and profile.get_post_count_as_staff > 0 or profile.get_post_count > 0 %}
-            <h4>{% trans "Forums" %}</h4>
+            <h4 class="mobile-menu-link" data-title="{% trans 'Forums' %}">{% trans "Forums" %}</h4>
             <ul>
                 <li>
-                    <a href="{% url "zds.forum.views.find_topic" usr.pk %}">
-                        {% trans "Sujets créés" %}
+                    <a href="{% url "zds.forum.views.find_topic" usr.pk %}"
+                       class="mobile-menu-link mobile-menu-sublink"
+                    >
                         <span class="count">{{ profile.get_topic_count }}</span>
+                        {% trans "Sujets créés" %}
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "zds.forum.views.find_post" usr.pk %}">
-                        {% trans "Messages postés" %}
+                    <a href="{% url "zds.forum.views.find_post" usr.pk %}"
+                       class="mobile-menu-link mobile-menu-sublink"
+                    >
                         <span class="count">
                             {% if perms.member.change_post %}
                                 {{ profile.get_post_count_as_staff }}
@@ -417,6 +439,7 @@
                                 {{ profile.get_post_count }}
                             {% endif %}
                         </span>
+                        {% trans "Messages postés" %}
                     </a>
                 </li>
             </ul>
@@ -424,7 +447,7 @@
 
         {% if profile.get_draft_tutos.count == 0 and profile.get_draft_articles.count == 0 and profile.get_post_count == 0 %}
             <ul>
-                <li class="inactive">
+                <li class="inactive mobile-menu-link">
                     <span>{% trans "Aucune activité" %}</span>
                 </li>
             </ul>
