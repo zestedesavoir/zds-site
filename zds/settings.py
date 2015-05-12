@@ -176,6 +176,7 @@ INSTALLED_APPS = (
     'zds.forum',
     'zds.tutorial',
     'zds.member',
+    'zds.featured',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -190,6 +191,7 @@ THUMBNAIL_ALIASES = {
         'avatar_mini': {'size': (24, 24), 'crop': True},
         'tutorial_illu': {'size': (60, 60), 'crop': True},
         'article_illu': {'size': (60, 60), 'crop': True},
+        'content_thumb': {'size': (96, 96), 'crop': True},
         'help_illu': {'size': (48, 48), 'crop': True},
         'help_mini_illu': {'size': (26, 26), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
@@ -370,6 +372,7 @@ ZDS_APP = {
         'repository': u"https://github.com/zestedesavoir/zds-site",
         'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
         'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
+        'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
         'short_description': u"",
         'long_description': u"Zeste de Savoir est un site de partage de connaissances "
                             u"sur lequel vous trouverez des tutoriels de tous niveaux, "
@@ -430,7 +433,7 @@ ZDS_APP = {
         'image_max_size': 1024 * 1024,
     },
     'article': {
-        'home_number': 5,
+        'home_number': 4,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
@@ -449,6 +452,13 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+        'home_number': 5,
+    },
+    'topic': {
+        'home_number': 6,
+    },
+    'featured_resource': {
+        'featured_per_page': 100,
         'home_number': 5,
     },
     'paginator': {

@@ -1,0 +1,47 @@
+{% load captureas %}
+{% load thumbnail %}
+{% load i18n %}
+{% load date %}
+
+<article class="content-item topic-item">
+    <div class="content-info">
+        <a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">
+            <h3 class="content-title" itemprop="itemListElement">
+                {{ topic.title }}
+            </h3>
+        </a>
+
+        <p class="content-description">
+            {{ topic.forum.title }},
+            {% trans "par" %}{% include "misc/member_item.part.html" with member=topic.author %}
+            - {{ topic.pubdate|format_date|capfirst }}
+        </p>
+
+        <p class="content-meta">
+            {% with answer=topic.get_last_answer %}
+                {% if answer %}
+                    {% trans "Dernière réponse :" %}
+                    {% include "misc/member_item.part.html" with member=answer.author %} -
+                    <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
+                        <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
+                        <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
+                    </time>
+                {% else %}
+                    {% trans "Aucune réponse" %}
+                {% endif %}
+            {% endwith %}
+        </p>
+    </div>
+
+    {% if topic.tags.all %}
+        <ul class="content-tags" itemprop="keywords">
+            {% for tag in topic.tags.all|slice:":3" %}
+                <li>
+                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" title="Tag {{ tag.title }}">
+                        {{ tag.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</article>

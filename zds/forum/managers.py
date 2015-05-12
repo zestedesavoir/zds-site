@@ -26,3 +26,7 @@ class TopicManager(models.Manager):
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
+
+    def get_last_topics(self):
+        return self.order_by('-pubdate') \
+                   .all()[:settings.ZDS_APP['topic']['home_number']]

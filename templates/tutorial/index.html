@@ -49,10 +49,13 @@
         <meta itemprop="itemListOrder" content="Unordered">
 
         {% if tutorials %}
-            <div class="tutorial-list">
+            <div class="content-item-list">
                 {% for tutorial in tutorials %}
-                    {% include 'tutorial/includes/tutorial_item.part.html' %}
+                    {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True %}
                 {% endfor %}
+                <div class="fill"></div>
+                <div class="fill"></div>
+                <div class="fill"></div>
             </div>
         {% else %}
             <p>
