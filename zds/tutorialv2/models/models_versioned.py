@@ -297,7 +297,7 @@ class Container:
         :return: url to access the container in beta
         """
 
-        if self.top_container().sha_beta:
+        if self.top_container().sha_beta is not None:
             base = ''
             if self.parent:
                 base = self.parent.get_absolute_url_beta()

@@ -2778,7 +2778,7 @@ class ContentTests(TestCase):
         self.assertEqual(sha_draft, sha_beta)
 
         tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
+        versioned = tuto.load_version(sha_beta)
 
         # check if author get error when warning typo on its own tutorial
         result = self.client.post(
@@ -2848,7 +2848,7 @@ class ContentTests(TestCase):
         for msg in msgs:
             last = msg
         self.assertEqual(last.level, messages.SUCCESS)
-
+        chapter.parent = versioned
         # check PM :
         sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
         self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
