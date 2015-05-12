@@ -2,7 +2,7 @@
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
 from zds.forum.models import TopicFollowed, Topic
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 
@@ -635,6 +635,73 @@ class FindTopicTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context['topics']))
         self.assertEqual(topic, response.context['topics'][0])
+
+
+class FindTopicByTagTest(TestCase):
+    def test_failure_find_topics_of_a_tag_not_found(self):
+        response = self.client.get(reverse('topic-tag-find', args=[9999, 'x']), follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_success_find_topics_of_a_tag(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        tag = TagFactory()
+        topic.add_tags([tag.title])
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_success_find_topics_of_a_tag_solved(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile)
+        topic_solved = add_topic_in_a_forum(forum, profile, is_solved=True)
+        tag = TagFactory()
+        topic_solved.add_tags([tag.title])
+
+        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=solve')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic_solved, response.context['topics'][0])
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_success_filter_find_topics_of_a_tag_unsolved(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        add_topic_in_a_forum(forum, profile, is_solved=True)
+        topic_unsolved = add_topic_in_a_forum(forum, profile)
+        tag = TagFactory()
+        topic_unsolved.add_tags([tag.title])
+
+        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=unsolve')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic_unsolved, response.context['topics'][0])
+        self.assertEqual(tag, response.context['tag'])
+
+    def test_success_filter_find_topics_of_a_tag_noanswer(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_topic = add_topic_in_a_forum(forum, profile, is_solved=True)
+        tag = TagFactory()
+        topic.add_tags([tag.title])
+        another_topic.add_tags([tag.title])
+
+        response = self.client.get(reverse('topic-tag-find', args=[tag.pk, tag.slug]) + '?filter=noanswer')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2, len(response.context['topics']))
+        self.assertEqual(tag, response.context['tag'])
 
 
 def create_category(group=None):

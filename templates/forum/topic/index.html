@@ -53,7 +53,7 @@
         <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
                 <li>
-                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">
+                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}">
                         {{ tag.title }}
                     </a>
                 </li>

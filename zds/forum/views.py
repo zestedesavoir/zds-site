@@ -69,7 +69,6 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
     context_object_name = 'topics'
     paginate_by = settings.ZDS_APP['forum']['topics_per_page']
     template_name = 'forum/category/forum.html'
-    queryset = Topic.objects.filter(is_sticky=False).all()
     filter_url_kwarg = 'filter'
     default_filter_param = 'all'
     object = None
@@ -84,26 +83,27 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         context = super(ForumTopicsListView, self).get_context_data(**kwargs)
         context.update({
             'forum': self.object,
-            'sticky_topics': self.filter_queryset(Topic.objects.filter(is_sticky=True).all(), context['filter']),
+            'sticky_topics': self.filter_queryset(
+                Topic.objects.get_all_topics_of_a_forum(self.object.pk, is_sticky=True),
+                context['filter']),
         })
         return context
 
     def get_object(self, queryset=None):
         return get_object_or_404(Forum, slug=self.kwargs.get('forum_slug'))
 
+    def get_queryset(self):
+        self.queryset = Topic.objects.get_all_topics_of_a_forum(self.object.pk)
+        return super(ForumTopicsListView, self).get_queryset()
+
     def filter_queryset(self, queryset, filter_param):
         if filter_param == 'solve':
-            queryset = queryset.filter(forum__pk=self.object.pk, is_solved=True)
+            queryset = queryset.filter(is_solved=True)
         elif filter_param == 'unsolve':
-            queryset = queryset.filter(forum__pk=self.object.pk, is_solved=False)
+            queryset = queryset.filter(is_solved=False)
         elif filter_param == 'noanswer':
-            queryset = queryset.filter(forum__pk=self.object.pk, last_message__position=1)
-        else:
-            queryset = queryset.filter(forum__pk=self.object.pk)
-        return queryset\
-            .order_by('-last_message__pubdate')\
-            .select_related('author__profile')\
-            .prefetch_related('last_message', 'tags').all()
+            queryset = queryset.filter(last_message__position=1)
+        return queryset
 
 
 class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
@@ -277,49 +277,41 @@ class FindTopic(ZdSPagingListView, SingleObjectMixin):
         return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))
 
 
-@can_write_and_read_now
-@login_required
-@require_POST
-@transaction.atomic
-def solve_alert(request):
-    """
-    Solves an alert (i.e. delete it from alert list) and sends an email to the user that created the alert, if the
-    resolver leaves a comment.
-    This can only be done by staff.
-    """
+class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
-    if not request.user.has_perm("forum.change_post"):
-        raise PermissionDenied
+    context_object_name = 'topics'
+    paginate_by = settings.ZDS_APP['forum']['topics_per_page']
+    template_name = 'forum/find/topic_by_tag.html'
+    filter_url_kwarg = 'filter'
+    default_filter_param = 'all'
+    object = None
 
-    alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
-    post = Post.objects.get(pk=alert.comment.id)
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(FindTopicByTag, self).get(request, *args, **kwargs)
 
-    if "text" in request.POST and request.POST["text"] != "":
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = \
-            (u'Bonjour {0},'
-             u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-             u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
-             u'et il vous a laissé le message suivant :'
-             u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
-                 alert.author.username,
-                 post.author.username,
-                 post.topic.title,
-                 settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                 request.user.username,
-                 request.POST["text"],))
-        send_mp(
-            bot,
-            [alert.author],
-            u"Résolution d'alerte : {0}".format(post.topic.title),
-            "",
-            msg,
-            False,
-        )
+    def get_context_data(self, *args, **kwargs):
+        context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)
+        context.update({
+            'tag': self.object
+        })
+        return context
 
-    alert.delete()
-    messages.success(request, u"L'alerte a bien été résolue.")
-    return redirect(post.get_absolute_url())
+    def get_object(self, queryset=None):
+        return get_object_or_404(Tag, pk=self.kwargs.get('tag_pk'), slug=self.kwargs.get('tag_slug'))
+
+    def get_queryset(self):
+        self.queryset = Topic.objects.get_all_topics_of_a_tag(self.object, self.request.user)
+        return super(FindTopicByTag, self).get_queryset()
+
+    def filter_queryset(self, queryset, filter_param):
+        if filter_param == 'solve':
+            queryset = queryset.filter(is_solved=True)
+        elif filter_param == 'unsolve':
+            queryset = queryset.filter(is_solved=False)
+        elif filter_param == 'noanswer':
+            queryset = queryset.filter(last_message__position=1)
+        return queryset
 
 
 @can_write_and_read_now
@@ -836,68 +828,6 @@ def dislike_post(request):
         return redirect(post.get_absolute_url())
 
 
-# TODO: PK AND slug -> one of them is probably useless
-def find_topic_by_tag(request, tag_pk, tag_slug):
-    """
-    Displays all topics with provided tag. Also handles a filter on "solved". Only the topics the user can read are
-    displayed.
-    The tag primary key and the tag slug must match, otherwise nothing will be found.
-    Topics found are displayed paginated with `settings.ZDS_APP['forum']['topics_per_page']` topics per page.
-    :param tag_pk: the primary key of the tag to find by
-    :param tag_slug: the slug of the tag to find by
-    """
-
-    tag = Tag.objects.filter(pk=tag_pk, slug=tag_slug).first()
-    if tag is None:
-        return redirect(reverse('cats-forums-list'))
-    u = request.user
-    if "filter" in request.GET:
-        filter = request.GET["filter"]
-        if request.GET["filter"] == "solve":
-            topics = Topic.objects.filter(
-                tags__in=[tag],
-                is_solved=True).order_by("-last_message__pubdate").prefetch_related(
-                    "author",
-                    "last_message",
-                    "tags")\
-                .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
-                .all()
-        else:
-            topics = Topic.objects.filter(
-                tags__in=[tag],
-                is_solved=False).order_by("-last_message__pubdate")\
-                .prefetch_related(
-                    "author",
-                    "last_message",
-                    "tags")\
-                .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
-                .all()
-    else:
-        filter = None
-        topics = Topic.objects.filter(tags__in=[tag]).order_by("-last_message__pubdate")\
-            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=u.groups.all()))\
-            .prefetch_related("author", "last_message", "tags").all()
-    # Paginator
-
-    paginator = Paginator(topics, settings.ZDS_APP['forum']['topics_per_page'])
-    page = request.GET.get("page")
-    try:
-        shown_topics = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_topics = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        raise Http404
-    return render(request, "forum/find/topic_by_tag.html", {
-        "topics": shown_topics,
-        "tag": tag,
-        "pages": paginator_range(page, paginator.num_pages),
-        "nb": page,
-        "filter": filter,
-    })
-
-
 def find_post(request, user_pk):
     """
     Displays all posts of a user, paginated with `settings.ZDS_APP['forum']['posts_per_page']` post per page.
@@ -968,6 +898,51 @@ def followed_topics(request):
                             "pages": paginator_range(page,
                                                      paginator.num_pages),
                             "nb": page})
+
+
+@can_write_and_read_now
+@login_required
+@require_POST
+@transaction.atomic
+def solve_alert(request):
+    """
+    Solves an alert (i.e. delete it from alert list) and sends an email to the user that created the alert, if the
+    resolver leaves a comment.
+    This can only be done by staff.
+    """
+
+    if not request.user.has_perm("forum.change_post"):
+        raise PermissionDenied
+
+    alert = get_object_or_404(Alert, pk=request.POST["alert_pk"])
+    post = Post.objects.get(pk=alert.comment.id)
+
+    if "text" in request.POST and request.POST["text"] != "":
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        msg = \
+            (u'Bonjour {0},'
+             u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
+             u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
+             u'et il vous a laissé le message suivant :'
+             u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
+                 alert.author.username,
+                 post.author.username,
+                 post.topic.title,
+                 settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                 request.user.username,
+                 request.POST["text"],))
+        send_mp(
+            bot,
+            [alert.author],
+            u"Résolution d'alerte : {0}".format(post.topic.title),
+            "",
+            msg,
+            False,
+        )
+
+    alert.delete()
+    messages.success(request, u"L'alerte a bien été résolue.")
+    return redirect(post.get_absolute_url())
 
 
 # TODO suggestions de recherche auto lors d'un nouveau topic, cf issues #99 et #580. Actuellement désactivées :(
