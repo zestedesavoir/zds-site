@@ -199,6 +199,103 @@ class TopicPostsListViewTest(TestCase):
         self.assertIsNotNone(response.context['form_move'])
 
 
+class TopicNewTest(TestCase):
+    def test_failure_create_topic_with_a_post_with_client_unauthenticated(self):
+        category, forum = create_category()
+
+        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_create_topic_with_a_post_with_sanctioned_user(self):
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_create_topics_with_a_post_in_a_forum_we_cannot_read(self):
+        group = Group.objects.create(name="DummyGroup_1")
+        profile = ProfileFactory()
+        category, forum = create_category(group)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_create_topics_with_a_post_with_wrong_forum(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('topic-new') + '?forum=x')
+
+        self.assertEqual(404, response.status_code)
+
+    def test_success_create_topic_with_a_post_in_get_method(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-new') + '?forum={}'.format(forum.pk))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(forum, response.context['forum'])
+        self.assertIsNotNone(response.context['form'])
+
+    def test_success_create_topic_with_post_in_preview_in_ajax(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'text': 'A new post!'
+        }
+        response = self.client.post(
+            reverse('topic-new') + '?forum={}'.format(forum.pk),
+            data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_create_topic_with_post_in_preview(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'title': 'Title of the topic',
+            'subtitle': 'Subtitle of the topic',
+            'text': 'A new post!'
+        }
+        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_create_topic_with_post(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'title': 'Title of the topic',
+            'subtitle': 'Subtitle of the topic',
+            'text': 'A new post!'
+        }
+        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+
 def create_category(group=None):
     category = CategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)

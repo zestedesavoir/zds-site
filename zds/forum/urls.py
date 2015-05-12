@@ -3,7 +3,8 @@
 from django.conf.urls import patterns, url
 
 from . import feeds
-from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, TopicPostsListView
+from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, TopicPostsListView, \
+    TopicNew
 
 
 urlpatterns = patterns('',
@@ -31,8 +32,7 @@ urlpatterns = patterns('',
                            'zds.forum.views.solve_alert'),
 
                        # Viewing a thread
-                       url(r'^sujet/nouveau/$',
-                           'zds.forum.views.new'),
+                       url(r'^sujet/nouveau/$', TopicNew.as_view(), name='topic-new'),
                        url(r'^sujet/editer/$',
                            'zds.forum.views.edit'),
                        url(r'^sujet/deplacer/$',

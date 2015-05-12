@@ -65,7 +65,7 @@
 
 
 {% block new_btn %}
-    <a href="{% url "zds.forum.views.new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+    <a href="{% url 'topic-new' %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
 {% endblock %}

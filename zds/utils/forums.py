@@ -2,11 +2,57 @@
 
 from datetime import datetime
 from zds.forum.models import Topic, Post, follow
-from zds.forum.views import get_tag_by_title
-from zds.utils.templatetags.emarkdown import emarkdown
+from zds.member.views import get_client_ip
+
+
+def get_tag_by_title(title):
+    """
+    Extract tags from title.
+    In a title, tags can be set this way:
+    > [Tag 1][Tag 2] There is the real title
+    Rules to detect tags:
+    - Tags are enclosed in square brackets. This allows multi-word tags instead of hashtags.
+    - Tags can embed square brackets: [Tag] is a valid tag and must be written [[Tag]] in the raw title
+    - All tags must be declared at the beginning of the title. Example: _"Title [tag]"_ will not create a tag.
+    - Tags and title correctness (example: empty tag/title detection) is **not** checked here
+    :param title: The raw title
+    :return: A tuple: (the tag list, the title without the tags).
+    """
+    nb_bracket = 0
+    current_tag = u""
+    current_title = u""
+    tags = []
+    continue_parsing_tags = True
+    original_title = title
+    for char in title:
+
+        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
+            nb_bracket += 1
+        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
+            current_tag = current_tag + char
+            if char == u"[":
+                nb_bracket += 1
+        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
+            nb_bracket -= 1
+            if nb_bracket == 0 and current_tag.strip() != u"":
+                tags.append(current_tag.strip())
+                current_tag = u""
+            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = current_tag + char
+
+        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
+            continue_parsing_tags = False
+            current_title = current_title + char
+    title = current_title
+    # if we did not succed in parsing the tags
+    if nb_bracket != 0:
+        return [], original_title
+
+    return tags, title.strip()
 
 
 def create_topic(
+        request,
         author,
         forum,
         title,
@@ -15,7 +61,7 @@ def create_topic(
         key):
     """create topic in forum"""
 
-    (tags, title_only) = get_tag_by_title(title[:80])
+    (tags, title_only) = get_tag_by_title(title[:Topic._meta.get_field('title').max_length])
 
     # Creating the thread
     n_topic = Topic()
@@ -30,32 +76,25 @@ def create_topic(
     n_topic.save()
 
     # Add the first message
-    post = Post()
-    post.topic = n_topic
-    post.author = author
-    post.text = text
-    post.text_html = emarkdown(text)
-    post.pubdate = datetime.now()
-    post.position = 1
-    post.save()
-
-    n_topic.last_message = post
-    n_topic.save()
+    send_post(request, n_topic, text)
 
     follow(n_topic, user=author)
 
     return n_topic
 
 
-def send_post(topic, text):
+def send_post(request, topic, text):
 
     post = Post()
     post.topic = topic
     post.author = topic.author
-    post.text = text
-    post.text_html = emarkdown(text)
+    post.update_content(text)
     post.pubdate = datetime.now()
-    post.position = topic.last_message.position + 1
+    if topic.last_message is not None:
+        post.position = topic.last_message.position + 1
+    else:
+        post.position = 1
+    post.ip_address = get_client_ip(request)
     post.save()
 
     topic.last_message = post

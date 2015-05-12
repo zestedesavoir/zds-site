@@ -16,11 +16,11 @@ from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
 from django.views.generic.detail import SingleObjectMixin
-
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
@@ -31,6 +31,7 @@ from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
 from zds.utils import slugify
+from zds.utils.forums import get_tag_by_title, create_topic
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
@@ -143,126 +144,63 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         return Post.objects.get_messages_of_a_topic(self.object.pk)
 
 
-def get_tag_by_title(title):
-    """
-    Extract tags from title.
-    In a title, tags can be set this way:
-    > [Tag 1][Tag 2] There is the real title
-    Rules to detect tags:
-    - Tags are enclosed in square brackets. This allows multi-word tags instead of hashtags.
-    - Tags can embed square brackets: [Tag] is a valid tag and must be written [[Tag]] in the raw title
-    - All tags must be declared at the beginning of the title. Example: _"Title [tag]"_ will not create a tag.
-    - Tags and title correctness (example: empty tag/title detection) is **not** checked here
-    :param title: The raw title
-    :return: A tuple: (the tag list, the title without the tags).
-    """
-    nb_bracket = 0
-    current_tag = u""
-    current_title = u""
-    tags = []
-    continue_parsing_tags = True
-    original_title = title
-    for char in title:
+class TopicNew(CreateView, SingleObjectMixin):
 
-        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
-            nb_bracket += 1
-        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
-            current_tag = current_tag + char
-            if char == u"[":
-                nb_bracket += 1
-        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
-            nb_bracket -= 1
-            if nb_bracket == 0 and current_tag.strip() != u"":
-                tags.append(current_tag.strip())
-                current_tag = u""
-            elif current_tag.strip() != u"" and nb_bracket > 0:
-                current_tag = current_tag + char
+    template_name = 'forum/topic/new.html'
+    form_class = TopicForm
+    object = None
 
-        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
-            continue_parsing_tags = False
-            current_title = current_title + char
-    title = current_title
-    # if we did not succed in parsing the tags
-    if nb_bracket != 0:
-        return ([], original_title)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.can_read(request.user):
+            raise PermissionDenied
+        return super(TopicNew, self).dispatch(request, *args, **kwargs)
 
-    return (tags, title.strip())
+    def get_object(self, queryset=None):
+        try:
+            forum_pk = int(self.request.GET.get('forum'))
+        except (KeyError, ValueError, TypeError):
+            raise Http404
+        return get_object_or_404(Forum, pk=forum_pk)
 
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {'forum': self.object, 'form': self.form_class()})
 
-@can_write_and_read_now
-@login_required
-@transaction.atomic
-def new(request):
-    """
-    Creates a new topic in a forum.
-    """
-
-    try:
-        forum_pk = int(request.GET["forum"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    forum = get_object_or_404(Forum, pk=forum_pk)
-    if not forum.can_read(request.user):
-        raise PermissionDenied
-    if request.method == "POST":
-
-        # If the client is using the "preview" button
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
-                form = TopicForm(initial={"title": request.POST["title"],
-                                          "subtitle": request.POST["subtitle"],
-                                          "text": request.POST["text"]})
+                initial = {
+                    "title": request.POST["title"],
+                    "subtitle": request.POST["subtitle"],
+                    "text": request.POST["text"]
+                }
+                form = self.form_class(initial=initial)
+        elif form.is_valid():
+            return self.form_valid(form)
+        return render(request, self.template_name, {'forum': self.object, 'form': form})
 
-                return render(request, "forum/topic/new.html",
-                                       {"forum": forum,
-                                        "form": form,
-                                        "text": request.POST["text"]})
-        form = TopicForm(request.POST)
-        data = form.data
-        if form.is_valid():
+    def get_form(self, form_class):
+        return form_class(self.request.POST)
 
-            # Treat title
-
-            (tags, title) = get_tag_by_title(data["title"])
-
-            # Creating the thread
-            n_topic = Topic()
-            n_topic.forum = forum
-            n_topic.title = title
-            n_topic.subtitle = data["subtitle"]
-            n_topic.pubdate = datetime.now()
-            n_topic.author = request.user
-            n_topic.save()
-            # add tags
-
-            n_topic.add_tags(tags)
-            n_topic.save()
-            # Adding the first message
-
-            post = Post()
-            post.topic = n_topic
-            post.author = request.user
-            post.update_content(request.POST["text"])
-            post.pubdate = datetime.now()
-            post.position = 1
-            post.ip_address = get_client_ip(request)
-            post.save()
-            n_topic.last_message = post
-            n_topic.save()
-
-            # Follow the topic
-
-            follow(n_topic)
-            return redirect(n_topic.get_absolute_url())
-    else:
-        form = TopicForm()
-
-    return render(request, "forum/topic/new.html", {"forum": forum, "form": form})
+    def form_valid(self, form):
+        topic = create_topic(
+            self.request,
+            self.request.user,
+            self.object,
+            form.data['title'],
+            form.data['subtitle'],
+            form.data['text'],
+            None
+        )
+        return redirect(topic.get_absolute_url())
 
 
 @can_write_and_read_now

@@ -13,7 +13,7 @@ from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
 from django.core import mail
 
 from zds.forum.models import Post, Topic, TopicFollowed, TopicRead
-from zds.forum.views import get_tag_by_title
+from zds.utils.forums import get_tag_by_title
 from zds.forum.models import Forum
 
 
@@ -95,7 +95,7 @@ class ForumMemberTests(TestCase):
     def test_create_topic(self):
         """To test all aspects of topic's creation by member."""
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum={0}'
+            reverse('topic-new') + '?forum={0}'
             .format(self.forum12.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
@@ -140,7 +140,7 @@ class ForumMemberTests(TestCase):
 
         # With a weird pk
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum=' + 'abc',
+            reverse('topic-new') + '?forum=' + 'abc',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -150,7 +150,7 @@ class ForumMemberTests(TestCase):
 
         # With a missing pk
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum=',
+            reverse('topic-new') + '?forum=',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -160,7 +160,7 @@ class ForumMemberTests(TestCase):
 
         # With a missing parameter
         result = self.client.post(
-            reverse('zds.forum.views.new'),
+            reverse('topic-new'),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -939,7 +939,7 @@ class ForumMemberTests(TestCase):
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum={0}'
+            reverse('topic-new') + '?forum={0}'
             .format(self.forum12.pk),
             {'title': u'[C#]Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
@@ -976,7 +976,7 @@ class ForumMemberTests(TestCase):
 
         # Empty fields
         response = self.client.post(
-            reverse('zds.forum.views.new') +
+            reverse('topic-new') +
             '?forum={0}'.format(
                 self.forum12.pk),
             {},
@@ -986,7 +986,7 @@ class ForumMemberTests(TestCase):
 
         # Blank data
         response = self.client.post(
-            reverse('zds.forum.views.new') +
+            reverse('topic-new') +
             '?forum={0}'.format(
                 self.forum12.pk),
             {
@@ -1107,7 +1107,7 @@ class ForumGuestTests(TestCase):
     def test_create_topic(self):
         """To test all aspects of topic's creation by guest."""
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum={0}'
+            reverse('topic-new') + '?forum={0}'
             .format(self.forum12.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
