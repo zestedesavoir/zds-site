@@ -44,6 +44,13 @@ Récupération de la librairie lxml pour python 2.7 via MacPorts
 
   sudo port install py27-lxml
 
+Récupération de la cairo (svg) via Homebrew
+==============================================================
+
+.. sourcecode:: bash
+
+  brew install cairo --without-x11
+
 
 Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml
 =====================================================================================
