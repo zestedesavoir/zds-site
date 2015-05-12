@@ -190,8 +190,8 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
         return super(FeaturedResourceDeleteList, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        list = self.request.POST.getlist('items')
-        return FeaturedResource.objects.filter(pk__in=list)
+        items_list = self.request.POST.getlist('items')
+        return FeaturedResource.objects.filter(pk__in=items_list)
 
     def post(self, request, *args, **kwargs):
         for featured_resource in self.get_queryset():
