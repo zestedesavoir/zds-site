@@ -45,18 +45,19 @@ before_script:
   - mv zds/settings_test.py zds/settings_prod.py
 
 install:
-  # TexLive
-  - sed -i 's@\$HOME@'"$HOME"'@' texlive.profile
-  - wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
-  - tar -zxf install-tl*
-  - ./install-tl*/install-tl -profile texlive.profile
-  - export PATH=~/texlive/bin/x86_64-linux:$PATH
-
+  - |
+    if [[ "$TEST_APP" == *"back"* ]]
+    then
+      ./scripts/install_texlive.sh
+      export PATH=~/.texlive/bin/x86_64-linux:$PATH
+    fi
   # Add fonts
   - mkdir -p ~/.fonts/truetype
+  - wget -P ~/.fonts/truetype https://www.dropbox.com/s/4vzkldw55iag546/Andale-Mono.ttf
   - wget -P ~/.fonts/truetype https://www.dropbox.com/s/ema28tjn52960mq/Merriweather.zip
   - unzip ~/.fonts/truetype/Merriweather.zip -d ~/.fonts/truetype/Merriweather/
   - chmod a+r ~/.fonts/truetype/Merriweather/*.ttf
+  - chmod a+r ~/.fonts/truetype/Andale-Mono.ttf
   - fc-cache -f -v
 
   # Cabal + Pandoc stuff

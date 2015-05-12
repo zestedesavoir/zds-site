@@ -3,17 +3,16 @@
 # installation profile at installation time.
 selected_scheme scheme-small
 TEXMFCONFIG $TEXMFSYSCONFIG
-TEXDIR $HOME/texlive
-TEXMFLOCAL $HOME/texlive/texmf-local
-TEXMFSYSCONFIG $HOME/texlive/texmf-config
-TEXMFSYSVAR $HOME/texlive/texmf-var
+TEXDIR $HOME/.texlive
+TEXMFLOCAL $HOME/.texlive/texmf-local
+TEXMFSYSCONFIG $HOME/.texlive/texmf-config
+TEXMFSYSVAR $HOME/.texlive/texmf-var
 TEXMFHOME $TEXMFLOCAL
 TEXMFVAR $TEXMFSYSVAR
 binary_x86_64-linux 1
 collection-basic 1
 collection-latex 1
 collection-latexrecommended 1
-collection-metapost 1
 collection-xetex 1
 in_place 0
 option_adjustrepo 1
