@@ -3,7 +3,8 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
-from zds.member.factories import ProfileFactory
+from zds.forum.models import TopicFollowed, Topic
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 
 
 class CategoriesForumsListViewTests(TestCase):
@@ -292,6 +293,328 @@ class TopicNewTest(TestCase):
             'text': 'A new post!'
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+
+class TopicEditTest(TestCase):
+    def test_failure_edit_topic_with_client_unauthenticated(self):
+        response = self.client.post(reverse('topic-edit'))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_edit_topic_with_sanctioned_user(self):
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('topic-edit'))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_edit_topic_with_method_get(self):
+        response = self.client.get(reverse('topic-edit'))
+
+        self.assertEqual(405, response.status_code)
+
+    def test_failure_edit_topic_with_wrong_topic_pk(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(
+            reverse('topic-edit'),
+            {
+                'topic': 'abc',
+            }, follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_edit_topic_with_a_topic_not_found(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(
+            reverse('topic-edit'),
+            {
+                'topic': 99999,
+            }, follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_success_edit_topic_in_ajax(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_edit_topic(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+    def test_success_edit_topic_follow(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'follow': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertIsNotNone(TopicFollowed.objects.get(topic=topic, user=profile.user))
+
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        try:
+            TopicFollowed.objects.get(topic=topic, user=profile.user)
+            self.fail()
+        except TopicFollowed.DoesNotExist:
+            pass
+
+    def test_success_edit_topic_follow_email(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'email': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertIsNotNone(TopicFollowed.objects.get(topic=topic, user=profile.user, email=True))
+
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        try:
+            TopicFollowed.objects.get(topic=topic, user=profile.user, email=True)
+            self.fail()
+        except TopicFollowed.DoesNotExist:
+            pass
+
+    def test_failure_edit_topic_solved_not_author(self):
+        profile = ProfileFactory()
+
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'solved': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_topic_solved_by_author(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'solved': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(Topic.objects.get(pk=topic.pk).is_solved)
+
+    def test_success_edit_topic_solved_by_staff(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'solved': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(Topic.objects.get(pk=topic.pk).is_solved)
+
+    def test_failure_edit_topic_lock_by_user(self):
+        profile = ProfileFactory()
+
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'lock': 'true',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_topic_lock_by_staff(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'lock': 'true',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
+
+        data = {
+            'lock': 'false',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertFalse(Topic.objects.get(pk=topic.pk).is_locked)
+
+    def test_failure_edit_topic_sticky_by_user(self):
+        profile = ProfileFactory()
+
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'sticky': 'true',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_topic_sticky_by_staff(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'sticky': 'true',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(Topic.objects.get(pk=topic.pk).is_sticky)
+
+        data = {
+            'sticky': 'false',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertFalse(Topic.objects.get(pk=topic.pk).is_sticky)
+
+    def test_failure_edit_topic_move_by_user(self):
+        profile = ProfileFactory()
+
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'move': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_edit_topic_move_with_wrong_forum_pk_by_staff(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'move': '',
+            'forum': 'abc',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_edit_topic_move_with_a_forum_not_found_by_staff(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'move': '',
+            'forum': 99999,
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_success_edit_topic_move_by_staff(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        another_category, another_forum = create_category()
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'move': '',
+            'forum': another_forum.pk,
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
 

@@ -460,29 +460,22 @@ def follow(topic, user=None):
     :param user: A user. If undefined, the current user is used.
     :return: `True` if the topic is now followed, `False` if is has been un-followed.
     """
-    ret = None
     if user is None:
         user = get_current_user()
     try:
-        existing = TopicFollowed.objects.get(
-            topic=topic, user=user
-        )
+        existing = TopicFollowed.objects.get(topic=topic, user=user)
     except TopicFollowed.DoesNotExist:
         existing = None
 
     if not existing:
         # Make the user follow the topic
-        t = TopicFollowed(
-            topic=topic,
-            user=user
-        )
+        t = TopicFollowed(topic=topic, user=user)
         t.save()
-        ret = True
-    else:
-        # If user is already following the topic, we make him don't anymore
-        existing.delete()
-        ret = False
-    return ret
+        return True
+
+    # If user is already following the topic, we make him don't anymore
+    existing.delete()
+    return False
 
 
 def follow_by_email(topic, user=None):
@@ -492,31 +485,22 @@ def follow_by_email(topic, user=None):
     :param user: A user. If undefined, the current user is used.
     :return: `True` if the topic is now followed, `False` if is has been un-followed.
     """
-    ret = None
     if user is None:
         user = get_current_user()
     try:
-        existing = TopicFollowed.objects.get(
-            topic=topic,
-            user=user
-        )
+        existing = TopicFollowed.objects.get(topic=topic, user=user)
     except TopicFollowed.DoesNotExist:
         existing = None
 
     if not existing:
         # Make the user follow the topic
-        t = TopicFollowed(
-            topic=topic,
-            user=user,
-            email=True
-        )
+        t = TopicFollowed(topic=topic, user=user, email=True)
         t.save()
-        ret = True
-    else:
-        existing.email = not existing.email
-        existing.save()
-        ret = existing.email
-    return ret
+        return True
+
+    existing.email = not existing.email
+    existing.save()
+    return existing.email
 
 
 def get_last_topics(user):

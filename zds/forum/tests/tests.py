@@ -833,12 +833,12 @@ class ForumMemberTests(TestCase):
 
         # not staff member can't move topic
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet={0}'.format(
-                topic1.pk),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12},
-            follow=False)
+                'move': '',
+                'forum': self.forum12,
+                'topic': topic1.pk
+            }, follow=False)
 
         self.assertEqual(result.status_code, 403)
 
@@ -851,12 +851,12 @@ class ForumMemberTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet={0}'.format(
-                topic1.pk),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+                'topic': topic1.pk
+            }, follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -884,30 +884,33 @@ class ForumMemberTests(TestCase):
 
         # missing parameter
         result = self.client.post(
-            reverse('zds.forum.views.move_topic'),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+            }, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # weird parameter
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet=' + 'abc',
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+                'topic': 'abc'
+            }, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # non-existing (yet) parameter
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet=' + '424242',
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+                'topic': '424242'
+            }, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -1346,18 +1349,15 @@ class ForumGuestTests(TestCase):
 
         # not staff guest can't move topic
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet={0}'.format(
-                topic1.pk),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12},
-            follow=False)
+                'move': '',
+                'forum': self.forum12,
+                'topic': topic1.pk
+            }, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertNotEqual(
-            Topic.objects.get(
-                pk=topic1.pk).forum,
-            self.forum12)
+        self.assertNotEqual(Topic.objects.get(pk=topic1.pk).forum, self.forum12)
 
     def test_url_topic(self):
         """Test simple get request to the topic."""

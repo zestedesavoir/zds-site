@@ -138,7 +138,7 @@
 {% block sidebar_actions %}
     {% if topic.author.pk == user.pk or perms.forum.change_topic %}
         <li>
-            <form action="{% url "zds.forum.views.edit" %}" method="post">
+            <form action="{% url 'topic-edit' %}" method="post">
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
                 <input type="hidden" name="nb" value="{{ nb }}">
                 <input type="hidden" name="page" value="{{ nb }}">
@@ -167,7 +167,7 @@
     {% endif %}
 
     <li>
-        <form action="{% url "zds.forum.views.edit" %}" method="post">
+        <form action="{% url 'topic-edit' %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="page" value="{{ nb }}">
@@ -194,7 +194,7 @@
         </form>
     </li>
     <li>
-        <form action="{% url "zds.forum.views.edit" %}" method="post">
+        <form action="{% url 'topic-edit' %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="page" value="{{ nb }}">
@@ -237,7 +237,7 @@
                             {% trans "Fermer le sujet" %}
                         {% endif %}
                     </a>
-                    <form action="{% url "zds.forum.views.edit" %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-small">
+                    <form action="{% url 'topic-edit' %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-small">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">
@@ -263,7 +263,7 @@
                 </li>
 
                 <li>
-                    <form action="{% url "zds.forum.views.edit" %}" method="post">
+                    <form action="{% url 'topic-edit' %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">

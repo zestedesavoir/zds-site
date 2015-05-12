@@ -19,14 +19,14 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
-from models import Category, Forum, Topic, Post, follow, follow_by_email, never_read, \
-    mark_read, TopicFollowed
+from models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed
+from zds.forum.commons import TopicEditMixin
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.views import get_client_ip
@@ -203,6 +203,54 @@ class TopicNew(CreateView, SingleObjectMixin):
         return redirect(topic.get_absolute_url())
 
 
+class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
+
+    page = 1
+    object = None
+
+    @method_decorator(require_POST)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.forum.can_read(request.user):
+            return redirect(reverse('cats-forums-list'))
+        if 'page' in request.POST:
+            try:
+                self.page = int(request.POST.get('page'))
+            except (KeyError, ValueError, TypeError):
+                self.page = 1
+        return super(TopicEdit, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        if 'follow' in request.POST:
+            response['follow'] = self.perform_follow(self.object, request.user)
+        if 'email' in request.POST:
+            response['email'] = self.perform_follow_by_email(self.object, request.user)
+        if 'solved' in request.POST:
+            response['solved'] = self.perform_solved(self.request.user, self.object)
+        if 'lock' in request.POST:
+            self.perform_lock(self.object, request)
+        if 'sticky' in request.POST:
+            self.perform_sticky(self.object, request)
+        if 'move' in request.POST:
+            self.perform_move(request, self.object)
+
+        self.object.save()
+        if request.is_ajax():
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
+
+    def get_object(self, queryset=None):
+        try:
+            topic_pk = int(self.request.POST.get('topic'))
+        except (KeyError, ValueError, TypeError):
+            raise Http404
+        return get_object_or_404(Topic, pk=topic_pk)
+
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -246,115 +294,6 @@ def solve_alert(request):
     alert.delete()
     messages.success(request, u"L'alerte a bien été résolue.")
     return redirect(post.get_absolute_url())
-
-
-@can_write_and_read_now
-@login_required
-@require_POST
-@transaction.atomic
-def move_topic(request):
-    """
-    Moves a topic to another forum.
-    This can only be done by staff.
-    """
-
-    if not request.user.has_perm("forum.change_topic"):
-        raise PermissionDenied
-    try:
-        topic_pk = int(request.GET["sujet"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    forum = get_object_or_404(Forum, pk=request.POST["forum"])
-    if not forum.can_read(request.user):
-        raise PermissionDenied
-    topic = get_object_or_404(Topic, pk=topic_pk)
-    topic.forum = forum
-    topic.save()
-
-    # If the topic is moved in a restricted forum, users that cannot read this topic any more un-follow it.
-    # This avoids unreachable notifications.
-    followers = TopicFollowed.objects.filter(topic=topic)
-    for follower in followers:
-        if not forum.can_read(follower.user):
-            follower.delete()
-    messages.success(request,
-                     u"Le sujet {0} a bien été déplacé dans {1}."
-                     .format(topic.title,
-                             forum.title))
-    return redirect(topic.get_absolute_url())
-
-
-@can_write_and_read_now
-@login_required
-@require_POST
-def edit(request):
-    """
-    Edit the given topic metadata: follow, follow by email, solved, locked, sticky.
-    """
-
-    try:
-        topic_pk = request.POST['topic']
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    if "page" in request.POST:
-        try:
-            page = int(request.POST["page"])
-        except (KeyError, ValueError):
-            # problem in variable format
-            raise Http404
-    else:
-        page = 1
-
-    data = request.POST
-    resp = {}
-    g_topic = get_object_or_404(Topic, pk=topic_pk)
-    if "follow" in data:
-        resp["follow"] = follow(g_topic)
-    if "email" in data:
-        resp["email"] = follow_by_email(g_topic)
-    if request.user == g_topic.author \
-            or request.user.has_perm("forum.change_topic"):
-        if "solved" in data:
-            g_topic.is_solved = not g_topic.is_solved
-            resp["solved"] = g_topic.is_solved
-    if request.user.has_perm("forum.change_topic"):
-
-        if "lock" in data:
-            g_topic.is_locked = data["lock"] == "true"
-
-            if g_topic.is_locked:
-                success_message = u"Le sujet {0} est désormais verrouillé.".format(g_topic.title)
-            else:
-                success_message = u"Le sujet {0} est désormais déverrouillé.".format(g_topic.title)
-
-            messages.success(request, success_message)
-        if 'sticky' in data:
-            if data['sticky'] == 'true':
-                g_topic.is_sticky = True
-                messages.success(request, _(u'Le sujet « {0} » est désormais épinglé.').format(g_topic.title))
-            else:
-                g_topic.is_sticky = False
-                messages.success(request, _(u'Le sujet « {0} » n\'est désormais plus épinglé.').format(g_topic.title))
-        # TODO: Doublon avec "move_topic" ?
-        if "move" in data:
-            try:
-                forum_pk = int(request.POST["move_target"])
-            except (KeyError, ValueError):
-                # problem in variable format
-                raise Http404
-            forum = get_object_or_404(Forum, pk=forum_pk)
-            g_topic.forum = forum
-    g_topic.save()
-    if request.is_ajax():
-        return HttpResponse(json.dumps(resp), content_type='application/json')
-    else:
-        if not g_topic.forum.can_read(request.user):
-            return redirect(reverse('cats-forums-list'))
-        else:
-            return redirect(u"{}?page={}".format(g_topic.get_absolute_url(),
-                                                 page))
 
 
 @can_write_and_read_now
