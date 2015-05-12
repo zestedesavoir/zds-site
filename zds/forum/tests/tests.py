@@ -1006,13 +1006,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         # simple member can read public topic
-        result = self.client.get(
-            reverse(
-                'zds.forum.views.topic',
-                args=[
-                    topic1.pk,
-                    slugify(topic1.title)]),
-            follow=True)
+        result = self.client.get(reverse('topic-posts-list', args=[topic1.pk, slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
     def test_failing_unread_post(self):
@@ -1375,12 +1369,7 @@ class ForumGuestTests(TestCase):
 
         # guest can read public topic
         result = self.client.get(
-            reverse(
-                'zds.forum.views.topic',
-                args=[
-                    topic1.pk,
-                    slugify(topic1.title)]),
-            follow=True)
+            reverse('topic-posts-list', args=[topic1.pk, slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
     def test_filter_topic(self):

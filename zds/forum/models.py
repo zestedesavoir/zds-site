@@ -13,7 +13,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
-from zds.forum.managers import TopicManager, ForumManager
+from zds.forum.managers import TopicManager, ForumManager, PostManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
@@ -199,10 +199,10 @@ class Topic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse(
-            'zds.forum.views.topic',
-            args=[self.pk, slugify(self.title)]
-        )
+        return reverse('topic-posts-list', args=[self.pk, self.slug()])
+
+    def slug(self):
+        return slugify(self.title)
 
     def get_post_count(self):
         """
@@ -365,6 +365,7 @@ class Post(Comment):
     topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
     is_useful = models.BooleanField('Est utile', default=False)
+    objects = PostManager()
 
     def __unicode__(self):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)

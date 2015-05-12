@@ -63,7 +63,7 @@ class CategoryForumsDetailView(DetailView):
         return context
 
 
-class TopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
+class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
     context_object_name = 'topics'
     paginate_by = settings.ZDS_APP['forum']['topics_per_page']
@@ -75,12 +75,12 @@ class TopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.can_read(self.request.user):
+        if not self.object.can_read(request.user):
             raise PermissionDenied
-        return super(TopicsListView, self).get(request, *args, **kwargs)
+        return super(ForumTopicsListView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(TopicsListView, self).get_context_data(**kwargs)
+        context = super(ForumTopicsListView, self).get_context_data(**kwargs)
         context.update({
             'forum': self.object,
             'sticky_topics': self.filter_queryset(Topic.objects.filter(is_sticky=True).all(), context['filter']),
@@ -105,91 +105,42 @@ class TopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
             .prefetch_related('last_message', 'tags').all()
 
 
-def topic(request, topic_pk, topic_slug):
-    """
-    Displays a topic (if the user can read it) and all its posts, paginated with
-    `settings.ZDS_APP['forum']['posts_per_page']` posts per page.
-    If the page to display is not the first one, the last post of the previous page is displayed as the first post of
-    the current page.
-    :param topic_pk: The primary key of the topic to display
-    :param topic_slug: The slug of the topic to display. If the slug doesn't match the topic slug, the user is
-    redirected to the proper topic URL.
-    """
+class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
 
-    topic = get_object_or_404(Topic, pk=topic_pk)
-    if not topic.forum.can_read(request.user):
-        raise PermissionDenied
+    context_object_name = 'posts'
+    paginate_by = settings.ZDS_APP['forum']['posts_per_page']
+    template_name = 'forum/topic/index.html'
+    object = None
 
-    # Check link
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.forum.can_read(request.user):
+            raise PermissionDenied
+        if not self.kwargs.get('topic_slug') == slugify(self.object.title):
+            return redirect(self.object.get_absolute_url())
+        return super(TopicPostsListView, self).get(request, *args, **kwargs)
 
-    if not topic_slug == slugify(topic.title):
-        return redirect(topic.get_absolute_url())
+    def get_context_data(self, **kwargs):
+        context = super(TopicPostsListView, self).get_context_data(**kwargs)
+        form = PostForm(self.object, self.request.user)
+        form.helper.form_action = reverse("zds.forum.views.answer") + "?sujet=" + str(self.object.pk)
+        context.update({
+            'topic': self.object,
+            'posts': self.build_list_with_previous_item(context['object_list']),
+            'last_post_pk': self.object.last_message.pk,
+            'form': form,
+            'form_move': MoveTopicForm(topic=self.object),
+        })
+        if self.request.user.is_authenticated():
+            if never_read(self.object):
+                mark_read(self.object)
+        return context
 
-    # If the user is authenticated and has never read topic, we mark it as
-    # read.
+    def get_object(self, queryset=None):
+        return get_object_or_404(Topic, pk=self.kwargs.get('topic_pk'))
 
-    if request.user.is_authenticated():
-        if never_read(topic):
-            mark_read(topic)
-
-    # Retrieves all posts of the topic and use paginator with them.
-
-    posts = \
-        Post.objects.filter(topic__pk=topic.pk) \
-        .select_related("author__profile") \
-        .order_by("position").all()
-    last_post_pk = topic.last_message.pk
-
-    # Handle pagination
-
-    paginator = Paginator(posts, settings.ZDS_APP['forum']['posts_per_page'])
-
-    # The category list is needed to move threads
-
-    categories = Category.objects.all()
-    if "page" in request.GET:
-        try:
-            page_nbr = int(request.GET["page"])
-        except (KeyError, ValueError):
-            # problem in variable format
-            raise Http404
-    else:
-        page_nbr = 1
-    try:
-        posts = paginator.page(page_nbr)
-    except PageNotAnInteger:
-        posts = paginator.page(1)
-    except EmptyPage:
-        raise Http404
-    res = []
-    if page_nbr != 1:
-
-        # Show the last post of the previous page
-
-        last_page = paginator.page(page_nbr - 1).object_list
-        last_post = last_page[len(last_page) - 1]
-        res.append(last_post)
-    for post in posts:
-        res.append(post)
-
-    # Build form to send a post for the current topic.
-
-    form = PostForm(topic, request.user)
-    form.helper.form_action = reverse("zds.forum.views.answer") + "?sujet=" \
-        + str(topic.pk)
-    form_move = MoveTopicForm(topic=topic)
-
-    return render(request, "forum/topic/index.html", {
-        "topic": topic,
-        "posts": res,
-        "categories": categories,
-        "page": 1,
-        "pages": paginator_range(page_nbr, paginator.num_pages),
-        "nb": page_nbr,
-        "last_post_pk": last_post_pk,
-        "form": form,
-        "form_move": form_move,
-    })
+    def get_queryset(self):
+        return Post.objects.get_messages_of_a_topic(self.object.pk)
 
 
 def get_tag_by_title(title):

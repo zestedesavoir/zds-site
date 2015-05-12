@@ -44,3 +44,12 @@ class TopicManager(models.Manager):
     def get_last_topics(self):
         return self.order_by('-pubdate') \
                    .all()[:settings.ZDS_APP['topic']['home_number']]
+
+
+class PostManager(models.Manager):
+    """
+    Custom post manager.
+    """
+
+    def get_messages_of_a_topic(self, topic_pk):
+        return self.filter(topic__pk=topic_pk).select_related("author__profile").order_by("position").all()

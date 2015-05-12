@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from . import feeds
-from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, TopicsListView
+from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, TopicPostsListView
 
 
 urlpatterns = patterns('',
@@ -37,8 +37,7 @@ urlpatterns = patterns('',
                            'zds.forum.views.edit'),
                        url(r'^sujet/deplacer/$',
                            'zds.forum.views.move_topic'),
-                       url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$',
-                           'zds.forum.views.topic'),
+                       url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$', TopicPostsListView.as_view(), name='topic-posts-list'),
                        url(r'^sujets/membre/(?P<user_pk>\d+)/$',
                            'zds.forum.views.find_topic'),
                        url(r'^sujets/tag/(?P<tag_pk>\d+)/(?P<tag_slug>.+)/$',
@@ -66,7 +65,7 @@ urlpatterns = patterns('',
                        url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),
 
                        # Forum details
-                       url(r'^(?P<cat_slug>.+)/(?P<forum_slug>.+)/$', TopicsListView.as_view(), name='forum-topics-list'),
+                       url(r'^(?P<cat_slug>.+)/(?P<forum_slug>.+)/$', ForumTopicsListView.as_view(), name='forum-topics-list'),
 
                        # Forums belonging to one category
                        url(r'^(?P<slug>.+)/$',CategoryForumsDetailView.as_view(), name='cat-forums-list'),

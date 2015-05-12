@@ -61,7 +61,7 @@
         </ul>
     {% endif %}
 
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
         <div 
             class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
@@ -100,13 +100,13 @@
             {% url "zds.forum.views.unread_post" %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% if forloop.first and nb > 1 %}
+        {% if forloop.first and page_obj.number > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% if forloop.first and nb = 1 %}
+        {% if forloop.first and page_obj.number = 1 %}
             {% set False as answer_schema %}
         {% else %}
             {% set True as answer_schema %}
@@ -115,8 +115,7 @@
         {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema can_unread=True unread_link=unread_link %}
     {% endfor %}
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
-
+    {% include "misc/paginator.html" with position="bottom" %}
 
     {# Anwser form #}
     {% captureas form_action %}

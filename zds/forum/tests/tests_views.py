@@ -6,7 +6,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, Topi
 from zds.member.factories import ProfileFactory
 
 
-class ForumsListViewTests(TestCase):
+class CategoriesForumsListViewTests(TestCase):
     def test_success_list_all_forums(self):
         profile = ProfileFactory()
         category, forum = create_category()
@@ -42,6 +42,8 @@ class ForumsListViewTests(TestCase):
         self.assertEqual(category, current_category)
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
 
+
+class CategoryForumsDetailViewTest(TestCase):
     def test_success_list_all_forums_of_a_category(self):
         profile = ProfileFactory()
         category, forum = create_category()
@@ -79,6 +81,8 @@ class ForumsListViewTests(TestCase):
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
         self.assertEqual(response.context['forums'][0], current_category.get_forums(profile.user)[0])
 
+
+class ForumTopicsListViewTest(TestCase):
     def test_failure_list_all_topics_of_a_wrong_forum(self):
         response = self.client.get(reverse('forum-topics-list', args=['x', 'x']))
 
@@ -157,6 +161,42 @@ class ForumsListViewTests(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(forum, response.context['forum'])
         self.assertEqual(2, len(response.context['topics']))
+
+
+class TopicPostsListViewTest(TestCase):
+    def test_failure_list_all_posts_of_a_topic_of_a_forum_we_cannot_read(self):
+        group = Group.objects.create(name="DummyGroup_1")
+        profile = ProfileFactory()
+        category, forum = create_category(group)
+        topic = add_topic_in_a_forum(forum, profile)
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_list_all_posts_of_a_topic_with_wrong_slug(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, 'x']))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_success_list_all_posts_of_a_topic(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(topic, response.context['topic'])
+        self.assertEqual(1, len(response.context['posts']))
+        self.assertEqual(topic.last_message, response.context['posts'][0])
+        self.assertEqual(topic.last_message.pk, response.context['last_post_pk'])
+        self.assertIsNotNone(response.context['form'])
+        self.assertIsNotNone(response.context['form_move'])
 
 
 def create_category(group=None):
