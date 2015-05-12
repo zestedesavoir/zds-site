@@ -105,7 +105,7 @@ def never_read(content, user=None):
         user = get_current_user()
 
     return ContentRead.objects\
-        .filter(note=content.last_note, content=content, user=user)\
+        .filter(note=content.last_note, content__pk=content.pk, user=user)\
         .count() == 0
 
 
@@ -119,8 +119,8 @@ def mark_read(content):
 
     if content.last_note is not None:
         ContentRead.objects.filter(
-            content=content,
-            user=get_current_user()).delete()
+            content__pk=content.pk,
+            user__pk=get_current_user().pk).delete()
         a = ContentRead(
             note=content.last_note,
             content=content,
@@ -543,7 +543,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
 
         if _type == 'ARTICLE':
-            extract = Extract(json['title'], '')
+            extract = Extract("text", '')
             if 'text' in json:
                 extract.text = json['text']  # probably "text.md" !
             versioned.add_extract(extract, generate_slug=True)

@@ -69,7 +69,7 @@ class Command(BaseCommand):
                     current_extract.text = current_extract.get_path(True)
 
             elif versioned.type == "ARTICLE":
-                extract = Extract(data["title"], "text")
+                extract = Extract("text", "text")
                 versioned.add_extract(extract)
                 extract.text = extract.get_path(True)
 

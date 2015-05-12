@@ -26,6 +26,13 @@ from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
 from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
+try:
+    import ujson as json_reader
+except ImportError:
+    try:
+        import simplejson as json_reader
+    except:
+        import json as json_reader
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -3346,6 +3353,36 @@ class ContentTests(TestCase):
             follow=True)
         self.assertIsNone(PrivateTopic.objects.filter(participants__in=[self.external]).first())
         self.assertEqual(result.status_code, 200)
+
+    def test_import_old_version(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        base = os.path.join(BASE_DIR, "fixtures", "tuto")
+        old_contents = [
+            os.path.join(base, "article_v1"),
+            os.path.join(base, "balise_audio"),
+            os.path.join(base, "big_tuto_v1"),
+        ]
+        for old_path in old_contents:
+            draft_zip_path = old_path + '.zip'
+            shutil.make_archive(old_path, 'zip', old_path)
+
+            result = self.client.post(
+                reverse('content:import-new'),
+                {
+                    'archive': open(draft_zip_path),
+                    'subcategory': self.subcategory.pk
+                },
+                follow=False
+            )
+            manifest = open(os.path.join(old_path, "manifest.json"), 'r')
+            json = json_reader.loads(manifest.read())
+            manifest.close()
+            self.assertEqual(result.status_code, 302)
+            self.assertEqual(json["title"], PublishableContent.objects.last().title)
 
     def tearDown(self):
 

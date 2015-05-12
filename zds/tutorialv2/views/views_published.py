@@ -21,8 +21,8 @@ from zds.member.views import get_client_ip
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
-from zds.tutorialv2.utils import search_container_or_404
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
+from zds.tutorialv2.utils import search_container_or_404, mark_read
 from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination
@@ -337,15 +337,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         self.reaction.save()
         self.object.last_note = self.reaction
         self.object.save()
-        read_note = ContentRead.objects\
-            .filter(user__pk=self.request.user.pk, content__pk=self.object.pk)\
-            .first()
-        if read_note is None:
-            read_note = ContentRead()
-        read_note.content = self.object
-        read_note.user = self.request.user
-        read_note.note = self.reaction
-        read_note.save()
+        mark_read(self.object)
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
 
