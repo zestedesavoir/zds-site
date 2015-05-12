@@ -428,7 +428,7 @@
             <h4 class="mobile-menu-link" data-title="{% trans 'Forums' %}">{% trans "Forums" %}</h4>
             <ul>
                 <li>
-                    <a href="{% url "zds.forum.views.find_topic" usr.pk %}"
+                    <a href="{% url 'topic-find' usr.pk %}"
                        class="mobile-menu-link mobile-menu-sublink"
                     >
                         <span class="count">{{ profile.get_topic_count }}</span>

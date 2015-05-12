@@ -251,6 +251,32 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         return get_object_or_404(Topic, pk=topic_pk)
 
 
+class FindTopic(ZdSPagingListView, SingleObjectMixin):
+
+    context_object_name = 'topics'
+    template_name = 'forum/find/topic.html'
+    paginate_by = settings.ZDS_APP['forum']['topics_per_page']
+    pk_url_kwarg = 'user_pk'
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(FindTopic, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(FindTopic, self).get_context_data(**kwargs)
+        context.update({
+            'usr': self.object
+        })
+        return context
+
+    def get_queryset(self):
+        return Topic.objects.get_all_topics_of_a_user(self.request.user, self.object)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))
+
+
 @can_write_and_read_now
 @login_required
 @require_POST
@@ -869,43 +895,6 @@ def find_topic_by_tag(request, tag_pk, tag_slug):
         "pages": paginator_range(page, paginator.num_pages),
         "nb": page,
         "filter": filter,
-    })
-
-
-def find_topic(request, user_pk):
-    """
-    Displays all topics created by the provided user, paginated with `settings.ZDS_APP['forum']['topics_per_page']`
-    topics per page.
-    Only the topics the current user can read are displayed.
-    :param user_pk: the user to find the topics.
-    """
-
-    displayed_user = get_object_or_404(User, pk=user_pk)
-    topics = \
-        Topic.objects\
-        .filter(author=displayed_user)\
-        .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=request.user.groups.all()))\
-        .prefetch_related("author")\
-        .order_by("-pubdate").all()
-
-    # Paginator
-    paginator = Paginator(topics, settings.ZDS_APP['forum']['topics_per_page'])
-    page = request.GET.get("page")
-    try:
-        shown_topics = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_topics = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_topics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    return render(request, "forum/find/topic.html", {
-        "topics": shown_topics,
-        "usr": displayed_user,
-        "pages": paginator_range(page, paginator.num_pages),
-        "nb": page,
     })
 
 

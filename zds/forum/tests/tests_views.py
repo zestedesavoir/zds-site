@@ -619,6 +619,24 @@ class TopicEditTest(TestCase):
         self.assertEqual(302, response.status_code)
 
 
+class FindTopicTest(TestCase):
+    def test_failure_find_topics_of_a_member_not_found(self):
+        response = self.client.get(reverse('topic-find', args=[9999]), follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_success_find_topics_of_a_member(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+
+
 def create_category(group=None):
     category = CategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)

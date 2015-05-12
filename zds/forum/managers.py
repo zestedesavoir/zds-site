@@ -45,6 +45,12 @@ class TopicManager(models.Manager):
         return self.order_by('-pubdate') \
                    .all()[:settings.ZDS_APP['topic']['home_number']]
 
+    def get_all_topics_of_a_user(self, current, target):
+        return self.filter(author=target)\
+            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=current.groups.all()))\
+            .prefetch_related("author")\
+            .order_by("-pubdate").all()
+
 
 class PostManager(models.Manager):
     """
