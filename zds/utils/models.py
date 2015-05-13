@@ -201,6 +201,18 @@ class Comment(models.Model):
         self.text = text
         self.text_html = emarkdown(self.text)
 
+    def hide_comment_by_user(self, user, text_hidden):
+        """Hide a comment and save it
+
+        :param user: the user that hid the comment
+        :param text_hidden: the hide reason
+        :return:
+        """
+        self.is_visible = False
+        self.text_hidden = text_hidden
+        self.editor = user
+        self.save()
+
 
 class Alert(models.Model):
 

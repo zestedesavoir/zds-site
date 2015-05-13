@@ -449,7 +449,9 @@ class GetReaction(BaseDetailView):
 
         reaction = self.get_queryset().first()
         if reaction is not None:
-            string = json_writer.dumps({"text": reaction.text}, ensure_ascii=False)
+            text = ">" + reaction.text.replace("\n\n", ">\n\n")
+            text += "\nSource: " + reaction.author.username
+            string = json_writer.dumps({"text": text}, ensure_ascii=False)
         else:
             string = u'{"text":""}'
         return HttpResponse(string, content_type='application/json')
@@ -470,9 +472,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
-            reaction.is_visible = False
-            reaction.text_hidden = text
-            reaction.save()
+            reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.related_content.get_absolute_url_online())
         except (IndexError, ValueError, MultiValueDictKeyError):
             raise Http404
