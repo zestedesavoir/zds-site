@@ -23,7 +23,7 @@ from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, never_read, mark_read, TopicFollowed
-from zds.forum.commons import TopicEditMixin, PostEditMixin
+from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
@@ -409,11 +409,10 @@ class PostNew(CreatePostView):
         return get_object_or_404(Topic, pk=topic_pk)
 
 
-class PostEdit(UpdateView, SingleObjectMixin, PostEditMixin):
+class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     template_name = 'forum/post/edit.html'
     form_class = PostForm
-    object = None
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
@@ -474,13 +473,6 @@ class PostEdit(UpdateView, SingleObjectMixin, PostEditMixin):
         self.object.save()
         return redirect(self.object.get_absolute_url())
 
-    def get_object(self, queryset=None):
-        try:
-            post_pk = int(self.request.GET.get('message'))
-        except (KeyError, ValueError, TypeError):
-            raise Http404
-        return get_object_or_404(Post, pk=post_pk)
-
     def create_form(self, form_class, **kwargs):
         form = form_class(self.object.topic, self.request.user, initial=kwargs)
         form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
@@ -496,39 +488,27 @@ class PostEdit(UpdateView, SingleObjectMixin, PostEditMixin):
         return redirect(post.get_absolute_url())
 
 
-@can_write_and_read_now
-@login_required
-@require_POST
-def useful_post(request):
-    """
-    Marks an answer as "useful".
-    Only the topic creator (or a staff member) can do this.
-    """
+class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
-    try:
-        post_pk = int(request.GET["message"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    post = get_object_or_404(Post, pk=post_pk)
-
-    # check that author can access the forum
-
-    if not post.topic.forum.can_read(request.user):
-        raise PermissionDenied
-
-    # Making sure the user is allowed to do that
-
-    if post.author == request.user or request.user != post.topic.author:
-        if not request.user.has_perm("forum.change_post"):
+    @method_decorator(require_POST)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-    post.is_useful = not post.is_useful
-    post.save()
+        if self.object.author == request.user or self.object.topic.author != request.user:
+            if not request.user.has_perm("forum.change_post"):
+                raise PermissionDenied
+        return super(PostUseful, self).dispatch(request, *args, **kwargs)
 
-    if request.is_ajax():
-        return HttpResponse(json.dumps(post.is_useful), content_type='application/json')
+    def post(self, request, *args, **kwargs):
+        self.perform_useful(self.object)
 
-    return redirect(post.get_absolute_url())
+        if request.is_ajax():
+            return HttpResponse(json.dumps(self.object.is_useful), content_type='application/json')
+
+        return redirect(self.object.get_absolute_url())
 
 
 @can_write_and_read_now

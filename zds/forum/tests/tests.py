@@ -729,11 +729,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -742,11 +738,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
         # useful the first post
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post1.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post1.pk), follow=False)
         self.assertEqual(result.status_code, 403)
 
         self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
@@ -758,11 +750,7 @@ class ForumMemberTests(TestCase):
         post4 = PostFactory(topic=topic1, author=user1, position=1)
         post5 = PostFactory(topic=topic1, author=self.user, position=2)
 
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post5.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post5.pk), follow=False)
 
         self.assertEqual(result.status_code, 403)
 
@@ -775,11 +763,7 @@ class ForumMemberTests(TestCase):
             username=self.user.username,
             password='hostel77'),
             True)
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post4.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post4.pk), follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
@@ -788,25 +772,17 @@ class ForumMemberTests(TestCase):
         """To test some failing cases when a member mark a post is useful."""
 
         # missing parameter
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post'),
-            follow=False)
+        result = self.client.post(reverse('post-useful'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # weird parameter
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # not existing (yet) pk parameter
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -1306,13 +1282,9 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-useful') + '?message={0}'.format(post2.pk), follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 405)
 
         self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
         self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, False)

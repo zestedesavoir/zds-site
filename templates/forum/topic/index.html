@@ -81,7 +81,7 @@
         {% endcaptureas %}
 
         {% captureas helpful_link %}
-            {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+            {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}

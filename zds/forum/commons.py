@@ -4,7 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email
+from django.views.generic.detail import SingleObjectMixin
+from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post
 from django.utils.translation import ugettext as _
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert
@@ -115,9 +116,24 @@ class PostEditMixin(object):
 
         messages.success(request, _(u'Une alerte a été envoyée à l\'équipe concernant ce message.'))
 
+    def perform_useful(self, post):
+        post.is_useful = not post.is_useful
+        post.save()
+
     def perform_edit_post(self, post, user, text):
         post.update_content(text)
         post.update = datetime.now()
         post.editor = user
         post.save()
         return post
+
+
+class SinglePostObjectMixin(SingleObjectMixin):
+    object = None
+
+    def get_object(self, queryset=None):
+        try:
+            post_pk = int(self.request.GET.get('message'))
+        except (KeyError, ValueError, TypeError):
+            raise Http404
+        return get_object_or_404(Post, pk=post_pk)
