@@ -317,11 +317,6 @@ class TopicEditTest(TestCase):
 
         self.assertEqual(403, response.status_code)
 
-    def test_failure_edit_topic_with_method_get(self):
-        response = self.client.get(reverse('topic-edit'))
-
-        self.assertEqual(405, response.status_code)
-
     def test_failure_edit_topic_with_wrong_topic_pk(self):
         profile = ProfileFactory()
 
@@ -620,6 +615,103 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
+
+    def test_failure_edit_topic_not_author_and_not_staff(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        another_profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=another_profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+        self.assertEqual(403, response.status_code)
+
+        data = {
+            'text': 'New text for the post'
+        }
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_topic_staff_in_get_method(self):
+        staff = StaffProfileFactory()
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_edit_topic_author_in_get_method(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_edit_topic_in_preview(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'title': 'New title',
+            'subtitle': 'New subtitle',
+            'text': 'A new post!',
+        }
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(topic, response.context['topic'])
+        self.assertIsNotNone(response.context['form'])
+
+    def test_success_edit_topic_in_preview_in_ajax(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'title': 'New title',
+            'subtitle': 'New subtitle',
+            'text': 'A new post!',
+        }
+        response = self.client.post(
+            reverse('topic-edit') + '?topic={}'.format(topic.pk),
+            data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_edit_topic_information(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'title': 'New title',
+            'subtitle': 'New subtitle',
+            'text': 'A new post!',
+        }
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        topic = Topic.objects.get(pk=topic.pk)
+        post = Post.objects.get(topic__pk=topic.pk)
+        self.assertEqual(data.get('title'), topic.title)
+        self.assertEqual(data.get('subtitle'), topic.subtitle)
+        self.assertEqual(data.get('text'), post.text)
 
 
 class FindTopicTest(TestCase):

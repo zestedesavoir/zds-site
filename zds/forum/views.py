@@ -28,7 +28,7 @@ from zds.forum.commons import TopicEditMixin
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
-from zds.utils.forums import get_tag_by_title, create_topic, send_post, CreatePostView
+from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
@@ -202,10 +202,11 @@ class TopicNew(CreateView, SingleObjectMixin):
 
 class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
-    page = 1
+    template_name = 'forum/topic/edit.html'
+    form_class = TopicForm
     object = None
+    page = 1
 
-    @method_decorator(require_POST)
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
     @method_decorator(transaction.atomic)
@@ -213,6 +214,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         self.object = self.get_object()
         if not self.object.forum.can_read(request.user):
             return redirect(reverse('cats-forums-list'))
+        if ('text' in request.POST or request.method == 'GET') \
+                and self.object.author != request.user and not request.user.has_perm('forum.change_topic'):
+            raise PermissionDenied
         if 'page' in request.POST:
             try:
                 self.page = int(request.POST.get('page'))
@@ -220,7 +224,40 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                 self.page = 1
         return super(TopicEdit, self).dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        if self.object.author != request.user and request.user.has_perm("forum.change_topic"):
+            messages.warning(request, _(
+                u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
+                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+        prefix = ''
+        for tag in self.object.tags.all():
+            prefix += u'[{0}]'.format(tag.title)
+
+        form = self.create_form(self.form_class, **{
+            'title': u'{0} {1}'.format(prefix, self.object.title).strip(),
+            'subtitle': self.object.subtitle,
+            'text': self.object.first_post().text
+        })
+        return render(request, self.template_name, {'topic': self.object, 'form': form})
+
     def post(self, request, *args, **kwargs):
+        if 'text' in request.POST:
+            form = self.get_form(self.form_class)
+
+            if "preview" in request.POST:
+                if request.is_ajax():
+                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+                    return StreamingHttpResponse(content)
+                else:
+                    form = self.create_form(self.form_class, **{
+                        'title': request.POST.get('title'),
+                        'subtitle': request.POST.get('subtitle'),
+                        'text': request.POST.get('text')
+                    })
+            elif form.is_valid():
+                return self.form_valid(form)
+            return render(request, self.template_name, {'topic': self.object, 'form': form})
+
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
@@ -244,8 +281,25 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         try:
             topic_pk = int(self.request.POST.get('topic'))
         except (KeyError, ValueError, TypeError):
-            raise Http404
+            try:
+                topic_pk = int(self.request.GET.get('topic'))
+            except (KeyError, ValueError, TypeError):
+                raise Http404
         return get_object_or_404(Topic, pk=topic_pk)
+
+    def create_form(self, form_class, **kwargs):
+        form = form_class(initial=kwargs)
+        form.helper.form_action = reverse('topic-edit') + '?topic={}'.format(self.object.pk)
+        return form
+
+    def get_form(self, form_class):
+        form = form_class(self.request.POST)
+        form.helper.form_action = reverse('topic-edit') + '?topic={}'.format(self.object.pk)
+        return form
+
+    def form_valid(self, form):
+        topic = self.perform_edit_info(self.object, self.request.POST, self.request.user)
+        return redirect(topic.get_absolute_url())
 
 
 class FindTopic(ZdSPagingListView, SingleObjectMixin):
@@ -379,16 +433,11 @@ def edit_post(request):
     if not post.topic.forum.can_read(request.user):
         raise PermissionDenied
 
-    if post.position <= 1:
-        g_topic = get_object_or_404(Topic, pk=post.topic.pk)
-    else:
-        g_topic = None
-
     # Making sure the user is allowed to do that. Author of the post must to be
     # the user logged.
     if post.author != request.user \
-            and not request.user.has_perm("forum.change_post") and "signal_message" \
-            not in request.POST:
+            and not request.user.has_perm("forum.change_post") \
+            and "signal_message" not in request.POST:
         raise PermissionDenied
     if post.author != request.user and request.method == "GET" \
             and request.user.has_perm("forum.change_post"):
@@ -433,17 +482,10 @@ def edit_post(request):
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
-                if g_topic:
-                    form = TopicForm(initial={"title": request.POST["title"],
-                                              "subtitle": request.POST["subtitle"],
-                                              "text": request.POST["text"]})
-                else:
-                    form = PostForm(post.topic, request.user,
-                                    initial={"text": request.POST["text"]})
-
-                form.helper.form_action = reverse("zds.forum.views.edit_post") \
-                    + "?message=" + str(post_pk)
-
+                form = PostForm(post.topic, request.user, initial={
+                    'text': request.POST.get('text')
+                })
+                form.helper.form_action = reverse("zds.forum.views.edit_post") + "?message=" + str(post_pk)
                 return render(request, "forum/post/edit.html", {
                     "post": post,
                     "topic": post.topic,
@@ -453,64 +495,28 @@ def edit_post(request):
         else:
             # The user just sent data, handle them
             if "text" in request.POST:
-                form = TopicForm(request.POST)
                 form_post = PostForm(post.topic, request.user, request.POST)
 
-                if not form.is_valid():
-                    if g_topic:
-                        return render(request, "forum/post/edit.html", {
-                            "post": post,
-                            "topic": post.topic,
-                            "text": post.text,
-                            "form": form,
-                        })
-                    elif not form_post.is_valid():
-                        form = PostForm(post.topic, request.user, initial={"text": post.text})
-                        form._errors = form_post._errors
-                        return render(request, "forum/post/edit.html", {
-                            "post": post,
-                            "topic": post.topic,
-                            "text": post.text,
-                            "form": form,
-                        })
+                if not form_post.is_valid():
+                    form = PostForm(post.topic, request.user, initial={"text": post.text})
+                    form._errors = form_post._errors
+                    return render(request, "forum/post/edit.html", {
+                        "post": post,
+                        "topic": post.topic,
+                        "text": post.text,
+                        "form": form,
+                    })
 
                 post.text = request.POST["text"]
                 post.text_html = emarkdown(request.POST["text"])
                 post.update = datetime.now()
                 post.editor = request.user
 
-            # Modifying the thread info
-            if g_topic:
-                (tags, title) = get_tag_by_title(request.POST["title"])
-                g_topic.title = title
-                g_topic.subtitle = request.POST["subtitle"]
-                g_topic.save()
-
-                # add tags
-                g_topic.tags.clear()
-                g_topic.add_tags(tags)
-
         post.save()
         return redirect(post.get_absolute_url())
     else:
-        if g_topic:
-            prefix = u""
-            for tag in g_topic.tags.all():
-                prefix += u"[{0}]".format(tag.title)
-
-            form = TopicForm(
-                initial={
-                    "title": u"{0} {1}".format(
-                        prefix,
-                        g_topic.title).strip(),
-                    "subtitle": g_topic.subtitle,
-                    "text": post.text})
-        else:
-            form = PostForm(post.topic, request.user,
-                            initial={"text": post.text})
-
-        form.helper.form_action = reverse("zds.forum.views.edit_post") \
-            + "?message=" + str(post_pk)
+        form = PostForm(post.topic, request.user, initial={"text": post.text})
+        form.helper.form_action = reverse("zds.forum.views.edit_post") + "?message=" + str(post_pk)
         return render(request, "forum/post/edit.html", {
             "post": post,
             "topic": post.topic,

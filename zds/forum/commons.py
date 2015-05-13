@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email
 from django.utils.translation import ugettext as _
+from zds.utils.forums import get_tag_by_title
 
 
 class TopicEditMixin(object):
@@ -61,3 +63,20 @@ class TopicEditMixin(object):
             messages.success(request, _(u"Le sujet {0} a bien été déplacé dans {1}.").format(topic.title, forum.title))
         else:
             raise PermissionDenied
+
+    def perform_edit_info(self, topic, data, editor):
+        (tags, title) = get_tag_by_title(data.get('title'))
+        topic.title = title
+        topic.subtitle = data.get('subtitle')
+        topic.save()
+
+        post = topic.first_post()
+        post.update_content(data.get('text'))
+        post.update = datetime.now()
+        post.editor = editor
+        post.save()
+
+        # add tags
+        topic.tags.clear()
+        topic.add_tags(tags)
+        return topic

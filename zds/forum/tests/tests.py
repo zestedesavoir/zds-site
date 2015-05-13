@@ -294,13 +294,16 @@ class ForumMemberTests(TestCase):
         topic3 = TopicFactory(forum=self.forum21, author=self.user)
         post3 = PostFactory(topic=topic3, author=self.user, position=1)
 
+        expected_title = u'Un autre sujet'
+        expected_subtitle = u'Encore ces lombards en plein été'
+        expected_text = u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post1.pk),
-            {'title': u'Un autre sujet',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic1.pk),
+            {
+                'title': expected_title,
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
@@ -317,65 +320,56 @@ class ForumMemberTests(TestCase):
         self.assertEqual(post3.topic, topic3)
 
         # check values
-        self.assertEqual(
-            Topic.objects.get(
-                pk=topic1.pk).title,
-            u'Un autre sujet')
-        self.assertEqual(
-            Topic.objects.get(
-                pk=topic1.pk).subtitle,
-            u'Encore ces lombards en plein été')
-        self.assertEqual(
-            Post.objects.get(
-                pk=post1.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
+        self.assertEqual(expected_title, Topic.objects.get(pk=topic1.pk).title)
+        self.assertEqual(expected_subtitle, Topic.objects.get(pk=topic1.pk).subtitle)
+        self.assertEqual(expected_text, Post.objects.get(pk=post1.pk).text)
 
         # check edit data
         self.assertEqual(Post.objects.get(pk=post1.pk).editor, self.user)
 
         # check if topic is valid (no topic)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': '',
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
 
         # check if topic is valid (tags only)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'[foo][bar]',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': u'[foo][bar]',
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
 
         # check if topic is valid (spaces only)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'  ',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': u'  ',
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
 
         # check if topic is valid (valid title)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'Un titre valide',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': expected_title,
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
-        self.assertEqual(Topic.objects.get(pk=topic2.pk).title, u'Un titre valide')
+        self.assertEqual(expected_title, Topic.objects.get(pk=topic2.pk).title)
 
     def test_edit_post(self):
         """To test all aspects of the edition of simple post by member."""
