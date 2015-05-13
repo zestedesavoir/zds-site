@@ -824,7 +824,7 @@ class PostNewTest(TestCase):
 
         self.assertEqual(404, response.status_code)
 
-    def test_failure_edit_topic_with_a_topic_not_found(self):
+    def test_failure_new_post_with_a_topic_not_found(self):
         profile = ProfileFactory()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
@@ -951,6 +951,254 @@ class PostNewTest(TestCase):
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
+
+
+class PostEditTest(TestCase):
+    def test_failure_edit_post_with_client_unauthenticated(self):
+        response = self.client.post(reverse('post-edit'))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_edit_post_with_sanctioned_user(self):
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit'))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_edit_post_with_wrong_post_pk(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit') + '?message=abc', follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_edit_post_with_a_topic_not_found(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit') + '?message=99999', follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_edit_post_in_a_forum_we_cannot_read(self):
+        profile = ProfileFactory()
+        group = Group.objects.create(name="DummyGroup_1")
+        category, forum = create_category(group)
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_edit_post_not_author_not_staff_and_not_alert_message(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_post_method_get(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(topic, response.context['topic'])
+        self.assertEqual(topic.last_message, response.context['post'])
+        self.assertEqual(topic.last_message.text, response.context['text'])
+        self.assertIsNotNone(response.context['form'])
+
+    def test_success_new_post_in_preview(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'text': 'A new post!'
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_edit_post_in_preview_in_ajax(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'text': 'A new post!',
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk),
+            data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_edit_post(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'text': 'A new post!'
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        post = Post.objects.get(pk=topic.last_message.pk)
+        self.assertEqual(profile.user, post.editor)
+        self.assertEqual(data.get('text'), post.text)
+
+    def test_failure_edit_post_hide_message_not_author_and_not_staff(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'delete_message': ''
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_post_hide_message_by_author(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'delete_message': ''
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        post = Post.objects.get(pk=topic.last_message.pk)
+        self.assertEqual(0, len(post.alerts.all()))
+        self.assertFalse(post.is_visible)
+        self.assertEqual(profile.user, post.editor)
+        self.assertEqual('', post.text_hidden)
+
+    def test_success_edit_post_hide_message_by_staff(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        text_hidden_expected = 'Bad guy!'
+        data = {
+            'delete_message': '',
+            'text_hidden': text_hidden_expected
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        post = Post.objects.get(pk=topic.last_message.pk)
+        self.assertEqual(0, len(post.alerts.all()))
+        self.assertFalse(post.is_visible)
+        self.assertEqual(staff.user, post.editor)
+        self.assertEqual(text_hidden_expected, post.text_hidden)
+
+    def test_failure_edit_post_show_message_by_user(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'show_message': ''
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_edit_post_show_message_by_author(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'show_message': ''
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_edit_post_show_message_by_staff(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        topic.last_message.is_visible = False
+        topic.last_message.text_hidden = 'Bad guy!'
+        topic.last_message.save()
+
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'show_message': '',
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        post = Post.objects.get(pk=topic.last_message.pk)
+        self.assertTrue(post.is_visible)
+        self.assertEqual('', post.text_hidden)
+
+    def test_success_edit_post_alert_message(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        text_expected = 'Bad guy!'
+        data = {
+            'signal_message': '',
+            'signal_text': text_expected
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        post = Post.objects.get(pk=topic.last_message.pk)
+        self.assertEqual(1, len(post.alerts.all()))
+        self.assertEqual(text_expected, post.alerts.all()[0].text)
 
 
 def create_category(group=None):

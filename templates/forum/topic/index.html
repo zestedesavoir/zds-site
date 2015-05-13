@@ -73,7 +73,7 @@
 
     {% for message in posts %}
         {% captureas edit_link %}
-            {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+            {% url 'post-edit' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas cite_link %}

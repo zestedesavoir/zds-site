@@ -379,8 +379,7 @@ class ForumMemberTests(TestCase):
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
@@ -410,7 +409,7 @@ class ForumMemberTests(TestCase):
 
         # if the post pk is altered
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message=abcd',
+            reverse('post-edit') + '?message=abcd',
             {
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
@@ -426,8 +425,7 @@ class ForumMemberTests(TestCase):
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'text': u"  "
             },
@@ -438,8 +436,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.request["QUERY_STRING"], "message={}".format(post2.pk))
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post3.pk),
+            reverse('post-edit') + '?message={0}'.format(post3.pk),
             {
                 'text': u" contenu "
             },
@@ -474,8 +471,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') +
-            '?message={0}'.format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -524,8 +520,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') +
-            '?message={0}'.format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -1180,12 +1175,12 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic3, author=self.user, position=1)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post1.pk),
-            {'title': u'Un autre sujet',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('post-edit') + '?message={0}'.format(post1.pk),
+            {
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein été',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
@@ -1212,11 +1207,9 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de '
-                u'la ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -1248,8 +1241,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') +
-            '?message={0}'.format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'

@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import json
 
 from django.conf import settings
@@ -24,7 +23,7 @@ from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
 from models import Category, Forum, Topic, Post, never_read, mark_read, TopicFollowed
-from zds.forum.commons import TopicEditMixin
+from zds.forum.commons import TopicEditMixin, PostEditMixin
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
@@ -33,7 +32,6 @@ from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
-from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class CategoriesForumsListView(ListView):
@@ -411,118 +409,91 @@ class PostNew(CreatePostView):
         return get_object_or_404(Topic, pk=topic_pk)
 
 
-@can_write_and_read_now
-@login_required
-@transaction.atomic
-def edit_post(request):
-    """
-    Edit a post. Also allows to signal a message to the staff, hide a message (in code this is called "delete" it), show
-    it and allows the user to preview its edited message.
-    This displays a warning if a moderator edits someone else's post.
-    """
+class PostEdit(UpdateView, SingleObjectMixin, PostEditMixin):
 
-    try:
-        post_pk = int(request.GET["message"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
+    template_name = 'forum/post/edit.html'
+    form_class = PostForm
+    object = None
 
-    post = get_object_or_404(Post, pk=post_pk)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.topic.forum.can_read(request.user):
+            raise PermissionDenied
+        if self.object.author != request.user and not request.user.has_perm(
+                'forum.change_post') and 'signal_message' not in request.POST:
+            raise PermissionDenied
+        return super(PostEdit, self).dispatch(request, *args, **kwargs)
 
-    # check if the user can use this forum
-    if not post.topic.forum.can_read(request.user):
-        raise PermissionDenied
+    def get(self, request, *args, **kwargs):
+        if self.object.author != request.user and request.user.has_perm('forum.change_post'):
+            messages.warning(request, _(
+                u'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
+                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
 
-    # Making sure the user is allowed to do that. Author of the post must to be
-    # the user logged.
-    if post.author != request.user \
-            and not request.user.has_perm("forum.change_post") \
-            and "signal_message" not in request.POST:
-        raise PermissionDenied
-    if post.author != request.user and request.method == "GET" \
-            and request.user.has_perm("forum.change_post"):
-        messages.warning(request,
-                         _(u'Vous éditez ce message en tant que '
-                           u'modérateur (auteur : {}). Soyez encore plus '
-                           u'prudent lors de l\'édition de celui-ci !')
-                         .format(post.author.username))
-
-    if request.method == "POST":
-        if "delete_message" in request.POST:
-            if post.author == request.user \
-                    or request.user.has_perm("forum.change_post"):
-                post.alerts.all().delete()
-                post.is_visible = False
-
-                if request.user.has_perm("forum.change_post"):
-                    post.text_hidden = request.POST["text_hidden"]
-
-                post.editor = request.user
-
-                messages.success(request, _(u"Le message est désormais masqué."))
-        elif "show_message" in request.POST:
-            if request.user.has_perm("forum.change_post"):
-                post.is_visible = True
-                post.text_hidden = ""
-        elif "signal_message" in request.POST:
-            alert = Alert()
-            alert.author = request.user
-            alert.comment = post
-            alert.scope = Alert.FORUM
-            alert.text = request.POST['signal_text']
-            alert.pubdate = datetime.now()
-            alert.save()
-
-            messages.success(request,
-                             _(u'Une alerte a été envoyée '
-                               u'à l\'équipe concernant '
-                               u'ce message.'))
-        elif "preview" in request.POST:
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
-                return StreamingHttpResponse(content)
-            else:
-                form = PostForm(post.topic, request.user, initial={
-                    'text': request.POST.get('text')
-                })
-                form.helper.form_action = reverse("zds.forum.views.edit_post") + "?message=" + str(post_pk)
-                return render(request, "forum/post/edit.html", {
-                    "post": post,
-                    "topic": post.topic,
-                    "text": request.POST["text"],
-                    "form": form,
-                })
-        else:
-            # The user just sent data, handle them
-            if "text" in request.POST:
-                form_post = PostForm(post.topic, request.user, request.POST)
-
-                if not form_post.is_valid():
-                    form = PostForm(post.topic, request.user, initial={"text": post.text})
-                    form._errors = form_post._errors
-                    return render(request, "forum/post/edit.html", {
-                        "post": post,
-                        "topic": post.topic,
-                        "text": post.text,
-                        "form": form,
-                    })
-
-                post.text = request.POST["text"]
-                post.text_html = emarkdown(request.POST["text"])
-                post.update = datetime.now()
-                post.editor = request.user
-
-        post.save()
-        return redirect(post.get_absolute_url())
-    else:
-        form = PostForm(post.topic, request.user, initial={"text": post.text})
-        form.helper.form_action = reverse("zds.forum.views.edit_post") + "?message=" + str(post_pk)
-        return render(request, "forum/post/edit.html", {
-            "post": post,
-            "topic": post.topic,
-            "text": post.text,
-            "form": form,
+        form = self.create_form(self.form_class, **{
+            'text': self.object.text
         })
+        return render(request, self.template_name, {
+            'post': self.object,
+            'topic': self.object.topic,
+            'text': self.object.text,
+            'form': form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        if 'text' in request.POST:
+            form = self.get_form(self.form_class)
+
+            if 'preview' in request.POST:
+                if request.is_ajax():
+                    content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                    return StreamingHttpResponse(content)
+                else:
+                    form = self.create_form(self.form_class, **{
+                        'text': request.POST.get('text')
+                    })
+            elif form.is_valid():
+                return self.form_valid(form)
+            return render(request, self.template_name, {
+                'post': self.object,
+                'topic': self.object.topic,
+                'text': request.POST.get('text'),
+                'form': form,
+            })
+
+        if 'delete_message' in request.POST:
+            self.perform_hide_message(request, self.object, self.request.user, self.request.POST)
+        if 'show_message' in request.POST:
+            self.perform_show_message(self.object, self.request.user)
+        if 'signal_message' in request.POST:
+            self.perform_alert_message(request, self.object, request.user, request.POST.get('signal_text'))
+
+        self.object.save()
+        return redirect(self.object.get_absolute_url())
+
+    def get_object(self, queryset=None):
+        try:
+            post_pk = int(self.request.GET.get('message'))
+        except (KeyError, ValueError, TypeError):
+            raise Http404
+        return get_object_or_404(Post, pk=post_pk)
+
+    def create_form(self, form_class, **kwargs):
+        form = form_class(self.object.topic, self.request.user, initial=kwargs)
+        form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
+        return form
+
+    def get_form(self, form_class):
+        form = self.form_class(self.object.topic, self.request.user, self.request.POST)
+        form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
+        return form
+
+    def form_valid(self, form):
+        post = self.perform_edit_post(self.object, self.request.user, self.request.POST.get('text'))
+        return redirect(post.get_absolute_url())
 
 
 @can_write_and_read_now
