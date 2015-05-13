@@ -3384,6 +3384,50 @@ class ContentTests(TestCase):
             self.assertEqual(result.status_code, 302)
             self.assertEqual(json["title"], PublishableContent.objects.last().title)
 
+    def test_import_bad_archive(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        base = os.path.join(BASE_DIR, "fixtures", "tuto")
+        old_path = os.path.join(base, "article_v1")
+
+        shutil.move(os.path.join(old_path, "text.md"), os.path.join(old_path, "text2.md"))
+        shutil.make_archive(old_path, 'zip', old_path)
+        shutil.move(os.path.join(old_path, "text2.md"), os.path.join(old_path, "text.md"))
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(old_path + ".zip"),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+        msgs = result.context['messages']
+        levels = [msg.level for msg in msgs]
+        self.assertIn(messages.ERROR, levels)
+
+        shutil.copyfile(os.path.join(old_path, "manifest.json"), os.path.join(old_path,"manifest2.json"))
+        with open(os.path.join(old_path, "manifest.json"), "w") as man_file:
+            man_file.write('{"version":2, "type":"Kitty Cat"}')
+        shutil.make_archive(old_path, 'zip', old_path)
+        shutil.copyfile(os.path.join(old_path, "manifest2.json"), os.path.join(old_path, "manifest.json"))
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(old_path + ".zip"),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+        msgs = result.context['messages']
+        levels = [msg.level for msg in msgs]
+        self.assertIn(messages.ERROR, levels)
+
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

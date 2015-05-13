@@ -578,6 +578,9 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
             except BadArchiveError as e:
                 messages.error(self.request, e.message)
                 return super(CreateContentFromArchive, self).form_invalid(form)
+            except KeyError as e:
+                messages.error(self.request, _(e.message + u" n'est pas correctement renseigné"))
+                return super(CreateContentFromArchive, self).form_invalid(form)
             else:
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
