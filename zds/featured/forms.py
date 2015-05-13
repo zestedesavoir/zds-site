@@ -52,7 +52,7 @@ class FeaturedResourceForm(forms.ModelForm):
         max_length=FeaturedResource._meta.get_field('image_url').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Lien vers l\'url de l\'image de la une.')
+                'placeholder': _(u'Lien vers l\'url de l\'image de la une (228px par 228px).')
             }
         )
     )
