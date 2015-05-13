@@ -979,25 +979,17 @@ class ForumMemberTests(TestCase):
         """Test failing cases when a member try to mark as unread a post."""
 
         # parameter is missing
-        result = self.client.get(
-            reverse('zds.forum.views.unread_post'),
-            follow=False)
+        result = self.client.get(reverse('post-unread'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # parameter is weird
-        result = self.client.get(
-            reverse('zds.forum.views.unread_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.get(reverse('post-unread') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # pk doesn't (yet) exist
-        result = self.client.get(
-            reverse('zds.forum.views.unread_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.get(reverse('post-unread') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 

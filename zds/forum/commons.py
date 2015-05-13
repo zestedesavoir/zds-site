@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.detail import SingleObjectMixin
-from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post
+from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post, TopicRead
 from django.utils.translation import ugettext as _
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert
@@ -119,6 +119,24 @@ class PostEditMixin(object):
     def perform_useful(self, post):
         post.is_useful = not post.is_useful
         post.save()
+
+    def perform_unread_message(self, post, user):
+        if TopicFollowed.objects.filter(user=user, topic=post.topic).count() == 0:
+            TopicFollowed(user=user, topic=post.topic).save()
+
+        t = TopicRead.objects.filter(topic=post.topic, user=user).first()
+        if t is None:
+            if post.position > 1:
+                unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+                t = TopicRead(post=unread, topic=unread.topic, user=user)
+                t.save()
+        else:
+            if post.position > 1:
+                unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+                t.post = unread
+                t.save()
+            else:
+                t.delete()
 
     def perform_edit_post(self, post, user, text):
         post.update_content(text)

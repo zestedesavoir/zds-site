@@ -14,17 +14,16 @@ from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST, require_GET
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
-from models import Category, Forum, Topic, Post, never_read, mark_read, TopicFollowed
+from models import Category, Forum, Topic, Post, never_read, mark_read
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
-from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
@@ -511,46 +510,22 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return redirect(self.object.get_absolute_url())
 
 
-@can_write_and_read_now
-@login_required
-def unread_post(request):
-    """
-    Marks a post as "unread".
-    If the post is the first one, the whole topic is marked as "unread" - technically, the whole `TopicRead` entry is
-    removed.
-    If the post is not the first one, the topic is marked as "unread" starting this post - technically, the `TopicRead`
-    entry is updated or created.
-    """
+class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
-    try:
-        post_pk = int(request.GET["message"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    post = get_object_or_404(Post, pk=post_pk)
+    @method_decorator(require_GET)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.topic.forum.can_read(request.user):
+            raise PermissionDenied
+        return super(PostUnread, self).dispatch(request, *args, **kwargs)
 
-    # check that author can access the forum
+    def get(self, request, *args, **kwargs):
+        self.perform_unread_message(self.object, self.request.user)
 
-    if not post.topic.forum.can_read(request.user):
-        raise PermissionDenied
-    if TopicFollowed.objects.filter(user=request.user, topic=post.topic).count() == 0:
-        TopicFollowed(user=request.user, topic=post.topic).save()
-
-    t = TopicRead.objects.filter(topic=post.topic, user=request.user).first()
-    if t is None:
-        if post.position > 1:
-            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-            t = TopicRead(post=unread, topic=unread.topic, user=request.user)
-            t.save()
-    else:
-        if post.position > 1:
-            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-            t.post = unread
-            t.save()
-        else:
-            t.delete()
-
-    return redirect(reverse("forum-topics-list", args=[post.topic.forum.category.slug, post.topic.forum.slug]))
+        return redirect(reverse("forum-topics-list", args=[
+            self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
 # TODO nécessite une transaction ?

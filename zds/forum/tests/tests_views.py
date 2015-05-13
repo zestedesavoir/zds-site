@@ -1315,6 +1315,69 @@ class PostUsefulTest(TestCase):
         self.assertTrue(Post.objects.get(pk=topic.last_message.pk).is_useful)
 
 
+class PostUnreadTest(TestCase):
+    def test_failure_post_unread_require_method_get(self):
+        response = self.client.post(reverse('post-unread'), follow=False)
+
+        self.assertEqual(405, response.status_code)
+
+    def test_failure_post_unread_with_client_unauthenticated(self):
+        response = self.client.get(reverse('post-unread'), follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_post_unread_with_sanctioned_user(self):
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-unread'))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_post_unread_with_wrong_topic_pk(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-unread') + '?message=abc', follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_post_unread_with_a_topic_not_found(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-unread') + '?message=99999', follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_post_unread_of_a_forum_we_cannot_read(self):
+        group = Group.objects.create(name="DummyGroup_1")
+
+        profile = ProfileFactory()
+        category, forum = create_category(group)
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-unread') + '?message={}'.format(topic.last_message.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_post_unread(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_profile = ProfileFactory()
+        post = PostFactory(topic=topic, author=another_profile.user, position=2)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-unread') + '?message={}'.format(post.pk), follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+
 def create_category(group=None):
     category = CategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)
