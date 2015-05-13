@@ -28,7 +28,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
+from zds.utils.models import Alert, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
 
@@ -528,111 +528,40 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
-# TODO nécessite une transaction ?
-@can_write_and_read_now
-@login_required
-@require_POST
-def like_post(request):
-    """
-    The current user likes the post, or stops to like it if it was already liked. A like replaces the eventual existing
-    dislike on this post.
-    As the "like/dislike" data is de-normalized for performance purposes, also this also updates the de-normalized data
-    at `Post` level.
-    """
+class PostLike(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
-    try:
-        post_pk = int(request.GET["message"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    resp = {}
-    post = get_object_or_404(Post, pk=post_pk)
-    user = request.user
-    if not post.topic.forum.can_read(request.user):
-        raise PermissionDenied
-    if post.author.pk != request.user.pk:
+    @method_decorator(require_POST)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.topic.forum.can_read(request.user):
+            raise PermissionDenied
+        return super(PostLike, self).dispatch(request, *args, **kwargs)
 
-        # Making sure the user is allowed to do that
+    def post(self, request, *args, **kwargs):
+        self.perform_like_post(self.object, self.request.user)
 
-        if CommentLike.objects.filter(user__pk=user.pk,
-                                      comments__pk=post_pk).count() == 0:
-            like = CommentLike()
-            like.user = user
-            like.comments = post
-            post.like = post.like + 1
-            post.save()
-            like.save()
-            if CommentDislike.objects.filter(user__pk=user.pk,
-                                             comments__pk=post_pk).count() > 0:
-                CommentDislike.objects.filter(
-                    user__pk=user.pk,
-                    comments__pk=post_pk).all().delete()
-                post.dislike = post.dislike - 1
-                post.save()
-        else:
-            CommentLike.objects.filter(user__pk=user.pk,
-                                       comments__pk=post_pk).all().delete()
-            post.like = post.like - 1
-            post.save()
-    resp["upvotes"] = post.like
-    resp["downvotes"] = post.dislike
-    if request.is_ajax():
-        return HttpResponse(json.dumps(resp), content_type='application/json')
-    else:
-        return redirect(post.get_absolute_url())
+        if request.is_ajax():
+            resp = {
+                'upvotes': self.object.like,
+                'downvotes': self.object.dislike
+            }
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+        return redirect(self.object.get_absolute_url())
 
 
-# TODO nécessite une transaction ?
-@can_write_and_read_now
-@login_required
-@require_POST
-def dislike_post(request):
-    """
-    The current user dislikes the post, or stops to dislike it if it was already liked. A dislike replaces the eventual
-    existing like on this post.
-    As the "like/dislike" data is de-normalized for performance purposes, also this also updates the de-normalized data
-    at `Post` level.
-    """
+class PostDisLike(PostLike):
+    def post(self, request, *args, **kwargs):
+        self.perform_dislike_post(self.object, self.request.user)
 
-    try:
-        post_pk = int(request.GET["message"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
-    resp = {}
-    post = get_object_or_404(Post, pk=post_pk)
-    user = request.user
-    if not post.topic.forum.can_read(request.user):
-        raise PermissionDenied
-    if post.author.pk != request.user.pk:
-
-        # Making sure the user is allowed to do that
-
-        if CommentDislike.objects.filter(user__pk=user.pk,
-                                         comments__pk=post_pk).count() == 0:
-            dislike = CommentDislike()
-            dislike.user = user
-            dislike.comments = post
-            post.dislike = post.dislike + 1
-            post.save()
-            dislike.save()
-            if CommentLike.objects.filter(user__pk=user.pk,
-                                          comments__pk=post_pk).count() > 0:
-                CommentLike.objects.filter(user__pk=user.pk,
-                                           comments__pk=post_pk).all().delete()
-                post.like = post.like - 1
-                post.save()
-        else:
-            CommentDislike.objects.filter(user__pk=user.pk,
-                                          comments__pk=post_pk).all().delete()
-            post.dislike = post.dislike - 1
-            post.save()
-    resp["upvotes"] = post.like
-    resp["downvotes"] = post.dislike
-    if request.is_ajax():
-        return HttpResponse(json.dumps(resp))
-    else:
-        return redirect(post.get_absolute_url())
+        if request.is_ajax():
+            resp = {
+                'upvotes': self.object.like,
+                'downvotes': self.object.dislike
+            }
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+        return redirect(self.object.get_absolute_url())
 
 
 def find_post(request, user_pk):

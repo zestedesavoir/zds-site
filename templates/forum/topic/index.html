@@ -85,11 +85,11 @@
         {% endcaptureas %}
 
         {% captureas upvote_link %}
-            {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+            {% url 'post-like' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas downvote_link %}
-            {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+            {% url 'post-dislike' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}

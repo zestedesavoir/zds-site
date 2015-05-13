@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from . import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, TopicPostsListView, \
-    TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostUseful, PostUnread
+    TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostUseful, PostUnread, PostLike, PostDisLike
 
 
 urlpatterns = patterns('',
@@ -40,10 +40,8 @@ urlpatterns = patterns('',
                        url(r'^message/editer/$', PostEdit.as_view(), name='post-edit'),
                        url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
                        url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
-                       url(r'^message/like/$',
-                           'zds.forum.views.like_post'),
-                       url(r'^message/dislike/$',
-                           'zds.forum.views.dislike_post'),
+                       url(r'^message/like/$', PostLike.as_view(), name='post-like'),
+                       url(r'^message/dislike/$', PostDisLike.as_view(), name='post-dislike'),
                        url(r'^messages/(?P<user_pk>\d+)/$',
                            'zds.forum.views.find_post'),
 

@@ -553,11 +553,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 1)
@@ -580,11 +576,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post1.pk),
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 1)
@@ -611,25 +603,17 @@ class ForumMemberTests(TestCase):
         """Test failing cases when a member like any post."""
 
         # parameter is missing
-        result = self.client.post(
-            reverse('zds.forum.views.like_post'),
-            follow=False)
+        result = self.client.post(reverse('post-like'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # parameter is weird
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # pk doesn't (yet) exist
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -641,11 +625,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.post(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 1)
@@ -668,11 +648,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post1.pk),
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 1)
@@ -699,25 +675,17 @@ class ForumMemberTests(TestCase):
         """Test failing cases when a member dislike any post."""
 
         # parameter is missing
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post'),
-            follow=False)
+        result = self.client.post(reverse('post-dislike'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # parameter is weird
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.post(reverse('post-dislike') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # pk doesn't (yet) exist
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.post(reverse('post-dislike') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -1228,13 +1196,9 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 405)
         self.assertEqual(CommentLike.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
@@ -1251,13 +1215,9 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.dislike_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 405)
         self.assertEqual(CommentDislike.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)

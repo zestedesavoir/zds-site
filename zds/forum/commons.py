@@ -8,7 +8,7 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post, TopicRead
 from django.utils.translation import ugettext as _
 from zds.utils.forums import get_tag_by_title
-from zds.utils.models import Alert
+from zds.utils.models import Alert, CommentLike, CommentDislike
 
 
 class TopicEditMixin(object):
@@ -137,6 +137,42 @@ class PostEditMixin(object):
                 t.save()
             else:
                 t.delete()
+
+    def perform_like_post(self, post, user):
+        if post.author.pk != user.pk:
+            if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
+                like = CommentLike()
+                like.user = user
+                like.comments = post
+                post.like = post.like + 1
+                post.save()
+                like.save()
+                if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() > 0:
+                    CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
+                    post.dislike = post.dislike - 1
+                    post.save()
+            else:
+                CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
+                post.like = post.like - 1
+                post.save()
+
+    def perform_dislike_post(self, post, user):
+        if post.author.pk != user.pk:
+            if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
+                dislike = CommentDislike()
+                dislike.user = user
+                dislike.comments = post
+                post.dislike = post.dislike + 1
+                post.save()
+                dislike.save()
+                if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() > 0:
+                    CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
+                    post.like = post.like - 1
+                    post.save()
+            else:
+                CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
+                post.dislike = post.dislike - 1
+                post.save()
 
     def perform_edit_post(self, post, user, text):
         post.update_content(text)
