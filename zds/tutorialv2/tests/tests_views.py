@@ -3409,7 +3409,7 @@ class ContentTests(TestCase):
         levels = [msg.level for msg in msgs]
         self.assertIn(messages.ERROR, levels)
 
-        shutil.copyfile(os.path.join(old_path, "manifest.json"), os.path.join(old_path,"manifest2.json"))
+        shutil.copyfile(os.path.join(old_path, "manifest.json"), os.path.join(old_path, "manifest2.json"))
         with open(os.path.join(old_path, "manifest.json"), "w") as man_file:
             man_file.write('{"version":2, "type":"Kitty Cat"}')
         shutil.make_archive(old_path, 'zip', old_path)
@@ -3426,7 +3426,6 @@ class ContentTests(TestCase):
         msgs = result.context['messages']
         levels = [msg.level for msg in msgs]
         self.assertIn(messages.ERROR, levels)
-
 
     def tearDown(self):
 
