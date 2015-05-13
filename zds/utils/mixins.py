@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
+from zds import settings
+from zds.utils.models import Comment
 
 
 class FilterMixin(object):
@@ -35,3 +40,29 @@ class FilterMixin(object):
             self.filter_url_kwarg: self.get_filter_param(),
         })
         return context
+
+
+class QuoteMixin(object):
+    model_quote = None
+
+    def build_quote(self, post_pk):
+        assert self.model_quote is not None, ('Model for the quote cannot be None.')
+
+        try:
+            post_pk = int(post_pk)
+        except (KeyError, ValueError, TypeError):
+            raise Http404
+        post_cite = get_object_or_404(self.model_quote, pk=post_pk)
+
+        if isinstance(post_cite, Comment) and not post_cite.is_visible:
+            raise PermissionDenied
+
+        text = ''
+        for line in post_cite.text.splitlines():
+            text = text + "> " + line + "\n"
+
+        return _(u'{0}Source:[{1}]({2}{3})').format(
+            text,
+            post_cite.author.username,
+            settings.ZDS_APP['site']['url'],
+            post_cite.get_absolute_url())

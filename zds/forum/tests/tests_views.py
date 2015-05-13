@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+
+from datetime import datetime
+
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
-from zds.forum.models import TopicFollowed, Topic
+from zds.forum.models import TopicFollowed, Topic, Post
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 
 
@@ -704,6 +707,160 @@ class FindTopicByTagTest(TestCase):
         self.assertEqual(tag, response.context['tag'])
 
 
+class PostNewTest(TestCase):
+    def test_failure_new_post_with_client_unauthenticated(self):
+        response = self.client.post(reverse('post-new'))
+
+        self.assertEqual(302, response.status_code)
+
+    def test_failure_new_post_with_sanctioned_user(self):
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-new'))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_new_post_with_wrong_topic_pk(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-new') + '?sujet=abc', follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_edit_topic_with_a_topic_not_found(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-new') + '?sujet=99999', follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_failure_new_post_in_a_forum_we_cannot_read(self):
+        profile = ProfileFactory()
+        group = Group.objects.create(name="DummyGroup_1")
+        category, forum = create_category(group)
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_new_post_on_a_locked_topic(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile, is_locked=True)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_failure_new_post_stopped_by_anti_spam(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        topic.last_message.pubdate = datetime.now()
+        topic.last_message.save()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    def test_success_new_post_method_get(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(topic, response.context['topic'])
+        self.assertEqual(topic.last_message, response.context['posts'][0])
+        self.assertEqual(topic.last_message.pk, response.context['last_post_pk'])
+        self.assertIsNotNone(response.context['form'])
+
+    def test_success_new_post_with_quote_in_ajax(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(
+            reverse('post-new') + '?sujet={0}&cite={1}'.format(topic.pk, topic.last_message.pk),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_new_post_in_preview(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'text': 'A new post!',
+            'last_post': topic.last_message.pk
+        }
+        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(topic, response.context['topic'])
+        self.assertEqual(topic.last_message, response.context['posts'][0])
+        self.assertEqual(topic.last_message.pk, response.context['last_post_pk'])
+        self.assertIsNotNone(response.context['form'])
+
+    def test_success_new_post_in_preview_in_ajax(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'preview': '',
+            'text': 'A new post!',
+            'last_post': topic.last_message.pk
+        }
+        response = self.client.post(
+            reverse('post-new') + '?sujet={}'.format(topic.pk),
+            data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_success_new_post(self):
+        another_profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, another_profile)
+
+        profile = ProfileFactory()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'text': 'A new post!',
+            'last_post': topic.last_message.pk
+        }
+        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
+
+
 def create_category(group=None):
     category = CategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)
@@ -713,10 +870,11 @@ def create_category(group=None):
     return category, forum
 
 
-def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False):
+def add_topic_in_a_forum(forum, profile, is_sticky=False, is_solved=False, is_locked=False):
     topic = TopicFactory(forum=forum, author=profile.user)
     topic.is_sticky = is_sticky
     topic.is_solved = is_solved
+    topic.is_locked = is_locked
     topic.save()
     PostFactory(topic=topic, author=profile.user, position=1)
     return topic

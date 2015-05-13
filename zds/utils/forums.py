@@ -1,8 +1,20 @@
 # coding: utf-8
 
+import json
+
 from datetime import datetime
-from zds.forum.models import Topic, Post, follow
+from django.core.mail import EmailMultiAlternatives
+from django.http import HttpResponse, StreamingHttpResponse
+from django.shortcuts import render, render_to_response
+from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
+from django.views.generic import CreateView
+from django.views.generic.detail import SingleObjectMixin
+
+from zds import settings
+from zds.forum.models import Topic, Post, follow, TopicRead
 from zds.member.views import get_client_ip
+from zds.utils.mixins import QuoteMixin
 
 
 def get_tag_by_title(title):
@@ -76,18 +88,15 @@ def create_topic(
     n_topic.save()
 
     # Add the first message
-    send_post(request, n_topic, text)
-
-    follow(n_topic, user=author)
+    send_post(request, n_topic, n_topic.author, text)
 
     return n_topic
 
 
-def send_post(request, topic, text):
-
+def send_post(request, topic, author, text, send_by_mail=False,):
     post = Post()
     post.topic = topic
-    post.author = topic.author
+    post.author = author
     post.update_content(text)
     post.pubdate = datetime.now()
     if topic.last_message is not None:
@@ -100,6 +109,42 @@ def send_post(request, topic, text):
     topic.last_message = post
     topic.save()
 
+    # Send mail
+    if send_by_mail:
+        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'], _(u'Forum'), topic.title)
+        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                      settings.ZDS_APP['site']['email_noreply'])
+
+        followers = topic.get_followers_by_email()
+        for follower in followers:
+            receiver = follower.user
+            if receiver == post.author:
+                continue
+            last_read = TopicRead.objects.filter(
+                topic=topic,
+                post__position=post.position - 1,
+                user=receiver).count()
+            if last_read > 0:
+                context = {
+                    'username': receiver.username,
+                    'title': topic.title,
+                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                    'author': post.author.username,
+                    'site_name': settings.ZDS_APP['site']['litteral_name']
+                }
+                message_html = render_to_string('email/forum/new_post.html', context)
+                message_txt = render_to_string('email/forum/new_post.txt', context)
+
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
+                msg.attach_alternative(message_html, "text/html")
+                msg.send()
+
+    # Follow topic on answering
+    if not topic.is_followed(user=post.author):
+        follow(topic)
+
+    return topic
+
 
 def lock_topic(topic):
     topic.is_locked = True
@@ -109,3 +154,53 @@ def lock_topic(topic):
 def unlock_topic(topic):
     topic.is_locked = False
     topic.save()
+
+
+class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
+    posts = None
+
+    def get(self, request, *args, **kwargs):
+        assert self.posts is not None, ('Posts cannot be None.')
+
+        text = ''
+
+        # Using the quote button
+        if "cite" in request.GET:
+            text = self.build_quote(request.GET.get('cite'))
+
+            if request.is_ajax():
+                return HttpResponse(json.dumps({'text': text}), content_type='application/json')
+
+        form = self.create_forum(self.form_class, **{'text': text})
+        return render(request, self.template_name, {
+            'topic': self.object,
+            'posts': self.posts,
+            'last_post_pk': self.object.last_message.pk,
+            'form': form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.form_class)
+        new_post = None
+        if not request.is_ajax():
+            new_post = self.object.last_message.pk != int(request.POST.get('last_post'))
+
+        if 'preview' in request.POST or new_post:
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+            else:
+                form = self.create_forum(self.form_class, **{'text': request.POST.get('text')})
+        elif form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {
+            'topic': self.object,
+            'posts': self.posts,
+            'last_post_pk': self.object.last_message.pk,
+            'newpost': new_post,
+            'form': form,
+        })
+
+    def create_forum(self, form_class, **kwargs):
+        raise NotImplementedError('`create_forum()` must be implemented.')

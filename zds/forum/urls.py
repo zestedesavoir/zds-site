@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from . import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, TopicPostsListView, \
-    TopicNew, TopicEdit, FindTopic, FindTopicByTag
+    TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew
 
 
 urlpatterns = patterns('',
@@ -36,10 +36,9 @@ urlpatterns = patterns('',
                        url(r'^sujets/recherche/$', 'zds.forum.views.complete_topic'),
 
                        # Message-related
+                       url(r'^message/nouveau/$', PostNew.as_view(), name='post-new'),
                        url(r'^message/editer/$',
                            'zds.forum.views.edit_post'),
-                       url(r'^message/nouveau/$',
-                           'zds.forum.views.answer'),
                        url(r'^message/utile/$',
                            'zds.forum.views.useful_post'),
                        url(r'^message/nonlu/$',

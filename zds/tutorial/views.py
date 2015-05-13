@@ -741,7 +741,7 @@ def modify_tutorial(request):
                                                                         tutorial.get_absolute_url_beta()))
                         messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
                     unlock_topic(topic)
-                    send_post(request, topic, msg_up)
+                    send_post(request, topic, topic.author, msg_up)
             else:
                 messages.error(request, _(u"La BETA sur ce tutoriel n'a malheureusement pas pu être activée."))
             return redirect(tutorial.get_absolute_url_beta())
@@ -754,7 +754,7 @@ def modify_tutorial(request):
                     (_(u'Désactivation de la beta du tutoriel  **{}**'
                        u'\n\nPour plus d\'informations envoyez moi un message privé.').format(tutorial.title))
                 lock_topic(topic)
-                send_post(request, topic, msg)
+                send_post(request, topic, topic.author, msg)
             messages.info(request, _(u"La BETA sur ce tutoriel a bien été désactivée."))
 
             return redirect(tutorial.get_absolute_url())

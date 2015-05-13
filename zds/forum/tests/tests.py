@@ -185,7 +185,7 @@ class ForumMemberTests(TestCase):
 
         # check if we send ane empty text
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u''
@@ -199,7 +199,7 @@ class ForumMemberTests(TestCase):
 
         # now check what happen if everything is fine
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -231,7 +231,7 @@ class ForumMemberTests(TestCase):
 
         # test antispam return 403
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'Testons l\'antispam'
@@ -254,7 +254,7 @@ class ForumMemberTests(TestCase):
 
         # missing parameter
         result = self.client.post(
-            reverse('zds.forum.views.answer'),
+            reverse('post-new'),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -265,7 +265,7 @@ class ForumMemberTests(TestCase):
 
         # weird parameter
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet=' + 'abc',
+            reverse('post-new') + '?sujet=' + 'abc',
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -276,7 +276,7 @@ class ForumMemberTests(TestCase):
 
         # non-existing (yet) parameter
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet=' + '424242',
+            reverse('post-new') + '?sujet=' + '424242',
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -462,14 +462,12 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite={1}'.format(
-            topic1.pk, post2.pk), follow=True)
+        result = self.client.get(reverse('post-new') + '?sujet={0}&cite={1}'.format(topic1.pk, post2.pk), follow=True)
 
         self.assertEqual(result.status_code, 200)
 
         # if the quote pk is altered
-        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite=abcd'.format(
-            topic1.pk), follow=True)
+        result = self.client.get(reverse('post-new') + '?sujet={0}&cite=abcd'.format(topic1.pk), follow=True)
 
         self.assertEqual(result.status_code, 404)
 
@@ -921,7 +919,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u' '
@@ -1134,7 +1132,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -1243,12 +1241,7 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.answer') +
-            '?sujet={0}&cite={0}'.format(
-                topic1.pk,
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-new') + '?sujet={0}&cite={0}'.format(topic1.pk, post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 

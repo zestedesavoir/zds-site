@@ -9,13 +9,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
-from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
@@ -25,13 +23,12 @@ from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from forms import TopicForm, PostForm, MoveTopicForm
-from models import Category, Forum, Topic, Post, follow, never_read, mark_read, TopicFollowed
+from models import Category, Forum, Topic, Post, never_read, mark_read, TopicFollowed
 from zds.forum.commons import TopicEditMixin
 from zds.forum.models import TopicRead
 from zds.member.decorator import can_write_and_read_now
-from zds.member.views import get_client_ip
 from zds.utils import slugify
-from zds.utils.forums import get_tag_by_title, create_topic
+from zds.utils.forums import get_tag_by_title, create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, CommentLike, CommentDislike, Tag
 from zds.utils.mps import send_mp
@@ -124,7 +121,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
-        form.helper.form_action = reverse("zds.forum.views.answer") + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
         context.update({
             'topic': self.object,
             'posts': self.build_list_with_previous_item(context['object_list']),
@@ -314,172 +311,50 @@ class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         return queryset
 
 
-@can_write_and_read_now
-@login_required
-@transaction.atomic
-def answer(request):
-    """
-    Answers (= add a new post) to an existing topic.
-    This method also allows the user to preview its answer.
-    If there is at least one new answer since the beginning of post redaction, the system displays the updated topic and
-    asks the user if it wants to posts its answers as is or edit it before re-send it. This is done by sending the
-    "current" last post ID with in the new form post and check on submit if there is a new last post ID.
-    """
+class PostNew(CreatePostView):
 
-    try:
-        topic_pk = int(request.GET["sujet"])
-    except (KeyError, ValueError):
-        # problem in variable format
-        raise Http404
+    model_quote = Post
+    template_name = 'forum/post/new.html'
+    form_class = PostForm
+    object = None
+    posts = None
 
-    # Retrieve current topic.
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.forum.can_read(request.user):
+            raise PermissionDenied
+        if self.object.is_locked:
+            raise PermissionDenied
+        if self.object.antispam(request.user):
+            raise PermissionDenied
+        self.posts = Post.objects.filter(topic=self.object) \
+                         .prefetch_related() \
+                         .order_by("-position")[:settings.ZDS_APP['forum']['posts_per_page']]
+        return super(PostNew, self).dispatch(request, *args, **kwargs)
 
-    g_topic = get_object_or_404(Topic, pk=topic_pk)
-    if not g_topic.forum.can_read(request.user):
-        raise PermissionDenied
+    def create_forum(self, form_class, **kwargs):
+        form = form_class(self.object, self.request.user, initial=kwargs)
+        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        return form
 
-    # Making sure posting is allowed
+    def get_form(self, form_class):
+        form = self.form_class(self.object, self.request.user, self.request.POST)
+        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        return form
 
-    if g_topic.is_locked:
-        raise PermissionDenied
+    def form_valid(self, form):
+        topic = send_post(self.request, self.object, self.request.user, form.data.get('text'), send_by_mail=True)
+        return redirect(topic.last_message.get_absolute_url())
 
-    # Check that the user isn't spamming
-
-    if g_topic.antispam(request.user):
-        raise PermissionDenied
-    last_post_pk = g_topic.last_message.pk
-
-    # Retrieve last posts of the current topic.
-    posts = Post.objects.filter(topic=g_topic) \
-        .prefetch_related() \
-        .order_by("-position")[:settings.ZDS_APP['forum']['posts_per_page']]
-
-    # User would like preview his post or post a new post on the topic.
-
-    if request.method == "POST":
-        data = request.POST
-        newpost = last_post_pk != int(data["last_post"])
-
-        # Using the "preview button", the "more" button or new post
-
-        if "preview" in data or newpost:
-            form = PostForm(g_topic, request.user, initial={"text": data["text"]})
-            form.helper.form_action = reverse("zds.forum.views.answer") \
-                + "?sujet=" + str(g_topic.pk)
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': data['text']})
-                return StreamingHttpResponse(content)
-            else:
-                return render(request, "forum/post/new.html", {
-                    "text": data["text"],
-                    "topic": g_topic,
-                    "posts": posts,
-                    "last_post_pk": last_post_pk,
-                    "newpost": newpost,
-                    "form": form,
-                })
-        else:
-
-            # Saving the message
-
-            form = PostForm(g_topic, request.user, request.POST)
-            if form.is_valid():
-                data = form.data
-                post = Post()
-                post.topic = g_topic
-                post.author = request.user
-                post.text = data["text"]
-                post.text_html = emarkdown(data["text"])
-                post.pubdate = datetime.now()
-                post.position = g_topic.get_post_count() + 1
-                post.ip_address = get_client_ip(request)
-                post.save()
-                g_topic.last_message = post
-                g_topic.save()
-
-                # Send mail
-                subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
-                                                 _(u'Forum'),
-                                                 g_topic.title)
-                from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                              settings.ZDS_APP['site']['email_noreply'])
-
-                followers = g_topic.get_followers_by_email()
-                for follower in followers:
-                    receiver = follower.user
-                    if receiver == request.user:
-                        continue
-                    pos = post.position - 1
-                    last_read = TopicRead.objects.filter(
-                        topic=g_topic,
-                        post__position=pos,
-                        user=receiver).count()
-                    if last_read > 0:
-                        context = {
-                            'username': receiver.username,
-                            'title': g_topic.title,
-                            'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                            'author': request.user.username,
-                            'site_name': settings.ZDS_APP['site']['litteral_name']
-                        }
-                        message_html = render_to_string('email/forum/new_post.html', context)
-                        message_txt = render_to_string('email/forum/new_post.txt', context)
-
-                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        msg.send()
-
-                # Follow topic on answering
-                if not g_topic.is_followed(user=request.user):
-                    follow(g_topic)
-                return redirect(post.get_absolute_url())
-            else:
-                return render(request, "forum/post/new.html", {
-                    "text": data["text"],
-                    "topic": g_topic,
-                    "posts": posts,
-                    "last_post_pk": last_post_pk,
-                    "newpost": newpost,
-                    "form": form,
-                })
-    else:
-
-        # Actions from the editor render to new.html.
-
-        text = ""
-
-        # Using the quote button
-
-        if "cite" in request.GET:
-            resp = {}
-            try:
-                post_cite_pk = int(request.GET["cite"])
-            except ValueError:
-                raise Http404
-            post_cite = Post.objects.get(pk=post_cite_pk)
-            if not post_cite.is_visible:
-                raise PermissionDenied
-            for line in post_cite.text.splitlines():
-                text = text + "> " + line + "\n"
-            text = u"{0}Source:[{1}]({2}{3})".format(
-                text,
-                post_cite.author.username,
-                settings.ZDS_APP['site']['url'],
-                post_cite.get_absolute_url())
-
-            if request.is_ajax():
-                resp["text"] = text
-                return HttpResponse(json.dumps(resp), content_type='application/json')
-
-        form = PostForm(g_topic, request.user, initial={"text": text})
-        form.helper.form_action = reverse("zds.forum.views.answer") \
-            + "?sujet=" + str(g_topic.pk)
-        return render(request, "forum/post/new.html", {
-            "topic": g_topic,
-            "posts": posts,
-            "last_post_pk": last_post_pk,
-            "form": form,
-        })
+    def get_object(self, queryset=None):
+        try:
+            topic_pk = int(self.request.GET.get('sujet'))
+        except (KeyError, ValueError, TypeError):
+            raise Http404
+        return get_object_or_404(Topic, pk=topic_pk)
 
 
 @can_write_and_read_now
