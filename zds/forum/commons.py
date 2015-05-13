@@ -12,20 +12,24 @@ from zds.utils.models import Alert, CommentLike, CommentDislike
 
 
 class TopicEditMixin(object):
-    def perform_follow(self, topic, user):
+    @staticmethod
+    def perform_follow(topic, user):
         return follow(topic, user)
 
-    def perform_follow_by_email(self, topic, user):
+    @staticmethod
+    def perform_follow_by_email(topic, user):
         return follow_by_email(topic, user)
 
-    def perform_solved(self, user, topic):
+    @staticmethod
+    def perform_solved(user, topic):
         if user == topic.author or user.has_perm("forum.change_topic"):
             topic.is_solved = not topic.is_solved
             return topic.is_solved
         else:
             raise PermissionDenied
 
-    def perform_lock(self, topic, request):
+    @staticmethod
+    def perform_lock(topic, request):
         if request.user.has_perm("forum.change_topic"):
             topic.is_locked = request.POST.get('lock') == "true"
             if topic.is_locked:
@@ -36,7 +40,8 @@ class TopicEditMixin(object):
         else:
             raise PermissionDenied
 
-    def perform_sticky(self, topic, request):
+    @staticmethod
+    def perform_sticky(topic, request):
         if request.user.has_perm("forum.change_topic"):
             topic.is_sticky = request.POST.get('sticky') == 'true'
             if topic.is_sticky:
@@ -47,7 +52,8 @@ class TopicEditMixin(object):
         else:
             raise PermissionDenied
 
-    def perform_move(self, request, topic):
+    @staticmethod
+    def perform_move(request, topic):
         if request.user.has_perm("forum.change_topic"):
             try:
                 forum_pk = int(request.POST.get('forum'))
@@ -66,7 +72,8 @@ class TopicEditMixin(object):
         else:
             raise PermissionDenied
 
-    def perform_edit_info(self, topic, data, editor):
+    @staticmethod
+    def perform_edit_info(topic, data, editor):
         (tags, title) = get_tag_by_title(data.get('title'))
         topic.title = title
         topic.subtitle = data.get('subtitle')
@@ -85,7 +92,8 @@ class TopicEditMixin(object):
 
 
 class PostEditMixin(object):
-    def perform_hide_message(self, request, post, user, data):
+    @staticmethod
+    def perform_hide_message(request, post, user, data):
         if post.author == user or user.has_perm('forum.change_post'):
             post.alerts.all().delete()
             post.is_visible = False
@@ -98,14 +106,16 @@ class PostEditMixin(object):
         else:
             raise PermissionDenied
 
-    def perform_show_message(self, post, user):
+    @staticmethod
+    def perform_show_message(post, user):
         if user.has_perm('forum.change_post'):
             post.is_visible = True
             post.text_hidden = ''
         else:
             raise PermissionDenied
 
-    def perform_alert_message(self, request, post, user, alert_text):
+    @staticmethod
+    def perform_alert_message(request, post, user, alert_text):
         alert = Alert()
         alert.author = user
         alert.comment = post
@@ -116,29 +126,32 @@ class PostEditMixin(object):
 
         messages.success(request, _(u'Une alerte a été envoyée à l\'équipe concernant ce message.'))
 
-    def perform_useful(self, post):
+    @staticmethod
+    def perform_useful(post):
         post.is_useful = not post.is_useful
         post.save()
 
-    def perform_unread_message(self, post, user):
+    @staticmethod
+    def perform_unread_message(post, user):
         if TopicFollowed.objects.filter(user=user, topic=post.topic).count() == 0:
             TopicFollowed(user=user, topic=post.topic).save()
 
-        t = TopicRead.objects.filter(topic=post.topic, user=user).first()
-        if t is None:
+        topic_read = TopicRead.objects.filter(topic=post.topic, user=user).first()
+        if topic_read is None:
             if post.position > 1:
                 unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-                t = TopicRead(post=unread, topic=unread.topic, user=user)
-                t.save()
+                topic_read = TopicRead(post=unread, topic=unread.topic, user=user)
+                topic_read.save()
         else:
             if post.position > 1:
                 unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-                t.post = unread
-                t.save()
+                topic_read.post = unread
+                topic_read.save()
             else:
-                t.delete()
+                topic_read.delete()
 
-    def perform_like_post(self, post, user):
+    @staticmethod
+    def perform_like_post(post, user):
         if post.author.pk != user.pk:
             if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
                 like = CommentLike()
@@ -156,7 +169,8 @@ class PostEditMixin(object):
                 post.like = post.like - 1
                 post.save()
 
-    def perform_dislike_post(self, post, user):
+    @staticmethod
+    def perform_dislike_post(post, user):
         if post.author.pk != user.pk:
             if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
                 dislike = CommentDislike()
@@ -174,7 +188,8 @@ class PostEditMixin(object):
                 post.dislike = post.dislike - 1
                 post.save()
 
-    def perform_edit_post(self, post, user, text):
+    @staticmethod
+    def perform_edit_post(post, user, text):
         post.update_content(text)
         post.update = datetime.now()
         post.editor = user

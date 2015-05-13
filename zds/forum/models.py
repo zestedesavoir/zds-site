@@ -469,8 +469,8 @@ def follow(topic, user=None):
 
     if not existing:
         # Make the user follow the topic
-        t = TopicFollowed(topic=topic, user=user)
-        t.save()
+        topic_followed = TopicFollowed(topic=topic, user=user)
+        topic_followed.save()
         return True
 
     # If user is already following the topic, we make him don't anymore
@@ -494,8 +494,8 @@ def follow_by_email(topic, user=None):
 
     if not existing:
         # Make the user follow the topic
-        t = TopicFollowed(topic=topic, user=user, email=True)
-        t.save()
+        topic_followed = TopicFollowed(topic=topic, user=user, email=True)
+        topic_followed.save()
         return True
 
     existing.email = not existing.email

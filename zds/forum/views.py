@@ -3,7 +3,6 @@
 import json
 
 from django.conf import settings
-from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -21,8 +20,8 @@ from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
-from forms import TopicForm, PostForm, MoveTopicForm
-from models import Category, Forum, Topic, Post, never_read, mark_read
+from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
+from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
@@ -564,48 +563,14 @@ class PostDisLike(PostLike):
         return redirect(self.object.get_absolute_url())
 
 
-def find_post(request, user_pk):
-    """
-    Displays all posts of a user, paginated with `settings.ZDS_APP['forum']['posts_per_page']` post per page.
-    Only the posts the current user can read are displayed.
-    :param user_pk: the user to find the posts.
-    """
+class FindPost(FindTopic):
 
-    displayed_user = get_object_or_404(User, pk=user_pk)
-    user = request.user
+    context_object_name = 'posts'
+    template_name = 'forum/find/post.html'
+    paginate_by = settings.ZDS_APP['forum']['posts_per_page']
 
-    if user.has_perm("forum.change_post"):
-        posts = \
-            Post.objects.filter(author=displayed_user)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=user.groups.all()))\
-            .prefetch_related("author")\
-            .order_by("-pubdate").all()
-    else:
-        posts = \
-            Post.objects.filter(author=displayed_user)\
-            .filter(is_visible=True)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=user.groups.all()))\
-            .prefetch_related("author").order_by("-pubdate").all()
-
-    # Paginator
-    paginator = Paginator(posts, settings.ZDS_APP['forum']['posts_per_page'])
-    page = request.GET.get("page")
-    try:
-        shown_posts = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_posts = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_posts = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-
-    return render(request, "forum/find/post.html", {
-        "posts": shown_posts,
-        "usr": displayed_user,
-        "pages": paginator_range(page, paginator.num_pages),
-        "nb": page,
-    })
+    def get_queryset(self):
+        return Post.objects.get_all_messages_of_a_user(self.request.user, self.object)
 
 
 @login_required
