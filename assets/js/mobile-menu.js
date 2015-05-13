@@ -71,7 +71,10 @@
                 /**
                  * Build sidebar menu from page
                  */
-                appendToSidebar($("#search"), true);
+
+                var search = $('<div class="search header-right"><div class="search header-right mobile-menu-imported"> <form action="/rechercher/"> <input type="text" name="q" placeholder="Rechercher"> <button type="submit" class="ico-after search-submit" title="Lancer la recherche">OK</button> </form> <a href="/rechercher/" title="Recherche avancée" class="search-more"></a> </div></div>');
+
+                appendToSidebar($(search), true);
                 appendToSidebar($(".logbox .my-account"), true);
                 appendToSidebar($(".header-menu"));
 
@@ -104,7 +107,7 @@
                     if(swipping || parseInt(e.originalEvent.touches[0].pageX, 10) - $(this).offset().left < borderWidth){
                         e.preventDefault();
                         $("body:not(.swipping)").addClass("swipping");
-                        
+
                         swipping   = true;
 
                         var toMove = parseInt(e.originalEvent.touches[0].pageX, 10) - beginTouchDown;
@@ -137,7 +140,7 @@
                     }
                 });
 
-                
+
                 $(".page-container").on("click", function(e){
                     if($("html").hasClass("show-mobile-menu")){
                         toggleMobileMenu(false);
