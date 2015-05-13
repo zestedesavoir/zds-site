@@ -10,9 +10,9 @@ class FeaturedResourceManager(models.Manager):
     Custom featured resource manager.
     """
 
-    def get_last_news(self):
-        queryset = super(FeaturedResourceManager, self).get_queryset()
-        return queryset.order_by('-pubdate')[:settings.ZDS_APP['featured_resource']['home_number']]
+    def get_last_featured(self):
+        return self.order_by('-pubdate') \
+            .prefetch_related('authors__user')[:settings.ZDS_APP['featured_resource']['home_number']]
 
 
 class FeaturedMessageManager(models.Manager):
@@ -22,6 +22,6 @@ class FeaturedMessageManager(models.Manager):
 
     def get_last_message(self):
         try:
-            return super(FeaturedMessageManager, self).get_queryset().all()[:1].get()
+            return self.all()[:1].get()
         except ObjectDoesNotExist:
             return None

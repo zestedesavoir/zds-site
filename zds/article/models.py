@@ -311,6 +311,7 @@ def get_last_articles():
     return Article.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
+        .prefetch_related('authors', 'subcategory') \
         .order_by('-pubdate')[:n]
 
 
