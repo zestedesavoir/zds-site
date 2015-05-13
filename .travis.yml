@@ -51,10 +51,11 @@ install:
       ./scripts/install_texlive.sh
       export PATH=~/.texlive/bin/x86_64-linux:$PATH
     fi
+  - export RESOURCES_URL="http://www.googledrive.com/host/0BzabS14KitJgfmV2ekdWSktmVEpieU93TG11RFNkWlZqS0JwZk93ZGhMR1lCWVg5NzFVc00"
   # Add fonts
   - mkdir -p ~/.fonts/truetype
-  - wget -P ~/.fonts/truetype https://www.dropbox.com/s/4vzkldw55iag546/Andale-Mono.ttf
-  - wget -P ~/.fonts/truetype https://www.dropbox.com/s/ema28tjn52960mq/Merriweather.zip
+  - wget -P ~/.fonts/truetype $RESOURCES_URL/Andale-Mono.ttf
+  - wget -P ~/.fonts/truetype $RESOURCES_URL/Merriweather.zip
   - unzip ~/.fonts/truetype/Merriweather.zip -d ~/.fonts/truetype/Merriweather/
   - chmod a+r ~/.fonts/truetype/Merriweather/*.ttf
   - chmod a+r ~/.fonts/truetype/Andale-Mono.ttf
@@ -63,9 +64,9 @@ install:
   # Cabal + Pandoc stuff
   - mkdir -p ~/cabal/bin
   - mkdir -p ~/.pandoc
-  - wget -P ~/cabal/bin https://dl.dropboxusercontent.com/u/18967337/pandoc
-  - wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.epub
-  - wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.html
+  - wget -P ~/cabal/bin $RESOURCES_URL/pandoc
+  - wget -P ~/.pandoc/templates $RESOURCES_URL/default.epub
+  - wget -P ~/.pandoc/templates $RESOURCES_URL/default.html
   - touch ~/.pandoc/epub.css
   - touch ~/.pandoc/templates/epub.css
   - chmod u+x,g+x,o+x ~/cabal/bin/pandoc
@@ -74,7 +75,7 @@ install:
 
   # Python dependencies
   - travis_retry pip install coveralls
-  - travis_retry pip install tox
+  - travis_retry pip install tox==2.0.1
 
 script:
   - tox $TEST_APP
