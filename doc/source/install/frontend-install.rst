@@ -2,19 +2,15 @@
 Installation du frontend
 ========================
 
-Vous voulez nous aider au développement du frontend ? Installez Node.js et npm grâce aux instructions qui suivent !
+Vous voulez nous aider au développement du frontend ? Trois paquets sont à installer : Node.js, npm, et Gulp. Laissez-vous guider...
 
 Installation de Node.js et npm
-==============================
-Le serveur Python nécessite notamment deux paquets logiciels issus du JavaScript, deux dépendances :
+============================
+Brève présentation de ces deux paquets.
+---------------------------------------
 
-- node.js (couche logicielle installable sur un serveur Web pour utiliser le langage JavaScript côté-serveur),
+- node.js (couche logicielle permettant dans ce projet de faire fonctionner des outils JavaScript comme Gulp, outils qui bien sûr sont utilisés),
 - npm (gestionnaire de modules de node.js – car oui, node.js est modulaire : on peut étoffer ses fonctionnalités en installant divers modules).
-
-Normalement et en toute rigueur, ces dépendances sont à installer dans un environnement virtuel JavaScript. Cependant, son existence n'a pas encore été décidée par l'équipe de développement de Zeste de Savoir. Rappelons que le seul environnement virtuel existant est dédié au serveur Python et à ses dépendances qui sont des paquets exclusivement Python. Ainsi, il ne faut pas y installer de paquet JavaScript.
-
-Il est donc nécessaire d'installer node.js et npm directement sur votre distribution Fedora. Si vous refusez catégoriquement de la polluer et que vous souhaitez ardement contribuer au projet Zeste de Savoir, nous vous invitons à nous rejoindre ou à nous contacter afin de mettre en place avec nos développeurs un environnement virtuel JavaScript.
-
 
 
 Windows
@@ -84,7 +80,9 @@ Il vous faut tout simplement faire :
 
 .. sourcecode:: bash
 
-    sudo dnf install -y nodejs
+    sudo yum install -y nodejs
+    
+Attention, pensez à remplacer "yum" par "dnf" si vous utilisez une version de Fedora supérieure ou égale à 22. C'est le nouveau gestionnaire de paquets par défaut.
 
 Arch Linux
 ~~~~~~~~~~
@@ -135,7 +133,7 @@ Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devr
 Installation des dépendances npm
 --------------------------------
 
-L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet :
+L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet (vous devez donc avoir git-cloné ce dernier) :
 
 .. sourcecode:: bash
 
