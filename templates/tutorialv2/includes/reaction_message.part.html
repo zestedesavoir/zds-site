@@ -5,7 +5,7 @@
 {% load i18n %}
 
 
-{% if topic.author = message.author and helpful_link %}
+{% if topic.author == message.author and helpful_link %}
     {% set True as is_author %}
 {% else %}
     {% set False as is_author %}
@@ -107,7 +107,7 @@
                         {% endif %}
                     {% endif %}
 
-                    {% if cite_link and not topic.is_locked and not topic.antispam %}
+                    {% if cite_link and not topic.is_locked and not isantispam %}
                         <li>
                             <a href="{{ cite_link|safe }}" class="ico-after cite" data-ajax-input="cite-message">
                                 {% trans "Citer" %}

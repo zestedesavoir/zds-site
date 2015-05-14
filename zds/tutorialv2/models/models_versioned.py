@@ -923,6 +923,7 @@ class VersionedContent(Container):
     pubdate = None
     update_date = None
     source = None
+    antispam = True
 
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """
