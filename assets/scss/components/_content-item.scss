@@ -164,6 +164,13 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         font-size: 1.3rem;
         line-height: 15px;
 
+        & > * {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
         .short {
             display: none;
         }
@@ -318,9 +325,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
                 & > * {
                     display: block;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
                 }
             }
         }
