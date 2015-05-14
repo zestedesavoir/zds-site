@@ -186,7 +186,7 @@ Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``n
 
 Commande de génération du front-end :
 .. sourcecode:: bash
-  npm run gulp – build
+    npm run gulp – build
 
 
 Nettoyage des outils
