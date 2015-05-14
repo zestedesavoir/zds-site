@@ -70,8 +70,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .select_related('editor')\
             .prefetch_related('author__post_liked')\
             .prefetch_related('author__post_disliked')\
-            .prefetch_related('alert')\
-            .prefetch_related('alert__author')\
+            .prefetch_related('alerts')\
+            .prefetch_related('alerts__author')\
             .filter(related_content=self.object)\
             .order_by("pubdate")
 
