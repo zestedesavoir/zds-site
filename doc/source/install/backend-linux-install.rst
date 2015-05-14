@@ -9,7 +9,7 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 
 **NB** : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.
 
-Assurez vous que les dépendances suivantes soient résolues :
+Assurez-vous que les dépendances suivantes soient résolues :
 
 - git : ``apt-get install git``
 - python2.7
@@ -54,11 +54,10 @@ Et sous Fedora (prenez-garde, l'ordre a son importance) :
 
 .. sourcecode:: bash
 
-sudo dnf install git python python-devel python-setuptools
-sudo easy_install pip
-sudo pip install tox
-sudo dnf install geoip geoip-devel libxml-devel libxslt-devel zlib-devel libjpeg libjpeg-devel
-freetype freetype-devel
+    sudo dnf install git python python-devel python-setuptools
+    sudo easy_install pip
+    sudo pip install tox
+    sudo dnf install geoip geoip-devel libxml-devel libxslt-devel zlib-devel libjpeg libjpeg-devel freetype freetype-devel
 
 Toutes ces dépendances sont nécessaires au serveur Python, qui fait partie de l'environnement virtuel dans la configuration qui vous est proposée ici.
 
@@ -77,9 +76,7 @@ Commande de création de l'environnement de travail pour le projet Zeste de Savo
 
 .. sourcecode:: bash
 
-virtualenv <chemin de répertoires que vous souhaitez + nom de l'environnement virtuel, par
-exemple « zds-virtual-env » (en tout, cela peut donc être : « /home/pnom/Documents/zds-virtual-
-env ») > --python=python2
+    virtualenv <chemin de répertoires que vous souhaitez + nom de l'environnement virtuel, par exemple « zds-virtual-env » (en tout, cela peut donc être : « /home/pnom/Documents/zds-virtual-env ») > --python=python2
 
 
 Une documentation plus complète de cet outil `est disponible ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
@@ -89,23 +86,7 @@ Récupération du code-source de Zeste de Savoir
 ==============================================
 L'équipe de développement de Zeste de Savoir utilise la plateforme GitHub pour gérer les sources du site Web. Le dépôt officiel est situé à cette URL : https://github.com/zestedesavoir/zds-site. L'enjeu de cette partie est de récupérer ces sources grâce au paquet « git ».
 
-Tout d'abord, créez-vous un compte GitHub.
-
-Générez une paire de clés (protocole SSH) pour que GitHub et votre paquet « git » puissent communiquer de manière sécurisée.
-
-Commande pour générer une paire de clé (lorsque vous l'exécuterez, il vous sera demandé de taper deux ou trois petites choses : vous pouvez appuyer directement sur la touche « Entrée » pour passer ces étapes, qui sont facultatives) :
-
-.. sourcecode:: bash
-
-ssh-keygen
-
-Si, et seulement si, vous avez sauté toutes les étapes (cf. le paragraphe précédent) : les clés générées se trouvent ici : /home/<votre nom d'utilsiateur Fedora>/.ssh/ et se noment « id_rsa » et « id_rsa.pub ».
-
-Rendez-vous ici : https://github.com/settings/ssh
-
-Puis, cliquez sur le bouton « Add SSH key » (dans le bloc central, en haut à droite). Tapez n'importe quel titre dans le champ « Title ».
-
-Copiez-collez sans modification aucune le contenu de la clé publique (fichier « id_rsa.pub »).
+Tout d'abord, créez-vous un compte GitHub et envoyez sur le site la clé publique que vous aurez préalablement générée.
 
 Rendez-vous désormais sur le dépôt officiel (pour rappel, voici son URL : https://github.com/zestedesavoir/zds-site).
 
@@ -119,7 +100,7 @@ Commande pour créer le fork local :
 
 .. sourcecode:: bash
 
-git clone git@github.com:<votre pseudo GitHub>/zds-site.git <répertoire où vous voulez déposer ces sources, par exemple /home/<votre pseudo Fedora>/Documents/zeste-de-savoir-sources>
+    git clone git@github.com:<votre pseudo GitHub>/zds-site.git <répertoire où vous voulez déposer ces sources, par exemple /home/<votre pseudo Fedora>/Documents/zeste-de-savoir-sources>
 
 L'auteur conseille très fortement au lecteur de lire le tutoriel suivant, tutoriel qui explique la notion de fork notamment (la lecture de ce tutoriel est totalement facultative) : https://zestedesavoir.com/tutoriels/beta/656/participer-a-des-projets-open-sources-avec-git-et- github/.
 
@@ -150,10 +131,10 @@ Attention : ne pas exécuter ces commandes en tant que super-utilisateur (donc p
 
 .. sourcecode:: bash
 
-source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/activate
-pip install --upgrade -r requirements.txt -r requirements-dev.txt
-python manage.py migrate
-deactivate
+    source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/activate
+    pip install --upgrade -r requirements.txt -r requirements-dev.txt
+    python manage.py migrate
+    deactivate
 
 Explications sur la première et la dernière commande :
 - La première vous permet d'entrer dans l'environnement virtuel dédié au projet (vous verrez juste en-dessous en quoi cela est intéressant) ;
@@ -172,7 +153,7 @@ Commande pour démarrer l'environnement virtuel :
 
 .. sourcecode:: bash
 
-source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/activate
+    source <chemin pointant vers le répertoire de votre environnement virtuel>/bin/activate
 
 Tapez la commande suivante pour lancer le serveur Python, qui permettra d'afficher le site Web et d'interpréter, bien évidemment, les divers fichiers-sources de votre fork local.
 
@@ -180,20 +161,20 @@ Commande pour démarrer le serveur Python de Django :
 
 .. sourcecode:: bash
 
-python manage.py runserver
+    python manage.py runserver
 
 Considérez également les deux commandes suivantes.
 Commande pour quitter le serveur Python :
 
 .. sourcecode:: bash
 
-Appuyez sur CTRL + C.
+    Appuyez sur CTRL + C.
 
 Commande pour quitter l'environnement virtuel :
 
 .. sourcecode:: bash
 
-deactivate
+    deactivate
 
 Pensez à d'abord quitter le serveur Python, et ensuite seulement vous pourrez quitter l'environnement virtuel (c'est plus propre).
 
