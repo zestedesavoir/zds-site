@@ -21,7 +21,7 @@ from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
 from zds.tutorial.models import get_last_tutorials, get_tutorials_count
 from zds.utils.models import Alert
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 
 def home(request):
