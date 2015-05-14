@@ -143,7 +143,7 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
-
+    {% set perms.tutorial.change_tutorial as perms_change %}
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -184,7 +184,7 @@
             {% set False as can_edit %}
         {% endif %}
 
-        {% include "tutorialv2/includes/reaction_message.part.html" with perms_change=perms.tutorial.change_tutorial topic=object %}
+        {% include "tutorialv2/includes/reaction_message.part.html" with topic=object %}
     {% endfor %}
 
 
