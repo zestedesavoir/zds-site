@@ -65,7 +65,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
         queryset_reactions = ContentReaction.objects\
-            .select_related('author').select_related('editor')\
+            .select_related('author')\
+            .select_related('author__profile')\
+            .select_related('editor')\
             .prefetch_related('author__post_liked')\
             .prefetch_related('author__post_disliked')\
             .filter(related_content=self.object)\
