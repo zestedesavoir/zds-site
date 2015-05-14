@@ -13,13 +13,6 @@
 
 {% block body_class %}home{% endblock %}
 
-
-
-{# Don't show the subheader on the home page #}
-{% block subheader %}{% endblock %}
-
-
-
 {% block content_out %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
     {% url 'zds.article.views.index' as url_articles %}
@@ -91,7 +84,7 @@
                     <label for="search">
                         {% trans "Recherche" %}
                     </label>
-                    <input type="text" name="q" id="search" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
+                    <input type="text" name="q" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
                     <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
                 </form>
             </section>

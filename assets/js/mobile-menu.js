@@ -72,9 +72,7 @@
                  * Build sidebar menu from page
                  */
 
-                var search = $('<div class="search header-right"><div class="search header-right mobile-menu-imported"> <form action="/rechercher/"> <input type="text" name="q" placeholder="Rechercher"> <button type="submit" class="ico-after search-submit" title="Lancer la recherche">OK</button> </form> <a href="/rechercher/" title="Recherche avancée" class="search-more"></a> </div></div>');
-
-                appendToSidebar($(search), true);
+                appendToSidebar($("#search"), true);
                 appendToSidebar($(".logbox .my-account"), true);
                 appendToSidebar($(".header-menu"));
 
