@@ -469,7 +469,8 @@ def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:n]
+        .order_by('-pubdate')\
+        .prefetch_related('authors', 'subcategory')[:n]
 
     return tutorials
 
