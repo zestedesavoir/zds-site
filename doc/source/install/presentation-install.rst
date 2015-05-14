@@ -3,9 +3,9 @@ Présentation de l'environnement de travail
 ==================================
 
 L'environnement de travail est constitué par… :
--Les sources de Zeste de Savoir,
--Un serveur Python,
--Un environnement virtuel* qui contient le serveur précédemment cité.
+- Les sources de Zeste de Savoir,
+- Un serveur Python,
+- Un environnement virtuel\* qui contient le serveur précédemment cité.
 
 \*: notion expliquée ci-dessous.
 
