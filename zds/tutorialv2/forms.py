@@ -400,7 +400,7 @@ class NoteForm(forms.Form):
         )
     )
 
-    def __init__(self, content, user, reaction, *args, **kwargs):
+    def __init__(self, content, reaction, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:add-reaction') + u'?pk={}'.format(content.pk)
@@ -411,8 +411,8 @@ class NoteForm(forms.Form):
             Hidden('last_note', '{{ last_note_pk }}'),
         )
 
-        if content.antispam(user) and reaction is not None:
-            if 'text' not in self.initial:
+        if content.antispam:
+            if not reaction:
                 self.helper['text'].wrap(
                     Field,
                     placeholder=_(u'Vous venez de poster. Merci de patienter '
@@ -445,6 +445,18 @@ class NoteForm(forms.Form):
                    u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
         return cleaned_data
+
+
+class NoteEditForm(NoteForm):
+
+    def __init__(self, *args, **kwargs):
+        super(NoteEditForm, self).__init__(*args, **kwargs)
+
+        content = kwargs['content']
+        reaction = kwargs['reaction']
+
+        self.helper.form_action = \
+            reverse('content:update-reaction') + u'?message={}&pk={}'.format(reaction.pk, content.pk)
 
 
 # Validations.

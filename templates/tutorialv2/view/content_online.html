@@ -177,13 +177,14 @@
         {% else %}
             {% set False as is_repeated_message %}
         {% endif %}
+
         {% if message.pk in user_can_modify %}
             {% set True as can_edit %}
         {% else %}
             {% set False as can_edit %}
         {% endif %}
 
-        {% include "tutorialv2/includes/reaction_message.part.html" with topic=content comment_schema=True %}
+        {% include "tutorialv2/includes/reaction_message.part.html" with perms_change=perms.tutorial.change_tutorial topic=object %}
     {% endfor %}
 
 
