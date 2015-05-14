@@ -48,6 +48,15 @@ $content-width: 1145px;
             text-align: justify;
         }
 
+        a:not(.home-description-button) {
+            color: white;
+
+            &:hover, &:focus {
+                color: #90ABB6;
+                text-decoration: none;
+            }
+        }
+
         .column {
             flex: 1;
             padding: 0 10px;
