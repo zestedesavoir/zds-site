@@ -86,22 +86,22 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         # optimize requests:
         reaction_ids = [reaction.pk for reaction in queryset_reactions]
-        user_votes = CommentDislike.objects\
+        context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .all()
-        context["user_dislike_dict"] = {reaction.pk: "dislike" for reaction in user_votes}
-        user_votes = CommentLike.objects\
+            .values_list('pk', flat=True)
+        context["user_like"] = CommentLike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .all()
-        context["user_like_dict"] = {reaction.pk: "like" for reaction in user_votes}
+            .values_list('pk', flat=True)
+
         if self.request.user.has_perm('forum.change_post'):
             context["user_can_modify"] = reaction_ids
         else:
             queryset_reactions_user = ContentReaction.objects\
-                .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk).values('pk')
-            context["user_can_modify"] = [message['pk'] for message in queryset_reactions_user]
+                .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
+                .values_list('id', flat=True)
+            context["user_can_modify"] = queryset_reactions_user
 
         context['isantispam'] = self.object.antispam()
         return context
@@ -462,6 +462,8 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
                 note.save()
         resp["upvotes"] = note.like
         resp["downvotes"] = note.dislike
+        if self.request.is_ajax():
+            return StreamingHttpResponse(json_writer.dumps(resp))
         return redirect(note.get_absolute_url())
 
 
