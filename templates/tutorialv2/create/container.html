@@ -1,17 +1,17 @@
 {% extends "tutorialv2/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-
+{% load feminize %}
 
 {% block title %}
-    {% trans "Nouveau conteneur" %}
+    {{ "Nouveau"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}
 {% endblock %}
 
 
 
 {% block headline %}
     <h1>
-        {% trans "Nouveau conteneur" %}
+        {{ "Nouveau"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}
     </h1>
 {% endblock %}
 
@@ -28,7 +28,7 @@
 
     <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
 
-    <li>{% trans "Nouveau conteneur" %}</li>
+    <li>{{ "Nouveau"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}</li>
 {% endblock %}
 
 

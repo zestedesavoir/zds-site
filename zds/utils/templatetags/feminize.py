@@ -6,7 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 register = template.Library()
 articles = {
     "le": "la",
-    "un": "une"
+    "un": "une",
+    "Nouveau": "Nouvelle"
 }
 
 words = {

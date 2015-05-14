@@ -2,14 +2,15 @@
 {% load crispy_forms_tags %}
 {% load thumbnail %}
 {% load i18n %}
+{% load feminize %}
 
 {% block title %}
-    {% trans "Éditer le contenu" %}
+    {% trans "Éditer " %}{{ content.textual_type }}
 {% endblock %}
 
 {% block breadcrumb %}
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
-    <li>{% trans "Éditer le contenu" %}</li>
+    <li>{% trans "Éditer " %}{{ content.textual_type }}</li>
 {% endblock %}
 
 {% block headline %}
