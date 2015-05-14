@@ -12,7 +12,7 @@ Modèles (``models/``)
 Modèles de la base de donnée (``models_database.py``)
 -----------------------------------------------------
 
-.. automodule:: zds.tutorialv2.models_database
+.. automodule:: zds.tutorialv2.models.models_database
     :members:
 
 
@@ -35,13 +35,13 @@ Contenus (``views/views_contents.py``)
 Validations (``views/views_validations.py``)
 --------------------------------------------
 
-.. automodule:: zds.tutorialv2.views_validations
+.. automodule:: zds.tutorialv2.views.views_validations
     :members:
 
 Contenus publiés (``views/views_published.py``)
 -----------------------------------------------
 
-.. automodule:: zds.tutorialv2.views_published
+.. automodule:: zds.tutorialv2.views.views_published
     :members:
 
 Mixins (``mixins.py``)
@@ -55,3 +55,10 @@ Les forumulaires (``forms.py``)
 
 .. automodule:: zds.tutorialv2.forms
     :members:
+
+Les utilitaires (``utils.py``)
+===============================
+
+.. automodule:: zds.tutorialv2.utils
+    :members:
+

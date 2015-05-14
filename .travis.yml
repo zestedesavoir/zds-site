@@ -20,8 +20,16 @@ notifications:
 
 services: mysql
 
-cache:
-  - apt
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - libmysqlclient-dev
+      - ttf-mscorefonts-installer
+      - language-pack-fr
+      - unzip
+
 
 before_script:
   # configure mysql
@@ -33,46 +41,40 @@ before_script:
   - mysql -e "SHOW VARIABLES LIKE 'wait_timeout';"
   # database services
   - mysql -e 'create database zds_test;'
-  - sudo mv zds/settings_test.py zds/settings_prod.py
-  - sudo apt-get -y install python-mysqldb
-  - sudo apt-get -y install libmysqlclient-dev
+  - mv zds/settings_test.py zds/settings_prod.py
 
 install:
-  # APT Stuff
-  - sudo apt-get update
-  - sudo echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
-  - sudo apt-get install ttf-mscorefonts-installer
-  - sudo apt-get install unzip
-  - sudo apt-get install texlive
-  - sudo apt-get install texlive-xetex
-  - sudo apt-get install texlive-lang-french
-  - sudo apt-get install texlive-latex-extra
-
+  - |
+    if [[ "$TEST_APP" == *"back"* ]]
+    then
+      ./scripts/install_texlive.sh
+      export PATH=~/.texlive/bin/x86_64-linux:$PATH
+    fi
+  - export RESOURCES_URL="http://www.googledrive.com/host/0BzabS14KitJgfmV2ekdWSktmVEpieU93TG11RFNkWlZqS0JwZk93ZGhMR1lCWVg5NzFVc00"
   # Add fonts
-  - sudo wget -P /usr/share/fonts/truetype https://www.dropbox.com/s/ema28tjn52960mq/Merriweather.zip
-  - sudo unzip /usr/share/fonts/truetype/Merriweather.zip -d /usr/share/fonts/truetype/Merriweather/
-  - sudo chmod a+r /usr/share/fonts/truetype/Merriweather/*.ttf
-  - sudo fc-cache -f -v
+  - mkdir -p ~/.fonts/truetype
+  - wget -P ~/.fonts/truetype $RESOURCES_URL/Andale-Mono.ttf
+  - wget -P ~/.fonts/truetype $RESOURCES_URL/Merriweather.zip
+  - unzip ~/.fonts/truetype/Merriweather.zip -d ~/.fonts/truetype/Merriweather/
+  - chmod a+r ~/.fonts/truetype/Merriweather/*.ttf
+  - chmod a+r ~/.fonts/truetype/Andale-Mono.ttf
+  - fc-cache -f -v
 
   # Cabal + Pandoc stuff
-  - sudo mkdir -p ~/cabal/bin
-  - sudo mkdir -p ~/.pandoc
-  - sudo wget -P ~/cabal/bin https://dl.dropboxusercontent.com/u/18967337/pandoc
-  - sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.epub
-  - sudo wget -P ~/.pandoc/templates https://dl.dropboxusercontent.com/u/14517385/dev/default.html
-  - sudo touch ~/.pandoc/epub.css
-  - sudo touch ~/.pandoc/templates/epub.css
-  - sudo chmod u+x,g+x,o+x ~/cabal/bin/pandoc
+  - mkdir -p ~/cabal/bin
+  - mkdir -p ~/.pandoc
+  - wget -P ~/cabal/bin $RESOURCES_URL/pandoc
+  - wget -P ~/.pandoc/templates $RESOURCES_URL/default.epub
+  - wget -P ~/.pandoc/templates $RESOURCES_URL/default.html
+  - touch ~/.pandoc/epub.css
+  - touch ~/.pandoc/templates/epub.css
+  - chmod u+x,g+x,o+x ~/cabal/bin/pandoc
   - export PATH=$PATH:~/cabal/bin
-  - sudo ~/cabal/bin/pandoc --version
-  - sudo apt-get --reinstall install -qq language-pack-fr
+  - ~/cabal/bin/pandoc --version
 
   # Python dependencies
   - travis_retry pip install coveralls
-  - travis_retry pip install tox
-
-  # Node.js + npm stuff
-  - sudo apt-get -y install nodejs
+  - travis_retry pip install tox==2.0.1
 
 script:
   - tox $TEST_APP

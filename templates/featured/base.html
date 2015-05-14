@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+
+{% block title_base %}
+    &bull; {% trans "Mise en avant" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Mise en avant" %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url 'featured-resource-list' %}">{% trans "Mise en avant du site" %}</a></li>
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans 'Action sur les unes' %}">
+        <a href="{% url 'featured-message-create' %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau message" %}
+        </a>
+        <a href="{% url 'featured-resource-create' %}" class="new-btn ico-after more blue">
+            {% trans "Nouvelle une" %}
+        </a>
+
+        {% block sidebar_actions %}{% endblock %}
+    </aside>
+{% endblock %}

@@ -146,6 +146,7 @@ ZDS_APP['site']['googleAnalyticsID'] = 'UA-27730868-1'
 ZDS_APP['site']['googleTagManagerID'] = 'GTM-WH7642'
 ```
 
+
 Vérifier que `EMAIL_BACKEND` est bien définit dans le `settings_prod.py` car il a maintenant une valeur par défaut. La configuration par défaut sur la prod devrait être `EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'`.
 
 Actions à faire pour mettre en prod la version : v1.8
@@ -207,9 +208,15 @@ stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 
 ```
 
+
+
+Issue #1634
+-----------
+
 4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart` 
 
 Issue #2520
 -----------
 
-Vérifier que le paquet `libgoip-dev`, devenu nécessaire pour employer GeoIP, est installé : `sudo apt-get install libgeoip-dev`
+Exécuter la commande suivante : `sudo apt-get install libffi-dev`
+

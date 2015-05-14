@@ -1,0 +1,28 @@
+{% extends "featured/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Création d'un nouveau message" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Création d'un nouveau message" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Création d'un nouveau message" %}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}
