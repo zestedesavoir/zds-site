@@ -4,14 +4,14 @@
 {% load feminize %}
 
 {% block title %}
-    {{ "Nouveau"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}
+    {{ "Nouveau"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
 {% endblock %}
 
 
 
 {% block headline %}
     <h1>
-        {{ "Nouveau"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}
+        {{ "Nouveau"|feminize:container.get_next_level_as_string }} {{ container.ge_nextt_level_as_string|lower }}
     </h1>
 {% endblock %}
 
@@ -28,7 +28,7 @@
 
     <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
 
-    <li>{{ "Nouveau"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}</li>
+    <li>{{ "Nouveau"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}</li>
 {% endblock %}
 
 

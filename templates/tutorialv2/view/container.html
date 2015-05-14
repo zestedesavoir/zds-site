@@ -138,7 +138,7 @@
                         {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                     {%  endif %}
                  " class="ico-after more blue new-btn">
-                    {% trans "Ajouter " %} {{ "un"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
+                    {% trans "Ajouter une section" %}
                 </a>
             {%  endif %}
         {% endif %}
