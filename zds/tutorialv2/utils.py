@@ -459,7 +459,7 @@ def make_one_markdown_file(published_content):
     path = os.path.join(published_content.get_extra_contents_directory(),
                         published_content.content_public_slug + ".md")
     with open(path, 'w') as md_file:
-        for child in publishable.traverse():
+        for child in publishable.load_version(publishable.sha_public).traverse():
             if isinstance(child, Container):
                 md_file.write("\n")
                 for i in range(child.get_tree_level()):
