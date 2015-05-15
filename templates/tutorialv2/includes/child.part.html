@@ -19,7 +19,7 @@
     </a>
 </h2>
 
-{% if is_author or is_staff %}
+{% if can_edit or is_staff %}
     {%  if not version or version == content.sha_draft %}
         <div class="actions-title">
             <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
