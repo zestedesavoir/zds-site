@@ -2,10 +2,16 @@
 Installation du frontend
 ========================
 
-Vous voulez nous aider au développement du frontend ? Installez Node.js et npm grâce aux instructions qui suivent !
+Vous voulez nous aider au développement du frontend ? Trois paquets sont à installer : Node.js, npm, et Gulp. Laissez-vous guider...
 
 Installation de Node.js et npm
-==============================
+============================
+Brève présentation de ces deux paquets.
+---------------------------------------
+
+- node.js (couche logicielle permettant dans ce projet de faire fonctionner des outils JavaScript comme Gulp, outils qui bien sûr sont utilisés),
+- npm (gestionnaire de modules de node.js – car oui, node.js est modulaire : on peut étoffer ses fonctionnalités en installant divers modules).
+
 
 Windows
 -------
@@ -74,8 +80,9 @@ Il vous faut tout simplement faire :
 
 .. sourcecode:: bash
 
-    sudo curl -sL https://rpm.nodesource.com/setup | bash -
     sudo yum install -y nodejs
+    
+Attention, pensez à remplacer "yum" par "dnf" si vous utilisez une version de Fedora supérieure ou égale à 22. C'est le nouveau gestionnaire de paquets par défaut.
 
 Arch Linux
 ~~~~~~~~~~
@@ -126,7 +133,7 @@ Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devr
 Installation des dépendances npm
 --------------------------------
 
-L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet :
+L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via npm dans le répertoire du projet (vous devez donc avoir git-cloné ce dernier) :
 
 .. sourcecode:: bash
 
@@ -173,6 +180,14 @@ Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``n
 .. sourcecode:: bash
 
     sudo npm install -g gulp
+    
+    
+  Rendez-vous dans votre fork local avec la commande « cd ». Il s'agit désormais de générer les fichiers-sources du front avec Gulp, la boîte à outils !
+
+Commande de génération du front-end :
+.. sourcecode:: bash
+    npm run gulp – build
+
 
 Nettoyage des outils
 ====================
