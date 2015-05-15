@@ -156,7 +156,7 @@ def try_adopt_new_child(adoptive_parent, child):
     if isinstance(child, Container):
         if not adoptive_parent.can_add_container():
             raise TypeError
-        if adoptive_parent.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
+        if adoptive_parent.get_tree_depth() + child.get_tree_level() >= settings.ZDS_APP['content']['max_tree_depth']:
             raise TooDeepContainerError
     adoptive_parent.top_container().change_child_directory(child, adoptive_parent)
 
