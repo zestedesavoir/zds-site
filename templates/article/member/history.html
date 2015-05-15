@@ -57,7 +57,7 @@
     <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>
@@ -65,7 +65,7 @@
     </ul>
 
     <span class="pubdate">
-        {% trans "Publié" %} 
+        {% trans "Publié" %}
         <time datetime="{{ article.pubdate|date:"c" }}" pubdate="pubdate" itemprop="datePublished">
             {{ article.pubdate|format_date }}
         </time>
