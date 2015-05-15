@@ -225,11 +225,11 @@ def modify_gallery(request):
                 return redirect(gallery.get_absolute_url())
             if user.profile.is_private():
                 return redirect(gallery.get_absolute_url())
-            ug = UserGallery()
-            ug.user = user
-            ug.gallery = gallery
-            ug.mode = request.POST["mode"]
-            ug.save()
+            user_gal = UserGallery()
+            user_gal.user = user
+            user_gal.gallery = gallery
+            user_gal.mode = request.POST["mode"]
+            user_gal.save()
         else:
             return render(request, "gallery/gallery/details.html", {
                 "gallery": gallery,

@@ -27,9 +27,9 @@ class Command(BaseCommand):
             for fixture in fixture_list:
                 splitted = str(fixture["factory"]).split(".")
                 module_part = ".".join(splitted[:-1])
-                m = __import__(module_part)
+                module = __import__(module_part)
                 for comp in splitted[1:-1]:
-                    m = getattr(m, comp)
+                    module = getattr(module, comp)
 
-                obj = getattr(m, splitted[-1])(**fixture["fields"])
+                obj = getattr(module, splitted[-1])(**fixture["fields"])
                 print(obj)

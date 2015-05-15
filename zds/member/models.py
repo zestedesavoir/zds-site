@@ -331,6 +331,9 @@ class TokenForgotPassword(models.Model):
         """
         return reverse('zds.member.views.new_password') + '?token={0}'.format(self.token)
 
+    def __unicode__(self):
+        return u"{0} - {1}".format(self.user.username, self.date_end)
+
 
 class TokenRegister(models.Model):
     """
@@ -390,6 +393,9 @@ class Ban(models.Model):
         blank=True,
         null=True, db_index=True)
 
+    def __unicode__(self):
+        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
+
 
 class KarmaNote(models.Model):
     """
@@ -412,6 +418,9 @@ class KarmaNote(models.Model):
     value = models.IntegerField('Valeur')
     # TODO: coherence, "create_at" is called "pubdate" in Ban model.
     create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+
+    def __unicode__(self):
+        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
 
 
 def logout_user(username):

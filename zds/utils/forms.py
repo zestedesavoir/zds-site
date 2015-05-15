@@ -24,6 +24,7 @@ class CommonLayoutEditor(Layout):
                 data_ajax_input='preview-message'),
             HTML("</div>"),
             HTML("</div>"),
+            *args, **kwargs
         )
 
 
@@ -46,6 +47,7 @@ class CommonLayoutVersionEditor(Layout):
                         css_class='btn-grey'),
                 ),
             ),
+            *args, **kwargs
         )
 
 
@@ -54,4 +56,5 @@ class CommonLayoutModalText(Layout):
     def __init__(self, *args, **kwargs):
         super(CommonLayoutModalText, self).__init__(
             Field('text'),
+            *args, **kwargs
         )

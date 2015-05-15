@@ -589,14 +589,14 @@ class FindPost(FindTopic):
 @login_required
 def followed_topics(request):
     """
-    Displays the followed topics fo the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
+    Displays the followed topics for the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
     topics per page.
     """
-    followed_topics = request.user.profile.get_followed_topics()
+    topics_followed = request.user.profile.get_followed_topics()
 
     # Paginator
 
-    paginator = Paginator(followed_topics, settings.ZDS_APP['forum']['followed_topics_per_page'])
+    paginator = Paginator(topics_followed, settings.ZDS_APP['forum']['followed_topics_per_page'])
     page = request.GET.get("page")
     try:
         shown_topics = paginator.page(page)

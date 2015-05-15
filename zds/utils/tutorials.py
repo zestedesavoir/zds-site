@@ -20,9 +20,9 @@ from zds.utils.models import Licence
 
 def export_chapter(chapter, export_all=True):
     from zds.tutorial.models import Extract
-    '''
+    """
     Export a chapter to a dict
-    '''
+    """
     dct = OrderedDict()
     if export_all:
         dct['pk'] = chapter.pk
@@ -46,9 +46,9 @@ def export_chapter(chapter, export_all=True):
 
 def export_part(part):
     from zds.tutorial.models import Chapter
-    '''
+    """
     Export a part to a dict
-    '''
+    """
     dct = OrderedDict()
     dct['pk'] = part.pk
     dct['title'] = part.title
@@ -67,9 +67,9 @@ def export_part(part):
 
 def export_tutorial(tutorial):
     from zds.tutorial.models import Part, Chapter
-    '''
+    """
     Export a tutorial to a dict
-    '''
+    """
     dct = OrderedDict()
     dct['title'] = tutorial.title
     dct['description'] = tutorial.description
@@ -98,16 +98,16 @@ def export_tutorial(tutorial):
 
 
 def get_blob(tree, chemin):
-    for bl in tree.blobs:
+    for blob in tree.blobs:
         try:
-            if os.path.abspath(bl.path) == os.path.abspath(chemin):
-                data = bl.data_stream.read()
+            if os.path.abspath(blob.path) == os.path.abspath(chemin):
+                data = blob.data_stream.read()
                 return data.decode('utf-8')
         except (OSError, IOError):
             return ""
     if len(tree.trees) > 0:
-        for tr in tree.trees:
-            result = get_blob(tr, chemin)
+        for atree in tree.trees:
+            result = get_blob(atree, chemin)
             if result is not None:
                 return result
         return None
@@ -121,19 +121,15 @@ def export_tutorial_to_md(tutorial, sha=None):
     parts = None
     tuto = OrderedDict()
 
-    i = open(
-        os.path.join(
-            tutorial.get_prod_path(sha),
-            tutorial.introduction),
-        "r")
-    i_contenu = i.read()
-    i.close()
-    tuto['intro'] = i_contenu
+    intro = open(os.path.join(tutorial.get_prod_path(sha), tutorial.introduction), "r")
+    intro_contenu = intro.read()
+    intro.close()
+    tuto['intro'] = intro_contenu
 
-    c = open(os.path.join(tutorial.get_prod_path(sha), tutorial.conclusion), "r")
-    c_contenu = c.read()
-    c.close()
-    tuto['conclu'] = c_contenu
+    conclu = open(os.path.join(tutorial.get_prod_path(sha), tutorial.conclusion), "r")
+    conclu_contenu = conclu.read()
+    conclu.close()
+    tuto['conclu'] = conclu_contenu
 
     tuto['image'] = tutorial.image
     tuto['title'] = tutorial.title
@@ -478,11 +474,12 @@ def import_archive(request):
         # delete old file
         for filename in os.listdir(tutorial.get_path()):
             if not filename.startswith('.'):
-                mf = os.path.join(tutorial.get_path(), filename)
-                if os.path.isfile(mf):
-                    os.remove(mf)
-                elif os.path.isdir(mf):
-                    shutil.rmtree(mf)
+                manifest = os.path.join(tutorial.get_path(), filename)
+                if os.path.isfile(manifest):
+                    os.remove(manifest)
+                elif os.path.isdir(manifest):
+                    shutil.rmtree(manifest)
+
         # copy new file
         for i in zfile.namelist():
             ph = i

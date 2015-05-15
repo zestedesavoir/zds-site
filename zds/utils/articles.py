@@ -22,13 +22,13 @@ def export_article(article):
 
 def get_blob(tree, chemin):
 
-    for bl in tree.blobs:
-        if os.path.abspath(bl.path) == os.path.abspath(chemin):
-            data = bl.data_stream.read()
+    for blob in tree.blobs:
+        if os.path.abspath(blob.path) == os.path.abspath(chemin):
+            data = blob.data_stream.read()
             return data.decode('utf-8')
     if len(tree.trees) > 0:
-        for tr in tree.trees:
-            result = get_blob(tr, chemin)
+        for tree_elem in tree.trees:
+            result = get_blob(tree_elem, chemin)
             if result is not None:
                 return result
         return None

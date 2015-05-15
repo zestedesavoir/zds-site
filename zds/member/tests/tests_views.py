@@ -760,7 +760,7 @@ class MemberTests(TestCase):
         # Check that the filter can't be access from normal user
         result = self.client.post(
             reverse('zds.member.views.member_from_ip',
-                    kwargs={'ip': tester.last_ip_address}),
+                    kwargs={'ip_address': tester.last_ip_address}),
             {}, follow=False)
         self.assertEqual(result.status_code, 403)
 
@@ -777,7 +777,7 @@ class MemberTests(TestCase):
         # test that we retrieve correctly the 2 members (staff + user) from this ip
         result = self.client.post(
             reverse('zds.member.views.member_from_ip',
-                    kwargs={'ip': staff.last_ip_address}),
+                    kwargs={'ip_address': staff.last_ip_address}),
             {}, follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context['members']), 2)

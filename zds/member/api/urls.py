@@ -12,4 +12,4 @@ urlpatterns = patterns('',
                        url(r'^(?P<pk>[0-9]+)/lecture-seule/$', MemberDetailReadingOnly.as_view(),
                            name='api-member-read-only'),
                        url(r'^(?P<pk>[0-9]+)/ban/$', MemberDetailBan.as_view(), name='api-member-ban'),
-)
+                       )

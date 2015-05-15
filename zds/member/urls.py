@@ -2,17 +2,17 @@
 
 from django.conf.urls import patterns, url
 
-from views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
+from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
     UpdateUsernameEmailMember, RegisterView
 
 urlpatterns = patterns('',
-                        #list
+                       #list
                        url(r'^$', MemberList.as_view(), name='member-list'),
 
-                        #details
+                       #details
                        url(r'^voir/(?P<user_name>.+)/$', MemberDetail.as_view(), name='member-detail'),
 
-                        #modification
+                       #modification
                        url(r'^parametres/profil/$', UpdateMember.as_view(), name='update-member'),
                        url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),
                        url(r'^parametres/compte/$', UpdatePasswordMember.as_view(), name='update-password-member'),
@@ -22,20 +22,20 @@ urlpatterns = patterns('',
                        url(r'^profil/lier/$', 'zds.member.views.add_oldtuto'),
                        url(r'^profil/delier/$', 'zds.member.views.remove_oldtuto'),
 
-                        #moderation
+                       #moderation
                        url(r'^profil/karmatiser/$', 'zds.member.views.modify_karma'),
-                       url(r'^profil/modifier/(?P<user_pk>\d+)/$','zds.member.views.modify_profile'),
-                       url(r'^parametres/mini_profil/(?P<user_name>.+)/$','zds.member.views.settings_mini_profile'),
-                       url(r'^profil/multi/(?P<ip>.+)/$','zds.member.views.member_from_ip'),
+                       url(r'^profil/modifier/(?P<user_pk>\d+)/$', 'zds.member.views.modify_profile'),
+                       url(r'^parametres/mini_profil/(?P<user_name>.+)/$', 'zds.member.views.settings_mini_profile'),
+                       url(r'^profil/multi/(?P<ip_address>.+)/$', 'zds.member.views.member_from_ip'),
 
-                        #tutorials and articles
+                       #tutorials and articles
                        url(r'^tutoriels/$', 'zds.member.views.tutorials'),
                        url(r'^articles/$', 'zds.member.views.articles'),
 
-                        #user rights
-                       url(r'^profil/promouvoir/(?P<user_pk>\d+)/$','zds.member.views.settings_promote'),
+                       #user rights
+                       url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', 'zds.member.views.settings_promote'),
 
-                        #membership
+                       #membership
                        url(r'^connexion/$', 'zds.member.views.login_view'),
                        url(r'^deconnexion/$', 'zds.member.views.logout_view'),
                        url(r'^inscription/$', RegisterView.as_view(), name='register-member'),

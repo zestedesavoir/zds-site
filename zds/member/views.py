@@ -23,11 +23,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView
-from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
+
+from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm
 from zds.utils.models import Comment, CommentLike, CommentDislike
-from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
@@ -513,7 +514,7 @@ def settings_mini_profile(request, user_name):
     profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
         form = MiniProfileForm(request.POST)
-        c = {"form": form, "profile": profile}
+        data = {"form": form, "profile": profile}
         if form.is_valid():
             profile.biography = form.data["biography"]
             profile.site = form.data["site"]
@@ -527,14 +528,12 @@ def settings_mini_profile(request, user_name):
                 profile.save()
             except:
                 messages.error(request, u"Une erreur est survenue.")
-                return redirect(reverse("zds.member.views.settings_mini_profil"
-                                        "e"))
-            messages.success(request,
-                             _(u"Le profil a correctement été mis à jour."))
-            return redirect(reverse("member-detail",
-                                    args=[profile.user.username]))
+                return redirect(reverse("zds.member.views.settings_mini_profile"))
+
+            messages.success(request, _(u"Le profil a correctement été mis à jour."))
+            return redirect(reverse("member-detail", args=[profile.user.username]))
         else:
-            return render(request, "member/settings/profile.html", c)
+            return render(request, "member/settings/profile.html", data)
     else:
         form = MiniProfileForm(initial={
             "biography": profile.biography,
@@ -542,8 +541,8 @@ def settings_mini_profile(request, user_name):
             "avatar_url": profile.avatar_url,
             "sign": profile.sign,
         })
-        c = {"form": form, "profile": profile}
-        return render(request, "member/settings/profile.html", c)
+        data = {"form": form, "profile": profile}
+        return render(request, "member/settings/profile.html", data)
 
 
 def login_view(request):
@@ -827,23 +826,22 @@ def date_to_chart(posts):
     for i in range(len(lst)):
         lst[i] = 7 * [0]
     for post in posts:
-        t = post.pubdate.timetuple()
-        lst[t.tm_hour][(t.tm_wday + 1) % 7] = lst[t.tm_hour][(t.tm_wday + 1)
-                                                             % 7] + 1
+        timestamp = post.pubdate.timetuple()
+        lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] = lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] + 1
     return lst
 
 
 @login_required
 @require_POST
 def add_oldtuto(request):
-    id = request.POST["id"]
+    identifier = request.POST["id"]
     profile_pk = request.POST["profile_pk"]
     profile = get_object_or_404(Profile, pk=profile_pk)
     if profile.sdz_tutorial:
         olds = profile.sdz_tutorial.strip().split(":")
     else:
         olds = []
-    last = str(id)
+    last = str(identifier)
     for old in olds:
         last += ":{0}".format(old)
     profile.sdz_tutorial = last
@@ -858,20 +856,23 @@ def add_oldtuto(request):
 @login_required
 def remove_oldtuto(request):
     if "id" in request.GET:
-        id = request.GET["id"]
+        identifier = request.GET["id"]
     else:
         raise Http404
+
     if "profile" in request.GET:
         profile_pk = request.GET["profile"]
     else:
         raise Http404
+
     profile = get_object_or_404(Profile, pk=profile_pk)
     if profile.sdz_tutorial \
             or not request.user.has_perm("member.change_profile"):
         olds = profile.sdz_tutorial.strip().split(":")
-        olds.remove(str(id))
+        olds.remove(str(identifier))
     else:
         raise PermissionDenied
+
     last = ""
     for i in range(len(olds)):
         if i > 0:
@@ -995,16 +996,16 @@ def settings_promote(request, user_pk):
 
 
 @login_required
-def member_from_ip(request, ip):
+def member_from_ip(request, ip_address):
     """ Get list of user connected from a particular ip """
 
     if not request.user.has_perm("member.change_profile"):
         raise PermissionDenied
 
-    members = Profile.objects.filter(last_ip_address=ip).order_by('-last_visit')
+    members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
         "members": members,
-        "ip": ip
+        "ip": ip_address
     })
 
 

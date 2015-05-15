@@ -40,8 +40,8 @@ def home(request):
         articles.append(data)
 
     try:
-        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as fh:
-            quote = random.choice(fh.readlines())
+        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+            quote = random.choice(quotes_file.readlines())
     except IOError:
         quote = settings.ZDS_APP['site']['slogan']
 
@@ -150,10 +150,10 @@ def alerts(request):
     if not request.user.has_perm('forum.change_post'):
         raise PermissionDenied
 
-    alerts = Alert.objects.all().order_by('-pubdate')
+    all_alerts = Alert.objects.all().order_by('-pubdate')
 
     return render(request, 'pages/alerts.html', {
-        'alerts': alerts,
+        'alerts': all_alerts,
     })
 
 

@@ -46,20 +46,20 @@ class ZdSPagingListView(ListView):
         This function returns the list paginated with this previous item.
         """
         original_list = queryset.all()
-        list = []
+        items_list = []
         # If necessary, add the last item in the previous page.
         if self.page.number != 1:
             last_page = self.paginator.page(self.page.number - 1).object_list
             last_item = (last_page)[len(last_page) - 1]
-            list.append(last_item)
+            items_list.append(last_item)
         # Adds all items of the list paginated.
         for item in original_list:
-            list.append(item)
-        return list
+            items_list.append(item)
+        return items_list
 
 
 def paginator_range(current, stop, start=1):
-    assert (current <= stop)
+    assert current <= stop
 
     # Basic case when no folding
     if stop - start <= ZDS_APP['paginator']['folding_limit']:
