@@ -1,50 +1,83 @@
-{% load date %}
 {% load captureas %}
 {% load thumbnail %}
 {% load i18n %}
+{% load date %}
 
-<article>
-    {% if not link %}
-        {# Public link by default #}
-        {% captureas link %}
-            {{ article.get_absolute_url_online }}
-        {% endcaptureas %}
-    {% endif %}
+{# Public link by default #}
+{% if not link %}
+    {% captureas link %}
+        {{ article.get_absolute_url_online }}
+    {% endcaptureas %}
+{% endif %}
 
-    {% if article.image %}
-        <a href="{{ link }}" tabindex="-1">
-            <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
-        </a>
-    {% endif %}
+{# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
+{% captureas authors_text %}
+    {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
+{% endcaptureas %}
 
-    <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
-        <h3 itemprop="itemListElement">
-            <a href="{{ link }}" title="{{ article.title }}">
+<article class="content-item article-item has-reactions">
+    <a href="{{ link }}" tabindex="-1" class="content-illu">
+        {% if article.image %}
+            <img src="{{ article.image.content_thumb.url }}" alt="">
+        {% endif %}
+    </a>
+
+    <div class="content-info">
+        <a href="{{ link }}" title="{{ article.title }}{% if article.description and show_description %} − {{ article.description }}{% endif %}">
+            <h3 class="content-title" itemprop="itemListElement">
                 {{ article.title }}
-            </a>
-        </h3>
-        <p class="article-metadata">
-            {% if article.sha_public %}
-                {{ article.pubdate|format_date|capfirst }}
-                -
-                <a href="
-                    {% if article.last_read_reaction %}
-                        {{ article.last_read_reaction.get_absolute_url }}
-                    {% else %}
-                        {{ article.get_absolute_url_online }}#reactions
-                    {% endif %}
-                ">
-                    {% if article.get_reaction_count == 0 %}
-                        {% trans "Aucune réaction" %}
-                    {% else %}
-                        {{ article.get_reaction_count }} réaction{{ article.get_reaction_count|pluralize }}
-                    {% endif %}
-                </a>
-            {% elif article.sha_validation %}
-                {% trans "En validation" %}
-            {% else %}
-                {% trans "Brouillon" %}
+            </h3>
+
+            {% if article.description and show_description %}
+                <p class="content-description">
+                    {{ article.description }}
+                </p>
             {% endif %}
-        </p>
+
+
+
+            <div class="content-meta">
+                <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
+                    {{ article.pubdate|format_date|capfirst }}
+                </time>
+
+                {% if article.sha_public %}
+                    <p class="content-authors">
+                        {{ authors_text }}
+                    </p>
+                {% elif article.sha_validation %}
+                    <p class="content-state">
+                        {% trans "En validation" %}
+                    </p>
+                {% else %}
+                    <p class="content-state">
+                        {% trans "Brouillon" %}
+                    </p>
+                {% endif %}
+            </div>
+        </a>
+
+        <a class="content-reactions" href="
+            {% if article.last_read_reaction %}
+                {{ article.last_read_reaction.get_absolute_url }}
+            {% else %}
+                {{ article.get_absolute_url_online }}#reactions
+            {% endif %}"
+            title="{% if article.get_reaction_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_reaction_count }}{% endif %} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}"
+        >
+            <span>{{ article.get_reaction_count }}</span>
+        </a>
     </div>
+
+    {% if article.tags.all %}
+        <ul class="content-tags" itemprop="keywords">
+            {% for tag in article.tags.all|slice:":3" %}
+                <li>
+                  <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                    {{ tag.title }}
+                  </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </article>

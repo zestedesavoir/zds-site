@@ -1,10 +1,10 @@
 {% extends "tutorialv2/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-
+{% load feminize %}
 
 {% block title %}
-    {% trans "Editer un conteneur" %}
+    {% trans "Éditer " %}{{ "un"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -18,7 +18,7 @@
 
     <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
 
-    <li>{% trans "Editer le conteneur" %}</li>
+    <li>{% trans "Éditer " %}{{ "le"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}</li>
 {% endblock %}
 
 {% block headline %}

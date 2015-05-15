@@ -130,7 +130,7 @@ gulp.task("sprite", function() {
  * Process images files
  */
 gulp.task("images",  ["stylesheet"], function() {
-  return gulp.src(path.join(sourceDir, "{" + imagesDir + ",smileys}", "*.{png,gif}"))
+  return gulp.src(path.join(sourceDir, "{" + imagesDir + ",smileys}", "*.{jpg,png,gif}"))
     .pipe($.imagemin(imageminConfig))
     .pipe($.size({ title: "Images" }))
     .pipe(gulp.dest(destDir));

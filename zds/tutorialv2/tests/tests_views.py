@@ -3247,6 +3247,9 @@ class ContentTests(TestCase):
         self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
 
     def test_hide_reaction(self):
+        text_hidden = \
+            u"Ever notice how you come across somebody once in a while you shouldn't have fucked with? That's me."
+
         publishable = PublishedContentFactory(author_list=[self.user_author])
         self.assertEqual(
             self.client.login(
@@ -3260,13 +3263,32 @@ class ContentTests(TestCase):
                 'text': u'message',
                 'last_note': '0'
             }, follow=True)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
         reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
-        result = self.client.post(reverse('content:hide-reaction', args=[reaction.pk]),
-                                  {'text_hidden': u"Ever notice how you come across somebody "
-                                                  u"once in a while you shouldn't "
-                                                  u"have fucked with? That's me."}, follow=False)
+
+        result = self.client.post(
+            reverse('content:hide-reaction', args=[reaction.pk]), {'text_hidden': text_hidden}, follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertFalse(ContentReaction.objects.filter(related_content__pk=publishable.pk).first().is_visible)
+
+        reaction = ContentReaction.objects.get(pk=reaction.pk)
+        self.assertFalse(reaction.is_visible)
+        self.assertEqual(reaction.text_hidden, text_hidden[:80])
+        self.assertEqual(reaction.editor, self.user_staff)
+
+        # then, unhide it !
+        result = self.client.post(
+            reverse('content:show-reaction', args=[reaction.pk]), follow=False)
+
+        self.assertEqual(result.status_code, 302)
+
+        reaction = ContentReaction.objects.get(pk=reaction.pk)
+        self.assertTrue(reaction.is_visible)
 
     def test_alert_reaction(self):
         publishable = PublishedContentFactory(author_list=[self.user_author])

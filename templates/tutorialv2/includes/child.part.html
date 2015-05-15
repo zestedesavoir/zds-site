@@ -19,14 +19,14 @@
     </a>
 </h2>
 
-{% if is_author or is_staff %}
+{% if can_edit or is_staff %}
     {%  if not version or version == content.sha_draft %}
         <div class="actions-title">
             <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
                 {% trans "Éditer" %}
             </a>
-            <a href="#move-extract-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
-                <form action="{% url "content:move-element" %}" method="post" class="modal modal-small" id="move-extract-{{ child.slug }}">
+            <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
+                <form action="{% url "content:move-element" %}" method="post" class="modal modal-small" id="move-{{ child.slug }}">
                     <select name="moving_method">
                         <option disabled="disabled">{% trans "Déplacer" %}</option>
                         {% if child.position_in_parent > 1 %}
@@ -54,10 +54,11 @@
                     <input type="hidden" name="child_slug" value="{{ child.slug }}">
                     {% if child.text %}
                         <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
+                        <input type="hidden" name="first_level_slug" value="{{ child.get_first_level_slug }}">
                     {%  else %}
                         <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
                     {% endif %}
-                    <input type="hidden" name="first_level_slug" value="{{ child.get_first_level_slug }}">
+
                     <input type="hidden" name="pk" value="{{ content.pk }}">
                     {% csrf_token %}
                     <button type="submit">

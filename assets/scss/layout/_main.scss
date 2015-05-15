@@ -35,6 +35,12 @@
         &.ico-tutorials:after {
             @include sprite-position($tutorials);
         }
+        &.ico-news:after {
+            @include sprite-position($star-heading-white);
+        }
+        &.ico-forum:after {
+            @include sprite-position($forum-heading);
+        }
 
         &.illu img {
             position: absolute;
@@ -250,16 +256,6 @@
             margin-left: 1.5%;
         }
     }
-    .home .main {
-        .sidebar {
-            margin-top: 30px;
-            border-top: 1px solid #FFF;
-
-            h3:first-child {
-                margin-top: 0;
-            }
-        }
-    }
 
     .full-content-wrapper .tutorial-list article {
         width: 46%;
@@ -295,6 +291,14 @@
         }
     }
 
+    .main .content-container {
+        h1, h2 {
+            &.ico-news:after {
+                @include sprite-position($star-heading);
+            }
+        }
+    }
+
     .main {
         width: 100%;
     }
@@ -302,10 +306,6 @@
     .main .content-container .content-col:not(:first-child),
     .main .sidebar {
         margin-top: 50px;
-    }
-
-    .home .main .content-container article {
-        padding: 20px 4%;
     }
 
     .main .sidebar {

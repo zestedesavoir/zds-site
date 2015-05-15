@@ -28,7 +28,7 @@ from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator

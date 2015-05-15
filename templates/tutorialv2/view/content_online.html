@@ -143,7 +143,7 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
-
+    {% set perms.tutorial.change_tutorial as perms_change %}
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -172,18 +172,23 @@
             {% url "content:hide-reaction" message.pk%}
         {% endcaptureas %}
 
-        {% if forloop.first and nb > 1 %}
+        {% captureas show_link %}
+            {% url "content:show-reaction" message.pk %}
+        {% endcaptureas %}
+
+        {% if forloop.first and page_obj.number > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
             {% set False as is_repeated_message %}
         {% endif %}
+
         {% if message.pk in user_can_modify %}
             {% set True as can_edit %}
         {% else %}
             {% set False as can_edit %}
         {% endif %}
 
-        {% include "tutorialv2/includes/reaction_message.part.html" with topic=content comment_schema=True %}
+        {% include "tutorialv2/includes/reaction_message.part.html" with topic=object %}
     {% endfor %}
 
 

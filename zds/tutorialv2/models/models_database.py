@@ -314,7 +314,7 @@ class PublishableContent(models.Model):
 
         fns = [
             'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url',
-            'get_note_count'
+            'get_note_count', 'antispam'
         ]
 
         # load functions and attributs in `versioned`
@@ -390,16 +390,18 @@ class PublishableContent(models.Model):
         if user is None:
             user = get_current_user()
 
-        last_user_notes = ContentReaction.objects\
-            .filter(related_content=self)\
-            .filter(author=user.pk)\
-            .order_by('-position')
+        if user:
+            last_user_notes = ContentReaction.objects\
+                .filter(related_content=self)\
+                .filter(author=user.pk)\
+                .order_by('-position')
 
-        if last_user_notes and last_user_notes[0] == self.last_note:
-            last_user_note = last_user_notes[0]
-            t = datetime.now() - last_user_note.pubdate
-            if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
-                return True
+            if last_user_notes and last_user_notes[0] == self.last_note:
+                last_user_note = last_user_notes[0]
+                t = datetime.now() - last_user_note.pubdate
+                if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
+                    return True
+
         return False
 
     def change_type(self, new_type):

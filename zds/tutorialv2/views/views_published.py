@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
@@ -16,9 +16,9 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
 from django.views.generic.detail import BaseDetailView
 import os
-from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
-from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm
+from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
@@ -65,9 +65,13 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
         queryset_reactions = ContentReaction.objects\
-            .select_related('author').select_related('editor')\
+            .select_related('author')\
+            .select_related('author__profile')\
+            .select_related('editor')\
             .prefetch_related('author__post_liked')\
             .prefetch_related('author__post_disliked')\
+            .prefetch_related('alerts')\
+            .prefetch_related('alerts__author')\
             .filter(related_content=self.object)\
             .order_by("pubdate")
 
@@ -86,23 +90,24 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         # optimize requests:
         reaction_ids = [reaction.pk for reaction in queryset_reactions]
-        user_votes = CommentDislike.objects\
+        context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .all()
-        context["user_dislike_dict"] = {reaction.pk: "dislike" for reaction in user_votes}
-        user_votes = CommentLike.objects\
+            .values_list('pk', flat=True)
+        context["user_like"] = CommentLike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .all()
-        context["user_like_dict"] = {reaction.pk: "like" for reaction in user_votes}
+            .values_list('pk', flat=True)
+
         if self.request.user.has_perm('forum.change_post'):
             context["user_can_modify"] = reaction_ids
         else:
-            context["user_can_modify"] = ContentReaction.objects\
-                                                        .filter(author__pk=self.request.user.pk,
-                                                                related_content__pk=self.object.pk)\
-                                                        .values('pk')
+            queryset_reactions_user = ContentReaction.objects\
+                .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
+                .values_list('id', flat=True)
+            context["user_can_modify"] = queryset_reactions_user
+
+        context['isantispam'] = self.object.antispam()
         return context
 
 
@@ -308,36 +313,49 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
         kwargs['content'] = self.object
-        kwargs["reaction"] = None
+        kwargs['reaction'] = None
         return kwargs
+
+    def post(self, request, *args, **kwargs):
+
+        if 'preview' in request.POST and request.is_ajax():  # preview
+            content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
+            return StreamingHttpResponse(content)
+        else:
+            return super(SendNoteFormView, self).post(request, *args, **kwargs)
 
     def form_valid(self, form):
 
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
-        if "message" in self.request.GET:
 
-            if not self.request.GET["message"].isdigit():
-                raise Http404
-            reaction = ContentReaction.objects\
-                .filter(pk=int(self.request.GET["message"]), author=self.request.user)
-            if reaction is None:
-                raise Http404
-        elif self.reaction is None:
+        is_new = False
+
+        if self.reaction:  # it's an edition
+            self.reaction.update = datetime.now()
+
+            if self.reaction.author != self.request.user:  # made by an admin
+                self.reaction.editor = self.request.user
+
+        else:
             self.reaction = ContentReaction()
-        self.reaction.related_content = self.object
-        self.reaction.update_content(form.cleaned_data["text"])
-        self.reaction.pubdate = datetime.now()
-        self.reaction.position = self.object.get_note_count() + 1
-        self.reaction.ip_address = get_client_ip(self.request)
-        self.reaction.author = self.request.user
+            self.reaction.pubdate = datetime.now()
+            self.reaction.author = self.request.user
+            self.reaction.position = self.object.get_note_count() + 1
+            self.reaction.related_content = self.object
 
+            is_new = True
+
+        self.reaction.update_content(form.cleaned_data["text"])
+        self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
-        self.object.last_note = self.reaction
-        self.object.save()
-        mark_read(self.object)
+
+        if is_new:  # we first need to save the reaction
+            self.object.last_note = self.reaction
+            self.object.save()
+            mark_read(self.object)
+
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
 
@@ -345,6 +363,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 class UpdateNoteView(SendNoteFormView):
     check_as = False
     template_name = "tutorialv2/comment/edit.html"
+    form_class = NoteEditForm
 
     def get_form_kwargs(self):
         kwargs = super(UpdateNoteView, self).get_form_kwargs()
@@ -353,9 +372,23 @@ class UpdateNoteView(SendNoteFormView):
                 .prefetch_related("author")\
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
-            kwargs["reaction"] = self.reaction
+            kwargs['reaction'] = self.reaction
+        else:
+            raise Http404
 
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateNoteView, self).get_context_data(**kwargs)
+
+        if self.reaction and self.reaction.author != self.request.user:
+            messages.add_message(
+                self.request, messages.WARNING,
+                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+                .format(self.reaction.author.username))
+
+        return context
 
     def form_valid(self, form):
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
@@ -365,9 +398,13 @@ class UpdateNoteView(SendNoteFormView):
                 .first()
             if self.reaction is None:
                 raise Http404
-            if self.reaction.author.pk != self.request.user.pk \
-               or not self.request.user.has_perm('forum.change_post'):
-                raise PermissionDenied
+            if self.reaction.author != self.request.user:
+                if not self.request.user.has_perm('forum.change_post'):
+                    raise PermissionDenied
+        else:
+            messages.error(self.request, 'Une erreur est survenue dans la requête')
+            return self.form_invalid(form)
+
         return super(UpdateNoteView, self).form_valid(form)
 
 
@@ -429,6 +466,8 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
                 note.save()
         resp["upvotes"] = note.like
         resp["downvotes"] = note.dislike
+        if self.request.is_ajax():
+            return StreamingHttpResponse(json_writer.dumps(resp))
         return redirect(note.get_absolute_url())
 
 
@@ -449,12 +488,12 @@ class GetReaction(BaseDetailView):
 
         reaction = self.get_queryset().first()
         if reaction is not None:
-            text = ">" + reaction.text.replace("\n\n", ">\n\n")
+            text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
             text += "\nSource: " + reaction.author.username
             string = json_writer.dumps({"text": text}, ensure_ascii=False)
         else:
             string = u'{"text":""}'
-        return HttpResponse(string, content_type='application/json')
+        return StreamingHttpResponse(string)
 
 
 class HideReaction(FormView, LoginRequiredMixin):
@@ -468,12 +507,36 @@ class HideReaction(FormView, LoginRequiredMixin):
 
         try:
             pk = int(self.kwargs["pk"])
-            text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
+            text = ''
+            if 'text_hidden' in self.request.POST:
+                text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
             reaction.hide_comment_by_user(self.request.user, text)
-            return redirect(reaction.related_content.get_absolute_url_online())
+            return redirect(reaction.get_absolute_url())
+        except (IndexError, ValueError, MultiValueDictKeyError):
+            raise Http404
+
+
+class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
+
+    permissions = ["tutorial.change_post"]
+    http_method_names = ['post']
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(ShowReaction, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            pk = int(self.kwargs["pk"])
+            reaction = get_object_or_404(ContentReaction, pk=pk)
+            reaction.is_visible = True
+            reaction.save()
+
+            return redirect(reaction.get_absolute_url())
+
         except (IndexError, ValueError, MultiValueDictKeyError):
             raise Http404
 
@@ -525,13 +588,13 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
                         'name': alert.author.username,
                         'target_name': note.author.username,
                         'modo_name': self.request.user.username,
-                        'message': self.request.POST["text"]
+                        'message': '\n'.join(['> ' + line for line in self.request.POST["text"].split('\n')])
                     })
                 send_mp(
                     bot,
                     [alert.author],
-                    _(u"Résolution d'alerte : {0}").format(note.related_content.title),
-                    "",
+                    _(u"Résolution d'alerte"),
+                    note.related_content.title,
                     msg,
                     False,
                 )

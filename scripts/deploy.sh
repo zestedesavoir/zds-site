@@ -43,7 +43,7 @@ git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
 git fetch
 # Checkout the tag
-git checkout $1
+git checkout $1-build
 # Create a branch with the same name - required to have version data in footer
 git checkout -b $1
 

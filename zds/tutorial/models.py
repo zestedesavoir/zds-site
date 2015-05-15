@@ -474,6 +474,12 @@ def get_last_tutorials():
     return tutorials
 
 
+def get_tutorials_count():
+    return Tutorial.objects.exclude(sha_public__isnull=True)\
+        .exclude(sha_public__exact='')\
+        .count()
+
+
 class Note(Comment):
 
     """A note tutorial written by an user."""

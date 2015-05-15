@@ -128,10 +128,13 @@
 
 {% block content %}
     {% if articles %}
-        <div class="tutorial-list">
+        <div class="content-item-list">
             {% for article in articles %}
-                {% include "article/includes/article_item.part.html" with link=article.get_absolute_url %}
+                {% include "article/includes/article_item.part.html" with link=article.get_absolute_url show_description=True %}
             {% endfor %}
+            <div class="fill"></div>
+            <div class="fill"></div>
+            <div class="fill"></div>
         </div>
     {% else %}
         <p>

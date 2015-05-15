@@ -5,7 +5,7 @@
 {% load i18n %}
 
 
-{% if topic.author = message.author and helpful_link %}
+{% if topic.author == message.author and helpful_link %}
     {% set True as is_author %}
 {% else %}
     {% set False as is_author %}
@@ -58,7 +58,7 @@
                                     </a>
                                     <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
                                         {% csrf_token %}
-                                        {% if message.pk in user_can_modify %}
+                                        {% if perms_change %}
                                             <p>
                                                 {% trans "Pour quelle raison souhaitez vous masquer ce message" %} ?
                                             </p>
@@ -107,7 +107,7 @@
                         {% endif %}
                     {% endif %}
 
-                    {% if cite_link and not topic.is_locked and not topic.antispam %}
+                    {% if cite_link and not topic.is_locked and not isantispam %}
                         <li>
                             <a href="{{ cite_link|safe }}" class="ico-after cite" data-ajax-input="cite-message">
                                 {% trans "Citer" %}
@@ -124,7 +124,7 @@
                         <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                             {% trans "Démasquer" %}
                         </a>
-                        <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
+                        <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
                             {% csrf_token %}
                             <p>
                                 {% blocktrans with editor=message.editor %}
@@ -280,7 +280,7 @@
                                                ico-after
                                                {% if message.like > message.dislike %}more-voted{% endif %}
                                                {% if message.like > 0 %}has-vote{% endif %}
-                                               {% if message.pk in user_like_dict %}voted{% endif %}"
+                                               {% if message.pk in user_like %}voted{% endif %}"
                                     >
                                         +{{ message.like }}
                                     </button>
@@ -295,7 +295,7 @@
                                                ico-after
                                                {% if message.like < message.dislike %}more-voted{% endif %}
                                                {% if message.dislike > 0 %}has-vote{% endif %}
-                                               {% if message.pk in user_dislike_dict %}voted{% endif %}"
+                                               {% if message.pk in user_dislike %}voted{% endif %}"
                                     >
                                         -{{ message.dislike }}
                                     </button>
