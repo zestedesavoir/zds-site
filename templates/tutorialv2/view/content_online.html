@@ -172,7 +172,7 @@
             {% url "content:hide-reaction" message.pk%}
         {% endcaptureas %}
 
-        {% if forloop.first and nb > 1 %}
+        {% if forloop.first and page_obj.number > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
             {% set False as is_repeated_message %}
