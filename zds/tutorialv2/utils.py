@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds import settings
 from zds.settings import ZDS_APP
-from zds.tutorialv2.models.models_versioned import Container
+
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -454,6 +454,7 @@ def make_one_markdown_file(published_content):
     :param published_content: a PublishedContent object
     :return:
     """
+    from zds.tutorialv2.models.models_versioned import Container
     publishable = published_content.content
     path = os.path.join(published_content.get_extra_contents_directory(),
                         published_content.content_public_slug + ".md")
