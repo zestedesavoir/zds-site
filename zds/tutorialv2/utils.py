@@ -228,6 +228,8 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
             enabled = enabled and tested.can_add_container()
             if level > 2:
                 enabled = enabled and tested == root
+            elif level == 2 and movable_child.can_add_container():
+                enabled = enabled and tested == root
 
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(), enabled))
 
