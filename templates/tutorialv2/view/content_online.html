@@ -172,6 +172,10 @@
             {% url "content:hide-reaction" message.pk%}
         {% endcaptureas %}
 
+        {% captureas show_link %}
+            {% url "content:show-reaction" message.pk %}
+        {% endcaptureas %}
+
         {% if forloop.first and page_obj.number > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
