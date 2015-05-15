@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds import settings
 from zds.settings import ZDS_APP
+from zds.tutorialv2.models.models_versioned import Container
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -156,8 +157,12 @@ def try_adopt_new_child(adoptive_parent, child):
     if isinstance(child, Container):
         if not adoptive_parent.can_add_container():
             raise TypeError
-        if adoptive_parent.get_tree_depth() + child.get_tree_level() >= settings.ZDS_APP['content']['max_tree_depth']:
+        if adoptive_parent.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
             raise TooDeepContainerError
+        if adoptive_parent.get_tree_depth() + child.get_tree_level() == settings.ZDS_APP['content']['max_tree_depth']:
+            if child.can_add_container():  # if the child is a part with empty chapters
+                # that we move inside another part
+                raise TooDeepContainerError
     adoptive_parent.top_container().change_child_directory(child, adoptive_parent)
 
 
@@ -436,8 +441,35 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     public_version.sha_public = versioned.current_version
     public_version.save()
-
+    try:
+        make_one_markdown_file(public_version)
+    except IOError:
+        pass
     return public_version
+
+
+def make_one_markdown_file(published_content):
+    """Create the md format extra content from the published content
+
+    :param published_content: a PublishedContent object
+    :return:
+    """
+    publishable = published_content.content
+    path = os.path.join(published_content.get_extra_contents_directory(),
+        published_content.content_public_slug + ".md")
+    with open(path, 'w') as md_file:
+        for child in publishable.traverse():
+            if isinstance(child, Container):
+                md_file.write("\n")
+                for i in range(child.get_tree_level()):
+                    md_file.write(u"#")
+                    md_file.write(u" " + child.title)
+            else:
+                for i in range(child.parent.get_tree_level() + 1):
+                    md_file.write(u"#")
+                    md_file.write(u" " + child.title + "\n\n")
+                    md_file.write(child.get_text())
+
 
 
 def unpublish_content(db_object):
