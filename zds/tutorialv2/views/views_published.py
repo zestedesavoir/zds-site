@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, ListView, FormView
 from django.views.generic.detail import BaseDetailView
 import os
-from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
@@ -507,12 +507,36 @@ class HideReaction(FormView, LoginRequiredMixin):
 
         try:
             pk = int(self.kwargs["pk"])
-            text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
+            text = ''
+            if 'text_hidden' in self.request.POST:
+                text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
             if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
+        except (IndexError, ValueError, MultiValueDictKeyError):
+            raise Http404
+
+
+class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
+
+    permissions = ["tutorial.change_post"]
+    http_method_names = ['post']
+
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(ShowReaction, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            pk = int(self.kwargs["pk"])
+            reaction = get_object_or_404(ContentReaction, pk=pk)
+            reaction.is_visible = True
+            reaction.save()
+
+            return redirect(reaction.get_absolute_url())
+
         except (IndexError, ValueError, MultiValueDictKeyError):
             raise Http404
 
