@@ -456,7 +456,7 @@ def make_one_markdown_file(published_content):
     """
     publishable = published_content.content
     path = os.path.join(published_content.get_extra_contents_directory(),
-        published_content.content_public_slug + ".md")
+                        published_content.content_public_slug + ".md")
     with open(path, 'w') as md_file:
         for child in publishable.traverse():
             if isinstance(child, Container):
@@ -469,7 +469,6 @@ def make_one_markdown_file(published_content):
                     md_file.write(u"#")
                     md_file.write(u" " + child.title + "\n\n")
                     md_file.write(child.get_text())
-
 
 
 def unpublish_content(db_object):
