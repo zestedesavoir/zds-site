@@ -4,7 +4,7 @@
 {% load feminize %}
 
 {% block title %}
-    {% trans "Editer " %}{{ "un"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}
+    {% trans "Éditer " %}{{ "un"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}
 {% endblock %}
 
 {% block breadcrumb %}
@@ -18,7 +18,7 @@
 
     <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
 
-    <li>{% trans "Editer " %}{{ "le"|feminize:container.get_level_as_string }} {{ container.get_level_as_string }}</li>
+    <li>{% trans "Éditer " %}{{ "le"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}</li>
 {% endblock %}
 
 {% block headline %}
