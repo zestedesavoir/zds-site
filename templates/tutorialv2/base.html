@@ -91,6 +91,13 @@
                                     </a>
                                 </li>
                             {% endif %}
+                            {% if public_object.have_zip %}
+                                <li>
+                                    <a href="{{ public_object.get_absolute_url_zip }}" class="ico-after download blue">
+                                        {% trans "EPUB" %}
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% else %}
                             <li>
                                 <a href="{% url "content:download-zip" content.pk content.slug %}{% if version %}?version={{ version }}{% endif %}" class="ico-after download blue">

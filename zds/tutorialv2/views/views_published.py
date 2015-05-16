@@ -132,9 +132,13 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
     """
 
     requested_file = None
-    allowed_types = ['md', 'html', 'pdf', 'epub']
+    allowed_types = ['md', 'html', 'pdf', 'epub', 'zip']
 
-    mimetypes = {'html': 'text/html', 'md': 'text/plain', 'pdf': 'application/pdf', 'epub': 'application/epub+zip'}
+    mimetypes = {'html': 'text/html',
+                 'md': 'text/plain',
+                 'pdf': 'application/pdf',
+                 'epub': 'application/epub+zip',
+                 'zip': 'application/zip'}
 
     def get_redirect_url(self, public_version):
         return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)

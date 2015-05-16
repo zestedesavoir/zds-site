@@ -442,34 +442,28 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.sha_public = versioned.current_version
     public_version.save()
     try:
-        make_one_markdown_file(public_version)
+        make_zip_file(public_version)
     except IOError:
         pass
     return public_version
 
 
-def make_one_markdown_file(published_content):
-    """Create the md format extra content from the published content
+def make_zip_file(published_content):
+    """Create the zip archive extra content from the published content
 
     :param published_content: a PublishedContent object
     :return:
     """
-    from zds.tutorialv2.models.models_versioned import Container
+
     publishable = published_content.content
     path = os.path.join(published_content.get_extra_contents_directory(),
-                        published_content.content_public_slug + ".md")
-    with open(path, 'w') as md_file:
-        for child in publishable.load_version(publishable.sha_public).traverse():
-            if isinstance(child, Container):
-                md_file.write("\n")
-                for i in range(child.get_tree_level()):
-                    md_file.write(u"#")
-                    md_file.write(u" " + child.title)
-            else:
-                for i in range(child.parent.get_tree_level() + 1):
-                    md_file.write(u"#")
-                    md_file.write(u" " + child.title + "\n\n")
-                    md_file.write(child.get_text())
+                        "archive")
+    final_path = os.path.join(published_content.get_extra_contents_directory(),
+                              published_content.content_public_slug)
+    shutil.copytree(publishable.get_repo_path(False), path)
+    shutil.rmtree(os.path.join(path, ".git"))
+    shutil.make_archive(path, "zip")
+    shutil.move(path + ".zip", final_path + ".zip")
 
 
 def unpublish_content(db_object):

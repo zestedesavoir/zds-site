@@ -492,7 +492,7 @@ class PublishedContent(models.Model):
         :return: `True` if the file exists, `False` otherwhise
         """
 
-        allowed_types = ['pdf', 'md', 'html', 'epub']
+        allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
 
         if type_ in allowed_types:
             return os.path.isfile(
@@ -528,12 +528,19 @@ class PublishedContent(models.Model):
         """
         return self.have_type('epub')
 
+    def have_zip(self):
+        """Check if the standard epub version of the content is available
+
+        :return: `True` if available, `False` otherwise
+        """
+        return self.have_type('zip')
+
     def get_absolute_url_to_extra_content(self, type_):
         """
         :return: URL to a given extra content (note that no check for existence is done)
         """
 
-        allowed_types = ['pdf', 'md', 'html', 'epub']
+        allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
 
         if type_ in allowed_types:
             reversed_ = ''
@@ -575,6 +582,13 @@ class PublishedContent(models.Model):
         """
 
         return self.get_absolute_url_to_extra_content('epub')
+
+    def get_absolute_url_zip(self):
+        """
+        :return: URL to the zip archive of the published content
+        """
+
+        return self.get_absolute_url_to_extra_content('zip')
 
 
 class ContentReaction(Comment):
