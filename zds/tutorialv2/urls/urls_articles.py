@@ -22,6 +22,8 @@ urlpatterns = patterns('',
                            DownloadOnlineArticle.as_view(requested_file='pdf'), name='download-pdf'),
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)\.epub$',
                            DownloadOnlineArticle.as_view(requested_file='epub'), name='download-epub'),
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.zip$',
+                           DownloadOnlineArticle.as_view(requested_file='zip'), name='download-zip'),
 
                        # Listing
                        url(r'^$', ListArticles.as_view(), name='list'))
