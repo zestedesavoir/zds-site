@@ -13,8 +13,8 @@ from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFor
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
-                       url(r'tutoriels/^$', ListContents.as_view(has_article=False), name='index-tutorial'),
-                       url(r'articles/^$', ListContents.as_view(has_tutorial=False), name='index-article'),
+                       url(r'^tutoriels/$', ListContents.as_view(has_article=False), name='index-tutorial'),
+                       url(r'^articles/$', ListContents.as_view(has_tutorial=False), name='index-article'),
                        url(r'^liste-articles/(?P<pk>\d+)/$',
                            ContentOfAuthor.as_view(content_type="ARTICLE"), name="find-article"),
                        url(r'^liste-tutoriels/(?P<pk>\d+)/$',
