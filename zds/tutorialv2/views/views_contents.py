@@ -1439,6 +1439,13 @@ class ContentOfAuthor(ZdSPagingListView):
         'redaction': lambda q: q.filter(sha_validation__is_null=True, sha_public__is_null=True, sha_beta__is_null=True),
         'beta': lambda q: q.filter(sha_beta__is_null=False),
         'public': lambda q: q.filter(sha_public__is_null=False)}
+    sorts = {
+        '': lambda q: q.order_by('title'),
+        'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
+        'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
+        'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
+    }
+    sort = ''
 
     def get_queryset(self):
         if "pk" in self.kwargs:
@@ -1453,4 +1460,22 @@ class ContentOfAuthor(ZdSPagingListView):
             if _type not in self.authorized_filters:
                 raise Http404
             self.queryset = self.authorized_filters[_type](self.queryset)
+        if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
+            self.query_set = self.sorts[self.request.GET["sort"].lower()][0](self.query_set)
+            self.sort = self.request.GET["sort"]
+        else:
+            self.query_set = self.sorts[''](self.query_set)
+            self.sort = ''
+
         return super(ContentOfAuthor, self).get_queryset()
+
+    def get_context_data(self, **kwargs):
+        """Separate articles and tutorials"""
+        context = super(ListContents, self).get_context_data(**kwargs)
+        context['sorts'] = []
+        context['sort'] = self.sort.lower()
+        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
+        for sort in self.sorts.keys():
+            if self.sort != '':
+                context['sorts'].append((reverse('content:index') + '?sort=' + sort, self.sorts[sort][1], sort))
+        return context
