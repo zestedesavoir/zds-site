@@ -6,20 +6,24 @@ from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, Cr
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer
+    RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, \
     DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
 urlpatterns = patterns('',
                        url(r'^$', ListContents.as_view(), name='index'),
-
+                       url(r'^$', ListContents.as_view(has_article=False), name='index-tutorial'),
+                       url(r'^$', ListContents.as_view(has_tutorial=False), name='index-article'),
+                       url(r'^liste-articles/(?P<pk>\d+)/$',
+                           ContentOfAuthor.as_view(content_type="ARTICLE"), name="find-article"),
+                       url(r'^liste-tutoriels/(?P<pk>\d+)/$',
+                           ContentOfAuthor.as_view(content_type="TUTORIAL"), name="find-tutoriel"),
+                       url(r'^liste-articles/$',
+                           ContentOfAuthor.as_view(content_type="ARTICLE"), name="own-article"),
+                       url(r'^liste-tutoriels/$',
+                           ContentOfAuthor.as_view(content_type="TUTORIAL"), name="own-tutoriel"),
                        url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
-
-                       # view:
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
-                           DisplayContainer.as_view(),
-                           name='view-container'),
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
                            DisplayContainer.as_view(),
                            name='view-container'),

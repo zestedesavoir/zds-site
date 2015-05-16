@@ -47,13 +47,14 @@ class ListContents(LoggedWithReadWriteHability, ListView):
     """
     context_object_name = 'contents'
     template_name = 'tutorialv2/index.html'
+    has_article = True
+    has_tutorial = True
     sorts = {
         '': lambda q: q.order_by('title'),
         'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
         'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
         'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
     }
-    sort = ''
 
     def get_queryset(self):
         """Filter the content to obtain the list of content written by current user
@@ -70,6 +71,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
             self.sort = self.request.GET["sort"]
         else:
             query_set = self.sorts[''](query_set)
+
         return query_set
 
     def get_context_data(self, **kwargs):
@@ -79,9 +81,9 @@ class ListContents(LoggedWithReadWriteHability, ListView):
         context['tutorials'] = []
         for content in self.get_queryset():
             versioned = content.load_version()
-            if content.type == 'ARTICLE':
+            if content.type == 'ARTICLE' and self.has_article:
                 context['articles'].append(versioned)
-            else:
+            elif self.has_tutorial:
                 context['tutorials'].append(versioned)
         context['sorts'] = []
         context['sort'] = self.sort.lower()
@@ -1424,3 +1426,29 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
         self.success_url = self.object.get_absolute_url()
         return super(RemoveAuthorFromContent, self).form_valid(form)
+
+
+class ContentOfAuthor(ZdSPagingListView):
+    content_type = "TUTORIAL"
+    paginate_by = settings.ZDS_APP['content']['content_per_page']
+    context_object_name = "contents"
+    authorized_filters = {
+        'validation': lambda q: q.filter(sha_validation__is_null=False),
+        'redaction': lambda q: q.filter(sha_validation__is_null=True, sha_public__is_null=True, sha_beta__is_null=True),
+        'beta': lambda q: q.filter(sha_beta__is_null=False),
+        'public': lambda q: q.filter(sha_public__is_null=False)}
+
+    def get_queryset(self):
+        if "pk" in self.kwargs:
+            user = get_object_or_404(int(self.kwargs["pk"]))
+        else:
+            user = self.request.user
+        self.queryset = PublishableContent.filter(authors__in=[user], type=self.content_type)
+        if "type" not in self.request.GET:
+            return super(ContentOfAuthor, self).get_queryset()
+        else:
+            _type = self.request.GET['type'].lower()
+            if _type not in self.authorized_filters:
+                raise Http404
+            self.queryset = self.authorized_filters[_type](self.queryset)
+        return super(ContentOfAuthor, self).get_queryset()

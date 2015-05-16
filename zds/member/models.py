@@ -15,10 +15,10 @@ from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 
 import pygeoip
-from zds.article.models import Article
 from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
 from zds.tutorial.models import Tutorial
+from zds.tutorialv2.models.models_database import PublishableContent
 from zds.utils.models import Alert
 from importlib import import_module
 
@@ -172,7 +172,7 @@ class Profile(models.Model):
         """
         if self.is_private():
             return 0
-        return Tutorial.objects.filter(authors__in=[self.user]).count()
+        return PublishableContent.objects.filter(authors__in=[self.user], type="TUTORIAL").count()
 
     def get_tutos(self):
         """
@@ -186,64 +186,80 @@ class Profile(models.Model):
         A draft tutorial is a tutorial which is not published, in validation or in beta.
         :return: All draft tutorials with this user as author.
         """
-        return Tutorial.objects.filter(
+        return PublishableContent.objects.filter(
             authors__in=[self.user],
             sha_draft__isnull=False,
             sha_beta__isnull=True,
             sha_validation__isnull=True,
             sha_public__isnull=True,
+            type="TUTORIAL"
         ).all()
 
     def get_public_tutos(self):
         """
         :return: All published tutorials with this user as author.
         """
-        return Tutorial.objects.filter(
+        return PublishableContent.objects.filter(
             authors__in=[
                 self.user],
-            sha_public__isnull=False).all()
+            sha_public__isnull=False,
+            type="TUTORIAL").all()
 
     def get_validate_tutos(self):
         """
         :return: All tutorials in validation with this user as author.
         """
-        return Tutorial.objects.filter(
+        return PublishableContent.objects.filter(
             authors__in=[
                 self.user],
-            sha_validation__isnull=False).all()
+            sha_validation__isnull=False,
+            type="TUTORIAL").all()
 
     def get_beta_tutos(self):
         """
         :return: All tutorials in beta with this user as author.
         """
-        return Tutorial.objects.filter(
+        return PublishableContent.objects.filter(
             authors__in=[
                 self.user],
-            sha_beta__isnull=False).all()
+            sha_beta__isnull=False,
+            type="TUTORIAL").all()
+
+    def get_beta_articles(self):
+        """
+        :return: All articles in beta with this user as author.
+        """
+        return PublishableContent.objects.filter(
+            authors__in=[
+                self.user],
+            sha_beta__isnull=False,
+            type="ARTICLE").all()
 
     def get_articles(self):
         """
         :return: All articles with this user as author.
         """
-        return Article.objects.filter(authors__in=[self.user]).all()
+        return PublishableContent.objects.filter(authors__in=[self.user], type="ARTICLE").all()
 
     def get_public_articles(self):
         """
         :return: All published articles with this user as author.
         """
-        return Article.objects.filter(
+        return PublishableContent.objects.filter(
             authors__in=[
                 self.user],
-            sha_public__isnull=False).all()
+            sha_public__isnull=False,
+            type="ARTICLE").all()
 
     def get_validate_articles(self):
         """
         :return: All articles in validation with this user as author.
         """
-        return Article.objects.filter(
+        return PublishableContent.objects.filter(
             authors__in=[
                 self.user],
-            sha_validation__isnull=False).all()
+            sha_validation__isnull=False,
+            type="ARTICLE").all()
 
     def get_draft_articles(self):
         """
@@ -251,12 +267,13 @@ class Profile(models.Model):
         A draft article is a article which is not published or in validation.
         :return: All draft article with this user as author.
         """
-        return Article.objects\
+        return PublishableContent.objects\
             .filter(
                 authors__in=[self.user],
                 sha_draft__isnull=False,
                 sha_validation__isnull=True,
                 sha_public__isnull=True,
+                type="ARTICLE"
             ).all()
 
     def get_posts(self):
