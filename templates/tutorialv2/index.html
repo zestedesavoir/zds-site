@@ -1,16 +1,31 @@
 {% extends "tutorialv2/base.html" %}
+{% load append_to_get %}
 {% load date %}
 {% load i18n %}
 
 
 {% block title %}
-    {% trans "Mes contenus" %}
+    {% if contents != None %}
+        {% trans "Contenus de" %} {{ usr.username }}
+    {% elif tutorials != None %}
+        {% trans "Tutoriels de" %} {{ usr.username }}
+    {% elif articles != None %}
+        {% trans "Articles de" %} {{ usr.username }}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+    {% if contents != None %}
+        <li><a href="{% url "content:index" usr.pk %}">{% trans "Contenus de" %} {{ usr.username }}</a></li>
+    {% elif tutorials != None %}
+        <li><a href="{% url "tutorial:list" %}">{% trans "Tutoriels" %}</a></li>
+        <li><a href="{% url "content:find-tutorial" usr.pk %}">{% trans "Tutoriels de" %} {{ usr.username }}</a></li>
+    {% elif articles != None %}
+        <li><a href="{% url "article:list" %}">{% trans "Articles" %}</a></li>
+        <li><a href="{% url "content:find-article" usr.pk %}">{% trans "Articles de" %} {{ usr.username }}</a></li>
+    {% endif %}
 {% endblock %}
 
 
@@ -19,21 +34,31 @@
     <section class="full-content-wrapper">
         <h2 class="ico-after ico-tutorials">
             {% block headline %}
-                {% trans "Mes contenus" %}
+                {% if contents != None %}
+                    {% trans "Contenus de" %} {{ usr.username }}
+                {% elif tutorials != None %}
+                    {% trans "Tutoriels de" %} {{ usr.username }}
+                {% elif articles != None %}
+                    {% trans "Articles de" %} {{ usr.username }}
+                {% endif %}
             {% endblock %}
         </h2>
 
-        {% if tutorials %}
-            <h3>{% trans "Mes tutoriels" %}</h3>
+        {% include "misc/paginator.html" with position="top" %}
+
+        {% if contents != None %}
+            <div class="tutorial-list clearfix">
+                {% for content in contents %}
+                    {% include "tutorialv2/includes/content_item.part.html" %}
+                {% endfor %}
+            </div>
+        {% elif tutorials != None %}
             <div class="tutorial-list clearfix">
                 {% for tutorial in tutorials %}
                     {% include "tutorialv2/includes/content_item.part.html" with content=tutorial %}
                 {% endfor %}
             </div>
-        {% endif %}
-
-        {% if articles %}
-            <h3>{% trans "Mes articles" %}</h3>
+        {% elif articles != None %}
             <div class="tutorial-list clearfix">
                 {% for article in articles %}
                     {% include "tutorialv2/includes/content_item.part.html" with content=article %}
@@ -41,9 +66,12 @@
             </div>
         {% endif %}
 
-        {% if not articles and not tutorials %}
-            <p>{% trans "Vous n'avez encore créé aucun contenu" %}</p>
+        {% if not articles and not tutorials and not contents %}
+            <p>{% trans "Il n'y a aucun contenu pour cet utilisateur." %}</p>
         {% endif %}
+
+        {% include "misc/paginator.html" with position="bottom" %}
+
     </section>
 {% endblock %}
 
@@ -61,11 +89,19 @@
 
 {% block sidebar_blocks %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
+            <h3>Filtrer</h3>
+            <ul>
+                {% for current_filter in filters %}
+                    <li><a href="{% append_to_get filter=current_filter.key %}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                {% endfor %}
+            </ul>
+        </div>
         <div class="mobile-menu-bloc mobile-all-links" data-title="Trier">
             <h3>Trier</h3>
             <ul>
-                {% for sorter in sorts %}
-                    <li><a href="{{ sorter.0 }}" class="ico-after gear {% if sort == sorter.2 %}selected{% endif %}">{{ sorter.1 }}</a> </li>
+                {% for current_sort in sorts %}
+                    <li><a href="{% append_to_get sort=current_sort.key %}" class="ico-after gear {% if sort == current_sort.key %}selected{% endif %}">{{ current_sort.text }}</a></li>
                 {% endfor %}
             </ul>
         </div>

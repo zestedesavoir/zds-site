@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+    <li><a href="{% url "content:index" request.user.pk %}">{% trans "Contenus de" %} {{ request.user.username }}</a></li>
 {% endblock %}
 
 {% block breadcrumb %}

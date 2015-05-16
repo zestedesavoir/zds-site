@@ -316,7 +316,7 @@
                 <ul>
                     {% if public_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-tutoriel" usr.pk %}"
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=public"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ public_tutos_count }}</span>
@@ -326,7 +326,7 @@
                     {% endif %}
                     {% if beta_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-tutoriel" usr.pk %}?type=beta"
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ beta_tutos_count }}</span>
@@ -337,7 +337,7 @@
                     {% if profile.user == user %}
                         {% if validate_tutos_count > 0 %}
                             <li>
-                                <a href="{% url "content:own-tutoriel" %}?type=validation"
+                                <a href="{% url "content:find-tutorial" usr.pk %}?filter=validation"
                                    class="mobile-menu-link mobile-menu-sublink"
                                 >
                                     <span class="count">{{ validate_tutos_count }}</span>
@@ -347,7 +347,7 @@
                         {% endif %}
                         {% if draft_tutos_count > 0 %}
                             <li>
-                                <a href="{% url "content:own-tutoriel" %}?type=redaction"
+                                <a href="{% url "content:find-tutorial" usr.pk %}?filter=redaction"
                                    class="mobile-menu-link mobile-menu-sublink"
                                 >
                                     <span class="count">{{ draft_tutos_count }}</span>
@@ -382,7 +382,7 @@
                 <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">Articles</h4>
                 <ul>
                     <li>
-                        <a href="{% url "content:find-article" usr.pk %}"
+                        <a href="{% url "content:find-article" usr.pk %}?filter=public"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ articles_public_count }}</span>
@@ -390,7 +390,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{% url "content:find-article" usr.pk %}?type=beta"
+                        <a href="{% url "content:find-article" usr.pk %}?filter=beta"
                            class="mobile-menu-link mobile-menu-sublink"
                         >
                             <span class="count">{{ articles_beta_count }}</span>
@@ -399,7 +399,7 @@
                     </li>
                     {% if profile.user == user %}
                         <li>
-                            <a href="{% url "content:own-article" %}?type=validation"
+                            <a href="{% url "content:find-article" usr.pk %}?filter=validation"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ articles_validation_count }}</span>
@@ -407,7 +407,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{% url "content:own-article" %}?type=redaction"
+                            <a href="{% url "content:find-article" usr.pk %}?filter=redaction"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ articles_draft_count }}</span>
