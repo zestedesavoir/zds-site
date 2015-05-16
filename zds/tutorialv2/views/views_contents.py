@@ -1436,10 +1436,10 @@ class ContentOfAuthor(ZdSPagingListView):
     context_object_name = "contents"
     template_name = 'tutorialv2/index.html'
     authorized_filters = {
-        'validation': lambda q: q.filter(sha_validation__is_null=False),
-        'redaction': lambda q: q.filter(sha_validation__is_null=True, sha_public__is_null=True, sha_beta__is_null=True),
-        'beta': lambda q: q.filter(sha_beta__is_null=False),
-        'public': lambda q: q.filter(sha_public__is_null=False)}
+        'validation': lambda q: q.filter(sha_validation__isnull=False),
+        'redaction': lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
+        'beta': lambda q: q.filter(sha_beta__isnull=False),
+        'public': lambda q: q.filter(sha_public__isnull=False)}
     sorts = {
         '': lambda q: q.order_by('title'),
         'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
@@ -1450,17 +1450,17 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def get_queryset(self):
         if "pk" in self.kwargs:
-            user = get_object_or_404(int(self.kwargs["pk"]))
+            user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
         else:
             user = self.request.user
-        self.queryset = PublishableContent.filter(authors__in=[user], type=self.content_type)
+        self.query_set = PublishableContent.objects.filter(authors__in=[user], type=self.content_type)
         if "type" not in self.request.GET:
             return super(ContentOfAuthor, self).get_queryset()
         else:
             _type = self.request.GET['type'].lower()
             if _type not in self.authorized_filters:
                 raise Http404
-            self.queryset = self.authorized_filters[_type](self.queryset)
+            self.queryset = self.authorized_filters[_type](self.query_set)
         if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
             self.query_set = self.sorts[self.request.GET["sort"].lower()][0](self.query_set)
             self.sort = self.request.GET["sort"]
@@ -1472,7 +1472,7 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def get_context_data(self, **kwargs):
         """Separate articles and tutorials"""
-        context = super(ListContents, self).get_context_data(**kwargs)
+        context = super(ContentOfAuthor, self).get_context_data(**kwargs)
         context['sorts'] = []
         context['sort'] = self.sort.lower()
         context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')

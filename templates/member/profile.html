@@ -377,8 +377,8 @@
             {% endif %}
         {% endwith %}
 
-        {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count articles_bet_count=profile.get_beta_articles.count %}
-            {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 or article_beta_count > 0 %}
+        {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count articles_beta_count=profile.get_beta_articles.count %}
+            {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 or articles_beta_count > 0 %}
                 <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">Articles</h4>
                 <ul>
                     <li>
