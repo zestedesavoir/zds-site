@@ -21,7 +21,7 @@ class TopicEditMixin(object):
         return follow_by_email(topic, user)
 
     @staticmethod
-    def perform_solved(user, topic):
+    def perform_solve_or_unsolve(user, topic):
         if user == topic.author or user.has_perm("forum.change_topic"):
             topic.is_solved = not topic.is_solved
             return topic.is_solved
@@ -33,9 +33,9 @@ class TopicEditMixin(object):
         if request.user.has_perm("forum.change_topic"):
             topic.is_locked = request.POST.get('lock') == "true"
             if topic.is_locked:
-                success_message = _(u'Le sujet {0} est désormais verrouillé.').format(topic.title)
+                success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
             else:
-                success_message = _(u'Le sujet {0} est désormais déverrouillé.').format(topic.title)
+                success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
             messages.success(request, success_message)
         else:
             raise PermissionDenied
@@ -68,7 +68,8 @@ class TopicEditMixin(object):
             for follower in followers:
                 if not forum.can_read(follower.user):
                     follower.delete()
-            messages.success(request, _(u"Le sujet {0} a bien été déplacé dans {1}.").format(topic.title, forum.title))
+            messages.success(request,
+                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
         else:
             raise PermissionDenied
 
@@ -79,11 +80,7 @@ class TopicEditMixin(object):
         topic.subtitle = data.get('subtitle')
         topic.save()
 
-        post = topic.first_post()
-        post.update_content(data.get('text'))
-        post.update = datetime.now()
-        post.editor = editor
-        post.save()
+        PostEditMixin.perform_edit_post(topic.first_post(), editor, data.get('text'))
 
         # add tags
         topic.tags.clear()
@@ -133,15 +130,18 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_unread_message(post, user):
+        """
+        Marks a post unread so we create a notification between the user and the topic host of the post.
+        But, if there is only one post in the topic, we mark the topic unread but we don't create a notification.
+        """
         if TopicFollowed.objects.filter(user=user, topic=post.topic).count() == 0:
             TopicFollowed(user=user, topic=post.topic).save()
 
         topic_read = TopicRead.objects.filter(topic=post.topic, user=user).first()
-        if topic_read is None:
-            if post.position > 1:
-                unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
-                topic_read = TopicRead(post=unread, topic=unread.topic, user=user)
-                topic_read.save()
+        if topic_read is None and post.position > 1:
+            unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
+            topic_read = TopicRead(post=unread, topic=unread.topic, user=user)
+            topic_read.save()
         else:
             if post.position > 1:
                 unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
@@ -152,6 +152,10 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_like_post(post, user):
+        """
+        If the post isn't liked by the user before, the post is liked by the user and a dislike is removed if exists.
+        Otherwise, the like is removed.
+        """
         if post.author.pk != user.pk:
             if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
                 like = CommentLike()
@@ -171,6 +175,10 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_dislike_post(post, user):
+        """
+        If the post isn't disliked by the user before, the post is disliked by the user and a like is removed if exists.
+        Otherwise, the dislike is removed.
+        """
         if post.author.pk != user.pk:
             if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
                 dislike = CommentDislike()
