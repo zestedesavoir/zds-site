@@ -2,6 +2,7 @@
 from collections import OrderedDict
 
 import shutil
+import zipfile
 from git import Repo, Actor
 import os
 from datetime import datetime
@@ -457,13 +458,12 @@ def make_zip_file(published_content):
 
     publishable = published_content.content
     path = os.path.join(published_content.get_extra_contents_directory(),
-                        "archive")
-    final_path = os.path.join(published_content.get_extra_contents_directory(),
-                              published_content.content_public_slug)
-    shutil.copytree(publishable.get_repo_path(False), path)
-    shutil.rmtree(os.path.join(path, ".git"))
-    shutil.make_archive(path, "zip")
-    shutil.move(path + ".zip", final_path + ".zip")
+                        published_content.content_public_slug + ".zip")
+    zip_file = zipfile.ZipFile(path, 'w')
+    versioned = publishable.load_version(None, True)
+    from zds.tutorialv2.views.views_contents import DownloadContent
+    DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
+    zip_file.close()
 
 
 def unpublish_content(db_object):

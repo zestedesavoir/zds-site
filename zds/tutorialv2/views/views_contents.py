@@ -1433,7 +1433,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 class ContentOfAuthor(ZdSPagingListView):
     content_type = "TUTORIAL"
     paginate_by = settings.ZDS_APP['content']['content_per_page']
-    context_object_name = "contents"
+    context_object_name = "object_list"
     template_name = 'tutorialv2/index.html'
     model = PublishableContent
 
