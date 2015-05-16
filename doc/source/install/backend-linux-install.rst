@@ -21,7 +21,7 @@ Sous Fedora
     sudo pip install tox
     sudo yum install libxml-devel libxslt-devel zlib-devel libjpeg libjpeg-devel freetype freetype-devel
 
-Note : sous les versions supérieures ou égales à 22, vous serez invités à faire usage du gestionnaire de paquets dnf au lieu de yum. 
+Note : sous les versions supérieures ou égales à 22, vous serez invité à faire usage du gestionnaire de paquets dnf au lieu de yum. 
   
 Et sous une autre distribution :
 ================================
