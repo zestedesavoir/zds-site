@@ -9,55 +9,24 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 
 **NB** : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.
 
-Assurez-vous que les dépendances suivantes soient résolues :
+L'installation se fait donc grâce à la commande suivante :
 
-- git : ``apt-get install git``
-- python2.7
-- python-dev : ``apt-get install python-dev``
-- easy_install : ``apt-get install python-setuptools``
-- pip : ``easy_install pip``
-- tox : ``pip install tox``
-- geoip : ``apt-get install geoip`` (peut s'appeler ``geoip-bin`` sur certaines distributions telles que Debian)
-- libgeoip-dev : ``apt-get install libgeoip-dev``
-- libxml2-dev : ``apt-get install libxml2-dev``
-- python-lxml : ``apt-get install python-lxml``
-- libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
-- libz-dev (peut être libz1g-dev sur système 64bits)
-- python-sqlparse
-- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev``
-
-Si vous utilisez la distribution Fedora, ces noms de paquets changent. Considérez ainsi la liste suivante :
-
-- git
-- python
-- python-devel
-- python-setuptools
-- geoip
-- geoip-devel
-- libxml-devel
-- libxslt-devel
-- zlib-devel
-- libjpeg
-- libjpeg-devel
-- freetype
-- freetype-devel
-
-
-L'installation se fait donc grâce à la commande suivante (sous une distribution autre que Fedora) :
-
+Sous Fedora
+===========
 .. sourcecode:: bash
-
-    apt-get install git python-dev python-setuptools '^geoip(-bin)?$' libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
-    easy_install pip tox
-    
-Et sous Fedora (prenez-garde, l'ordre a son importance) :
-
-.. sourcecode:: bash
-
-    sudo dnf install git python python-devel python-setuptools
+    sudo yum install git python python-devel python-setuptools
     sudo easy_install pip
     sudo pip install tox
-    sudo dnf install geoip geoip-devel libxml-devel libxslt-devel zlib-devel libjpeg libjpeg-devel freetype freetype-devel
+    sudo yum install libxml-devel libxslt-devel zlib-devel libjpeg libjpeg-devel freetype freetype-devel
+
+Note : sous les versions supérieures ou égales à 22, vous serez invités à faire usage du gestionnaire de paquets dnf au lieu de yum. 
+  
+Et sous une autre distribution :
+================================
+.. sourcecode:: bash
+    apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
+    easy_install pip tox
+   
 
 Toutes ces dépendances sont nécessaires au serveur Python, qui fait partie de l'environnement virtuel dans la configuration qui vous est proposée ici.
 
