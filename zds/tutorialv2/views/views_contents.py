@@ -1434,6 +1434,7 @@ class ContentOfAuthor(ZdSPagingListView):
     content_type = "TUTORIAL"
     paginate_by = settings.ZDS_APP['content']['content_per_page']
     context_object_name = "contents"
+    template_name = 'tutorialv2/index.html'
     authorized_filters = {
         'validation': lambda q: q.filter(sha_validation__is_null=False),
         'redaction': lambda q: q.filter(sha_validation__is_null=True, sha_public__is_null=True, sha_beta__is_null=True),
