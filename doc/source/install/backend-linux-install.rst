@@ -13,6 +13,7 @@ L'installation se fait donc grâce à la commande suivante :
 
 Sous Fedora
 ===========
+
 .. sourcecode:: bash
     sudo yum install git python python-devel python-setuptools
     sudo easy_install pip
@@ -23,6 +24,7 @@ Note : sous les versions supérieures ou égales à 22, vous serez invités à f
   
 Et sous une autre distribution :
 ================================
+
 .. sourcecode:: bash
     apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
     easy_install pip tox
