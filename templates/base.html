@@ -180,11 +180,11 @@
                     >
                         <ul class="header-menu-list">
                             <li>
-                                <a href="{% url "zds.tutorial.views.index" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                <a href="{% url "tutoriels:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
                                     {% trans "Tutoriels" %}
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
-                                    <a href="{% url "zds.tutorial.views.index" %}" class="dropdown-link-all">
+                                    <a href="{% url "tutoriels:list" %}" class="dropdown-link-all">
                                         {% trans "Tous les tutoriels" %}
                                     </a>
 

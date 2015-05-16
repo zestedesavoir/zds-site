@@ -6,9 +6,8 @@ import itertools
 from django import template
 from django.conf import settings
 
-from zds.article.models import Article
 from zds.forum.models import Forum, Topic
-from zds.tutorial.models import Tutorial
+from zds.tutorialv2.models.models_database import PublishableContent
 from zds.utils.models import CategorySubCategory, Tag
 
 
@@ -74,7 +73,9 @@ def top_categories_tuto(user):
     # Ordered dict is use to keep order
     cats = OrderedDict()
 
-    subcats_tutos = Tutorial.objects.values('subcategory').filter(sha_public__isnull=False).all()
+    subcats_tutos = PublishableContent.objects.values('subcategory')\
+        .filter(sha_public__isnull=False, type="TUTORIAL")\
+        .all()
     catsubcats = CategorySubCategory.objects \
         .filter(is_main=True)\
         .filter(subcategory__in=subcats_tutos)\
@@ -105,7 +106,9 @@ def top_categories_article(user):
     # Ordered dict is use to keep order
     cats = OrderedDict()
 
-    subcats_articles = Article.objects.values('subcategory').filter(sha_public__isnull=False).all()
+    subcats_articles = PublishableContent.objects.values('subcategory')\
+        .filter(sha_public__isnull=False, type="ARTICLE")\
+        .all()
     catsubcats = CategorySubCategory.objects \
         .filter(is_main=True)\
         .filter(subcategory__in=subcats_articles)\
