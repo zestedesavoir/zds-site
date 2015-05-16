@@ -15,6 +15,7 @@ Sous Fedora
 ===========
 
 .. sourcecode:: bash
+
     sudo yum install git python python-devel python-setuptools
     sudo easy_install pip
     sudo pip install tox
@@ -26,6 +27,7 @@ Et sous une autre distribution :
 ================================
 
 .. sourcecode:: bash
+
     apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev
     easy_install pip tox
    
