@@ -55,6 +55,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
         'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
         'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
     }
+    sort = ''
 
     def get_queryset(self):
         """Filter the content to obtain the list of content written by current user
@@ -71,6 +72,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
             self.sort = self.request.GET["sort"]
         else:
             query_set = self.sorts[''](query_set)
+            self.sort = ''
 
         return query_set
 
@@ -89,7 +91,7 @@ class ListContents(LoggedWithReadWriteHability, ListView):
         context['sort'] = self.sort.lower()
         context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
         for sort in self.sorts.keys():
-            if sort != '':
+            if self.sort != '':
                 context['sorts'].append((reverse('content:index') + '?sort=' + sort, self.sorts[sort][1], sort))
         return context
 
