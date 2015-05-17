@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 import datetime
 
-from zds.gallery.models import GALLERY_WRITE, UserGallery
+from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
@@ -517,6 +517,7 @@ class ContentTests(TestCase):
         self.assertFalse(os.path.exists(container.get_path()))
 
         # and delete tutorial itself
+        gallery = PublishableContent.objects.get(pk=pk).gallery
         result = self.client.post(
             reverse('content:delete', args=[pk, slug]),
             follow=False)
@@ -524,6 +525,8 @@ class ContentTests(TestCase):
 
         self.assertFalse(os.path.isfile(versioned.get_path()))  # deletion get right ;)
         self.assertEqual(PublishableContent.objects.filter(pk=pk).count(), 0)  # deleted from database
+
+        self.assertEqual(Gallery.objects.filter(pk=gallery.pk).count(), 0)  # deletion of the gallery
 
     def test_beta_workflow(self):
         """Test beta workflow (access and update)"""

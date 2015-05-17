@@ -18,7 +18,7 @@ from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 from git import Repo, BadObject
 from gitdb.exc import BadName
@@ -437,6 +437,12 @@ class PublishableContent(models.Model):
 def delete_repo(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion of the repository if a PublishableContent is deleted"""
     instance.repo_delete()
+
+
+@receiver(post_delete, sender=PublishableContent)
+def delete_gallery(sender, instance, **kwargs):
+    """catch the post_delete signal to ensure the deletion of the gallery (otherwise, you generate a loop)"""
+    instance.gallery.delete()
 
 
 class PublishedContent(models.Model):
