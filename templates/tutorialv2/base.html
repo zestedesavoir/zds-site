@@ -4,20 +4,20 @@
 
 
 {% block title_base %}
-    &bull; {% trans "Mes contenus" %}
+    &bull; {% trans "Contenus" %}
 {% endblock %}
 
 
 
 {% block mobile_title %}
-    {% trans "Mes contenus" %}
+    {% trans "Contenus" %}
 {% endblock %}
 
 
 
 {% block breadcrumb_base %}
     {% if user in content.authors.all %}
-        <li><a href="{% url "content:index" %}">{% trans "Mes contenus" %}</a></li>
+        <li><a href="{% url "content:index" user.pk %}">{% trans "Contenus de" %} {{ user.username }}</a></li>
     {% elif content %}
         <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
             {% if content.type == 'TUTORIAL' %}

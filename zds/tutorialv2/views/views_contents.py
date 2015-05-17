@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
-from django.views.generic import ListView, FormView, DeleteView
+from django.views.generic import FormView, DeleteView
 from git import GitCommandError
 import os
 from zds.forum.models import Forum
@@ -29,6 +29,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     ExtractForm, BetaForm, MoveElementForm, AuthorForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin
+from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
@@ -39,61 +40,6 @@ from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
-
-
-class ListContents(LoggedWithReadWriteHability, ListView):
-    """
-    Displays the list of offline contents (written by user)
-    """
-    context_object_name = 'contents'
-    template_name = 'tutorialv2/index.html'
-    has_article = True
-    has_tutorial = True
-    sorts = {
-        '': lambda q: q.order_by('title'),
-        'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
-        'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
-        'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
-    }
-    sort = ''
-
-    def get_queryset(self):
-        """Filter the content to obtain the list of content written by current user
-
-        :return: list of articles
-        """
-        query_set = PublishableContent.objects \
-            .select_related("licence") \
-            .prefetch_related("authors") \
-            .prefetch_related("subcategory")\
-            .filter(authors__in=[self.request.user])
-        if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
-            query_set = self.sorts[self.request.GET["sort"].lower()][0](query_set)
-            self.sort = self.request.GET["sort"]
-        else:
-            query_set = self.sorts[''](query_set)
-            self.sort = ''
-
-        return query_set
-
-    def get_context_data(self, **kwargs):
-        """Separate articles and tutorials"""
-        context = super(ListContents, self).get_context_data(**kwargs)
-        context['articles'] = []
-        context['tutorials'] = []
-        for content in self.get_queryset():
-            versioned = content.load_version()
-            if content.type == 'ARTICLE' and self.has_article:
-                context['articles'].append(versioned)
-            elif self.has_tutorial:
-                context['tutorials'].append(versioned)
-        context['sorts'] = []
-        context['sort'] = self.sort.lower()
-        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
-        for sort in self.sorts.keys():
-            if self.sort != '':
-                context['sorts'].append((reverse('content:index') + '?sort=' + sort, self.sorts[sort][1], sort))
-        return context
 
 
 class CreateContent(LoggedWithReadWriteHability, FormView):
@@ -343,7 +289,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         self.object = self.get_object()
         self.object.delete()
 
-        return redirect(reverse('content:index'))
+        return redirect(reverse('content:index', args=[request.user.pk]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -1386,6 +1332,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 self.object.authors.add(user)
 
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                url_index = settings.ZDS_APP['site']['url'] + reverse("content:index", args=[self.request.user.pk])
                 send_mp(
                     bot,
                     [user],
@@ -1395,7 +1342,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                         'content': self.object,
                         'type': _type,
                         'url': self.object.get_absolute_url(),
-                        'index': settings.ZDS_APP['site']['url'] + reverse("content:index"),
+                        'index': url_index,
                         'user': user.username
                     }),
                     True,
@@ -1434,52 +1381,77 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
 
 class ContentOfAuthor(ZdSPagingListView):
-    content_type = "TUTORIAL"
+    type = 'ALL'
+    context_object_name = 'contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
-    context_object_name = "object_list"
     template_name = 'tutorialv2/index.html'
     model = PublishableContent
 
     authorized_filters = {
-        'validation': lambda q: q.filter(sha_validation__isnull=False),
-        'redaction': lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
-        'beta': lambda q: q.filter(sha_beta__isnull=False),
-        'public': lambda q: q.filter(sha_public__isnull=False)}
+        'public': [lambda q: q.filter(sha_public__isnull=False), _(u'Publiés'), True, 'tick green'],
+        'validation': [lambda q: q.filter(sha_validation__isnull=False), _(u'En validation'), False, 'tick'],
+        'beta': [lambda q: q.filter(sha_beta__isnull=False), _(u'En bêta'), True, 'beta'],
+        'redaction': [
+            lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
+            _(u'Brouillons'), False, 'edit'],
+    }
     sorts = {
-        '': lambda q: q.order_by('title'),
         'creation': [lambda q: q.order_by('creation_date'), _(u"Par date de création")],
         'abc': [lambda q: q.order_by('title'), _(u"Par ordre alphabétique")],
         'modification': [lambda q: q.order_by('-update_date'), _(u"Par date de dernière modification")]
     }
     sort = ''
+    filter = ''
+    user = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
+        if self.user != self.request.user and 'filter' in self.request.GET:
+            filter = self.request.GET.get('filter').lower()
+            if filter in self.authorized_filters:
+                if not self.authorized_filters[filter][2]:
+                    raise PermissionDenied
+            else:
+                raise Http404
+        return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if "pk" in self.kwargs:
-            user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
+        if self.type in TYPE_CHOICES_DICT.keys():
+            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
-            user = self.request.user
-        queryset = PublishableContent.objects.filter(authors__pk__in=[user.pk], type=self.content_type)
-        if "type" in self.request.GET:
-            _type = self.request.GET['type'].lower()
-            if _type not in self.authorized_filters:
-                raise Http404
-            queryset = self.authorized_filters[_type](queryset)
-        if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
-            queryset = self.sorts[self.request.GET["sort"].lower()][0](queryset)
-            self.sort = self.request.GET["sort"]
-        else:
-            queryset = self.sorts[''](queryset)
-            self.sort = ''
+            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
 
+        # Filter.
+        if 'filter' in self.request.GET:
+            self.filter = self.request.GET['filter'].lower()
+            if self.filter not in self.authorized_filters:
+                raise Http404
+        elif self.user != self.request.user:
+            self.filter = 'public'
+        if self.filter != '':
+            queryset = self.authorized_filters[self.filter][0](queryset)
+
+        # Sort.
+        if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
+            self.sort = self.request.GET['sort']
+        else:
+            self.sort = 'abc'
+        queryset = self.sorts[self.sort.lower()][0](queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
-        """Separate articles and tutorials"""
         context = super(ContentOfAuthor, self).get_context_data(**kwargs)
         context['sorts'] = []
+        context['filters'] = []
         context['sort'] = self.sort.lower()
+        context['filter'] = self.filter.lower()
         context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
+        context['usr'] = self.user
         for sort in self.sorts.keys():
-            if self.sort != '':
-                context['sorts'].append((reverse('content:index') + '?sort=' + sort, self.sorts[sort][1], sort))
+            context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
+        for filter in self.authorized_filters.keys():
+            authorized_filter = self.authorized_filters[filter]
+            if self.user != self.request.user and not authorized_filter[2]:
+                continue
+            context['filters'].append({'key': filter, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context

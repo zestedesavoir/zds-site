@@ -2,7 +2,7 @@
 
 from django.conf.urls import patterns, url
 
-from zds.tutorialv2.views.views_contents import ListContents, DisplayContent, CreateContent, EditContent, \
+from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, EditContent, \
     DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
     DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
@@ -12,17 +12,14 @@ from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFor
     DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
 urlpatterns = patterns('',
-                       url(r'^$', ListContents.as_view(), name='index'),
-                       url(r'^tutoriels/$', ListContents.as_view(has_article=False), name='index-tutorial'),
-                       url(r'^articles/$', ListContents.as_view(has_tutorial=False), name='index-article'),
-                       url(r'^liste-articles/(?P<pk>\d+)/$',
-                           ContentOfAuthor.as_view(content_type="ARTICLE"), name="find-article"),
-                       url(r'^liste-tutoriels/(?P<pk>\d+)/$',
-                           ContentOfAuthor.as_view(content_type="TUTORIAL"), name="find-tutoriel"),
-                       url(r'^liste-articles/$',
-                           ContentOfAuthor.as_view(content_type="ARTICLE"), name="own-article"),
-                       url(r'^liste-tutoriels/$',
-                           ContentOfAuthor.as_view(content_type="TUTORIAL"), name="own-tutoriel"),
+                       url(r'^(?P<pk>\d+)/$', ContentOfAuthor.as_view(), name='index'),
+                       url(r'^tutoriels/(?P<pk>\d+)/$',
+                           ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
+                           name="find-tutorial"),
+                       url(r'^articles/(?P<pk>\d+)/$',
+                           ContentOfAuthor.as_view(type='ARTICLE', context_object_name='articles'),
+                           name="find-article"),
+
                        url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
                            DisplayContainer.as_view(),

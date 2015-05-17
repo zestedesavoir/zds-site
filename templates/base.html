@@ -435,10 +435,10 @@
                                             <a href="{% url "member-detail" user.username %}">{% trans "Mon profil" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "content:index-tutorial" %}">{% trans "Mes tutoriels" %}</a>
+                                            <a href="{% url "content:find-tutorial" user.pk %}">{% trans "Mes tutoriels" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url "content:index-article" %}">{% trans "Mes articles" %}</a>
+                                            <a href="{% url "content:find-article" user.pk %}">{% trans "Mes articles" %}</a>
                                         </li>
                                         <li>
                                             <a href="{% url "gallery-list" %}">{% trans "Galeries d'images" %}</a>
