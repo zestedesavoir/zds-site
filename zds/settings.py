@@ -499,6 +499,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # Use cached storage for statics
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.CachedStaticFilesStorage"
 
+# Properly handle HTTPS vs HTTP
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
