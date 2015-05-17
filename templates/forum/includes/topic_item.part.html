@@ -18,14 +18,19 @@
         </p>
 
         <p class="content-meta">
-            {% with answer=topic.get_last_answer %}
+            {% with answer=topic.get_last_answer last_read=topic.last_read_post %}
                 {% if answer %}
-                    {% trans "Dernière réponse :" %}
-                    {% include "misc/member_item.part.html" with member=answer.author %} -
-                    <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
-                        <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
-                        <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
-                    </time>
+                    {% spaceless %}
+                    <a href="{{ last_read.get_absolute_url }}" class="last-read-link">
+                        {% trans "Dernière réponse :" %}
+                        <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
+                            <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
+                            <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
+                        </time>
+                    </a>
+                    {% endspaceless %}
+                    {% trans "par" %}
+                    {% include "misc/member_item.part.html" with member=answer.author %}
                 {% else %}
                     {% trans "Aucune réponse" %}
                 {% endif %}

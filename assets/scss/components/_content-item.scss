@@ -167,6 +167,14 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         .short {
             display: none;
         }
+
+        & > a {
+            color: darken($color-secondary, 10%);
+
+            &:hover, &:focus {
+                text-decoration: underline;
+            }
+        }
     }
 
     .content-tags {
