@@ -125,7 +125,7 @@
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
         <p class="ico-after warning">
-            {% trans "Ce contenu est actuelement vide" %}.
+            {{ content.textual_type }}{% trans " est actuellement vide" %}.
         </p>
     {% endfor %}
 
