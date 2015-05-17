@@ -957,7 +957,7 @@ class VersionedContent(Container):
 
         :return: internationalized string
         """
-        if self.is_article():
+        if self.is_article:
             return _("L'Article")
         else:
             return _("Le Tutoriel")
