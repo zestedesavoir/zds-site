@@ -94,7 +94,10 @@ class Profile(models.Model):
         blank=True)
 
     objects = ProfileManager()
-    _permissions = {}
+
+    def __init__(self):
+        super(self, Profile).__init__()
+        self._permissions = {}
 
     def __unicode__(self):
         return self.user.username
