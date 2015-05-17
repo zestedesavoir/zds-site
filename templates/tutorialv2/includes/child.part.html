@@ -73,9 +73,13 @@
 
 {% if child.text %}
     {# child is an extract #}
-
-    {{ child.get_text|emarkdown:is_js }}
-
+    {% if child.get_text.strip|length == 0 %}
+        <p class="ico-after warning">
+            {% trans "Cette section est actuellement vide" %}
+        </p>
+    {% else %}
+        {{ child.get_text|emarkdown:is_js }}
+    {% endif %}
 {% else %}
     {# child is a container #}
 
@@ -126,7 +130,7 @@
         </ol>
     {% else %}
         <p class="ico-after warning">
-          {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string }}  {% trans " est actuellement vide" %}.
+          {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }}  {% trans " est actuellement vide" %}.
         </p>
     {% endif %}
 {% endif %}

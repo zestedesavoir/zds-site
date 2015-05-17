@@ -93,7 +93,7 @@
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
         <p class="ico-after warning">
-            {% trans "Ce conteneur est actuelement vide" %}.
+            {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est actuellement vide" %}.
         </p>
     {% endfor %}
 
