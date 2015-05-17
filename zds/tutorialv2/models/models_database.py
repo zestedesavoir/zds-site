@@ -117,6 +117,10 @@ class PublishableContent(models.Model):
         return self.title
 
     def textual_type(self):
+        """Create a internationalized string with the human readable type of this content e.g The Article
+
+        :return: internationalized string
+        """
         if self.is_article():
             return _("L'Article")
         else:

@@ -952,6 +952,16 @@ class VersionedContent(Container):
     def __unicode__(self):
         return self.title
 
+    def textual_type(self):
+        """Create a internationalized string with the human readable type of this content e.g The Article
+
+        :return: internationalized string
+        """
+        if self.is_article():
+            return _("L'Article")
+        else:
+            return _("Le Tutoriel")
+
     def get_absolute_url(self, version=None):
         """
         :return: the url to access the tutorial when offline
