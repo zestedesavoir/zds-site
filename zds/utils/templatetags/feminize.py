@@ -7,7 +7,8 @@ register = template.Library()
 articles = {
     "le": "la",
     "un": "une",
-    "Nouveau": "Nouvelle"
+    "Nouveau": "Nouvelle",
+    "Ce": "Cette"
 }
 
 words = {

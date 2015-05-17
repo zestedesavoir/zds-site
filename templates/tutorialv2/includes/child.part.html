@@ -125,7 +125,7 @@
         </ol>
     {% else %}
         <p class="ico-after warning">
-            {% trans "Ce conteneur est actuelement vide" %}.
+          {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string }}  {% trans " est actuellement vide" %}.
         </p>
     {% endif %}
 {% endif %}
