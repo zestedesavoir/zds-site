@@ -31,7 +31,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             white-space: nowrap;
             text-overflow: ellipsis;
 
-            & > * {
+            &:not(.inline) > * {
                 display: inline;
             }
         }
@@ -156,6 +156,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        .short {
+            display: none;
+        }
     }
 
     .content-meta {
@@ -163,6 +167,13 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         font-size: 13px;
         font-size: 1.3rem;
         line-height: 15px;
+
+        &:not(.inline) > * {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
 
         .short {
             display: none;
@@ -318,9 +329,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
                 & > * {
                     display: block;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
                 }
             }
         }
@@ -346,7 +354,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             display: none;
         }
 
-        .content-meta {
+        .content-meta, .content-description {
             .short {
                 display: inline;
             }

@@ -14,16 +14,20 @@
         <p class="content-description">
             {{ topic.forum.title }},
             {% trans "par" %}{% include "misc/member_item.part.html" with member=topic.author %}
-            - {{ topic.pubdate|format_date|capfirst }}
+            -
+            <time pubdate="{{ topic.pubdate|date:"c" }}">
+                <span class="long">{{ topic.pubdate|format_date|capfirst }}</span>
+                <span class="short">{{ topic.pubdate|format_date:True|capfirst }}</span>
+            </time>
         </p>
 
-        <p class="content-meta">
+        <p class="content-meta inline">
             {% with answer=topic.get_last_answer last_read=topic.last_read_post %}
                 {% if answer %}
                     {% spaceless %}
                     <a href="{{ last_read.get_absolute_url }}" class="last-read-link">
                         {% trans "Dernière réponse :" %}
-                        <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
+                        <time class="content-pubdate" pubdate="{{ answer.pubdate|date:"c" }}">
                             <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
                             <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
                         </time>
