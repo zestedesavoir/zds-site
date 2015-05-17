@@ -18,6 +18,8 @@ from django.db import models
 from django.http import Http404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from git import Repo, BadObject
 from gitdb.exc import BadName
 import os
@@ -30,6 +32,7 @@ from zds.utils.models import SubCategory, Licence, HelpWriting, Comment
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
+from zds.tutorialv2.managers import PublishedContentManager
 
 
 class PublishableContent(models.Model):
@@ -417,13 +420,19 @@ class PublishableContent(models.Model):
         """
         Delete the entities and their filesystem counterparts
         """
-        shutil.rmtree(self.get_repo_path(), False)
+        if os.path.exists(self.get_repo_path()):
+            shutil.rmtree(self.get_repo_path(), False)
+        if self.in_public():
+            if os.path.exists(self.get_prod_path()):
+                shutil.rmtree(self.get_prod_path())
+
         Validation.objects.filter(content=self).delete()
 
-        if self.gallery is not None:
-            self.gallery.delete()
-        if self.in_public():
-            shutil.rmtree(self.get_prod_path())
+
+@receiver(pre_delete, sender=PublishableContent)
+def delete_repo(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion of the repository if a PublishableContent is deleted"""
+    instance.repo_delete()
 
 
 class PublishedContent(models.Model):
@@ -452,6 +461,8 @@ class PublishedContent(models.Model):
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
 
+    objects = PublishedContentManager()
+
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
@@ -473,6 +484,21 @@ class PublishedContent(models.Model):
             reversed_ = 'tutorial'
 
         return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+
+    def load_public_version_or_404(self):
+        """
+        :return: the public content
+        :rtype PublicContent
+        :raise Http404: if the version is not available
+        """
+        return self.content.load_version_or_404(sha=self.sha_public, public=self)
+
+    def load_public_version(self):
+        """
+        :rtype PublicContent
+        :return: the public content
+        """
+        return self.content.load_version(sha=self.sha_public, public=self)
 
     def is_article(self):
         return self.content_type == "ARTICLE"

@@ -334,10 +334,13 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
     object = None
     authorized_for_staff = False  # deletion is creator's privilege
 
+    @method_decorator(transaction.atomic)
+    def dispatch(self, *args, **kwargs):
+        return super(DeleteContent, self).dispatch(*args, **kwargs)
+
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""
         self.object = self.get_object()
-        self.object.repo_delete()
         self.object.delete()
 
         return redirect(reverse('content:index'))

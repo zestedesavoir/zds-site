@@ -278,7 +278,7 @@ class ListOnlineContents(ContentTypeMixin, ListView):
             .prefetch_related("content")\
             .prefetch_related("content__subcategory")\
             .prefetch_related("content__authors")\
-            .filter(content_type=self.current_content_type)
+            .filter(content_type=self.current_content_type, must_redirect=False)
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))

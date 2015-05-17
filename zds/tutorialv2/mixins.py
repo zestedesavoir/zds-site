@@ -278,7 +278,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         - Check if `slug` is defined, also check object it if it's the case
         - Then, define `self.is_staff` and `self.is_author`.
     2. In `get_versioned_object()`: Fetch the `VersionedContent`. Due to  the use of
-        `self.object.load_version_or_404(sha)`, raise `Http404` if any.
+        `self.public_content_object.load_public_version_or_404()`, raise `Http404` if any.
 
     Any redefinition of any of these two functions should take care of those points.
 
@@ -319,7 +319,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         if 'slug' in self.kwargs:
             queryset = queryset.filter(content_public_slug=self.kwargs['slug'])
 
-        obj = queryset.last()
+        obj = queryset.order_by('publication_date').last()  # "last" version must be the most recent to be published
         if obj is None:
             raise Http404
 
@@ -341,8 +341,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
     def get_versioned_object(self):
 
-        return self.object.load_version_or_404(
-            sha=self.public_content_object.sha_public, public=self.public_content_object)
+        return self.public_content_object.load_public_version_or_404()
 
 
 class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailView):

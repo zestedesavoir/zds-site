@@ -17,10 +17,8 @@ from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
-from zds.tutorial.factories import MiniTutorialFactory, PublishedMiniTutorial
-from zds.tutorial.models import Tutorial
-from zds.article.factories import ArticleFactory, PublishedArticleFactory
-from zds.article.models import Article
+from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
+from zds.tutorialv2.models.models_database import PublishableContent
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -29,9 +27,8 @@ from zds.utils.models import CommentLike
 
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
-overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
-overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -299,38 +296,37 @@ class MemberTests(TestCase):
         UserGalleryFactory(gallery=shared_gallery, user=user.user)
         UserGalleryFactory(gallery=shared_gallery, user=user2.user)
         # first case : a published tutorial with only one author
-        published_tutorial_alone = PublishedMiniTutorial(light=True)
+        published_tutorial_alone = PublishedContentFactory(type='TUTORIAL')
         published_tutorial_alone.authors.add(user.user)
         published_tutorial_alone.save()
         # second case : a published tutorial with two authors
-        published_tutorial_2 = PublishedMiniTutorial(light=True)
+        published_tutorial_2 = PublishedContentFactory(type='TUTORIAL')
         published_tutorial_2.authors.add(user.user)
         published_tutorial_2.authors.add(user2.user)
         published_tutorial_2.save()
         # third case : a private tutorial with only one author
-        writing_tutorial_alone = MiniTutorialFactory(light=True)
+        writing_tutorial_alone = PublishableContentFactory(type='TUTORIAL')
         writing_tutorial_alone.authors.add(user.user)
         writing_tutorial_alone.save()
         writing_tutorial_alone_galler_path = writing_tutorial_alone.gallery.get_gallery_path()
-        writing_tutorial_alone_path = writing_tutorial_alone.get_path()
         # fourth case : a private tutorial with at least two authors
-        writing_tutorial_2 = MiniTutorialFactory(light=True)
+        writing_tutorial_2 = PublishableContentFactory(type='TUTORIAL')
         writing_tutorial_2.authors.add(user.user)
         writing_tutorial_2.authors.add(user2.user)
         writing_tutorial_2.save()
         self.client.login(username=self.staff.username, password="hostel77")
         # same thing for articles
-        published_article_alone = PublishedArticleFactory()
+        published_article_alone = PublishedContentFactory(type='ARTICLE')
         published_article_alone.authors.add(user.user)
         published_article_alone.save()
-        published_article_2 = PublishedArticleFactory()
+        published_article_2 = PublishedContentFactory(type='ARTICLE')
         published_article_2.authors.add(user.user)
         published_article_2.authors.add(user2.user)
         published_article_2.save()
-        writing_article_alone = ArticleFactory()
+        writing_article_alone = PublishableContentFactory(type='ARTICLE')
         writing_article_alone.authors.add(user.user)
         writing_article_alone.save()
-        writing_article_2 = ArticleFactory()
+        writing_article_2 = PublishableContentFactory(type='ARTICLE')
         writing_article_2.authors.add(user.user)
         writing_article_2.authors.add(user2.user)
         writing_article_2.save()
@@ -351,6 +347,8 @@ class MemberTests(TestCase):
         private_topic.participants.add(user2.user)
         private_topic.save()
         PrivatePostFactory(author=user.user, privatetopic=private_topic, position_in_topic=1)
+
+        # login and unregister:
         login_check = self.client.login(
             username=user.user.username,
             password='hostel77')
@@ -359,6 +357,8 @@ class MemberTests(TestCase):
             reverse('zds.member.views.unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        # check that the bot have taken authorship of tutorial:
         self.assertEqual(published_tutorial_alone.authors.count(), 1)
         self.assertEqual(published_tutorial_alone.authors.first().username,
                          settings.ZDS_APP["member"]["external_account"])
@@ -367,54 +367,71 @@ class MemberTests(TestCase):
         self.assertEqual(published_tutorial_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])
                          .count(), 0)
-        self.assertIsNotNone(published_tutorial_2.get_prod_path())
-        self.assertTrue(os.path.exists(published_tutorial_2.get_prod_path()))
-        self.assertIsNotNone(published_tutorial_alone.get_prod_path())
-        self.assertTrue(os.path.exists(published_tutorial_alone.get_prod_path()))
+
+        # check that published tutorials remain published and accessible
+        self.assertIsNotNone(published_tutorial_2.public_version.get_prod_path())
+        self.assertTrue(os.path.exists(published_tutorial_2.public_version.get_prod_path()))
+        self.assertIsNotNone(published_tutorial_alone.public_version.get_prod_path())
+        self.assertTrue(os.path.exists(published_tutorial_alone.public_version.get_prod_path()))
         self.assertEqual(self.client.get(
-            reverse('zds.tutorial.views.view_tutorial_online', args=[
+            reverse('tutorial:view', args=[
                     published_tutorial_alone.pk,
                     published_tutorial_alone.slug]), follow=False).status_code, 200)
         self.assertEqual(self.client.get(
-            reverse('zds.tutorial.views.view_tutorial_online', args=[
+            reverse('tutorial:view', args=[
                     published_tutorial_2.pk,
                     published_tutorial_2.slug]), follow=False).status_code, 200)
-        self.assertTrue(os.path.exists(published_article_alone.get_path()))
+
+        # test that published articles remain accessible
+        self.assertTrue(os.path.exists(published_article_alone.public_version.get_prod_path()))
         self.assertEqual(self.client.get(
             reverse(
-                'zds.article.views.view_online',
+                'article:view',
                 args=[
                     published_article_alone.pk,
                     published_article_alone.slug]),
             follow=True).status_code, 200)
         self.assertEqual(self.client.get(
             reverse(
-                'zds.article.views.view_online',
+                'article:view',
                 args=[
                     published_article_2.pk,
                     published_article_2.slug]),
             follow=True).status_code, 200)
-        self.assertEqual(Tutorial.objects.filter(pk=writing_tutorial_alone.pk).count(), 0)
+
+        # check that the tutorial for which the author was alone does not exists anymore
+        self.assertEqual(PublishableContent.objects.filter(pk=writing_tutorial_alone.pk).count(), 0)
+        self.assertFalse(os.path.exists(writing_tutorial_alone.get_repo_path()))
+
+        # check that bot haven't take the authorship of the tuto with more than one author
         self.assertEqual(writing_tutorial_2.authors.count(), 1)
         self.assertEqual(writing_tutorial_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])
                          .count(), 0)
+
+        # authorship for the article for which user was the only author
         self.assertEqual(published_article_alone.authors.count(), 1)
         self.assertEqual(published_article_alone.authors
                          .first().username, settings.ZDS_APP["member"]["external_account"])
         self.assertEqual(published_article_2.authors.count(), 1)
+
+        self.assertEqual(PublishableContent.objects.filter(pk=writing_article_alone.pk).count(), 0)
+        self.assertFalse(os.path.exists(writing_article_alone.get_repo_path()))
+
+        # not bot if another author:
         self.assertEqual(published_article_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
-        self.assertEqual(Article.objects.filter(pk=writing_article_alone.pk).count(), 0)
         self.assertEqual(writing_article_2.authors.count(), 1)
         self.assertEqual(writing_article_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
+
+        # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(), 0)
-        self.assertFalse(os.path.exists(writing_tutorial_alone_path))
+
         self.assertIsNotNone(Topic.objects.get(pk=authored_topic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=private_topic.pk))
         self.assertIsNotNone(Gallery.objects.get(pk=alone_gallery.pk))

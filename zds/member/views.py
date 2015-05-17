@@ -28,7 +28,6 @@ from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm
 from zds.utils.models import Comment, CommentLike, CommentDislike
 from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
-from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
 from zds.forum.models import Topic, follow, TopicFollowed
@@ -36,10 +35,10 @@ from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.tutorial.models import Tutorial
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
+from zds.tutorialv2.models.models_database import PublishedContent
 
 
 class MemberList(ZdSPagingListView):
@@ -71,8 +70,8 @@ class MemberDetail(DetailView):
         profile = usr.profile
         context['profile'] = profile
         context['topics'] = Topic.objects.last_topics_of_a_member(usr, self.request.user)
-        context['articles'] = Article.objects.last_articles_of_a_member_loaded(usr)
-        context['tutorials'] = Tutorial.objects.last_tutorials_of_a_member_loaded(usr)
+        context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
+        context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
         context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
@@ -271,35 +270,26 @@ def unregister(request):
     anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
     external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
     current = request.user
-    for tuto in request.user.profile.get_tutos():
+    for content in request.user.profile.get_contents():
         # we delete article only if not published with only one author
-        if not tuto.on_line() and tuto.authors.count() == 1:
-            if tuto.in_beta():
-                beta_topic = Topic.objects.get(key=tuto.pk)
+        if not content.in_public() and content.authors.count() == 1:
+            if content.in_beta() and content.beta_topic:
+                beta_topic = content.beta_topic
                 first_post = beta_topic.first_post()
                 first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
-            tuto.delete_entity_and_tree()
+            content.delete()
         else:
-            if tuto.authors.count() == 1:
-                tuto.authors.add(external)
+            if content.authors.count() == 1:
+                content.authors.add(external)
                 external_gallery = UserGallery()
                 external_gallery.user = external
-                external_gallery.gallery = tuto.gallery
+                external_gallery.gallery = content.gallery
                 external_gallery.mode = 'W'
                 external_gallery.save()
-                UserGallery.objects.filter(user=current).filter(gallery=tuto.gallery).delete()
+                UserGallery.objects.filter(user=current).filter(gallery=content.gallery).delete()
 
-            tuto.authors.remove(current)
-            tuto.save()
-    for article in request.user.profile.get_articles():
-        # we delete article only if not published with only one author
-        if not article.on_line() and article.authors.count() == 1:
-            article.delete_entity_and_tree()
-        else:
-            if article.authors.count() == 1:
-                article.authors.add(external)
-            article.authors.remove(current)
-            article.save()
+            content.authors.remove(current)
+            content.save()
     # comments likes / dislikes
     for like in CommentLike.objects.filter(user=current):
         like.comments.like -= 1
