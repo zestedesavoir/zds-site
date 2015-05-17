@@ -148,12 +148,12 @@
 
 
 {% block sidebar_actions %}
-    {% if user in tutorial.authors.all or is_staff %}
+    {% if can_edit or is_staff %}
 
         <li>
             <a href="#move-chapter" class="open-modal ico-after move blue">
-                {% blocktrans %}
-                    Déplacer <span class="wide">{{ "le"|feminize:content.get_level_as_string }}{{ content.get_level_as_string }}</span>
+                {% blocktrans with prev="le"|feminize:container.get_level_as_string name=container.get_level_as_string|lower %}
+                    Déplacer <span class="wide">{{ prev }} {{ name }}</span>
                 {% endblocktrans %}
             </a>
         <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
@@ -212,15 +212,13 @@
 {% block sidebar_blocks %}
     {%   include "tutorialv2/includes/summary.part.html" with current_container=container %}
 
-    {% if user in content.authors.all or perms.content.change_content %}
+    {% if can_edit or is_staff %}
          <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
             <h3>{% trans "Suppression" %}</h3>
             <ul>
-                {% if not content.in_public %}
-                    <li>
-                        {%  include "tutorialv2/includes/delete.part.html" with object=container additional_classes="ico-after cross red" %}
-                    </li>
-                {% endif %}
+                <li>
+                    {%  include "tutorialv2/includes/delete.part.html" with object=container additional_classes="ico-after cross red" %}
+                </li>
             </ul>
         </div>
     {% endif %}
