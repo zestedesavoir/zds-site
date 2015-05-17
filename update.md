@@ -208,8 +208,6 @@ stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 
 ```
 
-
-
 Issue #1634
 -----------
 
@@ -220,3 +218,11 @@ Issue #2520
 
 Exécuter la commande suivante : `sudo apt-get install libffi-dev`
 
+
+Actions à faire pour mettre en prod la version : v15.5.1
+========================================================
+
+Issue #2700
+-----------
+
+Supprimer la directive `STATICFILES_STORAGE` du fichier `settings_prod.py`, qui a été réintégrée dans le `settings.py`.
