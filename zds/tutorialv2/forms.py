@@ -696,7 +696,7 @@ class RevokeValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Veuillez entrer la motivation de votre dépublication.')])
+                [_(u'Veuillez entrer la raison de votre dépublication.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
