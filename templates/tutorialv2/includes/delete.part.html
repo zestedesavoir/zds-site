@@ -1,7 +1,5 @@
 {% load i18n %}
 
-{#  note : ico-after cross btn btn-grey #}
-
 <a href="#delete-{{ object.slug }}" class="open-modal{% if additional_classes %} {{ additional_classes }}{% endif %}">{% trans "Supprimer" %}</a>
 <form action="{{ object.get_delete_url }}" method="post" id="delete-{{ object.slug }}" class="modal modal-small">
     <p>

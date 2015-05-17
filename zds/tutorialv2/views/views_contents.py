@@ -286,9 +286,36 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""
-        self.object = self.get_object()
-        self.object.delete()
 
+        self.object = self.get_object()
+        validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
+
+        if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
+            if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
+                messages.error(self.request, 'Vous devez justifier votre suppression !')
+                return redirect(self.object.get_absolute_url())
+            else:
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_cancel_on_delete.md',
+                    {
+                        'content': self.object,
+                        'validator': validation.validator.username,
+                        'url': self.object.get_absolute_url() + '?version=' + validation.version,
+                        'author': request.user,
+                        'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
+                    })
+
+                send_mp(
+                    bot,
+                    [validation.validator],
+                    _(u"Demande de validation annulée").format(),
+                    self.object.title,
+                    msg,
+                    False,
+                )
+
+        self.object.delete()
         return redirect(reverse('content:index', args=[request.user.pk]))
 
 

@@ -6,6 +6,7 @@
 {% load roman %}
 {% load i18n %}
 {% load feminize %}
+{% load captureas %}
 
 
 {% block title %}
@@ -468,13 +469,24 @@
                         <a href="#delete-content" class="open-modal ico-after cross red">
                             {% trans "Supprimer le contenu" %}
                         </a>
-                        <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-medium">
+                        {% captureas need_reason %}{%  if validation and validation.status == 'PENDING_V' %}True{% endif %}{% endcaptureas %}
+                        <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-{% if need_reason %}big{% else %}medium{% endif %}">
                         	{% csrf_token %}
                             <p>
                                 {% blocktrans with content_title=content.title %}
                                     Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ».
                                 {% endblocktrans %}
+                                {%  if need_reason %}
+                                    {% blocktrans with username=validation.validator.username %}
+                                        Ce contenu est en cours de validation par {{ username }}, qui appréciera de savoir pourquoi vous souhaitez le supprimer:
+                                    {% endblocktrans %}
+                                {% endif %}
                             </p>
+
+                            {% if need_reason %}
+                                <p><textarea name="text" class="textarea" placeholder="Raison de la suppression" cols="40"></textarea></p>
+                            {%  endif %}
+
                             <button type="submit">
                                 {% trans "Confirmer" %}
                             </button>
