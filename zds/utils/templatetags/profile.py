@@ -43,7 +43,7 @@ def state(user):
             state = 'LS'
         elif user.pk in perms['forum.change_post'] and perms['forum.change_post'][user.pk]:
             state = 'STAFF'
-        elif user not in perms['forum.change_post']:
+        elif user.pk not in perms['forum.change_post']:
             perms['forum.change_post'][user.pk] = user.has_perm('forum.change_post')
             state = None
             if perms['forum.change_post'][user.pk]:
