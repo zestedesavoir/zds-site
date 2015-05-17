@@ -94,6 +94,7 @@ class Profile(models.Model):
         blank=True)
 
     objects = ProfileManager()
+    _permissions = {}
 
     def __unicode__(self):
         return self.user.username
@@ -343,6 +344,11 @@ class Profile(models.Model):
         """
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
+
+    def has_perm(self, permission):
+        if permission not in self._permissions:
+            self._permissions[permission] = self.user.has_perm(permission)
+        return self._permissions[permission]
 
 
 @receiver(models.signals.post_delete, sender=User)

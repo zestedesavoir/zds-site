@@ -39,7 +39,7 @@ def state(user):
             state = 'BAN'
         elif not profile.can_write_now():
             state = 'LS'
-        elif user.has_perm('forum.change_post'):
+        elif profile.has_perm('forum.change_post'):
             state = 'STAFF'
         else:
             state = None
