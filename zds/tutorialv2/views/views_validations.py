@@ -11,7 +11,8 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
-from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm
+from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
+    CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
 from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
 from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
@@ -154,10 +155,19 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         return super(AskValidationForContent, self).form_valid(form)
 
 
-class CancelValidation(LoginRequiredMixin, FormView):
+class CancelValidation(LoginRequiredMixin, ModalFormView):
     """The user or an admin cancel the validation process"""
 
-    def post(self, request, *args, **kwargs):
+    form_class = CancelValidationForm
+
+    modal_form = True
+
+    def get_form_kwargs(self):
+        kwargs = super(CancelValidation, self).get_form_kwargs()
+        kwargs['validation'] = Validation.objects.filter(pk=self.kwargs['pk']).last()
+        return kwargs
+
+    def form_valid(self, form):
 
         user = self.request.user
 
@@ -179,7 +189,10 @@ class CancelValidation(LoginRequiredMixin, FormView):
         versioned = validation.content.load_version(sha=validation.version)
 
         # reject validation:
+        quote = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
         validation.status = "CANCEL"
+        validation.comment_authors += _(u'\n\nLa validation a été **annulée** pour la raison suivante:\n\n{}')\
+            .format(quote)
         validation.date_validation = datetime.now()
         validation.save()
 
@@ -194,7 +207,9 @@ class CancelValidation(LoginRequiredMixin, FormView):
                 {
                     'content': versioned,
                     'validator': validation.validator.username,
-                    'url': versioned.get_absolute_url() + '?version=' + validation.version
+                    'url': versioned.get_absolute_url() + '?version=' + validation.version,
+                    'user': self.request.user,
+                    'message': quote
                 })
 
             send_mp(
@@ -208,9 +223,10 @@ class CancelValidation(LoginRequiredMixin, FormView):
 
         messages.info(self.request, _(u'La validation de ce contenu a bien été annulée'))
 
-        return redirect(
-            reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
-            "?version=" + validation.version)
+        self.success_url = reverse("content:view", args=[validation.content.pk, validation.content.slug]) + \
+            "?version=" + validation.version
+
+        return super(CancelValidation, self).form_valid(form)
 
 
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):

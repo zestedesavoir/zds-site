@@ -26,7 +26,7 @@ from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.models import Profile
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -134,6 +134,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if validation:
             context["formValid"] = AcceptValidationForm(validation, initial={"source": self.object.source})
             context["formReject"] = RejectValidationForm(validation)
+            context["formCancel"] = CancelValidationForm(validation)
 
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
@@ -301,8 +302,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                     {
                         'content': self.object,
                         'validator': validation.validator.username,
-                        'url': self.object.get_absolute_url() + '?version=' + validation.version,
-                        'author': request.user,
+                        'user': self.request.user,
                         'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
                     })
 

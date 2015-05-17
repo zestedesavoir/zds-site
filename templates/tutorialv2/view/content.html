@@ -319,20 +319,10 @@
             {% endif %}
         {% else %}
             <li>
-                <a href="#cancel-validation" class="open-modal ico-after cross blue">
-                    {% trans "Annuler la validation" %}
-                </a>
-                <form action="{% url "validation:cancel" validation.pk %}" method="post" class="modal modal-small" id="cancel-validation">
-                    {% csrf_token %}
-                    <p>
-                        {% blocktrans with content_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>annuler</strong> la validation de « <em>{{ content_title }}</em> » ?
-                        {% endblocktrans %}
-                    </p>
-                    <button type="submit">
-                        {% trans "Confirmer" %}
-                    </button>
-                </form>
+                <a href="#cancel-validation" class="open-modal ico-after cross blue">{% trans "Annuler la validation" %}</a>
+                <div class="modal modal-big" id="cancel-validation">
+                    {% crispy formCancel %}
+                </div>
             </li>
             {% if not content.is_validation %}
                 <li>
@@ -478,7 +468,7 @@
                                 {% endblocktrans %}
                                 {%  if need_reason %}
                                     {% blocktrans with username=validation.validator.username %}
-                                        Ce contenu est en cours de validation par {{ username }}, qui appréciera de savoir pourquoi vous souhaitez le supprimer:
+                                        Il est en cours de validation par <strong>{{ username }}</strong>, qui appréciera de savoir pourquoi vous souhaitez le supprimer :
                                     {% endblocktrans %}
                                 {% endif %}
                             </p>
