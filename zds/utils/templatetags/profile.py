@@ -41,12 +41,12 @@ def state(user):
             state = 'BAN'
         elif not profile.can_write_now():
             state = 'LS'
-        elif user in perms['forum.change_post'] and perms['form.change_post'][user]:
+        elif user.pk in perms['forum.change_post'] and perms['form.change_post'][user.pk]:
             state = 'STAFF'
         elif user not in perms['forum.change_post']:
-            perms['forum.change_post'][user] = user.has_perm('forum.change_post')
+            perms['forum.change_post'][user.pk] = user.has_perm('forum.change_post')
             state = None
-            if perms['forum.change_post'][user]:
+            if perms['forum.change_post'][user.pk]:
                 state = 'STAFF'
         else:
             state = None
