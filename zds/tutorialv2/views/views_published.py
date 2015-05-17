@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, ListView, FormView
+from django.views.generic import RedirectView, FormView
 from django.views.generic.detail import BaseDetailView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -25,7 +25,7 @@ from zds.tutorialv2.models.models_database import PublishableContent, PublishedC
 from zds.tutorialv2.utils import search_container_or_404, mark_read
 from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory, Alert
 from zds.utils.mps import send_mp
-from zds.utils.paginator import make_pagination
+from zds.utils.paginator import make_pagination, ZdSPagingListView
 
 
 class RedirectContentSEO(RedirectView):
@@ -228,7 +228,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         return context
 
 
-class ListOnlineContents(ContentTypeMixin, ListView):
+class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     """Displays the list of published contents"""
 
     context_object_name = 'public_contents'

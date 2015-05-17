@@ -52,6 +52,8 @@
 
         <meta itemprop="itemListOrder" content="Unordered">
 
+        {% include "misc/paginator.html" with position="top" %}
+
         {% if public_contents %}
             <div class="tutorial-list">
                 {% for public_content in public_contents %}
@@ -63,6 +65,8 @@
                 {% trans "Aucun tutoriel disponible" %}.
             </p>
         {% endif %}
+
+        {% include "misc/paginator.html" with position="bottom" %}
     </section>
 {% endblock %}
 
