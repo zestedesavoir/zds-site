@@ -696,13 +696,13 @@ class RevokeValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez une raison pour la dépublication')])
+                [_(u'Veuillez entrer la motivation de votre dépublication.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
