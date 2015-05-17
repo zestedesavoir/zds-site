@@ -13,6 +13,8 @@
 
 {% block body_class %}home{% endblock %}
 
+{% block searchbox_id %}search-home{% endblock %}
+
 {% block content_out %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
     {% url 'zds.article.views.index' as url_articles %}
@@ -93,11 +95,11 @@
         {% endif %}
 
              <section class="home-search-box">
-                <form action='{% url "haystack_search" %}'>
-                    <label for="search">
+                <form action='{% url "haystack_search" %}' id="search-home">
+                    <label for="search-home-input">
                         {% trans "Recherche" %}
                     </label>
-                    <input type="text" name="q" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
+                    <input type="text" id="search-home-input" name="q" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
                     <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
                 </form>
             </section>
