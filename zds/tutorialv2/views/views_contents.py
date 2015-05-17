@@ -26,7 +26,7 @@ from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.models import Profile
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -134,6 +134,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if validation:
             context["formValid"] = AcceptValidationForm(validation, initial={"source": self.object.source})
             context["formReject"] = RejectValidationForm(validation)
+            context["formCancel"] = CancelValidationForm(validation)
 
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
@@ -286,9 +287,35 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""
-        self.object = self.get_object()
-        self.object.delete()
 
+        self.object = self.get_object()
+        validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
+
+        if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
+            if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
+                messages.error(self.request, 'Vous devez justifier votre suppression !')
+                return redirect(self.object.get_absolute_url())
+            else:
+                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_cancel_on_delete.md',
+                    {
+                        'content': self.object,
+                        'validator': validation.validator.username,
+                        'user': self.request.user,
+                        'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
+                    })
+
+                send_mp(
+                    bot,
+                    [validation.validator],
+                    _(u"Demande de validation annulée").format(),
+                    self.object.title,
+                    msg,
+                    False,
+                )
+
+        self.object.delete()
         return redirect(reverse('content:index', args=[request.user.pk]))
 
 

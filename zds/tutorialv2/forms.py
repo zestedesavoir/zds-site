@@ -600,6 +600,63 @@ class AcceptValidationForm(forms.Form):
         return cleaned_data
 
 
+class CancelValidationForm(forms.Form):
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Pourquoi annuler la validation ?'),
+                'rows': '4'
+            }
+        )
+    )
+
+    def __init__(self, validation, *args, **kwargs):
+        super(CancelValidationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = reverse(
+            'content:view',
+            kwargs={
+                'pk': validation.content.pk,
+                'slug': validation.content.slug
+            }) + '?version=' + validation.version
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:cancel', kwargs={'pk': validation.pk})
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            HTML("<p>Êtes vous certains d'annuler la validation de ce contenu ?</p>"),
+            CommonLayoutModalText(),
+            ButtonHolder(
+                StrictButton(
+                    _(u'Confirmer'),
+                    type='submit'))
+        )
+
+    def clean(self):
+        cleaned_data = super(CancelValidationForm, self).clean()
+
+        text = cleaned_data.get('text')
+
+        if text is None or text.strip() == '':
+            self._errors['text'] = self.error_class(
+                [_(u'Vous devez une raison pour l\'annulation')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        elif len(text) < 3:
+            self._errors['text'] = self.error_class(
+                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+            if 'text' in cleaned_data:
+                del cleaned_data['text']
+
+        return cleaned_data
+
+
 class RejectValidationForm(forms.Form):
 
     text = forms.CharField(

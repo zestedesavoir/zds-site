@@ -5,7 +5,7 @@
 
 Bonjour {{ validator }},
 
-La validation de **[{{ title }}]({{ url }})**, que tu avait réservé, a été annulée par [{{ user_name }}]({{ user_url }}).
+La validation de **{{ title }}**, que tu avait réservé, a été annulée par [{{ user_name }}]({{ user_url }}), car il a décidé de le supprimer.
 
 Voici le message qu'il t'as laissé:
 

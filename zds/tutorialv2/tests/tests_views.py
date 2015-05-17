@@ -523,6 +523,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         self.assertFalse(os.path.isfile(versioned.get_path()))  # deletion get right ;)
+        self.assertEqual(PublishableContent.objects.filter(pk=pk).count(), 0)  # deleted from database
 
     def test_beta_workflow(self):
         """Test beta workflow (access and update)"""
@@ -1964,6 +1965,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.validator, self.user_staff)
 
         # ... and cancel reservation with author
+        text_cancel = u'Nan, mais j\'ai plus envie, en fait'
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -1971,7 +1973,10 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:cancel', kwargs={'pk': validation.pk}), follow=False)
+            reverse('validation:cancel', kwargs={'pk': validation.pk}),
+            {
+                'text': text_cancel
+            }, follow=False)
         self.assertEqual(result.status_code, 302)
 
         self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
@@ -1981,6 +1986,103 @@ class ContentTests(TestCase):
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
+
+    def test_delete_while_validating(self):
+        """this test ensure that the validator is warned if the content he is validing is removed"""
+
+        text_validation = u'Valide moi ce truc, s\'il te plait'
+        source = 'http://example.com'
+        text_cancel = u'Veux pas !'
+
+        # let's create a medium-size tutorial
+        midsize_tuto = PublishableContentFactory(type='TUTORIAL')
+
+        midsize_tuto.authors.add(self.user_author)
+        midsize_tuto.gallery = GalleryFactory()
+        midsize_tuto.licence = self.licence
+        midsize_tuto.save()
+
+        # populate with 2 chapters (1 extract each)
+        midsize_tuto_draft = midsize_tuto.load_version()
+        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        ExtractFactory(container=chapter1, db_object=midsize_tuto)
+        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        ExtractFactory(container=chapter2, db_object=midsize_tuto)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            {
+                'text': text_validation,
+                'source': source,
+                'version': midsize_tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        validation = Validation.objects.filter(content=midsize_tuto).last()
+
+        # login with staff and reserve
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        validation = Validation.objects.filter(pk=validation.pk).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
+
+        # login with author, delete tuto
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # does not work without a text
+        result = self.client.post(
+            reverse('content:delete', args=[midsize_tuto.pk, midsize_tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.filter(pk=midsize_tuto.pk).count(), 1)  # not deleted
+        self.assertEqual(Validation.objects.count(), 1)
+
+        # now, will work
+        result = self.client.post(
+            reverse('content:delete', args=[midsize_tuto.pk, midsize_tuto.slug]),
+            {
+                'text': text_cancel
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.filter(pk=midsize_tuto.pk).count(), 0)  # BOOM, deleted !
+        self.assertEqual(Validation.objects.count(), 0)  # no more validation objects
+
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 1)
+        self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
     def test_public_access(self):
         """Test that everybody have access to a content after its publication"""
