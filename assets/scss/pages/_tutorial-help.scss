@@ -1,0 +1,82 @@
+/* Temp fix to #2667 ; see: https://github.com/zestedesavoir/zds-site/issues/2667 */
+
+.tutorial-help-item {
+    min-height: 60px;
+    padding: 20px 2%;
+    border-bottom: 1px solid #e0e4e5;
+
+    &:nth-child(2n+1) {
+        background-color: rgba(255, 255, 255, .8);
+    }
+
+    p {
+        margin: 0;
+    }
+
+    color: #424242;
+    font-weight: normal;
+
+    .tutorial-title {
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        font-size: 2.0rem;
+        height: 27px;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        clear: none;
+        font-weight: normal;
+        color: #424242;
+    }
+
+    a {
+        text-decoration: none;
+        &:hover,
+        &:focus {
+            text-decoration: underline;
+        }
+    }
+
+    .tutorial-categories {
+        margin: 0 0 5px;
+        padding: 0;
+        color: #ee8709;
+
+        a {
+            color: #ee8709;
+
+            &:hover,
+            &:focus {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .tutorial-illu {
+        display: block;
+        overflow: hidden;
+        float: left;
+    }
+
+    .tutorial-infos {
+        margin: 7px 0 0 70px;
+
+        &.no-illu {
+            margin-left: 0;
+        }
+    }
+
+    .tutorial-help {
+      margin: 12px 0 0 0;
+    }
+
+    .tutorial-help img.light {
+        opacity: 0.2;
+        &:hover,
+        &:focus {
+            opacity: 0.5;
+        }
+    }
+}
