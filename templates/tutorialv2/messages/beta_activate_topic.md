@@ -5,12 +5,14 @@
 
 Bonjour à tous,
 
-J'ai commencé ({{ time }}) la rédaction d'un {{ type }} dont l'intitulé est **{{ title }}**.
+J'ai commencé ({{ time }}) la rédaction d'un {{ type }} dont l'intitulé est 
+**{{ title }}**.
 
-J'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que sur la forme, afin de proposer en validation un texte de qualité.
+J'aimerais obtenir un maximum de retours sur celui-ci, sur le fond ainsi que 
+sur la forme, afin de proposer en validation un texte de qualité.
 Si vous êtes intéressé, cliquez ci-dessous.
 
--> [Lien de la bêta: {{ title }}]({{ url }}) <-
+-> [Lien de la bêta : {{ title }}]({{ url }}) <-
 
 Merci d'avance pour votre aide.
 

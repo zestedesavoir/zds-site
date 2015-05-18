@@ -4,8 +4,12 @@
 
 Félicitations !
 
-Le zeste **[{{ title }}]({{ url }})** a été publié par [{{ validator_name }}]({{ validator_url }}) ! Les lecteurs du monde entier peuvent désormais venir le consulter, l'éplucher et réagir à son sujet.
-Je conseille de rester à leur écoute afin d'apporter des corrections et/ou compléments: un contenu vivant et à jour est bien plus lu qu'un sujet abandonné !
+Le zeste **[{{ title }}]({{ url }})** a été publié par 
+[{{ validator_name }}]({{ validator_url }}) ! Les lecteurs du monde entier 
+peuvent désormais venir le consulter, l'éplucher et réagir à son sujet.
+Je te conseille de rester à leur écoute afin d'apporter des corrections et/ou 
+compléments : un contenu vivant et à jour est bien plus lu qu'un sujet 
+abandonné !
 
 {%  endblocktrans %}
 

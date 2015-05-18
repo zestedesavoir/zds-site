@@ -34,7 +34,7 @@ class FormWithTitle(forms.Form):
 
         if title is not None and title.strip() == '':
             self._errors['title'] = self.error_class(
-                [_(u'Le champ Titre ne peut être vide')])
+                [_(u'Le champ du titre ne peut être vide.')])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
@@ -518,13 +518,13 @@ class AskValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez donner un commentaire à la validation')])
+                [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -592,13 +592,13 @@ class AcceptValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez donner un commentaire de validation')])
+                [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -634,7 +634,7 @@ class CancelValidationForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes vous certains d'annuler la validation de ce contenu ?</p>"),
+            HTML("<p>Êtes-vous certain d'annuler la validation de ce contenu ?</p>"),
             CommonLayoutModalText(),
             ButtonHolder(
                 StrictButton(
@@ -649,13 +649,13 @@ class CancelValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez une raison pour l\'annulation')])
+                [_(u'Merci de fournir une raison à l\'annulation.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -705,13 +705,13 @@ class RejectValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez une raison pour le rejet')])
+                [_(u'Merci de fournir une raison au rejet.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -900,13 +900,13 @@ class WarnTypoForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez indiquer la faute commise')])
+                [_(u'Vous devez indiquer la faute commise.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères !')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 

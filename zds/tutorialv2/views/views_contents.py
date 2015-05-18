@@ -299,7 +299,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
         if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
             if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
-                messages.error(self.request, 'Vous devez justifier votre suppression !')
+                messages.error(self.request, 'Merci de fournir une raison à la  suppression.')
                 return redirect(self.object.get_absolute_url())
             else:
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])

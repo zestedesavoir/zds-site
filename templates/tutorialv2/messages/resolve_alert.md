@@ -5,8 +5,8 @@
 Bonjour {{ name }},
 
 Vous recevez ce message car vous avez signalé le message de *{{ user_name }}*
-dans {{ type_content }} [{{ title }}]({{ url }}). Votre alerte a été traitée par **{{ modo_name }}**
-et il vous a laissé le message suivant :
+dans {{ type_content }} [{{ title }}]({{ url }}). Votre alerte a été traitée 
+par **{{ modo_name }}** et il vous a laissé le message suivant :
 
 {{ message }}
 

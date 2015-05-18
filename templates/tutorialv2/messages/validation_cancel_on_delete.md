@@ -5,9 +5,9 @@
 
 Bonjour {{ validator }},
 
-La validation de **{{ title }}**, que tu avait réservé, a été annulée par [{{ user_name }}]({{ user_url }}), car il a décidé de le supprimer.
-
-Voici le message qu'il t'as laissé:
+La validation du contenu **{{ title }}**, que tu as réservé, a été annulée 
+parce que le contenu a été supprimé par [{{ user_name }}]({{ user_url }}). La 
+raison est la suivante :
 
 {{ message }}
 
