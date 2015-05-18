@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load captureas %}
-
+{% load feminize %}
 {% if public %}
     {% captureas content_url %} {{ content.get_absolute_url_online }} {% endcaptureas %}
     {% captureas target_url %} {{ target.get_absolute_url_online }} {% endcaptureas %}
@@ -20,7 +20,8 @@ J'aimerai proposer une correction pour {{ type }} {{ state }} **[{{ title }}]({{
 {% endblocktrans %}
 {% if target != content %}
 {% blocktrans with title=target.title|safe %}
-Cette correction concerne le chapitre **[{{ title }}]({{ target_url }})**.
+Cette correction concerne {{ "le"|feminize:target.get_level_as_string }} {{ target.get_level_as_string }}
+**[{{ title }}]({{ target_url }})**.
 {% endblocktrans %}
 {% endif %}
 
