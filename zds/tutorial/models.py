@@ -2,6 +2,9 @@
 
 from math import ceil
 import shutil
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -119,6 +122,12 @@ class Tutorial(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def save(self):
+        super(Tutorial, self).save()
+        # Clear associated cache keys
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, True]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False]))
 
     def get_phy_slug(self):
         return str(self.pk) + "_" + self.slug

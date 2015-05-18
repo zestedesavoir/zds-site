@@ -2,7 +2,9 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load date %}
+{% load cache %}
 
+{% cache 3600 tutorial_item tutorial.pk show_description %}
 {% captureas link %}
     {% if beta %}
         {{ tutorial.get_absolute_url_beta }}
@@ -64,3 +66,4 @@
         </div>
     </a>
 </article>
+{% endcache %}
