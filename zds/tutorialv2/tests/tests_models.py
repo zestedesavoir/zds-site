@@ -321,6 +321,64 @@ class ContentTests(TestCase):
         self.assertIsNotNone(versioned2)
         self.assertIsNone(versioned.children[-1].text)
 
+    def test_ensure_slug_stay(self):
+        """This test ensure that slug are not modified when coming from a manifest"""
+
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        versioned = tuto.load_version()
+
+        random = u'Non, piti bug, tu ne reviendra plus !!!'
+        title = u'N\'importe quel titre'
+
+        # add three container with the same title
+        versioned.repo_add_container(title, random, random)  # x
+        versioned.repo_add_container(title, random, random)  # x-1
+        version = versioned.repo_add_container(title, random, random)  # x-2
+        self.assertEqual(len(versioned.children), 3)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children), 3)
+
+        for index, child in enumerate(current.children):
+            self.assertEqual(child.slug, versioned.children[index].slug)  # same order
+
+        # then, delete the second one:
+        last_slug = versioned.children[2].slug
+        version = versioned.children[1].repo_delete()
+        self.assertEqual(len(versioned.children), 2)
+        self.assertEqual(versioned.children[1].slug, last_slug)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children), 2)
+
+        for index, child in enumerate(current.children):
+            self.assertEqual(child.slug, versioned.children[index].slug)  # slug remains
+
+        # same test with extracts
+        chapter = versioned.children[0]
+        chapter.repo_add_extract(title, random)  # x
+        chapter.repo_add_extract(title, random)  # x-1
+        version = chapter.repo_add_extract(title, random)  # x-2
+        self.assertEqual(len(chapter.children), 3)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children[0].children), 3)
+
+        for index, child in enumerate(current.children[0].children):
+            self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains
+
+        # delete the second one !
+        last_slug = chapter.children[2].slug
+        version = chapter.children[1].repo_delete()
+        self.assertEqual(len(chapter.children), 2)
+        self.assertEqual(chapter.children[1].slug, last_slug)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children[0].children), 2)
+
+        for index, child in enumerate(current.children[0].children):
+            self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains for extract as well !
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
