@@ -1,6 +1,8 @@
 # coding: utf-8
 
 from django.conf import settings
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.db import models
 from math import ceil
 from git import Repo
@@ -95,6 +97,12 @@ class Article(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def save(self):
+        super(Article, self).save()
+        # Delete associated cache keys
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), True]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), False]))
 
     def delete_entity_and_tree(self):
         """deletes the entity and its filesystem counterpart"""
