@@ -138,7 +138,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Une nouvelle version a été envoyée en validation"),
+                _(u"Une nouvelle version a été envoyée en validation."),
                 self.versioned_object.title,
                 msg,
                 False,
@@ -149,7 +149,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         self.object.sha_validation = validation.version
         self.object.save()
 
-        messages.success(self.request, _(u"Votre demande de validation a été envoyée à l'équipe."))
+        messages.success(self.request, _(u"Votre demande de validation a été transmise à l'équipe."))
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
         return super(AskValidationForContent, self).form_valid(form)
@@ -191,7 +191,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         # reject validation:
         quote = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
         validation.status = "CANCEL"
-        validation.comment_authors += _(u'\n\nLa validation a été **annulée** pour la raison suivante:\n\n{}')\
+        validation.comment_authors += _(u'\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
             .format(quote)
         validation.date_validation = datetime.now()
         validation.save()
@@ -221,7 +221,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                 False,
             )
 
-        messages.info(self.request, _(u'La validation de ce contenu a bien été annulée'))
+        messages.info(self.request, _(u'La validation de ce contenu a bien été annulée.'))
 
         self.success_url = reverse("content:view", args=[validation.content.pk, validation.content.slug]) + \
             "?version=" + validation.version
@@ -241,14 +241,14 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = None
             validation.status = "PENDING"
             validation.save()
-            messages.info(request, _(u"Ce contenu n'est plus réservé"))
+            messages.info(request, _(u"Ce contenu n'est plus réservé."))
             return redirect(reverse("validation:list"))
         else:
             validation.validator = request.user
             validation.date_reserve = datetime.now()
             validation.status = "PENDING_V"
             validation.save()
-            messages.info(request, _(u"Ce contenu a bien été réservé par {0}").format(request.user.username))
+            messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
 
             return redirect(
                 reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
@@ -332,7 +332,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             direct=False
         )
 
-        messages.info(self.request, _(u'Le contenu a bien été refusé'))
+        messages.info(self.request, _(u'Le contenu a bien été refusé.'))
         self.success_url = reverse('validation:list')
         return super(RejectValidation, self).form_valid(form)
 

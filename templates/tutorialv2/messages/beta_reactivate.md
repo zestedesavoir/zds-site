@@ -2,12 +2,14 @@
 
 {% blocktrans with title=content.title|safe type=type|safe %}
 
-Bonjour,
+Oyez oyez !
 
-La bêta de **{{ title }}** est de nouveau active.
+C'est dans la joie et la bonne humeur que je vous annonce la 
+ré-ouverture de la bêta du contenu « {{ title }} » ! Je vous 
+souhaite une plaisante relecture à l'adresse suivante :
 
--> [Lien de la bêta : {{ title }}]({{ url }}) <-
+-> [Moi, c'est la bêta. À qui ai-je l'honneur ?]({{ url }}) <-
 
-Merci d'avance pour vos relectures.
+Mille mercis pour votre charitable participation.
 
 {%  endblocktrans %}

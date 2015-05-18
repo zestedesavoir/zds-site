@@ -225,7 +225,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             data['introduction'] = versioned.get_introduction()
             data['conclusion'] = versioned.get_conclusion()
             form.data = data
-            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez'))
+            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
@@ -428,7 +428,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         try:
             manifest = unicode(zip_archive.read('manifest.json'), 'utf-8')
         except KeyError:
-            raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json'))
+            raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json.'))
 
         # is the manifest ok ?
         json_ = json_reader.loads(manifest)
@@ -442,7 +442,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             try:
                 zip_archive.getinfo(f)
             except KeyError:
-                raise BadArchiveError(_(u'Le fichier "{}" n\'existe pas dans l\'archive').format(f))
+                raise BadArchiveError(_(u'Le fichier "{}" n\'existe pas dans l\'archive.').format(f))
 
         return versioned
 
@@ -609,7 +609,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 commit_message = form.cleaned_data['msg_commit']
 
                 if commit_message == '':
-                    commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_version.title)
+                    commit_message = _(u'Importation d\'une archive contenant « {} ».').format(new_version.title)
 
                 if "image_archive" in self.request.FILES:
                     image_zip = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
@@ -648,7 +648,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 messages.error(self.request, e.message)
                 return super(CreateContentFromArchive, self).form_invalid(form)
             except KeyError as e:
-                messages.error(self.request, _(e.message + u" n'est pas correctement renseigné"))
+                messages.error(self.request, _(e.message + u" n'est pas correctement renseigné."))
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
                 # first, create DB object (in order to get a slug)
@@ -865,7 +865,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             data['introduction'] = container.get_introduction()
             data['conclusion'] = container.get_conclusion()
             form.data = data
-            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez'))
+            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
         sha = container.repo_update(form.cleaned_data['title'],
@@ -950,7 +950,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             data['last_hash'] = current_hash
             data['text'] = extract.get_text()
             form.data = data
-            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez'))
+            messages.error(self.request, _(u'Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
         if 'preview' in self.request.POST:
@@ -1045,7 +1045,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             context["path_maj"] = diff_with_head.iter_change_type("M")
 
         except GitCommandError:
-            context['commit_msg'] = _(u"La création est le seul commit disponible")
+            context['commit_msg'] = _(u"La création est le seul commit disponible.")
 
             context["path_add"] = []
             context["path_ren"] = []
@@ -1250,12 +1250,12 @@ class WarnTypo(SingleContentFormViewMixin):
 
         if len(authors) == 0:
             if self.object.authors.count() > 1:
-                messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables"))
+                messages.error(self.request, _(u"Les auteurs sont malheureusement injoignables."))
             else:
-                messages.error(self.request, _(u"L'auteur est malheureusement injoignable"))
+                messages.error(self.request, _(u"L'auteur est malheureusement injoignable."))
 
         elif user in authors:  # author try to PM himself
-            messages.error(self.request, _(u'Impossible d\'envoyer la correction car vous êtes parmis les auteurs'))
+            messages.error(self.request, _(u'Impossible d\'envoyer la correction car vous êtes un auteur.'))
 
         else:  # send correction
             text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
@@ -1278,7 +1278,7 @@ class WarnTypo(SingleContentFormViewMixin):
             # send it :
             send_mp(user, authors, _(u"Proposition de correction"), form.content.title, msg, leave=False)
 
-            messages.success(self.request, _(u'Merci pour votre proposition de correction'))
+            messages.success(self.request, _(u'Merci pour votre proposition de correction.'))
 
         return redirect(form.previous_page_url)
 
@@ -1423,14 +1423,14 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             content.save()
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
         except TooDeepContainerError:
-            messages.error(self.request, _(u'Cette section contient déjà trop de sous-section pour devenir'
-                                           u' la sous-section d\'une autre section.'))
+            messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour devenir"
+                                           u" celui d'un autre conteneur."))
         except ValueError:
             raise Http404("The specified tree is invalid.")
         except IndexError:
-            messages.warning(self.request, _(u"L'élément est déjà à la place souhaitée."))
+            messages.warning(self.request, _(u"L'élément se situe déjà à la place souhaitée."))
         except TypeError:
-            messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit"))
+            messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:
             return redirect(reverse("content:view", args=[content.pk, content.slug]))
         else:
@@ -1482,7 +1482,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return super(AddAuthorToContent, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _(u'Les auteurs sélectionnés n\'existent pas.'))
+        messages.error(self.request, _(u"Les auteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
         return super(AddAuthorToContent, self).form_valid(form)
 

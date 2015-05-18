@@ -14,14 +14,14 @@
 
 
 {% blocktrans with username=user.username|safe title=content.title|safe type=type|safe %}
-Salut !
+Bien le bonjour !
 
-J'aimerais proposer une correction pour {{ type }} {{ state }} 
-**[{{ title }}]({{ content_url }})**.
+Il me semble avoir déniché une erreur {{ type }} {{ state }} 
+« [{{ title }}]({{ content_url }}) ».
 {% endblocktrans %}
 {% if target != content %}
 {% blocktrans with title=target.title|safe %}
-Cette correction concerne {{ "le"|feminize:target.get_level_as_string }} {{ target.get_level_as_string }} **[{{ title }}]({{ target_url }})**.
+Fourbe, elle se situe sournoisement dans {{ "le"|feminize:target.get_level_as_string }} {{ target.get_level_as_string }} « [{{ title }}]({{ target_url }}) ».
 {% endblocktrans %}
 {% endif %}
 

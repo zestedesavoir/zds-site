@@ -1,12 +1,11 @@
 {% load i18n %}
 
 {% blocktrans with title=content.title|safe type=type|safe %}
-Bonjour **{{ user }}**,
+Noble {{ user }},
 
-Tu as été ajouté comme auteur {{ type }} [{{ title }}]({{ url }}).
-Tu peux le retrouver en [cliquant ici]({{ index }}), ou *via* le lien "En 
-rédaction" du menu "Tutoriels" sur la page de ton profil.
+Tu as reçu l'incommensurable privilège de participer à la rédaction du 
+contenu « [{{ title }}]({{ url }}) », que tu peux gratifier de ta présence 
+[ici]({{ index }}).
 
-
-Tu peux maintenant commencer à rédiger !
+Maintenant que plus rien ne retient ta plume, je te souhaite bon courage !
 {%  endblocktrans %}

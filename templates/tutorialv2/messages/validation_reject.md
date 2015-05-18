@@ -3,18 +3,17 @@
 {% blocktrans with title=content.title|safe validator_name=validator.username|safe validator_url=validator.get_absolute_url message=message_reject|safe %}
 
 Désolé, le contenu « [{{ title }}]({{ url }}) » n'a malheureusement pas 
-franchit l’étape de validation.
+franchi l’étape de validation. 
 
-Mais pas de panique, certaines corrections peuvent sûrement être faites pour 
-l'améliorer et lui permettre de passer la validation ultérieurement. 
-
-Pour expliquer ce rejet, [{{ validator_name }}]({{ validator_url }}), le 
-validateur, a laissé le message suivant :
+Mais pas de panique, tout n'est pas perdu : certaines corrections peuvent 
+sûrement être faites pour l'améliorer et remédier à ça. Tu peux commencer par 
+jeter un oeil aux raisons de ce rejet, fournies ci-dessous par 
+[{{ validator_name }}]({{ validator_url }}), validateur de son état :
 
 {{ message }}
 
-N'hésite pas à lui envoyer un petit message courtois pour discuter de sa 
-décision et demander plus de détails si tout cela manque de clarté ou te 
-semble injuste !
+Si certains points te semblent obscurs, voire injustes, tu es invité à 
+contacter le validateur pour lui en parler. Rassure-toi, ces bêtes-là ne 
+mordent pas.
 
 {% endblocktrans %}
