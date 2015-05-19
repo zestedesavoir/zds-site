@@ -208,15 +208,25 @@ stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 
 ```
 
+4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart` 
 
 
 Issue #1634
 -----------
 
-4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart` 
-
-Issue #2520
------------
-
 Exécuter la commande suivante : `sudo apt-get install libffi-dev`
 
+
+Actions à faire pour mettre en prod la version : v15.6
+======================================================
+
+Issue #1511
+-----------
+
+Fix sur la recherche d'article avec Solr :
+
+  - Arrêter Solr : `supervisorctl stop solr`
+  - Mettre à jour solr et employer la version 4.9.1 (`wget http://archive.apache.org/dist/lucene/solr/4.9.1/solr-4.9.1.zip` dans le dossier ou doit se trouver Solr, probablement `/opt/zdsenv/ZesteDeSavoir/`)
+  - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
+  - Redémarrer Solr : `supervisorctl start solr`
+  - Lancer l'indexation : `python manage.py rebuild_index`
