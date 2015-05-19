@@ -57,12 +57,16 @@
         {% if public_contents %}
             <div class="tutorial-list">
                 {% for public_content in public_contents %}
-                    {% include "tutorialv2/includes/content_online_item.part.html" %}
+                    {% if public_content.type == "TUTORIAL" %}
+                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with tutorial=public_content %}
+                    {% elif public_content.type == "ARTICLE" %}
+                        {% include "tutorialv2/includes/content_item_type_article.part.html" with article=public_content %}
+                    {% endif %}
                 {% endfor %}
             </div>
         {% else %}
             <p>
-                {% trans "Aucun tutoriel disponible" %}.
+                {% trans "Aucun contenu disponible" %}.
             </p>
         {% endif %}
 

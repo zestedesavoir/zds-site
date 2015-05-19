@@ -66,13 +66,13 @@
         {% elif tutorials != None %}
             <div class="tutorial-list clearfix">
                 {% for tutorial in tutorials %}
-                    {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with tutorial=content %}
+                    {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" %}
                 {% endfor %}
             </div>
         {% elif articles != None %}
             <div class="tutorial-list clearfix">
                 {% for article in articles %}
-                    {% include "tutorialv2/includes/content_item_type_article.part.html" with article=content %}
+                    {% include "tutorialv2/includes/content_item_type_article.part.html" %}
                 {% endfor %}
             </div>
         {% endif %}

@@ -74,7 +74,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for category in article.subcategory.all|slice:":3" %}
                 <li>
-                  <a href="{% url "zds.article.views.index" %}?tag={{ category.slug }}">
+                  <a href="{% url "article:list" %}?tag={{ category.slug }}">
                     {{ category.title }}
                   </a>
                 </li>
