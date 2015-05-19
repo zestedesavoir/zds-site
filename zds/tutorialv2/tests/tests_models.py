@@ -77,7 +77,6 @@ class ContentTests(TestCase):
         new_chapter_1 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
         new_chapter_2 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
         self.assertNotEqual(new_chapter_1.slug, new_chapter_2.slug)
-
         new_extract_1 = ExtractFactory(title='aa', container=new_chapter_1, db_object=self.tuto)
         self.assertEqual(new_extract_1.slug, new_chapter_1.slug)  # different level can have the same slug !
 
@@ -86,6 +85,49 @@ class ContentTests(TestCase):
 
         new_extract_3 = ExtractFactory(title='aa', container=new_chapter_1, db_object=self.tuto)
         self.assertNotEqual(new_extract_3.slug, new_extract_1.slug)  # same parent, forbidden
+
+    def test_ensure_unique_slug_2(self):
+        """This text is an extension of the previous one, with the manifest re-loaded each time"""
+
+        title = u'Il existe des gens que la ZEP-12 n\'aime pas'
+        random = u'... Mais c\'est pas sencé arriver, donc on va tout faire pour que ça disparaisse !'
+
+        # get draft version
+        versioned = self.tuto.load_version()
+
+        # add containers
+        version = versioned.repo_add_container(title, random, random)
+        new_version = self.tuto.load_version(sha=version)
+        self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
+
+        slugs = [new_version.children[-1].slug]
+
+        for i in range(0, 2):  # will add 3 new container
+            version = versioned.repo_add_container(title, random, random)
+            new_version = self.tuto.load_version(sha=version)
+            self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
+            self.assertTrue(new_version.children[-1].slug not in slugs)  # slug is different
+            self.assertTrue(versioned.children[-1].slug not in slugs)
+
+            slugs.append(new_version.children[-1].slug)
+
+        # add extracts
+        extract_title = u'On va changer de titre (parce qu\'on sais jamais) !'
+
+        chapter = versioned.children[-1]  # for this second test, the last chapter will be used
+        version = chapter.repo_add_extract(extract_title, random)
+        new_version = self.tuto.load_version(sha=version)
+        self.assertEqual(new_version.children[-1].children[-1].slug, chapter.children[-1].slug)
+
+        slugs = [new_version.children[-1].children[-1].slug]
+
+        for i in range(0, 2):  # will add 3 new extracts with the same title
+            version = chapter.repo_add_extract(extract_title, random)
+            new_version = self.tuto.load_version(sha=version)
+            self.assertTrue(new_version.children[-1].children[-1].slug not in slugs)
+            self.assertTrue(chapter.children[-1].slug not in slugs)
+
+            slugs.append(new_version.children[-1].children[-1].slug)
 
     def test_workflow_repository(self):
         """

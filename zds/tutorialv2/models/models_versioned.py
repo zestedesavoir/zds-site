@@ -136,15 +136,22 @@ class Container:
         :return: the unique slug
         """
         base = slugify(title)
-        try:
-            n = self.slug_pool[base]
-        except KeyError:
-            new_slug = base
-            self.slug_pool[base] = 0
-        else:
-            new_slug = base + '-' + str(n)
-        self.slug_pool[base] += 1
-        self.slug_pool[new_slug] = 1
+        find_slug = False
+        new_slug = base
+
+        while not find_slug:  # will run until a new slug is found !
+            try:
+                n = self.slug_pool[base]
+            except KeyError:
+                self.slug_pool[base] = 1
+                find_slug = True
+            else:
+                new_slug = base + '-' + str(n)
+                self.slug_pool[base] += 1
+                if new_slug not in self.slug_pool:
+                    self.slug_pool[new_slug] = 1
+                    find_slug = True
+
         return new_slug
 
     def add_slug_to_pool(self, slug):
