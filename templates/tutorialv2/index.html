@@ -47,21 +47,32 @@
         {% include "misc/paginator.html" with position="top" %}
 
         {% if contents != None %}
+            <h3>Mes tutoriels</h3>
             <div class="tutorial-list clearfix">
                 {% for content in contents %}
-                    {% include "tutorialv2/includes/content_item.part.html" %}
+                    {% if content.type == "TUTORIAL" %}
+                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with tutorial=content %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <h3>Mes articles</h3>
+            <div class="tutorial-list clearfix">
+                {% for content in contents %}
+                    {% if content.type == "ARTICLE" %}
+                        {% include "tutorialv2/includes/content_item_type_article.part.html" with article=content %}
+                    {% endif %}
                 {% endfor %}
             </div>
         {% elif tutorials != None %}
             <div class="tutorial-list clearfix">
                 {% for tutorial in tutorials %}
-                    {% include "tutorialv2/includes/content_item.part.html" with content=tutorial %}
+                    {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with tutorial=content %}
                 {% endfor %}
             </div>
         {% elif articles != None %}
             <div class="tutorial-list clearfix">
                 {% for article in articles %}
-                    {% include "tutorialv2/includes/content_item.part.html" with content=article %}
+                    {% include "tutorialv2/includes/content_item_type_article.part.html" with article=content %}
                 {% endfor %}
             </div>
         {% endif %}
