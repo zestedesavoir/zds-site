@@ -172,7 +172,7 @@
 
 
                     {# Menu #}
-                    {% cache 3600 header_menu user.pk %}
+                    {% cache cache_timeouts.header_menu header_menu user.pk %}
                     <nav class="header-menu mobile-menu-bloc" id="menu" data-title="Menu"
                         {% if user.is_authenticated %}
                             {% with profile=user.profile %}

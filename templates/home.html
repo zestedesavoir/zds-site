@@ -117,7 +117,7 @@
                 {% endif %}
             </h2>
 
-            {% cache 3600 home_featured_resources %}
+            {% cache cache_timeouts.home_featured_resources home_featured_resources %}
             <div class="featured-resource-row">
                 {% for featured_resource in last_featured_resources %}
                     {% include "featured/includes/featured_resource_item.part.html" %}

@@ -4,7 +4,7 @@
 {% load date %}
 {% load cache %}
 
-{% cache 3600 article_item article.pk link show_description %}
+{% cache cache_timeouts.article_item article_item article.pk link show_description %}
 
 {# Public link by default #}
 {% if not link %}
