@@ -1448,6 +1448,13 @@ class ContentOfAuthor(ZdSPagingListView):
         else:
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
 
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('authors')\
+            .prefetch_related('subcategory')\
+            .select_related('licence')\
+            .select_related('image')
+
         # Filter.
         if 'filter' in self.request.GET:
             self.filter = self.request.GET['filter'].lower()

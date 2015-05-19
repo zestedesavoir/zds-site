@@ -2,9 +2,17 @@
 {% load thumbnail %}
 {% load date %}
 {% load i18n %}
+{% load set %}
+
+{% if public_article %}
+    {% set public_article.content as article %}
+    {% set True as online %}
+{% endif %}
 
 {% captureas link %}
-    {% if type == 'beta' and article.in_beta %}
+    {% if online %}
+        {{ public_article.get_absolute_url_online }}
+    {% elif type == 'beta' and article.in_beta %}
         {{ article.get_absolute_url_beta }}
     {% else %}
         {{ article.get_absolute_url }}
@@ -19,7 +27,7 @@
 <article class="content-item article-item has-reactions">
     <a href="{{ link }}" tabindex="-1" class="content-illu">
         {% if article.image %}
-            <img src="{{ article.image.content_thumb.url }}" alt="">
+            <img src="{{ article.image.physical.content_thumb.url }}" alt="">
         {% endif %}
     </a>
 
@@ -58,16 +66,19 @@
             </div>
         </a>
 
-        <a class="content-reactions" href="
-            {% if article.last_note %}
-                {{ article.last_read_note }}
-            {% else %}
-                {{ link }}#reactions
-            {% endif %}"
-            title="{% if article.get_note_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_note_count }}{% endif %} {% trans "réaction" %}{{ article.get_note_count|pluralize }}"
-        >
-            <span>{{ article.get_note_count }}</span>
-        </a>
+        {% if online %}
+
+            <a class="content-reactions" href="
+                {% if article.last_note %}
+                    {{ article.last_read_note.get_absolute_url }}
+                {% else %}
+                    {{ link }}#reactions
+                {% endif %}"
+                title="{% if article.get_note_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_note_count }}{% endif %} {% trans "réaction" %}{{ article.get_note_count|pluralize }}"
+            >
+                <span>{{ article.get_note_count }}</span>
+            </a>
+        {% endif %}
     </div>
 
     {% if article.subcategory.all %}

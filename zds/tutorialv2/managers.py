@@ -12,6 +12,7 @@ class PublishedContentManager(models.Manager):
     def last_contents_of_a_member_loaded(self, author, _type=None):
         queryset = self.prefetch_related('content')\
             .prefetch_related('content__authors')\
+            .prefetch_related('content__subcategory')\
             .filter(content__authors__in=[author])\
             .filter(must_redirect=False)
 
@@ -19,10 +20,7 @@ class PublishedContentManager(models.Manager):
             queryset = queryset.filter(content_type=_type)
 
         public_contents = queryset.order_by("-publication_date").all()[:settings.ZDS_APP['content']['user_page_number']]
-        contents_version = []
-        for public_content in public_contents:
-            contents_version.append(public_content.load_public_version())
-        return contents_version
+        return public_contents
 
     def last_tutorials_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type='TUTORIAL')
