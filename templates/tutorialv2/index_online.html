@@ -4,6 +4,20 @@
 {% load captureas %}
 
 
+
+{% block menu_tutorial %}
+    {% if current_content_type == "TUTORIAL" %}
+        current
+    {% endif %}
+{% endblock %}
+{% block menu_article %}
+    {% if current_content_type == "ARTICLE" %}
+        current
+    {% endif %}
+{% endblock %}
+
+
+
 {% block title %}
     {% if tag %}
         {{ tag }}
@@ -40,7 +54,7 @@
 
 {% block content_out %}
     <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% else %}articles{% endif %}" itemprop="name">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag }}
