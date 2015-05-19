@@ -2,9 +2,17 @@
 {% load thumbnail %}
 {% load date %}
 {% load i18n %}
+{% load set %}
+
+{% if public_tutorial %}
+    {% set public_tutorial.content as tutorial %}
+    {% set True as online %}
+{% endif %}
 
 {% captureas link %}
-    {% if type == 'beta' and tutorial.in_beta %}
+    {% if online %}
+        {{ public_tutorial.get_absolute_url_online }}
+    {% elif type == 'beta' and tutorial.in_beta %}
         {{ tutorial.get_absolute_url_beta }}
     {% else %}
         {{ tutorial.get_absolute_url }}
@@ -40,7 +48,7 @@
                 {% endif %}
             </p>
 
-            <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
+            <div class="content-meta" title="{% if tutorial.pubdate %}{% trans "Publié" %} {{ tutorial.pubdate|format_date }}{% endif %} {{ categories_text }} {{ authors_text }}">
                 {% if tutorial.subcategory %}
                     <p class="content-categories">
                         {{ categories_text }}

@@ -274,17 +274,21 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
 
-        query_set = PublishedContent.objects\
+        queryset = PublishedContent.objects.filter(content_type=self.current_content_type, must_redirect=False)
+
+        # prefetch:
+        queryset = queryset\
             .prefetch_related("content")\
             .prefetch_related("content__subcategory")\
             .prefetch_related("content__authors")\
-            .filter(content_type=self.current_content_type, must_redirect=False)
+            .select_related('content__licence')\
+            .select_related('content__image')
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
-            query_set = query_set.filter(content__subcategory__in=[self.tag])
+            queryset = queryset.filter(content__subcategory__in=[self.tag])
 
-        return query_set.order_by('-publication_date')
+        return queryset.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
