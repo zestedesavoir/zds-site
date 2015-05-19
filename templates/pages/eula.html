@@ -42,7 +42,7 @@
             L'édition du site {{ app.site.dns }} est assurée par l'association française de loi 1901 {{ app.site.litteral_name }}, déclarée à la préfecture de Vendée et parue au Journal Officiel le 19 avril 2014.
         </p>
         <p>
-            Vous pouvez joindre l’association via l’adresse e-mail : <a href="{{ app.site.association.email }}">{{ app.site.association.email }}</a>.
+            Vous pouvez joindre l’association via l’adresse e-mail : <a href="mailto:{{ app.site.association.email }}">{{ app.site.association.email }}</a>.
         </p>
     {% endif %}
     {% if app.site.hosting %}
@@ -202,7 +202,7 @@
         L'éditeur du site utilise la technologie des marqueurs (cookies) afin d'améliorer la qualité du site  et mieux répondre aux attentes des utilisateurs. Le membre prend acte que le site procède à l'installation de cookies sur le disque dur de son ordinateur en vue d'identifier chacune de ses connexion.
     </p>
     <p>
-        De manière générale, les cookies sont sans dommage pour l'ordinateur du membre. Ce dernier est libre d'accepter ou refuser les cookies en configurant son navigateur internet à cet effet. Pour ce faire, le membre peut se rendre sur le site de la Commission Nationale de l'Informatique et des Libertés (CNIL) à l'adresse : <a href="http://www.google.com/url?q=http%3A%2F%2Fwww.cnil.fr%2Fvos-libertes%2Fvos-traces%2Fles-cookies%2F&amp;sa=D&amp;sntz=1&amp;usg=AFQjCNGTMYq5pUcHrTYYP4OpVsSYp3G73Q">http://www.cnil.fr/vos-libertes/vos-traces/les-cookies/</a> donnant toutes les informations relatives à une telle configuration. Les cookies sont anonymes et ne sont en aucun cas utilisés pour collecter des données à caractère personnel, mais uniquement à des fins de connexion et statistiques.
+        De manière générale, les cookies sont sans dommage pour l'ordinateur du membre. Ce dernier est libre d'accepter ou refuser les cookies en configurant son navigateur internet à cet effet. Pour ce faire, le membre peut se rendre sur le site de la Commission Nationale de l'Informatique et des Libertés (CNIL) à l'adresse : <a href="http://www.cnil.fr/vos-libertes/vos-traces/les-cookies/">http://www.cnil.fr/vos-libertes/vos-traces/les-cookies/</a> donnant toutes les informations relatives à une telle configuration. Les cookies sont anonymes et ne sont en aucun cas utilisés pour collecter des données à caractère personnel, mais uniquement à des fins de connexion et statistiques.
     </p>
     <p>
         Pour plus de détails, voir <a href="{% url "zds.pages.views.cookies" %}">la page d'explications sur les cookies</a>.
@@ -245,7 +245,7 @@
     <h4>7.2 Code source du site</h4>
     {% if app.site.licenses.source %}
         <p>
-            {{ app.site.litteral_name }} est un site dont le code source est sous licence <a href="{{ app.site.licenses.source.url_license }}">{{ app.site.licenses.source.code }}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_name }}">{{ app.site.licenses.source.provider_url }}</a>.
+            {{ app.site.litteral_name }} est un site dont le code source est sous licence <a href="{{ app.site.licenses.source.url_license }}">{{ app.site.licenses.source.code }}</a>, et provient en partie de <a href="{{ app.site.licenses.source.provider_url }}">{{ app.site.licenses.source.provider_name }}</a>.
         </p>
     {% else %}
         <p>
