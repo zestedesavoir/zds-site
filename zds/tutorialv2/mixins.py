@@ -75,7 +75,7 @@ class SingleContentViewMixin(object):
             raise Http404("No contents has this pk.")
 
         # check permissions:
-        self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
+        self.is_staff = self.request.user.has_perm('tutorialv2.change_tutorialv2')
         self.is_author = self.request.user in obj.authors.all()
 
         if self.must_be_author and not self.is_author:
@@ -331,7 +331,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
                 raise Http404("The redirection is activated but the content is not public.")
 
         self.is_author = self.request.user in obj.content.authors.all()
-        self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
+        self.is_staff = self.request.user.has_perm('tutorialv2.change_tutorialv2')
 
         return obj
 
