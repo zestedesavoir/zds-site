@@ -18,6 +18,7 @@ Sommaire
    workflow
    back-end
    back-end-code
+   cache
    front-end
    api
    utils
