@@ -636,7 +636,7 @@ def fill_containers_from_json(json_sub, parent):
                     new_container.introduction = child['introduction']
                 if 'conclusion' in child:
                     new_container.conclusion = child['conclusion']
-                parent.add_container(new_container, generate_slug=(slug != ''))
+                parent.add_container(new_container, generate_slug=(slug == ''))
                 if 'children' in child:
                     fill_containers_from_json(child, new_container)
             elif child['object'] == 'extract':
@@ -650,7 +650,7 @@ def fill_containers_from_json(json_sub, parent):
                 if 'text' in child:
                     new_extract.text = child['text']
 
-                parent.add_extract(new_extract, generate_slug=(slug != ''))
+                parent.add_extract(new_extract, generate_slug=(slug == ''))
             else:
                 raise BadManifestError(_(u'Type d\'objet inconnu : {}').format(child['object']))
 
