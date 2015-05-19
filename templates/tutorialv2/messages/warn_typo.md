@@ -16,7 +16,7 @@
 {% blocktrans with username=user.username|safe title=content.title|safe type=type|safe %}
 Bien le bonjour !
 
-Il me semble avoir déniché une erreur {{ type }} {{ state }} 
+Il me semble avoir déniché une erreur dans le contenu 
 « [{{ title }}]({{ content_url }}) ».
 {% endblocktrans %}
 {% if target != content %}

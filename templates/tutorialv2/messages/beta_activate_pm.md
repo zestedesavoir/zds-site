@@ -1,14 +1,12 @@
 {% load i18n %}
 
 {% blocktrans with title=content.title|safe type=type|safe %}
-Psssst !
+Bonjour {{ user }},
 
-Je t'informe que ton {{ type }} « {{ title }} » s'est retrouvé en bêta. 
-Il est actuellement à la merci de la communauté, laquelle pourra le 
-consulter sans vergogne. Elle pourra également te faire de judicieux 
-retours dessus et t'aider à l'améliorer pour satisfaire l'appétit des 
-validateurs.
+Le contenu « {{ title }} » a été passé en bêta. La communauté pourra 
+consulter cette version et vous faire de judicieux retours dessus. Elle vous 
+permettra ainsi de l'améliorer et de satisfaire les critères de validation.
 
-Un sujet dédié à la bêta de ton {{ type }} a été créé automatiquement 
-sur le forum et est accessible [ici]({{ url }}). Cours-y vite !
+Pour cela, un sujet a été créé automatiquement sur le forum et est accessible 
+[ici]({{ url }}).
 {%  endblocktrans %}

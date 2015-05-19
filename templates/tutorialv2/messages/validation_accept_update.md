@@ -5,7 +5,7 @@
 Ouaiiiiis !
 
 La mise à jour de « [{{ title }}]({{ url }}) » a été publiée par 
-[{{ validator_name }}]({{ validator_url }}), et tout le monde peut désormais 
+[{{ validator_name }}]({{ validator_url }}). Tout le monde peut désormais 
 la découvrir !
 
 {%  endblocktrans %}

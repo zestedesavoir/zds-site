@@ -1255,7 +1255,7 @@ class WarnTypo(SingleContentFormViewMixin):
                 messages.error(self.request, _(u"L'auteur est malheureusement injoignable."))
 
         elif user in authors:  # author try to PM himself
-            messages.error(self.request, _(u'Impossible d\'envoyer la correction car vous êtes un auteur.'))
+            messages.error(self.request, _(u'Impossible d\'envoyer la proposition de correction : vous êtes auteur.'))
 
         else:  # send correction
             text = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
@@ -1423,8 +1423,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             content.save()
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
         except TooDeepContainerError:
-            messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour devenir"
-                                           u" celui d'un autre conteneur."))
+            messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour être"
+                                           u" inclus dans un autre conteneur."))
         except ValueError:
             raise Http404("The specified tree is invalid.")
         except IndexError:

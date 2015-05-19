@@ -4,12 +4,12 @@
 
 Bonjour {{ name }},
 
-Ce message fait suite à ton alerte pour les propos de {{ user_name }}
+Ce message fait suite à votre alerte pour les propos de {{ user_name }}
 dans {{ type_content }} [{{ title }}]({{ url }}). {{ modo_name }} s'est 
-occupé du signalement et t'a déposé un petit mot :
+occupé du signalement et vous a déposé un petit mot :
 
 {{ message }}
 
-Toute l'équipe de modération te remercie !
+Toute l'équipe de modération vous remercie !
 
 {%  endblocktrans %}

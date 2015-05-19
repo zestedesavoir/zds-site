@@ -1,11 +1,11 @@
 {% load i18n %}
 
 {% blocktrans with title=content.title|safe type=type|safe %}
-Noble {{ user }},
+Bonjour {{ user }},
 
-Tu as reçu l'incommensurable privilège de participer à la rédaction du 
-contenu « [{{ title }}]({{ url }}) », que tu peux gratifier de ta présence 
+Vous avez été intégré à la rédaction du contenu « [{{ title }}]({{ url }}) ». 
+La version brouillon, sur laquelle vous pourrez travailler, est disponible 
 [ici]({{ index }}).
 
-Maintenant que plus rien ne retient ta plume, je te souhaite bon courage !
+Plus rien maintenant ne retient votre plume, alors bon courage !
 {%  endblocktrans %}
