@@ -31,8 +31,8 @@ class FeaturedResource(models.Model):
         """Textual form of a featured resource."""
         return self.title
 
-    def save(self):
-        super(FeaturedResource, self).save()
+    def save(self, *args, **kwargs):
+        super(FeaturedResource, self).save(*args, **kwargs)
         # Clear associated cache keys
         cache.delete(make_template_fragment_key('home_featured_resources'))
 

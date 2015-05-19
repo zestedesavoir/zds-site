@@ -98,12 +98,6 @@ class Article(models.Model):
     def __unicode__(self):
         return self.title
 
-    def save(self):
-        super(Article, self).save()
-        # Delete associated cache keys
-        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), True]))
-        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), False]))
-
     def delete_entity_and_tree(self):
         """deletes the entity and its filesystem counterpart"""
         shutil.rmtree(self.get_path(), 0)
@@ -220,6 +214,10 @@ class Article(models.Model):
                 os.remove(name)
 
         super(Article, self).save(*args, **kwargs)
+
+        # Delete associated cache keys
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), True]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), False]))
 
     def get_reaction_count(self):
         """Return the number of reactions in the article."""
