@@ -19,6 +19,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
+from zds.tutorialv2.utils import publish_content
 from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
@@ -1576,20 +1577,7 @@ class ContentTests(TestCase):
         text_accept = u'C\'est de la m***, mais ok, j\'accepte'
         text_reject = u'Je refuse ce truc, arbitrairement !'
 
-        # let's create a medium-size tutorial
-        midsize_tuto = PublishableContentFactory(type='TUTORIAL')
-
-        midsize_tuto.authors.add(self.user_author)
-        midsize_tuto.gallery = GalleryFactory()
-        midsize_tuto.licence = self.licence
-        midsize_tuto.save()
-
-        # populate with 2 chapters (1 extract each)
-        midsize_tuto_draft = midsize_tuto.load_version()
-        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
-        ExtractFactory(container=chapter1, db_object=midsize_tuto)
-        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
-        ExtractFactory(container=chapter2, db_object=midsize_tuto)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
         self.assertEqual(
@@ -1602,34 +1590,34 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.count(), 0)
 
         result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': '',
                 'source': source,
-                'version': midsize_tuto_draft.current_version
+                'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
 
         result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
-                'version': midsize_tuto_draft.current_version
+                'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
 
-        self.assertEqual(PublishableContent.objects.get(pk=midsize_tuto.pk).source, source)  # source is set
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertIsNotNone(validation)
 
         self.assertEqual(validation.comment_authors, text_validation)
-        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
         self.assertEqual(validation.status, 'PENDING')
 
         # ensure that author cannot publish himself
@@ -1651,13 +1639,13 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).last().status, 'PENDING')
+        self.assertEqual(Validation.objects.filter(content=tuto).last().status, 'PENDING')
 
         # logout, then login with guest
         self.client.logout()
 
         result = self.client.get(
-            reverse('content:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}) +
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
             '?version=' + validation.version,
             follow=False)
         self.assertEqual(result.status_code, 302)  # no, public cannot access a tutorial in validation ...
@@ -1669,7 +1657,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.get(
-            reverse('content:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}) +
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
             '?version=' + validation.version,
             follow=False)
         self.assertEqual(result.status_code, 403)  # ... Same for guest ...
@@ -1683,7 +1671,7 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.get(
-            reverse('content:view', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}) +
+            reverse('content:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
             '?version=' + validation.version,
             follow=False)
         self.assertEqual(result.status_code, 200)  # ... But staff can, obviously !
@@ -1728,16 +1716,16 @@ class ContentTests(TestCase):
         self.assertEqual(validation.validator, self.user_staff)
 
         # let's modify the tutorial and ask for a new validation :
-        ExtractFactory(container=chapter2, db_object=midsize_tuto)
-        midsize_tuto = PublishableContent.objects.get(pk=midsize_tuto.pk)
-        midsize_tuto_draft = midsize_tuto.load_version()
+        ExtractFactory(container=self.chapter1, db_object=tuto)
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.tuto_draft = tuto.load_version()
 
         result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
-                'version': midsize_tuto_draft.current_version
+                'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1746,13 +1734,13 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.get(pk=validation.pk).status, 'CANCEL')  # previous is canceled
 
         # ... Therefore, a new Validation object is created
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'PENDING')
         self.assertEqual(validation.validator, None)
-        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
 
-        self.assertEqual(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation,
-                         midsize_tuto_draft.current_version)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).sha_validation,
+                         self.tuto_draft.current_version)
 
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
@@ -1786,7 +1774,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 403)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).last().status, 'PENDING_V')
+        self.assertEqual(Validation.objects.filter(content=tuto).last().status, 'PENDING_V')
 
         # reject it with staff !
         self.assertEqual(
@@ -1818,27 +1806,27 @@ class ContentTests(TestCase):
         self.assertEqual(validation.status, 'REJECT')
         self.assertEqual(validation.comment_validator, text_reject)
 
-        self.assertIsNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
+        self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received a PM
 
         # re-ask for validation
         result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
-                'version': midsize_tuto_draft.current_version
+                'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
         # a new object is created !
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'PENDING')
         self.assertEqual(validation.validator, None)
-        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
 
         result = self.client.post(
             reverse('validation:reserve', kwargs={'pk': validation.pk}),
@@ -1851,7 +1839,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, self.user_staff)
-        self.assertEqual(validation.version, midsize_tuto_draft.current_version)
+        self.assertEqual(validation.version, self.tuto_draft.current_version)
 
         # accept
         result = self.client.post(
@@ -1877,22 +1865,22 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'ACCEPT')
         self.assertEqual(validation.comment_validator, text_accept)
 
-        self.assertIsNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
+        self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
-        self.assertEqual(PublishedContent.objects.filter(content=midsize_tuto).count(), 1)
-        published = PublishedContent.objects.filter(content=midsize_tuto).first()
+        self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
+        published = PublishedContent.objects.filter(content=tuto).first()
 
         self.assertEqual(published.content.source, different_source)
-        self.assertEqual(published.content_public_slug, midsize_tuto_draft.slug)
+        self.assertEqual(published.content_public_slug, self.tuto_draft.slug)
         self.assertTrue(os.path.exists(published.get_prod_path()))
         # ... another test cover the file creation and so all, lets skip this part
 
@@ -1904,14 +1892,14 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:revoke', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_reject,
                 'version': published.sha_public
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).last().status, 'ACCEPT')
+        self.assertEqual(Validation.objects.filter(content=tuto).last().status, 'ACCEPT')
 
         # revoke publication with staff
         self.assertEqual(
@@ -1921,18 +1909,18 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('validation:revoke', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': '',
                 'version': published.sha_public
             },
             follow=False)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'ACCEPT')  # with no text, revocation is not possible
 
         result = self.client.post(
-            reverse('validation:revoke', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:revoke', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_reject,
                 'version': published.sha_public
@@ -1940,15 +1928,15 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'PENDING')
-        self.assertEqual(validation.version, midsize_tuto.sha_draft)
+        self.assertEqual(validation.version, tuto.sha_draft)
 
-        self.assertIsNotNone(PublishableContent.objects.get(pk=midsize_tuto.pk).sha_validation)
+        self.assertIsNotNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
-        self.assertEqual(PublishedContent.objects.filter(content=midsize_tuto).count(), 0)
+        self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 3)
@@ -1963,7 +1951,7 @@ class ContentTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, self.user_staff)
 
@@ -1982,9 +1970,9 @@ class ContentTests(TestCase):
             }, follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Validation.objects.filter(content=midsize_tuto).count(), 3)
+        self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'CANCEL')  # the validation got canceled
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
@@ -1998,19 +1986,7 @@ class ContentTests(TestCase):
         text_cancel = u'Veux pas !'
 
         # let's create a medium-size tutorial
-        midsize_tuto = PublishableContentFactory(type='TUTORIAL')
-
-        midsize_tuto.authors.add(self.user_author)
-        midsize_tuto.gallery = GalleryFactory()
-        midsize_tuto.licence = self.licence
-        midsize_tuto.save()
-
-        # populate with 2 chapters (1 extract each)
-        midsize_tuto_draft = midsize_tuto.load_version()
-        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
-        ExtractFactory(container=chapter1, db_object=midsize_tuto)
-        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
-        ExtractFactory(container=chapter2, db_object=midsize_tuto)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
         self.assertEqual(
@@ -2023,17 +1999,17 @@ class ContentTests(TestCase):
         self.assertEqual(Validation.objects.count(), 0)
 
         result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
                 'source': source,
-                'version': midsize_tuto_draft.current_version
+                'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
 
-        validation = Validation.objects.filter(content=midsize_tuto).last()
+        validation = Validation.objects.filter(content=tuto).last()
 
         # login with staff and reserve
         self.client.logout()
@@ -2065,27 +2041,915 @@ class ContentTests(TestCase):
 
         # does not work without a text
         result = self.client.post(
-            reverse('content:delete', args=[midsize_tuto.pk, midsize_tuto.slug]),
+            reverse('content:delete', args=[tuto.pk, tuto.slug]),
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(PublishableContent.objects.filter(pk=midsize_tuto.pk).count(), 1)  # not deleted
+        self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 1)  # not deleted
         self.assertEqual(Validation.objects.count(), 1)
 
         # now, will work
         result = self.client.post(
-            reverse('content:delete', args=[midsize_tuto.pk, midsize_tuto.slug]),
+            reverse('content:delete', args=[tuto.pk, tuto.slug]),
             {
                 'text': text_cancel
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(PublishableContent.objects.filter(pk=midsize_tuto.pk).count(), 0)  # BOOM, deleted !
+        self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
         self.assertEqual(Validation.objects.count(), 0)  # no more validation objects
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 1)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
+
+    def test_js_fiddle_activation(self):
+
+        login_check = self.client.login(
+            username=self.staff.username,
+            password='hostel77')
+        self.assertEqual(login_check, True)
+        result = self.client.post(
+            reverse('content:activate-jsfiddle'),
+            {
+                "pk": self.tuto.pk,
+                "js_support": "on"
+            }, follow=True)
+        self.assertEqual(result.status_code, 200)
+        updated = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertTrue(updated.js_support)
+        result = self.client.post(
+            reverse('content:activate-jsfiddle'),
+            {
+                "pk": self.tuto.pk,
+            }, follow=True)
+        self.assertEqual(result.status_code, 200)
+        updated = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertFalse(updated.js_support)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:activate-jsfiddle'),
+            {
+                "pk": self.tuto.pk,
+                "js_support": True
+            })
+        self.assertEqual(result.status_code, 403)
+
+    def test_validate_unexisting(self):
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'text': "blaaaaa",
+                'source': "",
+                'version': "unexistingversion"
+            },
+            follow=False)
+        self.assertEqual(Validation.objects.filter(content__pk=self.tuto.pk).count(), 0)
+        self.assertEqual(result.status_code, 404)
+
+    def test_help_to_perfect_tuto(self):
+        """ This test aim to unit test the "help me to write my tutorial" interface.
+        It is testing if the back-end is always sending back good datas"""
+
+        # create some helps:
+        num_of_helps = 5  # note: should be at least "2" for this test to be performed
+        for i in range(num_of_helps):
+            a = HelpWritingFactory()
+            a.save()
+
+        helps = HelpWriting.objects.all()
+
+        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 0)
+
+        # then active the beta on tutorial :
+        # first, login with author :
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        sha_draft = PublishableContent.objects.get(pk=self.tuto.pk).sha_draft
+        response = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = PublishableContent.objects.get(pk=self.tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # However if we ask with a filter we will still get 0 !
+        for helping in helps:
+            response = self.client.get(
+                reverse('content:helps') +
+                u'?need={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            contents = response.context['contents']
+            self.assertEqual(len(contents), 0)
+
+        # now tutorial is positive for every options
+        # if we ask for any help we should get a positive answer for every filter !
+        self.tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        for helping in helps:
+            self.tuto.helps.add(helping)
+        self.tuto.save()
+
+        for helping in helps:
+            response = self.client.get(
+                reverse('content:helps') +
+                u'?need={}'.format(helping.slug),
+                follow=False
+            )
+            self.assertEqual(200, response.status_code)
+            contents = response.context['contents']
+            self.assertEqual(len(contents), 1)
+
+        # now, add an article
+        article = PublishableContentFactory(type="ARTICLE")
+        article.authors.add(self.user_author)
+        article.subcategory.add(self.subcategory)
+        article.save()
+
+        # in the helps, there should still be only one results
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # test "type" filter
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=article',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 0)  # no article yet
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=tuto',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # add an help
+        an_help = HelpWriting.objects.first()
+        article.helps.add(an_help)
+        article.save()
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 2)  # ... then this time, we get two results !
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?need={}'.format(an_help.slug),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 2)  # same with the help
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?need={}'.format(HelpWriting.objects.last().slug),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)  # but only one if we ask for another need
+
+        # test "type" filter:
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=article',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?type=tuto',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(len(contents), 1)
+
+        # test pagination page doesn't exist
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?page=1534',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)
+
+        # test pagination page not an integer
+        response = self.client.get(
+            reverse('content:helps') +
+            u'?page=abcd',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)
+
+    def test_add_author(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:add-author', args=[self.tuto.pk]),
+            {
+                'username': self.user_guest.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
+        gallery = UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first()
+        self.assertIsNotNone(gallery)
+        self.assertEqual(GALLERY_WRITE, gallery.mode)
+        # add unexisting user
+        result = self.client.post(
+            reverse('content:add-author', args=[self.tuto.pk]),
+            {
+                'username': "unknown"
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
+
+    def test_remove_author(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
+        result = self.client.post(
+            reverse('content:remove-author', args=[tuto.pk]),
+            {
+                'username': self.user_guest.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+
+        self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
+        # remove unexisting user
+        result = self.client.post(
+            reverse('content:add-author', args=[tuto.pk]),
+            {
+                'username': "unknown"
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        # remove last author must lead to no change
+        result = self.client.post(
+            reverse('content:add-author', args=[tuto.pk]),
+            {
+                'username': self.user_author.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+
+    def test_warn_typo(self):
+        """
+        Add a non-regression test about warning the author(s) of a typo in tutorial
+        """
+
+        typo_text = u'T\'as fait une faute, t\'es trop nul'
+
+        # create a tuto, populate, and set beta
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        sha_draft = PublishableContent.objects.get(pk=tuto.pk).sha_draft
+        response = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'version': sha_draft
+            },
+            follow=False
+        )
+        self.assertEqual(302, response.status_code)
+        sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
+        self.assertEqual(sha_draft, sha_beta)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version(sha_beta)
+
+        # check if author get error when warning typo on its own tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': sha_beta,
+                'text': typo_text,
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        # login with normal user
+        self.client.logout()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': sha_beta,
+                'text': typo_text,
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(versioned.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': sha_beta,
+                'text': typo_text,
+                'target': self.chapter1.get_path(relative=True)
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+        self.chapter1.parent.parent = versioned
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(self.chapter1.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
+
+        # now, induce change and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        ExtractFactory(container=self.chapter1, db_object=tuto)  # new extract
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': u'valide moi ça, please',
+                'source': '',
+                'version': versioned.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=tuto).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': u'ça m\'as l\'air nul, mais je valide',
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=tuto).first()
+        self.assertIsNotNone(published)
+
+        # now, same stuffs on the public version
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        # check if user can warn typo in tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': tuto.sha_public,
+                'text': typo_text,
+                'target': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(versioned.get_absolute_url_online(), sent_pm.last_message.text)  # online url is in message
+
+        # check if user can warn typo in chapter of tutorial
+        result = self.client.post(
+            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
+            {
+                'pk': tuto.pk,
+                'version': tuto.sha_public,
+                'text': typo_text,
+                'target': self.chapter1.get_path(relative=True)
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.SUCCESS)
+
+        # check PM :
+        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
+        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
+        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
+        self.assertIn(versioned.children[0].get_absolute_url_online(), sent_pm.last_message.text)
+
+    def test_concurent_edition(self):
+        """ensure that an edition is not successfull without provided the good `last_hash` to each form"""
+
+        # create a tuto and populate
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto.authors.add(self.user_author)
+        tuto.gallery = GalleryFactory()
+        tuto.licence = self.licence
+        tuto.subcategory.add(self.subcategory)
+        tuto.save()
+
+        versioned = tuto.load_version()
+        chapter = ContainerFactory(parent=versioned, db_object=tuto)
+        extract = ExtractFactory(container=chapter, db_object=tuto)
+
+        random = u'Il est miniuit 30 et j\'écris un test ;)'
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # no hash, no edition
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': tuto.title,
+                'description': tuto.description,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.assertNotEqual(versioned.get_introduction(), random)
+        self.assertNotEqual(versioned.get_conclusion(), random)
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': tuto.title,
+                'description': tuto.description,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': versioned.compute_hash()  # good hash
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        versioned = tuto.load_version()
+        self.assertEqual(versioned.get_introduction(), random)
+        self.assertEqual(versioned.get_conclusion(), random)
+
+        # edit container:
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter.slug}),
+            {
+                'title': chapter.title,
+                'introduction': random,
+                'conclusion': random,
+                'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        chapter_version = tuto.load_version().children[0]
+        self.assertNotEqual(chapter_version.get_introduction(), random)
+        self.assertNotEqual(chapter_version.get_conclusion(), random)
+
+        result = self.client.post(
+            reverse('content:edit-container',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter.slug}),
+            {
+                'title': chapter.title,
+                'introduction': random,
+                'conclusion': random,
+                'last_hash': chapter_version.compute_hash()
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        chapter_version = tuto.load_version().children[0]
+        self.assertEqual(chapter_version.get_introduction(), random)
+        self.assertEqual(chapter_version.get_conclusion(), random)
+
+        # edit extract
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random,
+                'last_hash': ''
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children[0].children[0]
+        self.assertNotEqual(extract.get_text(), random)
+
+        result = self.client.post(
+            reverse('content:edit-extract',
+                    kwargs={
+                        'pk': tuto.pk,
+                        'slug': tuto.slug,
+                        'container_slug': chapter_version.slug,
+                        'extract_slug': extract.slug
+                    }),
+            {
+                'title': random,
+                'text': random,
+                'last_hash': extract.compute_hash()
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
+        extract = versioned.children[0].children[0]
+        self.assertEqual(extract.get_text(), random)
+
+    def test_malformed_url(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            self.chapter1.get_absolute_url()[:-2] + "/"
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            self.part1.get_absolute_url()[:-2] + "/"
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            self.chapter1.get_absolute_url().replace(str(self.tuto.pk), u"he-s-dead-jim")
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            self.chapter1.get_absolute_url().replace(str(self.tuto.slug), u"he-s-dead-jim")
+        )
+        self.assertEqual(result.status_code, 404)
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        published = PublishedContent.objects.filter(content_pk=publishable.pk).first()
+        result = self.client.get(
+            published.get_absolute_url_online().replace(str(published.content_public_slug), u"he-s-dead-jim")
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            published.get_absolute_url_online().replace(str(published.content.pk), u"1000000000")
+        )
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            published.get_absolute_url_online().replace(str(published.content.pk), u"he-s-dead-jim")
+        )
+        self.assertEqual(result.status_code, 404)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+
+        result = self.client.get(published.get_absolute_url_online() + "?page=2")
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(published.get_absolute_url_online() + "?page=clementine")
+        self.assertEqual(result.status_code, 404)
+        publishable = PublishableContentFactory(author_list=[self.user_author])
+        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), "10000"))
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
+        self.assertEqual(result.status_code, 403)  # get 403 since you're not author
+
+    def test_import_old_version(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        base = os.path.join(BASE_DIR, "fixtures", "tuto")
+        old_contents = [
+            os.path.join(base, "article_v1"),
+            os.path.join(base, "balise_audio"),
+            os.path.join(base, "big_tuto_v1"),
+        ]
+        for old_path in old_contents:
+            draft_zip_path = old_path + '.zip'
+            shutil.make_archive(old_path, 'zip', old_path)
+
+            result = self.client.post(
+                reverse('content:import-new'),
+                {
+                    'archive': open(draft_zip_path),
+                    'subcategory': self.subcategory.pk
+                },
+                follow=False
+            )
+            manifest = open(os.path.join(old_path, "manifest.json"), 'r')
+            json = json_reader.loads(manifest.read())
+            manifest.close()
+            self.assertEqual(result.status_code, 302)
+            self.assertEqual(json["title"], PublishableContent.objects.last().title)
+
+    def test_import_bad_archive(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        base = os.path.join(BASE_DIR, "fixtures", "tuto")
+        old_path = os.path.join(base, "article_v1")
+
+        shutil.move(os.path.join(old_path, "text.md"), os.path.join(old_path, "text2.md"))
+        shutil.make_archive(old_path, 'zip', old_path)
+        shutil.move(os.path.join(old_path, "text2.md"), os.path.join(old_path, "text.md"))
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(old_path + ".zip"),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+        msgs = result.context['messages']
+        levels = [msg.level for msg in msgs]
+        self.assertIn(messages.ERROR, levels)
+
+        shutil.copyfile(os.path.join(old_path, "manifest.json"), os.path.join(old_path, "manifest2.json"))
+        with open(os.path.join(old_path, "manifest.json"), "w") as man_file:
+            man_file.write('{"version":2, "type":"Kitty Cat"}')
+        shutil.make_archive(old_path, 'zip', old_path)
+        shutil.copyfile(os.path.join(old_path, "manifest2.json"), os.path.join(old_path, "manifest.json"))
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(old_path + ".zip"),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+        msgs = result.context['messages']
+        levels = [msg.level for msg in msgs]
+        self.assertIn(messages.ERROR, levels)
+
+    def tearDown(self):
+
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+
+class PublishedContentTests(TestCase):
+    def setUp(self):
+        self.staff = StaffProfileFactory().user
+
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = ProfileFactory().user
+        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
+        self.external = UserFactory(
+            username=settings.ZDS_APP["member"]["external_account"],
+            password="anything")
+
+        self.beta_forum = ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)  # ensure that the forum, for the beta versions, is created
+
+        self.licence = LicenceFactory()
+        self.subcategory = SubCategoryFactory()
+
+        self.user_author = ProfileFactory().user
+        self.user_staff = StaffProfileFactory().user
+        self.user_guest = ProfileFactory().user
+
+        # create a tutorial
+        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto.authors.add(self.user_author)
+        self.tuto.gallery = GalleryFactory()
+        self.tuto.licence = self.licence
+        self.tuto.subcategory.add(self.subcategory)
+        self.tuto.save()
+
+        # fill it with one part, containing one chapter, containing one extract
+        self.tuto_draft = self.tuto.load_version()
+        self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
+        self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+        self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
+
+        # then, publish it !
+        version = self.tuto_draft.current_version
+        self.published = publish_content(self.tuto, self.tuto_draft, is_major_update=True)
+
+        self.tuto.sha_public = version
+        self.tuto.sha_draft = version
+        self.tuto.public_version = self.published
+        self.tuto.save()
+
+    def test_publish(self):
+        """Just a small test to ensure that the setUp() function produce a proper published content"""
+
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        # test access for guest user
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}))
+        self.assertEqual(result.status_code, 200)
 
     def test_public_access(self):
         """Test that everybody have access to a content after its publication"""
@@ -2521,54 +3385,7 @@ class ContentTests(TestCase):
                     }))
         self.assertEqual(result.status_code, 404)
 
-    def test_js_fiddle_activation(self):
-
-        login_check = self.client.login(
-            username=self.staff.username,
-            password='hostel77')
-        self.assertEqual(login_check, True)
-        result = self.client.post(
-            reverse('content:activate-jsfiddle'),
-            {
-                "pk": self.tuto.pk,
-                "js_support": "on"
-            }, follow=True)
-        self.assertEqual(result.status_code, 200)
-        updated = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertTrue(updated.js_support)
-        result = self.client.post(
-            reverse('content:activate-jsfiddle'),
-            {
-                "pk": self.tuto.pk,
-            }, follow=True)
-        self.assertEqual(result.status_code, 200)
-        updated = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertFalse(updated.js_support)
-        self.client.logout()
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        result = self.client.post(
-            reverse('content:activate-jsfiddle'),
-            {
-                "pk": self.tuto.pk,
-                "js_support": True
-            })
-        self.assertEqual(result.status_code, 403)
-
     def test_add_note(self):
-        tuto = PublishedContentFactory(author_list=[self.user_author], type="TUTORIAL")
-
-        published_obj = PublishedContent.objects \
-            .filter(content_pk=tuto.pk, content_public_slug=tuto.slug, content_type=tuto.type) \
-            .prefetch_related('content') \
-            .prefetch_related("content__authors") \
-            .prefetch_related("content__subcategory") \
-            .first()
-
-        self.assertIsNotNone(published_obj)
 
         self.assertEqual(
             self.client.login(
@@ -2577,736 +3394,24 @@ class ContentTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(published_obj.content.pk),
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': u'message',
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(ContentReaction.objects.count(), 1)
-        self.assertEqual(self.client.get(reverse("tutorial:view", args=[tuto.pk, tuto.slug])).status_code, 200)
+        self.assertEqual(
+            self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
         result = self.client.post(
-            reverse("content:add-reaction") + u'?clementine={}'.format(published_obj.content.pk),
+            reverse("content:add-reaction") + u'?clementine={}'.format(self.published.content.pk),
             {
                 'text': u'message',
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 404)
-
-    def test_validate_unexisting(self):
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
-            {
-                'text': "blaaaaa",
-                'source': "",
-                'version': "unexistingversion"
-            },
-            follow=False)
-        self.assertEqual(Validation.objects.filter(content__pk=self.tuto.pk).count(), 0)
-        self.assertEqual(result.status_code, 404)
-
-    def test_help_to_perfect_tuto(self):
-        """ This test aim to unit test the "help me to write my tutorial" interface.
-        It is testing if the back-end is always sending back good datas"""
-
-        # create some helps:
-        num_of_helps = 5  # note: should be at least "2" for this test to be performed
-        for i in range(num_of_helps):
-            a = HelpWritingFactory()
-            a.save()
-
-        helps = HelpWriting.objects.all()
-
-        # currently the tutorial is published with no beta, so back-end should return 0 tutorial
-        response = self.client.get(
-            reverse('content:helps'),
-            follow=False
-        )
-
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 0)
-
-        # then active the beta on tutorial :
-        # first, login with author :
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-
-        sha_draft = PublishableContent.objects.get(pk=self.tuto.pk).sha_draft
-        response = self.client.post(
-            reverse('content:set-beta', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
-            {
-                'version': sha_draft
-            },
-            follow=False
-        )
-        self.assertEqual(302, response.status_code)
-        sha_beta = PublishableContent.objects.get(pk=self.tuto.pk).sha_beta
-        self.assertEqual(sha_draft, sha_beta)
-
-        response = self.client.get(
-            reverse('content:helps'),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 1)
-
-        # However if we ask with a filter we will still get 0 !
-        for helping in helps:
-            response = self.client.get(
-                reverse('content:helps') +
-                u'?need={}'.format(helping.slug),
-                follow=False
-            )
-            self.assertEqual(200, response.status_code)
-            contents = response.context['contents']
-            self.assertEqual(len(contents), 0)
-
-        # now tutorial is positive for every options
-        # if we ask for any help we should get a positive answer for every filter !
-        self.tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        for helping in helps:
-            self.tuto.helps.add(helping)
-        self.tuto.save()
-
-        for helping in helps:
-            response = self.client.get(
-                reverse('content:helps') +
-                u'?need={}'.format(helping.slug),
-                follow=False
-            )
-            self.assertEqual(200, response.status_code)
-            contents = response.context['contents']
-            self.assertEqual(len(contents), 1)
-
-        # now, add an article
-        article = PublishableContentFactory(type="ARTICLE")
-        article.authors.add(self.user_author)
-        article.subcategory.add(self.subcategory)
-        article.save()
-
-        # in the helps, there should still be only one results
-        response = self.client.get(
-            reverse('content:helps'),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 1)
-
-        # test "type" filter
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?type=article',
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 0)  # no article yet
-
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?type=tuto',
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 1)
-
-        # add an help
-        an_help = HelpWriting.objects.first()
-        article.helps.add(an_help)
-        article.save()
-
-        response = self.client.get(
-            reverse('content:helps'),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 2)  # ... then this time, we get two results !
-
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?need={}'.format(an_help.slug),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 2)  # same with the help
-
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?need={}'.format(HelpWriting.objects.last().slug),
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 1)  # but only one if we ask for another need
-
-        # test "type" filter:
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?type=article',
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 1)
-
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?type=tuto',
-            follow=False
-        )
-        self.assertEqual(200, response.status_code)
-        contents = response.context['contents']
-        self.assertEqual(len(contents), 1)
-
-        # test pagination page doesn't exist
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?page=1534',
-            follow=False
-        )
-        self.assertEqual(404, response.status_code)
-
-        # test pagination page not an integer
-        response = self.client.get(
-            reverse('content:helps') +
-            u'?page=abcd',
-            follow=False
-        )
-        self.assertEqual(404, response.status_code)
-
-    def test_add_author(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        result = self.client.post(
-            reverse('content:add-author', args=[self.tuto.pk]),
-            {
-                'username': self.user_guest.username
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
-        gallery = UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first()
-        self.assertIsNotNone(gallery)
-        self.assertEqual(GALLERY_WRITE, gallery.mode)
-        # add unexisting user
-        result = self.client.post(
-            reverse('content:add-author', args=[self.tuto.pk]),
-            {
-                'username': "unknown"
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
-
-    def test_remove_author(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
-        result = self.client.post(
-            reverse('content:remove-author', args=[tuto.pk]),
-            {
-                'username': self.user_guest.username
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-
-        self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
-        # remove unexisting user
-        result = self.client.post(
-            reverse('content:add-author', args=[tuto.pk]),
-            {
-                'username': "unknown"
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-        # remove last author must lead to no change
-        result = self.client.post(
-            reverse('content:add-author', args=[tuto.pk]),
-            {
-                'username': self.user_author.username
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-
-    def test_warn_typo(self):
-        """
-        Add a non-regression test about warning the author(s) of a typo in tutorial
-        """
-
-        typo_text = u'T\'as fait une faute, t\'es trop nul'
-
-        # create a tuto, populate, and set beta
-        tuto = PublishableContentFactory(type='TUTORIAL')
-        tuto.authors.add(self.user_author)
-        tuto.gallery = GalleryFactory()
-        tuto.licence = self.licence
-        tuto.subcategory.add(self.subcategory)
-        tuto.save()
-
-        versioned = tuto.load_version()
-        chapter = ContainerFactory(parent=versioned, db_object=tuto)
-        ExtractFactory(container=chapter, db_object=tuto)
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-
-        sha_draft = PublishableContent.objects.get(pk=tuto.pk).sha_draft
-        response = self.client.post(
-            reverse('content:set-beta', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
-            {
-                'version': sha_draft
-            },
-            follow=False
-        )
-        self.assertEqual(302, response.status_code)
-        sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
-        self.assertEqual(sha_draft, sha_beta)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version(sha_beta)
-
-        # check if author get error when warning typo on its own tutorial
-        result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
-            {
-                'pk': tuto.pk,
-                'version': sha_beta,
-                'text': typo_text,
-                'target': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        # login with normal user
-        self.client.logout()
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
-
-        # check if user can warn typo in tutorial
-        result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
-            {
-                'pk': tuto.pk,
-                'version': sha_beta,
-                'text': typo_text,
-                'target': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
-
-        # check PM :
-        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
-        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
-        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(versioned.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
-
-        # check if user can warn typo in chapter of tutorial
-        result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
-            {
-                'pk': tuto.pk,
-                'version': sha_beta,
-                'text': typo_text,
-                'target': chapter.get_path(relative=True)
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
-        chapter.parent = versioned
-        # check PM :
-        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
-        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
-        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(chapter.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
-
-        # now, induce change and publish
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-
-        ExtractFactory(container=chapter, db_object=tuto)  # new extract
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-
-        # ask validation
-        self.assertEqual(Validation.objects.count(), 0)
-
-        result = self.client.post(
-            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
-            {
-                'text': u'valide moi ça, please',
-                'source': '',
-                'version': versioned.current_version
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-
-        # login with staff and publish
-        self.assertEqual(
-            self.client.login(
-                username=self.user_staff.username,
-                password='hostel77'),
-            True)
-
-        validation = Validation.objects.filter(content=tuto).last()
-
-        result = self.client.post(
-            reverse('validation:reserve', kwargs={'pk': validation.pk}),
-            {
-                'version': validation.version
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-
-        # accept
-        result = self.client.post(
-            reverse('validation:accept', kwargs={'pk': validation.pk}),
-            {
-                'text': u'ça m\'as l\'air nul, mais je valide',
-                'is_major': True,
-                'source': u''
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-
-        published = PublishedContent.objects.filter(content=tuto).first()
-        self.assertIsNotNone(published)
-
-        # now, same stuffs on the public version
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
-
-        # check if user can warn typo in tutorial
-        result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
-            {
-                'pk': tuto.pk,
-                'version': tuto.sha_public,
-                'text': typo_text,
-                'target': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
-
-        # check PM :
-        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
-        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
-        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(versioned.get_absolute_url_online(), sent_pm.last_message.text)  # online url is in message
-
-        # check if user can warn typo in chapter of tutorial
-        result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(tuto.pk),
-            {
-                'pk': tuto.pk,
-                'version': tuto.sha_public,
-                'text': typo_text,
-                'target': chapter.get_path(relative=True)
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.SUCCESS)
-
-        # check PM :
-        sent_pm = PrivateTopic.objects.filter(author=self.user_guest.pk).last()
-        self.assertIn(self.user_author, sent_pm.participants.all())  # author is in participants
-        self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
-        self.assertIn(versioned.children[0].get_absolute_url_online(), sent_pm.last_message.text)
-
-    def test_concurent_edition(self):
-        """ensure that an edition is not successfull without provided the good `last_hash` to each form"""
-
-        # create a tuto and populate
-        tuto = PublishableContentFactory(type='TUTORIAL')
-        tuto.authors.add(self.user_author)
-        tuto.gallery = GalleryFactory()
-        tuto.licence = self.licence
-        tuto.subcategory.add(self.subcategory)
-        tuto.save()
-
-        versioned = tuto.load_version()
-        chapter = ContainerFactory(parent=versioned, db_object=tuto)
-        extract = ExtractFactory(container=chapter, db_object=tuto)
-
-        random = u'Il est miniuit 30 et j\'écris un test ;)'
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-
-        # no hash, no edition
-        result = self.client.post(
-            reverse('content:edit', args=[tuto.pk, tuto.slug]),
-            {
-                'title': tuto.title,
-                'description': tuto.description,
-                'introduction': random,
-                'conclusion': random,
-                'type': u'TUTORIAL',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertNotEqual(versioned.get_introduction(), random)
-        self.assertNotEqual(versioned.get_conclusion(), random)
-
-        result = self.client.post(
-            reverse('content:edit', args=[tuto.pk, tuto.slug]),
-            {
-                'title': tuto.title,
-                'description': tuto.description,
-                'introduction': random,
-                'conclusion': random,
-                'type': u'TUTORIAL',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': versioned.compute_hash()  # good hash
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
-
-        # edit container:
-        result = self.client.post(
-            reverse('content:edit-container',
-                    kwargs={
-                        'pk': tuto.pk,
-                        'slug': tuto.slug,
-                        'container_slug': chapter.slug}),
-            {
-                'title': chapter.title,
-                'introduction': random,
-                'conclusion': random,
-                'last_hash': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        chapter_version = tuto.load_version().children[0]
-        self.assertNotEqual(chapter_version.get_introduction(), random)
-        self.assertNotEqual(chapter_version.get_conclusion(), random)
-
-        result = self.client.post(
-            reverse('content:edit-container',
-                    kwargs={
-                        'pk': tuto.pk,
-                        'slug': tuto.slug,
-                        'container_slug': chapter.slug}),
-            {
-                'title': chapter.title,
-                'introduction': random,
-                'conclusion': random,
-                'last_hash': chapter_version.compute_hash()
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        chapter_version = tuto.load_version().children[0]
-        self.assertEqual(chapter_version.get_introduction(), random)
-        self.assertEqual(chapter_version.get_conclusion(), random)
-
-        # edit extract
-        result = self.client.post(
-            reverse('content:edit-extract',
-                    kwargs={
-                        'pk': tuto.pk,
-                        'slug': tuto.slug,
-                        'container_slug': chapter_version.slug,
-                        'extract_slug': extract.slug
-                    }),
-            {
-                'title': random,
-                'text': random,
-                'last_hash': ''
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context['messages']
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
-        extract = versioned.children[0].children[0]
-        self.assertNotEqual(extract.get_text(), random)
-
-        result = self.client.post(
-            reverse('content:edit-extract',
-                    kwargs={
-                        'pk': tuto.pk,
-                        'slug': tuto.slug,
-                        'container_slug': chapter_version.slug,
-                        'extract_slug': extract.slug
-                    }),
-            {
-                'title': random,
-                'text': random,
-                'last_hash': extract.compute_hash()
-            },
-            follow=True)
-        self.assertEqual(result.status_code, 200)
-
-        versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
-        extract = versioned.children[0].children[0]
-        self.assertEqual(extract.get_text(), random)
-
-    def test_malformed_url(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-
-        result = self.client.get(
-            self.chapter1.get_absolute_url()[:-2] + "/"
-        )
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(
-            self.part1.get_absolute_url()[:-2] + "/"
-        )
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(
-            self.chapter1.get_absolute_url().replace(str(self.tuto.pk), u"he-s-dead-jim")
-        )
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(
-            self.chapter1.get_absolute_url().replace(str(self.tuto.slug), u"he-s-dead-jim")
-        )
-        self.assertEqual(result.status_code, 404)
-        publishable = PublishedContentFactory(author_list=[self.user_author])
-        published = PublishedContent.objects.filter(content_pk=publishable.pk).first()
-        result = self.client.get(
-            published.get_absolute_url_online().replace(str(published.content_public_slug), u"he-s-dead-jim")
-        )
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(
-            published.get_absolute_url_online().replace(str(published.content.pk), u"1000000000")
-        )
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(
-            published.get_absolute_url_online().replace(str(published.content.pk), u"he-s-dead-jim")
-        )
-        self.assertEqual(result.status_code, 404)
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
-
-        result = self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
-            {
-                'text': u'message',
-                'last_note': '0'
-            }, follow=True)
-
-        result = self.client.get(published.get_absolute_url_online() + "?page=2")
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(published.get_absolute_url_online() + "?page=clementine")
-        self.assertEqual(result.status_code, 404)
-        publishable = PublishableContentFactory(author_list=[self.user_author])
-        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.pk), "10000"))
-        self.assertEqual(result.status_code, 404)
-        result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
-        self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
     def test_upvote_downvote(self):
-        publishable = PublishedContentFactory(author_list=[self.user_author])
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
@@ -3314,7 +3419,7 @@ class ContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -3355,7 +3460,6 @@ class ContentTests(TestCase):
         text_hidden = \
             u"Ever notice how you come across somebody once in a while you shouldn't have fucked with? That's me."
 
-        publishable = PublishedContentFactory(author_list=[self.user_author])
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
@@ -3363,7 +3467,7 @@ class ContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.pk),
             {
                 'text': u'message',
                 'last_note': '0'
@@ -3375,7 +3479,7 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
+        reaction = ContentReaction.objects.filter(related_content__pk=self.published.pk).first()
 
         result = self.client.post(
             reverse('content:hide-reaction', args=[reaction.pk]), {'text_hidden': text_hidden}, follow=False)
@@ -3396,7 +3500,7 @@ class ContentTests(TestCase):
         self.assertTrue(reaction.is_visible)
 
     def test_alert_reaction(self):
-        publishable = PublishedContentFactory(author_list=[self.user_author])
+
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
@@ -3404,12 +3508,12 @@ class ContentTests(TestCase):
             True)
 
         self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.pk),
             {
                 'text': u'message',
                 'last_note': '0'
             }, follow=True)
-        reaction = ContentReaction.objects.filter(related_content__pk=publishable.pk).first()
+        reaction = ContentReaction.objects.filter(related_content__pk=self.published.pk).first()
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
@@ -3447,17 +3551,17 @@ class ContentTests(TestCase):
         self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
 
     def test_warn_typo_without_accessible_author(self):
-        publishable = PublishedContentFactory(author_list=[self.external])
+
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
                 password='hostel77'),
             True)
         result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(publishable.pk),
+            reverse('content:warn-typo') + '?pk={}'.format(self.published.pk),
             {
-                'pk': publishable.pk,
-                'version': publishable.sha_public,
+                'pk': self.published.pk,
+                'version': self.published.sha_public,
                 'text': u'This is how they controlled it. '
                         u'It took us 15 years and three supercomputers to MacGyver a system for the gate on Earth. ',
                 'target': ''
@@ -3465,14 +3569,18 @@ class ContentTests(TestCase):
             follow=True)
         self.assertEqual(result.status_code, 200)
         self.assertIsNone(PrivateTopic.objects.filter(participants__in=[self.external]).first())
+
+        # add a banned user:
         user_banned = ProfileFactory(can_write=False, end_ban_write=datetime.date(2048, 01, 01),
                                      can_read=False, end_ban_read=datetime.date(2048, 01, 01))
-        publishable.authors.add(user_banned.user)
+        self.tuto.authors.add(user_banned.user)
+        self.tuto.save()
+
         result = self.client.post(
-            reverse('content:warn-typo') + '?pk={}'.format(publishable.pk),
+            reverse('content:warn-typo') + '?pk={}'.format(self.published.pk),
             {
-                'pk': publishable.pk,
-                'version': publishable.sha_public,
+                'pk': self.published.pk,
+                'version': self.published.sha_public,
                 'text': u'This is how they controlled it. '
                         u'It took us 15 years and three supercomputers to MacGyver a system for the gate on Earth. ',
                 'target': ''
@@ -3480,79 +3588,6 @@ class ContentTests(TestCase):
             follow=True)
         self.assertIsNone(PrivateTopic.objects.filter(participants__in=[self.external]).first())
         self.assertEqual(result.status_code, 200)
-
-    def test_import_old_version(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        base = os.path.join(BASE_DIR, "fixtures", "tuto")
-        old_contents = [
-            os.path.join(base, "article_v1"),
-            os.path.join(base, "balise_audio"),
-            os.path.join(base, "big_tuto_v1"),
-        ]
-        for old_path in old_contents:
-            draft_zip_path = old_path + '.zip'
-            shutil.make_archive(old_path, 'zip', old_path)
-
-            result = self.client.post(
-                reverse('content:import-new'),
-                {
-                    'archive': open(draft_zip_path),
-                    'subcategory': self.subcategory.pk
-                },
-                follow=False
-            )
-            manifest = open(os.path.join(old_path, "manifest.json"), 'r')
-            json = json_reader.loads(manifest.read())
-            manifest.close()
-            self.assertEqual(result.status_code, 302)
-            self.assertEqual(json["title"], PublishableContent.objects.last().title)
-
-    def test_import_bad_archive(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        base = os.path.join(BASE_DIR, "fixtures", "tuto")
-        old_path = os.path.join(base, "article_v1")
-
-        shutil.move(os.path.join(old_path, "text.md"), os.path.join(old_path, "text2.md"))
-        shutil.make_archive(old_path, 'zip', old_path)
-        shutil.move(os.path.join(old_path, "text2.md"), os.path.join(old_path, "text.md"))
-        result = self.client.post(
-            reverse('content:import-new'),
-            {
-                'archive': open(old_path + ".zip"),
-                'subcategory': self.subcategory.pk
-            },
-            follow=False
-        )
-        self.assertEqual(result.status_code, 200)
-        msgs = result.context['messages']
-        levels = [msg.level for msg in msgs]
-        self.assertIn(messages.ERROR, levels)
-
-        shutil.copyfile(os.path.join(old_path, "manifest.json"), os.path.join(old_path, "manifest2.json"))
-        with open(os.path.join(old_path, "manifest.json"), "w") as man_file:
-            man_file.write('{"version":2, "type":"Kitty Cat"}')
-        shutil.make_archive(old_path, 'zip', old_path)
-        shutil.copyfile(os.path.join(old_path, "manifest2.json"), os.path.join(old_path, "manifest.json"))
-        result = self.client.post(
-            reverse('content:import-new'),
-            {
-                'archive': open(old_path + ".zip"),
-                'subcategory': self.subcategory.pk
-            },
-            follow=False
-        )
-        self.assertEqual(result.status_code, 200)
-        msgs = result.context['messages']
-        levels = [msg.level for msg in msgs]
-        self.assertIn(messages.ERROR, levels)
 
     def tearDown(self):
 
