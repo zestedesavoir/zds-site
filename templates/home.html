@@ -21,8 +21,8 @@
 
 
 {% block content_out %}
-    {% url 'zds.tutorial.views.index' as url_tutorials %}
-    {% url 'zds.article.views.index' as url_articles %}
+    {% url 'tutorial:list' as url_tutorials %}
+    {% url 'article:list' as url_articles %}
     {% url 'zds.forum.views.index' as url_forums %}
 
     <section class="home-header">
@@ -120,14 +120,14 @@
            <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
-                    <a href="{% url "zds.tutorial.views.index" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                    <a href="{% url "tutorial:list" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
                 <div class="content-item-list">
                     {% for tutorial in last_tutorials %}
-                        {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True item_class=forloop.first|yesno:", mini" %}
+                        {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with show_description=True item_class=forloop.first|yesno:", mini" %}
                     {% empty %}
                         <p>{% trans "Aucun tutoriel disponible." %}</p>
                     {% endfor %}
@@ -136,7 +136,7 @@
                             <p>{% blocktrans %}Il y a {{ tutorials_count }} tutoriels sur Zeste de Savoir.{% endblocktrans %}</p>
                             <p class="lead">{% trans "Pourquoi pas le vôtre ?" %}</p>
                         </div>
-                        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
+                        <a href="{% url "content:create" %}" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
                     </div>
                 </div>
             </section>
@@ -144,14 +144,14 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
                     {% trans "Derniers articles" %}
-                    <a href="{% url "zds.article.views.index" %}" class="btn btn-grey">{% trans "Tous les articles" %}</a>
+                    <a href="{% url "article:list" %}" class="btn btn-grey">{% trans "Tous les articles" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
                 <div class="content-item-list">
                     {% for article in last_articles %}
-                        {% include 'article/includes/article_item.part.html' with show_description=True %}
+                        {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
                     {% empty %}
                         <p>{% trans "Aucun article disponible." %}</p>
                     {% endfor %}
