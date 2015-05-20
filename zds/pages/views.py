@@ -28,14 +28,13 @@ def home(request):
 
     tutos = []
     for tuto in get_last_tutorials():
-        data = tuto.load_json_for_public()
-        tuto.load_dic(data)
+        data = tuto
+
         tutos.append(data)
 
     articles = []
     for article in get_last_articles():
-        data = article.load_json_for_public()
-        data = article.load_dic(data)
+        data = article
         articles.append(data)
 
     try:
