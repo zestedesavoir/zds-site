@@ -519,17 +519,26 @@ def follow_by_email(topic, user=None):
     return existing.email
 
 
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
+def get_topics(forum_pk, is_sticky, filter=None):
+    """
+    Get topics for a forum.
+    The optional filter allows to retrieve only solved, unsolved or "non-answered" (i.e. with only the 1st post) topics.
+    :param forum_pk: the primary key of forum
+    :param is_sticky: indicates if the sticky topics must or must not be retrieved
+    :param filter: optional filter to retrieve only specific topics.
+    :return:
+    """
 
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
+    if filter == 'solve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=True)
+    elif filter == 'unsolve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=False)
+    elif filter == 'noanswer':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, last_message__position=1)
+    else:
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
+
+    return topics.order_by('-last_message__pubdate')\
+        .select_related('author__profile')\
+        .prefetch_related('last_message', 'tags')\
+        .all()
