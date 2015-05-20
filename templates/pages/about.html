@@ -1,7 +1,7 @@
 {% extends "pages/base.html" %}
-
 {% load i18n %}
 {% load staticfiles %}
+{% load set %}
 
 
 
@@ -24,6 +24,7 @@
 
 
 {% block content %}
+    {% set app.site.litteral_name as site_name %}
     <p>
         {% blocktrans with repository=app.site.repository %}
             Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ repository }}">contribuer au développement du site</a> !
@@ -36,21 +37,21 @@
                 <h3>{% trans "Droits" %}</h3>
                 {% if app.site.licenses.source %}
                     <p>
-                        {% blocktrans with site_name=app.site.litteral_name src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
+                        {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
                             {{ site_name }} est un site dont le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
                         {% endblocktrans %}
                     </p>
                 {% endif %}
                 {% if app.site.licenses.logo %}
                     <p>
-                        {% blocktrans with site_name=app.site.litteral_name author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
+                        {% blocktrans with author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
                             Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
                             <a rel="license" href="{{ url_license }}">
                             <img alt="{{ logo_title }}" src="{{ url_image }}">
                             {{ logo_desc }}
                             </a>
                         {% endblocktrans %}
-                        <img alt="Logo de {{ app.site.litteral_name }}" src="{% static 'images/logo-background.png' %}">
+                        <img alt="{% blocktrans %}Logo de {{ site_name }}{% endblocktrans %}" src="{% static 'images/logo-background.png' %}">
                     </p>
                 {% endif %}
             </div>
@@ -59,7 +60,7 @@
         <div class="content-col-3">
             <h3>{% trans "Système / Back-end" %}</h3>
             <p>
-                {% trans "Le Back-end est propulsé par les outils suivants" %} :
+                {% trans "Le Back-end est propulsé par les outils suivants :" %}
             </p>
 
             <h4>{% trans "Site" %}</h4>
@@ -81,7 +82,7 @@
 
             <h4>{% trans "Géolocalisation des adresses IP" %}</h4>
             <p>
-                {% trans "Données GeoLite créées par MaxMind, disponibles sous licence CC-BY-SA 3.0 unported" %}.
+                {% trans "Données GeoLite créées par MaxMind, disponibles sous licence CC-BY-SA 3.0 unported." %}
             </p>
             <ul>
                 <li><a href="http://www.maxmind.com">http://www.maxmind.com</a></li>
@@ -91,7 +92,7 @@
         <div class="content-col-3">
             <h3>{% trans "Front-end" %}</h3>
             <p>
-                {% trans "Le front-end utilise les outils suivants" %} :
+                {% trans "Le front-end utilise les outils suivants :" %}
             </p>
 
             <h4>{% trans "Feuilles de style" %}</h4>

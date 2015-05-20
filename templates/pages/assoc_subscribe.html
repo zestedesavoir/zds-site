@@ -3,26 +3,27 @@
 {% load i18n %}
 
 
+
 {% block title %}
-    {% trans "Adhérer à l'association" %} {{ app.site.association.name }}
+    {% blocktrans with asso_name=app.site.association.name %}Adhérer à l'association {{ asso_name }}{% endblocktrans %}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-    <li>{% trans "Adhérer à l'association" %} {{ app.site.association.name }}</li>
+    <li>{% blocktrans with asso_name=app.site.association.name %}Adhérer à l'association {{ asso_name }}{% endblocktrans %}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>{% trans "Adhérer à l'association" %} {{ app.site.association.name }}</h1>
+    <h1>{% blocktrans with asso_name=app.site.association.name %}Adhérer à l'association {{ asso_name }}{% endblocktrans %}</h1>
 {% endblock %}
 
 
 
 {% block content %}
-    <h3>{% trans "Pourquoi adhérer" %} ?</h3>
+    <h3>{% trans "Pourquoi adhérer ?" %}</h3>
     <p>
         {% blocktrans with asso_name=app.site.association.name %}
             Adhérer à l'association {{ asso_name }} permet de nous soutenir de manière concrète et d'officialiser votre engagement.
@@ -37,10 +38,10 @@
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "Notez que l'adhésion est subordonnée au paiement de cette cotisation" %}.
+        {% trans "Notez que l'adhésion est subordonnée au paiement de cette cotisation." %}
     </p>
     <p>
-        {% trans "Adhérer permet bien entendu de participer à l'Assemblée Générale annuelle de l'association, qui élit le Conseil d'Administration. Si vous avez des idées pour faire avancer l'association et donc le site, c'est le moment" %} !
+        {% trans "Adhérer permet bien entendu de participer à l'Assemblée Générale annuelle de l'association, qui élit le Conseil d'Administration. Si vous avez des idées pour faire avancer l'association et donc le site, c'est le moment !" %}
     </p>
     <p>
         {% blocktrans %}
@@ -50,7 +51,7 @@
         {% endblocktrans %}
     </p>
     <p>
-        {% trans "Enfin, toutes les fonctionnalités du site sont disponibles à tous : aucune n'est conditionnée à l'adhésion à l'association" %}.
+        {% trans "Enfin, toutes les fonctionnalités du site sont disponibles à tous : aucune n'est conditionnée à l'adhésion à l'association." %}
     </p>
 
     <h3>{% trans "Formulaire d'adhésion" %}</h3>

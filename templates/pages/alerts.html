@@ -29,7 +29,7 @@
             <th>{% trans "Auteur" %}</th>
             <th class="wide">{% trans "Date" %}</th>
             <th class="wide">{% trans "Message" %}</th>
-            <th>{% trans "Sur un message de" %}...</th>
+            <th>{% trans "Sur un message de..." %}</th>
         </thead>
         <tbody>
             {% for alert in alerts %}
@@ -38,7 +38,12 @@
                     <td><a href="{% url "member-detail" alert.author.username %}">{{ alert.author.username }}</a></td>
                     <td class="wide">{{ alert.pubdate|format_date|capfirst }}</td>
                     <td class="wide"><a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a></td>
-                    <td><a href="{% url "member-detail" alert.comment.author.username %}">{{ alert.comment.author.username }}</a>, {% blocktrans with timing=alert.comment.pubdate|format_date%} posté le {{ timing }} {% endblocktrans %}</td>
+                    <td>
+                        {% url "member-detail" alert.comment.author.username as url_member_detail %}
+                        {% blocktrans with author_username=alert.comment.author.username timing=alert.comment.pubdate|format_date %}
+                            <a href="{{ url_member_detail }}">{{ author_username }}</a>, posté le {{ timing }}
+                        {% endblocktrans %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
