@@ -22,14 +22,14 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.forum.views.find_post" usr.pk %}">{% trans "Messages postés" %}</a></li>
+    <li><a href="{% url 'post-find' usr.pk %}">{% trans "Messages postés" %}</a></li>
     <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
 
 
 {% block content %}
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
     {% if posts %}
         <div class="row">
@@ -74,5 +74,5 @@
         </p>
     {% endif %}
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}

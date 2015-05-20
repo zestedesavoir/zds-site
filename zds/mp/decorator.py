@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from zds.mp.models import PrivateTopic, PrivatePost
 
@@ -17,7 +18,12 @@ def is_participant(func):
         if not request.user == private_topic.author and request.user not in list(private_topic.participants.all()):
             raise PermissionDenied
         if 'cite' in request.GET:
-            if PrivatePost.objects.filter(privatetopic=private_topic).filter(pk=request.GET.get('cite')).count() != 1:
-                raise PermissionDenied
+            try:
+                if PrivatePost.objects.filter(privatetopic=private_topic) \
+                                      .filter(pk=int(request.GET.get('cite'))) \
+                                      .count() != 1:
+                    raise PermissionDenied
+            except ValueError:
+                raise Http404
         return func(request, *args, **kwargs)
     return _is_participant

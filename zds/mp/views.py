@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import json
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -23,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant
 from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead, UpdatePrivatePost
+from zds.utils.forums import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
@@ -271,94 +270,37 @@ class PrivatePostList(MarkPrivateTopicAsRead, ZdSPagingListView, SingleObjectMix
         return PrivatePost.objects.get_message_of_a_private_topic(self.object.pk)
 
 
-class PrivatePostAnswer(CreateView):
+class PrivatePostAnswer(CreatePostView):
     """
     Creates a post to answer on a MP.
     """
 
-    topic = None
-    posts = None
+    model_quote = PrivatePost
     form_class = PrivatePostForm
     template_name = 'mp/post/new.html'
     queryset = PrivateTopic.objects.all()
+    object = None
+    posts = None
 
     @method_decorator(login_required)
     @method_decorator(is_participant)
     def dispatch(self, request, *args, **kwargs):
-        return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        self.topic = super(PrivatePostAnswer, self).get_object(queryset)
+        self.object = self.get_object()
         self.posts = PrivatePost.objects \
-            .filter(privatetopic=self.topic) \
+            .filter(privatetopic=self.object) \
             .prefetch_related() \
             .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
-        return self.topic
+        return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        self.topic = self.get_object()
-        text = ''
-
-        # Using the quote button
-        if 'cite' in request.GET:
-            post_cite = get_object_or_404(PrivatePost, pk=(request.GET.get('cite')))
-
-            for line in post_cite.text.splitlines():
-                text = text + '> ' + line + '\n'
-
-            text = u'{0}Source:[{1}]({2}{3})'.format(
-                text,
-                post_cite.author.username,
-                settings.ZDS_APP['site']['url'],
-                post_cite.get_absolute_url())
-
-            if request.is_ajax():
-                resp = {}
-                resp['text'] = text
-                return HttpResponse(json.dumps(resp), content_type='application/json')
-
-        form = self.form_class(self.topic, initial={
-            'text': text
-        })
-        return render(request, self.template_name, {
-            'topic': self.topic,
-            'posts': self.posts,
-            'last_post_pk': self.topic.last_message.pk,
-            'form': form
-        })
-
-    def post(self, request, *args, **kwargs):
-        self.topic = self.get_object()
-        form = self.get_form(self.form_class)
-        newpost = None
-        if not request.is_ajax():
-            newpost = self.topic.last_message.pk != int(request.POST.get('last_post'))
-
-        if 'preview' in request.POST or newpost:
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-            else:
-                form = self.form_class(self.topic, initial={
-                    'text': request.POST.get('text')
-                })
-        elif form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, 'mp/post/new.html', {
-            'topic': self.topic,
-            'posts': self.posts,
-            'last_post_pk': self.topic.last_message.pk,
-            'newpost': newpost,
-            'form': form,
-        })
+    def create_forum(self, form_class, **kwargs):
+        return form_class(self.object, initial=kwargs)
 
     def get_form(self, form_class):
-        return form_class(self.topic, self.request.POST)
+        return form_class(self.object, self.request.POST)
 
     def form_valid(self, form):
-        send_message_mp(self.request.user, self.topic, form.data.get('text'), True, False)
-        return redirect(self.topic.last_message.get_absolute_url())
+        send_message_mp(self.request.user, self.object, form.data.get('text'), True, False)
+        return redirect(self.object.last_message.get_absolute_url())
 
 
 class PrivatePostEdit(UpdateView, UpdatePrivatePost):

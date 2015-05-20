@@ -13,7 +13,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
-from zds.forum.managers import TopicManager
+from zds.forum.managers import TopicManager, ForumManager, PostManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
@@ -63,16 +63,17 @@ class Category(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('zds.forum.views.cat_details',
-                       kwargs={'cat_slug': self.slug})
+        return reverse('cat-forums-list', kwargs={'slug': self.slug})
 
-    def get_forums(self):
+    def get_forums(self, user):
         """
         :return: All forums in category, ordered by forum's position in category
         """
-        return Forum.objects.all()\
-            .filter(category=self)\
-            .order_by('position_in_category')
+        forums_pub = Forum.objects.get_public_forums_of_category(self)
+        if user.is_authenticated():
+            forums_private = Forum.objects.get_private_forums_of_category(self, user)
+            return list(forums_pub | forums_private)
+        return forums_pub
 
 
 class Forum(models.Model):
@@ -101,20 +102,19 @@ class Forum(models.Model):
                                                null=True, blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
+    objects = ForumManager()
 
     def __unicode__(self):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('zds.forum.views.details',
-                       kwargs={'cat_slug': self.category.slug,
-                               'forum_slug': self.slug})
+        return reverse('forum-topics-list', kwargs={'cat_slug': self.category.slug, 'forum_slug': self.slug})
 
     def get_topic_count(self):
         """
         :return: the number of threads in the forum.
         """
-        return Topic.objects.all().filter(forum__pk=self.pk).count()
+        return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
         """
@@ -122,13 +122,12 @@ class Forum(models.Model):
         """
         return Post.objects.filter(topic__forum=self).count()
 
-    # TODO: Rename this method for something clearer
     def get_last_message(self):
         """
         :return: the last message on the forum, if there are any.
         """
         try:
-            return Post.objects.all().filter(topic__forum__pk=self.pk).order_by('-pubdate')[0]
+            return Post.objects.filter(topic__forum=self).order_by('-pubdate').all()[0]
         except IndexError:
             return None
 
@@ -200,10 +199,10 @@ class Topic(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse(
-            'zds.forum.views.topic',
-            args=[self.pk, slugify(self.title)]
-        )
+        return reverse('topic-posts-list', args=[self.pk, self.slug()])
+
+    def slug(self):
+        return slugify(self.title)
 
     def get_post_count(self):
         """
@@ -366,6 +365,7 @@ class Post(Comment):
     topic = models.ForeignKey(Topic, verbose_name='Sujet', db_index=True)
 
     is_useful = models.BooleanField('Est utile', default=False)
+    objects = PostManager()
 
     def __unicode__(self):
         return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
@@ -460,29 +460,22 @@ def follow(topic, user=None):
     :param user: A user. If undefined, the current user is used.
     :return: `True` if the topic is now followed, `False` if is has been un-followed.
     """
-    ret = None
     if user is None:
         user = get_current_user()
     try:
-        existing = TopicFollowed.objects.get(
-            topic=topic, user=user
-        )
+        existing = TopicFollowed.objects.get(topic=topic, user=user)
     except TopicFollowed.DoesNotExist:
         existing = None
 
     if not existing:
         # Make the user follow the topic
-        t = TopicFollowed(
-            topic=topic,
-            user=user
-        )
-        t.save()
-        ret = True
-    else:
-        # If user is already following the topic, we make him don't anymore
-        existing.delete()
-        ret = False
-    return ret
+        topic_followed = TopicFollowed(topic=topic, user=user)
+        topic_followed.save()
+        return True
+
+    # If user is already following the topic, we make him don't anymore
+    existing.delete()
+    return False
 
 
 def follow_by_email(topic, user=None):
@@ -492,31 +485,22 @@ def follow_by_email(topic, user=None):
     :param user: A user. If undefined, the current user is used.
     :return: `True` if the topic is now followed, `False` if is has been un-followed.
     """
-    ret = None
     if user is None:
         user = get_current_user()
     try:
-        existing = TopicFollowed.objects.get(
-            topic=topic,
-            user=user
-        )
+        existing = TopicFollowed.objects.get(topic=topic, user=user)
     except TopicFollowed.DoesNotExist:
         existing = None
 
     if not existing:
         # Make the user follow the topic
-        t = TopicFollowed(
-            topic=topic,
-            user=user,
-            email=True
-        )
-        t.save()
-        ret = True
-    else:
-        existing.email = not existing.email
-        existing.save()
-        ret = existing.email
-    return ret
+        topic_followed = TopicFollowed(topic=topic, user=user, email=True)
+        topic_followed.save()
+        return True
+
+    existing.email = not existing.email
+    existing.save()
+    return existing.email
 
 
 def get_last_topics(user):
@@ -533,28 +517,3 @@ def get_last_topics(user):
         if cpt > 5:
             break
     return tops
-
-
-def get_topics(forum_pk, is_sticky, filter=None):
-    """
-    Get topics for a forum.
-    The optional filter allows to retrieve only solved, unsolved or "non-answered" (i.e. with only the 1st post) topics.
-    :param forum_pk: the primary key of forum
-    :param is_sticky: indicates if the sticky topics must or must not be retrieved
-    :param filter: optional filter to retrieve only specific topics.
-    :return:
-    """
-
-    if filter == 'solve':
-        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=True)
-    elif filter == 'unsolve':
-        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=False)
-    elif filter == 'noanswer':
-        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, last_message__position=1)
-    else:
-        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
-
-    return topics.order_by('-last_message__pubdate')\
-        .select_related('author__profile')\
-        .prefetch_related('last_message', 'tags')\
-        .all()
