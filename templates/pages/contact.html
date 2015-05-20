@@ -27,7 +27,7 @@
     <h3>{% trans "L'équipe de communication" %}</h3>
     <p>
         {% blocktrans with site_name=app.site.litteral_name email_contact=app.site.email_contact|obfuscate_mailto_top_subject:"Contact communication" %}
-            Vous pouvez à tout moment joindre l'équipe de communication de {{site_name}} par courriel via {{ email_contact }}.
+            Vous pouvez à tout moment joindre l'équipe de communication de {{ site_name }} par courriel via {{ email_contact }}.
         {% endblocktrans %}
     </p>
     {% if app.site.association %}

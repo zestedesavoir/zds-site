@@ -44,7 +44,7 @@
     <p>{% blocktrans with site_name=app.site.litteral_name %}Ces cookies, purement techniques, <strong>sont indispensables au fonctionnement de {{site_name}}</strong>. Si vous les refusez, les éléments qui en dépendent ne fonctionneront tout simplement pas !{% endblocktrans %}</p>
 
     <h4>{% trans "Cookies d'analyse d'audience" %}</h4>
-    <p>{% blocktrans with site_name=app.site.litteral_name %} {{site_name}} analyse son audience. Que signifie ce terme barbare ? Tout simplement que nous étudions la manière dont le site est utilisé :{% endblocktrans %}</p>
+    <p>{% blocktrans with site_name=app.site.litteral_name %}{{ site_name }} analyse son audience. Que signifie ce terme barbare ? Tout simplement que nous étudions la manière dont le site est utilisé :{% endblocktrans %}</p>
     <ul>
         <li>{% trans "Quelles fonctionnalités sont utilisées" %} ?</li>
         <li>À {% trans "quelle fréquence" %} ?</li>
@@ -55,15 +55,15 @@
     <p><em>À {% trans "quoi cela peut-il bien servir" %}</em>, {% trans "allez-vous me demander avec sagacit" %}é.</p>
     <p>{% blocktrans %}Tout simplement à <strong>améliorer l'expérience utilisateur du site</strong>. Les développeurs, aussi ingénieux soient-ils, ne peuvent <em>jamais</em> deviner l'utilisation <em>réelle</em> qui sera faite du site. Telle ou telle fonctionnalité qui leur paraîtra mineure sera en fait utilisée par une grande majorité, ou telle autre qui leur paraissait cruciale sera ignorée. {% endblocktrans%}</p>
     <p>{% blocktrans %}Le seul moyen <em>fiable</em> de savoir ce qui est réellement utilisé - et donc ce qu'il faut travailler - est d'analyser l'audience réelle. {% endblocktrans %}</p>
-    <p>{% trans "Ceci implique de suivre les utilisateurs à travers le site, ce qui se fait grâce à un cookie dédié;" %}</p>
+    <p>{% trans "Ceci implique de suivre les utilisateurs à travers le site, ce qui se fait grâce à un cookie dédié." %}</p>
     <p>{% trans "C'est cette analyse qui peut être désactivée, puisqu'elle n'est pas strictement indispensable au bon fonctionnement du site" %}.</p>
 
     <h3>{% trans "Les cookies sur ce site" %}</h3>
-    <p>{% blocktrans with site_name=app.site.litteral_name %} Pour être tout à fait précis, {{site_name}} utilise les cookies suivants :{% endblocktrans %}</p>
+    <p>{% blocktrans with site_name=app.site.litteral_name %} Pour être tout à fait précis, {{ site_name }} utilise les cookies suivants :{% endblocktrans %}</p>
     <h4>{% trans "Cookies techniques" %}</h4>
     <dl>
         <dt><tt>sessionid</tt></dt>
-        <dd>{% blocktrans with site_name=app.site.litteral_name %} Ce cookie est un identifiant unique qui permet de faire le lien entre votre session de navigation et les différentes pages que vous visitez. Il permet en particulier de vous connecter à {{site_name}}. Il ne contient qu'une chaîne de caractères aléatoires.{% endblocktrans %}</dd>
+        <dd>{% blocktrans with site_name=app.site.litteral_name %} Ce cookie est un identifiant unique qui permet de faire le lien entre votre session de navigation et les différentes pages que vous visitez. Il permet en particulier de vous connecter à {{ site_name }}. Il ne contient qu'une chaîne de caractères aléatoires.{% endblocktrans %}</dd>
         <dt><tt>csrftoken</tt></dt>
         <dd>{% blocktrans %}Ce cookie contient une chaîne de caractères aléatoires qui permet de se prémunir des attaques <a href="http://fr.wikipedia.org/wiki/Cross-Site_Request_Forgery">CSRF</a>. Composant indispensable de la sécurité du site, vous ne pourrez rien poster sans ce cookie. {% endblocktrans %}</dd>
         <dt><tt>hasconsent</tt></dt>
@@ -79,10 +79,10 @@
     <h3>{% trans "Comment refuser les cookies tiers" %}</h3>
     <h4>{% trans "Refus pur et simple des cookies tiers dans le navigateur" %}</h4>
     <p>{% blocktrans %} Vous pouvez bloquer purement et simplement les cookies <strong>tiers</strong> dans votre navigateur, en suivant la procédure décrite <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">sur le site de la CNIL dans le Conseil 1</a>.{% endblocktrans %}</p>
-    <p>{% blocktrans with site_name=app.site.litteral_name %}Cette man&oelig;uvre n'empêchera pas {{site_name}} de fonctionner, puisque les cookies techniques ne sont pas des cookies tiers.{% endblocktrans %}</p>
+    <p>{% blocktrans with site_name=app.site.litteral_name %}Cette man&oelig;uvre n'empêchera pas {{ site_name }} de fonctionner, puisque les cookies techniques ne sont pas des cookies tiers.{% endblocktrans %}</p>
     <p>{% trans "Toutefois, devant le manque de finesse de contrôle d'une telle solution, vous pourriez préférer utiliser une solution présentée au paragraphe suivant" %}.</p>
 
-    <h4>{% trans "Utilisation d'un logiciel 'anti-espions' "%}</h4>
+    <h4>{% trans "Utilisation d'un logiciel 'anti-espions'" %}</h4>
     <p>{% blocktrans %}Il existe différents logiciels <em>"anti-espions"</em>, qui empêchent l'installation des cookies d'analyse d'audience, et bien d'autres encore.{% endblocktrans %}</p>
     <p>{% blocktrans %}La CNIL <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">indique quelles solutions sont disponibles avec votre navigateur</a>, dans son Conseil 2.{% endblocktrans %}</p>
 
@@ -92,14 +92,14 @@
         <p>
             {% blocktrans with site_name=app.site.litteral_name url_license=app.site.licenses.cookies.url_license cook_descr=app.site.licenses.cookies.description cook_title=app.site.licenses.cookies.title cook_img=app.site.licenses.cookies.url_image %}
             <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="{{ cook_title }}" style="border-width:0" src="{{ cook_img }}" /></a>
-            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a href="{{cook_url}}">{{site_name}}</a> est mis à disposition selon les termes de la <a rel="license" href="{{ url_license }}">{{ cook_descr }}</a>.
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a href="{{ cook_url }}">{{ site_name }}</a> est mis à disposition selon les termes de la <a rel="license" href="{{ url_license }}">{{ cook_descr }}</a>.
             {% endblocktrans %}
         </p>
     {% else %}
         <p>
             {% blocktrans %}
             <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
-            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{{cook_url}}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text" property="dct:title" rel="dct:type">À propos des cookies</span> de <a xmlns:cc="http://creativecommons.org/ns#" href="{{ cook_url }}" property="cc:attributionName" rel="cc:attributionURL">Zeste de Savoir</a> est mis à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">licence Creative Commons Attribution 4.0 International</a>.
             {% endblocktrans %}
         </p>
     {% endif %}
@@ -133,8 +133,8 @@
     <p>{% trans "Façonnez des cookies pas trop épais par petite cuillerées sur une plaque de cuisson recouverte de papier sulfurisé. Espacez-les parce qu'ils s'étalent à la cuisson." %}</p>
     <p>{% trans "Enfournez-les environ 10 minutes, ils sont cuits lorsqu'ils prennent une belle couleur dorée" %} !</p>
     <h4>{% trans "Conseils divers" %}</h4>
-    <p>{% trans "Si vous avez la flemme de découper le chocolat, vous pouvez utiliser des pépites de chocolat mais en général c'est moins bon. Surtout pas de chocolat à déguster : ces chocolats manquent de sucre pour la patisserie" %} !</p>
+    <p>{% trans "Si vous avez la flemme de découper le chocolat, vous pouvez utiliser des pépites de chocolat mais en général c'est moins bon. Surtout pas de chocolat à déguster : ces chocolats manquent de sucre pour la pâtisserie" %} !</p>
     <p>{% trans "Pour découper le chocolat, vous aurez besoin d'un grand couteau solide (donc pas un couteau céramique) et très bien aiguisé. Non, le vôtre n'est pas assez aiguisé. Attaquez la plaque de chocolat côté lisse (carrés sur le dessous), c'est plus simple." %}</p>
-    <p>{% trans "La cuisson parfaite se joue à quelques secondes près (sérieusement), alors surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. Ce qui serait dommage. Les cookies sont assez mous en sortie de four, c'est normal : ils durcissent en refroidissant." %} !</p>
+    <p>{% trans "La cuisson parfaite se joue à quelques secondes près (sérieusement), alors surveillez-les bien ! Un SMS de trop, et vous obtenez des cookies en béton. Ce qui serait dommage. Les cookies sont assez mous en sortie de four, c'est normal : ils durcissent en refroidissant." %}</p>
     <p>{% blocktrans %} On peut faire des cookies à beaucoup de parfums, mais le <em>must</em> reste le cookie au chocolat{% endblocktrans %}.</p>
 {% endblock %}

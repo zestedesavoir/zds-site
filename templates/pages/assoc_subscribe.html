@@ -4,19 +4,19 @@
 
 
 {% block title %}
-    {% trans "Adhérer à l'association" %} {{app.site.association.name}}
+    {% trans "Adhérer à l'association" %} {{ app.site.association.name }}
 {% endblock %}
 
 
 
 {% block breadcrumb %}
-  	<li>{% trans "Adhérer à l'association" %} {{app.site.association.name}}</li>
+    <li>{% trans "Adhérer à l'association" %} {{ app.site.association.name }}</li>
 {% endblock %}
 
 
 
 {% block headline %}
-    <h1>{% trans "Adhérer à l'association" %} {{app.site.association.name}}</h1>
+    <h1>{% trans "Adhérer à l'association" %} {{ app.site.association.name }}</h1>
 {% endblock %}
 
 
@@ -25,14 +25,14 @@
     <h3>{% trans "Pourquoi adhérer" %} ?</h3>
     <p>
         {% blocktrans with asso_name=app.site.association.name %}
-            Adhérer à l'association {{asso_name}} permet de nous soutenir de manière concrète et d'officialiser votre engagement.
+            Adhérer à l'association {{ asso_name }} permet de nous soutenir de manière concrète et d'officialiser votre engagement.
         {% endblocktrans %}
     </p>
     <p>
         {% blocktrans with asso_fee=app.site.association.fee %}
             D'autre part, le financement des activités de l'association, dont bien sûr le site, est intégralement assuré par
             les cotisations des membres : adhérer vous permet ainsi d'assurer la pérennité du site.
-            La cotisation est de <strong>{{asso_fee}}</strong> (le montant est révisé tous les ans durant les assemblées générales).
+            La cotisation est de <strong>{{ asso_fee }}</strong> (le montant est révisé tous les ans durant les assemblées générales).
             Si pour une raison quelconque vous ne pouvez pas payer cette cotisation, faites-en nous part, nous pouvons accorder des dérogations exceptionnelles.
         {% endblocktrans %}
     </p>

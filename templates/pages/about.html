@@ -24,7 +24,7 @@
 
 
 {% block content %}
-	<p>
+    <p>
         {% blocktrans with repository=app.site.repository %}
             Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ repository }}">contribuer au développement du site</a> !
         {% endblocktrans %}
@@ -37,17 +37,17 @@
                 {% if app.site.licenses.source %}
                     <p>
                         {% blocktrans with site_name=app.site.litteral_name src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
-                            {{site_name}} est un site donc le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
+                            {{ site_name }} est un site dont le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
                         {% endblocktrans %}
                     </p>
                 {% endif %}
                 {% if app.site.licenses.logo %}
                     <p>
                         {% blocktrans with site_name=app.site.litteral_name author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
-                            <a href="#">Le logo de {{ site_name }}</a> a été créé par {{ author_logo }} et est sous
+                            Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
                             <a rel="license" href="{{ url_license }}">
                             <img alt="{{ logo_title }}" src="{{ url_image }}">
-                    	    {{ logo_desc }}
+                            {{ logo_desc }}
                             </a>
                         {% endblocktrans %}
                         <img alt="Logo de {{ app.site.litteral_name }}" src="{% static 'images/logo-background.png' %}">
@@ -97,7 +97,8 @@
             <h4>{% trans "Feuilles de style" %}</h4>
             <ul>
                 <li><a href="http://necolas.github.io/normalize.css/">Normalize.css</a></li>
-                <li><a href="http://sass-lang.com/">SCSS</a></li></ul>
+                <li><a href="http://sass-lang.com/">SCSS</a></li>
+            </ul>
 
             <h4>Javascript</h4>
             <ul>
