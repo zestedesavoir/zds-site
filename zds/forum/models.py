@@ -519,22 +519,6 @@ def follow_by_email(topic, user=None):
     return ret
 
 
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
-
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
-
-
 def get_topics(forum_pk, is_sticky, filter=None):
     """
     Get topics for a forum.
