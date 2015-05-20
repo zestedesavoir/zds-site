@@ -124,10 +124,10 @@
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
-
+                {% set True as online %}
                 <div class="content-item-list">
                     {% for tutorial in last_tutorials %}
-                        {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with online=True show_description=True item_class=forloop.first|yesno:", mini" %}
+                        {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with show_description=True item_class=forloop.first|yesno:", mini" %}
                     {% empty %}
                         <p>{% trans "Aucun tutoriel disponible." %}</p>
                     {% endfor %}
@@ -151,7 +151,7 @@
 
                 <div class="content-item-list">
                     {% for article in last_articles %}
-                        {% include 'tutorialv2/includes/content_item_type_article.part.html' with online=True show_description=True %}
+                        {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
                     {% empty %}
                         <p>{% trans "Aucun article disponible." %}</p>
                     {% endfor %}
