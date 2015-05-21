@@ -11,6 +11,7 @@ from zds.forum.models import Topic
 
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead
 from zds.tutorialv2.models.models_versioned import Extract, Container
+from zds.tutorialv2.utils import publish_content
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery
@@ -127,6 +128,14 @@ def migrate_articles():
                                  .all()
         export_comments(reacts, exported, ArticleRead)
         # todo: handle publication
+        if current.sha_public is not None and current.sha_public != "":
+            publish_content(exported, exported.load_version(current.sha_public), False)
+            exported.pubdate = current.pudate
+            exported.sha_public = current.sha_public
+            exported.save()
+            exported.public_version.content_public_slug = current.slug
+            exported.public_version.publication_date = current.pubdate
+            exported.public_version.save()
 
 
 def migrate_mini_tuto():
@@ -185,6 +194,14 @@ def migrate_mini_tuto():
                              .order_by("pubdate")\
                              .all()
         export_comments(reacts, exported, TutorialRead)
+        if current.sha_public is not None and current.sha_public != "":
+            publish_content(exported, exported.load_version(current.sha_public), False)
+            exported.pubdate = current.pudate
+            exported.sha_public = current.sha_public
+            exported.save()
+            exported.public_version.content_public_slug = current.slug
+            exported.public_version.publication_date = current.pubdate
+            exported.public_version.save()
 
 
 def migrate_big_tuto():
@@ -254,6 +271,14 @@ def migrate_big_tuto():
                              .order_by("pubdate")\
                              .all()
     export_comments(reacts, exported, TutorialRead)
+    if current.sha_public is not None and current.sha_public != "":
+        publish_content(exported, exported.load_version(current.sha_public), False)
+        exported.pubdate = current.pudate
+        exported.sha_public = current.sha_public
+        exported.save()
+        exported.public_version.content_public_slug = current.slug
+        exported.public_version.publication_date = current.pubdate
+        exported.public_version.save()
 
 
 @transaction.atomic
