@@ -1,21 +1,27 @@
 # coding: utf-8
-from collections import OrderedDict
-
 import shutil
 import zipfile
 from git import Repo, Actor
 import os
 from datetime import datetime
 import copy
+import cairosvg
+from urllib import urlretrieve
+from urlparse import urlparse
+from lxml import etree
+
+from PIL import Image as ImagePIL
+
+from collections import OrderedDict
 
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
+from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
 from zds import settings
 from zds.settings import ZDS_APP
-
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -242,6 +248,153 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     return target_tagged_tree
 
 
+def retrieve_image(url, directory):
+    """For a given image, retrieve it, transform it into PNG (if needed) and store it
+
+    :param url: URL of the image (either local or online)
+    :type url: str
+    :param directory: place where the image will be stored
+    :type directory: str
+    :return: the "transformed" path to the image
+    """
+
+    # parse URL
+    parsed_url = urlparse(url)
+
+    img_directory, img_basename = os.path.split(parsed_url.path)
+    img_basename = img_basename.decode('utf-8')
+    img_basename_splitted = img_basename.split('.')
+    img_extension = img_basename_splitted[-1].lower()
+    img_filename = '.'.join(img_basename_splitted[:-1])
+
+    new_url = os.path.join('images', img_basename)
+    new_url_as_png = os.path.join('images', img_filename + '.png')
+
+    store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
+
+    if os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
+        # another image with the same name already exists (but assume the two are different)
+        img_filename += "_" + str(datetime.now().microsecond)
+        new_url = os.path.join('images', img_filename + '.' + img_extension)
+        new_url_as_png = os.path.join('images', img_filename + '.png')
+        store_path = os.path.abspath(os.path.join(directory, new_url))
+
+    try:
+        if parsed_url.scheme in ["http", "https", "ftp"] \
+                or parsed_url.netloc[:3] == "www" or parsed_url.path[:3] == "www":
+            urlretrieve(url, store_path)  # download online image
+        else:  # it's a local image, coming from a gallery
+            source_path = os.path.join(settings.BASE_DIR, url)
+            if os.path.isfile(source_path):
+                shutil.copy(source_path, store_path)
+            else:
+                raise IOError(source_path)  # ... will use the default image instead
+
+        if img_extension == "svg":  # if SVG, will transform it into PNG
+            resize_svg(store_path)
+            new_url = new_url_as_png
+            cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
+            os.remove(store_path)
+        else:
+            img = ImagePIL.open(store_path)
+            if img_extension == "gif" or img_extension.strip() == '':
+                # if no extension or gif, will transform it into PNG !
+                new_url = new_url_as_png
+                img.save(os.path.join(directory, new_url))
+                os.remove(store_path)
+
+    except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
+
+        # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
+        if os.path.exists(store_path):
+            os.remove(store_path)
+
+        img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
+        new_url = new_url_as_png
+        img.save(os.path.join(directory, new_url))
+
+    return new_url
+
+
+def resize_svg(source):
+    """modify the SVG XML tree in order to resize the URL, to fit the maximum size allowed
+
+    :param source: content (not parsed) of the SVG file
+    :type source: str
+    """
+
+    max_size = int(settings.THUMBNAIL_ALIASES[""]["content"]["size"][0])
+    tree = etree.parse(source)
+    svg = tree.getroot()
+    try:
+        width = float(svg.attrib["width"])
+        height = float(svg.attrib["height"])
+    except (KeyError, ValueError):
+        width = max_size
+        height = max_size
+    end_height = height
+    end_width = width
+    if width > max_size or height > max_size:
+        if width > height:
+            end_height = (height / width) * max_size
+            end_width = max_size
+        else:
+            end_height = max_size
+            end_width = (width / height) * max_size
+    svg.attrib["width"] = str(end_width)
+    svg.attrib["height"] = str(end_height)
+    tree.write(source)
+
+
+def retrieve_image_and_update_link(group, previous_urls, directory='.'):
+    """For each image link, update it (if possible)
+
+    :param group: matching object
+    :type group: re.MatchObject
+    :param previous_urls: dictionary containing the previous urls and the transformed ones (in order to avoid treating
+    the same image two times !)
+    :param directory: place where all image will be stored
+    :type directory: str
+    :type previous_urls: dict
+    :return: updated link
+    """
+
+    # retrieve groups:
+    start = group.group("start")
+    url = group.group("url")
+    txt = group.group("text")
+    end = group.group("end")
+
+    # look for image URL, and make it if needed
+    if url not in previous_urls:
+        new_url = retrieve_image(url, directory=directory)
+        previous_urls[url] = new_url
+
+    return start + txt + previous_urls[url] + end
+
+
+def retrieve_and_update_images_links(md_text, directory='.'):
+    """Find every image links and update them with `update_image_link()`.
+
+    :param md_text: markdown text
+    :type md_text: str
+    :param directory: place where all image will be stored
+    :type directory: str
+    :return: the markdown with the good links
+    """
+
+    image_directory_path = os.path.join(directory, 'images')  # directory where the images will be stored
+
+    if not os.path.isdir(image_directory_path):
+        os.makedirs(image_directory_path)  # make the directory if needed
+
+    previous_urls = {}
+    new_text = REPLACE_IMAGE_PATTERN.sub(
+        lambda g: retrieve_image_and_update_link(g, previous_urls, directory), md_text)
+
+    return new_text
+
+
 class FailureDuringPublication(Exception):
     """Exception raised if something goes wrong during publication process
     """
@@ -380,10 +533,12 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     # 1. markdown file (base for the others) :
     parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
+    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
+
     md_file_path = base_name + '.md'
     md_file = open(md_file_path, 'w')
     try:
-        md_file.write(parsed.encode('utf-8'))
+        md_file.write(parsed_with_local_images.encode('utf-8'))
     except (UnicodeError, UnicodeEncodeError):
         raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
                                          u'à télécharger, vérifiez le code markdown'))

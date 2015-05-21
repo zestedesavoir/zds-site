@@ -2,6 +2,8 @@
 
 import os
 import shutil
+import tempfile
+import datetime
 
 from django.conf import settings
 from django.test import TestCase
@@ -12,7 +14,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
-    get_target_tagged_tree_for_extract
+    get_target_tagged_tree_for_extract, retrieve_and_update_images_links
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from django.core.management import call_command
 
@@ -300,6 +302,55 @@ class UtilsTests(TestCase):
         self.assertTrue(u"children" in json)
         self.assertEqual(len(json[u"children"]), 1)
         os.unlink(args[0])
+
+    def test_retrieve_images(self):
+        """test the ``retrieve_and_update_images_links()`` function.
+
+        NOTE: this test require an working internet connection to succeed
+        Also, it was implemented with small images on highly responsive server(s), to make it quick !
+        """
+
+        tempdir = os.path.join(tempfile.gettempdir(), 'test_retrieve_imgs')
+        os.makedirs(tempdir)
+
+        # image which exists, or not
+        test_images = [
+            # PNG:
+            ('http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png', 'Commons-logo-31px.png'),
+            # JPEG:
+            ('http://upload.wikimedia.org/wikipedia/commons/6/6b/01Aso.jpg', '01Aso.jpg'),
+            # Image which does not exists:
+            ('http://test.com/test.png', 'test.png'),
+            # SVG (will be converted to png):
+            ('http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg', '10DF.png'),
+            # GIF (will be converted to png):
+            ('http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif', 'AnimatedStar.png'),
+            # local image:
+            ('fixtures/image_test.jpg', 'image_test.jpg')
+        ]
+
+        # for each of these images, test that the url (and only that) is changed
+        for url, filename in test_images:
+            random_thing = str(datetime.datetime.now())  # will be used as legend, to ensure that this part remains
+            an_image_link = '![{}]({})'.format(random_thing, url)
+            new_image_url = 'images/{}'.format(filename)
+            new_image_link = '![{}]({})'.format(random_thing, new_image_url)
+
+            new_md = retrieve_and_update_images_links(an_image_link, tempdir)
+            self.assertTrue(os.path.isfile(os.path.join(tempdir, new_image_url)))  # image was retrieved
+            self.assertEqual(new_image_link, new_md)  # link was updated
+
+        # then, ensure that 3 times the same images link make the code use three times the same image !
+        link = '![{}](http://upload.wikimedia.org/wikipedia/commons/5/56/Asteroid_icon.jpg)'
+        new_link = '![{}](images/Asteroid_icon.jpg)'
+        three_times = ' '.join([link.format(i) for i in range(0, 2)])
+        three_times_updated = ' '.join([new_link.format(i) for i in range(0, 2)])
+
+        new_md = retrieve_and_update_images_links(three_times, tempdir)
+        self.assertEqual(three_times_updated, new_md)
+
+        # finally, clean up:
+        shutil.rmtree(tempdir)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

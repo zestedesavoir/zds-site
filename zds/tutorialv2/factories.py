@@ -12,6 +12,22 @@ from zds.tutorialv2.utils import publish_content, init_new_repo
 
 text_content = u'Ceci est un texte bidon, **avec markown**'
 
+tricky_text_content = \
+    u'Ceci est un texte contenant plein d\'images, pour la publication. Le modifier affectera le test !\n\n' \
+    u'# Les images\n\n' \
+    u'![PNG qui existe](http://upload.wikimedia.org/wikipedia/en/9/9d/Commons-logo-31px.png)\n\n' \
+    u'![PNG qui existe pas](example.com/test.png)\n\n' \
+    u'![SVG qui existe](http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg)\n\n' \
+    u'![SVG qui existe pas](example.com/test.svg)\n\n' \
+    u'![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n' \
+    u'![GIF qui existe pas](example.com/test.gif)\n\n' \
+    u'![Image locale qui existe](fixtures/image_test.jpg)\n\n' \
+    u'![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
+    u'![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads' \
+    u'%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
+    u'![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
+    u'Voilà :)'
+
 
 class PublishableContentFactory(factory.DjangoModelFactory):
     FACTORY_FOR = PublishableContent

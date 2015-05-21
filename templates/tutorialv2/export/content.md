@@ -1,12 +1,15 @@
 % {{ content.title|safe|upper }} {% load emarkdown %}{% load profile %}{% load captureas %}
-% {% for member in content.authors.all %}{% if not forloop.first %}, {% endif %}{{ member.username|title }}{% endfor %}
+% {% for member in content.authors.all %}{% if not forloop.first %}, {% endif %}{{ member.username }}{% endfor %}
 % {{ content.pubdate|date:"d F Y" }}
 
 {% autoescape off %}
 {% if content.introduction %}
+{% captureas intro %}{{ content.get_introduction|safe }}{% endcaptureas %}
+{% if intro.strip != '' %}
 # Introduction
 
-{{ content.get_introduction|safe }}
+{{ intro }}
+{% endif %}
 {% endif %}
 
 {% for child in content.children %}
@@ -29,21 +32,24 @@
 {% if extract.text %}{{ extract.get_text|safe|decale_header_3 }}{% endif %}{% endfor %}
 {% if subchild.conclusion %}
 {% captureas conclu %}{{ subchild.get_conclusion|safe|decale_header_2 }}{% endcaptureas %}
-{% if conclu != '' %}
+{% if conclu.strip != '' %}
 ---------
 
 {{ conclu }}{% endif %}{% endif %}
 {% endif %}{% endfor %}
 {% if child.conclusion %}
 {% captureas conclu %}{{ child.get_conclusion|safe|decale_header_1 }}{% endcaptureas %}
-{% if conclu != '' %}
+{% if conclu.strip != '' %}
 ---------
 
 {{ conclu }}{% endif %}{% endif %}
 {% endif %}{% endfor %}
 {% if content.conclusion %}
+{% captureas conclu %}{{ content.get_conclusion|safe }}{% endcaptureas %}
+{% if conclu.strip != '' %}
 # Conclusion
 
-{{ content.get_conclusion|safe }}
+{{ conclu }}
+{% endif %}
 {% endif %}
 {% endautoescape %}
