@@ -6,7 +6,7 @@ Installation du backend sous Windows
 
 .. Attention::
 
-    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne, ou non, ou partiellement. Les tests unitaires peuvent aussi fonctionner, ou pas, ou partiellement... Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des dev' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_.
+    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation et les tests unitaires fonctionnent correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
 
 -----------
 
