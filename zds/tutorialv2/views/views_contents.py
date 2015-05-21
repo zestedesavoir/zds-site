@@ -171,7 +171,7 @@ class DisplayBetaContent(DisplayContent):
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
         if not obj.sha_beta or obj.sha_beta == '':
-            raise Http404
+            raise Http404("There is no beta version.")
 
         else:
             self.sha = obj.sha_beta
@@ -721,7 +721,7 @@ class DisplayBetaContainer(DisplayContainer):
         obj = super(DisplayBetaContainer, self).get_object(queryset)
 
         if not obj.sha_beta or obj.sha_beta == '':
-            raise Http404
+            raise Http404("There is no beta version.")
 
         else:
             self.sha = obj.sha_beta
@@ -894,7 +894,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
             try:
                 to_delete = parent.children_dict[self.kwargs['object_slug']]
             except KeyError:
-                raise Http404
+                raise Http404("Cannot find the object to delete.")
 
         sha = to_delete.repo_delete()
 
@@ -1151,7 +1151,7 @@ class WarnTypo(SingleContentFormViewMixin):
         if form.content.is_public:
             is_public = True
         elif not form.content.is_beta:
-            raise Http404
+            raise Http404("The content is not public nor in beta.")
 
         if len(authors) == 0:
             if self.object.authors.count() > 1:
@@ -1266,10 +1266,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         child_slug = form.data['child_slug']
 
         if base_container_slug == '':
-            raise Http404
+            raise Http404("The slug of the base container is empty.")
 
         if child_slug == '':
-            raise Http404
+            raise Http404("The slug of the child is empty.")
 
         if base_container_slug == versioned.slug:
             parent = versioned
@@ -1298,7 +1298,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
                         if target.split("/")[-1] not in target_parent.children_dict:
-                            raise Http404
+                            raise Http404("The target is not a child of its parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     parent = target_parent
@@ -1312,7 +1312,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
                         if target.split("/")[-1] not in target_parent.children_dict:
-                            raise Http404
+                            raise Http404("The target is not a child of its parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
 
@@ -1331,7 +1331,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             messages.error(self.request, _(u'Cette section contient déjà trop de sous-section pour devenir'
                                            u' la sous-section d\'une autre section.'))
         except ValueError:
-            raise Http404
+            raise Http404("The specified tree is invalid.")
         except IndexError:
             messages.warning(self.request, _(u"L'élément est déjà à la place souhaitée."))
         except TypeError:
@@ -1439,7 +1439,7 @@ class ContentOfAuthor(ZdSPagingListView):
                 if not self.authorized_filters[filter][2]:
                     raise PermissionDenied
             else:
-                raise Http404
+                raise Http404("The filter is not authorized.")
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -1459,7 +1459,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if 'filter' in self.request.GET:
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
-                raise Http404
+                raise Http404("The filter is not authorized.")
         elif self.user != self.request.user:
             self.filter = 'public'
         if self.filter != '':

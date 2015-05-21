@@ -59,7 +59,7 @@ class SingleContentViewMixin(object):
         elif 'pk' in self.request.POST:
             pk = self.request.POST['pk']
         else:
-            raise Http404
+            raise Http404("Cannot find the 'pk' parameter.")
 
         queryset = PublishableContent.objects
 
@@ -72,7 +72,7 @@ class SingleContentViewMixin(object):
         obj = queryset.filter(pk=pk).first()
 
         if not obj:
-            raise Http404
+            raise Http404("No contents has this pk.")
 
         # check permissions:
         self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
@@ -118,7 +118,7 @@ class SingleContentViewMixin(object):
             slug = self.kwargs['slug']
             if versioned.slug != slug:
                 if slug != self.object.slug:  # retro-compatibility, but should raise permanent redirect instead
-                    raise Http404
+                    raise Http404("This slug does not exist for this content.")
 
         return versioned
 
@@ -304,7 +304,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         elif 'pk' in self.request.POST:
             pk = self.request.POST['pk']
         else:
-            raise Http404
+            raise Http404("Cannot find the 'pk' parameter.")
 
         queryset = PublishedContent.objects\
             .filter(content_pk=pk)\
@@ -321,14 +321,14 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
         obj = queryset.order_by('publication_date').last()  # "last" version must be the most recent to be published
         if obj is None:
-            raise Http404
+            raise Http404("No contents has this slug.")
 
         # Redirection ?
         if obj.must_redirect:
             if obj.content.public_version:
                 raise MustRedirect(self.get_redirect_url(obj))
-            else:
-                raise Http404  # should only happen if the content is unpublished
+            else:  # should only happen if the content is unpublished
+                raise Http404("The redirection is activated but the content is not public.")
 
         self.is_author = self.request.user in obj.content.authors.all()
         self.is_staff = self.request.user.has_perm('tutorial.change_tutorial')
