@@ -621,9 +621,9 @@ def modify(request):
                     u'Désolé, le zeste **{0}** '
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
-                    u'surement être faite pour l’améliorer et repasser la '
+                    u'sûrement être faites pour l’améliorer et repasser la '
                     u'validation plus tard. Voici le message que [{1}]({2}), '
-                    u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas a '
+                    u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas à '
                     u'lui envoyer un petit message pour discuter de la décision '
                     u'ou demander plus de détail si tout cela te semble '
                     u'injuste ou manque de clarté.'.format(
@@ -712,9 +712,9 @@ def modify(request):
                 msg = (
                     u'Félicitations ! Le zeste [{0}]({1}) '
                     u'est maintenant publié ! Les lecteurs du monde entier '
-                    u'peuvent venir le lire et réagir a son sujet. Je te conseille '
-                    u'de rester a leur écoute afin d\'apporter des '
-                    u'corrections/compléments. Un Article vivant et a jour '
+                    u'peuvent venir le lire et réagir à son sujet. Je te conseille '
+                    u'de rester à leur écoute afin d\'apporter des '
+                    u'corrections/compléments. Un article vivant et à jour '
                     u'est bien plus lu qu\'un sujet abandonné !'.format(
                         article.title,
                         settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
@@ -780,9 +780,9 @@ def modify(request):
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 msg = \
                     (u'Bonjour {0},\n\n'
-                     u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
-                     u'pour retrouver les modifications qui ont été faites, je t\'invite à'
-                     u'consulter l\'historique des versions'
+                     u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation, '
+                     u'pour retrouver les modifications qui ont été faites, je t\'invite à '
+                     u'consulter l\'historique des versions.'
                      u'\n\nMerci'.format(old_validator.username, article.title))
                 send_mp(
                     bot,

@@ -139,7 +139,7 @@ def eula(request):
 
 
 def cookies(request):
-    """Cookies explaination page."""
+    """Cookies explanation page."""
     return render(request, 'pages/cookies.html')
 
 

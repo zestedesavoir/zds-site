@@ -937,7 +937,7 @@ def settings_promote(request, user_pk):
                                  .format(user.username))
         else:
             if user == request.user:
-                messages.error(request, _(u'Un super-utilisateur ne peux pas se retirer des super-utilisateurs.'))
+                messages.error(request, _(u'Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
             else:
                 if user.is_superuser:
                     user.is_superuser = False
@@ -968,8 +968,8 @@ def settings_promote(request, user_pk):
             msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
         msg += u'\n\n'
         if user.is_superuser:
-            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super utilisateurs. '
-                                       u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !'))
+            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super-utilisateurs. '
+                                       u'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
         send_mp(
             bot,
             [user],
