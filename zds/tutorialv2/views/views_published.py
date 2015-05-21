@@ -162,6 +162,9 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         if not self.public_content_object.have_type(self.requested_file):
             raise Http404
 
+        if self.requested_file == 'md' and not self.is_author and not self.is_staff:
+            raise Http404  # download markdown is only for staff and author
+
         # set mimetype accordingly
         self.mimetype = self.mimetypes[self.requested_file]
 

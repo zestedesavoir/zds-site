@@ -249,7 +249,7 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
 
 
 def retrieve_image(url, directory):
-    """For a given image, retrieve it, transform it into PNG (if possible) and store it
+    """For a given image, retrieve it, transform it into PNG (if needed) and store it
 
     :param url: URL of the image (either local or online)
     :type url: str
@@ -260,8 +260,6 @@ def retrieve_image(url, directory):
 
     # parse URL
     parsed_url = urlparse(url)
-
-    # TODO: why the initial code mentions a stuff with `?u=something` !?!
 
     img_directory, img_basename = os.path.split(parsed_url.path)
     img_basename = img_basename.decode('utf-8')
@@ -286,7 +284,7 @@ def retrieve_image(url, directory):
                 or parsed_url.netloc[:3] == "www" or parsed_url.path[:3] == "www":
             urlretrieve(url, store_path)  # download online image
         else:  # it's a local image, coming from a gallery
-            source_path = settings.BASE_DIR + url
+            source_path = os.path.join(settings.BASE_DIR, url)
             if os.path.isfile(source_path):
                 shutil.copy(source_path, store_path)
             else:
@@ -296,13 +294,21 @@ def retrieve_image(url, directory):
             resize_svg(store_path)
             new_url = new_url_as_png
             cairosvg.svg2png(url=store_path, write_to=os.path.join(directory, new_url))
+            os.remove(store_path)
         else:
             img = ImagePIL.open(store_path)
-            if img_extension == "gif":
+            if img_extension == "gif" or img_extension.strip() == '':
+                # if no extension or gif, will transform it into PNG !
                 new_url = new_url_as_png
                 img.save(os.path.join(directory, new_url))
+                os.remove(store_path)
 
-    except IOError:  # HTTP 404, image does not exists, or Pillow cannot read it
+    except (IOError, KeyError):  # HTTP 404, image does not exists, or Pillow cannot read it !
+
+        # will be overwritten anyway, so it's better to remove whatever it was, for security reasons :
+        if os.path.exists(store_path):
+            os.remove(store_path)
+
         img = ImagePIL.open(settings.ZDS_APP['content']['default_image'])
         new_url = new_url_as_png
         img.save(os.path.join(directory, new_url))
