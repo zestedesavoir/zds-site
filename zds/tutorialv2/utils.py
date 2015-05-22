@@ -50,10 +50,10 @@ def search_container_or_404(base_content, kwargs_array):
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
             except KeyError:
-                raise Http404
+                raise Http404("No container found.")
             else:
                 if not isinstance(container, Container):
-                    raise Http404
+                    raise Http404("No container found.")
     else:
         container = base_content
 
@@ -62,15 +62,15 @@ def search_container_or_404(base_content, kwargs_array):
         try:
             container = container.children_dict[kwargs_array['container_slug']]
         except KeyError:
-            raise Http404
+            raise Http404("No container found.")
         else:
             if not isinstance(container, Container):
-                raise Http404
+                raise Http404("No container found.")
     elif container == base_content:
         # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404
+        raise Http404("No container found.")
     return container
 
 
@@ -93,10 +93,10 @@ def search_extract_or_404(base_content, kwargs_array):
         try:
             extract = container.children_dict[kwargs_array['extract_slug']]
         except KeyError:
-            raise Http404
+            raise Http404("No extract found.")
         else:
             if not isinstance(extract, Extract):
-                raise Http404
+                raise Http404("No extract found.")
     return extract
 
 

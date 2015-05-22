@@ -35,7 +35,7 @@ class RedirectContentSEO(RedirectView):
         """Redirects the user to the new url"""
         obj = PublishableContent.objects.get(old_pk=kwargs["pk"])
         if obj is None or not obj.in_public():
-            raise Http404
+            raise Http404("No public object has this pk.")
 
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
 
@@ -156,14 +156,15 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
         # check that type is ok
         if self.requested_file not in self.allowed_types:
-            raise Http404
+            raise Http404("The type of the file is not allowed.")
 
         # check existence
         if not self.public_content_object.have_type(self.requested_file):
-            raise Http404
+            raise Http404("The type does not exist.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:
-            raise Http404  # download markdown is only for staff and author
+            # download markdown is only for staff and author
+            raise Http404("Only staff and author can download Markdown.")
 
         # set mimetype accordingly
         self.mimetype = self.mimetypes[self.requested_file]
@@ -182,7 +183,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         try:
             response = open(path, 'rb').read()
         except IOError:
-            raise Http404
+            raise Http404("The file does not exist.")
 
         return response
 
@@ -385,7 +386,7 @@ class UpdateNoteView(SendNoteFormView):
                 .first()
             kwargs['reaction'] = self.reaction
         else:
-            raise Http404
+            raise Http404("The 'message' parameter must be a digit.")
 
         return kwargs
 
@@ -408,7 +409,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if self.reaction is None:
-                raise Http404
+                raise Http404("There is no reaction.")
             if self.reaction.author != self.request.user:
                 if not self.request.user.has_perm('forum.change_post'):
                     raise PermissionDenied
@@ -443,7 +444,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         if "message" not in self.request.GET or not self.request.GET["message"].isdigit():
-            raise Http404
+            raise Http404("The 'message' parameter must be a digit.")
         note_pk = int(self.request.GET["message"])
         note = get_object_or_404(ContentReaction, pk=note_pk)
         resp = {}
@@ -527,7 +528,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404
+            raise Http404("You cannot hide this.")
 
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
@@ -549,7 +550,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             return redirect(reaction.get_absolute_url())
 
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404
+            raise Http404("No such thing to show.")
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
@@ -563,7 +564,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         try:
             note_pk = int(self.kwargs["pk"])
         except (KeyError, ValueError):
-            raise Http404
+            raise Http404("Cannot convert the pk into int.")
         note = get_object_or_404(ContentReaction, pk=note_pk)
         alert = Alert()
         alert.author = request.user
@@ -613,4 +614,4 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
             messages.success(self.request, _(u"L'alerte a bien été résolue."))
             return redirect(note.get_absolute_url())
         except (KeyError, ValueError):
-            raise Http404
+            raise Http404("The alert does not exist.")

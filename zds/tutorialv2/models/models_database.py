@@ -255,7 +255,7 @@ class PublishableContent(models.Model):
         try:
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError):
-            raise Http404
+            raise Http404("sha is not None and related version could not be found.")
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
