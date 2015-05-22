@@ -363,30 +363,50 @@ class PublishableContent(models.Model):
         """
         :return: the last post the user has read.
         """
-        try:
-            return ContentRead.objects\
-                .select_related()\
-                .filter(content=self, user=get_current_user())\
-                .latest('note__pubdate').note
-        except ContentReaction.DoesNotExist:
-            return self.first_post()
+        user = get_current_user()
+
+        if user:
+            try:
+                read = ContentRead.objects.select_related()\
+                    .filter(content=self, user__pk=user.pk)\
+                    .latest('note__pubdate')
+                if read is not None:
+                    return read.note
+
+            except ContentRead.DoesNotExist:
+                pass
+
+        return self.first_note()
 
     def first_unread_note(self):
         """
         :return: Return the first note the user has unread.
         """
-        try:
-            last_note = ContentRead.objects\
-                .filter(content=self, user=get_current_user())\
-                .latest('note__pubdate').note
+        user = get_current_user()
 
-            next_note = ContentReaction.objects.filter(
-                related_content__pk=self.pk,
-                pubdate__gt=last_note.pubdate)\
-                .select_related("author").first()
-            return next_note
-        except:  # TODO: `except:` is bad.
-            return self.first_note()
+        if user:
+            try:
+                read = ContentRead.objects\
+                    .filter(content=self, user__pk=user.pk)\
+                    .latest('note__pubdate')
+
+                if read and read.note:
+                    last_note = read.note
+
+                    next_note = ContentReaction.objects.filter(
+                        related_content__pk=self.pk,
+                        pubdate__gt=last_note.pubdate)\
+                        .select_related("author").first()
+
+                    if next_note:
+                        return next_note
+                    else:
+                        return last_note
+
+            except ContentRead.DoesNotExist:
+                pass
+
+        return self.first_note()
 
     def antispam(self, user=None):
         """Check if the user is allowed to post in an tutorial according to the SPAM_LIMIT_SECONDS value.
