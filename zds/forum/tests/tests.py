@@ -1486,7 +1486,6 @@ class ManagerTests(TestCase):
             self.forum1 = ForumFactory(category=self.cat1)
             self.forum2 = ForumFactory(category=self.cat1)
 
-            self.tester = ProfileFactory()
             self.staff = StaffProfileFactory()
             staff_group = Group.objects.filter(name="staff").first()
 
@@ -1500,5 +1499,5 @@ class ManagerTests(TestCase):
 
         def test_get_last_topics(self):
 
-            fofos = Topic.objects.get_last_topics()
-            self.assertEqual(2, len(fofos))
+            topics = Topic.objects.get_last_topics()
+            self.assertEqual(2, len(topics))
