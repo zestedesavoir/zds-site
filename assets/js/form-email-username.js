@@ -1,34 +1,49 @@
 /**
  * Used by recovering password and send again validation email functionality.
  */
-(function($, undefined){
+(function($, undefined) {
     "use strict";
-    if ($("#id_email").val() === "")
-        $("#form-email").addClass("hidden");
-    else
-        $("#form-email").removeClass("hidden");
 
-    $("[data-email-button=email]").on("click", function(e) {
-        $("#form-email").toggleClass("hidden");
-        $("#form-username").addClass("hidden");
+    if($("body").hasClass("form-email-username")) {
+        var $emailInput = $("#id_email"),
+            $emailForm = $("#form-email"),
+            $emailButton = $("[data-form-email-username-button=email]");
 
-        $("#id_username").val("");
+        var $usernameInput = $("#id_username"),
+            $usernameForm = $("#form-username"),
+            $usernameButton = $("[data-form-email-username-button=username]");
 
-        e.preventDefault();
-    });
+        if ($emailInput.val() === "") {
+            $emailForm.addClass("hidden");
+        }
+        else {
+            $emailForm.removeClass("hidden");
+        }
 
-    if ($("#id_username").val() === "")
-        $("#form-username").addClass("hidden");
-    else
-        $("#form-username").removeClass("hidden");
+        $emailButton.on("click", function(e) {
+            $emailForm.toggleClass("hidden");
+            $usernameForm.addClass("hidden");
 
-    $("[data-username-button=username]").on("click", function(e) {
-        $("#form-username").toggleClass("hidden");
-        $("#form-email").addClass("hidden");
+            $usernameInput.val("");
 
-        $("#id_email").val("");
+            e.preventDefault();
+        });
 
-        e.preventDefault();
-    });
+        if ($usernameInput.val() === "") {
+            $usernameForm.addClass("hidden");
+        }
+        else {
+            $usernameForm.removeClass("hidden");
+        }
+
+        $usernameButton.on("click", function(e) {
+            $usernameForm.toggleClass("hidden");
+            $emailForm.addClass("hidden");
+
+            $emailInput.val("");
+
+            e.preventDefault();
+        });
+    }
 })(jQuery);
 
