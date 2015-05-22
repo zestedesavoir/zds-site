@@ -564,8 +564,11 @@ def publish_content(db_object, versioned, is_major_update=True):
     os.chdir(settings.BASE_DIR)
 
     # ok, now we can really publish the thing !
+    is_update = False
+
     if db_object.public_version:
         public_version = db_object.public_version
+        is_update = True
 
         # the content have been published in the past, so clean old files !
         old_path = public_version.get_prod_path()
@@ -592,7 +595,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     shutil.move(tmp_path, public_version.get_prod_path())
 
     # save public version
-    if is_major_update:
+    if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
 
     public_version.sha_public = versioned.current_version

@@ -1,5 +1,5 @@
 try:
-    from zds.article.models import Article , ArticleRead, Reaction
+    from zds.article.models import Article, ArticleRead, Reaction
     from zds.tutorial.models import Tutorial, Part, Chapter, Note, TutorialRead
     from zds.tutorial.models import Extract as OldExtract
 except ImportError:
@@ -267,9 +267,9 @@ def migrate_big_tuto():
 
         # todo: handle publication, notes etc.
     reacts = Note.objects.filter(tutorial__pk=current.pk)\
-                             .select_related("author")\
-                             .order_by("pubdate")\
-                             .all()
+        .select_related("author")\
+        .order_by("pubdate")\
+        .all()
     export_comments(reacts, exported, TutorialRead)
     if current.sha_public is not None and current.sha_public != "":
         publish_content(exported, exported.load_version(current.sha_public), False)

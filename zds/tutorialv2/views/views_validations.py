@@ -382,7 +382,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
             db_object.public_version = published
 
-            if form.cleaned_data['is_major']:
+            if form.cleaned_data['is_major'] or not is_update:
                 db_object.pubdate = datetime.now()
 
             db_object.save()

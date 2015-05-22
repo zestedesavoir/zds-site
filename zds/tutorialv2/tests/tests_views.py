@@ -3008,6 +3008,120 @@ class ContentTests(TestCase):
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
+    def test_publication_give_pubdate_if_no_major(self):
+        """if a content has never been published and `is_major` is not checked, still gives a publication date"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': u'Valide ?',
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=tuto).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept and publish while unchecked the "is_major"
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': u'Je valide !',
+                'is_major': False,  # !
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=tuto).first()
+        self.assertIsNotNone(published)  # ok for the publication
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+
+        self.assertIsNotNone(tuto.pubdate)
+        self.assertIsNotNone(published.publication_date)
+
+        current_pubdate = tuto.pubdate
+        ExtractFactory(container=self.chapter1, db_object=tuto)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': u'Valide ?',
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content=tuto).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept and publish while unchecked the "is_major"
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': u'Je valide !',
+                'is_major': False,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.filter(content=tuto).last()
+        self.assertIsNotNone(published)  # ok for the publication
+
+        tuto = PublishableContent.objects.get(pk=tuto.pk)
+        self.assertEqual(tuto.pubdate, current_pubdate)  # `is_major` in False → no update of the publication date
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
