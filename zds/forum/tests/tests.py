@@ -6,6 +6,8 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from zds.utils import slugify
 
+from datetime import datetime, timedelta
+
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -1357,6 +1359,19 @@ class ForumGuestTests(TestCase):
             topic_solved_sticky,
             get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
         )
+
+    def test_old_post_limit(self):
+        topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+
+        # Create a post published just now
+        PostFactory(topic=topic, author=self.user, position=1)
+        self.assertEqual(topic.old_post_warning(), False)
+
+        # Create a post published one day before old_post_limit_days
+        old_post = PostFactory(topic=topic, author=self.user, position=2)
+        old_post.pubdate = datetime.now() - timedelta(days=(settings.ZDS_APP['forum']['old_post_limit_days'] + 1))
+        old_post.save()
+        self.assertEqual(topic.old_post_warning(), True)
 
 
 def get_topics(forum_pk, is_sticky, filter=None):
