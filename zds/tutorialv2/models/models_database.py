@@ -446,9 +446,9 @@ class PublishableContent(models.Model):
         """
         if os.path.exists(self.get_repo_path()):
             shutil.rmtree(self.get_repo_path(), False)
-        if self.in_public():
-            if os.path.exists(self.get_prod_path()):
-                shutil.rmtree(self.get_prod_path())
+        if self.in_public() and self.public_version:
+            if os.path.exists(self.public_version.get_prod_path()):
+                shutil.rmtree(self.public_version.get_prod_path())
 
         Validation.objects.filter(content=self).delete()
 
@@ -462,7 +462,8 @@ def delete_repo(sender, instance, **kwargs):
 @receiver(post_delete, sender=PublishableContent)
 def delete_gallery(sender, instance, **kwargs):
     """catch the post_delete signal to ensure the deletion of the gallery (otherwise, you generate a loop)"""
-    instance.gallery.delete()
+    if instance.gallery:
+        instance.gallery.delete()
 
 
 class PublishedContent(models.Model):
