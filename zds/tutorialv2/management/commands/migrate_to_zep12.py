@@ -6,20 +6,24 @@ except ImportError:
     print("The old stack is no more available on your zestedesavoir copy")
     exit()
 
+import os
+import shutil
+import sys
 
 from zds.forum.models import Topic
+from django.conf import settings
 
-from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead
+from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent
 from zds.tutorialv2.models.models_versioned import Extract, Container
 from zds.tutorialv2.utils import publish_content
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from zds.gallery.models import Gallery, UserGallery
+from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import slugify
 from zds.utils.models import Licence
 from datetime import datetime
-import shutil
-import sys
+
+from easy_thumbnails.exceptions import InvalidImageFormatError
 
 
 def export_read_for_note(old_note, new_note, read_class):
@@ -50,8 +54,8 @@ def export_comments(reacts, exported, read_class):
         new_reac.ip_address = note.ip_address
         new_reac.save()
         export_read_for_note(note, new_reac, read_class)
-    exported.last_note = new_reac
-    exported.save()
+        exported.last_note = new_reac
+        exported.save()
 
 
 def progressbar(it, prefix="", size=60):
@@ -87,6 +91,8 @@ def create_gallery_for_article(content):
         userg.save()
     content.gallery = gal
 
+    return gal
+
 
 def migrate_articles():
     articles = Article.objects.all()
@@ -98,24 +104,42 @@ def migrate_articles():
         exported.slug = current.slug
         exported.type = "ARTICLE"
         exported.title = current.title
-        [exported.authors.add(author) for author in current.authors.all()]
         exported.creation_date = current.create_at
-        exported.image = current.image
         exported.description = current.description
+        exported.sha_draft = current.sha_draft
+        exported.licence = current.licence
         exported.js_support = current.js_support  # todo: check articles have js_support
-        create_gallery_for_article(exported)
+
+        exported.save()  # before updating `ManyToMany` relation, we need to save !
+
+        [exported.authors.add(author) for author in current.authors.all()]
+        new_gallery = create_gallery_for_article(exported)
+
+        if current.image:
+            # migrate image using `Image()`
+            try:
+                path_to_image = current.image['article_illu'].url
+            except InvalidImageFormatError:
+                pass
+            else:
+                img = Image()
+                img.physical = os.path.join(settings.BASE_DIR, path_to_image)
+                img.gallery = new_gallery
+                img.title = path_to_image
+                img.slug = slugify(path_to_image)
+                img.pubdate = datetime.now()
+                img.save()
+                exported.image = img
+
         # todo: migrate categories !!
         shutil.copytree(current.get_path(False), exported.get_repo_path(False))
         # now, re create the manifest.json
-        exported.sha_draft = current.sha_draft
-        exported.licence = current.licence
         versioned = exported.load_version()
-        article_extract = Extract(current.title, "text", versioned)
         versioned.type = "ARTICLE"
 
-        versioned.licence = exported.licence.title
+        if exported.licence:
+            versioned.licence = exported.licence
 
-        versioned.add_extract(article_extract)
         versioned.dump_json()
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
         exported.old_pk = current.pk
@@ -129,13 +153,24 @@ def migrate_articles():
         export_comments(reacts, exported, ArticleRead)
         # todo: handle publication
         if current.sha_public is not None and current.sha_public != "":
-            publish_content(exported, exported.load_version(current.sha_public), False)
-            exported.pubdate = current.pudate
+            # set mapping
+            map_previous = PublishedContent()
+            map_previous.content_public_slug = current.slug
+            map_previous.content_pk = current.pk
+            map_previous.content_type = 'ARTICLE'
+            map_previous.must_redirect = True  # will send HTTP 301 if visited !
+            map_previous.content = exported
+            map_previous.save()
+
+            # publish the article !
+            published = publish_content(exported, exported.load_version(current.sha_public), False)
+            exported.pubdate = current.pubdate
             exported.sha_public = current.sha_public
+            exported.public_version = published
             exported.save()
-            exported.public_version.content_public_slug = current.slug
-            exported.public_version.publication_date = current.pubdate
-            exported.public_version.save()
+            published.content_public_slug = current.slug
+            published.publication_date = current.pubdate
+            published.save()
 
 
 def migrate_mini_tuto():
