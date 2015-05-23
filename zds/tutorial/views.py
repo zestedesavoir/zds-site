@@ -300,10 +300,10 @@ def reject_tutorial(request):
         msg = (
             _(u'Désolé, le zeste **{0}** n\'a malheureusement '
               u'pas passé l’étape de validation. Mais ne désespère pas, '
-              u'certaines corrections peuvent surement être faite pour '
+              u'certaines corrections peuvent sûrement être faites pour '
               u'l’améliorer et repasser la validation plus tard. '
               u'Voici le message que [{1}]({2}), ton validateur t\'a laissé:\n\n`{3}`\n\n'
-              u'N\'hésite pas a lui envoyer un petit message pour discuter '
+              u'N\'hésite pas à lui envoyer un petit message pour discuter '
               u'de la décision ou demander plus de détail si tout cela te '
               u'semble injuste ou manque de clarté.')
             .format(tutorial.title,
@@ -376,10 +376,10 @@ def valid_tutorial(request):
         msg = (
             _(u'Félicitations ! Le zeste [{0}]({1}) '
               u'a été publié par [{2}]({3}) ! Les lecteurs du monde entier '
-              u'peuvent venir l\'éplucher et réagir a son sujet. '
-              u'Je te conseille de rester a leur écoute afin '
+              u'peuvent venir l\'éplucher et réagir à son sujet. '
+              u'Je te conseille de rester à leur écoute afin '
               u'd\'apporter des corrections/compléments.'
-              u'Un Tutoriel vivant et a jour est bien plus lu '
+              u'Un tutoriel vivant et à jour est bien plus lu '
               u'qu\'un sujet abandonné !')
             .format(tutorial.title,
                     settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
@@ -481,7 +481,7 @@ def ask_validation(request):
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = \
             (_(u'Bonjour {0},'
-               u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
+               u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation. '
                u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
                u'consulter l\'historique des versions'
                u'\n\n> Merci').format(old_validator.username, tutorial.title))
@@ -656,7 +656,7 @@ def modify_tutorial(request):
             msg = (
                 _(u'Bonjour **{0}**,\n\n'
                   u'Tu as été supprimé des auteurs du tutoriel [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
-                  u'pourra plus y accéder.\n').format(
+                  u'pourras plus y accéder.\n').format(
                       author.username,
                       tutorial.title,
                       settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url())
@@ -709,7 +709,7 @@ def modify_tutorial(request):
                                u'pourra le consulter afin de vous faire des retours '
                                u'constructifs avant sa soumission en validation.\n\n'
                                u'Un sujet dédié pour la beta de votre tutoriel a été '
-                               u'crée dans le forum et est accessible [ici]({})').format(
+                               u'créé dans le forum et est accessible [ici]({})').format(
                                    request.user.username,
                                    tutorial.title,
                                    settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
@@ -752,7 +752,7 @@ def modify_tutorial(request):
             if topic is not None:
                 msg = \
                     (_(u'Désactivation de la beta du tutoriel  **{}**'
-                       u'\n\nPour plus d\'informations envoyez moi un message privé.').format(tutorial.title))
+                       u'\n\nPour plus d\'informations envoyez-moi un message privé.').format(tutorial.title))
                 lock_topic(topic)
                 send_post(request, topic, topic.author, msg)
             messages.info(request, _(u"La BETA sur ce tutoriel a bien été désactivée."))
