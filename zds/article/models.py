@@ -1,6 +1,8 @@
 # coding: utf-8
 
 from django.conf import settings
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.db import models
 from math import ceil
 from git import Repo
@@ -212,6 +214,12 @@ class Article(models.Model):
                 os.remove(name)
 
         super(Article, self).save(*args, **kwargs)
+
+        # Delete associated cache keys
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), True]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), False]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url(), True]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url(), False]))
 
     def get_reaction_count(self):
         """Return the number of reactions in the article."""

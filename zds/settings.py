@@ -141,6 +141,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     # ZDS context processors
     'zds.utils.context_processor.app_settings',
     'zds.utils.context_processor.git_version',
+    'zds.utils.context_processor.cache_timeouts',
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap'
@@ -310,6 +311,13 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
     }
+}
+
+CACHE_TIMEOUTS = {
+    'article_item': 3600,
+    'header_menu': 3600,
+    'home_featured_resources': 3600,
+    'tutorial_item': 3600,
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"

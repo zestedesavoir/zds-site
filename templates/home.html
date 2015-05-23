@@ -8,6 +8,7 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load captureas %}
+{% load cache %}
 
 
 
@@ -116,6 +117,7 @@
                 {% endif %}
             </h2>
 
+            {% cache cache_timeouts.home_featured_resources home_featured_resources %}
             <div class="featured-resource-row">
                 {% for featured_resource in last_featured_resources %}
                     {% include "featured/includes/featured_resource_item.part.html" %}
@@ -123,6 +125,7 @@
                     <p class="no-featured-resource">{% trans "Aucun élément &quot;À la une&quot; disponible" %}</p>
                 {% endfor %}
             </div>
+            {% endcache %}
         </section>
         <div class="home-row">
            <section itemscope itemtype="http://schema.org/ItemList">
