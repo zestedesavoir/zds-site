@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.test import TestCase
 
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from zds.utils import slugify
 
@@ -1475,3 +1476,28 @@ class ForumGuestTests(TestCase):
             topic_solved_sticky,
             get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
         )
+
+
+class ManagerTests(TestCase):
+
+        def setUp(self):
+
+            self.cat1 = CategoryFactory()
+            self.forum1 = ForumFactory(category=self.cat1)
+            self.forum2 = ForumFactory(category=self.cat1)
+
+            self.staff = StaffProfileFactory()
+            staff_group = Group.objects.filter(name="staff").first()
+
+            self.forum3 = ForumFactory(category=self.cat1)
+            self.forum3.group = [staff_group]
+            self.forum3.save()
+
+            TopicFactory(forum=self.forum1, author=self.staff.user)
+            TopicFactory(forum=self.forum2, author=self.staff.user)
+            TopicFactory(forum=self.forum3, author=self.staff.user)
+
+        def test_get_last_topics(self):
+
+            topics = Topic.objects.get_last_topics()
+            self.assertEqual(2, len(topics))
