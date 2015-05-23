@@ -26,5 +26,9 @@
 {% endblock %}
 
 {% block content %}
+    <div class="alert-box info alert-box-not-closable">
+    {% trans "Pour importer des images, veuillez ajouter entrer la seconde archive. Les motifs ![légende](image:nom_du_fchier.extension) seront remplacés par les urls générées par le site" %}
+
+    </div>
     {% crispy form %}
 {% endblock %}

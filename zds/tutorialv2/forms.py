@@ -310,6 +310,10 @@ class ImportContentForm(forms.Form):
         label=_(u"Sélectionnez l'archive de votre tutoriel"),
         required=True
     )
+    image_archive = forms.FileField(
+        label=_(u"Sélectionnez l'archive des images"),
+        required=False
+    )
 
     msg_commit = forms.CharField(
         label=_(u"Message de suivi"),
