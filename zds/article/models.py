@@ -218,6 +218,8 @@ class Article(models.Model):
         # Delete associated cache keys
         cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), True]))
         cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), False]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url(), True]))
+        cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url(), False]))
 
     def get_reaction_count(self):
         """Return the number of reactions in the article."""

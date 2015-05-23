@@ -4,14 +4,14 @@
 {% load date %}
 {% load cache %}
 
-{% cache cache_timeouts.article_item article_item article.pk link show_description %}
-
 {# Public link by default #}
 {% if not link %}
     {% captureas link %}
         {{ article.get_absolute_url_online }}
     {% endcaptureas %}
 {% endif %}
+
+{% cache cache_timeouts.article_item article_item article.pk link show_description %}
 
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
