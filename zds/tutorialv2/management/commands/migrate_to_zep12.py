@@ -230,13 +230,23 @@ def migrate_mini_tuto():
                              .all()
         export_comments(reacts, exported, TutorialRead)
         if current.sha_public is not None and current.sha_public != "":
-            publish_content(exported, exported.load_version(current.sha_public), False)
+            published = publish_content(exported, exported.load_version(current.sha_public), False)
             exported.pubdate = current.pudate
             exported.sha_public = current.sha_public
+            exported.public_version = published
             exported.save()
             exported.public_version.content_public_slug = current.slug
             exported.public_version.publication_date = current.pubdate
+
             exported.public_version.save()
+            # set mapping
+            map_previous = PublishedContent()
+            map_previous.content_public_slug = current.slug
+            map_previous.content_pk = current.pk
+            map_previous.content_type = 'TUTORIAL'
+            map_previous.must_redirect = True  # will send HTTP 301 if visited !
+            map_previous.content = exported
+            map_previous.save()
 
 
 def migrate_big_tuto():
@@ -307,13 +317,23 @@ def migrate_big_tuto():
         .all()
     export_comments(reacts, exported, TutorialRead)
     if current.sha_public is not None and current.sha_public != "":
-        publish_content(exported, exported.load_version(current.sha_public), False)
+        published = publish_content(exported, exported.load_version(current.sha_public), False)
         exported.pubdate = current.pudate
         exported.sha_public = current.sha_public
+        exported.public_version = published
         exported.save()
         exported.public_version.content_public_slug = current.slug
         exported.public_version.publication_date = current.pubdate
+
         exported.public_version.save()
+        # set mapping
+        map_previous = PublishedContent()
+        map_previous.content_public_slug = current.slug
+        map_previous.content_pk = current.pk
+        map_previous.content_type = 'TUTORIAL'
+        map_previous.must_redirect = True  # will send HTTP 301 if visited !
+        map_previous.content = exported
+        map_previous.save()
 
 
 @transaction.atomic
