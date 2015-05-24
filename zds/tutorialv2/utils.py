@@ -264,15 +264,20 @@ def retrieve_image(url, directory):
     img_directory, img_basename = os.path.split(parsed_url.path)
     img_basename = img_basename.decode('utf-8')
     img_basename_splitted = img_basename.split('.')
-    img_extension = img_basename_splitted[-1].lower()
-    img_filename = '.'.join(img_basename_splitted[:-1])
+
+    if len(img_basename_splitted) > 1:
+        img_extension = img_basename_splitted[-1].lower()
+        img_filename = '.'.join(img_basename_splitted[:-1])
+    else:
+        img_extension = ''
+        img_filename = img_basename
 
     new_url = os.path.join('images', img_basename)
     new_url_as_png = os.path.join('images', img_filename + '.png')
 
     store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
 
-    if os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
+    if img_basename == '' or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
         # another image with the same name already exists (but assume the two are different)
         img_filename += "_" + str(datetime.now().microsecond)
         new_url = os.path.join('images', img_filename + '.' + img_extension)

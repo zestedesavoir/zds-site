@@ -26,6 +26,7 @@ tricky_text_content = \
     u'![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads' \
     u'%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
     u'![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
+    u'![Bonus: juste du texte](URL invalide)'\
     u'Voilà :)'
 
 
