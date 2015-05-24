@@ -149,61 +149,61 @@
 
 {% block sidebar_actions %}
     {% if can_edit or is_staff %}
+        {% if not version or content.sha_draft == version %}
+            <li>
+                <a href="#move-chapter" class="open-modal ico-after move blue">
+                    {% blocktrans with prev="le"|feminize:container.get_level_as_string name=container.get_level_as_string|lower %}
+                        Déplacer <span class="wide">{{ prev }} {{ name }}</span>
+                    {% endblocktrans %}
+                </a>
+                <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
+                    <input type="hidden" name="pk" value="{{ content.pk }}"/>
 
-        <li>
-            <a href="#move-chapter" class="open-modal ico-after move blue">
-                {% blocktrans with prev="le"|feminize:container.get_level_as_string name=container.get_level_as_string|lower %}
-                    Déplacer <span class="wide">{{ prev }} {{ name }}</span>
-                {% endblocktrans %}
-            </a>
-        <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
-                <input type="hidden" name="pk" value="{{ content.pk }}"/>
+                    <select name="moving_method" class="select-autosubmit">
 
-                <select name="moving_method" class="select-autosubmit">
-
-                    <option disabled="disabled">
-                        {% trans "Déplacer" %}
-                    </option>
-
-                    {% if container.position_in_parent > 1 %}
-                        <option value="up">
-                            {% trans "Monter" %}
+                        <option disabled="disabled">
+                            {% trans "Déplacer" %}
                         </option>
+
+                        {% if container.position_in_parent > 1 %}
+                            <option value="up">
+                                {% trans "Monter" %}
+                            </option>
+                        {% endif %}
+
+                        {% if container.position_in_parent < container.parent.children|length %}
+                            <option value="down">
+                                {% trans "Descendre" %}
+                            </option>
+                        {% endif %}
+                            <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
+                            {% for element in containers_target %}
+                                    <option value="before:{{element.0}}"
+                                    {% if not element.3 %} disabled {% endif %}>
+                                         &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                    </option>
+                            {% endfor %}
+                            <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
+                            {% for element in containers_target %}
+                                    <option value="after:{{element.0}}"
+                                    {% if not element.3 %} disabled {% endif %}>
+                                         &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                    </option>
+                            {% endfor %}
+                    </select>
+                    {% if container.get_tree_depth > 2 %}
+                        <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
+                    {% else %}
+                        <input type="hidden" name="first_level_slug" value="">
                     {% endif %}
+                    <input type="hidden" name="child_slug" value="{{ container.slug }}">
+                    <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
+                    {% csrf_token %}
 
-                    {% if container.position_in_parent < container.parent.children|length %}
-                        <option value="down">
-                            {% trans "Descendre" %}
-                        </option>
-                    {% endif %}
-                        <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
-                        {% for element in containers_target %}
-                                <option value="before:{{element.0}}" 
-                                {% if not element.3 %} disabled {% endif %}>
-                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
-                                </option>
-                        {% endfor %}
-                        <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
-                        {% for element in containers_target %}
-                                <option value="after:{{element.0}}"
-                                {% if not element.3 %} disabled {% endif %}>
-                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
-                                </option>
-                        {% endfor %}
-                </select>
-                {% if container.get_tree_depth > 2 %}
-                    <input type="hidden" name="first_level_slug" value="{{ parent.parent.slug }}">
-                {% else %}
-                    <input type="hidden" name="first_level_slug" value="">
-                {% endif %}
-                <input type="hidden" name="child_slug" value="{{ container.slug }}">
-                <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
-                {% csrf_token %}
-
-                <button type="submit">{% trans "Déplacer" %}</button>
-            </form>
-        </li>
-
+                    <button type="submit">{% trans "Déplacer" %}</button>
+                </form>
+            </li>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -213,13 +213,15 @@
     {%   include "tutorialv2/includes/summary.part.html" with current_container=container %}
 
     {% if can_edit or is_staff %}
-         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
-            <h3>{% trans "Suppression" %}</h3>
-            <ul>
-                <li>
-                    {%  include "tutorialv2/includes/delete.part.html" with object=container additional_classes="ico-after cross red" %}
-                </li>
-            </ul>
-        </div>
+        {% if not version or content.sha_draft == version %}
+             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
+                <h3>{% trans "Suppression" %}</h3>
+                <ul>
+                    <li>
+                        {%  include "tutorialv2/includes/delete.part.html" with object=container additional_classes="ico-after cross red" %}
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock %}
