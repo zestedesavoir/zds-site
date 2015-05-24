@@ -4,7 +4,9 @@
 {% load date %}
 {% load cache %}
 
-{% cache cache_timeouts.tutorial_item tutorial_item tutorial.pk show_description %}
+<article class="content-item expand-description tutorial-item{{ item_class }}">
+
+{% cache cache_timeouts.tutorial_item tutorial_item tutorial.pk beta show_description %}
 {% captureas link %}
     {% if beta %}
         {{ tutorial.get_absolute_url_beta }}
@@ -22,8 +24,6 @@
 {% captureas categories_text %}
     {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
 {% endcaptureas %}
-
-<article class="content-item expand-description tutorial-item{{ item_class }}">
     <a href="{{ link }}" title="{{ tutorial.title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
         <div class="content-illu">
             {% if tutorial.image %}

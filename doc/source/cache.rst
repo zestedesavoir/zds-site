@@ -66,13 +66,13 @@ Il s'agit des blocs visuels de présentation des tutoriels que l'on trouve par e
 ==================  ============================================================
 Identifiant         tutorial_item
 Type                Template fragment caching
-Clé de cache        identifiant + clé primaire du tutoriel +  "show_description"
+Clé de cache        identifiant + clé primaire du tutoriel + "beta" + "show_description"
 Usage               templates/tutorial/includes/tutorial_item.part.html
 Temps de cache      1 heure
 Cas d'invalidation  La sauvegarde d'un tutoriel invalide l'entrée correspondante
 ==================  ============================================================
 
-``show_description`` dans la clé de cache est le paramètre de même nom passé au *template* ``tutorial/includes/tutorial_item.part.html``.
+``beta`` et ``show_description``  dans la clé de cache sont les deux paramètres de même nom passés au *template*``tutorial/includes/tutorial_item.part.html``.
 
 Blocs "À la une"
 ----------------
