@@ -22,15 +22,15 @@ urlpatterns = patterns('',
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayOnlineTutorial.as_view(), name='view'),
 
                        # downloads:
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.md$',
+                       url(r'^md/(?P<pk>\d+)/(?P<slug>.+)\.md$',
                            DownloadOnlineTutorial.as_view(requested_file='md'), name='download-md'),
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.html$',
+                       url(r'^html/(?P<pk>\d+)/(?P<slug>.+)\.html$',
                            DownloadOnlineTutorial.as_view(requested_file='html'), name='download-html'),
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.pdf$',
+                       url(r'^pdf/(?P<pk>\d+)/(?P<slug>.+)\.pdf$',
                            DownloadOnlineTutorial.as_view(requested_file='pdf'), name='download-pdf'),
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.epub$',
+                       url(r'^epub/(?P<pk>\d+)/(?P<slug>.+)\.epub$',
                            DownloadOnlineTutorial.as_view(requested_file='epub'), name='download-epub'),
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)\.zip$',
+                       url(r'^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$',
                            DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
 
                        # Listing
