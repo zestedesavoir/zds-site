@@ -5,19 +5,6 @@
 
 
 
-{% block menu_tutorial %}
-    {% if current_content_type == "TUTORIAL" %}
-        current
-    {% endif %}
-{% endblock %}
-{% block menu_article %}
-    {% if current_content_type == "ARTICLE" %}
-        current
-    {% endif %}
-{% endblock %}
-
-
-
 {% block title %}
     {% if tag %}
         {{ tag }}
