@@ -477,7 +477,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 text = unicode(zip_file.read(child.text), 'utf-8')
                 copy_to.repo_add_extract(child.title, text, do_commit=False)
 
-    def flush_images_from_archive(self, archive, versionned_content, gallery):
+    @staticmethod
+    def flush_images_from_archive(request, archive, versionned_content, gallery):
         """ extract image from a gallery and then translate the "![.+](image:filename) into the final image we want
 
         :param archive:
@@ -509,9 +510,9 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             # if size is too large, don't save
             if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
                 messages.error(
-                    self.request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                                    u'Kio avant de l\'envoyer.').format(
-                                        title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+                    request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
+                               u'Kio avant de l\'envoyer.').format(
+                                   title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
             # if it's not an image, pass
@@ -612,7 +613,11 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 if "image_archive" in self.request.FILES:
                     image_zip = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
-                    self.flush_images_from_archive(image_zip, versioned, self.object.gallery)
+                    UpdateContentWithArchive.flush_images_from_archive(
+                        self.request,
+                        image_zip,
+                        versioned,
+                        self.object.gallery)
                 sha = versioned.commit_changes(commit_message)
 
                 # of course, need to update sha
@@ -696,7 +701,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # copy all:
                 versioned = self.object.load_version()
                 UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
-
+                if "image_archive" in self.request.FILES:
+                    image_zip = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
+                    UpdateContentWithArchive.flush_images_from_archive(
+                        self.request,
+                        image_zip,
+                        versioned,
+                        self.object.gallery)
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 

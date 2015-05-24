@@ -334,6 +334,7 @@ class ImportContentForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('archive'),
+            Field('image_archive'),
             Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Importer l\'archive', type='submit'),
