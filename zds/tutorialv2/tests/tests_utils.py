@@ -349,6 +349,14 @@ class UtilsTests(TestCase):
         new_md = retrieve_and_update_images_links(three_times, tempdir)
         self.assertEqual(three_times_updated, new_md)
 
+        # ensure that the original file is deleted if any
+        another_svg = '![](http://upload.wikimedia.org/wikipedia/commons/3/32/Arrow.svg)'
+        new_md = retrieve_and_update_images_links(another_svg, tempdir)
+        self.assertEqual('![](images/Arrow.png)', new_md)
+
+        self.assertTrue(os.path.isfile(os.path.join(tempdir, 'images/Arrow.png')))  # image was converted in PNG
+        self.assertFalse(os.path.isfile(os.path.join(tempdir, 'images/Arrow.svg')))  # and the original SVG was deleted
+
         # finally, clean up:
         shutil.rmtree(tempdir)
 
