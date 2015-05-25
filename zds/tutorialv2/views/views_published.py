@@ -600,7 +600,8 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
                         'name': alert.author.username,
                         'target_name': note.author.username,
                         'modo_name': self.request.user.username,
-                        'message': '\n'.join(['> ' + line for line in self.request.POST["text"].split('\n')])
+                        'message': '\n'.join(['> ' + line for line in self.request.POST["text"].split('\n')]),
+                        'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
                     })
                 send_mp(
                     bot,
