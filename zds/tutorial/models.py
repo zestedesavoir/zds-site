@@ -370,8 +370,10 @@ class Tutorial(models.Model):
         super(Tutorial, self).save(*args, **kwargs)
 
         # Clear associated cache keys
-        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, True]))
-        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, True, True]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, True, False]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False, True]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False, False]))
 
     def get_note_count(self):
         """Return the number of notes in the tutorial."""
