@@ -7,10 +7,6 @@
     {% trans "Nouveau contenu" %}
 {% endblock %}
 
-{% block breadcrumb_base %}
-    <li><a href="{% url "content:index" request.user.pk %}">{% trans "Contenus de" %} {{ request.user.username }}</a></li>
-{% endblock %}
-
 {% block breadcrumb %}
     <li>{% trans "Nouveau contenu" %}</li>
 {% endblock %}

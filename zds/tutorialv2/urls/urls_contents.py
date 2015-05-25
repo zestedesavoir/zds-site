@@ -12,7 +12,6 @@ from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFor
     DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
 urlpatterns = patterns('',
-                       url(r'^(?P<pk>\d+)/$', ContentOfAuthor.as_view(), name='index'),
                        url(r'^tutoriels/(?P<pk>\d+)/$',
                            ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
                            name="find-tutorial"),

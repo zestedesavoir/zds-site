@@ -295,6 +295,8 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         """rewrite delete() function to ensure repository deletion"""
 
         self.object = self.get_object()
+        object_type = self.object.type.lower()
+
         validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
 
         if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
@@ -322,7 +324,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                 )
 
         self.object.delete()
-        return redirect(reverse('content:index', args=[request.user.pk]))
+        return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -1454,7 +1456,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 self.object.authors.add(user)
 
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                url_index = settings.ZDS_APP['site']['url'] + reverse("content:index", args=[self.request.user.pk])
+                url_index = settings.ZDS_APP['site']['url'] + \
+                    reverse("content:find-" + self.object.type.lower(), args=[self.request.user.pk])
                 send_mp(
                     bot,
                     [user],
@@ -1541,7 +1544,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if self.type in TYPE_CHOICES_DICT.keys():
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
+            raise Http404("This type of content is unknown")
 
         # prefetch:
         queryset = queryset\
