@@ -6,10 +6,13 @@
 
 <article class="content-item expand-description tutorial-item{{ item_class }}">
 
-{% cache cache_timeouts.tutorial_item tutorial_item tutorial.pk beta show_description %}
+{% cache cache_timeouts.tutorial_item tutorial_item tutorial.pk type_link show_description %}
+
 {% captureas link %}
-    {% if beta %}
+    {% if type_link == 'beta'%}
         {{ tutorial.get_absolute_url_beta }}
+    {% elif type_link == 'draft' %}
+        {{ tutorial.get_absolute_url }}
     {% else %}
         {{ tutorial.get_absolute_url_online }}
     {% endif %}

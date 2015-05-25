@@ -36,7 +36,7 @@ Implémentation technique
 Les caches implémentés
 ======================
 
-*Type* dans les tableaux correspond au `type de cache Django <https://docs.djangoproject.com/en/1.7/topics/cache/>`.
+*Type* dans les tableaux correspond au `type de cache Django <https://docs.djangoproject.com/en/1.7/topics/cache/>`__.
 
 *Usage* dans les tableaux correspond à l'endroit où est défini le bloc caché.
 
@@ -48,13 +48,13 @@ Il s'agit des blocs visuels de présentation des articles que l'on trouve par ex
 ==================  =====================================================================
 Identifiant         article_item
 Type                Template fragment caching
-Clé de cache        identifiant + clé primaire de l'article + "link" + "show_description"
+Clé de cache        identifiant + clé primaire de l'article + "type_link" + "show_description"
 Usage               templates/article/includes/article_item.part.html
 Temps de cache      1 heure
 Cas d'invalidation  La sauvegarde d'un article invalide l'entrée correspondante
 ==================  =====================================================================
 
-``link`` et ``show_description`` dans la clé de cache sont les deux paramètres de même nom passés au *template* ``article/includes/article_item.part.html``.
+``type_link`` et ``show_description`` dans la clé de cache sont les deux paramètres de même nom passés au *template* ``article/includes/article_item.part.html``.
 
 Comme l'ajout de commentaires sauvegarde l'article lui-même (lien vers le dernier commentaire), ce cas est automatiquement géré.
 
@@ -66,13 +66,13 @@ Il s'agit des blocs visuels de présentation des tutoriels que l'on trouve par e
 ==================  ============================================================
 Identifiant         tutorial_item
 Type                Template fragment caching
-Clé de cache        identifiant + clé primaire du tutoriel + "beta" + "show_description"
+Clé de cache        identifiant + clé primaire du tutoriel + "type" + "show_description"
 Usage               templates/tutorial/includes/tutorial_item.part.html
 Temps de cache      1 heure
 Cas d'invalidation  La sauvegarde d'un tutoriel invalide l'entrée correspondante
 ==================  ============================================================
 
-``beta`` et ``show_description``  dans la clé de cache sont les deux paramètres de même nom passés au *template*``tutorial/includes/tutorial_item.part.html``.
+``type`` et ``show_description``  dans la clé de cache sont les deux paramètres de même nom passés au *template* ``tutorial/includes/tutorial_item.part.html``.
 
 Blocs "À la une"
 ----------------
