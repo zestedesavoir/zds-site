@@ -72,10 +72,10 @@ class ContentTests(TestCase):
         resp = self.client.get(reverse("article:list"))
         self.assertContains(resp, article.title, count=1)
         self.assertNotContains(resp, article_unpublished.title)
-        resp = self.client.get(reverse("content:find-tuto", args=[self.user_author.pk]) + "?filter=public")
+        resp = self.client.get(reverse("content:find-tutorial", args=[self.user_author.pk]) + "?filter=public")
         self.assertContains(resp, tutorial.title, count=1)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse("content:find-tuto", args=[self.user_author.pk]) + "?filter=redaction")
+        resp = self.client.get(reverse("content:find-tutorial", args=[self.user_author.pk]) + "?filter=redaction")
         self.assertEqual(resp.status_code, 403)
         resp = self.client.get(reverse("content:find-article", args=[self.user_author.pk]) + "?filter=public")
         self.assertContains(resp, article.title, count=1)
@@ -93,7 +93,7 @@ class ContentTests(TestCase):
         self.client.login(
             username=self.user_author.username,
             password='hostel77')
-        resp = self.client.get(reverse("content:find-tuto", args=[self.user_author.pk]))
+        resp = self.client.get(reverse("content:find-tutorial", args=[self.user_author.pk]))
         self.assertContains(resp, tutorial.title, count=1)
         self.assertContains(resp, tutorial_unpublished.title, count=1)
         self.assertContains(resp, "content-illu", count=2)

@@ -440,7 +440,7 @@ class NoteForm(forms.Form):
         if not is_valid:
             self._errors["last_note"] = self.error_class([_(u'L\'identifiant doit être un entier')])
             return False
-        is_valid = self.cintent.last_note == None or int(self.data["last_note"]) == self.content.last_note.pk
+        is_valid = self.content.last_note == None or int(self.data["last_note"]) == self.content.last_note.pk
         if not is_valid:
             self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
         return is_valid
