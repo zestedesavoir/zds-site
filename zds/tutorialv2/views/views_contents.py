@@ -1334,7 +1334,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
     """Handles changes a validator or staff member can do on the js fiddle support of the provided content
     Only those members can do it"""
 
-    permissions = ["tutorialv2.change_tutorialv2"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = JsFiddleActivationForm
     http_method_names = ["post"]
 
@@ -1349,7 +1349,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
     model = PublishableContent
-    permissions = ["tutorialv2.change_tutorialv2"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = MoveElementForm
     versioned = False
 
@@ -1532,7 +1532,7 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
-        self.is_staff = self.request.user.has_perm('tutorialv2.change_tutorialv2')
+        self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
         if self.user != self.request.user and not self.is_staff and 'filter' in self.request.GET:
             filter = self.request.GET.get('filter').lower()
             if filter in self.authorized_filters:
