@@ -2803,6 +2803,12 @@ class ContentTests(TestCase):
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
         publishable = PublishableContent.objects.get(pk=publishable.pk)
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=False)
         # test antispam
         result = self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
