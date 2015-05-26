@@ -584,7 +584,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.has_perm("tutorial.change_note"):
+        if not request.user.has_perm("tutorialv2.change_note"):
             raise PermissionDenied
         try:
             alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
