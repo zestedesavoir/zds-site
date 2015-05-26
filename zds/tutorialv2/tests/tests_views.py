@@ -2809,6 +2809,7 @@ class ContentTests(TestCase):
                 'text': u'message',
                 'last_note': '0'
             }, follow=False)
+        publishable = PublishableContent.objects.get(pk=publishable.pk)
         # test antispam
         result = self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
