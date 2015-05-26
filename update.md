@@ -230,3 +230,11 @@ Fix sur la recherche d'article avec Solr :
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
+
+Issues #2718, #2658 et #2615
+----------------------------
+
+1. **Sauvegarder** le fichiers de configuration Nginx `zestedesavoir` et `zds-maitenance`.
+2. Les **remplacer** par ceux [présents dans la documentation](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html).
+
+Si le fichier `zds-maitenance` n'est pas dans la doc, c'est que vous n'êtes pas sur la bonne version.
