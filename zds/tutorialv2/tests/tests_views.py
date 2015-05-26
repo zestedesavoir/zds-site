@@ -2802,7 +2802,8 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 404)
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
-        publishable = PublishableContent.objects.get(pk=publishable.pk)
+
+        publishable = PublishedContentFactory(author_list=[self.user_author])
         self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
             {
