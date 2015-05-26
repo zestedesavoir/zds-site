@@ -1399,6 +1399,7 @@ def get_topics(forum_pk, is_sticky, filter=None):
         .prefetch_related('last_message', 'tags')\
         .all()
 
+
 class ManagerTests(TestCase):
 
         def setUp(self):
