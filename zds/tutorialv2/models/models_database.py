@@ -141,6 +141,13 @@ class PublishableContent(models.Model):
 
         return reverse('content:view', kwargs={'pk': self.pk, 'slug': self.slug})
 
+    def get_absolute_url_beta(self):
+        """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
+
+        :return  absolute URL to the beta version the content"""
+
+        return reverse('content:beta-view', kwargs={'pk': self.pk, 'slug': self.slug})
+
     def get_absolute_url_online(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
