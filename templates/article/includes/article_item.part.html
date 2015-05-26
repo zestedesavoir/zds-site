@@ -2,7 +2,6 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load date %}
-{% load cache %}
 
 {# Public link by default #}
 {% if not link %}
@@ -11,11 +10,9 @@
     {% endcaptureas %}
 {% endif %}
 
-{% cache cache_timeouts.article_item article_item article.pk link show_description %}
-
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
-    {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ author.username }}{% endfor %}
+    {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
 {% endcaptureas %}
 
 <article class="content-item article-item has-reactions">
@@ -84,4 +81,3 @@
         </ul>
     {% endif %}
 </article>
-{% endcache %}

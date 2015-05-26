@@ -1,6 +1,4 @@
 # coding: utf-8
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -30,11 +28,6 @@ class FeaturedResource(models.Model):
     def __unicode__(self):
         """Textual form of a featured resource."""
         return self.title
-
-    def save(self, *args, **kwargs):
-        super(FeaturedResource, self).save(*args, **kwargs)
-        # Clear associated cache keys
-        cache.delete(make_template_fragment_key('home_featured_resources'))
 
 
 class FeaturedMessage(models.Model):
