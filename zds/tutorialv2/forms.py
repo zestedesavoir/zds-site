@@ -432,6 +432,18 @@ class NoteForm(forms.Form):
             )
         if reaction is not None:
             self.initial.setdefault("text", reaction.text)
+        self.content = content
+
+    def is_valid(self):
+        is_valid = super(NoteForm, self).is_valid
+        is_valid = is_valid and self.data["last_note"].isdigit()
+        if not is_valid:
+            self._errors["last_note"] = self.error_class([_(u'L\'identifiant doit être un entier')])
+            return False
+        is_valid = self.cintent.last_note == None or int(self.data["last_note"]) == self.content.last_note.pk
+        if not is_valid:
+            self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
+        return is_valid
 
     def clean(self):
         cleaned_data = super(NoteForm, self).clean()

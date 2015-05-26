@@ -2802,6 +2802,30 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 404)
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
+        publishable = PublishableContent.objects.get(pk=publishable.pk)
+        # test antispam
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': str(publishable.last_note.pk)
+            }, follow=False)
+        self.assertEqual(result.status_code, 403)
+        # test bad param
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': str("I'm fine! I'm okay! This is all perfectly normal.")
+            }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': str(-5)
+            }, follow=False)
+        self.assertEqual(result.status_code, 200)
 
     def test_import_old_version(self):
         self.assertEqual(
