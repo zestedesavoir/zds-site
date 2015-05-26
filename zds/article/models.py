@@ -121,6 +121,13 @@ class Article(models.Model):
         return reverse('zds.article.views.edit') + \
             '?article={0}'.format(self.pk)
 
+    def get_absolute_url_online_reaction(self):
+        last_read_reaction = self.last_read_reaction()
+        if last_read_reaction:
+            return last_read_reaction.get_absolute_url()
+
+        return '{0}#reactions'.format(self.get_absolute_url_online())
+
     def on_line(self):
         return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
@@ -168,7 +175,6 @@ class Article(models.Model):
         article_version['sha_draft'] = self.sha_draft
         article_version['sha_validation'] = self.sha_validation
         article_version['sha_public'] = self.sha_public
-        article_version['last_read_reaction'] = self.last_read_reaction
         article_version['get_reaction_count'] = self.get_reaction_count
         article_version['get_absolute_url'] = reverse('zds.article.views.view',
                                                       args=[self.pk, self.slug])

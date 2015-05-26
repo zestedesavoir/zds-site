@@ -1459,6 +1459,13 @@ def dislike_reaction(request):
     else:
         return redirect(reaction.get_absolute_url())
 
+
+def redirect_reactions(request, article_pk, article_slug):
+    """Redirect to last read reaction"""
+    article = get_object_or_404(Article, pk=article_pk)
+    return redirect(article.get_absolute_url_online_reaction())
+
+
 # Deprecated URLs
 
 

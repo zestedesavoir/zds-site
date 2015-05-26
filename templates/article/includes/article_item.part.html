@@ -57,12 +57,7 @@
             </div>
         </a>
 
-        <a class="content-reactions" href="
-            {% if article.last_read_reaction %}
-                {{ article.last_read_reaction.get_absolute_url }}
-            {% else %}
-                {{ article.get_absolute_url_online }}#reactions
-            {% endif %}"
+        <a class="content-reactions" href="{% url 'zds.article.views.redirect_reactions' article.pk article.slug %}"
             title="{% if article.get_reaction_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_reaction_count }}{% endif %} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}"
         >
             <span>{{ article.get_reaction_count }}</span>
