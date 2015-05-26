@@ -7,22 +7,13 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
-from django.contrib import messages
 
-from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    SubCategoryFactory, PublishedContentFactory, tricky_text_content
-from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import publish_content
+    SubCategoryFactory, PublishedContentFactory
 from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
-from zds.forum.models import Topic, Post
-from zds.mp.models import PrivateTopic
-from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
-from zds.utils.factories import HelpWritingFactory
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
