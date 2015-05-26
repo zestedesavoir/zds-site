@@ -334,7 +334,7 @@
                             </a>
                         </li>
                     {% endif %}
-                    {% if profile.user == user %}
+                    {% if profile.user == user or perms.tutorial.change_tutorial %}
                         {% if validate_tutos_count > 0 %}
                             <li>
                                 <a href="{% url "content:find-tutorial" usr.pk %}?filter=validation"
@@ -381,52 +381,64 @@
             {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 or articles_beta_count > 0 %}
                 <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">Articles</h4>
                 <ul>
-                    <li>
-                        <a href="{% url "content:find-article" usr.pk %}?filter=public"
-                           class="mobile-menu-link mobile-menu-sublink"
-                        >
-                            <span class="count">{{ articles_public_count }}</span>
-                            {% trans "En ligne" %}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url "content:find-article" usr.pk %}?filter=beta"
-                           class="mobile-menu-link mobile-menu-sublink"
-                        >
-                            <span class="count">{{ articles_beta_count }}</span>
-                            {% trans "En béta" %}
-                        </a>
-                    </li>
-                    {% if profile.user == user %}
+                    {% if article_public_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-article" usr.pk %}?filter=validation"
+                            <a href="{% url "content:find-article" usr.pk %}?filter=public"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
-                                <span class="count">{{ articles_validation_count }}</span>
-                                {% trans "En validation" %}
+                                <span class="count">{{ articles_public_count }}</span>
+                                {% trans "En ligne" %}
                             </a>
                         </li>
+                    {% endif %}
+                    {% if article_beta_count > 0 %}
                         <li>
-                            <a href="{% url "content:find-article" usr.pk %}?filter=redaction"
+                            <a href="{% url "content:find-article" usr.pk %}?filter=beta"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
-                                <span class="count">{{ articles_draft_count }}</span>
-                                {% trans "En rédaction" %}
+                                <span class="count">{{ articles_beta_count }}</span>
+                                {% trans "En béta" %}
                             </a>
                         </li>
+                     {% endif %}
+                    {% if profile.user == user  or perms.tutorial.change_tutorial %}
+                        {% if articles_validation_count > 0 %}
+                            <li>
+                                <a href="{% url "content:find-article" usr.pk %}?filter=validation"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
+                                    <span class="count">{{ articles_validation_count }}</span>
+                                    {% trans "En validation" %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if articles_draft_count > 0 %}
+                            <li>
+                                <a href="{% url "content:find-article" usr.pk %}?filter=redaction"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
+                                    <span class="count">{{ articles_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </a>
+                            </li>
+                         {% endif %}
                     {% else %}
-                        <li class="inactive mobile-menu-link mobile-menu-sublink">
-                            <span>
-                                <span class="count">{{ articles_validation_count }}</span>
-                                {% trans "En validation" %}
-                            </span>
-                        </li>
-                        <li class="inactive mobile-menu-link mobile-menu-sublink">
-                            <span>
-                                <span class="count">{{ articles_draft_count }}</span>
-                                {% trans "En rédaction" %}
-                            </span>
-                        </li>
+                        {% if articles_validation_count > 0 %}
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
+                                <span>
+                                    <span class="count">{{ articles_validation_count }}</span>
+                                    {% trans "En validation" %}
+                                </span>
+                            </li>
+                        {% endif %}
+                        {% if articles_draft_count > 0 %}
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
+                                <span>
+                                    <span class="count">{{ articles_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </span>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
             {% endif %}
