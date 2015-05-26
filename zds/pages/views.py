@@ -49,7 +49,7 @@ def home(request):
         'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
         'last_articles': articles,
-        'last_featured_resources': FeaturedResource.objects.get_last_news(),
+        'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
         'tutorials_count': get_tutorials_count(),
         'quote': quote.replace('\n', ''),

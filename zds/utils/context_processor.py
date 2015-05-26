@@ -31,3 +31,10 @@ def app_settings(request):
     A context processor with all APP settings.
     """
     return {'app': settings.ZDS_APP}
+
+
+def cache_timeouts(request):
+    """
+    A context processor to access CACHE_TIMEOUTS on templates
+    """
+    return {'cache_timeouts': settings.CACHE_TIMEOUTS}

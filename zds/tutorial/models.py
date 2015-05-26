@@ -2,6 +2,9 @@
 
 from math import ceil
 import shutil
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -366,6 +369,12 @@ class Tutorial(models.Model):
 
         super(Tutorial, self).save(*args, **kwargs)
 
+        # Clear associated cache keys
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, True, True]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, True, False]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False, True]))
+        cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False, False]))
+
     def get_note_count(self):
         """Return the number of notes in the tutorial."""
         return Note.objects.filter(tutorial__pk=self.pk).count()
@@ -469,7 +478,8 @@ def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:n]
+        .order_by('-pubdate')\
+        .prefetch_related('authors', 'subcategory')[:n]
 
     return tutorials
 

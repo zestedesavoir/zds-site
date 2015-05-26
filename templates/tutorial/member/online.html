@@ -30,7 +30,7 @@
         {% if tutorials %}
             <div class="content-item-list">
                 {% for tutorial in tutorials %}
-                    {% include 'tutorial/includes/tutorial_item.part.html' show_description=True %}
+                    {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True %}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>

@@ -2,7 +2,11 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load date %}
+{% load cache %}
 
+<article class="content-item expand-description tutorial-item{{ item_class }}">
+
+{% cache cache_timeouts.tutorial_item tutorial_item tutorial.pk beta show_description %}
 {% captureas link %}
     {% if beta %}
         {{ tutorial.get_absolute_url_beta }}
@@ -13,15 +17,13 @@
 
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
-    {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
+    {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ author.username }}{% endfor %}
 {% endcaptureas %}
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
+    {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
 {% endcaptureas %}
-
-<article class="content-item expand-description tutorial-item{{ item_class }}">
     <a href="{{ link }}" title="{{ tutorial.title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
         <div class="content-illu">
             {% if tutorial.image %}
@@ -64,3 +66,4 @@
         </div>
     </a>
 </article>
+{% endcache %}
