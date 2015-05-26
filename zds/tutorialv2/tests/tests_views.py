@@ -3875,7 +3875,14 @@ class PublishedContentTests(TestCase):
         contents = response.context['articles']
         self.assertEqual(len(contents), 1)  # 1 article
 
-        # test beta filter
+        # test a non-existing filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=whatever',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)  # this filter does not exists !
+
+        # test "redaction" filter
         response = self.client.get(
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
             follow=False
@@ -3883,6 +3890,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
         self.assertEqual(len(contents), 1)  # one tutorial in redaction
+        self.assertEqual(contents[0].pk, tuto_draft.pk)
 
         response = self.client.get(
             reverse('content:find-article', args=[self.user_author.pk]) + '?filter=redaction',
@@ -3900,6 +3908,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
         self.assertEqual(len(contents), 1)  # one tutorial in beta
+        self.assertEqual(contents[0].pk, tuto_in_beta.pk)
 
         response = self.client.get(
             reverse('content:find-article', args=[self.user_author.pk]) + '?filter=beta',
@@ -3925,6 +3934,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(200, response.status_code)
         contents = response.context['articles']
         self.assertEqual(len(contents), 1)  # one article in validation
+        self.assertEqual(contents[0].pk, article_in_validation.pk)
 
         # test public filter
         response = self.client.get(
@@ -3934,6 +3944,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
         self.assertEqual(len(contents), 1)  # one published tutorial
+        self.assertEqual(contents[0].pk, self.tuto.pk)
 
         response = self.client.get(
             reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public',
@@ -3985,7 +3996,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
         self.assertEqual(len(contents), 1)  # one published tutorial
-        self.assertEqual(contents[0].pk, self.published.pk)
+        self.assertEqual(contents[0].pk, self.tuto.pk)
 
         response = self.client.get(
             reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public',
@@ -4003,7 +4014,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
         self.assertEqual(len(contents), 1)  # one published tutorial
-        self.assertEqual(contents[0].pk, self.published.pk)
+        self.assertEqual(contents[0].pk, self.tuto.pk)
 
         response = self.client.get(
             reverse('content:find-article', args=[self.user_author.pk]),
@@ -4019,7 +4030,15 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        # staff can use all filters !
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 3)  # 3 tutorials by user_author !
+
+        # staff can use all filters without a 403 !
 
         # test validation filter:
         response = self.client.get(
