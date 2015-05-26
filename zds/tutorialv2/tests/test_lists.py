@@ -62,7 +62,7 @@ class ContentTests(TestCase):
 
     def test_public_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
-        tutorial_unpublished = PublishedContentFactory(author_list=[self.user_author])
+        tutorial_unpublished = PublishableContentFactory(author_list=[self.user_author])
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
         self.client.logout()
@@ -87,7 +87,7 @@ class ContentTests(TestCase):
 
     def test_private_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
-        tutorial_unpublished = PublishedContentFactory(author_list=[self.user_author])
+        tutorial_unpublished = PublishableContentFactory(author_list=[self.user_author])
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
         self.client.login(

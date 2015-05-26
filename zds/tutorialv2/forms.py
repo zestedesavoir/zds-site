@@ -404,6 +404,10 @@ class NoteForm(forms.Form):
             }
         )
     )
+    last_note = forms.IntegerField(
+        label='',
+        widget=forms.HiddenInput()
+    )
 
     def __init__(self, content, reaction, *args, **kwargs):
         super(NoteForm, self).__init__(*args, **kwargs)
@@ -413,7 +417,8 @@ class NoteForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutEditor(),
-            Hidden('last_note', '{{ last_note_pk }}'),
+            Field('last_note')
+
         )
 
         if content.antispam:
@@ -434,17 +439,6 @@ class NoteForm(forms.Form):
             self.initial.setdefault("text", reaction.text)
         self.content = content
 
-    def is_valid(self):
-        is_valid = super(NoteForm, self).is_valid
-        is_valid = is_valid and self.data["last_note"].isdigit()
-        if not is_valid:
-            self._errors["last_note"] = self.error_class([_(u'L\'identifiant doit être un entier')])
-            return False
-        is_valid = self.content.last_note == None or int(self.data["last_note"]) == self.content.last_note.pk
-        if not is_valid:
-            self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
-        return is_valid
-
     def clean(self):
         cleaned_data = super(NoteForm, self).clean()
 
@@ -461,6 +455,9 @@ class NoteForm(forms.Form):
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
                    u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
+        is_valid = self.content.last_note is None or int(cleaned_data["last_note"]) == self.content.last_note.pk
+        if not is_valid:
+            self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
         return cleaned_data
 
 
