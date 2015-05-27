@@ -69,7 +69,7 @@
         >
             {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
-    
+
 
     {% for message in posts %}
         {% captureas edit_link %}
@@ -112,7 +112,7 @@
             {% set True as answer_schema %}
         {% endif %}
 
-        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema can_unread=True unread_link=unread_link %}
+        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link %}
     {% endfor %}
 
     {% include "misc/paginator.html" with position="bottom" %}
@@ -131,7 +131,7 @@
     <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
-    {% if topic.author.pk == user.pk or perms.forum.change_topic %}
+    {% if topic.author.pk == user.pk or is_staff %}
     <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
         {% trans "Éditer le sujet" %}
     </a>
@@ -141,7 +141,7 @@
 
 
 {% block sidebar_actions %}
-    {% if topic.author.pk == user.pk or perms.forum.change_topic %}
+    {% if topic.author.pk == user.pk or is_staff %}
         <li>
             <form action="{% url 'topic-edit' %}" method="post">
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
@@ -230,7 +230,7 @@
 
 
 {% block sidebar_blocks %}
-    {% if perms.forum.change_topic %}
+    {% if is_staff %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
             <h3>{% trans "Modération" %}</h3>
             <ul>
