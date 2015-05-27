@@ -27,7 +27,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag
+from zds.utils.models import Alert, Tag, CommentDislike, CommentLike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
 
@@ -118,13 +118,23 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        reaction_ids = [post.pk for post in context['object_list']]
         context.update({
             'topic': self.object,
-            'posts': self.build_list_with_previous_item(context['object_list']),
+            'posts': self.build_list_with_previous_item(context['posts']),
             'last_post_pk': self.object.last_message.pk,
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
         })
+        context["user_dislike"] = CommentDislike.objects\
+            .select_related('comment')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .values_list('pk', flat=True)
+        context["user_like"] = CommentLike.objects\
+            .select_related('comment')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .values_list('pk', flat=True)
+
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)
