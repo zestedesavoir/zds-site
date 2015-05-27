@@ -893,11 +893,19 @@ def view_tutorial_beta(request, tutorial_pk, tutorial_slug):
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     """Display a tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = Tutorial.objects\
+        .prefetch_related("authors")\
+        .prefetch_related("authors__profile")\
+        .prefetch_related("subcategory")\
+        .select_related('licence')\
+        .select_related('last_reaction')\
+        .filter(pk=tutorial_pk).first()
+    if tutorial is None:
+        raise Http404("pk {} not found".format(tutorial_pk))
 
     # If the tutorial isn't online, we raise 404 error.
     if not tutorial.on_line():
-        raise Http404
+        raise Http404("Tutorial is offline")
 
     # Two variables to handle two distinct cases (large/small tutorial)
 
@@ -981,7 +989,13 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     # Find all notes of the tutorial.
 
-    notes = Note.objects.filter(tutorial__pk=tutorial.pk).order_by("position").all()
+    notes = Note.objects.filter(tutorial__pk=tutorial.pk)\
+        .order_by("position")\
+        .select_related("author__profile")\
+        .prefetch_related('alerts')\
+        .prefetch_related('alerts__author')\
+        .prefetch_related('alerts__author__profile')\
+        .all()
 
     # Retrieve pk of the last note. If there aren't notes for the tutorial, we
     # initialize this last note at 0.
@@ -1017,7 +1031,15 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         res.append(last_note)
     for note in notes:
         res.append(note)
-
+    reaction_ids = [post.pk for post in notes]
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     # Build form to send a note for the current tutorial.
 
     form = NoteForm(tutorial, request.user)
@@ -1030,6 +1052,9 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         "nb": page_nbr,
         "last_note_pk": last_note_pk,
         "form": form,
+        "user_like": user_like,
+        "user_dislike": user_dislike,
+        "is_staff": request.user.has_perm("tutorial.change_tutorial")
     })
 
 
@@ -3394,7 +3419,15 @@ def answer(request):
         .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new note on the tutorial.
-
+    reaction_ids = [post.pk for post in notes]
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     if request.method == "POST":
         data = request.POST
 
@@ -3415,7 +3448,10 @@ def answer(request):
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
                     "notes": notes,
+                    "is_staff": request.user.has_perm("tutorial.change_tutorial"),
                     "form": form,
+                    "user_like": user_like,
+                    "user_dislike": user_dislike
                 })
         else:
 
@@ -3442,7 +3478,10 @@ def answer(request):
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
                     "notes": notes,
+                    "is_staff": request.user.has_perm("tutorial.change_tutorial"),
                     "form": form,
+                    "user_like": user_like,
+                    "user_dislike": user_dislike
                 })
     else:
 
@@ -3478,8 +3517,11 @@ def answer(request):
         return render(request, "tutorial/comment/new.html", {
             "tutorial": tutorial,
             "notes": notes,
+            "is_staff": request.user.has_perm("tutorial.change_tutorial"),
             "last_note_pk": last_note_pk,
             "form": form,
+            "user_like": user_like,
+            "user_dislike": user_dislike
         })
 
 
