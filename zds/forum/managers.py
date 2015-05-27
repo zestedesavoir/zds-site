@@ -74,7 +74,12 @@ class PostManager(models.Manager):
     """
 
     def get_messages_of_a_topic(self, topic_pk):
-        return self.filter(topic__pk=topic_pk).select_related("author__profile").order_by("position").all()
+        return self.filter(topic__pk=topic_pk)\
+            .select_related("author__profile")\
+            .prefetch_related('alerts')\
+            .prefetch_related('alerts__author')\
+            .prefetch_related('alerts__author__profile')\
+            .order_by("position").all()
 
     def get_all_messages_of_a_user(self, current, target):
         if current.has_perm("forum.change_post"):
