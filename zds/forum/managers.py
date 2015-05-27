@@ -98,11 +98,11 @@ class TopicReadManager(models.Manager):
 
     def topic_read_by_user(self, user, topic_sub_list=None):
 
-        base_query_set = self.filter(user=user)
+        base_query_set = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
             base_query_set = base_query_set.filter(topic__in=topic_sub_list)
 
         return base_query_set
 
     def list_read_topic_pk(self, user, topic_sub_list=None):
-        return self.topic_read_by_user(user, topic_sub_list).values_list('topic_pk', flat=True)
+        return self.topic_read_by_user(user, topic_sub_list).values_list('topic__pk', flat=True)

@@ -119,14 +119,15 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
-        reaction_ids = [post.pk for post in context['object_list']]
+
         context.update({
             'topic': self.object,
-            'posts': self.build_list_with_previous_item(context['posts']),
+            'posts': self.build_list_with_previous_item(context['object_list']),
             'last_post_pk': self.object.last_message.pk,
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
         })
+        reaction_ids = [post.pk for post in context['posts']]
         context["user_dislike"] = CommentDislike.objects\
             .select_related('comment')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
