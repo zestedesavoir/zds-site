@@ -2,12 +2,14 @@
 
 from django.conf import settings
 from django.db import models
+from model_utils.managers import InheritanceManager
 
 
 class ArticleManager(models.Manager):
     """
     Custom article manager.
     """
+
 
     def last_articles_of_a_member_loaded(self, author):
         my_articles = self.filter(sha_public__isnull=False) \
@@ -20,3 +22,12 @@ class ArticleManager(models.Manager):
             my_article.load_dic(article_version)
             my_article_versions.append(article_version)
         return my_article_versions
+
+
+class ReactionManager(InheritanceManager):
+    stats = {}
+
+    def count_reactions(self, article):
+        if article.pk not in self.stats:
+            self.stats[article.pk] = self.filter(article__pk=article.pk).count()
+        return self.stats[article.pk]

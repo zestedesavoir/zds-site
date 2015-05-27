@@ -484,7 +484,7 @@ def articles(request):
     elif state == 'public':
         user_articles = profile.get_public_articles()
     else:
-        user_articles = profile.get_articles()
+        user_articles = Article.objects.prefetch_related("authors", "authors__profile")
 
     # Order articles (abc by default)
 

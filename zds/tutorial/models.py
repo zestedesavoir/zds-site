@@ -28,7 +28,7 @@ from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
-from zds.tutorial.managers import TutorialManager
+from zds.tutorial.managers import TutorialManager, NoteManager
 
 
 TYPE_CHOICES = (
@@ -375,10 +375,6 @@ class Tutorial(models.Model):
         cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False, True]))
         cache.delete(make_template_fragment_key('tutorial_item', [self.pk, False, False]))
 
-    def get_note_count(self):
-        """Return the number of notes in the tutorial."""
-        return Note.objects.filter(tutorial__pk=self.pk).count()
-
     def get_last_note(self):
         """Gets the last answer in the thread, if any."""
         return Note.objects.all()\
@@ -498,6 +494,7 @@ class Note(Comment):
         verbose_name_plural = 'notes sur un tutoriel'
 
     tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
+    objects = NoteManager()
 
     def __unicode__(self):
         """Textual form of a post."""

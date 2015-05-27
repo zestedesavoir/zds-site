@@ -918,7 +918,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     tutorial.load_dic(mandata, sha=tutorial.sha_public)
     tutorial.load_introduction_and_conclusion(mandata, public=True)
     mandata["update"] = tutorial.update
-    mandata["get_note_count"] = tutorial.get_note_count()
+    mandata["get_note_count"] = Note.objects.count_notes(tutorial)
 
     # If it's a small tutorial, fetch its chapter
 
@@ -1054,7 +1054,8 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         "form": form,
         "user_like": user_like,
         "user_dislike": user_dislike,
-        "is_staff": request.user.has_perm("tutorial.change_tutorial")
+        "is_staff": request.user.has_perm("tutorial.change_tutorial"),
+        "note_count": Note.objects.count_notes(tutorial)
     })
 
 
@@ -3466,7 +3467,7 @@ def answer(request):
                 note.text = data["text"]
                 note.text_html = emarkdown(data["text"])
                 note.pubdate = datetime.now()
-                note.position = tutorial.get_note_count() + 1
+                note.position = Note.objects.count_notes(tutorial) + 1
                 note.ip_address = get_client_ip(request)
                 note.save()
                 tutorial.last_note = note

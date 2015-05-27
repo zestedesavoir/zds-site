@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from model_utils.managers import InheritanceManager
 
 
 class TutorialManager(models.Manager):
@@ -20,3 +21,14 @@ class TutorialManager(models.Manager):
             my_tutorial.load_dic(mandata)
             my_tuto_versions.append(mandata)
         return my_tuto_versions
+
+
+class NoteManager(InheritanceManager):
+
+    stats = {}
+
+    def count_notes(self, tutorial):
+
+        if tutorial.pk not in self.stats:
+            self.stats[tutorial.pk] = self.filter(tutorial__pk=tutorial.pk).count()
+        return self.stats[tutorial.pk]

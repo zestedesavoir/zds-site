@@ -110,11 +110,11 @@
 
 {% block content_after %}
     <h3 class="comments-title" id="comments">
-        {% if tutorial.get_note_count > 0 %}
+        {% if note_count > 0 %}
             <span itemprop="commentCount">
-                {{ tutorial.get_note_count }}
+                {{ note_count }}
             </span>
-            {% trans "commentaire" %}{{ tutorial.get_note_count|pluralize }}
+            {% trans "commentaire" %}{{ note_count|pluralize }}
         {% else %}
             {% trans "Aucun commentaire" %}
         {% endif %}
@@ -172,7 +172,7 @@
 {% block sidebar_blocks %}
     {% include "tutorial/includes/summary.part.html" with online=True %}
 
-    {% if is_staff %}
+    {% if perms.tutorial.change_tutorial %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
             <h3>{% blocktrans %}Admin<span class="wide">istration</span>{% endblocktrans %}</h3>
             <ul>

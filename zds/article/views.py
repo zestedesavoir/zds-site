@@ -1132,7 +1132,7 @@ def answer(request):
     reactions = Reaction.objects.filter(article=article) \
         .prefetch_related() \
         .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
-    reaction_ids = [post.pk for post in reactions]
+    reaction_ids = reactions.values_list('pk', flat=True)
     user_dislike = CommentDislike.objects\
         .select_related('comment')\
         .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
@@ -1181,7 +1181,7 @@ def answer(request):
                 reaction.text = data['text']
                 reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
-                reaction.position = article.get_reaction_count() + 1
+                reaction.position = Reaction.objects.count_reactions(article) + 1
                 reaction.ip_address = get_client_ip(request)
                 reaction.save()
 
