@@ -92,3 +92,17 @@ class PostManager(models.Manager):
             .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
             .prefetch_related("author")\
             .order_by("-pubdate").all()
+
+
+class TopicReadManager(models.Manager):
+
+    def topic_read_by_user(self, user, topic_sub_list=None):
+
+        base_query_set = self.filter(user=user)
+        if topic_sub_list is not None:
+            base_query_set = base_query_set.filter(topic__in=topic_sub_list)
+
+        return base_query_set
+
+    def list_read_topic_pk(self, user, topic_sub_list=None):
+        return self.topic_read_by_user(user, topic_sub_list).values_list('topic_pk', flat=True)

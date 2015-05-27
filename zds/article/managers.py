@@ -10,7 +10,6 @@ class ArticleManager(models.Manager):
     Custom article manager.
     """
 
-
     def last_articles_of_a_member_loaded(self, author):
         my_articles = self.filter(sha_public__isnull=False) \
                           .filter(authors__in=[author]) \

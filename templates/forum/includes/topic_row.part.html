@@ -5,7 +5,7 @@
 
 
 <div class="topic navigable-elem
-    {% if user.is_authenticated and topic.never_read %}
+    {% if user.is_authenticated and topic.pk not in topic_read%}
         unread
     {% endif %}">
 

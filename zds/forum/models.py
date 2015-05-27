@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 
-from zds.forum.managers import TopicManager, ForumManager, PostManager
+from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
@@ -411,6 +411,7 @@ class TopicRead(models.Model):
     topic = models.ForeignKey(Topic, db_index=True)
     post = models.ForeignKey(Post, db_index=True)
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
+    objects = TopicReadManager()
 
     def __unicode__(self):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
