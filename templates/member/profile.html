@@ -379,9 +379,9 @@
 
         {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count articles_beta_count=profile.get_beta_articles.count %}
             {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 or articles_beta_count > 0 %}
-                <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">Articles</h4>
+                <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">{% trans 'Articles' %}</h4>
                 <ul>
-                    {% if article_public_count > 0 %}
+                    {% if articles_public_count > 0 %}
                         <li>
                             <a href="{% url "content:find-article" usr.pk %}?filter=public"
                                class="mobile-menu-link mobile-menu-sublink"
@@ -391,7 +391,7 @@
                             </a>
                         </li>
                     {% endif %}
-                    {% if article_beta_count > 0 %}
+                    {% if articles_beta_count > 0 %}
                         <li>
                             <a href="{% url "content:find-article" usr.pk %}?filter=beta"
                                class="mobile-menu-link mobile-menu-sublink"
