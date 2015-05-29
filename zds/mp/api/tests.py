@@ -2,11 +2,13 @@
 from collections import OrderedDict
 from unittest import skip
 from django.contrib.auth.models import Group
+from django.core.cache import get_cache
 
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
+from rest_framework_extensions.settings import extensions_api_settings
 
 from zds import settings
 from zds.member.api.tests import create_oauth2_client, authenticate_client
@@ -32,6 +34,8 @@ class PrivateTopicListAPITest(APITestCase):
         self.bot_group = Group()
         self.bot_group.name = ZDS_APP["member"]["bot_group"]
         self.bot_group.save()
+
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
 
     def test_list_mp_with_client_unauthenticated(self):
         """
@@ -371,6 +375,8 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.bot_group.name = ZDS_APP["member"]["bot_group"]
         self.bot_group.save()
 
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+
     def test_detail_mp_with_client_unauthenticated(self):
         """
         Gets details about a private topic with an unauthenticated client.
@@ -610,6 +616,8 @@ class PrivatePostListAPI(APITestCase):
 
         self.private_topic = PrivateTopicFactory(author=self.profile.user)
 
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+
     def test_list_mp_with_client_unauthenticated(self):
         """
         Gets list of private posts of a private topic given with an unauthenticated client.
@@ -797,6 +805,8 @@ class PrivatePostDetailAPI(APITestCase):
         self.client = APIClient()
         client_oauth2 = create_oauth2_client(self.profile.user)
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
+
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
 
     def test_detail_private_post_with_client_unauthenticated(self):
         """
