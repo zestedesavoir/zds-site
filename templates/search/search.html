@@ -62,91 +62,87 @@
             <div class="topic-list navigable-list">
                 {% for result in page.object_list %}
                     {% if result and result.object %}
-                        {% if result.object.forum and not result.object.forum|auth_forum:user %}
-                        {% elif result.object.topic.forum and not result.object.topic.forum|auth_forum:user %}
-                        {% else %}
-                            <div class="topic navigable-elem">
-                                <div class="topic-infos">
-                                </div>
-                                <div class="topic-description">
-                                    {% if result.object.first_post %}
-                                        <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
-                                            <div class="topic-title">
-                                                {% highlight result.object.title with query html_tag "mark" %}
-                                            </div>
-                                    {% elif result.object.get_text_online %}
-                                        <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                            <div class="topic-title">
-                                                {% highlight result.object.title with query html_tag "mark" %}
-                                            </div>
-                                    {% elif result.object.topic %}
-                                        <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
-                                            <div class="topic-title">
-                                                {% highlight result.object.topic.title with query html_tag "mark" %}
-                                            </div>
-                                    {% else %}
-                                        <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                            <div class="topic-title">
-                                                {% highlight result.object.title with query html_tag "mark" %}
-                                            </div>
-                                    {% endif %}
-                                            <div class="topic-subtitle">
-                                                {% if result.object.first_post %}
-                                                    {% with text=result.object.first_post.text|emarkdown|striptags|safe %}
-                                                        {% highlight text with query html_tag "mark" %}
-                                                    {% endwith %}
-                                                {% elif result.object.get_text_online %}
-                                                    {% with text=result.object.get_text_online|striptags|safe %}
-                                                        {% highlight text with query html_tag "mark" %}
-                                                    {% endwith %}
-						{% elif result.object.get_text %}
-                                                    {% with text=result.object.get_text|striptags|safe %}
-                                                        {% highlight text with query html_tag "mark" %}
-                                                    {% endwith %}
-                                                {% elif result.object.topic %}
-                                                    {% with text=result.object.text|emarkdown|striptags|safe %}
-                                                        {% highlight text with query html_tag "mark" %}
-                                                    {% endwith %}
-                                                {% else %}
-                                                    {% with text=result.object.get_introduction_online|striptags|safe %}
-                                                        {% highlight text with query html_tag "mark" %}
-                                                    {% endwith %}
-                                                {% endif %}
-                                            </div>
-                                        </a>
-                                        <div class="topic-members">
-                                            {% model_name result.app_label result.model_name False %}
-                                        </div>
-                                </div>
-                                <div class="topic-last-answer">
-                                    {% if result.object.pubdate %}
-                                        <a href="
-                                            {% if result.object.first_post %}
-                                                {{ result.object.get_absolute_url }}
-                                            {% elif result.object.get_introduction_online %}
-                                                {{ result.object.get_absolute_url_online }}
-                                            {% else %}
-                                                {{ result.object.get_absolute_url }}
-                                            {% endif %}
-                                        ">
-                                            {{ result.object.pubdate|format_date|capfirst }}
-                                        </a>
-                                    {% elif result.object.tutorial.pubdate %}
-                                        <a href="{{ result.object.get_absolute_url_online }}">
-                                            {{ result.object.tutorial.pubdate|format_date|capfirst }}
-                                        </a>
-                                    {% elif result.object.part.tutorial.pubdate %}
-                                        <a href="{{ result.object.get_absolute_url_online }}">
-                                            {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
-                                        </a>
-                                    {% elif result.object.chapter.tutorial.pubdate %}
-                                        <a href="{{ result.object.get_absolute_url_online }}">
-                                            {{ result.object.chapter.tutorial.pubdate|format_date|capfirst }}
-                                        </a>
-                                    {% endif %}
-                                </div>
+                        <div class="topic navigable-elem">
+                            <div class="topic-infos">
                             </div>
-                        {% endif %}
+                            <div class="topic-description">
+                                {% if result.object.first_post %}
+                                    <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
+                                        <div class="topic-title">
+                                            {% highlight result.object.title with query html_tag "mark" %}
+                                        </div>
+                                {% elif result.object.get_text_online %}
+                                    <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                        <div class="topic-title">
+                                            {% highlight result.object.title with query html_tag "mark" %}
+                                        </div>
+                                {% elif result.object.topic %}
+                                    <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
+                                        <div class="topic-title">
+                                            {% highlight result.object.topic.title with query html_tag "mark" %}
+                                        </div>
+                                {% else %}
+                                    <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
+                                        <div class="topic-title">
+                                            {% highlight result.object.title with query html_tag "mark" %}
+                                        </div>
+                                {% endif %}
+                                        <div class="topic-subtitle">
+                                            {% if result.object.first_post %}
+                                                {% with text=result.object.first_post.text|emarkdown|striptags|safe %}
+                                                    {% highlight text with query html_tag "mark" %}
+                                                {% endwith %}
+                                            {% elif result.object.get_text_online %}
+                                                {% with text=result.object.get_text_online|striptags|safe %}
+                                                    {% highlight text with query html_tag "mark" %}
+                                                {% endwith %}
+                                            {% elif result.object.get_text %}
+                                                {% with text=result.object.get_text|striptags|safe %}
+                                                    {% highlight text with query html_tag "mark" %}
+                                                {% endwith %}
+                                            {% elif result.object.topic %}
+                                                {% with text=result.object.text|emarkdown|striptags|safe %}
+                                                    {% highlight text with query html_tag "mark" %}
+                                                {% endwith %}
+                                            {% else %}
+                                                {% with text=result.object.get_introduction_online|striptags|safe %}
+                                                    {% highlight text with query html_tag "mark" %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        </div>
+                                    </a>
+                                    <div class="topic-members">
+                                        {% model_name result.app_label result.model_name False %}
+                                    </div>
+                            </div>
+                            <div class="topic-last-answer">
+                                {% if result.object.pubdate %}
+                                    <a href="
+                                        {% if result.object.first_post %}
+                                            {{ result.object.get_absolute_url }}
+                                        {% elif result.object.get_introduction_online %}
+                                            {{ result.object.get_absolute_url_online }}
+                                        {% else %}
+                                            {{ result.object.get_absolute_url }}
+                                        {% endif %}
+                                    ">
+                                        {{ result.object.pubdate|format_date|capfirst }}
+                                    </a>
+                                {% elif result.object.tutorial.pubdate %}
+                                    <a href="{{ result.object.get_absolute_url_online }}">
+                                        {{ result.object.tutorial.pubdate|format_date|capfirst }}
+                                    </a>
+                                {% elif result.object.part.tutorial.pubdate %}
+                                    <a href="{{ result.object.get_absolute_url_online }}">
+                                        {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
+                                    </a>
+                                {% elif result.object.chapter.tutorial.pubdate %}
+                                    <a href="{{ result.object.get_absolute_url_online }}">
+                                        {{ result.object.chapter.tutorial.pubdate|format_date|capfirst }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
                 {% endfor %}
             </div>
