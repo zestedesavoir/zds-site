@@ -30,3 +30,6 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Post
+
+    def index_queryset(self, using=None):
+        return self.get_model().objects.filter(is_visible=True)
