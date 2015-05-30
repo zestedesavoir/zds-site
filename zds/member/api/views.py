@@ -9,6 +9,7 @@ from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
+from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
 
 from zds.member.api.serializers import ProfileListSerializer, ProfileCreateSerializer, \
     ProfileDetailSerializer, ProfileValidatorSerializer
@@ -21,7 +22,7 @@ from zds.member.models import Profile
 
 
 class PagingSearchListKeyConstructor(DefaultKeyConstructor):
-    pagination = bits.PaginationKeyBit()
+    pagination = DJRF3xPaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()

@@ -80,6 +80,14 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
+
+        response = self.client.get(reverse('api-mp-list') + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNotNone(response.data.get('previous'))
+        self.assertEqual(len(response.data.get('results')), 1)
 
     def test_list_of_private_topics_for_a_page_given(self):
         """

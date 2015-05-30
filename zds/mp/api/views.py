@@ -9,6 +9,7 @@ from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
+from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
 
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAloneInPrivatePost, IsAuthor
@@ -19,7 +20,7 @@ from zds.mp.models import PrivateTopic, PrivatePost
 
 
 class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
-    pagination = bits.PaginationKeyBit()
+    pagination = DJRF3xPaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search', 'ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
@@ -33,7 +34,7 @@ class DetailKeyConstructor(DefaultKeyConstructor):
 
 
 class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
-    pagination = bits.PaginationKeyBit()
+    pagination = DJRF3xPaginationKeyBit()
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
 
