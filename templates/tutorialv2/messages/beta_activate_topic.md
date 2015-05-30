@@ -9,8 +9,8 @@ J'ai commencé ({{ time }}) la rédaction d'un {{ type }} au doux nom
 de « {{ title }} » et j'ai dans l'objectif de proposer en validation 
 un texte aux petits oignons. Je fais donc appel à votre bonté sans 
 limite pour obtenir un maximum de retours, que ce soit à propos 
-du fond ou de la forme. Il est donc tout naturel que la bêta se 
-place à votre disposition :
+du fond ou de la forme. La bêta se place à votre disposition à l'adresse 
+suivante :
 
 -> [Bêta, pour vous servir.]({{ url }}) <-
 

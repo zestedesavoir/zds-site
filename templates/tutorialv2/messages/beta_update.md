@@ -4,8 +4,8 @@
 
 Bonjour,
 
-La bêta du contenu « {{ title }} » a été mise à jour et fait toujours 
-l'imbécile à l'adresse suivante :
+La bêta de votre {{ type }} « {{ title }} » a été mise à jour et 
+trépigne d'impatience à l'adresse suivante :
 
 -> [Bêta mais pas bête !]({{ url }}) <-
 

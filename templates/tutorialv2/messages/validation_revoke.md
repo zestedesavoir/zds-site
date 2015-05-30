@@ -7,7 +7,7 @@ Désolé, « [{{ title }}]({{ url }}) » a malheureusement été dépublié par
 
 {{ message }}
 
-N'hésitez surotut pas à contacter cette personne ; elle sera ravie de 
+N'hésitez surtout pas à contacter cette personne ; elle sera ravie de 
 vous expliquer son choix et de vous conseiller pour remédier à cela.
 
 {% endblocktrans %}
