@@ -3,3 +3,7 @@
 {{ object.author.username }}
 {{ object.first_post.text }}
 {{ object.forum }}
+
+{% for tag in object.tags.all %}
+ {{ tag.title }}
+{% endfor %}
