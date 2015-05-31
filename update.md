@@ -230,3 +230,16 @@ Fix sur la recherche d'article avec Solr :
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
+
+Actions à faire pour mettre en prod la prochaine version : vXX.X
+======================================================
+
+Issue #2769
+-----------
+
+Fix sur l'amélioration des résultat de la recherche avec Solr :
+ 
+  - Arrêter Solr : `supervisorctl stop solr`
+  - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
+  - Redémarrer Solr : `supervisorctl start solr`
+  - Lancer l'indexation : `python manage.py rebuild_index`
