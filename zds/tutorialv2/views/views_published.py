@@ -397,7 +397,7 @@ class UpdateNoteView(SendNoteFormView):
             messages.add_message(
                 self.request, messages.WARNING,
                 u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                u' Soyez encore plus prudent lors de l\'édition de celui-ci !'
+                u' Ne faites pas de bêtise !'
                 .format(self.reaction.author.username))
 
         return context
@@ -414,7 +414,7 @@ class UpdateNoteView(SendNoteFormView):
                 if not self.request.user.has_perm('forum.change_post'):
                     raise PermissionDenied
         else:
-            messages.error(self.request, 'Une erreur est survenue dans la requête')
+            messages.error(self.request, 'Oh non ! Une erreur est survenue dans la requête !')
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)

@@ -3,15 +3,17 @@
 
 {% blocktrans with time=content.creation_date|format_date title=content.title|safe type=type|safe %}
 
-Bonjour à tous,
+Debout là-dedans !
 
-J'ai commencé ({{ time }}) la rédaction d'un {{ type }} dont l'intitulé est **{{ title }}**.
+J'ai commencé ({{ time }}) la rédaction d'un {{ type }} au doux nom 
+de « {{ title }} » et j'ai dans l'objectif de proposer en validation 
+un texte aux petits oignons. Je fais donc appel à votre bonté sans 
+limite pour obtenir un maximum de retours, que ce soit à propos 
+du fond ou de la forme. La bêta se place à votre disposition à l'adresse 
+suivante :
 
-J'aimerais obtenir un maximum de retour sur celui-ci, sur le fond ainsi que sur la forme, afin de proposer en validation un texte de qualité.
-Si vous êtes intéressé, cliquez ci-dessous.
+-> [Bêta, pour vous servir.]({{ url }}) <-
 
--> [Lien de la bêta: {{ title }}]({{ url }}) <-
-
-Merci d'avance pour votre aide.
+Je vous remercie pour votre aide.
 
 {%  endblocktrans %}

@@ -2,10 +2,12 @@
 
 {% blocktrans with title=content.title|safe admin_name=admin.username|safe admin_url=admin.get_absolute_url message=message_reject|safe %}
 
-Désolé, **[{{ title }}]({{ url }})** a malheureusement été dépublié par [{{ admin_name }}]({{ admin_url }}). Voici le message qu'il a laissé :
+Désolé, « [{{ title }}]({{ url }}) » a malheureusement été dépublié par 
+[{{ admin_name }}]({{ admin_url }}) pour la raison suivante :
 
 {{ message }}
 
-N'hésite pas a lui envoyer un petit message pour discuter de la décision ou demander plus de détail si tout cela te semble injuste ou manque de clarté !
+N'hésitez surtout pas à contacter cette personne ; elle sera ravie de 
+vous expliquer son choix et de vous conseiller pour remédier à cela.
 
 {% endblocktrans %}

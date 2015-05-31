@@ -34,7 +34,7 @@ class FormWithTitle(forms.Form):
 
         if title is not None and title.strip() == '':
             self._errors['title'] = self.error_class(
-                [_(u'Le champ Titre ne peut être vide')])
+                [_(u'Le champ du titre ne peut être vide.')])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
@@ -44,7 +44,7 @@ class FormWithTitle(forms.Form):
 class AuthorForm(forms.Form):
 
     username = forms.CharField(
-        label=_(u"Auteurs à ajouter séparés d'une virgule"),
+        label=_(u"Auteurs à ajouter séparés d'une virgule."),
         required=True
     )
 
@@ -86,7 +86,7 @@ class ContainerForm(FormWithTitle):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
+                'placeholder': _(u'Votre message, au format Markdown.')
             }
         )
     )
@@ -96,7 +96,7 @@ class ContainerForm(FormWithTitle):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
+                'placeholder': _(u'Votre message, au format Markdown.')
             }
         )
     )
@@ -107,7 +107,7 @@ class ContainerForm(FormWithTitle):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Un résumé de vos ajouts et modifications')
+                'placeholder': _(u'Un résumé de vos ajouts et modifications.')
             }
         )
     )
@@ -143,7 +143,7 @@ class ContentForm(ContainerForm):
     )
 
     image = forms.ImageField(
-        label=_(u'Sélectionnez le logo du tutoriel (max. {} Ko)').format(
+        label=_(u'Sélectionnez le logo du tutoriel (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
@@ -167,7 +167,7 @@ class ContentForm(ContainerForm):
 
     licence = forms.ModelChoiceField(
         label=(
-            _(u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>)')
+            _(u'Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
             .format(
                 settings.ZDS_APP['site']['licenses']['licence_info_title'],
                 settings.ZDS_APP['site']['licenses']['licence_info_link'],
@@ -180,7 +180,7 @@ class ContentForm(ContainerForm):
     )
 
     helps = forms.ModelMultipleChoiceField(
-        label=_(u"Pour m'aider je cherche un..."),
+        label=_(u"Pour m'aider, je cherche un..."),
         queryset=HelpWriting.objects.all(),
         required=False,
         widget=forms.SelectMultiple()
@@ -205,7 +205,7 @@ class ContentForm(ContainerForm):
             HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                    u"Si vous avez besoin d'un coup de main,"
                    u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u"et votre tutoriel apparaitra alors sur <a href="
+                   u"et votre tutoriel apparaîtra alors sur <a href="
                    u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
                    u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
             Field('helps'),
@@ -228,7 +228,7 @@ class ExtractForm(FormWithTitle):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre message au format Markdown.')
+                'placeholder': _(u'Votre message, au format Markdown.')
             }
         )
     )
@@ -239,7 +239,7 @@ class ExtractForm(FormWithTitle):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Un résumé de vos ajouts et modifications')
+                'placeholder': _(u'Un résumé de vos ajouts et modifications.')
             }
         )
     )
@@ -262,11 +262,11 @@ class ExtractForm(FormWithTitle):
 class ImportForm(forms.Form):
 
     file = forms.FileField(
-        label=_(u'Sélectionnez le tutoriel à importer'),
+        label=_(u'Sélectionnez le tutoriel à importer.'),
         required=True
     )
     images = forms.FileField(
-        label=_(u'Fichier zip contenant les images du tutoriel'),
+        label=_(u'Fichier zip contenant les images du tutoriel.'),
         required=False
     )
 
@@ -293,21 +293,21 @@ class ImportForm(forms.Form):
             ext = tuto.name.split(".")[-1]
             if ext != "tuto":
                 del cleaned_data['file']
-                msg = _(u'Le fichier doit être au format .tuto')
+                msg = _(u'Le fichier doit être au format .tuto.')
                 self._errors['file'] = self.error_class([msg])
 
         if images is not None:
             ext = images.name.split(".")[-1]
             if ext != "zip":
                 del cleaned_data['images']
-                msg = _(u'Le fichier doit être au format .zip')
+                msg = _(u'Le fichier doit être au format .zip.')
                 self._errors['images'] = self.error_class([msg])
 
 
 class ImportContentForm(forms.Form):
 
     archive = forms.FileField(
-        label=_(u"Sélectionnez l'archive de votre tutoriel"),
+        label=_(u"Sélectionnez l'archive de votre tutoriel."),
         required=True
     )
     image_archive = forms.FileField(
@@ -321,7 +321,7 @@ class ImportContentForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Un résumé de vos ajouts et modifications')
+                'placeholder': _(u'Un résumé de vos ajouts et modifications.')
             }
         )
     )
@@ -351,7 +351,7 @@ class ImportContentForm(forms.Form):
             ext = archive.name.split(".")[-1]
             if ext != 'zip':
                 del cleaned_data['archive']
-                msg = _(u'L\'archive doit être au format ZIP')
+                msg = _(u'L\'archive doit être au format .zip.')
                 self._errors['archive'] = self.error_class([msg])
 
         return cleaned_data
@@ -399,7 +399,7 @@ class NoteForm(forms.Form):
         label='',
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre message au format Markdown.'),
+                'placeholder': _(u'Votre message, au format Markdown.'),
                 'required': 'required'
             }
         )
@@ -425,7 +425,7 @@ class NoteForm(forms.Form):
             if not reaction:
                 self.helper['text'].wrap(
                     Field,
-                    placeholder=_(u'Vous venez de poster. Merci de patienter '
+                    placeholder=_(u'Vous avez posté il n\'y a pas longtemps. Merci de patienter '
                                   u'au moins 15 minutes entre deux messages consécutifs '
                                   u'afin de limiter le flood.'),
                     disabled=True)
@@ -453,7 +453,7 @@ class NoteForm(forms.Form):
         elif len(text) > settings.ZDS_APP['forum']['max_post_length']:
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
-                   u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
+                   u'caractères.').format(settings.ZDS_APP['forum']['max_post_length'])])
         if "last_note" not in cleaned_data:
             self._errors['last_note'] = self.error_class([_(u'Le formulaire a été mal formé')])
             return cleaned_data
@@ -494,7 +494,7 @@ class AskValidationForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'URL de la version originale')
+                'placeholder': _(u'Pour un contenu importé d\'un autre site, adresse de la source.')
             }
         )
     )
@@ -529,13 +529,13 @@ class AskValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez donner un commentaire à la validation')])
+                [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -568,7 +568,7 @@ class AcceptValidationForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'URL de la version originale')
+                'placeholder': _(u'Pour un contenu importé d\'un autre site, adresse de la source.')
             }
         )
     )
@@ -603,13 +603,13 @@ class AcceptValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez donner un commentaire de validation')])
+                [_(u'Vous devez fournir un commentaire aux validateurs.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -645,7 +645,7 @@ class CancelValidationForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes vous certains d'annuler la validation de ce contenu ?</p>"),
+            HTML("<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>"),
             CommonLayoutModalText(),
             ButtonHolder(
                 StrictButton(
@@ -660,13 +660,13 @@ class CancelValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez une raison pour l\'annulation')])
+                [_(u'Merci de fournir une raison à l\'annulation.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -716,13 +716,13 @@ class RejectValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez une raison pour le rejet')])
+                [_(u'Merci de fournir une raison au rejet.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -769,7 +769,7 @@ class RevokeValidationForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Veuillez entrer la raison de votre dépublication.')])
+                [_(u'Veuillez fournir la raison de votre dépublication.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
@@ -785,7 +785,7 @@ class RevokeValidationForm(forms.Form):
 class JsFiddleActivationForm(forms.Form):
 
     js_support = forms.BooleanField(
-        label='Cocher pour activer JSFiddle',
+        label='À cocher pour activer JSFiddle.',
         required=False,
         initial=True
     )
@@ -872,9 +872,9 @@ class WarnTypoForm(forms.Form):
         type_ = _(u'l\'article') if content.type == 'ARTICLE' else _(u'le tutoriel')
 
         if targeted.get_tree_depth() == 0:
-            pm_title = _(u'J\'ai trouvé une faute dans {} « {} »').format(type_, targeted.title)
+            pm_title = _(u'J\'ai trouvé une faute dans {} « {} ».').format(type_, targeted.title)
         else:
-            pm_title = _(u'J\'ai trouvé une faute dans le chapitre « {} »').format(targeted.title)
+            pm_title = _(u'J\'ai trouvé une faute dans le chapitre « {} ».').format(targeted.title)
 
         usernames = ''
         num_of_authors = content.authors.count()
@@ -911,13 +911,13 @@ class WarnTypoForm(forms.Form):
 
         if text is None or text.strip() == '':
             self._errors['text'] = self.error_class(
-                [_(u'Vous devez indiquer la faute commise')])
+                [_(u'Vous devez indiquer la faute commise.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 
         elif len(text) < 3:
             self._errors['text'] = self.error_class(
-                [_(u'Votre commentaire doit faire au moins 3 caractères !')])
+                [_(u'Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
 

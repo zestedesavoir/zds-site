@@ -1,9 +1,12 @@
 {% load i18n %}
 
 {% blocktrans with title=content.title|safe type=type|safe %}
-Bonjour,
+Bonjour {{ user }},
 
-Vous venez de mettre votre {{ type }} **{{ title }}** en bêta. La communauté pourra le consulter afin de vous faire des retours constructifs avant sa soumission en validation.
+Le contenu « {{ title }} » a été passé en bêta. La communauté pourra 
+consulter cette version et vous faire de judicieux retours dessus. Elle vous 
+permettra ainsi de l'améliorer et de satisfaire les critères de validation.
 
-Un sujet dédié pour la bêta de votre {{ type }} a été créé automatiquement dans le forum et [est accessible ici]({{ url }}).
+Pour cela, un sujet a été créé automatiquement sur le forum et est accessible 
+[ici]({{ url }}).
 {%  endblocktrans %}

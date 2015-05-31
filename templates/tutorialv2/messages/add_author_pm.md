@@ -1,11 +1,11 @@
 {% load i18n %}
 
 {% blocktrans with title=content.title|safe type=type|safe %}
-Bonjour **{{ user }}**,
+Bonjour {{ user }},
 
-Tu as été ajouté comme auteur {{ type }} [{{ title }}]({{ url }}).
-Tu peux le retrouver en [cliquant ici]({{ index }}), ou *via* le lien "En rédaction" du menu "Tutoriels" sur la page de ton profil.
+Vous avez été intégré à la rédaction du contenu « [{{ title }}]({{ url }}) ». 
+La version brouillon, sur laquelle vous pourrez travailler, est disponible 
+[ici]({{ index }}).
 
-
-Tu peux maintenant commencer à rédiger !
+Plus rien maintenant ne retient votre plume, alors bon courage !
 {%  endblocktrans %}

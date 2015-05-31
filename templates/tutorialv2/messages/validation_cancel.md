@@ -3,11 +3,9 @@
 
 {% blocktrans with title=content.title|safe user_url=user.get_absolute_url user_name=user.username|safe message=message|safe %}
 
-Bonjour {{ validator }},
-
-La validation de **[{{ title }}]({{ url }})**, que tu avait réservé, a été annulée par [{{ user_name }}]({{ user_url }}).
-
-Voici le message qu'il t'as laissé:
+{{ validator }}, tu es aujourd'hui informé(e) de l'annulation de la mise en 
+validation du contenu « [{{ title }}]({{ url }}) », que tu avais réservé. La 
+raison suivante est fournie par [{{ user_name }}]({{ user_url }}) :
 
 {{ message }}
 

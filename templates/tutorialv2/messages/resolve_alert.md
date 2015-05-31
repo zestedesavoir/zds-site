@@ -4,16 +4,15 @@
 
 Bonjour {{ name }},
 
-Vous recevez ce message car vous avez signalé le message de *{{ user_name }}*
-dans {{ type_content }} [{{ title }}]({{ url }}) : 
+Ce message fait suite à votre alerte pour les propos de {{ user_name }}
+dans {{ type_content }} [{{ title }}]({{ url }}) :
 
 {{alert_text}}
 
-Votre alerte a été traitée par **{{ modo_name }}** et il vous a laissé le 
-message suivant :
+{{ modo_name }} s'est occupé du signalement et vous a déposé un petit mot :
 
 {{ message }}
 
-Toute l'équipe de la modération vous remercie !
+Toute l'équipe de modération vous remercie !
 
 {%  endblocktrans %}
