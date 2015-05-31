@@ -23,7 +23,7 @@ from zds.utils.mps import send_mp
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """List the validations, with possibilities of filters"""
 
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_tutorialv2"]
     context_object_name = "validations"
     template_name = "tutorialv2/validation/index.html"
 
@@ -98,7 +98,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
         # test if admin or author
         """"if not self.request.user in self.object.authors.all() \
-                and not self.request.user.has_perm('tutorial.change_tutorial'):
+                and not self.request.user.has_perm('tutorialv2.change_publishablecontent'):
             raise PermissionDenied"""
 
         old_validation = Validation.objects.filter(
@@ -183,7 +183,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         if validation.status not in ['PENDING', 'PENDING_V']:
             raise PermissionDenied  # cannot cancel a validation that is already accepted or rejected
 
-        if user not in validation.content.authors.all() and not user.has_perms('tutorial.change_tutorial'):
+        if user not in validation.content.authors.all() and not user.has_perm('tutorialv2.change_publishablecontent'):
             raise PermissionDenied
 
         versioned = validation.content.load_version(sha=validation.version)
@@ -232,7 +232,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Reserve or remove the reservation on a content"""
 
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
 
     def post(self, request, *args, **kwargs):
         validation = get_object_or_404(Validation, pk=kwargs["pk"])
@@ -259,7 +259,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentDetailViewMixin):
 
     model = PublishableContent
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     template_name = "tutorialv2/validation/history.html"
 
     def get_context_data(self, **kwargs):
@@ -276,7 +276,7 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
 class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Reject the publication"""
 
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = RejectValidationForm
 
     modal_form = True
@@ -340,7 +340,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Publish the content"""
 
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = AcceptValidationForm
 
     modal_form = True
@@ -438,7 +438,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
     """Unpublish a content and reverse the situation back to a pending validation"""
 
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = RevokeValidationForm
     is_public = True
 

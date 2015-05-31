@@ -2803,6 +2803,38 @@ class ContentTests(TestCase):
         result = self.client.get(publishable.get_absolute_url().replace(str(publishable.slug), "10000"))
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
+        publishable = PublishedContentFactory(author_list=[self.user_author])
+        self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=False)
+        publishable = PublishableContent.objects.get(pk=publishable.pk)
+        # test antispam
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': str(publishable.last_note.pk)
+            }, follow=False)
+        self.assertEqual(result.status_code, 403)
+        # test bad param
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': str("I'm fine! I'm okay! This is all perfectly normal.")
+            }, follow=False)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
+            {
+                'text': u'message',
+                'last_note': str(-5)
+            }, follow=False)
+        self.assertEqual(result.status_code, 200)
+
     def test_import_old_version(self):
         self.assertEqual(
             self.client.login(
@@ -3834,6 +3866,239 @@ class PublishedContentTests(TestCase):
             follow=True)
         self.assertIsNone(PrivateTopic.objects.filter(participants__in=[self.external]).first())
         self.assertEqual(result.status_code, 200)
+
+    def test_find_tutorial_or_article(self):
+        """test the behavior of `content:find-article` and `content-find-tutorial` urls"""
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        tuto_in_beta = PublishableContentFactory(type='TUTORIAL')
+        tuto_in_beta.authors.add(self.user_author)
+        tuto_in_beta.sha_beta = 'whatever'
+        tuto_in_beta.save()
+
+        tuto_draft = PublishableContentFactory(type='TUTORIAL')
+        tuto_draft.authors.add(self.user_author)
+        tuto_draft.save()
+
+        article_in_validation = PublishableContentFactory(type='ARTICLE')
+        article_in_validation.authors.add(self.user_author)
+        article_in_validation.sha_validation = 'whatever'  # the article is in validation
+        article_in_validation.save()
+
+        # test without filters
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 3)  # 3 tutorials
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 1)  # 1 article
+
+        # test a non-existing filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=whatever',
+            follow=False
+        )
+        self.assertEqual(404, response.status_code)  # this filter does not exists !
+
+        # test "redaction" filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 1)  # one tutorial in redaction
+        self.assertEqual(contents[0].pk, tuto_draft.pk)
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=redaction',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 0)  # no article in redaction
+
+        # test beta filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=beta',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 1)  # one tutorial in beta
+        self.assertEqual(contents[0].pk, tuto_in_beta.pk)
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=beta',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 0)  # no article in beta
+
+        # test validation filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 0)  # no tutorial in validation
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=validation',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 1)  # one article in validation
+        self.assertEqual(contents[0].pk, article_in_validation.pk)
+
+        # test public filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 1)  # one published tutorial
+        self.assertEqual(contents[0].pk, self.tuto.pk)
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 0)  # no published article
+
+        self.client.logout()
+
+        # test validation filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
+            follow=False
+        )
+        self.assertEqual(403, response.status_code)  # not allowed for public
+
+        # test redaction filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            follow=False
+        )
+        self.assertEqual(403, response.status_code)  # not allowed for public
+
+        # test beta filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=beta',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 1)  # one tutorial in beta
+        self.assertEqual(contents[0].pk, tuto_in_beta.pk)
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=beta',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 0)  # no article in beta
+
+        # test public filter
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 1)  # one published tutorial
+        self.assertEqual(contents[0].pk, self.tuto.pk)
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 0)  # no published article
+
+        # test no filter → same answer as "public"
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 1)  # one published tutorial
+        self.assertEqual(contents[0].pk, self.tuto.pk)
+
+        response = self.client.get(
+            reverse('content:find-article', args=[self.user_author.pk]),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['articles']
+        self.assertEqual(len(contents), 0)  # no published article
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['tutorials']
+        self.assertEqual(len(contents), 3)  # 3 tutorials by user_author !
+
+        # staff can use all filters without a 403 !
+
+        # test validation filter:
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+
+        # test redaction filter:
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+
+        # test beta filter:
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=beta',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+
+        # test redaction filter:
+        response = self.client.get(
+            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
 
     def tearDown(self):
 

@@ -295,6 +295,8 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         """rewrite delete() function to ensure repository deletion"""
 
         self.object = self.get_object()
+        object_type = self.object.type.lower()
+
         validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
 
         if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
@@ -322,7 +324,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                 )
 
         self.object.delete()
-        return redirect(reverse('content:index', args=[request.user.pk]))
+        return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -1332,7 +1334,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
     """Handles changes a validator or staff member can do on the js fiddle support of the provided content
     Only those members can do it"""
 
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = JsFiddleActivationForm
     http_method_names = ["post"]
 
@@ -1347,7 +1349,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
     model = PublishableContent
-    permissions = ["tutorial.change_tutorial"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = MoveElementForm
     versioned = False
 
@@ -1454,7 +1456,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 self.object.authors.add(user)
 
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                url_index = settings.ZDS_APP['site']['url'] + reverse("content:index", args=[self.request.user.pk])
+                url_index = settings.ZDS_APP['site']['url'] + \
+                    reverse("content:find-" + self.object.type.lower(), args=[self.request.user.pk])
                 send_mp(
                     bot,
                     [user],
@@ -1525,10 +1528,12 @@ class ContentOfAuthor(ZdSPagingListView):
     sort = ''
     filter = ''
     user = None
+    is_staff = False
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
-        if self.user != self.request.user and 'filter' in self.request.GET:
+        self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
+        if self.user != self.request.user and not self.is_staff and 'filter' in self.request.GET:
             filter = self.request.GET.get('filter').lower()
             if filter in self.authorized_filters:
                 if not self.authorized_filters[filter][2]:
@@ -1541,7 +1546,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if self.type in TYPE_CHOICES_DICT.keys():
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
+            raise Http404("This type of content is unknown")
 
         # prefetch:
         queryset = queryset\
@@ -1555,7 +1560,7 @@ class ContentOfAuthor(ZdSPagingListView):
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
                 raise Http404("The filter is not authorized.")
-        elif self.user != self.request.user:
+        elif self.user != self.request.user and not self.is_staff:
             self.filter = 'public'
         if self.filter != '':
             queryset = self.authorized_filters[self.filter][0](queryset)
@@ -1574,13 +1579,15 @@ class ContentOfAuthor(ZdSPagingListView):
         context['filters'] = []
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
-        context['is_staff'] = self.request.user.has_perm('tutorial.change_tutorial')
+
+        context['is_staff'] = self.is_staff
+
         context['usr'] = self.user
         for sort in self.sorts.keys():
             context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
         for filter in self.authorized_filters.keys():
             authorized_filter = self.authorized_filters[filter]
-            if self.user != self.request.user and not authorized_filter[2]:
+            if self.user != self.request.user and not self.is_staff and not authorized_filter[2]:
                 continue
             context['filters'].append({'key': filter, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context

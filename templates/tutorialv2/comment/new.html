@@ -63,7 +63,7 @@
                 {% url "content:down-vote" %}?message={{ message.pk }}
             {% endcaptureas %}
 
-            {% include "tutorialv2/includes/reaction_message.part.html" with perms_change=perms.tutorial.change_tutorial topic=object %}
+            {% include "tutorialv2/includes/reaction_message.part.html" with perms_change=perms.tutorialv2.change_tutorialv2 topic=object %}
         {% endfor %}
     </div>
 
