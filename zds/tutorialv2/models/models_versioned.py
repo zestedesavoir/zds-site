@@ -41,6 +41,14 @@ class Container:
     # TODO: thumbnails ?
 
     def __init__(self, title, slug='', parent=None, position_in_parent=1):
+        """Initialize the data model that will handle the dialog with raw versionned data at level container
+
+        :param title: container title (str)
+        :param slug: container slug (basicaly slugify(title))
+        :param parent: container parent (None if this container is the root container)
+        :param position_in_parent: the display order
+        :return:
+        """
         self.title = title
         self.slug = slug
         self.parent = parent
@@ -58,6 +66,7 @@ class Container:
         """Note : this function rely on the fact that the children can only be of one type.
 
         :return: `True` if the container has extract as children, `False` otherwise.
+        :rtype: bool
         """
         if len(self.children) == 0:
             return False
@@ -66,7 +75,8 @@ class Container:
     def has_sub_containers(self):
         """Note : this function rely on the fact that the children can only be of one type.
 
-        :return: `True` if the container has containers as children, `False` otherwise.
+        :return: ``True`` if the container has containers as children, ``False`` otherwise.
+        :rtype: bool
         """
         if len(self.children) == 0:
             return False
@@ -75,6 +85,7 @@ class Container:
     def get_last_child_position(self):
         """
         :return: the position of the last child
+        :type: int
         """
         return len(self.children)
 
@@ -85,9 +96,10 @@ class Container:
         - Part (1),
         - Chapter (2)
         .. attention::
-            that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+            that ``max_tree_depth`` is ``2`` to ensure that there is no more than 3 levels
 
         :return: Tree depth
+        :rtype; int
         """
         depth = 0
         current = self
@@ -100,6 +112,7 @@ class Container:
         """Represent the level in the tree of this container, i.e the depth of its deepest child
 
         :return: tree level
+        :rtype: int
         """
 
         if len(self.children) == 0:
@@ -114,6 +127,8 @@ class Container:
         of a child of this container.
 
         :param child_path: the full path (/maincontainer/subc1/subc2/childslug) we want to check
+        :return: ``True`` if child is found, ``False`` otherwise
+        :rtype: bool
         """
         if self.get_path(True) not in child_path:
             return False
@@ -121,7 +136,8 @@ class Container:
 
     def top_container(self):
         """
-        :return: Top container (for which parent is `None`)
+        :return: Top container (for which parent is ``None``)
+        :rtype: VersionedContent
         """
         current = self
         while current.parent is not None:
@@ -132,8 +148,9 @@ class Container:
         """Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
         "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
 
-        :param title: title from which the slug is generated (with `slugify()`)
+        :param title: title from which the slug is generated (with ``slugify()``)
         :return: the unique slug
+        :rtype: str
         """
         base = slugify(title)
         find_slug = False
@@ -158,6 +175,7 @@ class Container:
         """Add a slug to the slug pool to be taken into account when generate a unique slug
 
         :param slug: the slug to add
+        :raise Exception: if the slug already exists
         """
         try:
             self.slug_pool[slug]  # test access
@@ -169,6 +187,7 @@ class Container:
     def long_slug(self):
         """
         :return: a long slug that embed slugs of parents
+        :rtype: str
         """
         long_slug = ''
         if self.parent:
@@ -177,7 +196,8 @@ class Container:
 
     def can_add_container(self):
         """
-        :return: True if this container accept child container, false otherwise
+        :return: ``True`` if this container accept child container, ``False`` otherwise
+        :rtype: bool
         """
         if not self.has_extracts():
             if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
@@ -187,7 +207,8 @@ class Container:
 
     def can_add_extract(self):
         """
-        :return: True if this container accept child extract, false otherwise
+        :return: ``True`` if this container accept child extract, ``False`` otherwise
+        :rtype: bool
         """
         if not self.has_sub_containers():
             if self.get_tree_depth() <= ZDS_APP['content']['max_tree_depth']:
@@ -200,7 +221,9 @@ class Container:
             this function will also raise an Exception if article, because it cannot contain child container
 
         :param container: the new container
-        :param generate_slug: if `True`, ask the top container an unique slug for this object
+        :param generate_slug: if ``True``, ask the top container an unique slug for this object
+        :raises InvalidOperationError: if cannot add container to this one. Please use ``can_add_container`` to check
+        this before calling ``add_container``.
         """
         if self.can_add_container():
             if generate_slug:
@@ -219,6 +242,7 @@ class Container:
 
         :param extract: the new extract
         :param generate_slug: if `True`, ask the top container an unique slug for this object
+        :raises InvalidOperationError; if cannot add extract to this container.
         """
         if self.can_add_extract():
             if generate_slug:
@@ -253,8 +277,10 @@ class Container:
         """Get the physical path to the draft version of the container.
         Note: this function rely on the fact that the top container is VersionedContainer.
 
-        :param relative: if `True`, the path will be relative, absolute otherwise.
+        :param relative: if ``True``, the path will be relative, absolute otherwise.
+        :type relative: bool
         :return: physical path
+        :rtype: str
         """
         base = ''
         if self.parent:
@@ -266,7 +292,9 @@ class Container:
         returns the final HTML file.
 
         :param relative: return a relative path instead of an absolute one
+        :type relative; bool
         :return: physical path
+        :rtype: str
         """
         base = ''
         if self.parent:
@@ -281,10 +309,16 @@ class Container:
     def get_absolute_url(self):
         """
         :return: url to access the container
+        :rtype: str
         """
         return self.top_container().get_absolute_url() + self.get_path(relative=True) + '/'
 
     def get_absolute_url_online(self):
+        """
+
+        :return: the "online version" of the url
+        :rtype: str
+        """
         base = ''
 
         if self.parent:
@@ -297,6 +331,7 @@ class Container:
     def get_absolute_url_beta(self):
         """
         :return: url to access the container in beta
+        :rtype: str
         """
 
         if self.top_container().sha_beta is not None:
@@ -311,6 +346,7 @@ class Container:
     def get_edit_url(self):
         """
         :return: url to edit the container
+        :rtype: str
         """
         slugs = [self.slug]
         parent = self.parent
@@ -326,6 +362,7 @@ class Container:
     def get_delete_url(self):
         """
         :return: url to edit the container
+        :rtype: str
         """
         slugs = [self.slug]
         parent = self.parent
@@ -341,6 +378,7 @@ class Container:
     def get_introduction(self):
         """
         :return: the introduction from the file in `self.introduction`
+        :rtype: str
         """
         if self.introduction:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
@@ -349,18 +387,29 @@ class Container:
     def get_conclusion(self):
         """
         :return: the conclusion from the file in `self.conclusion`
+        :rtype: str
         """
         if self.conclusion:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
                             self.conclusion)
 
     def get_introduction_online(self):
+        """The introduction content for online version.
+
+        :return: the full text if introduction exists ``None`` otherwise
+        :rtype: str
+        """
         if self.introduction:
             path = os.path.join(self.top_container().get_prod_path(), self.introduction)
             if os.path.isfile(path):
                 return open(path, 'r').read()
 
     def get_conclusion_online(self):
+        """The conclusion content for online version.
+
+        :return: the full text if introduction exists ``None`` otherwise
+        :rtype: str
+        """
         if self.conclusion:
             path = os.path.join(self.top_container().get_prod_path(), self.conclusion)
             if os.path.isfile(path):
@@ -374,6 +423,7 @@ class Container:
         """Compute an MD5 hash from the introduction and conclusion, for comparison purpose
 
         :return: MD5 hash
+        :rtype: str
         """
 
         files = []
@@ -391,8 +441,9 @@ class Container:
         :param introduction: the new introduction text
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
-        :param do_commit: perform the commit in repository if `True`
+        :param do_commit: perform the commit in repository if ``True``
         :return : commit sha
+        :rtype: str
         """
 
         if title is None:
@@ -466,8 +517,9 @@ class Container:
         :param introduction: text of its introduction
         :param conclusion: text of its conclusion
         :param commit_message: commit message that will be used instead of the default one
-        :param do_commit: perform the commit in repository if `True`
+        :param do_commit: perform the commit in repository if ``True``
         :return: commit sha
+        :rtype: str
         """
         subcontainer = Container(title)
 
@@ -497,8 +549,9 @@ class Container:
         :param title: title of the new extract
         :param text: text of the new extract
         :param commit_message: commit message that will be used instead of the default one
-        :param do_commit: perform the commit in repository if `True`
+        :param do_commit: perform the commit in repository if ``True``
         :return: commit sha
+        :rtype: str
         """
         extract = Extract(title)
 
@@ -519,6 +572,7 @@ class Container:
         :param commit_message: commit message used instead of default one if provided
         :param do_commit: tells if we have to commit the change now or let the outter program do it
         :return: commit sha
+        :rtype: str
         """
         path = self.get_path(relative=True)
         repo = self.top_container().repository
@@ -628,6 +682,7 @@ class Container:
 
         :param only_container: if we only want container's paths, not extract
         :return: a generator that traverse all the container recursively (depth traversal)
+        :rtype: collections.Iterable[Container|Extract]
         """
         yield self
         for child in self.children:
@@ -640,6 +695,7 @@ class Container:
     def get_level_as_string(self):
         """
         :return: The string representation of this level
+        :rtype; str
         """
         if self.get_tree_depth() == 0:
             return self.type
@@ -650,6 +706,10 @@ class Container:
         return _(u"Sous-chapitre")
 
     def get_next_level_as_string(self):
+        """
+        :return: The string representation of next level (upper)
+        :rtype; str
+        """
         if self.get_tree_depth() == 0 and self.can_add_container():
             return _(u"Partie")
         elif self.get_tree_depth() == 1 and self.can_add_container():
@@ -683,6 +743,7 @@ class Extract:
     def get_absolute_url(self):
         """
         :return: the url to access the tutorial offline
+        :rtype: str
         """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url(),
@@ -693,6 +754,7 @@ class Extract:
     def get_absolute_url_online(self):
         """
         :return: the url to access the tutorial when online
+        :rtype: str
         """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url_online(),
@@ -703,6 +765,7 @@ class Extract:
     def get_absolute_url_beta(self):
         """
         :return: the url to access the tutorial when in beta
+        :rtype: str
         """
         return '{0}#{1}-{2}'.format(
             self.container.get_absolute_url_beta(),
@@ -713,6 +776,7 @@ class Extract:
     def get_edit_url(self):
         """
         :return: url to edit the extract
+        :rtype: str
         """
         slugs = [self.slug]
         parent = self.container
@@ -729,12 +793,14 @@ class Extract:
         """
         get the slug of curent extract with its full path (part1/chapter1/slug_of_extract)
         this method is an alias to extract.get_path(True)[:-3] (remove .md extension)
+        :rtype: str
         """
         return self.get_path(True)[:-3]
 
     def get_first_level_slug(self):
         """
         :return: the first_level_slug, if (and only) the parent container is a chapter
+        :rtype: str
         """
 
         if self.container.get_tree_depth() == 2:
@@ -745,6 +811,7 @@ class Extract:
     def get_delete_url(self):
         """
         :return: url to delete the extract
+        :rtype: str
         """
         slugs = [self.slug]
         parent = self.container
@@ -760,14 +827,16 @@ class Extract:
     def get_path(self, relative=False):
         """
         Get the physical path to the draft version of the extract.
-        :param relative: if `True`, the path will be relative, absolute otherwise.
+        :param relative: if ``True``, the path will be relative, absolute otherwise.
         :return: physical path
+        :rtype: str
         """
         return os.path.join(self.container.get_path(relative=relative), self.slug) + '.md'
 
     def get_text(self):
         """
         :return: versioned text
+        :rtype: str
         """
         if self.text:
             return get_blob(
@@ -778,6 +847,7 @@ class Extract:
         """Compute an MD5 hash from the text, for comparison purpose
 
         :return: MD5 hash of the text
+        :rtype: str
         """
 
         if self.text:
@@ -792,6 +862,7 @@ class Extract:
         :param text: new text of the extract
         :param commit_message: commit message that will be used instead of the default one
         :return: commit sha
+        :rtype: str
         """
 
         if title is None:
@@ -848,6 +919,7 @@ class Extract:
         :param commit_message: commit message used instead of default one if provided
         :param do_commit: tells if we have to commit the change now or let the outter program do it
         :return: commit sha, None if no commit is done
+        :rtype: str
         """
         path = self.text
         repo = self.container.top_container().repository
@@ -880,6 +952,7 @@ class Extract:
         - Chapter (2)
         Note that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
         :return: Tree depth
+        :rtype: int
         """
         depth = 1
         current = self.container
@@ -963,6 +1036,7 @@ class VersionedContent(Container):
         """Create a internationalized string with the human readable type of this content e.g The Article
 
         :return: internationalized string
+        :rtype: str
         """
         if self.is_article:
             return _("L'Article")
@@ -972,6 +1046,7 @@ class VersionedContent(Container):
     def get_absolute_url(self, version=None):
         """
         :return: the url to access the tutorial when offline
+        :rtype: str
         """
         url = reverse('content:view', args=[self.pk, self.slug])
 
@@ -983,6 +1058,7 @@ class VersionedContent(Container):
     def get_absolute_url_online(self):
         """
         :return: the url to access the content when online
+        :rtype: str
         """
         _reversed = ''
 
@@ -995,6 +1071,7 @@ class VersionedContent(Container):
     def get_absolute_url_beta(self):
         """
         :return: the url to access the tutorial when in beta
+        :rtype: str
         """
         if self.in_beta:
             return reverse('content:beta-view', args=[self.pk, self.slug])
@@ -1007,6 +1084,7 @@ class VersionedContent(Container):
         :param relative: if `True`, the path will be relative, absolute otherwise.
         :param use_current_slug: if `True`, use `self.slug` instead of `self.slug_last_draft`
         :return: physical path
+        :rtype: str
         """
         if relative:
             return ''
@@ -1022,6 +1100,7 @@ class VersionedContent(Container):
 
         :param relative: return the relative path instead of the absolute one
         :return: physical path
+        :rtype: str
         """
         path = ''
 
@@ -1036,6 +1115,7 @@ class VersionedContent(Container):
     def get_list_of_chapters(self):
         """
         :return: a list of chpaters (Container which contains Extracts) in the reading order
+        :rtype: list[Container]
         """
         continuous_list = []
         if not self.is_article:  # article cannot be paginated
@@ -1052,6 +1132,7 @@ class VersionedContent(Container):
     def get_json(self):
         """
         :return: raw JSON file
+        :rtype: str
         """
         dct = export_content(self)
         data = json_writer.dumps(dct, indent=4, ensure_ascii=False)
@@ -1080,6 +1161,7 @@ class VersionedContent(Container):
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: if `True`, also commit change
         :return : commit sha
+        :rtype: str
         """
 
         if slug != self.slug:
@@ -1097,6 +1179,8 @@ class VersionedContent(Container):
         """Commit change made to the repository
 
         :param commit_message: The message that will appear in content history
+        :return; commit sha
+        :rtype: str
         """
         cm = self.repository.index.commit(commit_message, **get_commit_author())
 

@@ -120,6 +120,7 @@ class PublishableContent(models.Model):
         """Create a internationalized string with the human readable type of this content e.g The Article
 
         :return: internationalized string
+        :rtype: str
         """
         if self.is_article():
             return _("L'Article")
@@ -137,21 +138,27 @@ class PublishableContent(models.Model):
     def get_absolute_url(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
-        :return  absolute URL to the draf version the content"""
+        :return  absolute URL to the draf version the content
+        :rtype: str
+        """
 
         return reverse('content:view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
-        :return  absolute URL to the beta version the content"""
+        :return  absolute URL to the beta version the content
+        :rtype: str
+        """
 
         return reverse('content:beta-view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_online(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
-        :return  absolute URL to the public version the content, if `self.public_version` is defined"""
+        :return  absolute URL to the public version the content, if `self.public_version` is defined
+        :rtype: str
+        """
 
         if self.public_version:
             return self.public_version.get_absolute_url_online()
@@ -176,8 +183,9 @@ class PublishableContent(models.Model):
     def get_repo_path(self, relative=False):
         """Get the path to the tutorial repository
 
-        :param relative: if `True`, the path will be relative, absolute otherwise.
+        :param relative: if ``True``, the path will be relative, absolute otherwise.
         :return: physical path
+        :rtype: str
         """
         if relative:
             return ''
@@ -186,30 +194,34 @@ class PublishableContent(models.Model):
             return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
 
     def in_beta(self):
-        """A tutorial is not in beta if sha_beta is `None` or empty
+        """A tutorial is not in beta if sha_beta is ``None`` or empty
 
-        :return: `True` if the tutorial is in beta, `False` otherwise
+        :return: ``True`` if the tutorial is in beta, ``False`` otherwise
+        :rtype: bool
         """
         return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
 
     def in_validation(self):
-        """A tutorial is not in validation if sha_validation is `None` or empty
+        """A tutorial is not in validation if sha_validation is ``None`` or empty
 
-        :return: `True` if the tutorial is in validation, `False` otherwise
+        :return: ``True`` if the tutorial is in validation, ``False`` otherwise
+        :rtype: bool
         """
         return (self.sha_validation is not None) and (self.sha_validation.strip() != '')
 
     def in_drafting(self):
-        """A tutorial is not in draft if sha_draft is `None` or empty
+        """A tutorial is not in draft if sha_draft is ``None`` or empty
 
-        :return: `True` if the tutorial is in draft, `False` otherwise
+        :return: ``True`` if the tutorial is in draft, ``False`` otherwise
+        :rtype: bool
         """
         return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
 
     def in_public(self):
-        """A tutorial is not in on line if sha_public is `None` or empty
+        """A tutorial is not in on line if sha_public is ``None`` or empty
 
-        :return: `True` if the tutorial is on line, `False` otherwise
+        :return: ``True`` if the tutorial is on line, ``False`` otherwise
+        :rtype: bool
         """
         return (self.sha_public is not None) and (self.sha_public.strip() != '')
 
@@ -217,7 +229,8 @@ class PublishableContent(models.Model):
         """Is this version of the content the beta version ?
 
         :param sha: version
-        :return: `True` if the tutorial is in beta, `False` otherwise
+        :return: ``True`` if the tutorial is in beta, ``False`` otherwise
+        :rtype: bool
         """
         return self.in_beta() and sha == self.sha_beta
 
@@ -225,7 +238,8 @@ class PublishableContent(models.Model):
         """Is this version of the content the validation version ?
 
         :param sha: version
-        :return: `True` if the tutorial is in validation, `False` otherwise
+        :return: ``True`` if the tutorial is in validation, ``False`` otherwise
+        :rtype: bool
         """
         return self.in_validation() and sha == self.sha_validation
 
@@ -233,19 +247,22 @@ class PublishableContent(models.Model):
         """Is this version of the content the published version ?
 
         :param sha: version
-        :return: `True` if the tutorial is in public, `False` otherwise
+        :return: ``True`` if the tutorial is in public, ``False`` otherwise
+        :rtype: bool
         """
         return self.in_public() and sha == self.sha_public
 
     def is_article(self):
         """
-        :return: `True` if article, `False` otherwise
+        :return: ``True`` if article, ``False`` otherwise
+        :rtype: bool
         """
         return self.type == 'ARTICLE'
 
     def is_tutorial(self):
         """
-        :return: `True` if tutorial, `False` otherwise
+        :return: ``True`` if tutorial, ``False`` otherwise
+        :rtype: bool
         """
         return self.type == 'TUTORIAL'
 
@@ -258,6 +275,7 @@ class PublishableContent(models.Model):
         :type public: PublishedContent
         :raise Http404: if sha is not None and related version could not be found
         :return: the versioned content
+        :rtype: zds.tutorialv2.models.models_versioned.ViersionedContent
         """
         try:
             return self.load_version(sha, public)
@@ -265,8 +283,8 @@ class PublishableContent(models.Model):
             raise Http404("sha is not None and related version could not be found.")
 
     def load_version(self, sha=None, public=None):
-        """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
-        `public` is `True`).
+        """Using git, load a specific version of the content. if ``sha`` is ``None``,
+        the draft/public version is used (if ``public`` is ``True``).
         .. attention::
             for practical reason, the returned object is filled with information from DB.
 
@@ -277,6 +295,7 @@ class PublishableContent(models.Model):
         :raise IOError: if the path to the repository is wrong
         :raise NotAPublicVersion: if the sha does not correspond to a public version
         :return: the versioned content
+        :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
         """
 
         # load the good manifest.json
@@ -345,12 +364,14 @@ class PublishableContent(models.Model):
     def get_note_count(self):
         """
         :return : umber of notes in the tutorial.
+        :rtype: int
         """
         return ContentReaction.objects.filter(related_content__pk=self.pk).count()
 
     def get_last_note(self):
         """
         :return: the last answer in the thread, if any.
+        :rtype: ContentReaction|None
         """
         return ContentReaction.objects.all()\
             .filter(related_content__pk=self.pk)\
@@ -360,6 +381,7 @@ class PublishableContent(models.Model):
     def first_note(self):
         """
         :return: the first post of a topic, written by topic's author, if any.
+        :rtype: ContentReaction
         """
         return ContentReaction.objects\
             .filter(related_content=self)\
@@ -369,6 +391,7 @@ class PublishableContent(models.Model):
     def last_read_note(self):
         """
         :return: the last post the user has read.
+        :rtype: ContentReaction
         """
         user = get_current_user()
 
@@ -388,6 +411,7 @@ class PublishableContent(models.Model):
     def first_unread_note(self):
         """
         :return: Return the first note the user has unread.
+        :rtype: ContentReaction
         """
         user = get_current_user()
 
@@ -418,8 +442,9 @@ class PublishableContent(models.Model):
     def antispam(self, user=None):
         """Check if the user is allowed to post in an tutorial according to the SPAM_LIMIT_SECONDS value.
 
-        :param user: the user to check antispam. If `None`, current user is used.
-        :return: `True` if the user is not able to note (the elapsed time is not enough), `False` otherwise.
+        :param user: the user to check antispam. If ``None``, current user is used.
+        :return: ``True`` if the user is not able to note (the elapsed time is not enough), ``False`` otherwise.
+        :rtype: bool
         """
         if user is None:
             user = get_current_user()
@@ -513,6 +538,7 @@ class PublishedContent(models.Model):
     def get_absolute_url_online(self):
         """
         :return: the URL of the published content
+        :rtype: str
         """
         reversed_ = ''
 
@@ -539,21 +565,33 @@ class PublishedContent(models.Model):
         return self.content.load_version(sha=self.sha_public, public=self)
 
     def is_article(self):
+        """
+
+        :return: ``True`` if it is an article, ``False`` otherwise.
+        :rtype: bool
+        """
         return self.content_type == "ARTICLE"
 
     def is_tutorial(self):
+        """
+
+        :return: ``True`` if it is an article, ``False`` otherwise.
+        :rtype: bool
+        """
         return self.content_type == "TUTORIAL"
 
     def get_extra_contents_directory(self):
         """
         :return: path to all the "extra contents"
+        :rtype: str
         """
         return os.path.join(self.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
 
     def have_type(self, type_):
         """check if a given extra content exists
 
-        :return: `True` if the file exists, `False` otherwhise
+        :return: ``True`` if the file exists, ``False`` otherwhise
+        :rtype: bool
         """
 
         allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
@@ -567,41 +605,47 @@ class PublishedContent(models.Model):
     def have_md(self):
         """Check if the markdown version of the content is available
 
-        :return: `True` if available, `False` otherwise
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
         """
         return self.have_type('md')
 
     def have_html(self):
         """Check if the html version of the content is available
 
-        :return: `True` if available, `False` otherwise
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
         """
         return self.have_type('html')
 
     def have_pdf(self):
         """Check if the pdf version of the content is available
 
-        :return: `True` if available, `False` otherwise
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
         """
         return self.have_type('pdf')
 
     def have_epub(self):
         """Check if the standard epub version of the content is available
 
-        :return: `True` if available, `False` otherwise
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
         """
         return self.have_type('epub')
 
     def have_zip(self):
         """Check if the standard epub version of the content is available
 
-        :return: `True` if available, `False` otherwise
+        :return: ``True`` if available, ``False`` otherwise
+        :rtype: bool
         """
         return self.have_type('zip')
 
     def get_absolute_url_to_extra_content(self, type_):
         """
         :return: URL to a given extra content (note that no check for existence is done)
+        :rtype: str
         """
 
         allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
@@ -622,6 +666,7 @@ class PublishedContent(models.Model):
     def get_absolute_url_md(self):
         """
         :return: URL to the full markdown version of the published content
+        :rtype; str
         """
 
         return self.get_absolute_url_to_extra_content('md')
@@ -629,6 +674,7 @@ class PublishedContent(models.Model):
     def get_absolute_url_html(self):
         """
         :return: URL to the HTML version of the published content
+        :rtype; str
         """
 
         return self.get_absolute_url_to_extra_content('html')
@@ -636,6 +682,7 @@ class PublishedContent(models.Model):
     def get_absolute_url_pdf(self):
         """
         :return: URL to the PDF version of the published content
+        :rtype; str
         """
 
         return self.get_absolute_url_to_extra_content('pdf')
@@ -643,6 +690,7 @@ class PublishedContent(models.Model):
     def get_absolute_url_epub(self):
         """
         :return: URL to the epub version of the published content
+        :rtype; str
         """
 
         return self.get_absolute_url_to_extra_content('epub')
@@ -650,6 +698,7 @@ class PublishedContent(models.Model):
     def get_absolute_url_zip(self):
         """
         :return: URL to the zip archive of the published content
+        :rtype; str
         """
 
         return self.get_absolute_url_to_extra_content('zip')
@@ -672,6 +721,7 @@ class ContentReaction(Comment):
     def get_absolute_url(self):
         """
         :return: the url of the comment
+        :rtype; str
         """
         page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
         return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
@@ -739,34 +789,39 @@ class Validation(models.Model):
     def is_pending(self):
         """Check if the validation is pending
 
-        :return: `True` if status is pending, `False` otherwise
+        :return: ``True`` if status is pending, ``False`` otherwise
+        :rtype: bool
         """
         return self.status == 'PENDING'
 
     def is_pending_valid(self):
         """Check if the validation is pending (but there is a validator)
 
-        :return: `True` if status is pending, `False` otherwise
+        :return: ``True`` if status is pending/valid, ``False`` otherwise
+        :rtype: bool
         """
         return self.status == 'PENDING_V'
 
     def is_accept(self):
         """Check if the content is accepted
 
-        :return: `True` if status is accepted, `False` otherwise
+        :return: ``True`` if status is accepted, ``False`` otherwise
+        :rtype: bool
         """
         return self.status == 'ACCEPT'
 
     def is_reject(self):
         """Check if the content is rejected
 
-        :return: `True` if status is rejected, `False` otherwise
+        :return: ``True`` if status is rejected, ``False`` otherwise
+        :rtype: bool
         """
         return self.status == 'REJECT'
 
     def is_cancel(self):
         """Check if the content is canceled
 
-        :return: `True` if status is canceled, `False` otherwise
+        :return: ``True`` if status is canceled, ``False`` otherwise
+        :rtype: bool
         """
         return self.status == 'CANCEL'
