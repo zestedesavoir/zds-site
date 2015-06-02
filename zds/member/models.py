@@ -136,9 +136,11 @@ class Profile(models.Model):
         return ''
 
     def get_avatar_url(self):
-        """
-        Get the avatar URL for this profile. If the user has defined a custom URL, use it. If not, use Gravatar.
+        """Get the avatar URL for this profile.
+        If the user has defined a custom URL, use it.
+        If not, use Gravatar.
         :return: The avatar URL for this profile
+        :rtype: str
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):

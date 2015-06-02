@@ -31,7 +31,7 @@ from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
-from zds.forum.models import Topic, follow, TopicFollowed
+from zds.forum.models import Topic, follow, TopicFollowed, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
@@ -77,7 +77,7 @@ class MemberDetail(DetailView):
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
         context['form'] = OldTutoForm(profile)
-
+        context['topic_read'] = TopicRead.objects.list_read_topic_pk(usr, context['topics'])
         return context
 
 
@@ -484,7 +484,7 @@ def articles(request):
     elif state == 'public':
         user_articles = profile.get_public_articles()
     else:
-        user_articles = profile.get_articles()
+        user_articles = Article.objects.prefetch_related("authors", "authors__profile")
 
     # Order articles (abc by default)
 

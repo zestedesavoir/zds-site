@@ -138,11 +138,19 @@ def view(request, article_pk, article_slug):
 
 def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
-    article = get_object_or_404(Article, pk=article_pk)
-
+    article = Article.objects\
+        .prefetch_related("authors")\
+        .prefetch_related("authors__profile")\
+        .prefetch_related("subcategory")\
+        .select_related('licence')\
+        .select_related('last_reaction')\
+        .filter(pk=article_pk)\
+        .first()
+    if article is None:
+        raise Http404("pk {} not found".format(article_pk))
     # article is not online = 404
     if not article.on_line():
-        raise Http404
+        raise Http404("article is offline.")
 
     # Load the article.
     article_version = article.load_json_for_public()
@@ -164,10 +172,22 @@ def view_online(request, article_pk, article_slug):
 
     # Find all reactions of the article.
     reactions = Reaction.objects\
+        .select_related('author__profile')\
+        .prefetch_related('alerts')\
+        .prefetch_related('alerts__author')\
+        .prefetch_related('alerts__author__profile')\
         .filter(article__pk=article.pk)\
         .order_by('position')\
         .all()
-
+    reaction_ids = [post.pk for post in reactions]
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     # Check if the author is reachable
     authors_reachable_request = Profile.objects.contactable_members().filter(user__in=article.authors.all())
     authors_reachable = []
@@ -222,7 +242,10 @@ def view_online(request, article_pk, article_slug):
         'last_reaction_pk': last_reaction_pk,
         'form': form,
         'on_line': True,
-        'authors_reachable': authors_reachable
+        'authors_reachable': authors_reachable,
+        'is_staff': request.user.has_perm('tutorial.change_article'),
+        'user_like': user_like,
+        'user_dislike': user_dislike
     })
 
 
@@ -1109,7 +1132,15 @@ def answer(request):
     reactions = Reaction.objects.filter(article=article) \
         .prefetch_related() \
         .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
-
+    reaction_ids = reactions.values_list('pk', flat=True)
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
@@ -1132,7 +1163,10 @@ def answer(request):
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
                     'reactions': reactions,
-                    'form': form
+                    'form': form,
+                    'is_staff': request.user.has_perm('tutorial.change_article'),
+                    'user_like': user_like,
+                    'user_dislike': user_dislike
                 })
 
         # Saving the message
@@ -1147,7 +1181,7 @@ def answer(request):
                 reaction.text = data['text']
                 reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
-                reaction.position = article.get_reaction_count() + 1
+                reaction.position = Reaction.objects.count_reactions(article) + 1
                 reaction.ip_address = get_client_ip(request)
                 reaction.save()
 
@@ -1161,7 +1195,10 @@ def answer(request):
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
                     'reactions': reactions,
-                    'form': form
+                    'form': form,
+                    'is_staff': request.user.has_perm('tutorial.change_article'),
+                    'user_like': user_like,
+                    'user_dislike': user_dislike
                 })
 
     # Actions from the editor render to new.html.
@@ -1199,7 +1236,10 @@ def answer(request):
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
-            'form': form
+            'form': form,
+            'is_staff': request.user.has_perm('tutorial.change_article'),
+            'user_like': user_like,
+            'user_dislike': user_dislike
         })
 
 

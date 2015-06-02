@@ -21,13 +21,13 @@ from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read
+from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag
+from zds.utils.models import Alert, Tag, CommentDislike, CommentLike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
 
@@ -79,6 +79,7 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
             'sticky_topics': self.filter_queryset(
                 Topic.objects.get_all_topics_of_a_forum(self.object.pk, is_sticky=True),
                 context['filter']),
+            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         })
         return context
 
@@ -118,6 +119,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+
         context.update({
             'topic': self.object,
             'posts': self.build_list_with_previous_item(context['object_list']),
@@ -125,6 +127,16 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
         })
+        reaction_ids = [post.pk for post in context['posts']]
+        context["user_dislike"] = CommentDislike.objects\
+            .select_related('comment')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .values_list('pk', flat=True)
+        context["user_like"] = CommentLike.objects\
+            .select_related('comment')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .values_list('pk', flat=True)
+
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)
@@ -340,7 +352,8 @@ class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, *args, **kwargs):
         context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)
         context.update({
-            'tag': self.object
+            'tag': self.object,
+            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         })
         return context
 
@@ -594,8 +607,10 @@ def followed_topics(request):
     except EmptyPage:
         shown_topics = paginator.page(paginator.num_pages)
         page = paginator.num_pages
+    topic_read = TopicRead.objects.list_read_topic_pk(request.user, shown_topics)
     return render(request, "forum/topic/followed.html",
                            {"followed_topics": shown_topics,
+                            "topic_read": topic_read,
                             "pages": paginator_range(page,
                                                      paginator.num_pages),
                             "nb": page})

@@ -26,7 +26,7 @@ import json as json_writer
 from django.contrib.auth.models import User
 from datetime import datetime
 
-from zds.article.managers import ArticleManager
+from zds.article.managers import ArticleManager, ReactionManager
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.articles import export_article, get_blob
@@ -171,7 +171,7 @@ class Article(models.Model):
         article_version['sha_validation'] = self.sha_validation
         article_version['sha_public'] = self.sha_public
         article_version['last_read_reaction'] = self.last_read_reaction
-        article_version['get_reaction_count'] = self.get_reaction_count
+        article_version['get_reaction_count'] = Reaction.objects.count_reactions(self)
         article_version['get_absolute_url'] = reverse('zds.article.views.view',
                                                       args=[self.pk, self.slug])
         article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online',
@@ -220,10 +220,6 @@ class Article(models.Model):
         cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url_online(), False]))
         cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url(), True]))
         cache.delete(make_template_fragment_key('article_item', [self.pk, self.get_absolute_url(), False]))
-
-    def get_reaction_count(self):
-        """Return the number of reactions in the article."""
-        return Reaction.objects.filter(article__pk=self.pk).count()
 
     def get_last_reaction(self):
         """Gets the last answer in the thread, if any."""
@@ -350,6 +346,7 @@ class Reaction(Comment):
 
     """A reaction article written by an user."""
     article = models.ForeignKey(Article, verbose_name='Article', db_index=True)
+    objects = ReactionManager()
 
     def __unicode__(self):
         """Textual form of a post."""
