@@ -253,7 +253,7 @@
 
             .signature {
                 border-top: 1px solid #D2D5D6;
-                padding: 3px 0 0 10px;
+                padding: 3px 0 3px 10px;
                 margin: 0 10px 0 0;
                 font-size: 12px;
                 font-size: 1.2rem;
@@ -623,9 +623,18 @@ form.topic-message {
                     margin-top: 10px;
                 }
             }
-            .message-bottom .signature p {
-                white-space: nowrap;
-                overflow: hidden;
+            .message-bottom .signature {
+                cursor: pointer;
+
+                p {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                &.full p {
+                    white-space: normal;
+                }
             }
         }
     }
