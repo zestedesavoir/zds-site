@@ -159,7 +159,7 @@ Exemple :
     {{ 'association@zestedesavoir.com'|obfuscate_mailto_top_subject:"Contact communication" }}
 
 feminize
---------
+========
 
 Permet de générer les déterminants et pronom adéquats en fonction du mot suivant dynamiquement généré. Typiquement
 ce templatetag est utile dans le cas de la hiérarchie des tutoriels où vous pouvez avoir *"une partie"* ou *"un chapitre"*.
@@ -180,7 +180,7 @@ Exemple :
     le templatetag ``feminize`` est internationalisé.
 
 times
------
+=====
 
 Permet de générer une liste de nombre pour itérer dessus, utile dans les boucles.
 
@@ -194,7 +194,7 @@ Exemple :
     {% endfor %}
 
 target_tree
------------
+===========
 
 Ce templatetag est utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
 des déplacements possibles d'un élément. Il s'agint d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
@@ -212,7 +212,7 @@ Exemple :
     {% endfor %}
 
 repo_blob et diff_text
-----------------------
+======================
 
 Ces deux templatetags sont utilisés de concert dans le module de diff des contenus (v1 et v2).
 
