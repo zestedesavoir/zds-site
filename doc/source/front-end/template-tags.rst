@@ -245,3 +245,19 @@ Exemple :
             {% endwith %}
         {% endwith %}
     {% endfor %}
+
+url_category
+============
+
+Ce templatetag permet d'accéder à l'url des listes de tutoriels et articles filtrés par tag.
+Exemple :
+
+.. sourcecode:: html
+
+    {% if content.subcategory.all|length > 0 %}
+        <ul class="taglist" itemprop="keywords">
+            {% for catofsubcat in content.subcategory.all %}
+                <li><a href="{{ catofsubcat|category_url:content }}">{{ catofsubcat.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
