@@ -92,14 +92,17 @@ class Container:
     def get_tree_depth(self):
         """Represent the depth where this container is found
         Tree depth is no more than 2, because there is 3 levels for Containers :
+
         - PublishableContent (0),
         - Part (1),
         - Chapter (2)
+
         .. attention::
+
             that ``max_tree_depth`` is ``2`` to ensure that there is no more than 3 levels
 
         :return: Tree depth
-        :rtype; int
+        :rtype: int
         """
         depth = 0
         current = self
@@ -206,7 +209,8 @@ class Container:
         return False
 
     def can_add_extract(self):
-        """
+        """ check that this container can get extract, i.e has no container and is not too deep
+
         :return: ``True`` if this container accept child extract, ``False`` otherwise
         :rtype: bool
         """
@@ -217,12 +221,14 @@ class Container:
 
     def add_container(self, container, generate_slug=False):
         """Add a child Container, but only if no extract were previously added and tree depth is < 2.
+
         .. attention::
+
             this function will also raise an Exception if article, because it cannot contain child container
 
         :param container: the new container
         :param generate_slug: if ``True``, ask the top container an unique slug for this object
-        :raises InvalidOperationError: if cannot add container to this one. Please use ``can_add_container`` to check
+        :raises InvalidOperationError: if cannot add container to this one. Please use ``can_add_container`` to check\
         this before calling ``add_container``.
         """
         if self.can_add_container():
@@ -242,7 +248,7 @@ class Container:
 
         :param extract: the new extract
         :param generate_slug: if `True`, ask the top container an unique slug for this object
-        :raises InvalidOperationError; if cannot add extract to this container.
+        :raise InvalidOperationError: if cannot add extract to this container.
         """
         if self.can_add_extract():
             if generate_slug:
@@ -288,11 +294,11 @@ class Container:
         return os.path.join(base, self.slug)
 
     def get_prod_path(self, relative=False):
-        """Get the physical path to the public version of the container. If the container have extracts, then it
+        """Get the physical path to the public version of the container. If the container have extracts, then it\
         returns the final HTML file.
 
         :param relative: return a relative path instead of an absolute one
-        :type relative; bool
+        :type relative: bool
         :return: physical path
         :rtype: str
         """
@@ -442,7 +448,7 @@ class Container:
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: perform the commit in repository if ``True``
-        :return : commit sha
+        :return: commit sha
         :rtype: str
         """
 
@@ -693,9 +699,14 @@ class Container:
                 yield child
 
     def get_level_as_string(self):
-        """
+        """Get a word (Part/Chapter/Section) for the container level
+
+        .. attention::
+
+            this deals with internationalized string
+
         :return: The string representation of this level
-        :rtype; str
+        :rtype: str
         """
         if self.get_tree_depth() == 0:
             return self.type
@@ -706,9 +717,10 @@ class Container:
         return _(u"Sous-chapitre")
 
     def get_next_level_as_string(self):
-        """
+        """Same as ``self.get_level_as_string()`` but try to guess the level of this container's children
+
         :return: The string representation of next level (upper)
-        :rtype; str
+        :rtype: str
         """
         if self.get_tree_depth() == 0 and self.can_add_container():
             return _(u"Partie")
@@ -741,7 +753,8 @@ class Extract:
         return u'<Extrait \'{}\'>'.format(self.title)
 
     def get_absolute_url(self):
-        """
+        """Find the url that point to the offline version of this extract
+
         :return: the url to access the tutorial offline
         :rtype: str
         """
@@ -944,13 +957,15 @@ class Extract:
             return self.container.top_container().commit_changes(commit_message)
 
     def get_tree_depth(self):
-        """
-        Represent the depth where this exrtact is found
+        """Represent the depth where this exrtact is found
         Tree depth is no more than 3, because there is 3 levels for Containers +1 for extract :
+
         - PublishableContent (0),
         - Part (1),
         - Chapter (2)
+
         Note that `'max_tree_depth` is `2` to ensure that there is no more than 3 levels
+
         :return: Tree depth
         :rtype: int
         """
@@ -1045,6 +1060,7 @@ class VersionedContent(Container):
 
     def get_absolute_url(self, version=None):
         """
+
         :return: the url to access the tutorial when offline
         :rtype: str
         """
@@ -1057,6 +1073,7 @@ class VersionedContent(Container):
 
     def get_absolute_url_online(self):
         """
+
         :return: the url to access the content when online
         :rtype: str
         """
@@ -1070,6 +1087,7 @@ class VersionedContent(Container):
 
     def get_absolute_url_beta(self):
         """
+
         :return: the url to access the tutorial when in beta
         :rtype: str
         """
@@ -1114,7 +1132,8 @@ class VersionedContent(Container):
 
     def get_list_of_chapters(self):
         """
-        :return: a list of chpaters (Container which contains Extracts) in the reading order
+
+        :return: a list of chapters (Container which contains Extracts) in the reading order
         :rtype: list[Container]
         """
         continuous_list = []
@@ -1140,6 +1159,7 @@ class VersionedContent(Container):
 
     def dump_json(self, path=None):
         """Write the JSON into file
+
         :param path: path to the file. If `None`, write in "manifest.json"
         """
         if path is None:
@@ -1160,7 +1180,7 @@ class VersionedContent(Container):
         :param conclusion: the new conclusion text
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: if `True`, also commit change
-        :return : commit sha
+        :return: commit sha
         :rtype: str
         """
 
@@ -1179,7 +1199,7 @@ class VersionedContent(Container):
         """Commit change made to the repository
 
         :param commit_message: The message that will appear in content history
-        :return; commit sha
+        :return: commit sha
         :rtype: str
         """
         cm = self.repository.index.commit(commit_message, **get_commit_author())
@@ -1194,7 +1214,7 @@ class VersionedContent(Container):
         This method changes the repository index and stage every change but does **not** commit.
 
         :param child: the child we want to move, can be either an Extract or a Container object
-        :param adptive_parent: the container where the child *will be* moved, must be a Container object
+        :param adoptive_parent: the container where the child *will be* moved, must be a Container object
         """
 
         old_path = child.get_path(False)  # absolute path because we want to access the address

@@ -138,7 +138,7 @@ class PublishableContent(models.Model):
     def get_absolute_url(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
-        :return  absolute URL to the draf version the content
+        :return: absolute URL to the draf version the content
         :rtype: str
         """
 
@@ -147,7 +147,7 @@ class PublishableContent(models.Model):
     def get_absolute_url_beta(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
-        :return  absolute URL to the beta version the content
+        :return: absolute URL to the beta version the content
         :rtype: str
         """
 
@@ -156,7 +156,7 @@ class PublishableContent(models.Model):
     def get_absolute_url_online(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
 
-        :return  absolute URL to the public version the content, if `self.public_version` is defined
+        :return:  absolute URL to the public version the content, if `self.public_version` is defined
         :rtype: str
         """
 
@@ -285,7 +285,9 @@ class PublishableContent(models.Model):
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
         the draft/public version is used (if ``public`` is ``True``).
+
         .. attention::
+
             for practical reason, the returned object is filled with information from DB.
 
         :param sha: version
@@ -363,7 +365,7 @@ class PublishableContent(models.Model):
 
     def get_note_count(self):
         """
-        :return : umber of notes in the tutorial.
+        :return: number of notes in the tutorial.
         :rtype: int
         """
         return ContentReaction.objects.filter(related_content__pk=self.pk).count()
@@ -380,6 +382,7 @@ class PublishableContent(models.Model):
 
     def first_note(self):
         """
+
         :return: the first post of a topic, written by topic's author, if any.
         :rtype: ContentReaction
         """
@@ -390,6 +393,7 @@ class PublishableContent(models.Model):
 
     def last_read_note(self):
         """
+
         :return: the last post the user has read.
         :rtype: ContentReaction
         """
@@ -537,6 +541,7 @@ class PublishedContent(models.Model):
 
     def get_absolute_url_online(self):
         """
+
         :return: the URL of the published content
         :rtype: str
         """
@@ -552,14 +557,14 @@ class PublishedContent(models.Model):
     def load_public_version_or_404(self):
         """
         :return: the public content
-        :rtype PublicContent
+        :rtype: zds.tutorialv2.models.models_database.PublicContent
         :raise Http404: if the version is not available
         """
         return self.content.load_version_or_404(sha=self.sha_public, public=self)
 
     def load_public_version(self):
         """
-        :rtype PublicContent
+        :rtype: zds.tutorialv2.models.models_database.PublicContent
         :return: the public content
         """
         return self.content.load_version(sha=self.sha_public, public=self)
@@ -643,7 +648,10 @@ class PublishedContent(models.Model):
         return self.have_type('zip')
 
     def get_absolute_url_to_extra_content(self, type_):
-        """
+        """Get the url that point to the extra content the user may want to download
+
+        :param type_: the type inside allowed_type
+        :type type_: str
         :return: URL to a given extra content (note that no check for existence is done)
         :rtype: str
         """
@@ -664,41 +672,46 @@ class PublishedContent(models.Model):
         return ''
 
     def get_absolute_url_md(self):
-        """
+        """wrapper around ``self.get_absolute_url_to_extra_content('md')``
+
         :return: URL to the full markdown version of the published content
-        :rtype; str
+        :rtype: str
         """
 
         return self.get_absolute_url_to_extra_content('md')
 
     def get_absolute_url_html(self):
-        """
+        """wrapper around ``self.get_absolute_url_to_extra_content('html')``
+
         :return: URL to the HTML version of the published content
-        :rtype; str
+        :rtype: str
         """
 
         return self.get_absolute_url_to_extra_content('html')
 
     def get_absolute_url_pdf(self):
-        """
+        """wrapper around ``self.get_absolute_url_to_extra_content('pdf')``
+
         :return: URL to the PDF version of the published content
-        :rtype; str
+        :rtype: str
         """
 
         return self.get_absolute_url_to_extra_content('pdf')
 
     def get_absolute_url_epub(self):
-        """
+        """wrapper around ``self.get_absolute_url_to_extra_content('epub')``
+
         :return: URL to the epub version of the published content
-        :rtype; str
+        :rtype: str
         """
 
         return self.get_absolute_url_to_extra_content('epub')
 
     def get_absolute_url_zip(self):
-        """
+        """wrapper around ``self.get_absolute_url_to_extra_content('zip')``
+
         :return: URL to the zip archive of the published content
-        :rtype; str
+        :rtype: str
         """
 
         return self.get_absolute_url_to_extra_content('zip')
@@ -719,9 +732,10 @@ class ContentReaction(Comment):
         return u'<Tutorial pour "{0}", #{1}>'.format(self.related_content, self.pk)
 
     def get_absolute_url(self):
-        """
+        """Find the url to the reaction
+
         :return: the url of the comment
-        :rtype; str
+        :rtype: str
         """
         page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
         return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)

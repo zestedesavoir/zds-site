@@ -349,9 +349,10 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
                 DownloadContent.insert_into_zip(zip_file, subtree)
 
     def get_contents(self):
-        """
+        """get the zip file stream
+
         :return: a zip file
-        :rtype; byte
+        :rtype: byte
         """
         versioned = self.versioned_object
 

@@ -30,11 +30,11 @@ from zds.utils.templatetags.emarkdown import emarkdown
 def search_container_or_404(base_content, kwargs_array):
     """
     :param base_content: the base Publishable content we will use to retrieve the container
-    :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys
+    :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys\
     or the string representation
     :return: the Container object we were searching for
     :rtype: zds.tutorialv2.models.models_versioned.Container
-    :raise Http404 if no suitable container is found
+    :raise Http404: if no suitable container is found
     """
 
     from zds.tutorialv2.models.models_versioned import Container
@@ -78,8 +78,8 @@ def search_container_or_404(base_content, kwargs_array):
 def search_extract_or_404(base_content, kwargs_array):
     """
     :param base_content: the base Publishable content we will use to retrieve the container
-    :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` and MUST contains
-    `extract_slug`
+    :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` and MUST contains\
+    ``extract_slug``
     :return: the Extract object
     :rtype: zds.tutorialv2.models.models_versioned.Extract
     :raise: Http404 if not found
@@ -106,7 +106,9 @@ def never_read(content, user=None):
     """Check if a content note feed has been read by an user since its last post was added.
 
     :param content: the content to check
-    :user: the user to test, if None, gets the current request user
+    :type content: zds.tutorialv2.models.models_database.PublishableContent
+    :param user: the user to test, if None, gets the current request user
+    :type user: zds.member.models.User
     :return: ``True`` if the user never read this content's reactions, ``False`` otherwise
     :rtype: bool
     """
@@ -183,7 +185,7 @@ def get_target_tagged_tree(movable_child, root):
     :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
     :rtype: tuple
-    :return: an array of tuples that represent the capacity of movable_child to be moved near another child
+    :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     check get_target_tagged_tree_for_extract and get_target_tagged_tree_for_container for format
     """
 
@@ -201,7 +203,7 @@ def get_target_tagged_tree_for_extract(movable_child, root):
     :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
     :rtype: tuple
-    :return: an array of tuples that represent the capacity of movable_child to be moved near another child
+    :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     tuples are ``(relative_path, title, level, can_be_a_target)``
     """
 
@@ -223,11 +225,11 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
 
     :param movable_child: the container we want to move
     :param root: the VersionnedContent we use as root
-    :param bias: a negative or zero integer that represent the level bias. A value of -1 (default) represent
-    the fact that we want to make the *movable_child* **a sibling** of the tagged child, a value of 0 that we want
+    :param bias: a negative or zero integer that represent the level bias. A value of -1 (default) represent\
+    the fact that we want to make the *movable_child* **a sibling** of the tagged child, a value of 0 that we want\
     to make it a sub child.
     :rtype: tuple
-    :return: an array of tuples that represent the capacity of movable_child to be moved near another child
+    :return: an array of tuples that represent the capacity of movable_child to be moved near another child\
     extracts are not included
     """
     target_tagged_tree = []
@@ -364,7 +366,7 @@ def retrieve_image_and_update_link(group, previous_urls, directory='.'):
 
     :param group: matching object
     :type group: re.MatchObject
-    :param previous_urls: dictionary containing the previous urls and the transformed ones (in order to avoid treating
+    :param previous_urls: dictionary containing the previous urls and the transformed ones (in order to avoid treating\
     the same image two times !)
     :param directory: place where all image will be stored
     :type directory: str
@@ -644,7 +646,7 @@ def unpublish_content(db_object):
 
     :param db_object: Database representation of the content
     :type db_object: PublishableContent
-    :return; ``True`` if unpublished, ``False`` otherwise
+    :return: ``True`` if unpublished, ``False`` otherwise
     :rtype: bool
     """
 
@@ -681,8 +683,8 @@ class BadManifestError(Exception):
 
 
 def get_content_from_json(json, sha, slug_last_draft, public=False):
-    """
-    Transform the JSON formated data into `VersionedContent`
+    """Transform the JSON formated data into ``VersionedContent``
+
     :param json: JSON data from a `manifest.json` file
     :param sha: version
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
@@ -833,14 +835,14 @@ def fill_containers_from_json(json_sub, parent):
 
 
 def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
-    """Create a new repository in `settings.ZDS_APP['contents']['private_repo']` to store the files for a new content.
-    Note that `db_object.sha_draft` will be set to the good value
+    """Create a new repository in ``settings.ZDS_APP['contents']['private_repo']``\
+     to store the files for a new content. Note that ``db_object.sha_draft`` will be set to the good value
 
-    :param db_object: `PublishableContent` (WARNING: should have a valid `slug`, so previously saved)
+    :param db_object: `PublishableContent` (WARNING: should have a valid ``slug``, so previously saved)
     :param introduction_text: introduction from form
     :param conclusion_text: conclusion from form
-    :param commit_message : set a commit message instead of the default one
-    :param do_commit: do commit if `True`
+    :param commit_message: set a commit message instead of the default one
+    :param do_commit: perform commit if ``True``
     :return: ``VersionedContent`` object
     :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
     """
@@ -882,9 +884,10 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
 
 def get_commit_author():
-    """
-    :return: correctly formatted commit author for `repo.index.commit()
-    :rtype; dict
+    """get a dictionary that represent the commit author with ``author`` and ``comitter`` key
+
+    :return: correctly formatted commit author for ``repo.index.commit()``
+    :rtype: dict
     """
     user = get_current_user()
 
@@ -905,8 +908,8 @@ def get_commit_author():
 
 
 def export_extract(extract):
-    """
-    Export an extract to a dictionary
+    """Export an extract to a dictionary
+
     :param extract: extract to export
     :return: dictionary containing the information
     :rtype: dict
@@ -923,8 +926,8 @@ def export_extract(extract):
 
 
 def export_container(container):
-    """
-    Export a container to a dictionary
+    """Export a container to a dictionary
+
     :param container: the container
     :return: dictionary containing the information
     :rtype: dict
@@ -953,8 +956,8 @@ def export_container(container):
 
 
 def export_content(content):
-    """
-    Export a content to dictionary in order to store them in a JSON file
+    """Export a content to dictionary in order to store them in a JSON file
+
     :param content: content to be exported
     :return: dictionary containing the information
     :rtype: dict
@@ -972,7 +975,8 @@ def export_content(content):
 
 
 def default_slug_pool():
-    """
+    """initialize a slug pool with all forbidden name. basically ``introduction`` and ``conclusion``
+
     :return: the forbidden slugs in the edition system
     :rtype: dict
     """

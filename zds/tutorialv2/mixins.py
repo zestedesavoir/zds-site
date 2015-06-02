@@ -19,18 +19,20 @@ class SingleContentViewMixin(object):
 
     Deals with URL resolution in the following way:
 
-    1. In `get_object()`:
-        - Fetch the `PublishableContent` according to `self.kwargs['pk']`, `self.request.GET['pk']` or
-        `self.request.POST['pk']` (one of these have to be defined). Raise `Http404` if any.
-        - Then, check permissions with respect to `self.must_be_author` and `self.authorized_for_staff` (and define
-        `self.is_staff` and `self.is_author`). Raise `PermissionDenied` if any.
-    2. In `get_versioned_object()`:
-        - Deal with sha : assume `self.object.sha_draft` by default, but reset according to
-        `self.request.GET['version']`, if exists. Then, check `self.only_draft_version` and raise `PermissionDenied`
-        if any
-        - Fetch the `VersionedContent`. Due to  the use of `self.object.load_version_or_404(sha)`, raise `Http404`.
-        - Check if its the beta or public version, and allow access if it's the case. Raise `PermissionDenied`.
-        - Check slug if `self.kwargs['slug']` is defined. Raise `Http404` if any.
+    1. In ``get_object()``:
+        - Fetch the ``PublishableContent`` according to ``self.kwargs['pk']``, ``self.request.GET['pk']`` or \
+        ``self.request.POST['pk']`` (one of these have to be defined). Raise `Http404` if any.
+        - Then, check permissions with respect to ``self.must_be_author`` and ``self.authorized_for_staff`` \
+         (and define ``self.is_staff`` and ``self.is_author``). Raise ``PermissionDenied`` if any.
+
+    2. In ``get_versioned_object()``:
+        - Deal with sha : assume ``self.object.sha_draft`` by default, but reset according to \
+        ``self.request.GET['version']``, if exists. \
+        Then, check ``self.only_draft_version`` and raise ``PermissionDenied`` if any
+        - Fetch the ``VersionedContent``. Due to  the use of ``self.object.load_version_or_404(sha)``,\
+        raise ``Http404``.
+        - Check if its the beta or public version, and allow access if it's the case. Raise ``PermissionDenied``.
+        - Check slug if ``self.kwargs['slug']`` is defined. Raise ``Http404`` if any.
 
     Any redefinition of any of these two functions should take care of those points.
     """
@@ -272,13 +274,13 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
     Deals with URL resolution in the following way:
 
     1. In `get_object()`:
-        - Fetch the `PublicContent` according to `self.kwargs['pk']`, `self.request.GET['pk']` or
-        `self.request.POST['pk']` `(one of these have to be defined). Raise `Http404` if any.
-        - Check if `self.current_content_type` if defined, and use it if it's the case
-        - Check if `slug` is defined, also check object it if it's the case
-        - Then, define `self.is_staff` and `self.is_author`.
-    2. In `get_versioned_object()`: Fetch the `VersionedContent`. Due to  the use of
-        `self.public_content_object.load_public_version_or_404()`, raise `Http404` if any.
+        - Fetch the ``PublicContent`` according to ``self.kwargs['pk']``, ``self.request.GET['pk']`` or \
+        ``self.request.POST['pk']`` 0(one of these have to be defined). Raise ``Http404`` if any.
+        - Check if ``self.current_content_type`` if defined, and use it if it's the case
+        - Check if ``slug`` is defined, also check object it if it's the case
+        - Then, define ``self.is_staff`` and ``self.is_author``.
+    2. In ``get_versioned_object()``: Fetch the ``VersionedContent``. Due to  the use of
+        ``self.public_content_object.load_public_version_or_404()``, raise ``Http404`` if any.
 
     Any redefinition of any of these two functions should take care of those points.
 
