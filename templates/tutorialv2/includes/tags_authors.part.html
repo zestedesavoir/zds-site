@@ -1,12 +1,12 @@
 {% load date %}
 {% load i18n %}
-
+{% load category_url %}
 
 
 {% if content.subcategory.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
         {% for catofsubcat in content.subcategory.all %}
-            <li><a href="{{ catofsubcat.get_absolute_url_content }}">{{ catofsubcat.title }}</a></li>
+            <li><a href="{{ catofsubcat|category_url:content }}">{{ catofsubcat.title }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
