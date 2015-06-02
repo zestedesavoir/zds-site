@@ -1,6 +1,8 @@
 try:
     from zds.article.models import Article, ArticleRead, Reaction
+    from zds.article.models import Validation as ArticleValidation
     from zds.tutorial.models import Tutorial, Part, Chapter, Note, TutorialRead
+    from zds.tutorial.models import Validation as TutorialValidation
     from zds.tutorial.models import Extract as OldExtract
 except ImportError:
     print("The old stack is no more available on your zestedesavoir copy")
@@ -13,7 +15,8 @@ import sys
 from zds.forum.models import Topic
 from django.conf import settings
 
-from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent
+from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent,\
+    Validation
 from zds.tutorialv2.models.models_versioned import Extract, Container
 from zds.tutorialv2.utils import publish_content
 from django.core.management.base import BaseCommand
@@ -38,6 +41,21 @@ def export_read_for_note(old_note, new_note, read_class):
         new_read.note = new_note
         new_read.user = read.user
         new_read.save()
+
+
+def migrate_validation(exported_content, validation_queryset):
+
+    for old_validation in validation_queryset.all():
+        exported_validation = Validation(content=exported_content,
+                                         version=old_validation.version,
+                                         comment_authors=old_validation.comment_authors,
+                                         comment_validator=old_validation.comment_validator,
+                                         status=old_validation.status,
+                                         validator=old_validation.validator,
+                                         date_proposition=old_validation.date_proposition,
+                                         date_validation=old_validation.date_validation,
+                                         date_reserve=old_validation.date_reserve)
+        exported_validation.save()
 
 
 def export_comments(reacts, exported, read_class):
@@ -151,6 +169,7 @@ def migrate_articles():
                                  .order_by("pubdate")\
                                  .all()
         export_comments(reacts, exported, ArticleRead)
+        migrate_validation(exported, ArticleValidation.objects.filter(article=current))
         # todo: handle publication
         if current.sha_public is not None and current.sha_public != "":
             # set mapping
@@ -228,6 +247,7 @@ def migrate_mini_tuto():
                              .select_related("author")\
                              .order_by("pubdate")\
                              .all()
+        migrate_validation(exported, TutorialValidation.objects.filter(tutorial=current))
         export_comments(reacts, exported, TutorialRead)
         if current.sha_public is not None and current.sha_public != "":
             published = publish_content(exported, exported.load_version(current.sha_public), False)
@@ -316,6 +336,7 @@ def migrate_big_tuto():
         .order_by("pubdate")\
         .all()
     export_comments(reacts, exported, TutorialRead)
+    migrate_validation(exported, TutorialValidation.objects.filter(tutorial=current))
     if current.sha_public is not None and current.sha_public != "":
         published = publish_content(exported, exported.load_version(current.sha_public), False)
         exported.pubdate = current.pudate
