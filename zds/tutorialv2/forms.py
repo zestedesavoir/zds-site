@@ -410,6 +410,14 @@ class NoteForm(forms.Form):
     )
 
     def __init__(self, content, reaction, *args, **kwargs):
+        """initialize the form, handle antispam GUI
+        :param content: the parent content
+        :type content: zds.tutorialv2.models.models_database.PublishableContent
+        :param reaction: the initial reaction if we edit, ``Ǹone```otherwise
+        :type reaction: zds.tutorialv2.models.models_database.ContentReaction
+        :param args:
+        :param kwargs:
+        """
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:add-reaction') + u'?pk={}'.format(content.pk)
@@ -504,6 +512,14 @@ class AskValidationForm(forms.Form):
     previous_page_url = ''
 
     def __init__(self, content, *args, **kwargs):
+        """
+
+        :param content: the parent content
+        :type content: zds.tutorialv2.models.models_database.PublishableContent
+        :param args:
+        :param kwargs:
+        :return:
+        """
         super(AskValidationForm, self).__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
@@ -574,6 +590,14 @@ class AcceptValidationForm(forms.Form):
     )
 
     def __init__(self, validation, *args, **kwargs):
+        """
+
+        :param validation: the linked validation request object
+        :type validation: zds.tutorialv2.models.models_database.Validation
+        :param args:
+        :param kwargs:
+        :return:
+        """
 
         # modal form, send back to previous page:
         self.previous_page_url = reverse(
@@ -687,6 +711,14 @@ class RejectValidationForm(forms.Form):
     )
 
     def __init__(self, validation, *args, **kwargs):
+        """
+
+        :param validation: the linked validation request object
+        :type validation: zds.tutorialv2.models.models_database.Validation
+        :param args:
+        :param kwargs:
+        :return:
+        """
         super(RejectValidationForm, self).__init__(*args, **kwargs)
 
         # modal form, send back to previous page:

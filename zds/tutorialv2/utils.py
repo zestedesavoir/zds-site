@@ -33,6 +33,7 @@ def search_container_or_404(base_content, kwargs_array):
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` keys
     or the string representation
     :return: the Container object we were searching for
+    :rtype: zds.tutorialv2.models.models_versioned.Container
     :raise Http404 if no suitable container is found
     """
 
@@ -80,6 +81,7 @@ def search_extract_or_404(base_content, kwargs_array):
     :param kwargs_array: an array that may contain `parent_container_slug` and `container_slug` and MUST contains
     `extract_slug`
     :return: the Extract object
+    :rtype: zds.tutorialv2.models.models_versioned.Extract
     :raise: Http404 if not found
     """
 
@@ -104,7 +106,9 @@ def never_read(content, user=None):
     """Check if a content note feed has been read by an user since its last post was added.
 
     :param content: the content to check
-    :return: `True` if it is the case, `False` otherwise
+    :user: the user to test, if None, gets the current request user
+    :return: ``True`` if the user never read this content's reactions, ``False`` otherwise
+    :rtype: bool
     """
 
     from zds.tutorialv2.models.models_database import ContentRead
@@ -178,6 +182,7 @@ def get_target_tagged_tree(movable_child, root):
 
     :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
+    :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child
     check get_target_tagged_tree_for_extract and get_target_tagged_tree_for_container for format
     """
@@ -195,6 +200,7 @@ def get_target_tagged_tree_for_extract(movable_child, root):
 
     :param movable_child: the extract we want to move
     :param root: the VersionnedContent we use as root
+    :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child
     tuples are ``(relative_path, title, level, can_be_a_target)``
     """
@@ -220,6 +226,7 @@ def get_target_tagged_tree_for_container(movable_child, root, bias=-1):
     :param bias: a negative or zero integer that represent the level bias. A value of -1 (default) represent
     the fact that we want to make the *movable_child* **a sibling** of the tagged child, a value of 0 that we want
     to make it a sub child.
+    :rtype: tuple
     :return: an array of tuples that represent the capacity of movable_child to be moved near another child
     extracts are not included
     """
@@ -256,6 +263,7 @@ def retrieve_image(url, directory):
     :param directory: place where the image will be stored
     :type directory: str
     :return: the "transformed" path to the image
+    :rtype: str
     """
 
     # parse URL
@@ -362,6 +370,7 @@ def retrieve_image_and_update_link(group, previous_urls, directory='.'):
     :type directory: str
     :type previous_urls: dict
     :return: updated link
+    :rtype: str
     """
 
     # retrieve groups:
@@ -386,6 +395,7 @@ def retrieve_and_update_images_links(md_text, directory='.'):
     :param directory: place where all image will be stored
     :type directory: str
     :return: the markdown with the good links
+    :rtype: str
     """
 
     image_directory_path = os.path.join(directory, 'images')  # directory where the images will be stored
@@ -634,7 +644,8 @@ def unpublish_content(db_object):
 
     :param db_object: Database representation of the content
     :type db_object: PublishableContent
-    :return; `True` if unpublished, `False otherwise`
+    :return; ``True`` if unpublished, ``False`` otherwise
+    :rtype: bool
     """
 
     from zds.tutorialv2.models.models_database import PublishedContent
@@ -676,6 +687,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
     :param sha: version
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
     :return: a Public/VersionedContent with all the information retrieved from JSON
+    :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent
     """
 
     from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent
@@ -782,6 +794,8 @@ def fill_containers_from_json(json_sub, parent):
 
     :param json_sub: dictionary from "manifest.json"
     :param parent: the container to fill
+    :raise BadManifestError: if the manifest is not well formed or the content's type is not correct
+    :raise KeyError: if one mandatory key is missing
     """
 
     from zds.tutorialv2.models.models_versioned import Container, Extract
@@ -827,7 +841,8 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
     :param conclusion_text: conclusion from form
     :param commit_message : set a commit message instead of the default one
     :param do_commit: do commit if `True`
-    :return: `VersionedContent` object
+    :return: ``VersionedContent`` object
+    :rtype: zds.tutorialv2.models.models_versioned.VersionedContent
     """
 
     from zds.tutorialv2.models.models_versioned import VersionedContent
@@ -868,7 +883,8 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
 def get_commit_author():
     """
-    :return: correctly formatted commit author for `repo.index.commit()`
+    :return: correctly formatted commit author for `repo.index.commit()
+    :rtype; dict
     """
     user = get_current_user()
 
@@ -893,6 +909,7 @@ def export_extract(extract):
     Export an extract to a dictionary
     :param extract: extract to export
     :return: dictionary containing the information
+    :rtype: dict
     """
     dct = OrderedDict()
     dct['object'] = 'extract'
@@ -910,6 +927,7 @@ def export_container(container):
     Export a container to a dictionary
     :param container: the container
     :return: dictionary containing the information
+    :rtype: dict
     """
     dct = OrderedDict()
     dct['object'] = "container"
@@ -939,6 +957,7 @@ def export_content(content):
     Export a content to dictionary in order to store them in a JSON file
     :param content: content to be exported
     :return: dictionary containing the information
+    :rtype: dict
     """
     dct = export_container(content)
 

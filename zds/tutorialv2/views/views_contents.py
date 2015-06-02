@@ -213,7 +213,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return initial
 
     def form_valid(self, form):
-        # TODO: tutorial <-> article
         versioned = self.versioned_object
         publishable = self.object
 
@@ -340,8 +339,8 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
     def insert_into_zip(zip_file, git_tree):
         """Recursively add file into zip
 
-        :param zip_file: a `zipfile` object (with writing permissions)
-        :param git_tree: Git tree (from `repository.commit(sha).tree`)
+        :param zip_file: a ``zipfile`` object (with writing permissions)
+        :param git_tree: Git tree (from ``repository.commit(sha).tree``)
         """
         for blob in git_tree.blobs:  # first, add files :
             zip_file.writestr(blob.path, blob.data_stream.read())
@@ -352,6 +351,7 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
     def get_contents(self):
         """
         :return: a zip file
+        :rtype; byte
         """
         versioned = self.versioned_object
 
@@ -387,10 +387,11 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def walk_container(container):
-        """Iterator that yield each file in a Container
+        """Iterator that yield each file path in a Container
 
         :param container: the container
         :type container: Container
+        :rtype: collections.Iterable[str]
         """
 
         if container.introduction:
@@ -411,6 +412,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         :param versioned: the content
         :type versioned: VersionedContent
+        :rtype: collections.Iterable[str]
         """
 
         for _y in UpdateContentWithArchive.walk_container(versioned):

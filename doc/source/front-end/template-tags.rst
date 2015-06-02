@@ -171,10 +171,12 @@ Exemple :
 
 .. sourcecode:: html
 
+
     {% load feminize %}
     {{ "le"|feminize:"partie" }} partie <!-- affiche "la partie" si vous êtes en langue française -->
 
 .. attention::
+
     le templatetag ``feminize`` est internationalisé.
 
 times
@@ -185,6 +187,7 @@ Permet de générer une liste de nombre pour itérer dessus, utile dans les bouc
 Exemple :
 
 .. sourcecode:: html
+
     {% load times %}
     {% for i in 25|times %}
         je suis dans l'itération {{ i }}
@@ -199,6 +202,7 @@ des déplacements possibles d'un élément. Il s'agint d'un wrapper autour de ``
 Exemple :
 
 .. sourcecode:: html
+
     {% load target_tree %}
     {% for element in child|target_tree %}
             <option value="before:{{element.0}}"
@@ -218,6 +222,7 @@ Ces deux templatetags sont utilisés de concert dans le module de diff des conte
 Exemple :
 
 .. sourcecode:: html
+
     {% load repo_reader %}
     <h2>{% trans "Nouveaux Fichiers" %}</h2>
     {% for add in path_add %}
