@@ -97,7 +97,7 @@ class PostEditMixin(object):
             post.editor = user
 
             if user.has_perm('forum.change_post'):
-                post.text_hidden = data.get('text_hidden')
+                post.text_hidden = data.get('text_hidden', '')
 
             messages.success(request, _(u'Le message est désormais masqué.'))
         else:
