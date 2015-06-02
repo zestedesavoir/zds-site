@@ -136,7 +136,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             .select_related('comment')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
             .values_list('pk', flat=True)
-
+        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)
@@ -233,7 +233,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         return super(TopicEdit, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if self.object.author != request.user and request.user.has_perm("forum.change_topic"):
+        is_staff = request.user.has_perm("forum.change_topic")
+        if self.object.author != request.user and is_staff:
             messages.warning(request, _(
                 u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
@@ -246,7 +247,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             'subtitle': self.object.subtitle,
             'text': self.object.first_post().text
         })
-        return render(request, self.template_name, {'topic': self.object, 'form': form})
+        return render(request,
+                      self.template_name,
+                      {'topic': self.object, 'form': form, 'is_staff': is_staff})
 
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:
