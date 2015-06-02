@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from model_utils.managers import InheritanceManager
 
 
 class ForumManager(models.Manager):
@@ -68,7 +69,7 @@ class TopicManager(models.Manager):
             .all()
 
 
-class PostManager(models.Manager):
+class PostManager(InheritanceManager):
     """
     Custom post manager.
     """
