@@ -1094,6 +1094,7 @@ class PostEditTest(TestCase):
         topic = add_topic_in_a_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        # WARNING : if author is not staff he can't send a delete message.
         data = {
             'delete_message': ''
         }
@@ -1114,7 +1115,7 @@ class PostEditTest(TestCase):
 
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = 'Bad guy!'
+        text_hidden_expected = u'Bad guy!'
         data = {
             'delete_message': '',
             'text_hidden': text_hidden_expected

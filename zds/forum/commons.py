@@ -91,12 +91,13 @@ class TopicEditMixin(object):
 class PostEditMixin(object):
     @staticmethod
     def perform_hide_message(request, post, user, data):
-        if post.author == user or user.has_perm('forum.change_post'):
+        is_staff = user.has_perm('forum.change_post')
+        if post.author == user or is_staff:
             post.alerts.all().delete()
             post.is_visible = False
             post.editor = user
 
-            if user.has_perm('forum.change_post'):
+            if is_staff:
                 post.text_hidden = data.get('text_hidden', '')
 
             messages.success(request, _(u'Le message est désormais masqué.'))
