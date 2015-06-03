@@ -30,7 +30,7 @@ def get_markdown_instance(inline=False, js_support=False):
     """
     zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support)
     # Generate parser
-    md = Markdown(
+    markdown = Markdown(
         extensions=(zdsext,),
         safe_mode='escape',       # Protect use of html by escape it
         inline=inline,            # Parse only inline content.
@@ -42,7 +42,7 @@ def get_markdown_instance(inline=False, js_support=False):
         lazy_ol=True,             # Enable smart ordered list start support
     )
 
-    return md
+    return markdown
 
 
 def render_markdown(text, inline=False, js_support=False):
@@ -59,7 +59,7 @@ def render_markdown(text, inline=False, js_support=False):
 
 
 @register.filter(needs_autoescape=False)
-def emarkdown(text, js=''):
+def emarkdown(text, use_jsfiddle=''):
     """
     Filter markdown text and render it to html.
 
@@ -67,7 +67,7 @@ def emarkdown(text, js=''):
     :return: Equivalent html string.
     :rtype: str
     """
-    is_js = (js == 'js')
+    is_js = (use_jsfiddle == 'js')
     try:
         return mark_safe(render_markdown(text, inline=False, js_support=is_js))
     except:
@@ -92,12 +92,12 @@ def emarkdown_inline(text):
 
 def sub_hd(match, count):
     """Replace header shifted."""
-    st = match.group(1)
+    subt = match.group(1)
     lvl = match.group('level')
-    hd = match.group('header')
+    header = match.group('header')
     end = match.group(4)
 
-    new_content = st + '#' * count + lvl + hd + end
+    new_content = subt + '#' * count + lvl + header + end
 
     return new_content
 

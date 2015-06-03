@@ -18,9 +18,9 @@ from zds.utils import get_current_user
 from zds.utils.models import Comment, Tag
 
 
-def sub_tag(g):
-    start = g.group('start')
-    end = g.group('end')
+def sub_tag(tag):
+    start = tag.group('start')
+    end = tag.group('end')
     return u"{0}".format(start + end)
 
 
@@ -272,11 +272,12 @@ class Topic(models.Model):
         :return: the last post the user has read.
         """
         try:
-            return TopicRead.objects\
-                .select_related()\
-                .filter(topic=self, user=get_current_user())\
-                .latest('post__position').post
-        except:
+            return TopicRead.objects \
+                            .select_related() \
+                            .filter(topic__pk=self.pk,
+                                    user__pk=get_current_user().pk) \
+                            .latest('post__position').post
+        except TopicRead.DoesNotExist:
             return self.first_post()
 
     def first_unread_post(self):
@@ -288,16 +289,16 @@ class Topic(models.Model):
         """
         # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
-            last_post = TopicRead.objects\
-                .filter(topic=self, user=get_current_user())\
-                .latest('post__position').post
+            last_post = TopicRead.objects \
+                                 .filter(topic__pk=self.pk,
+                                         user__pk=get_current_user().pk) \
+                                 .latest('post__position').post
 
-            next_post = Post.objects.filter(
-                topic__pk=self.pk,
-                position__gt=last_post.position)\
-                .select_related("author").first()
+            next_post = Post.objects.filter(topic__pk=self.pk,
+                                            position__gt=last_post.position) \
+                                    .select_related("author").first()
             return next_post
-        except:
+        except (TopicRead.DoesNotExist, Post.DoesNotExist):
             return self.first_post()
 
     def is_followed(self, user=None):
@@ -345,8 +346,8 @@ class Topic(models.Model):
             .last()
 
         if last_user_post and last_user_post == self.get_last_post():
-            t = datetime.now() - last_user_post.pubdate
-            if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
+            duration = datetime.now() - last_user_post.pubdate
+            if duration.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
 
         return False
@@ -460,14 +461,14 @@ def mark_read(topic):
     Mark the last message of a topic as read for the current user.
     :param topic: A topic.
     """
-    u = get_current_user()
+    current_user = get_current_user()
     # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
-    t = TopicRead.objects.filter(topic=topic, user=u).first()
-    if t is None:
-        t = TopicRead(post=topic.last_message, topic=topic, user=u)
+    current_topic_read = TopicRead.objects.filter(topic=topic, user=current_user).first()
+    if current_topic_read is None:
+        current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=current_user)
     else:
-        t.post = topic.last_message
-    t.save()
+        current_topic_read.post = topic.last_message
+    current_topic_read.save()
 
 
 def follow(topic, user=None):

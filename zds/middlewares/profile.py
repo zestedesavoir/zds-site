@@ -49,8 +49,8 @@ class ProfileMiddleware(object):
             return self.prof.runcall(callback, request, *callback_args, **callback_kwargs)
 
     def get_group(self, file):
-        for g in group_prefix_re:
-            name = g.findall(file)
+        for group in group_prefix_re:
+            name = group.findall(file)
             if name:
                 return name[0]
 
