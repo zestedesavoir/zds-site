@@ -164,7 +164,7 @@
         {% url 'zds.tutorial.views.answer' %}?tutorial={{ tutorial.pk }}
     {% endcaptureas %}
 
-    {% include "misc/message_form.html" with member=user topic=tutorial %}
+    {% include "misc/message_form.html" with member=user topic=tutorial perms_change=is_staff %}
 {% endblock %}
 
 

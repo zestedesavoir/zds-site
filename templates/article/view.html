@@ -173,7 +173,7 @@
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True anchor="reactions" %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True anchor="reactions" perms_change=is_staff %}
 
 
 
