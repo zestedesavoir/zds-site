@@ -351,6 +351,7 @@ HAYSTACK_CONNECTIONS = {
         # 'URL': 'http://127.0.0.1:8983/solr/mysite',
     },
 }
+HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
