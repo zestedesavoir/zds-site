@@ -18,10 +18,10 @@ class FeaturedResource(models.Model):
     type = models.CharField(_(u'Type'), max_length=80)
     authors = models.ManyToManyField(Profile, verbose_name=_(u'Auteurs'), db_index=True)
     image_url = models.CharField(
-        _(u'URL de l\'image à la une'), max_length=128, null=False, blank=False
+        _(u'URL de l\'image à la une'), max_length=2000, null=False, blank=False
     )
     url = models.CharField(
-        _(u'URL de la une'), max_length=128, null=False, blank=False
+        _(u'URL de la une'), max_length=2000, null=False, blank=False
     )
     pubdate = models.DateTimeField(_(u'Date de publication'), blank=True, null=False, db_index=True)
 
@@ -43,7 +43,7 @@ class FeaturedMessage(models.Model):
         verbose_name_plural = _(u'Messages')
 
     message = models.CharField(_(u'Message'), max_length=255)
-    url = models.CharField(_(u'URL du message'), max_length=128, null=False, blank=False)
+    url = models.CharField(_(u'URL du message'), max_length=2000, null=False, blank=False)
     objects = FeaturedMessageManager()
 
     def __unicode__(self):

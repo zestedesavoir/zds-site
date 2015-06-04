@@ -49,12 +49,12 @@ class Profile(models.Model):
         blank=True,
         null=True)
 
-    site = models.CharField('Site internet', max_length=128, blank=True)
+    site = models.CharField('Site internet', max_length=2000, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
                                      default=False)
 
     avatar_url = models.CharField(
-        'URL de l\'avatar', max_length=128, null=True, blank=True
+        'URL de l\'avatar', max_length=2000, null=True, blank=True
     )
 
     biography = models.TextField('Biographie', blank=True)

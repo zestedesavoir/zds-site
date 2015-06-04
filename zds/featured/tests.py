@@ -8,6 +8,12 @@ from zds.featured.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage
 
 
+stringof2001chars = 'http://url.com/'
+for i in range(198):
+    stringof2001chars += "0123456789"
+stringof2001chars += "12.jpg"
+
+
 class FeaturedResourceListViewTest(TestCase):
     def test_success_list_of_featured(self):
         staff = StaffProfileFactory()
@@ -80,6 +86,45 @@ class FeaturedResourceCreateViewTest(TestCase):
         response = self.client.get(reverse('featured-resource-create'))
 
         self.assertEqual(403, response.status_code)
+
+    def test_failure_too_long_url(self):
+        staff = StaffProfileFactory()
+        login_check = self.client.login(
+            username=staff.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        self.assertEqual(0, FeaturedResource.objects.all().count())
+        response = self.client.post(
+            reverse('featured-resource-create'),
+            {
+                'title': 'title',
+                'type': 'type',
+                'image_url': stringof2001chars,
+                'url': 'url',
+                'authors': staff.user.username
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, FeaturedResource.objects.all().count())
+
+        response = self.client.post(
+            reverse('featured-resource-create'),
+            {
+                'title': 'title',
+                'type': 'type',
+                'image_url': 'url',
+                'url': stringof2001chars,
+                'authors': staff.user.username
+            },
+            follow=True
+        )
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, FeaturedResource.objects.all().count())
 
 
 class FeaturedResourceUpdateViewTest(TestCase):
