@@ -1054,7 +1054,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         "form": form,
         "user_like": user_like,
         "user_dislike": user_dislike,
-        "is_staff": request.user.has_perm("tutorial.change_tutorial"),
+        "is_staff": request.user.has_perm("tutorial.change_note"),
         "note_count": Note.objects.count_notes(tutorial)
     })
 
@@ -1445,8 +1445,10 @@ def view_part_online(
     # if part can't find
     if not find:
         raise Http404
-
-    return render(request, "tutorial/part/view_online.html", {"tutorial": mandata, "part": final_part})
+    is_staff = request.user.has_perm("tutorial.change_note")
+    return render(request, "tutorial/part/view_online.html", {"tutorial": mandata,
+                                                              "part": final_part,
+                                                              "is_staff": is_staff})
 
 
 @can_write_and_read_now
@@ -3598,13 +3600,13 @@ def edit_note(request):
 
     # Making sure the user is allowed to do that. Author of the note must to be
     # the user logged.
-
+    is_staff = request.user.has_perm("tutorial.change_note")
     if note.author != request.user \
-            and not request.user.has_perm("tutorial.change_note") \
+            and not is_staff \
             and "signal_message" not in request.POST:
         raise PermissionDenied
     if note.author != request.user and request.method == "GET" \
-            and request.user.has_perm("tutorial.change_note"):
+            and is_staff:
         messages.add_message(request, messages.WARNING,
                              _(u'Vous éditez ce message en tant que '
                                u'modérateur (auteur : {}). Soyez encore plus '
@@ -3614,14 +3616,14 @@ def edit_note(request):
     if request.method == "POST":
         if "delete_message" in request.POST:
             if note.author == request.user \
-                    or request.user.has_perm("tutorial.change_note"):
+                    or is_staff:
                 note.alerts.all().delete()
                 note.is_visible = False
                 if request.user.has_perm("tutorial.change_note"):
                     note.text_hidden = request.POST["text_hidden"]
                 note.editor = request.user
         if "show_message" in request.POST:
-            if request.user.has_perm("tutorial.change_note"):
+            if is_staff:
                 note.is_visible = True
                 note.text_hidden = ""
         if "signal_message" in request.POST:

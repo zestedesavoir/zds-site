@@ -243,7 +243,7 @@ def view_online(request, article_pk, article_slug):
         'form': form,
         'on_line': True,
         'authors_reachable': authors_reachable,
-        'is_staff': request.user.has_perm('tutorial.change_article'),
+        'is_staff': request.user.has_perm('article.change_article'),
         'user_like': user_like,
         'user_dislike': user_dislike
     })
