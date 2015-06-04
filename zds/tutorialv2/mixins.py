@@ -313,7 +313,8 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             .prefetch_related('content')\
             .prefetch_related("content__authors")\
             .prefetch_related("content__subcategory")\
-            .prefetch_related('content__public_version')
+            .prefetch_related('content__public_version')\
+            .select_related('content__last_note')
 
         if self.current_content_type:
             queryset = queryset.filter(content_type=self.current_content_type)

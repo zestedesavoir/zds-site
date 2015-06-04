@@ -200,5 +200,11 @@
         {% url 'content:add-reaction' %}?pk={{ content.pk }}
     {% endcaptureas %}
 
+    {% if object.last_note %}
+        {% captureas last_note_pk %}
+            {{ object.last_note.pk }}
+        {% endcaptureas %}
+    {% endif %}
+
     {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
 {% endblock %}

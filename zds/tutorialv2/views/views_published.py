@@ -108,6 +108,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["user_can_modify"] = queryset_reactions_user
 
         context['isantispam'] = self.object.antispam()
+
         return context
 
 

@@ -406,7 +406,8 @@ class NoteForm(forms.Form):
     )
     last_note = forms.IntegerField(
         label='',
-        widget=forms.HiddenInput()
+        widget=forms.HiddenInput(),
+        required=False
     )
 
     def __init__(self, content, reaction, *args, **kwargs):
