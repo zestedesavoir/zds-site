@@ -180,7 +180,8 @@ class ArticleTests(TestCase):
         self.assertEqual(Alert.objects.all().count(), 1)
 
         self.client.login(username="staff", password="hostel77")
-        result = self.client.get(reverse('zds.article.view_online', [self.article.pk]))
+        result = self.client.get(reverse('zds.article.views.view_online',
+                                         args=[self.article.pk, self.article.slug]))
         self.assertContains(result, 'Troll')
         # connect with staff
         login_check = self.client.login(
