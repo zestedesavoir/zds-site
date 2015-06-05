@@ -220,8 +220,8 @@ Exécuter la commande suivante : `sudo apt-get install libffi-dev`
 Actions à faire pour mettre en prod la version : v15.6
 ======================================================
 
-Issue #1511
------------
+Issue #1511 et Pull Request #2766
+---------------------------------
 
 Fix sur la recherche d'article avec Solr :
 
