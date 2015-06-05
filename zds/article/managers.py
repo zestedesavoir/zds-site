@@ -24,9 +24,6 @@ class ArticleManager(models.Manager):
 
 
 class ReactionManager(InheritanceManager):
-    stats = {}
 
     def count_reactions(self, article):
-        if article.pk not in self.stats:
-            self.stats[article.pk] = self.filter(article__pk=article.pk).count()
-        return self.stats[article.pk]
+        return self.filter(article__pk=article.pk).count()

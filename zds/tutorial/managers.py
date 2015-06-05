@@ -25,10 +25,7 @@ class TutorialManager(models.Manager):
 
 class NoteManager(InheritanceManager):
 
-    stats = {}
-
     def count_notes(self, tutorial):
 
-        if tutorial.pk not in self.stats:
-            self.stats[tutorial.pk] = self.filter(tutorial__pk=tutorial.pk).count()
-        return self.stats[tutorial.pk]
+        self.filter(tutorial__pk=tutorial.pk).count()
+        return self.filter(tutorial__pk=tutorial.pk).count()
