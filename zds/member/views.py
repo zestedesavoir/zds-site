@@ -497,7 +497,8 @@ def articles(request):
         user_articles = user_articles.order_by('-update')
     else:
         user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
-
+    user_articles = [raw_article.load_dic(raw_article.load_json(None, raw_article.on_line()))
+                     for raw_article in user_articles]
     return render(
         request,
         'article/member/index.html',
