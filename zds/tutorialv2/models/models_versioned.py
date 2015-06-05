@@ -230,6 +230,13 @@ class Container:
                 return True
         return False
 
+    def get_container_children(self):
+        containers = []
+        for child in self.children:
+            if isinstance(child, Container):
+                containers.append(child)
+        return containers
+
     def add_container(self, container, generate_slug=False):
         """Add a child Container, but only if no extract were previously added and tree depth is < 2.
 
