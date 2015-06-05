@@ -465,7 +465,7 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
         'home_number': 5,
-        'old_post_limit_days': 90
+        'old_post_limit_days': 90,
     },
     'topic': {
         'home_number': 6,
@@ -476,6 +476,15 @@ ZDS_APP = {
     },
     'paginator': {
         'folding_limit': 4
+    },
+    'Search': {
+        # Result can be boost in the search, all field must be between 0 and 1.
+        'boost_post_useful': 0.125,
+        'boost_topic_solved': 0.125,
+        'boost_topic_locked': 0.125,
+        'boost_topic_sticky': 0.150,
+        'boost_topic_title': 0.150,
+        'boost_topic_subtitle': 0.10,
     }
 }
 
