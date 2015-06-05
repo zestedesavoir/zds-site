@@ -169,11 +169,11 @@
         {% endif %}
 
 
-        {% include "misc/message.part.html" with topic=article comment_schema=True %}
+        {% include "misc/message.part.html" with topic=article comment_schema=True perms_change=is_staff %}
     {% endfor %}
 
 
-    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True anchor="reactions" perms_change=is_staff %}
+    {% include "misc/pagination.part.html" with position="bottom" topic=article is_online=True anchor="reactions" %}
 
 
 
