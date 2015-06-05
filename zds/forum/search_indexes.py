@@ -12,13 +12,18 @@ from zds.forum.models import Topic, Post
 class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     """Indexes topic data"""
     text = indexes.CharField(document=True, use_template=True)
+
     title = indexes.CharField(model_attr='title')
     subtitle = indexes.CharField(model_attr='subtitle')
+
     author = indexes.CharField(model_attr='author')
     pubdate = indexes.DateTimeField(model_attr='pubdate')
 
     def get_model(self):
         return Topic
+
+    def get_updated_field(self):
+        return "pubdate"
 
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
@@ -46,3 +51,6 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_topic_forum(self, obj):
         return obj.topic.forum
+
+    def get_updated_field(self):
+        return "update"

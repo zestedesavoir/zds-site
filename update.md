@@ -230,3 +230,20 @@ Fix sur la recherche d'article avec Solr :
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
+
+Issue #2402
+-----------
+
+Cette modification permet normallement de ne pas réindexer toutes les données à chaque fois:
+
+  - Vérifier la tache cron qui tourne pour indexer le contenu 
+      Elle doit continir la commande: python manage.py update_index --age=Zz --remove
+      
+      Ou Zz est le nombre d'heure entre chaque réindexation 
+      Vérifier que le paramétre remove est présent
+      
+  - Lancer la commande python manage.py update_index --age=Zz --remove et vérifier qu'elle index bien du contenu
+     
+    Ne pas paniquer les deux avertissements suivant sont normaux : 
+      - UserWarning: No updated date field found for 'Chapter' - not restricting by age.
+      - UserWarning: No updated date field found for 'Extract' - not restricting by age.
