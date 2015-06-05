@@ -11,7 +11,7 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     description = indexes.CharField(model_attr='description')
-    category = indexes.CharField(model_attr='subcategory')
+    subcategory = indexes.MultiValueField()
     sha_public = indexes.CharField(model_attr='sha_public')
 
     def get_model(self):
@@ -20,6 +20,9 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     def index_queryset(self, using=None):
         """Only tutorials online."""
         return self.get_model().objects.filter(sha_public__isnull=False)
+
+    def prepare_subcategory(self, obj):
+        return obj.subcategory.values_list('title', flat=True).all() or None
 
 
 class PartIndex(indexes.SearchIndex, indexes.Indexable):

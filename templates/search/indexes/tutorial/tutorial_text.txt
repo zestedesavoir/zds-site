@@ -1,7 +1,10 @@
 {{ object.get_conclusion_online }}
 {{ object.get_introduction_online }}
-{{ object.category.title }}
-{{ object.category.description }}
+
+{% for subcategory in object.subcategory.all %}
+ {{ subcategory.title }}
+{% endfor %}
+
 {{ object.text }}
 {{ object.description }}
 {{ object.title }}
