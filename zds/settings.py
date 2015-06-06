@@ -4,6 +4,7 @@ import os
 import sys
 
 from django.contrib.messages import constants as message_constants
+from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 
 # Changes the default encoding of python to UTF-8.
@@ -326,7 +327,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(urlquote(u.username.encode('utf-8')))
 }
 
 

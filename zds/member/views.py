@@ -64,6 +64,8 @@ class MemberDetail(DetailView):
     template_name = 'member/profile.html'
 
     def get_object(self, queryset=None):
+        # Use urlunquote to accept quoted twice URLs (for instance in MPs send
+        # through emarkdown parser)
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
     def get_context_data(self, **kwargs):
