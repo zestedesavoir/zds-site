@@ -27,5 +27,4 @@ class NoteManager(InheritanceManager):
 
     def count_notes(self, tutorial):
 
-        self.filter(tutorial__pk=tutorial.pk).count()
         return self.filter(tutorial__pk=tutorial.pk).count()
