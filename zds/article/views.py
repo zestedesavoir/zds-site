@@ -243,7 +243,7 @@ def view_online(request, article_pk, article_slug):
         'form': form,
         'on_line': True,
         'authors_reachable': authors_reachable,
-        'is_staff': request.user.has_perm('tutorial.change_article'),
+        'is_staff': request.user.has_perm('article.change_article'),
         'user_like': user_like,
         'user_dislike': user_dislike
     })
@@ -1315,17 +1315,17 @@ def edit_reaction(request):
     g_article = None
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
-
+    is_staff = request.user.has_perm('article.change_reaction')
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
     if reaction.author != request.user \
-            and not request.user.has_perm('article.change_reaction') \
+            and not is_staff \
             and 'signal_message' not in request.POST:
         raise PermissionDenied
 
     if reaction.author != request.user \
             and request.method == 'GET' \
-            and request.user.has_perm('article.change_reaction'):
+            and is_staff:
         messages.add_message(
             request, messages.WARNING,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
@@ -1337,15 +1337,15 @@ def edit_reaction(request):
 
         if 'delete_message' in request.POST:
             if reaction.author == request.user \
-                    or request.user.has_perm('article.change_reaction'):
+                    or is_staff:
                 reaction.alerts.all().delete()
                 reaction.is_visible = False
-                if request.user.has_perm('article.change_reaction'):
+                if is_staff:
                     reaction.text_hidden = request.POST['text_hidden']
                 reaction.editor = request.user
 
         if 'show_message' in request.POST:
-            if request.user.has_perm('article.change_reaction'):
+            if is_staff:
                 reaction.is_visible = True
                 reaction.text_hidden = ''
 

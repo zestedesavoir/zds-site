@@ -485,7 +485,9 @@ def articles(request):
     elif state == 'public':
         user_articles = profile.get_public_articles()
     else:
-        user_articles = Article.objects.prefetch_related("authors", "authors__profile")
+        user_articles = Article.objects\
+            .filter(authors__pk__in=[request.user.pk])\
+            .prefetch_related("authors", "authors__profile")
 
     # Order articles (abc by default)
 
@@ -495,7 +497,8 @@ def articles(request):
         user_articles = user_articles.order_by('-update')
     else:
         user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
-
+    user_articles = [raw_article.load_dic(raw_article.load_json(None, raw_article.on_line()))
+                     for raw_article in user_articles]
     return render(
         request,
         'article/member/index.html',

@@ -272,13 +272,19 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 .. sourcecode:: html
 
     {% load interventions %}
-    {% with alerts=user|alerts_list %}
-        {% for alert in alerts %}
+    {% with alerts_list=user|alerts_list %}
+        {% for alert in alerts_list.alerts %}
         ...
         {% endfor %}
     {% endwith %}
 
-où ``alert`` est un dictionnaire contenant 4 champs:
+``alert_list`` est un dictionnaire contenant 2 champs:
+
+- ``alerts`` : Les 10 alertes les plus récentes (détail ci-dessous) ;
+- ``nb_alerts`` : Le nombre total d'alertes existantes.
+
+
+``alerts`` énuméré souvent en ``alert`` est aussi un dictionnaire contenant 4 champs:
 
 - ``alert.url`` donne l'URL du *post* ayant généré l'alerte ;
 - ``alert.username`` contient le nom de l'auteur de l'alerte ;

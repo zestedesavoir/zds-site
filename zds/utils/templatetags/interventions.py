@@ -154,6 +154,7 @@ def interventions_privatetopics(user):
 def alerts_list(user):
     total = []
     alerts = Alert.objects.select_related('author', 'comment').all().order_by('-pubdate')[:10]
+    nb_alerts = Alert.objects.count()
     for alert in alerts:
         if alert.scope == Alert.FORUM:
             post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
@@ -177,4 +178,4 @@ def alerts_list(user):
                           'author': alert.author,
                           'text': alert.text})
 
-    return total
+    return {'alerts': total, 'nb_alerts': nb_alerts}
