@@ -17,8 +17,13 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     author = indexes.CharField(model_attr='author')
     pubdate = indexes.DateTimeField(model_attr='pubdate')
 
+    tags = indexes.MultiValueField()
+
     def get_model(self):
         return Topic
+
+    def prepare_tags(self, obj):
+        return obj.tags.values_list('title', flat=True).all()
 
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
