@@ -4,8 +4,8 @@ from django.test import TestCase
 from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, \
     MiniProfileForm, ProfileForm, ChangeUserForm, \
-    ChangePasswordForm, ForgotPasswordForm, NewPasswordForm, \
-    KarmaForm
+    ChangePasswordForm, NewPasswordForm, \
+    KarmaForm, UsernameAndEmailForm
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
 stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
@@ -441,7 +441,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': self.user1.user.username,
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_non_valid_non_ascii_forgot_password_form(self):
@@ -449,7 +449,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': self.userNonAscii.user.username,
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_non_valid_non_ascii_email_forgot_password_form(self):
@@ -457,7 +457,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': '',
             'email': self.userNonAscii.user.email
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_valid_email_forgot_password_form(self):
@@ -465,7 +465,7 @@ class ForgotPasswordFormTest(TestCase):
             'email': self.user1.user.email,
             'username': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_empty_name_forgot_password_form(self):
@@ -473,7 +473,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': '',
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_full_forgot_password_form(self):
@@ -481,7 +481,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': 'John Doe',
             'email': 'john.doe@gmail.com'
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_username_forgot_password_form(self):
@@ -489,7 +489,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': 'John Doe',
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_email_forgot_password_form(self):
@@ -497,7 +497,7 @@ class ForgotPasswordFormTest(TestCase):
             'email': 'john.doe@gmail.com',
             'username': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
 

@@ -2,8 +2,8 @@
 
 from django.conf.urls import patterns, url
 
-from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
-    UpdateUsernameEmailMember, RegisterView
+from views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
+    UpdateUsernameEmailMember, RegisterView, SendValidationEmailView
 
 urlpatterns = patterns('',
                        #list
@@ -40,6 +40,7 @@ urlpatterns = patterns('',
                        url(r'^deconnexion/$', 'zds.member.views.logout_view'),
                        url(r'^inscription/$', RegisterView.as_view(), name='register-member'),
                        url(r'^reinitialisation/$', 'zds.member.views.forgot_password'),
+                       url(r'^validation/$', SendValidationEmailView.as_view(), name='send-validation-email'),
                        url(r'^new_password/$', 'zds.member.views.new_password'),
                        url(r'^activation/$', 'zds.member.views.active_account'),
                        url(r'^envoi_jeton/$', 'zds.member.views.generate_token_account'),

@@ -22,11 +22,12 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView
 
+from django.views.generic import DetailView, UpdateView, CreateView, FormView
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
-    ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm, PromoteMemberForm, KarmaForm
+    ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
+    OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
+
 from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.article.models import Article
@@ -241,7 +242,6 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
         if form.is_valid():
             return self.form_valid(form)
-
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
@@ -255,6 +255,62 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
     def get_success_template(self):
         return 'member/register/success.html'
+
+
+class SendValidationEmailView(FormView, TokenGenerator):
+    """Send a validation email on demand. """
+
+    form_class = UsernameAndEmailForm
+    template_name = 'member/register/send_validation_email.html'
+
+    usr = None
+
+    def get_user(self, username, email):
+
+        if username:
+            self.usr = get_object_or_404(User, username=username)
+
+        elif email:
+            self.usr = get_object_or_404(User, email=email)
+
+    def get_form(self, form_class):
+        return form_class()
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            # Fetch the user
+            self.get_user(form.data["username"], form.data["email"])
+
+            # User should not be already active
+            if not self.usr.is_active:
+                return self.form_valid(form)
+            else:
+                if form.data["username"]:
+                    form.errors['username'] = form.error_class([self.get_error_message()])
+                else:
+                    form.errors['email'] = form.error_class([self.get_error_message()])
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        # Delete old token
+        token = TokenRegister.objects.filter(user=self.usr)
+        if token.count >= 1:
+            token.all().delete()
+
+        # Generate new token and send email
+        token = self.generate_token(self.usr)
+        self.send_email(token, self.usr)
+
+        return render(self.request, self.get_success_template())
+
+    def get_success_template(self):
+        return 'member/register/send_validation_email_success.html'
+
+    def get_error_message(self):
+        return _("Le compte est déjà activé.")
 
 
 @login_required
@@ -626,7 +682,7 @@ def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
     if request.method == "POST":
-        form = ForgotPasswordForm(request.POST)
+        form = UsernameAndEmailForm(request.POST)
         if form.is_valid():
 
             # Get data from form
@@ -670,7 +726,7 @@ def forgot_password(request):
         else:
             return render(request, "member/forgot_password/index.html",
                           {"form": form})
-    form = ForgotPasswordForm()
+    form = UsernameAndEmailForm()
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 

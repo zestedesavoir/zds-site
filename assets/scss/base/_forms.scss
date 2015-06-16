@@ -107,7 +107,7 @@
         }
     }
     [type=submit],
-    button,
+    button:not(.link),
     .btn {
         position: relative;
         height: 40px;
@@ -237,12 +237,6 @@
         width: 50%;
         margin: 0 auto;
         text-align: center;
-    }
-
-    .form-sub-link {
-        display: block;
-        display: inline-block;
-        margin-top: 8px;
     }
 
     .btn-holder,

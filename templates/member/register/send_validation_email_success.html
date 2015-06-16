@@ -1,0 +1,27 @@
+{% extends "member/register/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Envoi du courriel de confirmation" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Envoi du courriel de confirmation" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Envoi du courriel de confirmation" %}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% trans "Vous allez recevoir un courriel contenant le lien d'activation. Veuillez cliquer sur celui-ci avant toute tentative de connexion." %}.
+    </p>
+{% endblock %}

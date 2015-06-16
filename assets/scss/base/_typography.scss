@@ -22,7 +22,8 @@ hr {
     padding: 0;
 }
 
-a {
+a,
+.link {
     color: lighten($color-primary, 20%);
     transition: all $transition-duration ease;
 
@@ -30,4 +31,11 @@ a {
         color: darken($color-secondary, 15%);
         text-decoration: none;
     }
+}
+
+button.link {
+    display: inline-block;
+    background: none;
+    border: none;
+    text-decoration: underline;
 }
