@@ -17,6 +17,9 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return Tutorial
 
+    def get_updated_field(self):
+        return "update"
+
     def index_queryset(self, using=None):
         """Only tutorials online."""
         return self.get_model().objects.filter(sha_public__isnull=False)
@@ -32,6 +35,9 @@ class PartIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Part
+
+    def get_updated_field(self):
+        return "tutorial__update"
 
     def index_queryset(self, using=None):
         """Only parts online."""
@@ -49,6 +55,9 @@ class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return Chapter
 
+    def get_updated_field(self):
+        return None
+
     def index_queryset(self, using=None):
         """Only chapters online."""
         return self.get_model()\
@@ -64,6 +73,9 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return Extract
+
+    def get_updated_field(self):
+        return None
 
     def index_queryset(self, using=None):
         """Only extracts online."""
