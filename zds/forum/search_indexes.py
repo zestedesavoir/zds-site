@@ -17,8 +17,14 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     author = indexes.CharField(model_attr='author')
     pubdate = indexes.DateTimeField(model_attr='pubdate')
 
+    # Groups authorized to read this topic. If no group is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
+
     def get_model(self):
         return Topic
+
+    def prepare_permissions(self, obj):
+        return obj.forum.group.values_list('name', flat=True).all() or None
 
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
@@ -31,6 +37,9 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     topic_title = indexes.CharField(stored=True, indexed=False)
     topic_author = indexes.CharField(stored=True, indexed=False)
     topic_forum = indexes.CharField(stored=True, indexed=False)
+
+    # Groups authorized to read this post. If no group is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
 
     def get_model(self):
         return Post
@@ -46,3 +55,6 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_topic_forum(self, obj):
         return obj.topic.forum
+
+    def prepare_permissions(self, obj):
+        return obj.topic.forum.group.values_list('name', flat=True).all() or None

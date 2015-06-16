@@ -34,6 +34,21 @@ class CustomSearchView(SearchView):
         context.update(self.extra_context())
         return render(self.request, self.template, context)
 
+    def get_results(self):
+        queryset = super(CustomSearchView, self).get_results()
+
+        # We want to search only on authorized post and topic
+        if self.request.user.is_authenticated():
+            groups = self.request.user.groups
+
+            if groups.count() > 0:
+                return queryset.filter_or(permissions=None, permissions__in=groups.all())
+            else:
+                return queryset.filter(permissions=None)
+
+        else:
+            return queryset.filter(permissions=None)
+
 
 def opensearch(request):
     """Generate OpenSearch Description file"""

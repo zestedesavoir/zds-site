@@ -220,8 +220,8 @@ Exécuter la commande suivante : `sudo apt-get install libffi-dev`
 Actions à faire pour mettre en prod la version : v15.6
 ======================================================
 
-Issue #1511 et Pull Request #2766
----------------------------------
+Issue #1511, Issue #983 et Pull Request #2766
+---------------------------------------------
 
 Fix sur la recherche d'article avec Solr :
 
@@ -230,3 +230,4 @@ Fix sur la recherche d'article avec Solr :
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
+
