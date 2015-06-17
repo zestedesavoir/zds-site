@@ -3154,6 +3154,60 @@ class ContentTests(TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         self.assertEqual(tuto.pubdate, current_pubdate)  # `is_major` in False → no update of the publication date
 
+    def no_form_not_allowed(self):
+        """Check that author cannot access to form that he is not allowed to in the creation process, because
+        - The container already have child container and author ask to add a child extract ;
+        - The container already contains child extract and author ask to add a container."""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # create extract while there is already a part:
+        result = self.client.get(
+            reverse('content:create-extract', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 302)  # get redirection
+
+        result = self.client.get(
+            reverse('content:create-extract', args=[tuto.pk, tuto.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)  # get an error message
+
+        # create a container while there is already an extract:
+        versioned = tuto.load_version()
+        chapter = ContainerFactory(parent=versioned, db_object=tuto)
+        ExtractFactory(container=chapter, db_object=tuto)
+
+        result = self.client.get(
+            reverse('content:create-container',
+                    kwargs={'pk': tuto.pk, 'slug': tuto.slug, 'container_slug': chapter.slug}),
+            follow=False)
+        self.assertEqual(result.status_code, 302)  # get redirection
+
+        result = self.client.get(
+            reverse('content:create-container',
+                    kwargs={'pk': tuto.pk, 'slug': tuto.slug, 'container_slug': chapter.slug}),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
