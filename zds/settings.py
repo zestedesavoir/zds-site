@@ -486,6 +486,7 @@ AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
                            'social.backends.google.GoogleOAuth2',
                            'django.contrib.auth.backends.ModelBackend')
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
