@@ -11,11 +11,14 @@ from rest_framework.test import APIClient
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenRegister
+from rest_framework_extensions.settings import extensions_api_settings
+from django.core.cache import get_cache
 
 
 class MemberListAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
 
     def test_list_of_users_empty(self):
         """
@@ -52,6 +55,14 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
+
+        response = self.client.get(reverse('api-member-list') + '?page=2')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNotNone(response.data.get('previous'))
+        self.assertEqual(len(response.data.get('results')), 1)
 
     def test_list_of_users_for_a_page_given(self):
         """
@@ -315,6 +326,9 @@ class MemberListAPITest(APITestCase):
 
 
 class MemberMyDetailAPITest(APITestCase):
+    def setUp(self):
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+
     def test_detail_of_the_member(self):
         """
         Gets all information about the user.
@@ -358,6 +372,8 @@ class MemberDetailAPITest(APITestCase):
         client_oauth2 = create_oauth2_client(self.profile.user)
         self.client_authenticated = APIClient()
         authenticate_client(self.client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
+
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
 
     def test_detail_of_a_member(self):
         """
@@ -626,6 +642,8 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         self.client_authenticated = APIClient()
         authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, 'hostel77')
 
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+
     def test_apply_read_only_at_a_member(self):
         """
         Applies a read only sanction at a member given by a staff user.
@@ -772,6 +790,8 @@ class MemberDetailBanAPITest(APITestCase):
         client_oauth2 = create_oauth2_client(self.staff.user)
         self.client_authenticated = APIClient()
         authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, 'hostel77')
+
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
 
     def test_apply_ban_at_a_member(self):
         """
