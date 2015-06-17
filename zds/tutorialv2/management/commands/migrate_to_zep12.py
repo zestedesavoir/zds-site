@@ -287,10 +287,10 @@ def migrate_mini_tuto():
 def migrate_big_tuto():
     big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
     for i in progressbar(xrange(len(big_tutos)), "Exporting big tutos", 100):
+        current = big_tutos[i]
         if not os.path.exists(current.get_path(False)):
             print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
             continue
-        current = big_tutos[i]
         exported = PublishableContent()
         exported.slug = current.slug
         exported.type = "TUTORIAL"
