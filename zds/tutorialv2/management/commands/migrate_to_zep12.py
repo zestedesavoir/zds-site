@@ -248,7 +248,7 @@ def migrate_mini_tuto():
         exported.old_pk = current.pk
         exported.save()
         # export beta forum post
-        former_topic = Topic.objects.get(key=current.pk)
+        former_topic = Topic.objects.filter(key=current.pk).first()
         if former_topic is not None:
             former_topic.related_publishable_content = exported
             former_topic.save()
@@ -338,7 +338,7 @@ def migrate_big_tuto():
         exported.save()
 
         # export beta forum post
-        former_topic = Topic.objet.get(key=current.pk)
+        former_topic = Topic.objet.filter(key=current.pk).first()
         if former_topic is not None:
             former_topic.related_publishable_content = exported
             former_topic.save()
