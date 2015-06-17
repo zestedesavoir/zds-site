@@ -23,7 +23,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import slugify
-from zds.utils.models import Licence
+from zds.utils.models import Licence, CommentLike, CommentDislike
 from datetime import datetime
 
 from easy_thumbnails.exceptions import InvalidImageFormatError
@@ -70,9 +70,18 @@ def export_comments(reacts, exported, read_class):
 
         new_reac.update_content(note.text)
         new_reac.ip_address = note.ip_address
+        new_reac.like = note.like
+        new_reac.dislike = note.dislike
         new_reac.save()
+
         export_read_for_note(note, new_reac, read_class)
         exported.last_note = new_reac
+        for like in CommentLike.objects.filter(comments__pk=note.pk).all():
+            like.comments = new_reac
+            like.save()
+        for dislike in CommentDislike.objects.filter(comments__pk=note.pk).all():
+            dislike.comments = new_reac
+            dislike.save()
         exported.save()
 
 
@@ -239,7 +248,7 @@ def migrate_mini_tuto():
         exported.old_pk = current.pk
         exported.save()
         # export beta forum post
-        former_topic = Topic.objet.get(key=current.pk)
+        former_topic = Topic.objects.get(key=current.pk)
         if former_topic is not None:
             former_topic.related_publishable_content = exported
             former_topic.save()
