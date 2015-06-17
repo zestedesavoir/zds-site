@@ -206,7 +206,7 @@ def migrate_articles():
 
 def migrate_mini_tuto():
     mini_tutos = Tutorial.objects.prefetch_related("licence").filter(type="MINI").all()
-    for i in progressbar(xrange(len(mini_tutos)), "Exporting articles", 100):
+    for i in progressbar(xrange(len(mini_tutos)), "Exporting mini tuto", 100):
         current = mini_tutos[i]
         if not os.path.exists(current.get_path(False)):
             print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
@@ -266,7 +266,7 @@ def migrate_mini_tuto():
         export_comments(reacts, exported, TutorialRead)
         if current.sha_public is not None and current.sha_public != "":
             published = publish_content(exported, exported.load_version(current.sha_public), False)
-            exported.pubdate = current.pudate
+            exported.pubdate = current.pubdate
             exported.sha_public = current.sha_public
             exported.public_version = published
             exported.save()
@@ -286,7 +286,7 @@ def migrate_mini_tuto():
 
 def migrate_big_tuto():
     big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
-    for i in progressbar(xrange(len(big_tutos)), "Exporting articles", 100):
+    for i in progressbar(xrange(len(big_tutos)), "Exporting big tutos", 100):
         if not os.path.exists(current.get_path(False)):
             print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
             continue
@@ -357,7 +357,7 @@ def migrate_big_tuto():
     migrate_validation(exported, TutorialValidation.objects.filter(tutorial=current))
     if current.sha_public is not None and current.sha_public != "":
         published = publish_content(exported, exported.load_version(current.sha_public), False)
-        exported.pubdate = current.pudate
+        exported.pubdate = current.pubdate
         exported.sha_public = current.sha_public
         exported.public_version = published
         exported.save()
