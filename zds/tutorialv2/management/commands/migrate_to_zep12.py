@@ -232,7 +232,7 @@ def migrate_mini_tuto():
         versioned.dump_json()
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
-        if current.is_beta():
+        if current.in_beta():
             exported.sha_beta = exported.sha_draft
             exported.beta_topic = Topic.objects.get(key=current.pk).first()
 
@@ -321,7 +321,7 @@ def migrate_big_tuto():
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
         exported.old_pk = current.pk
-        if current.is_beta():
+        if current.in_beta():
             exported.sha_beta = exported.sha_draft
             exported.beta_topic = Topic.objects.get(key=current.pk).first()
 
