@@ -67,14 +67,14 @@ urlpatterns = patterns('',
                            name='create-container'),
 
 
-                       url(r'^nouvel-extrait/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/'
+                       url(r'^nouvelle-section/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/'
                            r'(?P<container_slug>.+)/$',
                            CreateExtract.as_view(),
                            name='create-extract'),
-                       url(r'^nouvel-extrait/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
+                       url(r'^nouvelle-section/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
                            CreateExtract.as_view(),
                            name='create-extract'),
-                       url(r'^nouvel-extrait/(?P<pk>\d+)/(?P<slug>.+)/$',
+                       url(r'^nouvelle-section/(?P<pk>\d+)/(?P<slug>.+)/$',
                            CreateExtract.as_view(),
                            name='create-extract'),
 
@@ -87,14 +87,14 @@ urlpatterns = patterns('',
                            EditContainer.as_view(),
                            name='edit-container'),
 
-                       url(r'^editer-extrait/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/'
+                       url(r'^editer-section/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/'
                            r'(?P<container_slug>.+)/(?P<extract_slug>.+)/$',
                            EditExtract.as_view(),
                            name='edit-extract'),
-                       url(r'^editer-extrait/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/(?P<extract_slug>.+)/$',
+                       url(r'^editer-section/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/(?P<extract_slug>.+)/$',
                            EditExtract.as_view(),
                            name='edit-extract'),
-                       url(r'^editer-extrait/(?P<pk>\d+)/(?P<slug>.+)/(?P<extract_slug>.+)/$',
+                       url(r'^editer-section/(?P<pk>\d+)/(?P<slug>.+)/(?P<extract_slug>.+)/$',
                            EditExtract.as_view(),
                            name='edit-extract'),
 
