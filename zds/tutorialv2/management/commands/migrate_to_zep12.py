@@ -118,6 +118,9 @@ def migrate_articles():
         return
     for i in progressbar(xrange(len(articles)), "Exporting articles", 100):
         current = articles[i]
+        if not os.path.exists(current.get_path(False)):
+            print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
+            continue
         exported = PublishableContent()
         exported.slug = current.slug
         exported.type = "ARTICLE"
@@ -196,6 +199,9 @@ def migrate_mini_tuto():
     mini_tutos = Tutorial.objects.prefetch_related("licence").filter(type="MINI").all()
     for i in progressbar(xrange(len(mini_tutos)), "Exporting articles", 100):
         current = mini_tutos[i]
+        if not os.path.exists(current.get_path(False)):
+            print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
+            continue
         exported = PublishableContent()
         exported.slug = current.slug
         exported.type = "TUTORIAL"
@@ -272,6 +278,9 @@ def migrate_mini_tuto():
 def migrate_big_tuto():
     big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
     for i in progressbar(xrange(len(big_tutos)), "Exporting articles", 100):
+        if not os.path.exists(current.get_path(False)):
+            print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
+            continue
         current = big_tutos[i]
         exported = PublishableContent()
         exported.slug = current.slug
