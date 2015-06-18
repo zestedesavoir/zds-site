@@ -18,7 +18,7 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_c
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
-from zds.article.factories import ArticleFactory, PublishedArticle, ReactionFactory
+from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
 from zds.utils.models import CommentLike
 
 try:
@@ -388,7 +388,7 @@ class UtilsTests(TestCase):
         private_article = ArticleFactory()
         private_article.authors.add(self.user_author)
         private_article.save()
-        public_article = PublishedArticle()
+        public_article = PublishedArticleFactory()
         public_article.authors.add(self.user_author)
         public_article.save()
         ReactionFactory(
@@ -406,6 +406,7 @@ class UtilsTests(TestCase):
         call_command('migrate_to_zep12')
         self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 5)
         self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2)
+        self.assertEqual(ContentReaction.objects.filter(author__pk=self.user_staff.pk).count(), 2)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
