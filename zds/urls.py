@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 
 from zds.article.models import Article
-from zds.forum.models import Category, Forum, Topic
+from zds.forum.models import Category, Forum, Topic, Tag
 from zds.tutorial.models import Tutorial
 
 from . import settings
@@ -66,6 +66,9 @@ sitemaps = {
          'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
+    ),
+    'tags': GenericSitemap(
+        {'queryset': Tag.objects.all()}
     ),
 }
 
