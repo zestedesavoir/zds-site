@@ -244,3 +244,15 @@ Pour régler ça, il faut faire les modifications de la migration nous-même.
   - Les deux commandes doivent passer sans souci
   - Quitter mysql
   - Puis feinter la migration de oauth2_provider : `python manage.py migrate oauth2_provider --fake`
+
+Ajout d'un groupe com'
+----------------------
+
+*À faire une fois la migration effectuée avec un super-utilisateur*
+
+Permet aux membres responsables de la communication de pouvoir ajouter/supprimer des Unes et la phrase "Nouveau"
+
+  - Dans la page d'administration
+  - Créer un groupe "Communication"
+  - Attribuer les droits `perms.featured.change_featuredresource` à ce nouveau groupe
+  - Ajouter les membres responsables de la communication à ce groupe
