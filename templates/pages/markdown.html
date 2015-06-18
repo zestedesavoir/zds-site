@@ -1,0 +1,1884 @@
+{% extends "pages/base.html" %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Rédiger en markdown" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Rédiger en markdown" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>{% trans "Rédiger en markdown" %}</h1>
+{% endblock %}
+
+
+
+{% block content %}
+{% blocktrans %}
+<section class="article-content">
+    <p>Zeste de Savoir utilise un langage de formatage de texte très proche du Markdown, auquel ont été ajoutés quelques extensions courantes. Ce langage est utilisé sur ZdS pour écrire les tutoriels, les articles, les messages de forums ou MP, etc.</p>
+
+    <p>On ne présente plus le Markdown, ce langage de formatage alliant la simplicité d'écriture à la facilité de lecture. Sa syntaxe très légère permet en effet de lire du simple texte de façon presque aussi agréable que s'il était réellement mis en forme. Mais aussi pratique que soit le Markdown, il ne permet pas de tout baliser. Les indices et exposants, par exemple, n'ont pas de représentations Markdown. Il existe donc des extensions permettant de compléter le Markdown natif. Certaines de ces extensions, très courantes, ont été reprises sur ZdS, d'autres ont été spécifiquement implémentées pour répondre aux besoins précis de ZdS. Nous vous présentons donc ici les syntaxes utilisables sur ZdS.</p>
+
+    <ul>
+        <li>
+            <a href="#1-mise-en-forme-de-texte-classique">Mise en forme de texte classique</a>
+        </li>
+
+        <li>
+            <a href="#2-listes">Listes</a>
+        </li>
+
+        <li>
+            <a href="#3-liens-et-emails">Liens et emails</a>
+        </li>
+
+        <li>
+            <a href="#4-tableaux-et-lignes">Tableaux et lignes</a>
+        </li>
+
+        <li>
+            <a href="#5-formules-mathematiques">Formules mathématiques</a>
+        </li>
+
+        <li>
+            <a href="#6-code">Code</a>
+        </li>
+
+        <li>
+            <a href="#7-medias">Médias</a>
+        </li>
+
+        <li>
+            <a href="#8-blocs-speciaux">Blocs spéciaux</a>
+        </li>
+
+        <li>
+            <a href="#9-notes-et-abreviations">Notes et abréviations</a>
+        </li>
+
+        <li>
+            <a href="#10-caracteres-reserves-et-commentaires">Caractères réservés et commentaires</a>
+        </li>
+    </ul>
+
+    <h2 id="1-mise-en-forme-de-texte-classique"><a href="#1-mise-en-forme-de-texte-classique">Mise en forme de texte classique</a></h2>
+
+    <h3>Paragraphes</h3>
+
+    <p>Les paragraphes s'écrivent naturellement, en sautant une ligne :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Ceci est mon premier paragraphe.
+
+Ceci est mon second paragraphe.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Tout comme avec le Markdown standard, on change de paragraphe en <strong>sautant une ligne</strong>. Un simple retour à la ligne ne suffit donc pas et sera interprété comme un simple espace :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Ceci est mon premier paragraphe.
+Ici je reviens à la ligne mais cette phrase sera toujours dans le premier paragraphe.
+
+Ceci est mon second paragraphe.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Si vraiment vous tenez à revenir à la ligne sans changer de paragraphe, comme ceci<br>
+    par exemple, alors il suffit de terminer la première ligne par deux espaces.</p>
+
+    <p>De plus, le Markdown standard autorise l'insertion de HTML, mais pour des raisons de sécurité nous avons choisi de ne pas laisser cette possibilité. Si vous écrivez du HTML, celui-ci apparaitra donc tel quel dans votre texte.</p>
+
+    <h3>Titres</h3>
+
+    <p>Les titres sont précédés d'un ou plusieurs croisillons suivant le niveau hiérarchique voulu. Ainsi un titre de premier niveau s'écrit avec un seul croisillon, un titre de deuxième niveau avec deux croisillons, etc.</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+6
+7
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+# Titre de niveau 1
+
+## Titre de niveau 2
+
+### Titre de niveau 3
+
+#### Titre de niveau 4
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Quatre niveaux hiérarchiques sont possibles. J'attire d'ailleurs votre attention sur ce point car il est très important de donner la bonne hiérarchie à vos titres lorsque vous rédigerez vos tutoriels.</p>
+
+    <h3>Emphases</h3>
+
+    <p>Les emphases permettent de mettre un morceau de votre texte en valeur. Deux types d'emphases sont disponibles : l'italique et le gras.</p>
+
+    <p>Pour mettre du texte en <em>italique</em>, utilisez l'astérisque ou le souligné (<em>underscore</em>) :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Le mot *italique* est en italique.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>ou</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Le mot _italique_ est en italique.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="warning ico-after">
+        <p>Si la syntaxe avec underscore est utilisée en milieu de mot, alors le texte ne sera pas transformé. Ainsi <code>truc_bidule_mush</code> ne sera pas transformé alors que <code>truc*bidule*mush</code> le sera. Cela tient du fait que les expressions avec des underscores sont communes en informatique comme Mon_super_nom_de_fichier.txt par exemple.</p>
+    </div>
+
+    <p>Pour mettre du texte en <strong>gras</strong> le principe est le même, en doublant le symbole :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Le mot **gras** est en gras.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>ou</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Le mot __gras__ est en gras.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Par souci de simplicité et de lisibilité, vous ne pourrez pas mettre du texte en couleur, le souligner, changer sa taille ou bien encore en changer la police.</p>
+
+    <h3>Barrer</h3>
+
+    <p>Barrer du texte (<del>comme ceci</del>) se fait en utilisant deux tildes successifs avant et après la portion de texte concernée :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Le mot ~~barré~~ est barré.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Pour information, il s'agit de la syntaxe utilisée par Pandoc.</p>
+
+    <h3>Alignement du texte</h3>
+
+    <p>Par défaut, le texte est bien évidemment aligné à gauche. Comme nous le verrons plus loin, certains éléments sont centrés automatiquement, comme les images seules dans leur paragraphe par exemple. Vous n'avez donc en général pas à vous soucier de l'alignement du texte : le site s'en charge pour vous.</p>
+
+    <p>Dans les rares cas où vous souhaiteriez centrer volontairement un texte (si l'envie vous prenait d'écrire un poème par exemple), vous pourriez néanmoins utiliser la syntaxe ci-dessous :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+-&gt; Ce texte est centré. &lt;-
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Le texte est simplement entouré de deux petites flèches (tiret et chevron) de directions inversées. Pour aligner à droite, on utilise deux flèches dirigées vers la droite :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+-&gt; Ce texte est aligné à droite. -&gt;
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Il est impossible d'imbriquer des alignements. Cela n'aurait de toute façon pas de sens (comment aligner à droite un texte centré ?).</p>
+
+    <p>Encore une fois, l'alignement est géré automatiquement dans la majorité des cas. N'en abusez pas, cela pourrait gêner la lecture.</p>
+
+    <p>Enfin, sachez qu'il est impossible de justifier du texte sur le site.</p>
+
+    <h3>Indices et exposants</h3>
+
+    <p>Là encore, ce sont les syntaxes de Pandoc qui sont utilisées pour mettre en indice ou en exposant une portion de texte.</p>
+
+    <p>On utilise l'accent circonflexe pour l'exposant. Si par exemple on veut écrire que 2<sup>10</sup> vaut 1024, alors on écrira :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+2^10^ vaut 1024.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Pour l'indice, comme dans H<sub>2</sub>O par exemple, on utilise cette fois le tilde :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+La molécule de l'eau est H~2~O.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="2-listes"><a href="#2-listes">Listes</a></h2>
+
+    <p>Vous pouvez utiliser deux types de liste :</p>
+
+    <ul>
+        <li>les listes non ordonnées (comme la présente) ;</li>
+
+        <li>les listes ordonnées par chiffres arabes.</li>
+    </ul>
+
+    <p>C'est peut-être la syntaxe la plus intuitive du Markdown ! Il suffit de matérialiser les puces par des tirets :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+- Ma très belle ;
+- liste ;
+- à puces.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Ou bien par des chiffres :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+1. Mon premier.
+2. Mon second.
+3. Mon troisième.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Prenez simplement garde à bien sauter une ligne <strong>avant et après</strong> vos listes.</p>
+
+    <p>Pour faire une sous-liste, indentez les puces imbriquées avec <strong>quatre</strong> espaces :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+- Ma très belle ;
+- liste ;
+    - avec une sous-liste ;
+- à puces.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>On obtient ainsi :</p>
+
+    <ul>
+        <li>Ma très belle ;</li>
+
+        <li>liste ;
+
+            <ul>
+                <li>avec une sous-liste ;</li>
+            </ul>
+        </li>
+
+        <li>à puces.</li>
+    </ul>
+
+    <h2 id="3-liens-et-emails"><a href="#3-liens-et-emails">Liens et emails</a></h2>
+
+    <p>Il existe deux façons d'écrire des liens : avec ou sans texte d'ancrage.</p>
+
+    <h3>Liens et emails avec texte d'ancrage</h3>
+
+    <p>Pour faire un <a href="http://www.zestedesavoir.com" title="Zeste de Savoir">lien</a> sur un morceau de texte (qu'on appelle donc texte d'ancrage, ici le mot "lien"), on utilise la syntaxe suivante :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Pour faire un [lien](http://www.zestedesavoir.com "Zeste de Savoir") sur un morceau de texte
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Attention à ne pas mettre d'espace entre la partie concernant le texte d'ancrage (entre crochets) et la partie concernant l'URL (entre parenthèses).</p>
+
+    <p>Le titre du lien (ici "Zeste de Savoir" entre guillemets) est optionnel. S'il est renseigné, il apparaît sur le lien au passage de la souris.</p>
+
+    <p>Les emails peuvent s'écrire de la même façon que les liens. Pensez simplement à ajouter la mention "mailto:" :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Pour nous contacter, cliquez [ici](mailto:contact@monsite.com).
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Liens présentés sous forme d'URL ou d'email</h3>
+
+    <p>Si vous ne souhaitez pas utiliser de texte d'ancrage et ainsi rendre une URL ou un email cliquable, alors vous n'avez rien à faire : URL et emails seront automatiquement cliquables.</p>
+
+    <p>Pour les emails, vous n'avez donc même pas besoin de vous soucier du "mailto".</p>
+
+    <h2 id="4-tableaux-et-lignes"><a href="#4-tableaux-et-lignes">Tableaux et lignes</a></h2>
+
+    <h3>Des tableaux simples</h3>
+
+    <p>Pour faire un tableau, la façon la plus simple est encore de le dessiner, à l'aide de barres verticales et de tirets :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+6
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Nom     |   Age
+------|-----
+Fred |   39
+Sam |   38
+Alice  |   35
+Mathilde  | 35
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>L'exemple ci-dessus donnera donc :</p>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+
+                    <th>Age</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Fred</td>
+
+                    <td>39</td>
+                </tr>
+
+                <tr>
+                    <td>Sam</td>
+
+                    <td>38</td>
+                </tr>
+
+                <tr>
+                    <td>Alice</td>
+
+                    <td>35</td>
+                </tr>
+
+                <tr>
+                    <td>Mathilde</td>
+
+                    <td>35</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>Cette syntaxe est simple mais elle a ses limites : il est impossible de revenir à la ligne dans une cellule ou bien de fusionner des lignes ou des colonnes. Si vous avez vraiment besoin de faire cela, il vous faudra utiliser une autre syntaxe de tableau, plus lourde mais plus complète, comme nous allons le voir à présent.</p>
+
+    <h3>Tableaux complexes</h3>
+
+    <p>Pour des tableaux plus complexes, dans lesquels vous pourrez notamment revenir à la ligne dans une cellule et fusionner des lignes ou colonnes, il vous faut utiliser la syntaxe dite « grid-table » :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
++-------+----------+------+
+| Table Headings   | Here |
++-------+----------+------+
+| Sub   | Headings | Too  |
++=======+==========+======+
+| cell  | column spanning |
++ spans +----------+------+
+| rows  | normal   | cell |
++-------+----------+------+
+| multi | cells can be    |
+| line  | *formatted*     |
+|       | **paragraphs**  |
+| cells |                 |
+| too   |                 |
++-------+-----------------+
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Ce qui vous donnera :</p>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2" rowspan="1">
+                        <p>Table Headings</p>
+                    </th>
+
+                    <th colspan="1" rowspan="1">
+                        <p>Here</p>
+                    </th>
+                </tr>
+
+                <tr>
+                    <th colspan="1" rowspan="1">
+                        <p>Sub</p>
+                    </th>
+
+                    <th colspan="1" rowspan="1">
+                        <p>Headings</p>
+                    </th>
+
+                    <th colspan="1" rowspan="1">
+                        <p>Too</p>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td colspan="1" rowspan="2">
+                        <p>cell spans rows</p>
+                    </td>
+
+                    <td colspan="2" rowspan="1">
+                        <p>column spanning</p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="1" rowspan="1">
+                        <p>normal</p>
+                    </td>
+
+                    <td colspan="1" rowspan="1">
+                        <p>cell</p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="1" rowspan="1">
+                        <p>multi line</p>
+
+                        <p>cells too</p>
+                    </td>
+
+                    <td colspan="2" rowspan="1">
+                        <p>cells can be <em>formatted</em> <strong>paragraphs</strong></p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Légendes de tableaux</h3>
+
+    <p>Quelle que soit la syntaxe utilisée, vous pouvez indiquer une légende à votre tableau en ajoutant une ligne <code>Table: Ma légende</code> juste en dessous du tableau.</p>
+
+    <p>Le mot « Table » est optionnel, pas les deux-points. Il peut y avoir un espace entre « Table » et les deux-points.</p>
+
+    <h3>Lignes horizontales</h3>
+
+    <p>Pour tracer une ligne horizontale, le principe est le même : <em>dessinez-là</em>. La syntaxe est cette fois bien plus simple puisqu'elle n'est constituée que de trois tirets (ou plus, ça ne change rien au résultat) :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+------
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Voici le résultat :</p>
+    <hr>
+
+    <h2 id="5-formules-mathematiques"><a href="#5-formules-mathematiques">Formules mathématiques</a></h2>
+
+    <p>Une formule mathématique s'écrit à l'aide d'expressions TeX Math, en l'entourant de deux caractères dollars <code>$$</code> :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+$$a \cdot x^2 + b \cdot x + c = 0 \quad \Longrightarrow \quad x = \frac {-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Ce qui donne :</p>
+
+    <p></p>
+
+    <div class="mathjax-wrapper">
+        <span class="MathJax_Preview" style="color: inherit;"></span>
+
+        <div class="MathJax_Display" style="text-align: center;">
+            <span class="MathJax" id="MathJax-Element-1-Frame"><nobr><span class="math" id="MathJax-Span-1" style="width: 24.609em; display: inline-block;"><span style="display: inline-block; position: relative; width: 22.131em; height: 0px; font-size: 111%;"><span style="position: absolute; clip: rect(1.016em 1000.003em 3.606em -999.997em); top: -2.756em; left: 0.003em;"><span class="mrow" id="MathJax-Span-2"><span class="mi" id="MathJax-Span-3" style="font-family: MathJax_Math-italic;">a</span><span class="mo" id="MathJax-Span-4" style="font-family: MathJax_Main; padding-left: 0.228em;">⋅</span><span class="msubsup" id="MathJax-Span-5" style="padding-left: 0.228em;"><span style="display: inline-block; position: relative; width: 1.016em; height: 0px;"><span style="position: absolute; clip: rect(3.381em 1000.003em 4.169em -999.997em); top: -3.995em; left: 0.003em;"><span class="mi" id="MathJax-Span-6" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; top: -4.389em; left: 0.566em;"><span class="mn" id="MathJax-Span-7" style="font-size: 70.7%; font-family: MathJax_Main;">2</span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span></span></span><span class="mo" id="MathJax-Span-8" style="font-family: MathJax_Main; padding-left: 0.228em;">+</span><span class="mi" id="MathJax-Span-9" style="font-family: MathJax_Math-italic; padding-left: 0.228em;">b</span><span class="mo" id="MathJax-Span-10" style="font-family: MathJax_Main; padding-left: 0.228em;">⋅</span><span class="mi" id="MathJax-Span-11" style="font-family: MathJax_Math-italic; padding-left: 0.228em;">x</span><span class="mo" id="MathJax-Span-12" style="font-family: MathJax_Main; padding-left: 0.228em;">+</span><span class="mi" id="MathJax-Span-13" style="font-family: MathJax_Math-italic; padding-left: 0.228em;">c</span><span class="mo" id="MathJax-Span-14" style="font-family: MathJax_Main; padding-left: 0.284em;">=</span><span class="mn" id="MathJax-Span-15" style="font-family: MathJax_Main; padding-left: 0.284em;">0</span><span class="mspace" id="MathJax-Span-16" style="height: 0.003em; vertical-align: 0.003em; width: 1.016em; display: inline-block; overflow: hidden;"></span><span class="mo" id="MathJax-Span-17" style="font-family: MathJax_Main; padding-left: 0.284em;">⟹</span><span class="mspace" id="MathJax-Span-18" style="height: 0.003em; vertical-align: 0.003em; width: 1.016em; display: inline-block; overflow: hidden;"></span><span class="mi" id="MathJax-Span-19" style="font-family: MathJax_Math-italic; padding-left: 0.284em;">x</span><span class="mo" id="MathJax-Span-20" style="font-family: MathJax_Main; padding-left: 0.284em;">=</span><span class="mfrac" id="MathJax-Span-21" style="padding-left: 0.284em;"><span style="display: inline-block; position: relative; width: 6.985em; height: 0px; margin-right: 0.115em; margin-left: 0.115em;"><span style="position: absolute; clip: rect(2.931em 1000.003em 4.282em -999.997em); top: -4.671em; left: 50%; margin-left: -3.432em;"><span class="mrow" id="MathJax-Span-22"><span class="mo" id="MathJax-Span-23" style="font-family: MathJax_Main;">−</span><span class="mi" id="MathJax-Span-24" style="font-family: MathJax_Math-italic;">b</span><span class="mo" id="MathJax-Span-25" style="font-family: MathJax_Main; padding-left: 0.228em;">±</span><span class="msqrt" id="MathJax-Span-26" style="padding-left: 0.228em;"><span style="display: inline-block; position: relative; width: 4.395em; height: 0px;"><span style="position: absolute; clip: rect(3.1em 1000.003em 4.169em -999.997em); top: -3.995em; left: 0.847em;"><span class="mrow" id="MathJax-Span-27"><span class="msubsup" id="MathJax-Span-28"><span style="display: inline-block; position: relative; width: 0.847em; height: 0px;"><span style="position: absolute; clip: rect(3.156em 1000.003em 4.169em -999.997em); top: -3.995em; left: 0.003em;"><span class="mi" id="MathJax-Span-29" style="font-family: MathJax_Math-italic;">b</span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; top: -4.276em; left: 0.453em;"><span class="mn" id="MathJax-Span-30" style="font-size: 70.7%; font-family: MathJax_Main;">2</span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span></span></span><span class="mo" id="MathJax-Span-31" style="font-family: MathJax_Main; padding-left: 0.228em;">−</span><span class="mn" id="MathJax-Span-32" style="font-family: MathJax_Main; padding-left: 0.228em;">4</span><span class="mi" id="MathJax-Span-33" style="font-family: MathJax_Math-italic;">a</span><span class="mi" id="MathJax-Span-34" style="font-family: MathJax_Math-italic;">c</span></span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; clip: rect(3.55em 1000.003em 3.944em -999.997em); top: -4.614em; left: 0.847em;"><span style="display: inline-block; position: relative; width: 3.606em; height: 0px;"><span style="position: absolute; font-family: MathJax_Main; top: -3.995em; left: -0.053em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; font-family: MathJax_Main; top: -3.995em; left: 2.874em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="font-family: MathJax_Main; position: absolute; top: -3.995em; left: 0.397em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="font-family: MathJax_Main; position: absolute; top: -3.995em; left: 0.904em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="font-family: MathJax_Main; position: absolute; top: -3.995em; left: 1.41em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="font-family: MathJax_Main; position: absolute; top: -3.995em; left: 1.917em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="font-family: MathJax_Main; position: absolute; top: -3.995em; left: 2.368em;">−<span style="display: inline-block; width: 0px; height: 4.001em;"></span></span></span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; clip: rect(3.043em 1000.003em 4.395em -999.997em); top: -4.051em; left: 0.003em;"><span style="font-family: MathJax_Main;">√</span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; clip: rect(3.156em 1000.003em 4.169em -999.997em); top: -3.319em; left: 50%; margin-left: -0.504em;"><span class="mrow" id="MathJax-Span-35"><span class="mn" id="MathJax-Span-36" style="font-family: MathJax_Main;">2</span><span class="mi" id="MathJax-Span-37" style="font-family: MathJax_Math-italic;">a</span></span><span style="display: inline-block; width: 0px; height: 4.001em;"></span></span><span style="position: absolute; clip: rect(0.847em 1000.003em 1.242em -999.997em); top: -1.292em; left: 0.003em;"><span style="border-left-width: 6.985em; border-left-style: solid; display: inline-block; overflow: hidden; width: 0px; height: 1.25px; vertical-align: 0.003em;"></span><span style="display: inline-block; width: 0px; height: 1.073em;"></span></span></span></span></span><span style="display: inline-block; width: 0px; height: 2.762em;"></span></span></span><span style="border-left-width: 0.003em; border-left-style: solid; display: inline-block; overflow: hidden; width: 0px; height: 2.628em; vertical-align: -0.809em;"></span></span></nobr></span>
+        </div><script id="MathJax-Element-1" type="math/tex; mode=display">
+a \cdot x^2 + b \cdot x + c = 0 \quad \Longrightarrow \quad x = \frac {-b \pm \sqrt{b^2 - 4ac}}{2a}
+        </script>
+    </div>
+
+    <p></p>
+
+    <p>En faisant ainsi, votre formule est en mode <em>displayed</em> : elle est dans son propre paragrpahe et s'affiche en prenant ses aises. Ainsi les chiffres et autres symboles sont écrits en grande taille et sont facilement lisibles.</p>
+
+    <p>Si vous voulez écrire votre formule au sein même d'un paragraphe (comme ceci : <span><span class="MathJax_Preview" style="color: inherit;"></span><span class="MathJax" id="MathJax-Element-2-Frame"><nobr><span class="math" id="MathJax-Span-38" style="width: 11.114em; display: inline-block;"><span style="display: inline-block; position: relative; width: 8.79em; height: 0px; font-size: 126%;"><span style="position: absolute; clip: rect(1.76em 1000.003em 3.007em -999.997em); top: -2.775em; left: 0.003em;"><span class="mrow" id="MathJax-Span-39"><span class="mi" id="MathJax-Span-40" style="font-family: MathJax_Math-italic;">a</span><span class="mo" id="MathJax-Span-41" style="font-family: MathJax_Main; padding-left: 0.23em;">⋅</span><span class="msubsup" id="MathJax-Span-42" style="padding-left: 0.23em;"><span style="display: inline-block; position: relative; width: 1.023em; height: 0px;"><span style="position: absolute; clip: rect(3.404em 1000.003em 4.198em -999.997em); top: -4.022em; left: 0.003em;"><span class="mi" id="MathJax-Span-43" style="font-family: MathJax_Math-italic;">x</span><span style="display: inline-block; width: 0px; height: 4.028em;"></span></span><span style="position: absolute; top: -4.362em; left: 0.57em;"><span class="mn" id="MathJax-Span-44" style="font-size: 70.7%; font-family: MathJax_Main;">2</span><span style="display: inline-block; width: 0px; height: 4.028em;"></span></span></span></span><span class="mo" id="MathJax-Span-45" style="font-family: MathJax_Main; padding-left: 0.23em;">+</span><span class="mi" id="MathJax-Span-46" style="font-family: MathJax_Math-italic; padding-left: 0.23em;">b</span><span class="mo" id="MathJax-Span-47" style="font-family: MathJax_Main; padding-left: 0.23em;">⋅</span><span class="mi" id="MathJax-Span-48" style="font-family: MathJax_Math-italic; padding-left: 0.23em;">x</span><span class="mo" id="MathJax-Span-49" style="font-family: MathJax_Main; padding-left: 0.23em;">+</span><span class="mi" id="MathJax-Span-50" style="font-family: MathJax_Math-italic; padding-left: 0.23em;">c</span><span class="mo" id="MathJax-Span-51" style="font-family: MathJax_Main; padding-left: 0.286em;">=</span><span class="mn" id="MathJax-Span-52" style="font-family: MathJax_Main; padding-left: 0.286em;">0</span></span><span style="display: inline-block; width: 0px; height: 2.781em;"></span></span></span><span style="border-left-width: 0.004em; border-left-style: solid; display: inline-block; overflow: hidden; width: 0px; height: 1.289em; vertical-align: -0.139em;"></span></span></nobr></span><script id="MathJax-Element-2" type="math/tex">
+a \cdot x^2 + b \cdot x + c = 0
+    </script></span>), alors n'utilisez cette fois qu'un seul caractère dollar <code>$</code> avant et après votre formule. Par exemple :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Si vous voulez écrire votre formule au sein même d'un paragraphe (comme ceci : $a \cdot x^2 + b \cdot x + c = 0$), alors n'utilisez cette fois qu'un seul caractère dollar `$` avant et après votre formule.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Comme pour les tableaux, vous pouvez mettre une légende à votre formule, en ajoutant une ligne <code>Equation: Ma légende</code> juste en dessous. Le mot-clé <code>Equation</code> est optionnel.</p>
+
+    <p>Si vous souhaitez écrire deux symboles $ dans une même ligne, alors il vous faut <strong>échapper</strong> au moins l'un des deux (c'est-à-dire les faire précéder d'un antislash : <span>$</span>) afin que le texte ne soit pas considéré comme une formule mathématique.</p>
+
+    <div class="information ico-after">
+        <p>Pour en savoir plus sur l'utilisation des expressions mathématiques, vous pouvez consulter le tutoriel dédié: <a href="http://zestedesavoir.com/tutoriels/202/comment-rediger-des-maths-sur-zeste-de-savoir/">Comment rédiger des maths sur Zeste de Savoir ?</a></p>
+    </div>
+
+    <h2 id="6-code"><a href="#6-code">Code</a></h2>
+
+    <h3>Bloc de code</h3>
+
+    <p>Il n'est pas rare d'illustrer son propos d'un petit exemple de code :</p>
+
+    <figure>
+        <table class="codehilitetable">
+            <tbody>
+                <tr>
+                    <td class="linenos">
+                        <div class="linenodiv">
+                            <pre>
+1
+2
+3
+</pre>
+                        </div>
+                    </td>
+
+                    <td class="code">
+                        <div class="codehilite">
+                            <pre>
+<span class="c">#!/usr/bin/env python3</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s">"Hello, World!"</span><span class="p">)</span>
+</pre>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <figcaption>
+            <p>Mon exemple de code</p>
+        </figcaption>
+    </figure>
+
+    <p>Pour cela, il existe plusieurs solutions.</p>
+
+    <p>Première solution : entourer votre code d'au moins trois accents graves ``` (<kbd>Alt Gr</kbd> + <kbd>7</kbd>), avant et après :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+```
+#!/usr/bin/env python3
+
+print("Hello, World!")
+```
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Le langage utilisé sera détecté automatiquement et donc coloré en conséquence. Si tel n'est pas le cas, vous pouvez forcer le langage en l'indiquant à la suite des caractères ouvrants :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+```python
+#!/usr/bin/env python3
+
+print("Hello, World!")
+```
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>La liste des langages supportés est celle de <strong>pygment</strong>, vous la trouverez <a href="http://pygments.org/languages" title="Langages pygment">ici</a>. Les mots-clés à insérer pour déclencher la coloration sont les « short names » disponibles sur <a href="http://pygments.org/docs/lexers" title="Mots-clé pygment">cette page</a>.</p>
+
+    <p>Seconde solution, faites précéder chaque ligne de quatre espaces ou bien d'une tabulation :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+    #!/usr/bin/env python3
+
+    print("Hello, World!")
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Pour forcer le langage, utilisez cette fois trois symboles de deux-points de suite :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+    :::python
+    #!/usr/bin/env python3
+
+    print("Hello, World!")
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Là encore, vous pouvez mettre une légende à votre bloc de code en ajoutant, juste en dessous du bloc, une ligne <code>Code:Votre légende</code>.</p>
+
+    <h3>Mise en évidence de lignes de code</h3>
+
+    <p>Mettre en évidence une portion de code permet d'appuyer votre explication :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+6
+7
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+<span class="hll"><span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+</span><span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+
+<span class="hll"><span class="k">print</span> <span class="s">"Comment vous appelez-vous ? "</span><span class="p">;</span>
+</span><span class="hll"><span class="k">my</span> <span class="nv">$nom</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span> <span class="c1"># Récupération du nom de l'utilisateur</span>
+</span><span class="hll"><span class="nb">chomp</span> <span class="nv">$nom</span><span class="p">;</span>   <span class="c1"># Retrait du saut de ligne</span>
+</span><span class="k">print</span> <span class="s">"Bonjour, $nom !\n"</span><span class="p">;</span>
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Après le nom du langage, indiquez simplement les lignes à surligner avec la mention <code>hl_lines</code>. Vous pouvez surligner les lignes unes à unes ou par groupes. Le syntaxe est la suivante :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+```perl hl_lines="1 4-6"
+use strict;
+use warnings;
+
+print "Comment vous appelez-vous ? ";
+my $nom = &lt;&gt;; # Récupération du nom de l'utilisateur
+chomp $nom;   # Retrait du saut de ligne
+print "Bonjour, $nom !\n";
+```
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Début de la numérotation</h3>
+
+    <p>Il est possible de spécifier le début de numération. Par exemple :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+10
+11
+12
+13
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+<span class="hll"><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">truc</span><span class="p">):</span>      <span class="c"># Cette ligne est en évidence et est numérotée 10</span>
+</span>    <span class="k">print</span> <span class="n">truc</span>         <span class="c"># Cette ligne est numéroté 11</span>
+                         <span class="c"># Cette ligne est numéroté 12</span>
+<span class="hll"><span class="n">test</span><span class="p">(</span><span class="s">"coucou"</span><span class="p">)</span>     <span class="c"># Cette ligne est en évidence et est numérotée 13</span>
+</span>
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>On utilise le mot-clé <code>linenostart</code> de la même façon que le <code>hl_lines</code> vu précédemment.</p>
+
+    <h3>Code inline</h3>
+
+    <p>Enfin, si vous souhaitez insérer un petit élément de code dans votre phrase (comme <code>print</code> par exemple), alors un seul accent grave autour du mot suffira :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+comme `print` par exemple
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="7-medias"><a href="#7-medias">Médias</a></h2>
+
+    <h3>Images</h3>
+
+    <p>L'insertion d'une image ressemble à celle d'un lien, à ceci près que le texte d'ancrage doit être remplacé par un texte alternatif :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+![Logo Creative Commons](http://mirrors.creativecommons.org/presskit/logos/cc.logo.png)
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Il y a une petite différence de comportement selon que vous placiez votre image seule dans un paragraphe (ou dans un bloc de texte type citation, information, secret, etc.) ou bien au cours d'une phrase dans votre texte.</p>
+
+    <p>Lorsque l'image est seule, alors elle est présentée comme figure <strong>avec légende</strong>. Ainsi, si on prend l'exemple suivant :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Bla bla bla
+
+![Logo Creative Commons](http://mirrors.creativecommons.org/presskit/logos/cc.logo.png)
+
+Bla bla bla encore
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Alors le rendu sera la suivant :</p>
+    <hr>
+
+    <p>Bla bla bla</p>
+
+    <p></p>
+
+    <figure>
+        <img alt="" src="http://mirrors.creativecommons.org/presskit/logos/cc.logo.png">
+
+        <figcaption>
+            Logo Creative Commons
+        </figcaption>
+    </figure>
+
+    <p></p>
+
+    <p>Bla bla bla encore</p>
+    <hr>
+
+    <p>Si en revanche l'image est placée au cours d'un texte, alors le comportement sera plus classique et l'image apparaîtra naturellement dans la phrase :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Appuyez sur l'icône ![Icône machintruc](icone.png) et admirez le résultat.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="warning ico-after">
+        <p>Dans tous les cas, le texte alternatif <strong>doit</strong> être renseigné. Il sert à apporter la même information que l'image si celle-ci ne peut être chargée ou bien ne peut être vue (notamment pour les synthétiseurs vocaux pour les non-voyants).</p>
+    </div>
+
+    <p>Il est possible de définir à la fois un texte alternatif et une légende, en utilisant le mot-clé <code>Figure</code> de la même façon que pour les légendes de tableaux ou blocs de code :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+6
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Bla bla bla
+
+![Mon super alt](logo.png)
+Figure : Ma super légende !
+
+Bla bla bla
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Ainsi, le texte alternatif et la légende sont bien différents.</p>
+
+    <h3>Vidéos</h3>
+
+    <p>Les vidéos doivent être insérées avec une syntaxe dédié : <code>!(URL Vidéo)</code>. Elles ne peuvent être inline (au sein d'une phrase).</p>
+
+    <p>Pour insérer une vidéo on peut donc faire :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Bla bla bla
+
+!(http://www.youtube.com/watch?v=oavMtUWDBTM)
+
+Bla bla bla
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>ou avec une légende :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+6
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Bla bla bla
+
+!(http://www.youtube.com/watch?v=oavMtUWDBTM)
+Video : Ma super légende
+
+Bla bla bla
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Par exemple :</p>
+
+    <figure>
+        <iframe frameborder="0" height="315" src="https://www.youtube.com/embed/oavMtUWDBTM" width="560"></iframe>
+
+        <figcaption>
+            <p>Ma super légende</p>
+        </figcaption>
+    </figure>
+
+    <h3>Touches</h3>
+
+    <p>Pour représenter une touche, utilisez deux barres verticales avant et après le nom de la touche :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Utilisez ||Ctrl|| + ||C|| pour copier.
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Vous pouvez bien sûr mettre <kbd>ce que vous voulez</kbd> comme nom de touche.</p>
+
+    <h3>Smileys</h3>
+
+    <p>Que serait un forum sans smileys ? Un forum plus agréable ? Peut-être. Il n'empêche que les fameux smileys sont incontournables. Sur ZdS, les smileys que vous écrivez seront automatiquement transformés en image. Ci-dessous une liste (non exhaustive) des smileys disponibles :</p>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Entrée</th>
+
+                    <th>Résultat</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td><code>:)</code></td>
+
+                    <td><img alt=":)" src="/static/smileys/smile.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:D</code></td>
+
+                    <td><img alt=":D" src="/static/smileys/heureux.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>;)</code></td>
+
+                    <td><img alt=";)" src="/static/smileys/clin.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:p</code></td>
+
+                    <td><img alt=":p" src="/static/smileys/langue.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:lol:</code></td>
+
+                    <td><img alt=":lol:" src="/static/smileys/rire.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:euh:</code></td>
+
+                    <td><img alt=":euh:" src="/static/smileys/unsure.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:(</code></td>
+
+                    <td><img alt=":(" src="/static/smileys/triste.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:o</code></td>
+
+                    <td><img alt=":o" src="/static/smileys/huh.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:colere2:</code></td>
+
+                    <td><img alt=":colere2:" src="/static/smileys/mechant.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>o_O</code></td>
+
+                    <td><img alt="o_O" src="/static/smileys/blink.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><code>^^</code></td>
+
+                    <td><img alt="^^" src="/static/smileys/hihi.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:-°</code></td>
+
+                    <td><img alt=":-°" src="/static/smileys/siffle.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:ange:</code></td>
+
+                    <td><img alt=":ange:" src="/static/smileys/ange.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:colere:</code></td>
+
+                    <td><img alt=":colere:" src="/static/smileys/angry.gif"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:diable:</code></td>
+
+                    <td><img alt=":diable:" src="/static/smileys/diable.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:magicien:</code></td>
+
+                    <td><img alt=":magicien:" src="/static/smileys/magicien.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:ninja:</code></td>
+
+                    <td><img alt=":ninja:" src="/static/smileys/ninja.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>&gt;_&lt;</code></td>
+
+                    <td><img alt="&gt;_&lt;" src="/static/smileys/pinch.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:pirate:</code></td>
+
+                    <td><img alt=":pirate:" src="/static/smileys/pirate.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:'(</code></td>
+
+                    <td><img alt=":'(" src="/static/smileys/pleure.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:honte:</code></td>
+
+                    <td><img alt=":honte:" src="/static/smileys/rouge.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:soleil:</code></td>
+
+                    <td><img alt=":soleil:" src="/static/smileys/soleil.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:waw:</code></td>
+
+                    <td><img alt=":waw:" src="/static/smileys/waw.png"></td>
+                </tr>
+
+                <tr>
+                    <td><code>:zorro:</code></td>
+
+                    <td><img alt=":zorro:" src="/static/smileys/zorro.png"></td>
+                </tr>
+
+                <tr>
+                    <td>: Liste non exhaustive des smileys</td>
+
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>N'oubliez pas : l'abus de smileys est dangereux pour votre santé et celle de vos proches, utilisez-les avec modération. <img alt=";)" src="/static/smileys/clin.png"></p>
+
+    <h2 id="8-blocs-speciaux"><a href="#8-blocs-speciaux">Blocs spéciaux</a></h2>
+
+    <h3>Balises attention, erreur, information, question et secret</h3>
+
+    <p>Les tutoriels et articles de ZdS sont parsemés de balises telles que la balise "information" :</p>
+
+    <div class="information ico-after">
+        <p>Ceci est une balise d'information.</p>
+
+        <p>Cool, non ?</p>
+    </div>
+
+    <p>Elle se fait avec la syntaxe suivante :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+[[information]]
+| Ceci est une balise d'information.
+|
+| Cool, non ?
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Ou dans sa version raccourcie :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+[[i]]
+| Ceci est une balise d'information.
+|
+| Cool, non ?
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Les balises disponibles sont :</p>
+
+    <ul>
+        <li>attention</li>
+
+        <li>erreur</li>
+
+        <li>information</li>
+
+        <li>question</li>
+
+        <li>secret</li>
+    </ul>
+
+    <p>La balise "secret" (appelée "spoiler" sur certains sites) a ceci de spécial qu'elle masque son contenu par défaut et ne le rend visible qu'au clic de l'utilisateur.</p>
+
+    <h3>Citations</h3>
+
+    <p>Les citations permettent de séparer votre propos de celui que vous rapportez. D'ailleurs, si l'on en croit ce vieux proverbe nous venant d'une petite planète quelque part aux confins de Bételgeuse, il ne faut pas s'en priver :</p>
+
+    <figure>
+        <blockquote>
+            <p>Les citations, c'est bien.</p>
+        </blockquote>
+
+        <figcaption>
+            <p>Petite planète quelque part aux confins de Bételgeuse</p>
+        </figcaption>
+    </figure>
+
+    <p>On utilise pour cela un chevron devant chaque début de ligne, avec optionnellement votre source, écrite de la même façon que les légendes (avec le mot-clé <code>Source</code>) :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+&gt; Ceci est une citation
+&gt; sur plusieurs lignes
+Source: Citez vos sources !
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="9-notes-et-abreviations"><a href="#9-notes-et-abreviations">Notes et abréviations</a></h2>
+
+    <h3>Abréviations</h3>
+
+    <p>Il est souvent utile de préciser la signification d'une abréviation (notamment d'un acronyme ou d'un sigle), sans toutefois la faire figurer dans le corps du texte. En utilisant la syntaxe suivante, la signification apparaîtra au passage de la souris sur l'abréviation :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Bienvenue sur ZdS !
+
+*[ZdS]: Zeste de Savoir
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Bienvenue, donc, sur <abbr title="Zeste de Savoir">ZdS</abbr> !</p>
+
+    <h3>Notes de bas de page</h3>
+
+    <p>Toujours dans l'idée d'enrichir votre texte<sup id="fnref-enrich"><a class="footnote-ref" href="#fn-enrich">1</a></sup>, vous pouvez utiliser des notes de base de page :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+2
+3
+4
+5
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Markdown[^mdown] est une syntaxe légère d'écriture de documents. Pandoc[^pandoc] est un convertisseur de documents.
+
+[^mdown]: Plus d'informations sur [Markdown](http://daringfireball.net/projects/markdown/).
+
+[^pandoc]: Plus d'informations sur [Pandoc](http://johnmacfarlane.net/pandoc/).
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Les notes sont alors numérotées automatiquement. Vous n'avez à vous soucier que du nom que vous donner à votre note.</p>
+
+    <div class="footnote">
+        <hr>
+
+        <ol>
+            <li id="fn-enrich">
+                <p>Sans pour autant l'alourdir.&nbsp;<a class="footnote-backref" href="#fnref-enrich" title="Retourner au texte de la note 1">↩</a></p>
+            </li>
+        </ol>
+    </div>
+
+    <h2 id="10-caracteres-reserves-et-commentaires"><a href="#10-caracteres-reserves-et-commentaires">Caractères réservés et commentaires</a></h2>
+
+    <p>Si vous avez besoin d'écrire un caractère réservé entrant en conflit avec l'une des syntaxes décrites ici (l'astérisque par exemple), vous pouvez le faire en le précédent d'un antislash : <code>\*</code></p>
+
+    <p>Enfin, vous pouvez mettre une partie de votre texte en commentaires en le mettant entre des balises spécifiques :</p>
+
+    <table class="codehilitetable">
+        <tbody>
+            <tr>
+                <td class="linenos">
+                    <div class="linenodiv">
+                        <pre>
+1
+</pre>
+                    </div>
+                </td>
+
+                <td class="code">
+                    <div class="codehilite">
+                        <pre>
+Ceci est mon texte. &lt;--COMMENT Et ceci est une partie commentée. COMMENT--&gt;
+</pre>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>La partie commentée n'apparaîtra tout simplement pas dans le rendu final.</p>
+</section>
+{% endblocktrans %}
+{% endblock %}
