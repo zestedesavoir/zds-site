@@ -373,14 +373,14 @@ class UtilsTests(TestCase):
         NoteFactory(
             tutorial=public_mini_tuto,
             position=1,
-            author=self.user_staff)
+            author=self.staff)
         like_note = NoteFactory(
             tutorial=public_mini_tuto,
             position=2,
             author=self.user_author)
         like = CommentLike()
         like.comments = liked_note
-        like.user = self.user_staff 
+        like.user = self.staff 
         like.save()
         big_tuto = BigTutorialFactory()
         big_tuto.authors.add(self.user_author)
@@ -394,19 +394,19 @@ class UtilsTests(TestCase):
         ReactionFactory(
             article=public_article,
             position=1,
-            author=self.user_staff)
+            author=self.staff)
         liked_reaction = ReactionFactory(
             article=public_article,
             position=2,
             author=self.user_author)
         like = CommentLike()
         like.comments = liked_reaction
-        like.user = self.user_staff 
+        like.user = self.staff 
         like.save()
         call_command('migrate_to_zep12')
         self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 5)
         self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2)
-        self.assertEqual(ContentReaction.objects.filter(author__pk=self.user_staff.pk).count(), 2)
+        self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
