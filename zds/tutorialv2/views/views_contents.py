@@ -743,6 +743,14 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
         return context
 
+    def render_to_response(self, context, **response_kwargs):
+        parent = context['container']
+        if not parent.can_add_container():
+            messages.error(self.request, _(u'Vous ne pouvez plus ajouter de conteneur à « {} »').format(parent.title))
+            return redirect(parent.get_absolute_url())
+
+        return super(CreateContainer, self).render_to_response(context, **response_kwargs)
+
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
@@ -899,6 +907,14 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
 
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        parent = context['container']
+        if not parent.can_add_extract():
+            messages.error(self.request, _(u'Vous ne pouvez plus ajouter de section à « {} »').format(parent.title))
+            return redirect(parent.get_absolute_url())
+
+        return super(CreateExtract, self).render_to_response(context, **response_kwargs)
 
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
