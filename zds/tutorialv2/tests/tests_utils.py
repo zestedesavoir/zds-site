@@ -17,6 +17,9 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_c
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from django.core.management import call_command
+from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
+from zds.article.factories import ArticleFactory, PublishedArticle, ReactionFactory
+from zds.utils.models import CommentLike
 
 try:
     import ujson as json_reader
@@ -359,6 +362,50 @@ class UtilsTests(TestCase):
 
         # finally, clean up:
         shutil.rmtree(tempdir)
+
+    def test_migrate_zep12(self):
+		private_mini_tuto = MiniTutorialFactory()
+		private_mini_tuto.authors.add(self.user_author)
+		private_mini_tuto.save()
+		public_mini_tuto = PublishedMiniTutorial()
+		public_mini_tuto.authors.add(self.user_author)
+		public_mini_tuto.save()
+		NoteFactory(
+            tutorial=public_mini_tuto,
+            position=1,
+            author=self.user_staff)
+        like_note = NoteFactory(
+            tutorial=public_mini_tuto,
+            position=2,
+            author=self.user_author)
+        like = CommentLike()
+        like.comments = liked_note
+        like.user = self.user_staff 
+        like.save()
+		big_tuto = BigTutorialFactory()
+		big_tuto.authors.add(self.user_author)
+		big_tuto.save()
+		private_article = ArticleFactory()
+		private_article.authors.add(self.user_author)
+		private_article.save()
+		public_article = PublishedArticle()
+		public_article.authors.add(self.user_author)
+		public_article.save()
+		ReactionFactory(
+            article=public_article,
+            position=1,
+            author=self.user_staff)
+        liked_reaction = ReactionFactory(
+            article=public_article,
+            position=2,
+            author=self.user_author)
+        like = CommentLike()
+        like.comments = liked_reaction
+        like.user = self.user_staff 
+        like.save()
+        call_command('migrate_to_zep12')
+        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 5)
+        self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
