@@ -374,7 +374,7 @@ class UtilsTests(TestCase):
             tutorial=public_mini_tuto,
             position=1,
             author=self.staff)
-        like_note = NoteFactory(
+        liked_note = NoteFactory(
             tutorial=public_mini_tuto,
             position=2,
             author=self.user_author)
