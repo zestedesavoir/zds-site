@@ -405,7 +405,8 @@ class UtilsTests(TestCase):
         like.save()
         call_command('migrate_to_zep12')
         self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 6)
-        self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2)
+        # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
+        self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 2)
         self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
 
     def tearDown(self):
