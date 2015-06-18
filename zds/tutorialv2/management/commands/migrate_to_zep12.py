@@ -237,7 +237,7 @@ def migrate_mini_tuto():
         for extract in OldExtract.objects.filter(chapter=current.get_chapter()):
             minituto_extract = Extract(extract.title, extract.text[:-3].split("/")[-1])
             minituto_extract.text = extract.text
-            versioned.add_extract(minituto_extract)
+            versioned.add_extract(minituto_extract, generate_slug=True)
         versioned.dump_json()
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
@@ -315,16 +315,16 @@ def migrate_big_tuto():
             current_part = Container(part.title, str(part.pk) + "_" + slugify(part.title))
             current_part.introduction = part.introduction
             current_part.conclusion = part.conclusion
-            versioned.add_container(current_part)
+            versioned.add_container(current_part, generate_slug=True)
             for chapter in Chapter.objects.filter(part=part).all():
                 current_chapter = Container(chapter.title, str(chapter.pk) + "_" + slugify(chapter.title))
                 current_chapter.introduction = chapter.introduction
                 current_chapter.conclusion = chapter.conclusion
-                current_part.add_container(current_chapter)
+                current_part.add_container(current_chapter, generate_slug=True)
                 for extract in OldExtract.objects.filter(chapter=chapter):
                     current_extract = Extract(extract.title, extract.text[:-3].split("/")[-1])
                     current_extract.text = extract.text
-                    current_chapter.add_extract(current_extract)
+                    current_chapter.add_extract(current_extract, generate_slug=True)
 
         versioned.dump_json()
 
