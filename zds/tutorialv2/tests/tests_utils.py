@@ -15,7 +15,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
 from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
@@ -380,7 +380,7 @@ class UtilsTests(TestCase):
             author=self.user_author)
         like = CommentLike()
         like.comments = liked_note
-        like.user = self.staff 
+        like.user = self.staff
         like.save()
         big_tuto = BigTutorialFactory()
         big_tuto.authors.add(self.user_author)
@@ -401,10 +401,10 @@ class UtilsTests(TestCase):
             author=self.user_author)
         like = CommentLike()
         like.comments = liked_reaction
-        like.user = self.staff 
+        like.user = self.staff
         like.save()
         call_command('migrate_to_zep12')
-        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 5)
+        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 6)
         self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2)
         self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
 
