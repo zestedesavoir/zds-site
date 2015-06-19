@@ -23,7 +23,6 @@
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
     "cookies-eu-banner": "1.2.7",
-    "css-sprite": "0.9.8",
     "del": "1.2.0",
     "gulp": "3.9.0",
     "gulp-autoprefixer": "2.3.1",
@@ -38,7 +37,8 @@
     "gulp-size": "1.2.2",
     "gulp-uglify": "1.2.0",
     "jquery": "2.1.4",
-    "normalize.css": "3.0.3"
+    "normalize.css": "3.0.3",
+    "sprity": "1.0.6"
   },
   "devDependencies": {
     "gulp-jshint": "1.11.0",

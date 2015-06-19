@@ -1,6 +1,6 @@
 var gulp = require("gulp"),
     $ = require("gulp-load-plugins")(),
-    sprite = require("css-sprite").stream,
+    sprite = require("sprity"),
     path = require("path"),
     del = require("del");
 
@@ -113,16 +113,15 @@ gulp.task("errors", ["clean-errors"], function() {
  * Generates Sprite files (SASS + image)
  */
 gulp.task("sprite", function() {
-  return gulp.src(path.join(sourceDir, imagesDir, spriteDir, "*"))
-    .pipe(sprite({
-      name: "sprite",
-      style: "_sprite.scss",
+  return sprite.src({
       cssPath: "../" + imagesDir + "/",
-      retina: true,
-      prefix: "sprite-icon",
-      processor: "scss",
-      template: path.join(sourceDir, sassDir, "sprite-template.mustache")
-    }))
+      dimension: [{ ratio: 1, dpi: 72 },
+                  { ratio: 2, dpi: 192 }],
+      margin: 0,
+      src: path.join(sourceDir, imagesDir, spriteDir, "*"),
+      style: "_sprite.scss",
+      template: path.join(sourceDir, sassDir, "sprite-template.hbs")
+    })
     .pipe($.if("*.png", gulp.dest(path.join(destDir, imagesDir)), gulp.dest(path.join(sourceDir, sassDir))));
 });
 
