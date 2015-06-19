@@ -232,6 +232,7 @@ def load_topics(cli, size, fake):
                     topic.title = fake.text(max_nb_chars=80)
                     topic.subtitle = fake.text(max_nb_chars=200)
                     topic.save()
+                    PostFactory(topic=topic, author=topic.author, position=1)
                     sys.stdout.write(" Topic {}/{}  \r".format(i + 1, nb_topics))
                     sys.stdout.flush()
                 tps2 = time.time()
@@ -258,12 +259,9 @@ def load_posts(cli, size, fake):
         else:
             profiles = list(Profile.objects.all())
             for i in range(0, nb_topics):
-                nb_posts = randint(0, nb_avg_posts_in_topic * 2)
-                for j in range(0, nb_posts):
-                    if j == 0:
-                        post = PostFactory(topic=topics[i], author=topics[i].author, position=1)
-                    else:
-                        post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j + 1)
+                nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1
+                for j in range(1, nb_posts):
+                    post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j + 1)
                     post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
                     post.text_html = emarkdown(post.text)
                     if int(nb_posts * 0.3) > 0:
