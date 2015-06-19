@@ -228,6 +228,7 @@ class FeaturedMessageCreateUpdate(CreateView):
         if last_message:
             last_message.delete()
         featured_message = FeaturedMessage()
+        featured_message.hook = form.data.get('hook')
         featured_message.message = form.data.get('message')
         featured_message.url = form.data.get('url')
         featured_message.save()

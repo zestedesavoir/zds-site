@@ -35,10 +35,11 @@ class FeaturedMessage(models.Model):
         verbose_name = _(u'Message')
         verbose_name_plural = _(u'Messages')
 
-    message = models.CharField(_(u'Message'), max_length=255)
-    url = models.CharField(_(u'URL du message'), max_length=2000, null=False, blank=False)
+    hook = models.CharField(_(u'Accroche'), max_length=100, blank=True, null=True)
+    message = models.CharField(_(u'Message'), max_length=255, blank=True, null=True)
+    url = models.CharField(_(u'URL du message'), max_length=2000, blank=True, null=True)
     objects = FeaturedMessageManager()
 
     def __unicode__(self):
         """Textual form of a featured message."""
-        return self.message
+        return u'{} - {}'.format(self.hook, self.message)

@@ -90,28 +90,27 @@ class FeaturedMessageForm(forms.ModelForm):
     class Meta:
         model = FeaturedMessage
 
-        fields = ['message', 'url']
+        fields = ['hook', 'message', 'url']
 
-    message = forms.CharField(
-        label=_(u'Message'),
-        max_length=FeaturedMessage._meta.get_field('message').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'required': 'required',
-            }
-        )
-    )
+        widgets = {
+            'hook': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Mesage d\'accroche court ("Nouveau !")')
+                }
+            ),
 
-    url = forms.CharField(
-        label=_(u'URL'),
-        max_length=FeaturedMessage._meta.get_field('url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Lien vers l\'url du message.'),
-                'required': 'required',
-            }
-        )
-    )
+            'message': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Information à transmettre')
+                }
+            ),
+
+            'url': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Lien vers la description de la ressource')
+                }
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         super(FeaturedMessageForm, self).__init__(*args, **kwargs)
@@ -121,6 +120,7 @@ class FeaturedMessageForm(forms.ModelForm):
         self.helper.form_action = reverse('featured-message-create')
 
         self.helper.layout = Layout(
+            Field('hook'),
             Field('message'),
             Field('url'),
             ButtonHolder(
