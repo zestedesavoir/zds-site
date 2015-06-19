@@ -15,57 +15,37 @@ class FeaturedResourceForm(forms.ModelForm):
 
         fields = ['title', 'type', 'authors', 'image_url', 'url']
 
-    title = forms.CharField(
-        label=_(u'Titre'),
-        max_length=FeaturedResource._meta.get_field('title').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'required': 'required',
-            }
-        )
-    )
+        widgets = {
+            'title': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Titre de la Une')
+                }
+            ),
 
-    type = forms.CharField(
-        label=_(u'Type'),
-        max_length=FeaturedResource._meta.get_field('type').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'ex: Un projet, un article, un tutoriel...'),
-                'required': 'required',
-            }
-        )
-    )
+            'type': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'ex: Un projet, Un article, Un tutoriel...')
+                }
+            ),
 
-    authors = forms.CharField(
-        label=_('Auteurs'),
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Les auteurs doivent être séparés par une virgule.'),
-                'required': 'required',
-                'data-autocomplete': '{ "type": "multiple" }'
-            }
-        )
-    )
+            'authors': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Des auteurs (ou pas) ?')
+                }
+            ),
 
-    image_url = forms.CharField(
-        label='Image URL',
-        max_length=FeaturedResource._meta.get_field('image_url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Lien vers l\'url de l\'image de la une (dimensions: 228x228).')
-            }
-        )
-    )
+            'image_url': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Lien vers l\'url de l\'image de la une (dimensions: 228x228).')
+                }
+            ),
 
-    url = forms.CharField(
-        label='URL',
-        max_length=FeaturedResource._meta.get_field('url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Lien vers l\'url de la ressource.')
-            }
-        )
-    )
+            'url': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Lien vers l\'url de la ressource.')
+                }
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         super(FeaturedResourceForm, self).__init__(*args, **kwargs)

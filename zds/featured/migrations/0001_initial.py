@@ -7,7 +7,6 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0002_auto_20150601_1144'),
     ]
 
     operations = [
@@ -31,10 +30,10 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=80, verbose_name='Titre')),
                 ('type', models.CharField(max_length=80, verbose_name='Type')),
+                ('authors', models.CharField(max_length=100, verbose_name='Auteurs', blank=True)),
                 ('image_url', models.CharField(max_length=2000, verbose_name="URL de l'image \xe0 la une")),
                 ('url', models.CharField(max_length=2000, verbose_name='URL de la une')),
                 ('pubdate', models.DateTimeField(db_index=True, verbose_name='Date de publication', blank=True)),
-                ('authors', models.ManyToManyField(to='member.Profile', verbose_name='Auteurs', db_index=True)),
             ],
             options={
                 'verbose_name': 'Une',
