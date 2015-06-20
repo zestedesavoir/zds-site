@@ -20,7 +20,7 @@
     function buildDescription(authors, type) {
         var text = type;
         if(authors.length > 0)
-            text += ' par ' + authors;
+            text += " par " + authors;
         return text;
     }
 

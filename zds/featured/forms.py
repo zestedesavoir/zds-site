@@ -34,18 +34,24 @@ class FeaturedResourceForm(forms.ModelForm):
                 }
             ),
 
-            'image_url': forms.TextInput(
+            'image_url': forms.URLInput(
                 attrs={
                     'placeholder': _(u'Lien vers l\'url de l\'image de la une (dimensions: 228x228).')
                 }
             ),
 
-            'url': forms.TextInput(
+            'url': forms.URLInput(
                 attrs={
                     'placeholder': _(u'Lien vers l\'url de la ressource.')
                 }
             )
         }
+
+    update = forms.BooleanField(
+        label=_(u'Mise à jour majeure (fera passer la Une en premier lors d\'une maj)'),
+        initial=False,
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super(FeaturedResourceForm, self).__init__(*args, **kwargs)
@@ -60,6 +66,7 @@ class FeaturedResourceForm(forms.ModelForm):
             Field('authors'),
             Field('image_url'),
             Field('url'),
+            Field('update'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
             ),
@@ -75,7 +82,7 @@ class FeaturedMessageForm(forms.ModelForm):
         widgets = {
             'hook': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Mesage d\'accroche court ("Nouveau !")')
+                    'placeholder': _(u'Message d\'accroche court ("Nouveau !")')
                 }
             ),
 
@@ -85,7 +92,7 @@ class FeaturedMessageForm(forms.ModelForm):
                 }
             ),
 
-            'url': forms.TextInput(
+            'url': forms.URLInput(
                 attrs={
                     'placeholder': _(u'Lien vers la description de la ressource')
                 }

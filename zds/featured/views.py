@@ -25,7 +25,7 @@ class FeaturedResourceList(ZdSPagingListView):
 
     context_object_name = 'featured_resource_list'
     paginate_by = settings.ZDS_APP['featured_resource']['featured_per_page']
-    queryset = FeaturedResource.objects.all()
+    queryset = FeaturedResource.objects.all().order_by('-pubdate')
     template_name = 'featured/index.html'
 
     @method_decorator(login_required)
@@ -91,7 +91,7 @@ class FeaturedResourceUpdate(UpdateView):
             'type': self.featured_resource.type,
             'authors': self.featured_resource.authors,
             'image_url': self.featured_resource.image_url,
-            'url': self.featured_resource.url
+            'url': self.featured_resource.url,
         })
         form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
         return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})
@@ -112,9 +112,10 @@ class FeaturedResourceUpdate(UpdateView):
         self.featured_resource.authors = form.data.get('authors')
         self.featured_resource.image_url = form.data.get('image_url')
         self.featured_resource.url = form.data.get('url')
-        self.featured_resource.pubdate = datetime.now()
-        self.featured_resource.save()
+        if form.data.get('update') is not None:
+            self.featured_resource.pubdate = datetime.now()
 
+        self.featured_resource.save()
         return redirect(reverse('zds.pages.views.home'))
 
     def get_form(self, form_class):
@@ -179,6 +180,16 @@ class FeaturedMessageCreateUpdate(CreateView):
     @method_decorator(permission_required('featured.change_featuredmessage', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedMessageCreateUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        last_message = FeaturedMessage.objects.get_last_message()
+        form = self.form_class(initial={
+            'hook': last_message.hook,
+            'message': last_message.message,
+            'url': last_message.url,
+        })
+        form.helper.form_action = reverse('featured-message-create')
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
