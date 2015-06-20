@@ -7,6 +7,8 @@ import zipfile
 import datetime
 
 from git import Repo
+from zds.utils.tutorials import GetPublished
+
 try:
     import ujson as json_reader
 except:
@@ -29,8 +31,8 @@ from zds.gallery.factories import UserGalleryFactory, ImageFactory
 from zds.mp.models import PrivateTopic
 from zds.forum.models import Topic
 from zds.settings import BASE_DIR
-from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, \
-    ChapterFactory, NoteFactory, SubCategoryFactory, LicenceFactory
+from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PartFactory, ChapterFactory, \
+    NoteFactory, SubCategoryFactory, LicenceFactory, ExtractFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorial.models import Note, Tutorial, Validation, Extract, Part, Chapter
 from zds.tutorial.views import insert_into_zip
@@ -2917,6 +2919,105 @@ class BigTutorialTests(TestCase):
         self.assertIn(typo_text, sent_pm.last_message.text)  # typo is in message
         self.assertIn(Chapter.objects.get(pk=self.chapter1_1.pk).get_absolute_url_beta(),
                       sent_pm.last_message.text)  # public url is in message
+
+    def test_get_published_content(self):
+        """
+        Add a non-regression test for not indexing content that have not been published.
+        """
+
+        count_parts = len(self.bigtuto.get_parts())
+        count_chapter = Chapter.objects.count()
+
+        # Non published Chapter and Extracts
+        non_published_chapter_link_tuto = ChapterFactory(tutorial=self.bigtuto)
+        ExtractFactory(chapter=non_published_chapter_link_tuto, position_in_chapter=1)
+
+        # Non published parts, chapters and extracts
+        self.part4 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=4)
+        non_published_chapter = ChapterFactory(part=self.part4)
+        ExtractFactory(chapter=non_published_chapter, position_in_chapter=1)
+
+        # Create a non published parts and chapters
+        self.part5 = PartFactory(tutorial=self.bigtuto, position_in_tutorial=5)
+        ChapterFactory(part=self.part5)
+
+        # Empty non published parts
+        PartFactory(tutorial=self.bigtuto, position_in_tutorial=6)
+
+        # Empty non published chapters
+        ChapterFactory(tutorial=self.bigtuto)
+
+        published_content = GetPublished().get_published_content()
+        self.assertEqual(len(published_content["parts"]), count_parts)
+        self.assertEqual(len(published_content["chapters"]), count_chapter)
+
+        # Clear all the lists
+        GetPublished.published_part = []
+        GetPublished.published_chapter = []
+        GetPublished.published_extract = []
+
+        # Manifest for tutorial with parts only
+        m = '{"title": "Ceci est un test", "parts": [{"pk": 1}] }'
+        json = json_reader.loads(m)
+
+        GetPublished.load_tutorial(json)
+        self.assertEqual(GetPublished.published_part[0], 1)
+
+        GetPublished.published_part = []
+
+        # Manifest for tutorial with chapters only
+        m = '{"title": "Ceci est un test", "chapters": [{"pk": 1}] }'
+        json = json_reader.loads(m)
+
+        GetPublished.load_tutorial(json)
+        self.assertEqual(GetPublished.published_chapter[0], 1)
+
+        GetPublished.published_chapter = []
+
+        # Manifest for tutorial with extracts only
+        m = '{"title": "Ceci est un test", "extracts": [{"pk": 1}] }'
+        json = json_reader.loads(m)
+
+        GetPublished.load_tutorial(json)
+        self.assertEqual(GetPublished.published_extract[0], 1)
+
+        GetPublished.published_extract = []
+
+        # Manifest for tutorial with parts, chapters and extracts
+        m = '{"title": "Ceci est un test", "parts": [{"pk": 1, "chapters":[{"pk": 2, "extracts":[{"pk": 3}] }] }] }'
+        json = json_reader.loads(m)
+
+        GetPublished.load_tutorial(json)
+        self.assertEqual(GetPublished.published_part[0], 1)
+        self.assertEqual(GetPublished.published_chapter[0], 2)
+        self.assertEqual(GetPublished.published_extract[0], 3)
+
+        # Manifest for tutorial with chapters and extracts
+        GetPublished.published_part = []
+        GetPublished.published_chapter = []
+        GetPublished.published_extract = []
+
+        m = '{"title": "Ceci est un test", "chapters": [{"pk": 1, "extracts":[{"pk": 2}] }] }'
+        json = json_reader.loads(m)
+
+        GetPublished.load_tutorial(json)
+        self.assertEqual(GetPublished.published_chapter[0], 1)
+        self.assertEqual(GetPublished.published_extract[0], 2)
+
+        GetPublished.published_chapter = []
+        GetPublished.published_extract = []
+
+        # Manifest for tutorial with parts and chapters
+
+        m = '{"title": "Ceci est un test", "parts": [{"pk": 1, "chapters":[{"pk": 2}] }] }'
+        json = json_reader.loads(m)
+
+        GetPublished.load_tutorial(json)
+        self.assertEqual(GetPublished.published_part[0], 1)
+        self.assertEqual(GetPublished.published_chapter[0], 2)
+
+        GetPublished.published_part = []
+        GetPublished.published_chapter = []
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
