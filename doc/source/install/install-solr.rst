@@ -31,7 +31,7 @@ Ouvrez le terminal ou powershell
 
 .. code:: bash
 
-    python manage.py build_solr_schema > %solr_home%/example/solr/collection1/conf/schema.xml
+    python manage.py build_solr_schema_fr > %solr_home%/example/solr/collection1/conf/schema.xml
 
 où ``%solr_home%`` est le dossier dans lequel vous avez installé Solr.
 
