@@ -370,7 +370,6 @@ class UtilsTests(TestCase):
         private_mini_tuto = MiniTutorialFactory()
         private_mini_tuto.authors.add(self.user_author)
         private_mini_tuto.save()
-        OldExtractFactory(chapter=private_mini_tuto.get_chapter())
         public_mini_tuto = PublishedMiniTutorial()
         public_mini_tuto.authors.add(self.user_author)
         public_mini_tuto.save()

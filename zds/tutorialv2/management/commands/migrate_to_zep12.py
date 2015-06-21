@@ -204,10 +204,9 @@ def migrate_articles():
             published.save()
 
 
-def migrate_mini_tuto():
-    mini_tutos = Tutorial.objects.prefetch_related("licence").filter(type="MINI").all()
-    for i in progressbar(xrange(len(mini_tutos)), "Exporting mini tuto", 100):
-        current = mini_tutos[i]
+def migrate_tuto(tutos, title="Exporting mini tuto"):
+    for i in progressbar(xrange(len(tutos)), title, 100):
+        current = tutos[i]
         if not os.path.exists(current.get_path(False)):
             print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
             continue
@@ -278,88 +277,11 @@ def migrate_mini_tuto():
             map_previous.content = exported
             map_previous.save()
 
-
-def migrate_big_tuto():
-    big_tutos = Tutorial.objects.prefetch_related("licence").filter(type="BIG").all()
-    for i in progressbar(xrange(len(big_tutos)), "Exporting big tutos", 100):
-        current = big_tutos[i]
-        if not os.path.exists(current.get_path(False)):
-            print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
-            continue
-        exported = PublishableContent()
-        exported.slug = current.slug
-        exported.type = "TUTORIAL"
-        exported.title = current.title
-        exported.sha_draft = current.sha_draft
-        exported.licence = Licence.objects.filter(code=current.licence).first()
-        exported.creation_date = current.create_at
-        exported.image = current.image
-        exported.description = current.description
-        exported.js_support = current.js_support
-        exported.save()
-        [exported.subcategory.add(category) for category in current.subcategory.all()]
-        [exported.helps.add(help) for help in current.helps.all()]
-        [exported.authors.add(author) for author in current.authors.all()]
-        shutil.copytree(current.get_path(False), exported.get_repo_path(False))
-        # now, re create the manifest.json
-        versioned = exported.load_version()
-        versioned.licence = exported.licence
-        exported.gallery = current.gallery
-        versioned.type = "TUTORIAL"
-        versioned.dump_json()
-
-        exported.sha_draft = versioned.commit_changes(u"Migration version 2")
-        exported.old_pk = current.pk
-        if current.in_beta():
-            exported.sha_beta = exported.sha_draft
-            exported.beta_topic = Topic.objects.get(key=current.pk).first()
-
-        exported.old_pk = current.pk
-        exported.save()
-
-        # export beta forum post
-        former_topic = Topic.objects.filter(key=current.pk).first()
-        if former_topic is not None:
-            former_topic.related_publishable_content = exported
-            former_topic.save()
-            former_first_post = former_topic.first_post()
-            text = former_first_post.text
-            text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
-            former_first_post.update_content(text)
-            former_first_post.save()
-
-        # todo: handle publication, notes etc.
-    reacts = Note.objects.filter(tutorial__pk=current.pk)\
-        .select_related("author")\
-        .order_by("pubdate")\
-        .all()
-    export_comments(reacts, exported, TutorialRead)
-    migrate_validation(exported, TutorialValidation.objects.filter(tutorial=current))
-    if current.sha_public is not None and current.sha_public != "":
-        published = publish_content(exported, exported.load_version(current.sha_public), False)
-        exported.pubdate = current.pubdate
-        exported.sha_public = current.sha_public
-        exported.public_version = published
-        exported.save()
-        exported.public_version.content_public_slug = current.slug
-        exported.public_version.publication_date = current.pubdate
-
-        exported.public_version.save()
-        # set mapping
-        map_previous = PublishedContent()
-        map_previous.content_public_slug = current.slug
-        map_previous.content_pk = current.pk
-        map_previous.content_type = 'TUTORIAL'
-        map_previous.must_redirect = True  # will send HTTP 301 if visited !
-        map_previous.content = exported
-        map_previous.save()
-
-
 @transaction.atomic
 class Command(BaseCommand):
     help = 'Migrate old tutorial and article stack to ZEP 12 stack (tutorialv2)'
 
     def handle(self, *args, **options):
         migrate_articles()
-        migrate_mini_tuto()
-        migrate_big_tuto()
+        migrate_tuto(Tutorial.objects.prefetch_related("licence").filter(type="MINI").all())
+        migrate_tuto(Tutorial.objects.prefetch_related("licence").filter(type="BIG").all(), "Exporting big tutos")
