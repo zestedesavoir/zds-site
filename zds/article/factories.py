@@ -13,6 +13,19 @@ from zds.article.views import mep
 from zds.utils.models import SubCategory
 
 
+content_light = u'Un test'
+
+content_long = u'Une introduction\n\n' \
+               u'# Un extrait\n\n' \
+               u'Le contenu de l\'extrait\n\n' \
+               u'# Un second extrait\n\n' \
+               u'Toujours du contenu !!!\n\n' \
+               u'```\n' \
+               u'# Un piège\n' \
+               u'```\n\n' \
+               u'Et encore un peu de texte'
+
+
 class ArticleFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Article
 
@@ -23,6 +36,7 @@ class ArticleFactory(factory.DjangoModelFactory):
 
     @classmethod
     def _prepare(cls, create, **kwargs):
+        light = kwargs.pop('light', False)
         article = super(ArticleFactory, cls)._prepare(create, **kwargs)
 
         path = article.get_path()
@@ -37,7 +51,12 @@ class ArticleFactory(factory.DjangoModelFactory):
         f.write(json_writer.dumps(man, indent=4, ensure_ascii=False).encode('utf-8'))
         f.close()
         f = open(os.path.join(path, article.text), "w")
-        f.write(u'Test')
+
+        if light:
+            f.write(content_light.encode('utf-8'))
+        else:
+            f.write(content_long.encode('utf-8'))
+
         f.close()
         repo.index.add(['manifest.json', article.text])
         cm = repo.index.commit("Init Article")

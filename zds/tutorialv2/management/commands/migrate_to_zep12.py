@@ -143,7 +143,7 @@ def split_article_in_extracts(article):
         if line[:3] == '```':
             in_code = not in_code
 
-        if not in_code and line[0] == '#':
+        if not len(line) == 0 and not in_code and line[0] == '#':
             title_level = 0
 
             for a in line:
@@ -159,7 +159,7 @@ def split_article_in_extracts(article):
                 extract_title = title_content
                 extract_text = u''
             else:
-                line = ''.join(['#' for i in range(title_level-1)]) + ' ' + title_content
+                line = ''.join(['#' for i in range(title_level - 1)]) + ' ' + title_content
                 extract_text += line + '\n'
 
         else:
@@ -252,9 +252,9 @@ def migrate_articles():
             map_previous.save()
 
             # publish the article !
-            published = publish_content(exported, exported.load_version(current.sha_public), False)
+            published = publish_content(exported, exported.load_version(exported.sha_draft), False)
             exported.pubdate = current.pubdate
-            exported.sha_public = current.sha_public
+            exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
             published.content_public_slug = current.slug
