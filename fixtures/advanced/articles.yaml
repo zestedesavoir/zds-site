@@ -1,0 +1,10 @@
+-   factory: zds.article.factories.PublishedArticleFactory
+    fields:
+        title: "Article court"
+        authors: [3]
+        light: True
+-   factory: zds.article.factories.PublishedArticleFactory
+    fields:
+        title: "Article long"
+        authors: [1,3]
+        light: False

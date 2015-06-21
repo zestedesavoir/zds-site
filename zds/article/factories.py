@@ -37,7 +37,15 @@ class ArticleFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         light = kwargs.pop('light', False)
+
+        authors = []
+        if "authors" in kwargs:
+            authors = kwargs.pop("authors")
+
         article = super(ArticleFactory, cls)._prepare(create, **kwargs)
+
+        for auth in authors:
+            article.authors.add(auth)
 
         path = article.get_path()
         if not os.path.isdir(path):
