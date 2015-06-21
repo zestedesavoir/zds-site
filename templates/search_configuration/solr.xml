@@ -112,6 +112,9 @@
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_fr.txt" format="snowball" />
                 <filter class="solr.FrenchLightStemFilterFactory"/>
+                <!-- Optionally you may want to use this less aggressive stemmer instead of FrenchLightStemFilterFactory:
+                   <filter class="solr.FrenchMinimalStemFilterFactory"/>
+                 -->
             </analyzer>
         </fieldType>
 
