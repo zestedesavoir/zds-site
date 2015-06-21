@@ -18,11 +18,10 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_c
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
-from zds.tutorial.factories import ExtractFactory as OldExtractFactory
-from zds.tutorial.factories import PartFactory as OldPartFactory
-from zds.tutorial.factories import ChapterFactory as OldChapterFactory
 from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
 from zds.utils.models import CommentLike
+from zds.article.models import ArticleRead
+from zds.tutorial.models import TutorialRead
 
 try:
     import ujson as json_reader
@@ -373,7 +372,7 @@ class UtilsTests(TestCase):
         public_mini_tuto = PublishedMiniTutorial()
         public_mini_tuto.authors.add(self.user_author)
         public_mini_tuto.save()
-        NoteFactory(
+        staff_note = NoteFactory(
             tutorial=public_mini_tuto,
             position=1,
             author=self.staff)
@@ -381,6 +380,11 @@ class UtilsTests(TestCase):
             tutorial=public_mini_tuto,
             position=2,
             author=self.user_author)
+        t_read = TutorialRead()
+        t_read.tutorial = public_mini_tuto
+        t_read.user = self.staff
+        t_read.note = staff_note
+        t_read.save()
         like = CommentLike()
         like.comments = liked_note
         like.user = self.staff
@@ -394,7 +398,7 @@ class UtilsTests(TestCase):
         public_article = PublishedArticleFactory()
         public_article.authors.add(self.user_author)
         public_article.save()
-        ReactionFactory(
+        staff_note = ReactionFactory(
             article=public_article,
             position=1,
             author=self.staff)
@@ -402,6 +406,10 @@ class UtilsTests(TestCase):
             article=public_article,
             position=2,
             author=self.user_author)
+        a_read = ArticleRead()
+        a_read.article = public_article
+        a_read.user = self.staff
+        a_read.note = staff_note
         like = CommentLike()
         like.comments = liked_reaction
         like.user = self.staff

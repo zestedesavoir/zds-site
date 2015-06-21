@@ -3,7 +3,6 @@ try:
     from zds.article.models import Validation as ArticleValidation
     from zds.tutorial.models import Tutorial, Note, TutorialRead
     from zds.tutorial.models import Validation as TutorialValidation
-    from zds.tutorial.models import Extract as OldExtract
 except ImportError:
     print("The old stack is no more available on your zestedesavoir copy")
     exit()
@@ -276,6 +275,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             map_previous.must_redirect = True  # will send HTTP 301 if visited !
             map_previous.content = exported
             map_previous.save()
+
 
 @transaction.atomic
 class Command(BaseCommand):
