@@ -2,6 +2,7 @@
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from haystack.inputs import Raw
 
 from haystack.views import SearchView
 
@@ -37,17 +38,21 @@ class CustomSearchView(SearchView):
     def get_results(self):
         queryset = super(CustomSearchView, self).get_results()
 
+        # Due to a bug in Haystack library (https://github.com/django-haystack/django-haystack/issues/163)
+        # We can do field = None or use __isnull. We are obliged to use a raw solr query.
+        # Obviously, it is solr dependant
+        is_empty = Raw("[* TO *]")
+
         # We want to search only on authorized post and topic
         if self.request.user.is_authenticated():
             groups = self.request.user.groups
 
             if groups.count() > 0:
-                return queryset.filter_or(permissions=None, permissions__in=groups.all())
+                return queryset.filter_or(permissions=is_empty, permissions__in=groups.all())
             else:
-                return queryset.filter(permissions=None)
-
+                return queryset.exclude(permissions=is_empty)
         else:
-            return queryset.filter(permissions=None)
+            return queryset.exclude(permissions=is_empty)
 
 
 def opensearch(request):
