@@ -1,7 +1,7 @@
 try:
     from zds.article.models import Article, ArticleRead, Reaction
     from zds.article.models import Validation as ArticleValidation
-    from zds.tutorial.models import Tutorial, Part, Chapter, Note, TutorialRead
+    from zds.tutorial.models import Tutorial, Note, TutorialRead
     from zds.tutorial.models import Validation as TutorialValidation
     from zds.tutorial.models import Extract as OldExtract
 except ImportError:
@@ -17,7 +17,7 @@ from django.conf import settings
 
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent,\
     Validation
-from zds.tutorialv2.models.models_versioned import Extract, Container
+
 from zds.tutorialv2.utils import publish_content
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -233,11 +233,6 @@ def migrate_mini_tuto():
         exported.gallery = current.gallery
 
         versioned.type = "TUTORIAL"
-
-        for extract in OldExtract.objects.filter(chapter=current.get_chapter()):
-            minituto_extract = Extract(extract.title, slugify(extract.title))
-            minituto_extract.text = extract.text
-            versioned.add_extract(minituto_extract, generate_slug=True)
         versioned.dump_json()
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")

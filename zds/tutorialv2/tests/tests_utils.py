@@ -18,6 +18,9 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_c
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
+from zds.tutorial.factories import ExtractFactory as OldExtractFactory
+from zds.tutorial.factories import PartFactory as OldPartFactory
+from zds.tutorial.factories import ChapterFactory as OldChapterFactory
 from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
 from zds.utils.models import CommentLike
 
@@ -367,6 +370,7 @@ class UtilsTests(TestCase):
         private_mini_tuto = MiniTutorialFactory()
         private_mini_tuto.authors.add(self.user_author)
         private_mini_tuto.save()
+        OldExtractFactory(chapter=private_mini_tuto.get_chapter())
         public_mini_tuto = PublishedMiniTutorial()
         public_mini_tuto.authors.add(self.user_author)
         public_mini_tuto.save()
