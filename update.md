@@ -244,3 +244,14 @@ Pour régler ça, il faut faire les modifications de la migration nous-même.
   - Les deux commandes doivent passer sans souci
   - Quitter mysql
   - Puis feinter la migration de oauth2_provider : `python manage.py migrate oauth2_provider --fake`
+
+
+Actions à faire pour mettre en prod la prochaine version
+========================================================
+
+La recherche est maintenant en français:
+
+  - Arrêter Solr : `supervisorctl stop solr`
+  - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
+  - Redémarrer Solr : `supervisorctl start solr`
+  - Lancer l'indexation : `python manage.py rebuild_index`
