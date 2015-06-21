@@ -2,6 +2,7 @@
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from haystack.inputs import Raw
 
 from haystack.views import SearchView
 
@@ -42,12 +43,11 @@ class CustomSearchView(SearchView):
             groups = self.request.user.groups
 
             if groups.count() > 0:
-                return queryset.filter_or(permissions=None, permissions__in=groups.all())
+                return queryset.filter_or(permissions=Raw("[* TO *]"), permissions__in=groups.all())
             else:
-                return queryset.filter(permissions=None)
-
+                return queryset.exclude(permissions=Raw("[* TO *]"))
         else:
-            return queryset.filter(permissions=None)
+            return queryset.exclude(permissions=Raw("[* TO *]"))
 
 
 def opensearch(request):
