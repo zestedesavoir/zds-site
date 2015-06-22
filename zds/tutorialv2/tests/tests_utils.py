@@ -425,7 +425,11 @@ class UtilsTests(TestCase):
         like.comments = liked_reaction
         like.user = self.staff
         like.save()
-        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta", forum=ForumFactory())
+        category1 = CategoryFactory(position=1)
+        forum11 = ForumFactory(
+            category=category1,
+            position_in_category=1)
+        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta", forum=forum11)
         beta_tuto.authors.add(self.user_author)
         beta_tuto.save()
         call_command('migrate_to_zep12')

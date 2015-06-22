@@ -144,6 +144,7 @@ class BetaMiniTutorialFactory(MiniTutorialFactory):
             beta_topic.save()
         return tuto
 
+
 class PartFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Part
 
