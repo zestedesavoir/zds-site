@@ -371,6 +371,10 @@ class UtilsTests(TestCase):
         private_mini_tuto = MiniTutorialFactory()
         private_mini_tuto.authors.add(self.user_author)
         private_mini_tuto.save()
+        multi_author_tuto = MiniTutorialFactory(title="Multi user tuto")
+        multi_author_tuto.authors.add(self.user_author)
+        multi_author_tuto.authors.add(self.staff)
+        multi_author_tuto.save()
         public_mini_tuto = PublishedMiniTutorial()
         public_mini_tuto.authors.add(self.user_author)
         public_mini_tuto.save()
@@ -397,6 +401,10 @@ class UtilsTests(TestCase):
         private_article = ArticleFactory()
         private_article.authors.add(self.user_author)
         private_article.save()
+        multi_author_article = ArticleFactory(title="mutlti author article")
+        multi_author_article.authors.add(self.user_author)
+        multi_author_article.authors.add(self.staff)
+        multi_author_article.save()
         public_article = PublishedArticleFactory()
         public_article.authors.add(self.user_author)
         public_article.save()
@@ -416,8 +424,9 @@ class UtilsTests(TestCase):
         like.comments = liked_reaction
         like.user = self.staff
         like.save()
-        beta_tuto = BetaMiniTutorialFactory(authors=[self.user_author], title=u"Un super tuto en beta")
-
+        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta")
+        beta_tuto.authors.add(self.user_author)
+        beta_tuto.save()
         call_command('migrate_to_zep12')
         self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 6)
         # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
@@ -448,6 +457,15 @@ class UtilsTests(TestCase):
         self.assertIsNotNone(beta_content)
         self.assertEqual(beta_content.sha_beta, beta_tuto.sha_beta)
         self.assertEqual(Topic.objects.filter(key=beta_tuto.pk).pk, beta_content.beta_topic.pk)
+
+        multi_author_content = PublishableContent.objects.filter(type="TUTORIAL", title=multi_author_tuto.title)\
+            .first()
+        self.assertIsNotNone(multi_author_content)
+        self.assertEqual(multi_author_content.authors.count(), multi_author_tuto.authors.count())
+        multi_author_content = PublishableContent.objects.filter(type="ARTICLE", title=multi_author_article.title)\
+            .first()
+        self.assertIsNotNone(multi_author_content)
+        self.assertEqual(multi_author_content.authors.count(), multi_author_article.authors.count())
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
