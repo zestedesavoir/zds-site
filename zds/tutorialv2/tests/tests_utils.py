@@ -421,6 +421,7 @@ class UtilsTests(TestCase):
         a_read.article = public_article
         a_read.user = self.staff
         a_read.reaction = staff_note
+        a_read.save()
         like = CommentLike()
         like.comments = liked_reaction
         like.user = self.staff
