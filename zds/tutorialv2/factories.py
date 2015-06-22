@@ -45,8 +45,10 @@ class PublishableContentFactory(factory.DjangoModelFactory):
             auths = kwargs.pop("author_list")
 
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
+
         for auth in auths:
             publishable_content.authors.add(auth)
+
         publishable_content.gallery = GalleryFactory()
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery)

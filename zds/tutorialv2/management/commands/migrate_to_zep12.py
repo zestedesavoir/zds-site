@@ -120,6 +120,63 @@ def create_gallery_for_article(content):
     return gal
 
 
+def split_article_in_extracts(article):
+    """Split a text into extracts according to titles (create a new extract if level 1, remove a level otherwise)
+
+    Note that this function generate no commit
+
+    :param article: An article
+    :type article: VersionedContent
+    """
+
+    txt = article.children[0].get_text()
+    article.children[0].repo_delete(do_commit=False)  # remove old extract
+
+    extracts = []
+
+    extract_text = ''
+    extract_title = ''
+    in_code = False
+
+    # split
+    for line in txt.split('\n'):
+        if line[:3] == '```':
+            in_code = not in_code
+
+        if not len(line) == 0 and not in_code and line[0] == '#':
+            title_level = 0
+
+            for a in line:
+                if a != '#':
+                    break
+                else:
+                    title_level += 1
+
+            title_content = line[title_level:].strip()  # get text right after the `#`
+
+            if title_level == 1 and title_content != '':
+                extracts.append((extract_title, extract_text))
+                extract_title = title_content
+                extract_text = u''
+            else:
+                line = ''.join(['#' for i in range(title_level - 1)]) + ' ' + title_content
+                extract_text += line + '\n'
+
+        else:
+            extract_text += line + '\n'
+
+    # add last
+    extracts.append((extract_title, extract_text))
+
+    # create extracts
+    for num, definition in enumerate(extracts):
+        title, text = definition
+        if num == 0:
+            article.repo_update(article.title, text, '', do_commit=False)
+        else:
+            article.repo_add_extract(title, text, do_commit=False)
+
+
 def migrate_articles():
     articles = Article.objects.all()
     if len(articles) == 0:
@@ -169,6 +226,8 @@ def migrate_articles():
         if exported.licence:
             versioned.licence = exported.licence
 
+        split_article_in_extracts(versioned)  # create extracts from text
+
         versioned.dump_json()
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
         exported.old_pk = current.pk
@@ -193,9 +252,9 @@ def migrate_articles():
             map_previous.save()
 
             # publish the article !
-            published = publish_content(exported, exported.load_version(current.sha_public), False)
+            published = publish_content(exported, exported.load_version(exported.sha_draft), False)
             exported.pubdate = current.pubdate
-            exported.sha_public = current.sha_public
+            exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
             published.content_public_slug = current.slug
