@@ -37,7 +37,9 @@ except ImportError:
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
-
+overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
+overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
+overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
@@ -447,18 +449,18 @@ class UtilsTests(TestCase):
         self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_article).count())
         self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_article).count())
         self.assertTrue(migrated_pulished_article.is_public(migrated_pulished_article.sha_public))
-        self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extract())
+        self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extracts())
         self.assertEqual(len(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).children), 2)
 
         migrated_pulished_tuto = PublishableContent.objects.filter(authors__in=[self.user_author],
-                                                            title=public_mini_tuto.title,
-                                                            type="TUTORIAL").first()
+                                                                   title=public_mini_tuto.title,
+                                                                   type="TUTORIAL").first()
         self.assertIsNotNone(migrated_pulished_tuto)
         self.assertIsNotNone(migrated_pulished_tuto.last_note)
         self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_tuto).count())
         self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_tuto).count())
         self.assertTrue(migrated_pulished_tuto.is_public(migrated_pulished_tuto.sha_public))
-        self.assertTrue(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).has_extract())
+        self.assertTrue(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).has_extracts())
         self.assertEqual(len(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).children))
         beta_content = PublishableContent.objects.filter(title=beta_tuto.title).first()
         self.assertIsNotNone(beta_content)
@@ -481,3 +483,9 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
+        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
+            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
