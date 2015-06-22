@@ -449,7 +449,7 @@ class UtilsTests(TestCase):
         self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extract())
         self.assertEqual(len(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).children), 2)
 
-        migrated_pulished_tuto = PublishableContent.objects(authors__in=[self.user_author],
+        migrated_pulished_tuto = PublishableContent.objects.filter(authors__in=[self.user_author],
                                                             title=public_mini_tuto.title,
                                                             type="TUTORIAL").first()
         self.assertIsNotNone(migrated_pulished_tuto)
