@@ -24,7 +24,7 @@ from zds.article.factories import ArticleFactory, PublishedArticleFactory, React
 from zds.utils.models import CommentLike
 from zds.article.models import ArticleRead
 from zds.tutorial.models import TutorialRead
-from zds.forum.factories import ForumFactory
+from zds.forum.factories import ForumFactory, CategoryFactory
 
 try:
     import ujson as json_reader
