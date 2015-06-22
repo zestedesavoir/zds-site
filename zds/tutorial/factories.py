@@ -139,7 +139,9 @@ class BetaMiniTutorialFactory(MiniTutorialFactory):
         tuto.sha_beta = tuto.sha_draft
         if beta_forum is not None:
             beta_topic = TopicFactory(title="[beta]" + tuto.title, forum=beta_forum, key=tuto.pk)
-            PostFactory(topic=beta_topic)
+            PostFactory(topic=beta_topic, position=1)
+            beta_topic.key = tuto.pk
+            beta_topic.save()
         return tuto
 
 class PartFactory(factory.DjangoModelFactory):

@@ -24,6 +24,7 @@ from zds.article.factories import ArticleFactory, PublishedArticleFactory, React
 from zds.utils.models import CommentLike
 from zds.article.models import ArticleRead
 from zds.tutorial.models import TutorialRead
+from zds.forum.factories import ForumFactory
 
 try:
     import ujson as json_reader
@@ -424,7 +425,7 @@ class UtilsTests(TestCase):
         like.comments = liked_reaction
         like.user = self.staff
         like.save()
-        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta")
+        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta", forum=ForumFactory())
         beta_tuto.authors.add(self.user_author)
         beta_tuto.save()
         call_command('migrate_to_zep12')
