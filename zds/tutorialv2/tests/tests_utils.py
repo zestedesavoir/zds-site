@@ -433,7 +433,8 @@ class UtilsTests(TestCase):
         beta_tuto.authors.add(self.user_author)
         beta_tuto.save()
         call_command('migrate_to_zep12')
-        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 6)
+        # 1 tuto in setup, 4 mini tutos, 1 big tuto, 3 articles
+        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 9)
         # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
         self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 2)
         self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
