@@ -3,7 +3,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from zds.featured.managers import FeaturedResourceManager
+from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager
 
 
 class FeaturedResource(models.Model):
@@ -37,6 +37,8 @@ class FeaturedMessage(models.Model):
     hook = models.CharField(_(u'Accroche'), max_length=100, blank=True, null=True)
     message = models.CharField(_(u'Message'), max_length=255, blank=True, null=True)
     url = models.CharField(_(u'URL du message'), max_length=2000, blank=True, null=True)
+
+    objects = FeaturedMessageManager()
 
     def __unicode__(self):
         """Textual form of a featured message."""

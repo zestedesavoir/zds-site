@@ -29,13 +29,7 @@
                 <blockquote><span>{{ quote }}</span></blockquote>
 
                 {% if featured_message %}
-                    <p class="featured-message">
-                        <span class="important">{% trans "Nouveau !" %}</span>
-                        {{ featured_message.message }}
-                        <a class="home-description-button" href="{{ featured_message.url }}">
-                            {% trans "En savoir plus" %}
-                        </a>
-                    </p>
+                    {% include "featured/includes/featured_message.part.html" %}
                 {% endif %}
             </section>
         {% else %}
