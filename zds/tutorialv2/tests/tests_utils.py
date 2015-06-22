@@ -420,7 +420,7 @@ class UtilsTests(TestCase):
         a_read = ArticleRead()
         a_read.article = public_article
         a_read.user = self.staff
-        a_read.note = staff_note
+        a_read.reaction = staff_note
         like = CommentLike()
         like.comments = liked_reaction
         like.user = self.staff
@@ -444,7 +444,7 @@ class UtilsTests(TestCase):
         self.assertIsNotNone(migrated_pulished_article)
         self.assertIsNotNone(migrated_pulished_article.last_note)
         self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_article).count())
-        self.assertEqual(2, ContentRead.objects.filter(content=migrated_pulished_article).count())
+        self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_article).count())
         self.assertTrue(migrated_pulished_article.is_public(migrated_pulished_article.sha_public))
         self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extract())
         self.assertEqual(len(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).children), 2)
@@ -455,7 +455,7 @@ class UtilsTests(TestCase):
         self.assertIsNotNone(migrated_pulished_tuto)
         self.assertIsNotNone(migrated_pulished_tuto.last_note)
         self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_tuto).count())
-        self.assertEqual(2, ContentRead.objects.filter(content=migrated_pulished_tuto).count())
+        self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_tuto).count())
         self.assertTrue(migrated_pulished_tuto.is_public(migrated_pulished_tuto.sha_public))
         self.assertTrue(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).has_extract())
         self.assertEqual(len(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).children))
