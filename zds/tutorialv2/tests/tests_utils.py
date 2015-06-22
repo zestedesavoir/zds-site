@@ -15,7 +15,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
 from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
@@ -419,6 +419,16 @@ class UtilsTests(TestCase):
         # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
         self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 2)
         self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
+        migrated_pulished_article = PublishableContent.objects.filter(authors_in=[self.user_author],
+                                                                      title=public_article.title).first()
+        self.assertIsNotNone(migrated_pulished_article)
+        self.assertIsNotNone(migrated_pulished_article.last_note)
+        self.assertEqual(1, ContentReaction.objects.filter(related_content=migrated_pulished_article).count())
+        self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_article).count(), 1)
+        self.assertTrue(migrated_pulished_article.is_public(migrated_pulished_article.sha_public))
+        self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extract())
+        self.assertEqual(len(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).children), 2)
+
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
