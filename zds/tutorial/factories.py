@@ -134,12 +134,16 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 class BetaMiniTutorialFactory(MiniTutorialFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
+		author = kwargs.pop("author", None)
         beta_forum = kwargs.pop("forum", None)
         tuto = super(BetaMiniTutorialFactory, cls)._prepare(create, **kwargs)
         tuto.sha_beta = tuto.sha_draft
-        if beta_forum is not None:
-            beta_topic = TopicFactory(title="[beta]" + tuto.title, forum=beta_forum, key=tuto.pk)
-            PostFactory(topic=beta_topic, position=1)
+        if beta_forum is not None and author is not None:
+			tuto.authors.add(author)
+			tuto.save()
+            beta_topic = TopicFactory(title="[beta]" + tuto.title, author=author
+                                      forum=beta_forum, key=tuto.pk)
+            PostFactory(topic=beta_topic, position=1, author=author)
             beta_topic.key = tuto.pk
             beta_topic.save()
         return tuto

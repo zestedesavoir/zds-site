@@ -429,7 +429,7 @@ class UtilsTests(TestCase):
         forum11 = ForumFactory(
             category=category1,
             position_in_category=1)
-        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta", forum=forum11)
+        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta", forum=forum11, author=self.user_author)
         beta_tuto.authors.add(self.user_author)
         beta_tuto.save()
         call_command('migrate_to_zep12')
