@@ -11,6 +11,7 @@ from zds.article.models import Article, Reaction, \
 from zds.utils.articles import export_article
 from zds.article.views import mep
 from zds.utils.models import SubCategory
+from zds.member.models import User
 
 
 content_light = u'Un test'
@@ -45,7 +46,7 @@ class ArticleFactory(factory.DjangoModelFactory):
         article = super(ArticleFactory, cls)._prepare(create, **kwargs)
 
         for auth in authors:
-            article.authors.add(auth)
+            article.authors.add(User.objects.get(pk=auth))
 
         path = article.get_path()
         if not os.path.isdir(path):
