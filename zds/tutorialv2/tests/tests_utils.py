@@ -8,6 +8,7 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+from zds.forum.models import Topic
 from zds.settings import BASE_DIR
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -17,7 +18,8 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_c
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
-from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory
+from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
+    BetaMiniTutorialFactory
 from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
 from zds.utils.models import CommentLike
 from zds.article.models import ArticleRead
@@ -414,13 +416,16 @@ class UtilsTests(TestCase):
         like.comments = liked_reaction
         like.user = self.staff
         like.save()
+        beta_tuto = BetaMiniTutorialFactory(authors=[self.user_author], title=u"Un super tuto en beta")
+
         call_command('migrate_to_zep12')
         self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 6)
         # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
         self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 2)
         self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
-        migrated_pulished_article = PublishableContent.objects.filter(authors_in=[self.user_author],
-                                                                      title=public_article.title).first()
+        migrated_pulished_article = PublishableContent.objects.filter(authors__in=[self.user_author],
+                                                                      title=public_article.title,
+                                                                      type="ARTICLE").first()
         self.assertIsNotNone(migrated_pulished_article)
         self.assertIsNotNone(migrated_pulished_article.last_note)
         self.assertEqual(1, ContentReaction.objects.filter(related_content=migrated_pulished_article).count())
@@ -429,6 +434,20 @@ class UtilsTests(TestCase):
         self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extract())
         self.assertEqual(len(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).children), 2)
 
+        migrated_pulished_tuto = PublishableContent.objects(authors__in=[self.user_author],
+                                                            title=public_mini_tuto.title,
+                                                            type="TUTORIAL").first()
+        self.assertIsNotNone(migrated_pulished_tuto)
+        self.assertIsNotNone(migrated_pulished_tuto.last_note)
+        self.assertEqual(1, ContentReaction.objects.filter(related_content=migrated_pulished_tuto).count())
+        self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_tuto).count(), 1)
+        self.assertTrue(migrated_pulished_tuto.is_public(migrated_pulished_tuto.sha_public))
+        self.assertTrue(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).has_extract())
+        self.assertEqual(len(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).children), 2)
+        beta_content = PublishableContent.objects.filter(title=beta_tuto.title).first()
+        self.assertIsNotNone(beta_content)
+        self.assertEqual(beta_content.sha_beta, beta_tuto.sha_beta)
+        self.assertEqual(Topic.objects.filter(key=beta_tuto.pk).pk, beta_content.beta_topic.pk)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

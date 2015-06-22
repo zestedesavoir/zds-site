@@ -6,6 +6,7 @@ import json as json_writer
 import os
 
 import factory
+from zds.forum.factories import TopicFactory, PostFactory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
@@ -129,6 +130,16 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
             UserGalleryFactory(user=author, gallery=tuto.gallery)
         return tuto
 
+
+class BetaMiniTutorialFactory(MiniTutorialFactory):
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        beta_forum = kwargs.pop("forum", None)
+        tuto = super(BetaMiniTutorialFactory, cls)._prepare(create, **kwargs)
+        tuto.sha_beta = tuto.sha_draft
+        if beta_forum is not None:
+            beta_topic = TopicFactory(title="[beta]" + tuto.title, forum=beta_forum, key=tuto.pk)
+            PostFactory(topic=beta_topic)
 
 class PartFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Part
