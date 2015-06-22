@@ -140,6 +140,7 @@ class BetaMiniTutorialFactory(MiniTutorialFactory):
         if beta_forum is not None:
             beta_topic = TopicFactory(title="[beta]" + tuto.title, forum=beta_forum, key=tuto.pk)
             PostFactory(topic=beta_topic)
+        return tuto
 
 class PartFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Part
