@@ -301,12 +301,15 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         former_topic = Topic.objects.filter(key=current.pk).first()
         if former_topic is not None:
             former_topic.related_publishable_content = exported
+
             former_topic.save()
             former_first_post = former_topic.first_post()
             text = former_first_post.text
             text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
             former_first_post.update_content(text)
             former_first_post.save()
+            exported.beta_topic = former_topic
+            exported.save()
         # extract notes
         reacts = Note.objects.filter(tutorial__pk=current.pk)\
                              .select_related("author")\
