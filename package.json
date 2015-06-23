@@ -16,7 +16,7 @@
     "type": "git",
     "url": "git://github.com/zestedesavoir/zds-site.git"
   },
-  "license": "GPLv3",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/zestedesavoir/zds-site/issues"
   },
