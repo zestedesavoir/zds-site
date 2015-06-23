@@ -41,6 +41,7 @@ overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-p
 overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
 overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
 
+
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class UtilsTests(TestCase):
