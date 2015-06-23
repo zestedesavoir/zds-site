@@ -300,10 +300,10 @@ def reject_tutorial(request):
         msg = (
             _(u'Désolé, le zeste **{0}** n\'a malheureusement '
               u'pas passé l’étape de validation. Mais ne désespère pas, '
-              u'certaines corrections peuvent surement être faite pour '
+              u'certaines corrections peuvent sûrement être faites pour '
               u'l’améliorer et repasser la validation plus tard. '
               u'Voici le message que [{1}]({2}), ton validateur t\'a laissé:\n\n`{3}`\n\n'
-              u'N\'hésite pas a lui envoyer un petit message pour discuter '
+              u'N\'hésite pas à lui envoyer un petit message pour discuter '
               u'de la décision ou demander plus de détail si tout cela te '
               u'semble injuste ou manque de clarté.')
             .format(tutorial.title,
@@ -376,10 +376,10 @@ def valid_tutorial(request):
         msg = (
             _(u'Félicitations ! Le zeste [{0}]({1}) '
               u'a été publié par [{2}]({3}) ! Les lecteurs du monde entier '
-              u'peuvent venir l\'éplucher et réagir a son sujet. '
-              u'Je te conseille de rester a leur écoute afin '
+              u'peuvent venir l\'éplucher et réagir à son sujet. '
+              u'Je te conseille de rester à leur écoute afin '
               u'd\'apporter des corrections/compléments.'
-              u'Un Tutoriel vivant et a jour est bien plus lu '
+              u'Un tutoriel vivant et à jour est bien plus lu '
               u'qu\'un sujet abandonné !')
             .format(tutorial.title,
                     settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_online(),
@@ -481,7 +481,7 @@ def ask_validation(request):
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         msg = \
             (_(u'Bonjour {0},'
-               u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation, '
+               u'Le tutoriel *{1}* que tu as réservé a été mis à jour en zone de validation. '
                u'Pour retrouver les modifications qui ont été faites, je t\'invite à '
                u'consulter l\'historique des versions'
                u'\n\n> Merci').format(old_validator.username, tutorial.title))
@@ -656,7 +656,7 @@ def modify_tutorial(request):
             msg = (
                 _(u'Bonjour **{0}**,\n\n'
                   u'Tu as été supprimé des auteurs du tutoriel [{1}]({2}). Tant qu\'il ne sera pas publié, tu ne '
-                  u'pourra plus y accéder.\n').format(
+                  u'pourras plus y accéder.\n').format(
                       author.username,
                       tutorial.title,
                       settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url())
@@ -692,7 +692,8 @@ def modify_tutorial(request):
                            settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url_beta()))
                 if topic is None:
                     forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
-                    create_topic(author=request.user,
+                    create_topic(request=request,
+                                 author=request.user,
                                  forum=forum,
                                  title=_(u"[beta][tutoriel]{0}").format(tutorial.title),
                                  subtitle=u"{}".format(tutorial.description),
@@ -708,7 +709,7 @@ def modify_tutorial(request):
                                u'pourra le consulter afin de vous faire des retours '
                                u'constructifs avant sa soumission en validation.\n\n'
                                u'Un sujet dédié pour la beta de votre tutoriel a été '
-                               u'crée dans le forum et est accessible [ici]({})').format(
+                               u'créé dans le forum et est accessible [ici]({})').format(
                                    request.user.username,
                                    tutorial.title,
                                    settings.ZDS_APP['site']['url'] + tp.get_absolute_url()))
@@ -740,7 +741,7 @@ def modify_tutorial(request):
                                                                         tutorial.get_absolute_url_beta()))
                         messages.success(request, _(u"La BETA sur ce tutoriel a bien été mise à jour."))
                     unlock_topic(topic)
-                    send_post(topic, msg_up)
+                    send_post(request, topic, topic.author, msg_up)
             else:
                 messages.error(request, _(u"La BETA sur ce tutoriel n'a malheureusement pas pu être activée."))
             return redirect(tutorial.get_absolute_url_beta())
@@ -751,9 +752,9 @@ def modify_tutorial(request):
             if topic is not None:
                 msg = \
                     (_(u'Désactivation de la beta du tutoriel  **{}**'
-                       u'\n\nPour plus d\'informations envoyez moi un message privé.').format(tutorial.title))
+                       u'\n\nPour plus d\'informations envoyez-moi un message privé.').format(tutorial.title))
                 lock_topic(topic)
-                send_post(topic, msg)
+                send_post(request, topic, topic.author, msg)
             messages.info(request, _(u"La BETA sur ce tutoriel a bien été désactivée."))
 
             return redirect(tutorial.get_absolute_url())
@@ -892,11 +893,19 @@ def view_tutorial_beta(request, tutorial_pk, tutorial_slug):
 def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     """Display a tutorial."""
 
-    tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
+    tutorial = Tutorial.objects\
+        .prefetch_related("authors")\
+        .prefetch_related("authors__profile")\
+        .prefetch_related("subcategory")\
+        .select_related('licence')\
+        .select_related('last_reaction')\
+        .filter(pk=tutorial_pk).first()
+    if tutorial is None:
+        raise Http404("pk {} not found".format(tutorial_pk))
 
     # If the tutorial isn't online, we raise 404 error.
     if not tutorial.on_line():
-        raise Http404
+        raise Http404("Tutorial is offline")
 
     # Two variables to handle two distinct cases (large/small tutorial)
 
@@ -909,7 +918,7 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
     tutorial.load_dic(mandata, sha=tutorial.sha_public)
     tutorial.load_introduction_and_conclusion(mandata, public=True)
     mandata["update"] = tutorial.update
-    mandata["get_note_count"] = tutorial.get_note_count()
+    mandata["get_note_count"] = Note.objects.count_notes(tutorial)
 
     # If it's a small tutorial, fetch its chapter
 
@@ -980,7 +989,13 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
 
     # Find all notes of the tutorial.
 
-    notes = Note.objects.filter(tutorial__pk=tutorial.pk).order_by("position").all()
+    notes = Note.objects.filter(tutorial__pk=tutorial.pk)\
+        .order_by("position")\
+        .select_related("author__profile")\
+        .prefetch_related('alerts')\
+        .prefetch_related('alerts__author')\
+        .prefetch_related('alerts__author__profile')\
+        .all()
 
     # Retrieve pk of the last note. If there aren't notes for the tutorial, we
     # initialize this last note at 0.
@@ -1016,7 +1031,15 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         res.append(last_note)
     for note in notes:
         res.append(note)
-
+    reaction_ids = [post.pk for post in notes]
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     # Build form to send a note for the current tutorial.
 
     form = NoteForm(tutorial, request.user)
@@ -1029,6 +1052,10 @@ def view_tutorial_online(request, tutorial_pk, tutorial_slug):
         "nb": page_nbr,
         "last_note_pk": last_note_pk,
         "form": form,
+        "user_like": user_like,
+        "user_dislike": user_dislike,
+        "is_staff": request.user.has_perm("tutorial.change_tutorial"),
+        "note_count": Note.objects.count_notes(tutorial)
     })
 
 
@@ -3393,7 +3420,15 @@ def answer(request):
         .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
 
     # User would like preview his post or post a new note on the tutorial.
-
+    reaction_ids = [post.pk for post in notes]
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     if request.method == "POST":
         data = request.POST
 
@@ -3414,7 +3449,10 @@ def answer(request):
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
                     "notes": notes,
+                    "is_staff": request.user.has_perm("tutorial.change_tutorial"),
                     "form": form,
+                    "user_like": user_like,
+                    "user_dislike": user_dislike
                 })
         else:
 
@@ -3429,7 +3467,7 @@ def answer(request):
                 note.text = data["text"]
                 note.text_html = emarkdown(data["text"])
                 note.pubdate = datetime.now()
-                note.position = tutorial.get_note_count() + 1
+                note.position = Note.objects.count_notes(tutorial) + 1
                 note.ip_address = get_client_ip(request)
                 note.save()
                 tutorial.last_note = note
@@ -3441,7 +3479,10 @@ def answer(request):
                     "last_note_pk": last_note_pk,
                     "newnote": newnote,
                     "notes": notes,
+                    "is_staff": request.user.has_perm("tutorial.change_tutorial"),
                     "form": form,
+                    "user_like": user_like,
+                    "user_dislike": user_dislike
                 })
     else:
 
@@ -3477,8 +3518,11 @@ def answer(request):
         return render(request, "tutorial/comment/new.html", {
             "tutorial": tutorial,
             "notes": notes,
+            "is_staff": request.user.has_perm("tutorial.change_tutorial"),
             "last_note_pk": last_note_pk,
             "form": form,
+            "user_like": user_like,
+            "user_dislike": user_dislike
         })
 
 

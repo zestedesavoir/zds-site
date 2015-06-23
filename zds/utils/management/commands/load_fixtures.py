@@ -41,14 +41,14 @@ def load_member(cli, size, fake, root):
     users_set = ["admin",
                  settings.ZDS_APP["member"]["external_account"],
                  settings.ZDS_APP["member"]["anonymous_account"]]
-    for u in users_set:
-        us = Profile.objects.filter(user__username=u).first()
-        if us is None:
-            profile = ProfileFactory(user__username=u)
-            profile.user.set_password(u)
-            profile.user.first_name = u
+    for default_user in users_set:
+        current_user = Profile.objects.filter(user__username=default_user).first()
+        if current_user is None:
+            profile = ProfileFactory(user__username=default_user)
+            profile.user.set_password(default_user)
+            profile.user.first_name = default_user
             profile.user.email = fake.free_email()
-            if u == "admin":
+            if default_user == "admin":
                 profile.user.is_superuser = True
                 profile.user.is_staff = True
             profile.user.save()
@@ -184,8 +184,8 @@ def load_tags(cli, size, fake):
     tps1 = time.time()
     for i in range(0, nb_tags):
         title = fake.word()
-        t = Tag(title=title, slug=slugify(title))
-        t.save()
+        tag = Tag(title=title, slug=slugify(title))
+        tag.save()
         sys.stdout.write(" Tag {}/{}  \r".format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()
@@ -232,6 +232,7 @@ def load_topics(cli, size, fake):
                     topic.title = fake.text(max_nb_chars=80)
                     topic.subtitle = fake.text(max_nb_chars=200)
                     topic.save()
+                    PostFactory(topic=topic, author=topic.author, position=1)
                     sys.stdout.write(" Topic {}/{}  \r".format(i + 1, nb_topics))
                     sys.stdout.flush()
                 tps2 = time.time()
@@ -258,19 +259,16 @@ def load_posts(cli, size, fake):
         else:
             profiles = list(Profile.objects.all())
             for i in range(0, nb_topics):
-                nb = randint(0, nb_avg_posts_in_topic * 2)
-                for j in range(0, nb):
-                    if j == 0:
-                        post = PostFactory(topic=topics[i], author=topics[i].author, position=1)
-                    else:
-                        post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j + 1)
+                nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1
+                for j in range(1, nb_posts):
+                    post = PostFactory(topic=topics[i], author=profiles[j % nb_users].user, position=j + 1)
                     post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
                     post.text_html = emarkdown(post.text)
-                    if int(nb * 0.3) > 0:
-                        if j % int(nb * 0.3) == 0:
+                    if int(nb_posts * 0.3) > 0:
+                        if j % int(nb_posts * 0.3) == 0:
                             post.is_useful = True
                     post.save()
-                    sys.stdout.write(" Topic {}/{}  \tPost {}/{}  \r".format(i + 1, nb_topics, j + 1, nb))
+                    sys.stdout.write(" Topic {}/{}  \tPost {}/{}  \r".format(i + 1, nb_topics, j + 1, nb_posts))
                     sys.stdout.flush()
             tps2 = time.time()
             cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -285,8 +283,8 @@ def load_categories_content(cli, size, fake):
     for lic in lics:
         ex = Licence.objects.filter(code=lic)
         if ex is None:
-            l = Licence(code=lic, title=lic, description="")
-            l.save()
+            licence = Licence(code=lic, title=lic, description="")
+            licence.save()
     categories = []
     sub_categories = []
     nb_categories = size * 5
@@ -306,17 +304,19 @@ def load_categories_content(cli, size, fake):
 
     for i in range(0, nb_sub_categories):
         ttl = fake.word()
-        cat = SubCategory(title=ttl,
-                          subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
-                          slug=slugify(ttl))
-        cat.save()
-        sub_categories.append(cat)
+        subcat = SubCategory(title=ttl,
+                             subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
+                             slug=slugify(ttl))
+        subcat.save()
+        sub_categories.append(subcat)
         sys.stdout.write(" SubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
-        h = CategorySubCategory(category=categories[i % nb_categories], subcategory=sub_categories[i], is_main=True)
-        h.save()
+        catsubcat = CategorySubCategory(category=categories[i % nb_categories],
+                                        subcategory=sub_categories[i],
+                                        is_main=True)
+        catsubcat.save()
         sys.stdout.write(" CatSubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
@@ -336,13 +336,13 @@ def load_comment_article(cli, size, fake):
     nb_users = User.objects.count()
     profiles = list(Profile.objects.all())
     for i in range(0, nb_articles):
-        nb = randint(0, nb_avg_posts * 2)
-        for j in range(0, nb):
+        nb_posts = randint(0, nb_avg_posts * 2)
+        for j in range(0, nb_posts):
             post = ReactionFactory(article=articles[i], author=profiles[j % nb_users].user, position=j + 1)
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
-            sys.stdout.write(" Article {}/{}  \tComment {}/{}  \r".format(i + 1, nb_articles, j + 1, nb))
+            sys.stdout.write(" Article {}/{}  \tComment {}/{}  \r".format(i + 1, nb_articles, j + 1, nb_posts))
             sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -360,13 +360,13 @@ def load_comment_tutorial(cli, size, fake):
     nb_users = User.objects.count()
     profiles = list(Profile.objects.all())
     for i in range(0, nb_tutorials):
-        nb = randint(0, nb_avg_posts * 2)
-        for j in range(0, nb):
+        nb_posts = randint(0, nb_avg_posts * 2)
+        for j in range(0, nb_posts):
             post = NoteFactory(tutorial=tutorials[i], author=profiles[j % nb_users].user, position=j + 1)
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
-            sys.stdout.write(" Tuto {}/{}  \tComment {}/{}  \r". format(i + 1, nb_tutorials, j + 1, nb))
+            sys.stdout.write(" Tuto {}/{}  \tComment {}/{}  \r". format(i + 1, nb_tutorials, j + 1, nb_posts))
             sys.stdout.flush()
     tps2 = time.time()
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
@@ -382,24 +382,24 @@ def load_tutorials(cli, size, fake):
     chapters = []
 
     nb_tutos = size * 10
-    percent_tutos_validation_in_validation = 0.4
-    percent_tutos_validation_with_validator = 0.2
+    percent_tutos_in_validation = 0.4
+    percent_tutos_with_validator = 0.2
     percent_tutos_public = 0.3
     nb_avg_parts_in_tuto = size * 1
     nb_avg_chapters_in_tuto = size * 1
     nb_avg_extracts_in_tuto = size * 1
     cli.stdout.write(u"Nombres de big tutoriels à créer : {}".format(nb_tutos))
     cli.stdout.write(u"Nombres de big tutoriels en validations : {}"
-                     .format(str(int(nb_tutos * percent_tutos_validation_in_validation))))
+                     .format(str(int(nb_tutos * percent_tutos_in_validation))))
     cli.stdout.write(u"Nombres de big tutoriels réservé en validations : {}"
-                     .format(str(int(nb_tutos * percent_tutos_validation_with_validator))))
+                     .format(str(int(nb_tutos * percent_tutos_with_validator))))
     cli.stdout.write(u"Nombres de big tutoriels publiés : {}"
                      .format(str(int(nb_tutos * percent_tutos_public))))
     cli.stdout.write(u"Nombres de mini tutoriels à créer : {}".format(nb_tutos))
     cli.stdout.write(u"Nombres de mini tutoriels en validations : {}"
-                     .format(str(int(nb_tutos * percent_tutos_validation_in_validation))))
+                     .format(str(int(nb_tutos * percent_tutos_in_validation))))
     cli.stdout.write(u"Nombres de mini tutoriels réservé en validations : {}"
-                     .format(str(int(nb_tutos * percent_tutos_validation_with_validator))))
+                     .format(str(int(nb_tutos * percent_tutos_with_validator))))
     cli.stdout.write(u"Nombres de mini tutoriels publiés : {}"
                      .format(str(int(nb_tutos * percent_tutos_public))))
     tps1 = time.time()
@@ -445,38 +445,38 @@ def load_tutorials(cli, size, fake):
                                 ExtractFactory(chapter=chapters[k],
                                                position_in_chapter=l,
                                                title=fake.text(max_nb_chars=80))
-                    if i < int(nb_tutos * percent_tutos_validation_with_validator):
+                    if i < int(nb_tutos * percent_tutos_with_validator):
                         validator = staffs[random.randint(0, nb_staffs - 1)]
-                        v = TValidation(tutorial=tuto,
-                                        version=tuto.sha_draft,
-                                        date_proposition=datetime.now(),
-                                        date_reserve=datetime.now(),
-                                        validator=validator,
-                                        status="PENDING_V")
-                        v.save()
+                        valid = TValidation(tutorial=tuto,
+                                            version=tuto.sha_draft,
+                                            date_proposition=datetime.now(),
+                                            date_reserve=datetime.now(),
+                                            validator=validator,
+                                            status="PENDING_V")
+                        valid.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
-                                             percent_tutos_validation_with_validator)):
-                        v = TValidation(tutorial=tuto,
-                                        version=tuto.sha_draft,
-                                        date_proposition=datetime.now())
-                        v.save()
+                    elif i < int(nb_tutos * (percent_tutos_in_validation +
+                                             percent_tutos_with_validator)):
+                        valid = TValidation(tutorial=tuto,
+                                            version=tuto.sha_draft,
+                                            date_proposition=datetime.now())
+                        valid.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
-                                             percent_tutos_validation_with_validator +
+                    elif i < int(nb_tutos * (percent_tutos_in_validation +
+                                             percent_tutos_with_validator +
                                              percent_tutos_public)):
                         mep_tuto(tuto, tuto.sha_draft)
-                        v = TValidation(tutorial=tuto,
-                                        version=tuto.sha_draft,
-                                        date_proposition=datetime.now(),
-                                        date_reserve=datetime.now(),
-                                        validator=validator,
-                                        status="ACCEPT",
-                                        comment_validator=fake.text(max_nb_chars=200),
-                                        date_validation=datetime.now())
-                        v.save()
+                        valid = TValidation(tutorial=tuto,
+                                            version=tuto.sha_draft,
+                                            date_proposition=datetime.now(),
+                                            date_reserve=datetime.now(),
+                                            validator=validator,
+                                            status="ACCEPT",
+                                            comment_validator=fake.text(max_nb_chars=200),
+                                            date_validation=datetime.now())
+                        valid.save()
                         tuto.sha_public = tuto.sha_draft
                         tuto.save()
                     sys.stdout.write(" Big Tuto {}/{}  \r".format(i + 1, nb_tutos))
@@ -495,38 +495,38 @@ def load_tutorials(cli, size, fake):
                         ExtractFactory(chapter=chap,
                                        position_in_chapter=l,
                                        title=fake.text(max_nb_chars=80))
-                    if i < int(nb_tutos * percent_tutos_validation_with_validator):
+                    if i < int(nb_tutos * percent_tutos_with_validator):
                         validator = staffs[random.randint(0, nb_staffs - 1)]
-                        v = TValidation(tutorial=tuto,
-                                        version=tuto.sha_draft,
-                                        date_proposition=datetime.now(),
-                                        date_reserve=datetime.now(),
-                                        validator=validator,
-                                        status="PENDING_V")
-                        v.save()
+                        valid = TValidation(tutorial=tuto,
+                                            version=tuto.sha_draft,
+                                            date_proposition=datetime.now(),
+                                            date_reserve=datetime.now(),
+                                            validator=validator,
+                                            status="PENDING_V")
+                        valid.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
-                                             percent_tutos_validation_with_validator)):
-                        v = TValidation(tutorial=tuto,
-                                        version=tuto.sha_draft,
-                                        date_proposition=datetime.now())
-                        v.save()
+                    elif i < int(nb_tutos * (percent_tutos_in_validation +
+                                             percent_tutos_with_validator)):
+                        valid = TValidation(tutorial=tuto,
+                                            version=tuto.sha_draft,
+                                            date_proposition=datetime.now())
+                        valid.save()
                         tuto.sha_validation = tuto.sha_draft
                         tuto.save()
-                    elif i < int(nb_tutos * (percent_tutos_validation_in_validation +
-                                             percent_tutos_validation_with_validator +
+                    elif i < int(nb_tutos * (percent_tutos_in_validation +
+                                             percent_tutos_with_validator +
                                              percent_tutos_public)):
                         mep_tuto(tuto, tuto.sha_draft)
-                        v = TValidation(tutorial=tuto,
-                                        version=tuto.sha_draft,
-                                        date_proposition=datetime.now(),
-                                        date_reserve=datetime.now(),
-                                        validator=validator,
-                                        status="ACCEPT",
-                                        comment_validator=fake.text(max_nb_chars=200),
-                                        date_validation=datetime.now())
-                        v.save()
+                        valid = TValidation(tutorial=tuto,
+                                            version=tuto.sha_draft,
+                                            date_proposition=datetime.now(),
+                                            date_reserve=datetime.now(),
+                                            validator=validator,
+                                            status="ACCEPT",
+                                            comment_validator=fake.text(max_nb_chars=200),
+                                            date_validation=datetime.now())
+                        valid.save()
                         tuto.sha_public = tuto.sha_draft
                         tuto.save()
                     sys.stdout.write(" Mini Tuto {}/{}  \r".format(i + 1, nb_tutos))
@@ -544,14 +544,14 @@ def load_articles(cli, size, fake):
     articles = []
 
     nb_arts = size * 10
-    percent_arts_validation_in_validation = 0.4
-    percent_arts_validation_with_validator = 0.2
+    percent_arts_in_validation = 0.4
+    percent_arts_with_validator = 0.2
     percent_arts_public = 0.3
     cli.stdout.write(u"Nombres d'articles à créer : {}".format(nb_arts))
     cli.stdout.write(u"Nombres d'articles en validations : {}"
-                     .format(str(int(nb_arts * percent_arts_validation_in_validation))))
+                     .format(str(int(nb_arts * percent_arts_in_validation))))
     cli.stdout.write(u"Nombres d'articles réservé en validations : {}"
-                     .format(str(int(nb_arts * percent_arts_validation_with_validator))))
+                     .format(str(int(nb_arts * percent_arts_with_validator))))
     cli.stdout.write(u"Nombres d'articles publiés : {}"
                      .format(str(int(nb_arts * percent_arts_public))))
     tps1 = time.time()
@@ -581,38 +581,38 @@ def load_articles(cli, size, fake):
                     art.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
                     articles.append(art)
 
-                    if i < int(nb_arts * percent_arts_validation_with_validator):
+                    if i < int(nb_arts * percent_arts_with_validator):
                         validator = staffs[random.randint(0, nb_staffs - 1)]
-                        v = AValidation(article=art,
-                                        version=art.sha_draft,
-                                        date_proposition=datetime.now(),
-                                        date_reserve=datetime.now(),
-                                        validator=validator,
-                                        status="PENDING_V")
-                        v.save()
+                        valid = AValidation(article=art,
+                                            version=art.sha_draft,
+                                            date_proposition=datetime.now(),
+                                            date_reserve=datetime.now(),
+                                            validator=validator,
+                                            status="PENDING_V")
+                        valid.save()
                         art.sha_validation = art.sha_draft
                         art.save()
-                    elif i < int(nb_arts * (percent_arts_validation_in_validation +
-                                            percent_arts_validation_with_validator)):
-                        v = AValidation(article=art,
-                                        version=art.sha_draft,
-                                        date_proposition=datetime.now())
-                        v.save()
+                    elif i < int(nb_arts * (percent_arts_in_validation +
+                                            percent_arts_with_validator)):
+                        valid = AValidation(article=art,
+                                            version=art.sha_draft,
+                                            date_proposition=datetime.now())
+                        valid.save()
                         art.sha_validation = art.sha_draft
                         art.save()
-                    elif i < int(nb_arts * (percent_arts_validation_in_validation +
-                                            percent_arts_validation_with_validator +
+                    elif i < int(nb_arts * (percent_arts_in_validation +
+                                            percent_arts_with_validator +
                                             percent_arts_public)):
                         mep_art(art, art.sha_draft)
-                        v = AValidation(article=art,
-                                        version=art.sha_draft,
-                                        date_proposition=datetime.now(),
-                                        date_reserve=datetime.now(),
-                                        validator=validator,
-                                        status="ACCEPT",
-                                        comment_validator=fake.text(max_nb_chars=200),
-                                        date_validation=datetime.now())
-                        v.save()
+                        valid = AValidation(article=art,
+                                            version=art.sha_draft,
+                                            date_proposition=datetime.now(),
+                                            date_reserve=datetime.now(),
+                                            validator=validator,
+                                            status="ACCEPT",
+                                            comment_validator=fake.text(max_nb_chars=200),
+                                            date_validation=datetime.now())
+                        valid.save()
                         art.sha_public = art.sha_draft
                         art.pubdate = datetime.now()
                         art.save()
@@ -646,16 +646,16 @@ class Command(BaseCommand):
                           "tutorial",
                           "reaction"]
         for arg in args:
-            ps = arg.split("=")
-            if len(ps) < 2:
+            options = arg.split("=")
+            if len(options) < 2:
                 continue
             else:
-                if ps[0] in ["size", "sizes", "taille", "level"]:
-                    default_size = ps[1].split(",")[0]
-                elif ps[0] in ["type", "types"]:
-                    default_module = ps[1].split(",")
-                elif ps[0] in ["racine"]:
-                    default_root = ps[1].split(",")[0]
+                if options[0] in ["size", "sizes", "taille", "level"]:
+                    default_size = options[1].split(",")[0]
+                elif options[0] in ["type", "types"]:
+                    default_module = options[1].split(",")
+                elif options[0] in ["racine"]:
+                    default_root = options[1].split(",")[0]
 
         if default_size == "low":
             size = 1

@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from model_utils.managers import InheritanceManager
 
 
 class ArticleManager(models.Manager):
@@ -20,3 +21,9 @@ class ArticleManager(models.Manager):
             my_article.load_dic(article_version)
             my_article_versions.append(article_version)
         return my_article_versions
+
+
+class ReactionManager(InheritanceManager):
+
+    def count_reactions(self, article):
+        return self.filter(article__pk=article.pk).count()

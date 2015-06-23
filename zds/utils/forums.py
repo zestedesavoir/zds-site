@@ -1,12 +1,70 @@
 # coding: utf-8
 
+import json
+
 from datetime import datetime
-from zds.forum.models import Topic, Post, follow
-from zds.forum.views import get_tag_by_title
-from zds.utils.templatetags.emarkdown import emarkdown
+from django.core.mail import EmailMultiAlternatives
+from django.http import HttpResponse, StreamingHttpResponse
+from django.shortcuts import render, render_to_response
+from django.template.loader import render_to_string
+from django.utils.translation import ugettext as _
+from django.views.generic import CreateView
+from django.views.generic.detail import SingleObjectMixin
+
+from zds import settings
+from zds.forum.models import Topic, Post, follow, TopicRead
+from zds.member.views import get_client_ip
+from zds.utils.mixins import QuoteMixin
+
+
+def get_tag_by_title(title):
+    """
+    Extract tags from title.
+    In a title, tags can be set this way:
+    > [Tag 1][Tag 2] There is the real title
+    Rules to detect tags:
+    - Tags are enclosed in square brackets. This allows multi-word tags instead of hashtags.
+    - Tags can embed square brackets: [Tag] is a valid tag and must be written [[Tag]] in the raw title
+    - All tags must be declared at the beginning of the title. Example: _"Title [tag]"_ will not create a tag.
+    - Tags and title correctness (example: empty tag/title detection) is **not** checked here
+    :param title: The raw title
+    :return: A tuple: (the tag list, the title without the tags).
+    """
+    nb_bracket = 0
+    current_tag = u""
+    current_title = u""
+    tags = []
+    continue_parsing_tags = True
+    original_title = title
+    for char in title:
+
+        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
+            nb_bracket += 1
+        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
+            current_tag = current_tag + char
+            if char == u"[":
+                nb_bracket += 1
+        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
+            nb_bracket -= 1
+            if nb_bracket == 0 and current_tag.strip() != u"":
+                tags.append(current_tag.strip())
+                current_tag = u""
+            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = current_tag + char
+
+        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
+            continue_parsing_tags = False
+            current_title = current_title + char
+    title = current_title
+    # if we did not succed in parsing the tags
+    if nb_bracket != 0:
+        return [], original_title
+
+    return tags, title.strip()
 
 
 def create_topic(
+        request,
         author,
         forum,
         title,
@@ -16,7 +74,7 @@ def create_topic(
         related_publishable_content=None):
     """create topic in forum"""
 
-    (tags, title_only) = get_tag_by_title(title[:80])
+    (tags, title_only) = get_tag_by_title(title[:Topic._meta.get_field('title').max_length])
 
     # Creating the thread
     n_topic = Topic()
@@ -35,36 +93,62 @@ def create_topic(
     n_topic.save()
 
     # Add the first message
-    post = Post()
-    post.topic = n_topic
-    post.author = author
-    post.text = text
-    post.text_html = emarkdown(text)
-    post.pubdate = datetime.now()
-    post.position = 1
-    post.save()
-
-    n_topic.last_message = post
-    n_topic.save()
-
-    follow(n_topic, user=author)
+    send_post(request, n_topic, n_topic.author, text)
 
     return n_topic
 
 
-def send_post(topic, text):
-
+def send_post(request, topic, author, text, send_by_mail=False,):
     post = Post()
     post.topic = topic
-    post.author = topic.author
-    post.text = text
-    post.text_html = emarkdown(text)
+    post.author = author
+    post.update_content(text)
     post.pubdate = datetime.now()
-    post.position = topic.last_message.position + 1
+    if topic.last_message is not None:
+        post.position = topic.last_message.position + 1
+    else:
+        post.position = 1
+    post.ip_address = get_client_ip(request)
     post.save()
 
     topic.last_message = post
     topic.save()
+
+    # Send mail
+    if send_by_mail:
+        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'], _(u'Forum'), topic.title)
+        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                      settings.ZDS_APP['site']['email_noreply'])
+
+        followers = topic.get_followers_by_email()
+        for follower in followers:
+            receiver = follower.user
+            if receiver == post.author:
+                continue
+            last_read = TopicRead.objects.filter(
+                topic=topic,
+                post__position=post.position - 1,
+                user=receiver).count()
+            if last_read > 0:
+                context = {
+                    'username': receiver.username,
+                    'title': topic.title,
+                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+                    'author': post.author.username,
+                    'site_name': settings.ZDS_APP['site']['litteral_name']
+                }
+                message_html = render_to_string('email/forum/new_post.html', context)
+                message_txt = render_to_string('email/forum/new_post.txt', context)
+
+                msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
+                msg.attach_alternative(message_html, "text/html")
+                msg.send()
+
+    # Follow topic on answering
+    if not topic.is_followed(user=post.author):
+        follow(topic)
+
+    return topic
 
 
 def lock_topic(topic):
@@ -75,3 +159,53 @@ def lock_topic(topic):
 def unlock_topic(topic):
     topic.is_locked = False
     topic.save()
+
+
+class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
+    posts = None
+
+    def get(self, request, *args, **kwargs):
+        assert self.posts is not None, ('Posts cannot be None.')
+
+        text = ''
+
+        # Using the quote button
+        if "cite" in request.GET:
+            text = self.build_quote(request.GET.get('cite'))
+
+            if request.is_ajax():
+                return HttpResponse(json.dumps({'text': text}), content_type='application/json')
+
+        form = self.create_forum(self.form_class, **{'text': text})
+        return render(request, self.template_name, {
+            'topic': self.object,
+            'posts': self.posts,
+            'last_post_pk': self.object.last_message.pk,
+            'form': form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(self.form_class)
+        new_post = None
+        if not request.is_ajax():
+            new_post = self.object.last_message.pk != int(request.POST.get('last_post'))
+
+        if 'preview' in request.POST or new_post:
+            if request.is_ajax():
+                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
+                return StreamingHttpResponse(content)
+            else:
+                form = self.create_forum(self.form_class, **{'text': request.POST.get('text')})
+        elif form.is_valid():
+            return self.form_valid(form)
+
+        return render(request, self.template_name, {
+            'topic': self.object,
+            'posts': self.posts,
+            'last_post_pk': self.object.last_message.pk,
+            'newpost': new_post,
+            'form': form,
+        })
+
+    def create_forum(self, form_class, **kwargs):
+        raise NotImplementedError('`create_forum()` must be implemented.')

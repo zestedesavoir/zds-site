@@ -14,18 +14,27 @@
         <p class="content-description">
             {{ topic.forum.title }},
             {% trans "par" %}{% include "misc/member_item.part.html" with member=topic.author %}
-            - {{ topic.pubdate|format_date|capfirst }}
+            -
+            <time pubdate="{{ topic.pubdate|date:"c" }}">
+                <span class="long">{{ topic.pubdate|format_date|capfirst }}</span>
+                <span class="short">{{ topic.pubdate|format_date:True|capfirst }}</span>
+            </time>
         </p>
 
-        <p class="content-meta">
-            {% with answer=topic.get_last_answer %}
+        <p class="content-meta inline">
+            {% with answer=topic.get_last_answer last_read=topic.last_read_post %}
                 {% if answer %}
-                    {% trans "Dernière réponse :" %}
-                    {% include "misc/member_item.part.html" with member=answer.author %} -
-                    <time class="content-pubdate" pubdate="{{ anwser.pubdate|date:"c" }}">
-                        <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
-                        <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
-                    </time>
+                    {% spaceless %}
+                    <a href="{{ last_read.get_absolute_url }}" class="last-read-link">
+                        {% trans "Dernière réponse :" %}
+                        <time class="content-pubdate" pubdate="{{ answer.pubdate|date:"c" }}">
+                            <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>
+                            <span class="short">{{ answer.pubdate|format_date:True|capfirst }}</span>
+                        </time>
+                    </a>
+                    {% endspaceless %}
+                    {% trans "par" %}
+                    {% include "misc/member_item.part.html" with member=answer.author %}
                 {% else %}
                     {% trans "Aucune réponse" %}
                 {% endif %}
@@ -37,7 +46,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in topic.tags.all|slice:":3" %}
                 <li>
-                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}" title="Tag {{ tag.title }}">
+                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}" title="Tag {{ tag.title }}">
                         {{ tag.title }}
                     </a>
                 </li>

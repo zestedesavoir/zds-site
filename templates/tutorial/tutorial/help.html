@@ -30,53 +30,52 @@
         <meta itemprop="itemListOrder" content="Unordered">
 
         {% for tutorial in tutorials %}
-            <article class="tutorial-item">
+            <article class="tutorial-help-item">
                 {% if tutorial.image.physical.tutorial_illu.url %}
-                    <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-illu">
+                    <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-illu avatar">
                 {% endif %}
 
-                <h3 class="tutorial-title" itemprop="itemListElement" title="{{ tutorial.title }}">
-                    {{ tutorial.title }}
-                </h3>
+                <div class="tutorial-infos{% if not tutorial.image.physical.tutorial_illu.url %} no-illu{% endif %}">
+                    <h3 class="tutorial-title" itemprop="itemListElement" title="{{ tutorial.title }}">
+                        {{ tutorial.title }}
+                    </h3>
 
-                <p class="tutorial-authors">
-                    {% for author in tutorial.authors.all %}
-                        {% if forloop.first %}
-                            {% trans "par" %}
-                        {% elif forloop.last %}
-                            {% trans "et" %}
-                        {% else %}
-                            ,
-                        {% endif %}
-
-                        {% if author == user %}
-                            {% trans "vous" %}
-                        {% else %}
-                            <strong><a href="{{ author.get_absolute_url }}" title="{% trans "Profil de" %} {{ author.username }}">
-                            {{author.username}}
-                            </a></strong>
-                        {% endif %}
-                    {% endfor %}
-                    {% if not user in tutorial.authors.all %}
-                        - <a href="{{ tutorial.get_absolute_contact_url }}">{% trans "Contacter par MP" %}</a>
-                    {% endif %}
-                </p>
-
-                <p class="tutorial-categories">
-                    {% if tutorial.subcategory %}
-                        {% for category in tutorial.subcategory.all %}
+                    <p class="tutorial-authors">
+                        {% for author in tutorial.authors.all %}
                             {% if forloop.first %}
-                                {% trans "dans" %}
+                                {% trans "Par" %}
                             {% elif forloop.last %}
                                 {% trans "et" %}
                             {% else %}
                                 ,
                             {% endif %}
 
-                            {{ category.title }}
+                            {% if author == user %}
+                                {% trans "vous" %}
+                            {% else %}
+                                <strong><a href="{{ author.get_absolute_url }}" title="{% trans "Profil de" %} {{ author.username }}">
+                                {{author.username}}
+                                </a></strong>
+                            {% endif %}
                         {% endfor %}
-                    {% endif %}
-                </p>
+                        {% if not user in tutorial.authors.all %}
+                            - <a href="{{ tutorial.get_absolute_contact_url }}">{% trans "Contacter par MP" %}</a>
+                        {% endif %}
+                    </p>
+
+                    <p class="tutorial-categories">
+                        {% if tutorial.subcategory %}
+                            {% for category in tutorial.subcategory.all %}
+                                {% if forloop.first %}
+                                {% else %}
+                                    -
+                                {% endif %}
+
+                                {{ category.title }}
+                            {% endfor %}
+                        {% endif %}
+                    </p>
+                </div>
 
                 <div class="tutorial-help">
                     {% if tutorial.on_line %}

@@ -41,27 +41,28 @@ def followed_topics(user):
     # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
     # to humane_delta, means if your pubdate hasn't exceeded one day, we are always at "Yesterday"
     # Number is use for index for sort map easily
-    period = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
+    periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
     topics = {}
-    for tf in topicsfollowed:
-        for p in period:
-            if tf.topic.last_message.pubdate.date() >= (datetime.now() - timedelta(days=int(p[1]),
-                                                                                   hours=0, minutes=0,
-                                                                                   seconds=0)).date():
-                if p[0] in topics:
-                    topics[p[0]].append(tf.topic)
+    for tfollowed in topicsfollowed:
+        for period in periods:
+            if tfollowed.topic.last_message.pubdate.date() >= (datetime.now() - timedelta(days=int(period[1]),
+                                                                                          hours=0,
+                                                                                          minutes=0,
+                                                                                          seconds=0)).date():
+                if period[0] in topics:
+                    topics[period[0]].append(tfollowed.topic)
                 else:
-                    topics[p[0]] = [tf.topic]
+                    topics[period[0]] = [tfollowed.topic]
                 break
     return topics
 
 
-def comp(d1, d2):
-    v1 = int(time.mktime(d1['pubdate'].timetuple()))
-    v2 = int(time.mktime(d2['pubdate'].timetuple()))
-    if v1 > v2:
+def comp(dated_element1, dated_element2):
+    version1 = int(time.mktime(dated_element1['pubdate'].timetuple()))
+    version2 = int(time.mktime(dated_element2['pubdate'].timetuple()))
+    if version1 > version2:
         return -1
-    elif v1 < v2:
+    elif version1 < version2:
         return 1
     else:
         return 0
@@ -171,6 +172,7 @@ def interventions_privatetopics(user):
 def alerts_list(user):
     total = []
     alerts = Alert.objects.select_related('author', 'comment').all().order_by('-pubdate')[:10]
+    nb_alerts = Alert.objects.count()
     for alert in alerts:
         if alert.scope == Alert.FORUM:
             post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
@@ -179,14 +181,14 @@ def alerts_list(user):
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
-        if alert.scope == Alert.ARTICLE:
+        elif alert.scope == Alert.ARTICLE:
             reaction = Reaction.objects.select_related('article').get(pk=alert.comment.pk)
             total.append({'title': reaction.article.title,
                           'url': reaction.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
-        if alert.scope == Alert.TUTORIAL:
+        elif alert.scope == Alert.TUTORIAL:
             note = Note.objects.select_related('tutorial').get(pk=alert.comment.pk)
             total.append({'title': note.tutorial.title,
                           'url': note.get_absolute_url(),
@@ -201,4 +203,4 @@ def alerts_list(user):
                           'author': alert.author,
                           'text': alert.text})
 
-    return total
+    return {'alerts': total, 'nb_alerts': nb_alerts}

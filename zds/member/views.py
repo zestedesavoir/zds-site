@@ -22,15 +22,18 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView
-from forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
-    ChangePasswordForm, ChangeUserForm, ForgotPasswordForm, NewPasswordForm, \
-    OldTutoForm, PromoteMemberForm, KarmaForm
+
+from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
+    ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
+    OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
+
 from zds.utils.models import Comment, CommentLike, CommentDislike
-from models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
+from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
-from zds.forum.models import Topic, follow, TopicFollowed
+from zds.forum.models import Topic, follow, TopicFollowed, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
@@ -62,6 +65,8 @@ class MemberDetail(DetailView):
     template_name = 'member/profile.html'
 
     def get_object(self, queryset=None):
+        # Use urlunquote to accept quoted twice URLs (for instance in MPs send
+        # through emarkdown parser)
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
     def get_context_data(self, **kwargs):
@@ -76,7 +81,7 @@ class MemberDetail(DetailView):
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
         context['form'] = OldTutoForm(profile)
-
+        context['topic_read'] = TopicRead.objects.list_read_topic_pk(usr, context['topics'])
         return context
 
 
@@ -237,7 +242,6 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
         if form.is_valid():
             return self.form_valid(form)
-
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
@@ -251,6 +255,62 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
     def get_success_template(self):
         return 'member/register/success.html'
+
+
+class SendValidationEmailView(FormView, TokenGenerator):
+    """Send a validation email on demand. """
+
+    form_class = UsernameAndEmailForm
+    template_name = 'member/register/send_validation_email.html'
+
+    usr = None
+
+    def get_user(self, username, email):
+
+        if username:
+            self.usr = get_object_or_404(User, username=username)
+
+        elif email:
+            self.usr = get_object_or_404(User, email=email)
+
+    def get_form(self, form_class):
+        return form_class()
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+            # Fetch the user
+            self.get_user(form.data["username"], form.data["email"])
+
+            # User should not be already active
+            if not self.usr.is_active:
+                return self.form_valid(form)
+            else:
+                if form.data["username"]:
+                    form.errors['username'] = form.error_class([self.get_error_message()])
+                else:
+                    form.errors['email'] = form.error_class([self.get_error_message()])
+
+        return render(request, self.template_name, {'form': form})
+
+    def form_valid(self, form):
+        # Delete old token
+        token = TokenRegister.objects.filter(user=self.usr)
+        if token.count >= 1:
+            token.all().delete()
+
+        # Generate new token and send email
+        token = self.generate_token(self.usr)
+        self.send_email(token, self.usr)
+
+        return render(self.request, self.get_success_template())
+
+    def get_success_template(self):
+        return 'member/register/send_validation_email_success.html'
+
+    def get_error_message(self):
+        return _("Le compte est déjà activé.")
 
 
 @login_required
@@ -474,7 +534,9 @@ def articles(request):
     elif state == 'public':
         user_articles = profile.get_public_articles()
     else:
-        user_articles = profile.get_articles()
+        user_articles = Article.objects\
+            .filter(authors__pk__in=[request.user.pk])\
+            .prefetch_related("authors", "authors__profile")
 
     # Order articles (abc by default)
 
@@ -484,7 +546,8 @@ def articles(request):
         user_articles = user_articles.order_by('-update')
     else:
         user_articles = user_articles.extra(select={'lower_title': 'lower(title)'}).order_by('lower_title')
-
+    user_articles = [raw_article.load_dic(raw_article.load_json(None, raw_article.on_line()))
+                     for raw_article in user_articles]
     return render(
         request,
         'article/member/index.html',
@@ -503,7 +566,7 @@ def settings_mini_profile(request, user_name):
     profile = get_object_or_404(Profile, user__username=user_name)
     if request.method == "POST":
         form = MiniProfileForm(request.POST)
-        c = {"form": form, "profile": profile}
+        data = {"form": form, "profile": profile}
         if form.is_valid():
             profile.biography = form.data["biography"]
             profile.site = form.data["site"]
@@ -517,14 +580,12 @@ def settings_mini_profile(request, user_name):
                 profile.save()
             except:
                 messages.error(request, u"Une erreur est survenue.")
-                return redirect(reverse("zds.member.views.settings_mini_profil"
-                                        "e"))
-            messages.success(request,
-                             _(u"Le profil a correctement été mis à jour."))
-            return redirect(reverse("member-detail",
-                                    args=[profile.user.username]))
+                return redirect(reverse("zds.member.views.settings_mini_profile"))
+
+            messages.success(request, _(u"Le profil a correctement été mis à jour."))
+            return redirect(reverse("member-detail", args=[profile.user.username]))
         else:
-            return render(request, "member/settings/profile.html", c)
+            return render(request, "member/settings/profile.html", data)
     else:
         form = MiniProfileForm(initial={
             "biography": profile.biography,
@@ -532,8 +593,8 @@ def settings_mini_profile(request, user_name):
             "avatar_url": profile.avatar_url,
             "sign": profile.sign,
         })
-        c = {"form": form, "profile": profile}
-        return render(request, "member/settings/profile.html", c)
+        data = {"form": form, "profile": profile}
+        return render(request, "member/settings/profile.html", data)
 
 
 def login_view(request):
@@ -612,7 +673,7 @@ def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
     if request.method == "POST":
-        form = ForgotPasswordForm(request.POST)
+        form = UsernameAndEmailForm(request.POST)
         if form.is_valid():
 
             # Get data from form
@@ -656,7 +717,7 @@ def forgot_password(request):
         else:
             return render(request, "member/forgot_password/index.html",
                           {"form": form})
-    form = ForgotPasswordForm()
+    form = UsernameAndEmailForm()
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 
@@ -744,7 +805,7 @@ def active_account(request):
                 tutorials_url=settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
                 articles_url=settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
                 members_url=settings.ZDS_APP['site']['url'] + reverse("member-list"),
-                forums_url=settings.ZDS_APP['site']['url'] + reverse("zds.forum.views.index"),
+                forums_url=settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
                 site_name=settings.ZDS_APP['site']['litteral_name'])
     send_mp(
         bot,
@@ -817,23 +878,22 @@ def date_to_chart(posts):
     for i in range(len(lst)):
         lst[i] = 7 * [0]
     for post in posts:
-        t = post.pubdate.timetuple()
-        lst[t.tm_hour][(t.tm_wday + 1) % 7] = lst[t.tm_hour][(t.tm_wday + 1)
-                                                             % 7] + 1
+        timestamp = post.pubdate.timetuple()
+        lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] = lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] + 1
     return lst
 
 
 @login_required
 @require_POST
 def add_oldtuto(request):
-    id = request.POST["id"]
+    identifier = request.POST["id"]
     profile_pk = request.POST["profile_pk"]
     profile = get_object_or_404(Profile, pk=profile_pk)
     if profile.sdz_tutorial:
         olds = profile.sdz_tutorial.strip().split(":")
     else:
         olds = []
-    last = str(id)
+    last = str(identifier)
     for old in olds:
         last += ":{0}".format(old)
     profile.sdz_tutorial = last
@@ -848,20 +908,23 @@ def add_oldtuto(request):
 @login_required
 def remove_oldtuto(request):
     if "id" in request.GET:
-        id = request.GET["id"]
+        identifier = request.GET["id"]
     else:
         raise Http404
+
     if "profile" in request.GET:
         profile_pk = request.GET["profile"]
     else:
         raise Http404
+
     profile = get_object_or_404(Profile, pk=profile_pk)
     if profile.sdz_tutorial \
             or not request.user.has_perm("member.change_profile"):
         olds = profile.sdz_tutorial.strip().split(":")
-        olds.remove(str(id))
+        olds.remove(str(identifier))
     else:
         raise PermissionDenied
+
     last = ""
     for i in range(len(olds)):
         if i > 0:
@@ -927,7 +990,7 @@ def settings_promote(request, user_pk):
                                  .format(user.username))
         else:
             if user == request.user:
-                messages.error(request, _(u'Un super-utilisateur ne peux pas se retirer des super-utilisateurs.'))
+                messages.error(request, _(u'Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
             else:
                 if user.is_superuser:
                     user.is_superuser = False
@@ -958,8 +1021,8 @@ def settings_promote(request, user_pk):
             msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
         msg += u'\n\n'
         if user.is_superuser:
-            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super utilisateurs. '
-                                       u'N\'oubliez pas, un grand pouvoir entraine de grandes responsabiltiés !'))
+            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super-utilisateurs. '
+                                       u'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
         send_mp(
             bot,
             [user],
@@ -985,16 +1048,16 @@ def settings_promote(request, user_pk):
 
 
 @login_required
-def member_from_ip(request, ip):
+def member_from_ip(request, ip_address):
     """ Get list of user connected from a particular ip """
 
     if not request.user.has_perm("member.change_profile"):
         raise PermissionDenied
 
-    members = Profile.objects.filter(last_ip_address=ip).order_by('-last_visit')
+    members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
     return render(request, 'member/settings/memberip.html', {
         "members": members,
-        "ip": ip
+        "ip": ip_address
     })
 
 

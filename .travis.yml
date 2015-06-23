@@ -18,7 +18,9 @@ notifications:
       - irc.smoothirc.net#zds-dev
     skip_join: true
 
-services: mysql
+services: 
+ - mysql
+ - memcached
 
 sudo: false
 

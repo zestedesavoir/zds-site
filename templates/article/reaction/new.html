@@ -61,7 +61,7 @@
                 {% url "zds.article.views.solve_alert" %}
             {% endcaptureas %}
 
-            {% include "misc/message.part.html" with perms_change=perms.tutorial.change_article %}
+            {% include "misc/message.part.html" %}
         {% endfor %}
     </div>
 {% endblock %}

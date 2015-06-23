@@ -15,12 +15,12 @@ class Command(BaseCommand):
         ids = []
 
         for arg in args:
-            ps = arg.split("=")
-            if len(ps) < 2:
+            param = arg.split("=")
+            if len(param) < 2:
                 continue
             else:
-                if ps[0] in ["id", "ids"]:
-                    ids = ps[1].split(",")
+                if param[0] in ["id", "ids"]:
+                    ids = param[1].split(",")
 
         pandoc_debug_str = ""
         if settings.PANDOC_LOG_STATE:

@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 
 from zds.article.models import Article
-from zds.forum.models import Category, Forum, Topic
+from zds.forum.models import Category, Forum, Topic, Tag
 from zds.tutorial.models import Tutorial
 
 from . import settings
@@ -61,10 +61,14 @@ sitemaps = {
     ),
     'topics': GenericSitemap(
         {'queryset': Topic.objects.filter(is_locked=False,
-                                          forum__group__isnull=True).exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
+                                          forum__group__isnull=True)
+                                  .exclude(forum__pk=settings.ZDS_APP['forum']['beta_forum_id']),
          'date_field': 'pubdate'},
         changefreq='hourly',
         priority=0.7
+    ),
+    'tags': GenericSitemap(
+        {'queryset': Tag.objects.all()}
     ),
 }
 
@@ -98,7 +102,7 @@ urlpatterns += patterns('',
                         url(r'^api/', include('rest_framework_swagger.urls')),
                         url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
                         url(r'^api/membres/', include('zds.member.api.urls')),
-                        url(r'^api/mps/', include('zds.mp.api.urls')),
+                        # url(r'^api/mps/', include('zds.mp.api.urls')),
                         )
 
 # SiteMap URLs

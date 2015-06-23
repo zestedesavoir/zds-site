@@ -7,5 +7,10 @@ ignore-paths:
     - doc
 ignore-patterns:
     - manage.py
+    - ^.*urls\.py$  # ignore files "urls.py" because too long lines
 uses:
     - django
+pylint:
+  disable:
+    - too-many-ancestors
+    - too-many-lines

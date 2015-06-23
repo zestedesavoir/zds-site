@@ -3,8 +3,11 @@
 from django.conf import settings
 from django.test import TestCase
 
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from zds.utils import slugify
+
+from datetime import datetime, timedelta
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
@@ -13,8 +16,8 @@ from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
 from django.core import mail
 
 from zds.forum.models import Post, Topic, TopicFollowed, TopicRead
-from zds.forum.views import get_tag_by_title
-from zds.forum.models import get_topics, Forum
+from zds.utils.forums import get_tag_by_title
+from zds.forum.models import Forum
 
 
 class ForumMemberTests(TestCase):
@@ -78,29 +81,24 @@ class ForumMemberTests(TestCase):
         """Test forum display (full: root, category, forum) Topic display test
         is in creation topic test."""
         # Forum root
-        response = self.client.get(reverse('zds.forum.views.index'))
+        response = self.client.get(reverse('cats-forums-list'))
         self.assertContains(response, 'Liste des forums')
         # Category
         response = self.client.get(
             reverse(
-                'zds.forum.views.cat_details',
+                'cat-forums-list',
                 args=[
                     self.category1.slug]))
         self.assertContains(response, self.category1.title)
         # Forum
-        response = self.client.get(
-            reverse(
-                'zds.forum.views.details',
-                args=[
-                    self.category1.slug,
-                    self.forum11.slug]))
+        response = self.client.get(reverse('forum-topics-list', args=[self.category1.slug, self.forum11.slug]))
         self.assertContains(response, self.category1.title)
         self.assertContains(response, self.forum11.title)
 
     def test_create_topic(self):
         """To test all aspects of topic's creation by member."""
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum={0}'
+            reverse('topic-new') + '?forum={0}'
             .format(self.forum12.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
@@ -145,7 +143,7 @@ class ForumMemberTests(TestCase):
 
         # With a weird pk
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum=' + 'abc',
+            reverse('topic-new') + '?forum=' + 'abc',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -155,7 +153,7 @@ class ForumMemberTests(TestCase):
 
         # With a missing pk
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum=',
+            reverse('topic-new') + '?forum=',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -165,7 +163,7 @@ class ForumMemberTests(TestCase):
 
         # With a missing parameter
         result = self.client.post(
-            reverse('zds.forum.views.new'),
+            reverse('topic-new'),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -190,7 +188,7 @@ class ForumMemberTests(TestCase):
 
         # check if we send ane empty text
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u''
@@ -204,7 +202,7 @@ class ForumMemberTests(TestCase):
 
         # now check what happen if everything is fine
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -236,7 +234,7 @@ class ForumMemberTests(TestCase):
 
         # test antispam return 403
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'Testons l\'antispam'
@@ -259,7 +257,7 @@ class ForumMemberTests(TestCase):
 
         # missing parameter
         result = self.client.post(
-            reverse('zds.forum.views.answer'),
+            reverse('post-new'),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -270,7 +268,7 @@ class ForumMemberTests(TestCase):
 
         # weird parameter
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet=' + 'abc',
+            reverse('post-new') + '?sujet=' + 'abc',
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -281,7 +279,7 @@ class ForumMemberTests(TestCase):
 
         # non-existing (yet) parameter
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet=' + '424242',
+            reverse('post-new') + '?sujet=' + '424242',
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -299,13 +297,16 @@ class ForumMemberTests(TestCase):
         topic3 = TopicFactory(forum=self.forum21, author=self.user)
         post3 = PostFactory(topic=topic3, author=self.user, position=1)
 
+        expected_title = u'Un autre sujet'
+        expected_subtitle = u'Encore ces lombards en plein été'
+        expected_text = u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post1.pk),
-            {'title': u'Un autre sujet',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic1.pk),
+            {
+                'title': expected_title,
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
@@ -322,65 +323,56 @@ class ForumMemberTests(TestCase):
         self.assertEqual(post3.topic, topic3)
 
         # check values
-        self.assertEqual(
-            Topic.objects.get(
-                pk=topic1.pk).title,
-            u'Un autre sujet')
-        self.assertEqual(
-            Topic.objects.get(
-                pk=topic1.pk).subtitle,
-            u'Encore ces lombards en plein été')
-        self.assertEqual(
-            Post.objects.get(
-                pk=post1.pk).text,
-            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
+        self.assertEqual(expected_title, Topic.objects.get(pk=topic1.pk).title)
+        self.assertEqual(expected_subtitle, Topic.objects.get(pk=topic1.pk).subtitle)
+        self.assertEqual(expected_text, Post.objects.get(pk=post1.pk).text)
 
         # check edit data
         self.assertEqual(Post.objects.get(pk=post1.pk).editor, self.user)
 
         # check if topic is valid (no topic)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': '',
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
 
         # check if topic is valid (tags only)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'[foo][bar]',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': u'[foo][bar]',
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
 
         # check if topic is valid (spaces only)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'  ',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': u'  ',
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
         self.assertEqual(Topic.objects.get(pk=topic2.pk).title, topic2.title)
 
         # check if topic is valid (valid title)
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
-            {'title': u'Un titre valide',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            {
+                'title': expected_title,
+                'subtitle': expected_subtitle,
+                'text': expected_text
+            },
             follow=False)
-        self.assertEqual(Topic.objects.get(pk=topic2.pk).title, u'Un titre valide')
+        self.assertEqual(expected_title, Topic.objects.get(pk=topic2.pk).title)
 
     def test_edit_post(self):
         """To test all aspects of the edition of simple post by member."""
@@ -390,8 +382,7 @@ class ForumMemberTests(TestCase):
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
@@ -421,7 +412,7 @@ class ForumMemberTests(TestCase):
 
         # if the post pk is altered
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message=abcd',
+            reverse('post-edit') + '?message=abcd',
             {
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
@@ -437,8 +428,7 @@ class ForumMemberTests(TestCase):
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'text': u"  "
             },
@@ -449,8 +439,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.request["QUERY_STRING"], "message={}".format(post2.pk))
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post3.pk),
+            reverse('post-edit') + '?message={0}'.format(post3.pk),
             {
                 'text': u" contenu "
             },
@@ -467,14 +456,12 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite={1}'.format(
-            topic1.pk, post2.pk), follow=True)
+        result = self.client.get(reverse('post-new') + '?sujet={0}&cite={1}'.format(topic1.pk, post2.pk), follow=True)
 
         self.assertEqual(result.status_code, 200)
 
         # if the quote pk is altered
-        result = self.client.get(reverse('zds.forum.views.answer') + '?sujet={0}&cite=abcd'.format(
-            topic1.pk), follow=True)
+        result = self.client.get(reverse('post-new') + '?sujet={0}&cite=abcd'.format(topic1.pk), follow=True)
 
         self.assertEqual(result.status_code, 404)
 
@@ -487,8 +474,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') +
-            '?message={0}'.format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -537,8 +523,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') +
-            '?message={0}'.format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -571,11 +556,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 1)
@@ -598,11 +579,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post1.pk),
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 1)
@@ -629,25 +606,17 @@ class ForumMemberTests(TestCase):
         """Test failing cases when a member like any post."""
 
         # parameter is missing
-        result = self.client.post(
-            reverse('zds.forum.views.like_post'),
-            follow=False)
+        result = self.client.post(reverse('post-like'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # parameter is weird
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # pk doesn't (yet) exist
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -659,11 +628,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.post(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 1)
@@ -686,11 +651,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.post(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post1.pk),
-            follow=False)
+        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 1)
@@ -717,25 +678,17 @@ class ForumMemberTests(TestCase):
         """Test failing cases when a member dislike any post."""
 
         # parameter is missing
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post'),
-            follow=False)
+        result = self.client.post(reverse('post-dislike'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # parameter is weird
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.post(reverse('post-dislike') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # pk doesn't (yet) exist
-        result = self.client.post(
-            reverse('zds.forum.views.dislike_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.post(reverse('post-dislike') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -747,11 +700,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -760,11 +709,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
         # useful the first post
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post1.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post1.pk), follow=False)
         self.assertEqual(result.status_code, 403)
 
         self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
@@ -776,11 +721,7 @@ class ForumMemberTests(TestCase):
         post4 = PostFactory(topic=topic1, author=user1, position=1)
         post5 = PostFactory(topic=topic1, author=self.user, position=2)
 
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post5.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post5.pk), follow=False)
 
         self.assertEqual(result.status_code, 403)
 
@@ -793,11 +734,7 @@ class ForumMemberTests(TestCase):
             username=self.user.username,
             password='hostel77'),
             True)
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post4.pk),
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message={0}'.format(post4.pk), follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
@@ -806,25 +743,17 @@ class ForumMemberTests(TestCase):
         """To test some failing cases when a member mark a post is useful."""
 
         # missing parameter
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post'),
-            follow=False)
+        result = self.client.post(reverse('post-useful'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # weird parameter
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # not existing (yet) pk parameter
-        result = self.client.post(
-            reverse('zds.forum.views.useful_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.post(reverse('post-useful') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -838,12 +767,12 @@ class ForumMemberTests(TestCase):
 
         # not staff member can't move topic
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet={0}'.format(
-                topic1.pk),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12},
-            follow=False)
+                'move': '',
+                'forum': self.forum12,
+                'topic': topic1.pk
+            }, follow=False)
 
         self.assertEqual(result.status_code, 403)
 
@@ -856,12 +785,12 @@ class ForumMemberTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet={0}'.format(
-                topic1.pk),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+                'topic': topic1.pk
+            }, follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -889,30 +818,33 @@ class ForumMemberTests(TestCase):
 
         # missing parameter
         result = self.client.post(
-            reverse('zds.forum.views.move_topic'),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+            }, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # weird parameter
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet=' + 'abc',
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+                'topic': 'abc'
+            }, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # non-existing (yet) parameter
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet=' + '424242',
+            reverse('topic-edit'),
             {
-                'forum': self.forum12.pk},
-            follow=False)
+                'move': '',
+                'forum': self.forum12.pk,
+                'topic': '424242'
+            }, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -923,7 +855,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u' '
@@ -944,7 +876,7 @@ class ForumMemberTests(TestCase):
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum={0}'
+            reverse('topic-new') + '?forum={0}'
             .format(self.forum12.pk),
             {'title': u'[C#]Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
@@ -981,7 +913,7 @@ class ForumMemberTests(TestCase):
 
         # Empty fields
         response = self.client.post(
-            reverse('zds.forum.views.new') +
+            reverse('topic-new') +
             '?forum={0}'.format(
                 self.forum12.pk),
             {},
@@ -991,7 +923,7 @@ class ForumMemberTests(TestCase):
 
         # Blank data
         response = self.client.post(
-            reverse('zds.forum.views.new') +
+            reverse('topic-new') +
             '?forum={0}'.format(
                 self.forum12.pk),
             {
@@ -1011,38 +943,24 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         # simple member can read public topic
-        result = self.client.get(
-            reverse(
-                'zds.forum.views.topic',
-                args=[
-                    topic1.pk,
-                    slugify(topic1.title)]),
-            follow=True)
+        result = self.client.get(reverse('topic-posts-list', args=[topic1.pk, slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
     def test_failing_unread_post(self):
         """Test failing cases when a member try to mark as unread a post."""
 
         # parameter is missing
-        result = self.client.get(
-            reverse('zds.forum.views.unread_post'),
-            follow=False)
+        result = self.client.get(reverse('post-unread'), follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # parameter is weird
-        result = self.client.get(
-            reverse('zds.forum.views.unread_post') +
-            '?message=' + 'abc',
-            follow=False)
+        result = self.client.get(reverse('post-unread') + '?message=' + 'abc', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
         # pk doesn't (yet) exist
-        result = self.client.get(
-            reverse('zds.forum.views.unread_post') +
-            '?message=' + '424242',
-            follow=False)
+        result = self.client.get(reverse('post-unread') + '?message=' + '424242', follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -1101,29 +1019,24 @@ class ForumGuestTests(TestCase):
         """Test forum display (full: root, category, forum) Topic display test
         is in creation topic test."""
         # Forum root
-        response = self.client.get(reverse('zds.forum.views.index'))
+        response = self.client.get(reverse('cats-forums-list'))
         self.assertContains(response, 'Liste des forums')
         # Category
         response = self.client.get(
             reverse(
-                'zds.forum.views.cat_details',
+                'cat-forums-list',
                 args=[
                     self.category1.slug]))
         self.assertContains(response, self.category1.title)
         # Forum
-        response = self.client.get(
-            reverse(
-                'zds.forum.views.details',
-                args=[
-                    self.category1.slug,
-                    self.forum11.slug]))
+        response = self.client.get(reverse('forum-topics-list', args=[self.category1.slug, self.forum11.slug]))
         self.assertContains(response, self.category1.title)
         self.assertContains(response, self.forum11.title)
 
     def test_create_topic(self):
         """To test all aspects of topic's creation by guest."""
         result = self.client.post(
-            reverse('zds.forum.views.new') + '?forum={0}'
+            reverse('topic-new') + '?forum={0}'
             .format(self.forum12.pk),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
@@ -1147,7 +1060,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.answer') + '?sujet={0}'.format(topic1.pk),
+            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
@@ -1201,12 +1114,12 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic3, author=self.user, position=1)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post1.pk),
-            {'title': u'Un autre sujet',
-             'subtitle': u'Encore ces lombards en plein été',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
-             },
+            reverse('post-edit') + '?message={0}'.format(post1.pk),
+            {
+                'title': u'Un autre sujet',
+                'subtitle': u'Encore ces lombards en plein été',
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
@@ -1233,11 +1146,9 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') + '?message={0}'
-            .format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
-                'text': u'C\'est tout simplement l\'histoire de '
-                u'la ville de Paris que je voudrais vous conter '
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -1256,12 +1167,7 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.answer') +
-            '?sujet={0}&cite={0}'.format(
-                topic1.pk,
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-new') + '?sujet={0}&cite={0}'.format(topic1.pk, post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -1274,8 +1180,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse('zds.forum.views.edit_post') +
-            '?message={0}'.format(post2.pk),
+            reverse('post-edit') + '?message={0}'.format(post2.pk),
             {
                 'signal_text': u'Troll',
                 'signal_message': 'confirmer'
@@ -1294,13 +1199,9 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.like_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 405)
         self.assertEqual(CommentLike.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
@@ -1317,13 +1218,9 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.dislike_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 405)
         self.assertEqual(CommentDislike.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
@@ -1340,13 +1237,9 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(
-            reverse('zds.forum.views.useful_post') +
-            '?message={0}'.format(
-                post2.pk),
-            follow=False)
+        result = self.client.get(reverse('post-useful') + '?message={0}'.format(post2.pk), follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 405)
 
         self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
         self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, False)
@@ -1362,18 +1255,15 @@ class ForumGuestTests(TestCase):
 
         # not staff guest can't move topic
         result = self.client.post(
-            reverse('zds.forum.views.move_topic') +
-            '?sujet={0}'.format(
-                topic1.pk),
+            reverse('topic-edit'),
             {
-                'forum': self.forum12},
-            follow=False)
+                'move': '',
+                'forum': self.forum12,
+                'topic': topic1.pk
+            }, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertNotEqual(
-            Topic.objects.get(
-                pk=topic1.pk).forum,
-            self.forum12)
+        self.assertNotEqual(Topic.objects.get(pk=topic1.pk).forum, self.forum12)
 
     def test_url_topic(self):
         """Test simple get request to the topic."""
@@ -1385,12 +1275,7 @@ class ForumGuestTests(TestCase):
 
         # guest can read public topic
         result = self.client.get(
-            reverse(
-                'zds.forum.views.topic',
-                args=[
-                    topic1.pk,
-                    slugify(topic1.title)]),
-            follow=True)
+            reverse('topic-posts-list', args=[topic1.pk, slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
     def test_filter_topic(self):
@@ -1475,3 +1360,66 @@ class ForumGuestTests(TestCase):
             topic_solved_sticky,
             get_topics(forum_pk=self.forum11.pk, is_sticky=True, filter='noanswer'),
         )
+
+    def test_old_post_limit(self):
+        topic = TopicFactory(forum=self.forum11, author=self.user, is_solved=False, is_sticky=False)
+
+        # Create a post published just now
+        PostFactory(topic=topic, author=self.user, position=1)
+        self.assertEqual(topic.old_post_warning(), False)
+
+        # Create a post published one day before old_post_limit_days
+        old_post = PostFactory(topic=topic, author=self.user, position=2)
+        old_post.pubdate = datetime.now() - timedelta(days=(settings.ZDS_APP['forum']['old_post_limit_days'] + 1))
+        old_post.save()
+        self.assertEqual(topic.old_post_warning(), True)
+
+
+def get_topics(forum_pk, is_sticky, filter=None):
+    """
+    Get topics for a forum.
+    The optional filter allows to retrieve only solved, unsolved or "non-answered" (i.e. with only the 1st post) topics.
+    :param forum_pk: the primary key of forum
+    :param is_sticky: indicates if the sticky topics must or must not be retrieved
+    :param filter: optional filter to retrieve only specific topics.
+    :return:
+    """
+
+    if filter == 'solve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=True)
+    elif filter == 'unsolve':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, is_solved=False)
+    elif filter == 'noanswer':
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky, last_message__position=1)
+    else:
+        topics = Topic.objects.filter(forum__pk=forum_pk, is_sticky=is_sticky)
+
+    return topics.order_by('-last_message__pubdate')\
+        .select_related('author__profile')\
+        .prefetch_related('last_message', 'tags')\
+        .all()
+
+
+class ManagerTests(TestCase):
+
+        def setUp(self):
+
+            self.cat1 = CategoryFactory()
+            self.forum1 = ForumFactory(category=self.cat1)
+            self.forum2 = ForumFactory(category=self.cat1)
+
+            self.staff = StaffProfileFactory()
+            staff_group = Group.objects.filter(name="staff").first()
+
+            self.forum3 = ForumFactory(category=self.cat1)
+            self.forum3.group = [staff_group]
+            self.forum3.save()
+
+            TopicFactory(forum=self.forum1, author=self.staff.user)
+            TopicFactory(forum=self.forum2, author=self.staff.user)
+            TopicFactory(forum=self.forum3, author=self.staff.user)
+
+        def test_get_last_topics(self):
+
+            topics = Topic.objects.get_last_topics()
+            self.assertEqual(2, len(topics))

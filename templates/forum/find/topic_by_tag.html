@@ -25,7 +25,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
     <div class="topic-list">
         {% for topic in topics %}
@@ -33,5 +33,44 @@
         {% endfor %}
     </div>
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Filtres">
+        <h3>{% trans "Filtres" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=solve"
+                   class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
+                >
+                    {% trans "Sujets résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=unsolve"
+                   class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
+                >
+                    {% trans "Sujets non résolus" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'topic-tag-find' tag.pk tag.slug %}?filter=noanswer"
+                   class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
+                >
+                    {% trans "Sujets sans réponse" %}
+                </a>
+            </li>
+            {% if request.GET.filter %}
+                <li>
+                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}"
+                       class="ico-after cross blue"
+                    >
+                        {% trans "Annuler le filtre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
 {% endblock %}

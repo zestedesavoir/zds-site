@@ -3,6 +3,8 @@
 import os
 import sys
 
+from django.contrib.messages import constants as message_constants
+from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 
 # Changes the default encoding of python to UTF-8.
@@ -92,7 +94,7 @@ STATICFILES_FINDERS = (
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'))
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
+SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z' # noqa
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -210,6 +212,7 @@ REST_FRAMEWORK = {
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
@@ -273,7 +276,7 @@ CORS_EXPOSE_HEADERS = (
     'link'
 )
 
-if (DEBUG):
+if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
@@ -319,7 +322,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(urlquote(u.username.encode('utf-8')))
 }
 
 
@@ -327,7 +330,11 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 PANDOC_LOC = ''
-PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V mainfont=Merriweather -V monofont=\"Andale Mono\" -V fontsize=12pt -V geometry:margin=1in "
+PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
+                    "--template=../../assets/tex/template.tex -s -S -N "
+                    "--toc -V documentclass=scrbook -V lang=francais "
+                    "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
+                    "-V fontsize=12pt -V geometry:margin=1in ")
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -340,13 +347,13 @@ HAYSTACK_CONNECTIONS = {
         # 'URL': 'http://127.0.0.1:8983/solr/mysite',
     },
 }
+HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
     message_constants.INFO: 'info',
@@ -470,6 +477,7 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
         'home_number': 5,
+        'old_post_limit_days': 90
     },
     'topic': {
         'home_number': 6,
@@ -489,6 +497,7 @@ AUTHENTICATION_BACKENDS = ('social.backends.facebook.FacebookOAuth2',
                            'social.backends.google.GoogleOAuth2',
                            'django.contrib.auth.backends.ModelBackend')
 SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -507,7 +516,7 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8" # noqa
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/

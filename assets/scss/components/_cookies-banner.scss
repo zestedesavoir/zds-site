@@ -1,39 +1,20 @@
 #cookies-eu-banner {
-    padding: 0 2.5%;
+    padding: 0 3%;
     background: #062E41;
     display: none;
 
-    span {
+    div,
+    #cookies-eu-reject {
         display: inline-block;
         margin: 0;
         padding: 7px 0;
         color: #EEE;
         line-height: 23px;
     }
-
-    #cookies-eu-more {
-        display: inline-block;
-        color: #EEE;
-        padding: 4px 13px;
-        margin-left: 15px;
-        background: $color-primary;
-        text-decoration: none;
-
-        &:hover,
-        &:focus {
-            background: #EEE;
-            color: $color-primary;
-        }
-    }
-
     #cookies-eu-reject {
-        display: inline-block;
         background: none;
         border: none;
         text-decoration: underline;
-        margin: 0;
-        padding: 0;
-        color: #EEE;
 
         &:hover,
         &:focus {
@@ -41,27 +22,34 @@
         }
     }
 
+    #cookies-eu-more,
     #cookies-eu-accept {
-        text-decoration: none;
-        background: #EEE;
-        color: $color-primary;
-        padding: 4px 15px;
-        border: none;
-        transition: background $transition-duration, color $transition-duration;
+        display: inline-block;
         margin-top: 3px;
+        padding: 4px 15px;
+        text-decoration: none;
+        transition: background $transition-duration, color $transition-duration;
+    }
+    #cookies-eu-more {
+        margin-left: 15px;
+        color: #EEE;
+        background: $color-primary;
 
         &:hover,
         &:focus {
-            background: $color-primary;
-            color: #EEE;
+            color: $color-primary;
+            background: #EEE;
         }
     }
-}
+    #cookies-eu-accept {
+        border: none;
+        color: $color-primary;
+        background: #EEE;
 
-@media only screen and #{$media-mega-wide} {
-    #cookies-eu-banner {
-        #cookies-eu-accept {
-            float: right;
+        &:hover,
+        &:focus {
+            color: #EEE;
+            background: $color-primary;
         }
     }
 }
@@ -75,12 +63,13 @@
         left: 0;
         z-index: 10;
 
-        span {
+        div {
             margin-top: 40px;
-            padding: 0 20px;
+            padding: 0 5px;
         }
 
-        #cookies-eu-more, #cookies-eu-accept {
+        #cookies-eu-more,
+        #cookies-eu-accept {
             display: block;
             width: 100%;
             height: 40px;

@@ -202,8 +202,8 @@ class ArchiveImageForm(forms.Form):
     def clean(self):
         cleaned_data = super(ArchiveImageForm, self).clean()
 
-        file = cleaned_data.get('file')
-        extension = file.name.split('.')[-1]
+        zip_file = cleaned_data.get('file')
+        extension = zip_file.name.split('.')[-1]
 
         if extension != "zip":
             self._errors['file'] = self.error_class(

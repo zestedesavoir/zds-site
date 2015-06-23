@@ -155,7 +155,7 @@ Actions à faire pour mettre en prod la version : v1.8
 Issue #1455 Django 1.7
 ----------------------
 
-**Avant** de lancer la migration de la base, prévenir Django que `easy_thumbnail` est déjà OK : 
+**Avant** de lancer la migration de la base, prévenir Django que `easy_thumbnail` est déjà OK :
 
 
 ```
@@ -208,7 +208,7 @@ stderr_logfile = /opt/zdsenv/logs/supervisor_stderr.log
 
 ```
 
-4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart` 
+4. Redémarrer Supervisor pour prendre en compte les modifications : `sudo service supervisor restart`
 
 
 Issue #1634
@@ -220,8 +220,8 @@ Exécuter la commande suivante : `sudo apt-get install libffi-dev`
 Actions à faire pour mettre en prod la version : v15.6
 ======================================================
 
-Issue #1511
------------
+Issue #1511, Issue #983 et Pull Request #2766
+---------------------------------------------
 
 Fix sur la recherche d'article avec Solr :
 
@@ -230,3 +230,17 @@ Fix sur la recherche d'article avec Solr :
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
+
+Issue #2753 et #2751
+--------------------
+
+Règle le souci de migration de oauth2_provider.
+La mise à jour de oauth2_provider met la table oauth2_provider dans un état bancale à cause d'une migration non appliquée par South (vu que non utilisé par Django 1.7).
+Pour régler ça, il faut faire les modifications de la migration nous-même.
+
+  - Se connecter sur mysql : `mysql -u <user> -D <base> -p` (puis entrer le mot de passe au prompt)
+  - Ajouter une colonne à la table oauth2_provider_application : `ALTER TABLE oauth2_provider_application ADD COLUMN skip_authorization TINYINT NOT NULL DEFAULT 0;`
+  - Ajouter une clé étrangère à la table oauth2_provider_accesstoken : `ALTER TABLE oauth2_provider_accesstoken ADD CONSTRAINT fk_user_oauth2_provider_accesstoken FOREIGN KEY(user_id) REFERENCES auth_user(id);`
+  - Les deux commandes doivent passer sans souci
+  - Quitter mysql
+  - Puis feinter la migration de oauth2_provider : `python manage.py migrate oauth2_provider --fake`

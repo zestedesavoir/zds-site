@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from model_utils.managers import InheritanceManager
 
 
 class TutorialManager(models.Manager):
@@ -20,3 +21,10 @@ class TutorialManager(models.Manager):
             my_tutorial.load_dic(mandata)
             my_tuto_versions.append(mandata)
         return my_tuto_versions
+
+
+class NoteManager(InheritanceManager):
+
+    def count_notes(self, tutorial):
+
+        return self.filter(tutorial__pk=tutorial.pk).count()

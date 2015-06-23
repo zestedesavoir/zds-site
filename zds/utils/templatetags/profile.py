@@ -14,52 +14,52 @@ perms = {'forum.change_post': {}}
 
 
 @register.filter('profile')
-def profile(user):
+def profile(current_user):
     try:
-        profile = user.profile
+        current_profile = current_user.profile
     except Profile.DoesNotExist:
-        profile = None
-    return profile
+        current_profile = None
+    return current_profile
 
 
 @register.filter('user')
-def user(pk):
+def user(user_pk):
     try:
-        user = User.objects.get(pk=pk)
-    except:
-        user = None
-    return user
+        current_user = User.objects.get(pk=user_pk)
+    except User.DoesNotExist:
+        current_user = None
+    return current_user
 
 
 @register.filter('state')
-def state(user):
+def state(current_user):
     try:
-        profile = user.profile
-        if not profile.user.is_active:
-            state = 'DOWN'
-        elif not profile.can_read_now():
-            state = 'BAN'
-        elif not profile.can_write_now():
-            state = 'LS'
-        elif user.pk in perms['forum.change_post'] and perms['forum.change_post'][user.pk]:
-            state = 'STAFF'
-        elif user.pk not in perms['forum.change_post']:
-            perms['forum.change_post'][user.pk] = user.has_perm('forum.change_post')
-            state = None
-            if perms['forum.change_post'][user.pk]:
-                state = 'STAFF'
+        user_profile = current_user.profile
+        if not user_profile.user.is_active:
+            user_state = 'DOWN'
+        elif not user_profile.can_read_now():
+            user_state = 'BAN'
+        elif not user_profile.can_write_now():
+            user_state = 'LS'
+        elif current_user.pk in perms['forum.change_post'] and perms['forum.change_post'][current_user.pk]:
+            user_state = 'STAFF'
+        elif current_user.pk not in perms['forum.change_post']:
+            perms['forum.change_post'][current_user.pk] = current_user.has_perm('forum.change_post')
+            user_state = None
+            if perms['forum.change_post'][current_user.pk]:
+                user_state = 'STAFF'
         else:
-            state = None
+            user_state = None
     except Profile.DoesNotExist:
-        state = None
-    return state
+        user_state = None
+    return user_state
 
 
 @register.filter('liked')
-def liked(user, comment_pk):
-    return CommentLike.objects.filter(comments__pk=comment_pk, user=user).exists()
+def liked(current_user, comment_pk):
+    return CommentLike.objects.filter(comments__pk=comment_pk, user=current_user).exists()
 
 
 @register.filter('disliked')
-def disliked(user, comment_pk):
-    return CommentDislike.objects.filter(comments__pk=comment_pk, user=user).exists()
+def disliked(current_user, comment_pk):
+    return CommentDislike.objects.filter(comments__pk=comment_pk, user=current_user).exists()

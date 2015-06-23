@@ -444,7 +444,7 @@ class MemberTests(TestCase):
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
 
-        # Empty the test outbox
+        # empty the test outbox
         mail.outbox = []
 
         result = self.client.post(
@@ -460,7 +460,7 @@ class MemberTests(TestCase):
         # check email has been sent
         self.assertEquals(len(mail.outbox), 1)
 
-        # clic on the link which has been sent in mail
+        # click on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
 
         token = TokenForgotPassword.objects.get(user=user)
@@ -469,6 +469,62 @@ class MemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 200)
+
+    def test_send_email_validation(self):
+        """To test nominal scenario of a email validation."""
+
+        # create a non activate user
+        profile = ProfileFactory()
+        profile.user.is_active = False
+        profile.user.save()
+
+        # empty the test outbox
+        mail.outbox = []
+
+        result = self.client.post(
+            reverse('send-validation-email'),
+            {
+                'username': profile.user.username,
+                'email': '',
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has been sent
+        self.assertEquals(len(mail.outbox), 1)
+
+        # click on the link which has been sent in mail
+        token = TokenRegister.objects.get(user=profile.user)
+        result = self.client.get(
+            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_already_active_send_email_validation(self):
+        """Test if a active user can ask for validation email."""
+
+        # create a active user
+        profile = ProfileFactory()
+        profile.user.is_active = True
+        profile.user.save()
+
+        # empty the test outbox
+        mail.outbox = []
+
+        result = self.client.post(
+            reverse('send-validation-email'),
+            {
+                'username': profile.user.username,
+                'email': '',
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 200)
+
+        # check email has not been sent
+        self.assertEquals(len(mail.outbox), 0)
 
     def test_sanctions(self):
         """
@@ -777,7 +833,7 @@ class MemberTests(TestCase):
         # Check that the filter can't be access from normal user
         result = self.client.post(
             reverse('zds.member.views.member_from_ip',
-                    kwargs={'ip': tester.last_ip_address}),
+                    kwargs={'ip_address': tester.last_ip_address}),
             {}, follow=False)
         self.assertEqual(result.status_code, 403)
 
@@ -794,7 +850,7 @@ class MemberTests(TestCase):
         # test that we retrieve correctly the 2 members (staff + user) from this ip
         result = self.client.post(
             reverse('zds.member.views.member_from_ip',
-                    kwargs={'ip': staff.last_ip_address}),
+                    kwargs={'ip_address': staff.last_ip_address}),
             {}, follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context['members']), 2)

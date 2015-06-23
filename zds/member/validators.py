@@ -53,8 +53,8 @@ class ProfileEmailValidator(Validator):
         if value:
             msg = None
             # Chech if email provider is authorized
-            with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as fh:
-                for provider in fh:
+            with open(os.path.join(BASE_DIR, 'forbidden_email_providers.txt'), 'r') as black_list:
+                for provider in black_list:
                     if provider.strip() in value:
                         msg = _(u'Utilisez un autre fournisseur d\'adresses courriel.')
                         break

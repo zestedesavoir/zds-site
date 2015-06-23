@@ -12,6 +12,7 @@
 
 {% block body_class %}home{% endblock %}
 
+{% block searchbox_id %}search-home{% endblock %}
 
 
 {# Don't show the subheader on the home page #}
@@ -22,7 +23,9 @@
 {% block content_out %}
     {% url 'tutorial:list' as url_tutorials %}
     {% url 'article:list' as url_articles %}
-    {% url 'zds.forum.views.index' as url_forums %}
+    {% url 'cats-forums-list' as url_forums %}
+
+    {% url 'zds.pages.views.association' as url_association %}
 
     <section class="home-header">
         <div class="home-wrapper">
@@ -42,7 +45,7 @@
             </section>
         {% else %}
             <section class="home-description short" id="description">
-                <blockquote><span>{% trans "Zeste de Savoir, le site de partage" %}</span> <span>{% trans "de connaissances, sans pépins !" %}</span></blockquote>
+                <blockquote><span>{% trans "Zeste de Savoir, la connaissance" %}</span> <span>{% trans "pour tous et sans pépins" %}</span></blockquote>
                 <a class="home-description-button" href="#description">
                     {% trans "En savoir plus" %}
                 </a>
@@ -56,7 +59,13 @@
                         {% trans "La connaissance pour tous" %}
                     </h2>
                     <p>
-                        {% trans "Zeste de Savoir est un site de partage de connaissances sur lequel vous trouverez des tutoriels de tous niveaux, des articles et des forums d'entraide annimés par et pour les communautés." %}
+                    {% blocktrans with site_name=app.site.litteral_name %}
+                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez
+                        des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des
+                        <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a>
+                        animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les
+                        sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                    {% endblocktrans %}
                     </p>
                 </div>
                 <div class="column">
@@ -64,7 +73,11 @@
                         {% trans "Partagez vos connaissances" %}
                     </h2>
                     <p>
-                        {% trans "Tout les membres peuvent écrire et publier des tutoriels et des articles sur le site. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication." %}
+                    {% blocktrans %}
+                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>.
+                        Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant
+                        publication.
+                    {% endblocktrans %}
                     </p>
                 </div>
                 <div class="column">
@@ -72,7 +85,10 @@
                         {% trans "Gratuit et sans publicité" %}
                     </h2>
                     <p>
-                        {% trans "Tout cela est entièrement gratuit et garanti sans publicité, le site est géré et financé par une association à but non lucratif." %}
+                    {% blocktrans %}
+                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré
+                        et financé par une <a href="{{url_association}}">association</a> à but non lucratif.
+                    {% endblocktrans %}
                     </p>
                     {% if app.site.contribute_link %}
                     <p>
@@ -86,11 +102,11 @@
         {% endif %}
 
              <section class="home-search-box">
-                <form action='{% url "haystack_search" %}'>
-                    <label for="search">
+                <form action='{% url "haystack_search" %}' id="search-home">
+                    <label for="search-home-input">
                         {% trans "Recherche" %}
                     </label>
-                    <input type="text" name="q" id="search" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
+                    <input type="text" id="search-home-input" name="q" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
                     <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
                 </form>
             </section>
@@ -161,7 +177,7 @@
         <section itemscope itemtype="http://schema.org/ItemList">
             <h2 class="home-heading ico-after ico-forum" itemprop="name">
                 {% trans "Derniers sujets" %}
-                <a href="{% url "zds.forum.views.index" %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
             </h2>
 
             <meta itemprop="itemListOrder" content="Descending">

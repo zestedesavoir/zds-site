@@ -38,8 +38,8 @@ def home(request):
         articles.append(data)
 
     try:
-        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as fh:
-            quote = random.choice(fh.readlines())
+        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+            quote = random.choice(quotes_file.readlines())
     except IOError:
         quote = settings.ZDS_APP['site']['slogan']
 
@@ -47,7 +47,7 @@ def home(request):
         'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
         'last_articles': articles,
-        'last_featured_resources': FeaturedResource.objects.get_last_news(),
+        'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
         'tutorials_count': get_tutorials_count(),
         'quote': quote.replace('\n', ''),
@@ -137,7 +137,7 @@ def eula(request):
 
 
 def cookies(request):
-    """Cookies explaination page."""
+    """Cookies explanation page."""
     return render(request, 'pages/cookies.html')
 
 
@@ -148,10 +148,10 @@ def alerts(request):
     if not request.user.has_perm('forum.change_post'):
         raise PermissionDenied
 
-    alerts = Alert.objects.all().order_by('-pubdate')
+    all_alerts = Alert.objects.all().order_by('-pubdate')
 
     return render(request, 'pages/alerts.html', {
-        'alerts': alerts,
+        'alerts': all_alerts,
     })
 
 

@@ -3,6 +3,21 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from model_utils.managers import InheritanceManager
+
+
+class ForumManager(models.Manager):
+    """
+    Custom forum manager.
+    """
+
+    def get_public_forums_of_category(self, category):
+        return self.filter(category=category, group__isnull=True).select_related("category").distinct().all()
+
+    def get_private_forums_of_category(self, category, user):
+        return self.filter(category=category, group__in=user.groups.all())\
+            .order_by('position_in_category')\
+            .select_related("category").distinct().all()
 
 
 class TopicManager(models.Manager):
@@ -29,4 +44,66 @@ class TopicManager(models.Manager):
 
     def get_last_topics(self):
         return self.order_by('-pubdate') \
-                   .all()[:settings.ZDS_APP['topic']['home_number']]
+                   .exclude(Q(forum__group__isnull=False)) \
+                   .all() \
+                   .select_related('forum', 'author', 'last_message') \
+                   .prefetch_related('tags')[:settings.ZDS_APP['topic']['home_number']]
+
+    def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
+        return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
+            .order_by('-last_message__pubdate')\
+            .select_related('author__profile')\
+            .prefetch_related('last_message', 'tags').all()
+
+    def get_all_topics_of_a_user(self, current, target):
+        return self.filter(author=target)\
+            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=current.groups.all()))\
+            .prefetch_related("author")\
+            .order_by("-pubdate").all()
+
+    def get_all_topics_of_a_tag(self, tag, user):
+        return self.filter(tags__in=[tag])\
+            .order_by("-last_message__pubdate")\
+            .prefetch_related('author', 'last_message', 'tags')\
+            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=user.groups.all()))\
+            .all()
+
+
+class PostManager(InheritanceManager):
+    """
+    Custom post manager.
+    """
+
+    def get_messages_of_a_topic(self, topic_pk):
+        return self.filter(topic__pk=topic_pk)\
+            .select_related("author__profile")\
+            .prefetch_related('alerts')\
+            .prefetch_related('alerts__author')\
+            .prefetch_related('alerts__author__profile')\
+            .order_by("position").all()
+
+    def get_all_messages_of_a_user(self, current, target):
+        if current.has_perm("forum.change_post"):
+            return self.filter(author=target)\
+                .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
+                .prefetch_related("author")\
+                .order_by("-pubdate").all()
+        return self.filter(author=target)\
+            .filter(is_visible=True)\
+            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
+            .prefetch_related("author")\
+            .order_by("-pubdate").all()
+
+
+class TopicReadManager(models.Manager):
+
+    def topic_read_by_user(self, user, topic_sub_list=None):
+
+        base_query_set = self.filter(user__pk=user.pk)
+        if topic_sub_list is not None:
+            base_query_set = base_query_set.filter(topic__in=topic_sub_list)
+
+        return base_query_set
+
+    def list_read_topic_pk(self, user, topic_sub_list=None):
+        return self.topic_read_by_user(user, topic_sub_list).values_list('topic__pk', flat=True)

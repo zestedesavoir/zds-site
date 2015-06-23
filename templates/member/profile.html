@@ -132,7 +132,7 @@
 
 
         {% if articles %}
-            <h2 class="ico-after ico-articles" id="derniers-artilces">{% trans "Derniers articles" %}</h2>
+            <h2 class="ico-after ico-articles" id="derniers-articles">{% trans "Derniers articles" %}</h2>
             <div class="content-item-list">
                 {% for public_article in articles %}
                     {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
@@ -448,7 +448,7 @@
             <h4 class="mobile-menu-link" data-title="{% trans 'Forums' %}">{% trans "Forums" %}</h4>
             <ul>
                 <li>
-                    <a href="{% url "zds.forum.views.find_topic" usr.pk %}"
+                    <a href="{% url 'topic-find' usr.pk %}"
                        class="mobile-menu-link mobile-menu-sublink"
                     >
                         <span class="count">{{ profile.get_topic_count }}</span>
@@ -456,7 +456,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url "zds.forum.views.find_post" usr.pk %}"
+                    <a href="{% url 'post-find' usr.pk %}"
                        class="mobile-menu-link mobile-menu-sublink"
                     >
                         <span class="count">

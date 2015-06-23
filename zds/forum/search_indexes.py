@@ -15,10 +15,16 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     title = indexes.CharField(model_attr='title')
     subtitle = indexes.CharField(model_attr='subtitle')
     author = indexes.CharField(model_attr='author')
-    pubdate = indexes.DateTimeField(model_attr='pubdate')
+    pubdate = indexes.DateTimeField(model_attr='pubdate', stored=True, indexed=False)
+
+    # Groups authorized to read this topic. If no group is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
 
     def get_model(self):
         return Topic
+
+    def prepare_permissions(self, obj):
+        return obj.forum.group.values_list('name', flat=True).all() or None
 
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
@@ -26,7 +32,29 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     txt = indexes.CharField(model_attr='text')
     author = indexes.CharField(model_attr='author')
-    pubdate = indexes.DateTimeField(model_attr='pubdate')
+
+    pubdate = indexes.DateTimeField(model_attr='pubdate', stored=True, indexed=False)
+    topic_title = indexes.CharField(stored=True, indexed=False)
+    topic_author = indexes.CharField(stored=True, indexed=False)
+    topic_forum = indexes.CharField(stored=True, indexed=False)
+
+    # Groups authorized to read this post. If no group is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
 
     def get_model(self):
         return Post
+
+    def index_queryset(self, using=None):
+        return self.get_model().objects.filter(is_visible=True, position__gt=1)
+
+    def prepare_topic_title(self, obj):
+        return obj.topic.title
+
+    def prepare_topic_author(self, obj):
+        return obj.topic.author
+
+    def prepare_topic_forum(self, obj):
+        return obj.topic.forum
+
+    def prepare_permissions(self, obj):
+        return obj.topic.forum.group.values_list('name', flat=True).all() or None

@@ -2,6 +2,7 @@
 {% load i18n %}
 
 
+
 {% block title %}
     {% trans "Pages" %}
 {% endblock %}
@@ -22,7 +23,7 @@
 
 {% block content %}
     <ul>
-        <li><a href="{% url "zds.pages.views.eula" %}"><abbr title='{% trans "Conditions générales d utilisation" %}'>{% trans "CGU" %}</abbr></a></li>
+        <li><a href="{% url "zds.pages.views.eula" %}"><abbr title="{% trans "Conditions générales d'utilisation" %}">{% trans "CGU" %}</abbr></a></li>
         <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
         {% if app.site.association %}
             <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
