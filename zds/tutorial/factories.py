@@ -123,7 +123,8 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
-
+        if not light:
+            ExtractFactory(chapter=tuto.get_chapter())
         tuto.sha_draft = cm.hexsha
         tuto.gallery = GalleryFactory()
         for author in tuto.authors.all():
