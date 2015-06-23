@@ -463,7 +463,7 @@ class UtilsTests(TestCase):
         beta_content = PublishableContent.objects.filter(title=beta_tuto.title).first()
         self.assertIsNotNone(beta_content)
         self.assertEqual(beta_content.sha_beta, beta_tuto.sha_beta)
-        self.assertEqual(Topic.objects.filter(key=beta_tuto.pk).pk, beta_content.beta_topic.pk)
+        self.assertEqual(Topic.objects.filter(key=beta_tuto.pk).first().pk, beta_content.beta_topic.pk)
 
         multi_author_content = PublishableContent.objects.filter(type="TUTORIAL", title=multi_author_tuto.title)\
             .first()
