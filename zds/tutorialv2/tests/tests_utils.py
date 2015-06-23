@@ -460,7 +460,6 @@ class UtilsTests(TestCase):
         self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_tuto).count())
         self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_tuto).count())
         self.assertTrue(migrated_pulished_tuto.is_public(migrated_pulished_tuto.sha_public))
-        self.assertTrue(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).has_extracts())
         self.assertEqual(len(migrated_pulished_tuto.load_version(migrated_pulished_tuto.sha_public).children))
         beta_content = PublishableContent.objects.filter(title=beta_tuto.title).first()
         self.assertIsNotNone(beta_content)
