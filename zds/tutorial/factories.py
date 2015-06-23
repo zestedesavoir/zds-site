@@ -120,7 +120,7 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
         file = open(os.path.join(path, tuto.conclusion), "w")
         file.write(real_content.encode('utf-8'))
         file.close()
-
+        ChapterFactory(tutorial=tuto)
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
         if not light:
