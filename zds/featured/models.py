@@ -3,7 +3,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from zds.member.models import Profile
 from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManager
 
 
@@ -14,7 +13,7 @@ class FeaturedResource(models.Model):
 
     title = models.CharField(_(u'Titre'), max_length=80)
     type = models.CharField(_(u'Type'), max_length=80)
-    authors = models.ManyToManyField(Profile, verbose_name=_(u'Auteurs'), db_index=True)
+    authors = models.CharField(_(u'Auteurs'), max_length=100, blank=True, default='')
     image_url = models.CharField(
         _(u'URL de l\'image à la une'), max_length=2000, null=False, blank=False
     )
@@ -35,8 +34,10 @@ class FeaturedMessage(models.Model):
         verbose_name = _(u'Message')
         verbose_name_plural = _(u'Messages')
 
-    message = models.CharField(_(u'Message'), max_length=255)
-    url = models.CharField(_(u'URL du message'), max_length=2000, null=False, blank=False)
+    hook = models.CharField(_(u'Accroche'), max_length=100, blank=True, null=True)
+    message = models.CharField(_(u'Message'), max_length=255, blank=True, null=True)
+    url = models.CharField(_(u'URL du message'), max_length=2000, blank=True, null=True)
+
     objects = FeaturedMessageManager()
 
     def __unicode__(self):
