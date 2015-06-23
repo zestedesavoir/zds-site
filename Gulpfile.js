@@ -81,21 +81,18 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
   });
   return gulp.src(files)
     .pipe($.sourcemaps.init())
-      .pipe($.sass())
+      .pipe($.sass({
+        sourceMapContents: true,
+        outputStyle: "compressed"
+      }))
         .on("error", $.notify.onError({
             title: "SASS Error",
             message: "<%= error.message %>"
         }))
         .on("error", function() { this.emit("end"); })
       .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
-    .pipe($.sourcemaps.write(".", {
-      sourceMappingURLPrefix: cssDir
-    }))
+    .pipe($.sourcemaps.write('.', { sourceRoot: "../../assets/scss/" }))
     .pipe($.size({ title: "Stylesheet" }))
-    .pipe(gulp.dest(path.join(destDir, cssDir)))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.minifyCss())
-    .pipe($.size({ title: "Stylesheet (minified)" }))
     .pipe(gulp.dest(path.join(destDir, cssDir)));
 });
 
@@ -104,13 +101,14 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
  */
 gulp.task("errors", ["clean-errors"], function() {
   return gulp.src(path.join(errorsDir, sassDir, "main.scss"))
-    .pipe($.sass({
-      includePaths: [path.join(sourceDir, sassDir)]
-    }))
-    .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
-    .pipe(gulp.dest(path.join(errorsDir, cssDir)))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.minifyCss())
+    .pipe($.sourcemaps.init())
+      .pipe($.sass({
+        includePaths: [path.join(sourceDir, sassDir)],
+        sourceMapContents: true,
+        outputStyle: "compressed"
+      }))
+      .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
+    .pipe($.sourcemaps.write(".", { sourceRoot: "../../errors/scss/" }))
     .pipe(gulp.dest(path.join(errorsDir, cssDir)));
 });
 
