@@ -212,6 +212,7 @@ class Comment(models.Model):
         self.text_hidden = text_hidden
         self.editor = user
         self.save()
+
     def __unicode__(self):
         return u'{0}'.format(self.text)
 

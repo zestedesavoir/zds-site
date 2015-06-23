@@ -1149,7 +1149,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         all_tags.append(new_tag)
                     all_tags += existing_tags
 
-                    create_topic(author=self.request.user,
+                    create_topic(request=self.request,
+                                 author=self.request.user,
                                  forum=forum,
                                  title=_(u"[beta][{}]{}").format(_type, beta_version.title),
                                  subtitle=u"{}".format(beta_version.description),
