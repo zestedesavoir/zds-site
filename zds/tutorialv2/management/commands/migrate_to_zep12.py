@@ -273,6 +273,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.type = "TUTORIAL"
         exported.title = current.title
         exported.sha_draft = current.sha_draft
+        exported.sha_beta = current.sha_beta
         exported.licence = Licence.objects.filter(code=current.licence).first()
 
         exported.creation_date = current.create_at
