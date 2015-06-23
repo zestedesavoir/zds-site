@@ -1110,7 +1110,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             msg_post = render_to_string(
                 'tutorialv2/messages/beta_desactivate.md', {'content': beta_version, 'type': _type}
             )
-            send_post(topic, msg_post)
+            send_post(self.request, topic, self.request.user, msg_post)
             lock_topic(topic)
 
         elif self.action == 'set':
@@ -1204,7 +1204,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
-                    send_post(topic, msg_post)
+                    send_post(self.request, topic, self.request.user, msg_post)
 
             # finally set the tags on the topic
             if topic:
