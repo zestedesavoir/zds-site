@@ -15,7 +15,7 @@
                 "html": "<div class=\"markdown-help-more\">" +
                         "<p>Les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne</em> !</p>" +
                         "<pre><code>**gras** \n*italique* \n[texte de lien](url du lien) \n> citation \n+ liste à puces </code></pre>" +
-                        "<a href=\"//zestedesavoir.com/tutoriels/221/rediger-sur-zds/\">Voir la documentation complète du markdown</a>" +
+                        "<a href=\"//zestedesavoir.com/markdown/\">Voir la documentation complète du markdown</a>" +
                         "<p>Vous pouvez également <a href=\"//zestedesavoir.com/tutoriels/202/comment-rediger-des-maths-sur-zeste-de-savoir/\">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar ($) !</p></div>"+
                         "<a href=\"#open-markdown-help\" class=\"open-markdown-help btn btn-grey ico-after help\">"+
                             "<span class=\"close-markdown-help-text\">Masquer</span>" +
@@ -30,7 +30,7 @@
             });
         });
     }
-    
+
 
     $(document).ready(function(){
         addDocMD($(".md-editor"));

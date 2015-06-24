@@ -157,6 +157,11 @@ def alerts(request):
     })
 
 
+def markdown(request):
+    """Markdown How-To page"""
+    return render(request, 'pages/markdown.html')
+
+
 def custom_error_500(request):
     """Custom view for 500 errors"""
     return render(request, '500.html')
