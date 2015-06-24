@@ -428,6 +428,9 @@ def modify_profile(request, user_pk):
     profile = get_object_or_404(Profile, user__pk=user_pk)
     if profile.is_private():
         raise PermissionDenied
+    if request.user.profile == profile:
+        messages.error(request, _(u"Vous ne pouvez pas vous sanctionner vous-même !"))
+        raise PermissionDenied
 
     if 'ls' in request.POST:
         state = ReadingOnlySanction(request.POST)
