@@ -17,8 +17,8 @@ from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
-from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -330,6 +330,10 @@ class MemberTests(TestCase):
         writing_article_2.authors.add(user.user)
         writing_article_2.authors.add(user2.user)
         writing_article_2.save()
+        # beta content
+        beta_forum = ForumFactory(category=CategoryFactory())
+        beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
+        beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
         authored_topic = TopicFactory(author=user.user, forum=self.forum11)
         answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
@@ -441,10 +445,16 @@ class MemberTests(TestCase):
         self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
         self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
+        # zep 12, published contents and beta
+        self.assertIsNotNone(PublishedContent.objects.filter(content__pk=published_tutorial_alone.pk).first())
+        self.assertIsNotNone(PublishedContent.objects.filter(content__pk=published_tutorial_2.pk).first())
+        self.assertTrue(Topic.objects.get(pk=beta_content.beta_topic.pk).is_locked)
+        self.assertFalse(Topic.objects.get(pk=beta_content_2.beta_topic.pk).is_locked)
+
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
 
-        # empty the test outbox
+        # Empty the test outbox
         mail.outbox = []
 
         result = self.client.post(
@@ -460,7 +470,7 @@ class MemberTests(TestCase):
         # check email has been sent
         self.assertEquals(len(mail.outbox), 1)
 
-        # click on the link which has been sent in mail
+        # clic on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
 
         token = TokenForgotPassword.objects.get(user=user)
@@ -469,62 +479,6 @@ class MemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 200)
-
-    def test_send_email_validation(self):
-        """To test nominal scenario of a email validation."""
-
-        # create a non activate user
-        profile = ProfileFactory()
-        profile.user.is_active = False
-        profile.user.save()
-
-        # empty the test outbox
-        mail.outbox = []
-
-        result = self.client.post(
-            reverse('send-validation-email'),
-            {
-                'username': profile.user.username,
-                'email': '',
-            },
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
-        # check email has been sent
-        self.assertEquals(len(mail.outbox), 1)
-
-        # click on the link which has been sent in mail
-        token = TokenRegister.objects.get(user=profile.user)
-        result = self.client.get(
-            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
-    def test_already_active_send_email_validation(self):
-        """Test if a active user can ask for validation email."""
-
-        # create a active user
-        profile = ProfileFactory()
-        profile.user.is_active = True
-        profile.user.save()
-
-        # empty the test outbox
-        mail.outbox = []
-
-        result = self.client.post(
-            reverse('send-validation-email'),
-            {
-                'username': profile.user.username,
-                'email': '',
-            },
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
-        # check email has not been sent
-        self.assertEquals(len(mail.outbox), 0)
 
     def test_sanctions(self):
         """

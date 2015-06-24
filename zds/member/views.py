@@ -335,8 +335,11 @@ def unregister(request):
         if not content.in_public() and content.authors.count() == 1:
             if content.in_beta() and content.beta_topic:
                 beta_topic = content.beta_topic
+                beta_topic.is_locked = True
+                beta_topic.save()
                 first_post = beta_topic.first_post()
                 first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
+                first_post.save()
             content.delete()
         else:
             if content.authors.count() == 1:

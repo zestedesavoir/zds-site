@@ -3,6 +3,7 @@
 from datetime import datetime
 
 import factory
+from zds.forum.factories import PostFactory, TopicFactory
 
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, ContentReaction
 from zds.tutorialv2.models.models_versioned import Container, Extract
@@ -113,6 +114,23 @@ class ContentReactionFactory(factory.DjangoModelFactory):
             content.last_note = note
             content.save()
         return note
+
+
+class BetaContentFactory(PublishableContentFactory):
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        beta_forum = kwargs.pop("forum", None)
+        publishable_content = super(BetaContentFactory, cls)._prepare(create, **kwargs)
+        if publishable_content.authors.count() > 0 and beta_forum is not None:
+            beta_topic = TopicFactory(title="[beta]" + publishable_content.title,
+                                      author=publishable_content.authors.first(),
+                                      forum=beta_forum)
+            publishable_content.sha_beta = publishable_content.sha_draft
+            publishable_content.beta_topic = beta_topic
+            publishable_content.save()
+            PostFactory(topic=beta_topic, position=1, author=publishable_content.authors.first())
+            beta_topic.save()
+        return publishable_content
 
 
 class PublishedContentFactory(PublishableContentFactory):
