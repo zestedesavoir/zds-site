@@ -474,6 +474,18 @@ class UtilsTests(TestCase):
             .first()
         self.assertIsNotNone(multi_author_content)
         self.assertEqual(multi_author_content.authors.count(), multi_author_article.authors.count())
+        old_tutorial_module_prefix = "tutoriels"
+        old_article_module_prefix = "articles"
+        new_tutorial_module_prefix = "tutoriels2"
+        new_article_module_prefix = "articles2"
+        public_article_url = public_article.get_absolute_url_online()\
+            .replace(old_article_module_prefix, new_article_module_prefix)
+        public_tutorial_url = public_mini_tuto.get_absolute_url_online()\
+            .replace(old_tutorial_module_prefix, new_tutorial_module_prefix)
+        self.assertEqual(301, self.client.get(public_article_url).status_code)
+        self.assertEqual(301, self.client.get(public_tutorial_url).status_code)
+        self.assertEqual(200, self.client.get(public_article_url, follow=True).status_code)
+        self.assertEqual(200, self.client.get(public_tutorial_url, follow=True).status_code)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
