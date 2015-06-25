@@ -278,7 +278,12 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         :return: list of contents with the good type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
         """
-
+        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={}"
+        sub_query = sub_query.format(
+            "tutorialv2_contentreaction",
+            "tutorialv2_contentreaction.related_content_id",
+            r"`tutorialv2_publishablecontent`.`id`"
+        )
         queryset = PublishedContent.objects.filter(content_type=self.current_content_type, must_redirect=False)
 
         # prefetch:
@@ -287,7 +292,8 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .prefetch_related("content__subcategory")\
             .prefetch_related("content__authors")\
             .select_related('content__licence')\
-            .select_related('content__image')
+            .select_related('content__image')\
+            .extra(select={"count_note": sub_query})
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))

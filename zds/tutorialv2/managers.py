@@ -10,6 +10,7 @@ class PublishedContentManager(models.Manager):
     """
 
     def last_contents_of_a_member_loaded(self, author, _type=None):
+
         queryset = self.prefetch_related('content')\
             .prefetch_related('content__authors')\
             .prefetch_related('content__subcategory')\
