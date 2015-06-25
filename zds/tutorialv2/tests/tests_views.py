@@ -2995,7 +2995,10 @@ class ContentTests(TestCase):
             self.assertTrue(published.have_type(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
-
+        markdown_url = published.get_absolute_url_md()
+        os.remove(os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.md'))
+        self.assertEqual(404, self.client.get(markdown_url))
+        self.assertEqual('', published.get_absolute_url_md())
         self.client.logout()
 
         # same test with author:
