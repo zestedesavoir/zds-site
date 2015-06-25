@@ -282,7 +282,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         sub_query = sub_query.format(
             "tutorialv2_contentreaction",
             "tutorialv2_contentreaction.related_content_id",
-            "tutorialv2_publishedcontent.content_pk"
+            r"`tutorialv2_publishablecontent`.`id`"
         )
         queryset = PublishedContent.objects.filter(content_type=self.current_content_type, must_redirect=False)
 
