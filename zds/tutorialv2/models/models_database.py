@@ -393,6 +393,7 @@ class PublishableContent(models.Model):
         :rtype: ContentReaction
         """
         return ContentReaction.objects\
+            .select_related('related_content')\
             .filter(related_content=self)\
             .order_by('pubdate')\
             .first()
@@ -407,7 +408,9 @@ class PublishableContent(models.Model):
 
         if user:
             try:
-                read = ContentRead.objects.select_related()\
+                read = ContentRead.objects\
+                    .select_related('note')\
+                    .select_related('note__related_content')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
                 if read is not None:
