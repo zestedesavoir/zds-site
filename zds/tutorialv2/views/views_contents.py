@@ -325,7 +325,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
             self.object.beta_topic.is_locked = True
             self.object.beta_topic.save()
             post = self.object.beta_topic.first_post()
-            post.update_text(_(u"Le contenu qui était en béta a été supprimé par son auteur."))
+            post.update_content(_(u"Le contenu qui était en béta a été supprimé par son auteur."))
             post.add_tags([u"Supprimé"])
             post.save()
 
