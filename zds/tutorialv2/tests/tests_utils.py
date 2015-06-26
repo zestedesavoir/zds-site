@@ -24,6 +24,9 @@ from zds.article.factories import ArticleFactory, PublishedArticleFactory, React
 from zds.utils.models import CommentLike
 from zds.article.models import ArticleRead
 from zds.tutorial.models import TutorialRead
+from zds.tutorial.models import Validation as OldTutoValidation
+from zds.article.models import Validation as OldArticleValidation
+from zds.tutorialv2.models.models_database import Validation
 from zds.forum.factories import ForumFactory, CategoryFactory
 
 try:
@@ -382,6 +385,15 @@ class UtilsTests(TestCase):
         public_mini_tuto = PublishedMiniTutorial()
         public_mini_tuto.authors.add(self.user_author)
         public_mini_tuto.save()
+        OldTutoValidation(tutorial=public_mini_tuto,
+                          version=public_mini_tuto.sha_public,
+                          date_proposition=datetime.datetime.now(),
+                          comment_authors=u"La vie est belle, le destin s'en écarte.",
+                          comment_validator=u"Personne ne joue avec les mêmes cartes.",
+                          validator=self.staff,
+                          status="ACCEPT",
+                          date_reserve=datetime.datetime.now(),
+                          date_validation=datetime.datetime.now()).save()
         staff_note = NoteFactory(
             tutorial=public_mini_tuto,
             position=1,
@@ -412,6 +424,15 @@ class UtilsTests(TestCase):
         public_article = PublishedArticleFactory()
         public_article.authors.add(self.user_author)
         public_article.save()
+        OldArticleValidation(article=public_article,
+                             version=public_article.sha_public,
+                             date_proposition=datetime.datetime.now(),
+                             comment_authors=u"Pourquoi fortune et infortune?",
+                             comment_validator=u"Pourquoi suis-je né les poches vides?",
+                             validator=self.staff,
+                             status="ACCEPT",
+                             date_reserve=datetime.datetime.now(),
+                             date_validation=datetime.datetime.now()).save()
         staff_note = ReactionFactory(
             article=public_article,
             position=1,
@@ -486,6 +507,14 @@ class UtilsTests(TestCase):
         self.assertEqual(301, self.client.get(public_tutorial_url).status_code)
         self.assertEqual(200, self.client.get(public_article_url, follow=True).status_code)
         self.assertEqual(200, self.client.get(public_tutorial_url, follow=True).status_code)
+        tuto_validation = Validation.objects.filter(content__pk=migrated_pulished_tuto.pk).first()
+        self.assertIsNotNone(tuto_validation)
+        self.assertEqual(tuto_validation.status, "ACCEPT")
+        self.assertEqual(tuto_validation.validator.pk, self.staff.pk)
+        article_validation = Validation.objects.filter(content__pk=migrated_pulished_article.pk).first()
+        self.assertIsNotNone(article_validation)
+        self.assertEqual(article_validation.status, "ACCEPT")
+        self.assertEqual(article_validation.validator.pk, self.staff.pk)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
