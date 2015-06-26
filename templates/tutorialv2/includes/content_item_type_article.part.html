@@ -74,7 +74,7 @@
                 {% else %}
                     {{ link }}#reactions
                 {% endif %}"
-                title="{% if article.count_note == 0 %}{% trans "Aucune" %}{% else %}{{ article.count_note }}{% endif %} {% trans "réaction" %}{{ article.count_note|pluralize }}"
+                title="{% if article.get_note_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_note_count }}{% endif %} {% trans "réaction" %}{{ article.get_note_count|pluralize }}"
             >
                 <span>{{ article.count_note }}</span>
             </a>

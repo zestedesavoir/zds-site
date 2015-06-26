@@ -3036,6 +3036,7 @@ class ContentTests(TestCase):
 
         # get 404 on markdown:
         result = self.client.get(published.get_absolute_url_to_extra_content('md'))
+        os.remove(os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md'))
         self.assertEqual(result.status_code, 404)
 
         # get 200 for the rest !
