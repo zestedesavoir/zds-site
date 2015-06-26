@@ -383,6 +383,7 @@ class PublishableContent(models.Model):
         """
         return ContentReaction.objects.all()\
             .select_related('related_content')\
+            .select_related('related_content__public_version')\
             .filter(related_content__pk=self.pk)\
             .order_by('-pubdate')\
             .first()
@@ -395,6 +396,7 @@ class PublishableContent(models.Model):
         """
         return ContentReaction.objects\
             .select_related('related_content')\
+            .select_related('related_content__public_version')\
             .filter(related_content=self)\
             .order_by('pubdate')\
             .first()
@@ -412,6 +414,7 @@ class PublishableContent(models.Model):
                 read = ContentRead.objects\
                     .select_related('note')\
                     .select_related('note__related_content')\
+                    .select_related('related_content__public_version')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
                 if read is not None:
@@ -438,9 +441,12 @@ class PublishableContent(models.Model):
                 if read and read.note:
                     last_note = read.note
 
-                    next_note = ContentReaction.objects.filter(
-                        related_content__pk=self.pk,
-                        pubdate__gt=last_note.pubdate)\
+                    next_note = ContentReaction.objects\
+                        .select_related('related_content')\
+                        .select_related('related_content__public_version')\
+                        .filter(
+                            related_content__pk=self.pk,
+                            pubdate__gt=last_note.pubdate)\
                         .select_related("author").first()
 
                     if next_note:
