@@ -76,7 +76,7 @@
                 {% endif %}"
                 title="{% if article.count_note == 0 %}{% trans "Aucune" %}{% else %}{{ article.count_note }}{% endif %} {% trans "réaction" %}{{ article.count_note|pluralize }}"
             >
-                <span>{{ article.count_note }}</span>
+                <span>{{ article.get_note_count }}</span>
             </a>
         {% endif %}
     </div>
