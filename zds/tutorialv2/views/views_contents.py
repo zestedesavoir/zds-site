@@ -321,6 +321,13 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                     msg,
                     False,
                 )
+        if self.object.beta_topic is not None:
+            self.object.beta_topic.is_locked = True
+            self.object.beta_topic.save()
+            post = self.object.beta_topic.first_post()
+            post.update_text(_(u"Le contenu qui était en béta a été supprimé par son auteur."))
+            post.add_tags([u"Supprimé"])
+            post.save()
 
         self.object.delete()
         return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
