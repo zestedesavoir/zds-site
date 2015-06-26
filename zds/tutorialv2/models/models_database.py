@@ -382,6 +382,7 @@ class PublishableContent(models.Model):
         :rtype: ContentReaction|None
         """
         return ContentReaction.objects.all()\
+            .select_related('related_content')\
             .filter(related_content__pk=self.pk)\
             .order_by('-pubdate')\
             .first()
