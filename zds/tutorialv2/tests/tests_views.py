@@ -17,7 +17,7 @@ from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    SubCategoryFactory, PublishedContentFactory, tricky_text_content
+    SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import publish_content
 from zds.gallery.factories import GalleryFactory
@@ -528,6 +528,16 @@ class ContentTests(TestCase):
         self.assertEqual(PublishableContent.objects.filter(pk=pk).count(), 0)  # deleted from database
 
         self.assertEqual(Gallery.objects.filter(pk=gallery.pk).count(), 0)  # deletion of the gallery
+
+        # check beta behaviour on deletion
+        beta_content = BetaContentFactory(author_list=[self.user_author], forum=self.beta_forum)
+        beta_topic = beta_content.beta_topic
+        result = self.client.post(
+            reverse('content:delete', args=[beta_content.pk, beta_content.slug]),
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        beta_topic = Topic.objects.get(pk=beta_topic.pk)
+        self.assertTrue(beta_topic.is_locked)
 
     def test_beta_workflow(self):
         """Test beta workflow (access and update)"""
@@ -2996,11 +3006,14 @@ class ContentTests(TestCase):
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         markdown_url = published.get_absolute_url_md()
-        os.remove(os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md'))
+        md_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md')
+        os.remove(md_path)
         self.assertEqual(404, self.client.get(markdown_url).status_code)
         self.assertEqual('', published.get_absolute_url_to_extra_content('kboom'))
         self.client.logout()
 
+        with open(md_path, "w") as f:
+            f.write("I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?")
         # same test with author:
         self.assertEqual(
             self.client.login(
@@ -3009,9 +3022,9 @@ class ContentTests(TestCase):
             True)
 
         for extra in avail_extra:
-            result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-            self.assertEqual(result.status_code, 200)
 
+                result = self.client.get(published.get_absolute_url_to_extra_content(extra))
+                self.assertEqual(result.status_code, 200)
         # test for visitor:
         self.client.logout()
 
