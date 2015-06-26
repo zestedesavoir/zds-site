@@ -293,7 +293,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .prefetch_related("content__authors")\
             .select_related('content__licence')\
             .select_related('content__image')\
-            .select_related('last_note')\
+            .select_related('content__last_note')\
             .extra(select={"count_note": sub_query})
 
         if 'tag' in self.request.GET:
