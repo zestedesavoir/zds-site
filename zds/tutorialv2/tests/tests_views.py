@@ -2996,11 +2996,14 @@ class ContentTests(TestCase):
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         markdown_url = published.get_absolute_url_md()
-        os.remove(os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md'))
+        md_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md')
+        os.remove(md_path)
         self.assertEqual(404, self.client.get(markdown_url).status_code)
         self.assertEqual('', published.get_absolute_url_to_extra_content('kboom'))
         self.client.logout()
 
+        with open(md_path, "w") as f:
+            f.write("I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?")
         # same test with author:
         self.assertEqual(
             self.client.login(
@@ -3009,9 +3012,9 @@ class ContentTests(TestCase):
             True)
 
         for extra in avail_extra:
-            result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-            self.assertEqual(result.status_code, 200)
 
+                result = self.client.get(published.get_absolute_url_to_extra_content(extra))
+                self.assertEqual(result.status_code, 200)
         # test for visitor:
         self.client.logout()
 
