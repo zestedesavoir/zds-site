@@ -364,11 +364,17 @@ class PublishableContent(models.Model):
         versioned.is_public = self.is_public(versioned.current_version)
 
     def get_note_count(self):
-        """
+        """Count all the reactions to this content. Warning, if you did not pre process this number, \
+        a query will be sent
+
         :return: number of notes in the tutorial.
         :rtype: int
         """
-        return ContentReaction.objects.filter(related_content__pk=self.pk).count()
+        try:
+            return self.count_note
+        except AttributeError:
+            self.count_note = ContentReaction.objects.filter(related_content__pk=self.pk).count()
+            return self.count_note
 
     def get_last_note(self):
         """
