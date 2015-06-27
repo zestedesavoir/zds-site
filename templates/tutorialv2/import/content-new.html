@@ -21,5 +21,8 @@
 {% endblock %}
 
 {% block content %}
+    <p>
+    {% trans "Pour importer des images, veuillez spécifier la seconde archive. Les motifs <code>![légende](image:nom_du_fchier.extension)</code> seront remplacés par les URLs générées par le site." %}
+    </p>
     {% crispy form %}
 {% endblock %}

@@ -380,6 +380,7 @@ class ImportNewContentForm(ImportContentForm):
 
         self.helper.layout = Layout(
             Field('archive'),
+            Field('image_archive'),
             Field('subcategory'),
             Field('msg_commit'),
             ButtonHolder(
