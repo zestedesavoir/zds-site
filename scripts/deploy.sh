@@ -8,13 +8,23 @@
 # - This script must be run by zds user
 # - This script has exactly 1 parameter: the tag name to deploy
 
-: ${ZDS_USER:="zds"}
-: ${VIRTUALENV_PATH:=/opt/zdsenv}
-: ${APP_PATH:=/opt/zdsenv/ZesteDeSavoir}
-: ${NGINX_CONFIG_ROOT:=/etc/nginx}
-: ${NGINX_MAINTENANCE_SITE:=zds-maintenance}
-: ${NGINX_APP_SITE:=zestedesavoir}
-: ${ENABLE_MAINTENANCE:=true}
+# Defaults:
+_D_ZDS_USER="zds"
+_D_VIRTUALENV_PATH=/opt/zdsenv
+_D_APP_PATH=/opt/zdsenv/ZesteDeSavoir
+_D_NGINX_CONFIG_ROOT=/etc/nginx
+_D_NGINX_MAINTENANCE_SITE=zds-maintenance
+_D_NGINX_APP_SITE=zestedesavoir
+_D_ENABLE_MAINTENANCE=true
+
+# Setting variables using env & defaults
+: ${ZDS_USER:=$_D_ZDS_USER}
+: ${VIRTUALENV_PATH:=$_D_VIRTUALENV_PATH}
+: ${APP_PATH:=$_D_APP_PATH}
+: ${NGINX_CONFIG_ROOT:=$_D_NGINX_CONFIG_ROOT}
+: ${NGINX_MAINTENANCE_SITE:=$_D_NGINX_MAINTENANCE_SITE}
+: ${NGINX_APP_SITE:=$_D_NGINX_APP_SITE}
+: ${ENABLE_MAINTENANCE:=$_D_ENABLE_MAINTENANCE}
 
 if [ "$(whoami)" != $ZDS_USER ]; then
 	echo "This script must be run by zds user" >&2
@@ -34,13 +44,19 @@ then
 	exit 1
 fi
 
+# Diaplay config
 echo "Here is the config:"
-echo "  VIRTUALENV_PATH = $VIRTUALENV_PATH"
-echo "  APP_PATH = $APP_PATH"
-echo "  NGINX_CONFIG_ROOT = $NGINX_CONFIG_ROOT"
-echo "  NGINX_MAINTENANCE_SITE = $NGINX_MAINTENANCE_SITE"
-echo "  NGINX_APP_SITE = $NGINX_APP_SITE"
-echo "  ENABLE_MAINTENANCE = $ENABLE_MAINTENANCE"
+for varname in "ZDS_USER" "VIRTUALENV_PATH" "APP_PATH" "NGINX_CONFIG_ROOT" "NGINX_MAINTENANCE_SITE" "NGINX_APP_SITE" "ENABLE_MAINTENANCE"
+do
+	default_varname=_D_$varname
+	if [[ x${!default_varname} == x${!varname} ]]
+	then
+		echo $varname = ${!varname}
+	else
+		echo -e "$varname = \e[0;32m${!varname}\e[0m (default: ${!default_varname})"
+	fi
+done
+
 read -p "Is this OK ? [y/N] " -r
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
