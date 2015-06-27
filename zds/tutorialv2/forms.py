@@ -156,7 +156,7 @@ class ContentForm(ContainerForm):
     subcategory = forms.ModelMultipleChoiceField(
         label=_(u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
                 u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
-        queryset=SubCategory.objects.all(),
+        queryset=SubCategory.objects.order_by("title").all(),
         required=True,
         widget=forms.SelectMultiple(
             attrs={
