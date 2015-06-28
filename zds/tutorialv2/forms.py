@@ -311,7 +311,7 @@ class ImportContentForm(forms.Form):
         required=True
     )
     image_archive = forms.FileField(
-        label=_(u"Sélectionnez l'archive des images"),
+        label=_(u"Sélectionnez l'archive des images."),
         required=False
     )
 

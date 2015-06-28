@@ -492,11 +492,12 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 copy_to.repo_add_extract(child.title, text, do_commit=False)
 
     @staticmethod
-    def use_images_from_archive(request, zfile, versioned_content, gallery):
-        """Extract image from a gallery and then translate the ``![.+](image:filename)`` into the final image we want
+    def use_images_from_archive(request, zip_file, versioned_content, gallery):
+        """Extract image from a gallery and then translate the ``![.+](image:filename)`` into the final image we want.
+        Note that this function does not perform any commit.
 
-        :param zfile: ZIP archive
-        :type zfile: zipfile.ZipFile
+        :param zip_file: ZIP archive
+        :type zip_file: zipfile.ZipFile
         :param versioned_content: content
         :type versioned_content: VersionedContent
         :param gallery: gallery of image
@@ -509,33 +510,32 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         if not os.path.exists(temp):
             os.makedirs(temp)
 
-        for image_path in zfile.namelist():
-
-            image_filename = os.path.split(image_path)[1]
-
-            if image_filename.strip() == "":  # don't deal with directory
-                continue
+        for image_path in zip_file.namelist():
 
             image_basename = os.path.basename(image_path)
+
+            if image_basename.strip() == "":  # don't deal with directory
+                continue
+
             temp_image_path = os.path.abspath(os.path.join(temp, image_basename))
 
             # create a temporary file for the image
             f_im = open(temp_image_path, "wb")
-            f_im.write(zfile.read(image_path))
+            f_im.write(zip_file.read(image_path))
             f_im.close()
-
-            # if size is too large, don't save
-            if os.stat(temp_image_path).st_size > settings.ZDS_APP['gallery']['image_max_size']:
-                messages.error(
-                    request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                               u'Kio avant de l\'envoyer.').format(
-                                   image_basename, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
-                continue
 
             # if it's not an image, pass
             try:
                 ImagePIL.open(temp_image_path)
             except IOError:
+                continue
+
+            # if size is too large, pass
+            if os.stat(temp_image_path).st_size > settings.ZDS_APP['gallery']['image_max_size']:
+                messages.error(
+                    request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
+                               u'Kio avant de l\'envoyer.').format(
+                                   image_path, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
                 continue
 
             # create picture in database:
@@ -547,13 +547,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.pubdate = datetime.now()
             pic.save()
 
-            translation_dic[image_basename] = pic.get_absolute_url()
+            translation_dic[image_path] = pic.get_absolute_url()
 
             # finally, remove image
             if os.path.exists(temp_image_path):
                 os.remove(temp_image_path)
 
-        zfile.close()
+        zip_file.close()
         if os.path.exists(temp):
             shutil.rmtree(temp)
 
