@@ -8,6 +8,12 @@
 # - This script must be run by zds user
 # - This script has exactly 1 parameter: the tag name to deploy
 
+# Utility function to show what command is running
+function exe {
+	echo -e "+ \e[1m$@\e[0m" # show command (in bold)
+	"$@" # and exe the command
+}
+
 # Defaults:
 _D_ZDS_USER="zds"
 _D_VIRTUALENV_PATH=/opt/zdsenv
@@ -16,6 +22,7 @@ _D_NGINX_CONFIG_ROOT=/etc/nginx
 _D_NGINX_MAINTENANCE_SITE=zds-maintenance
 _D_NGINX_APP_SITE=zestedesavoir
 _D_ENABLE_MAINTENANCE=true
+_D_MANUAL_BUILD_FRONT=false
 
 # Setting variables using env & defaults
 : ${ZDS_USER:=$_D_ZDS_USER}
@@ -25,6 +32,7 @@ _D_ENABLE_MAINTENANCE=true
 : ${NGINX_MAINTENANCE_SITE:=$_D_NGINX_MAINTENANCE_SITE}
 : ${NGINX_APP_SITE:=$_D_NGINX_APP_SITE}
 : ${ENABLE_MAINTENANCE:=$_D_ENABLE_MAINTENANCE}
+: ${MANUAL_BUILD_FRONT:=$_D_MANUAL_BUILD_FRONT}
 
 if [ "$(whoami)" != $ZDS_USER ]; then
 	echo "This script must be run by zds user" >&2
@@ -46,14 +54,14 @@ fi
 
 # Diaplay config
 echo "Here is the config:"
-for varname in "ZDS_USER" "VIRTUALENV_PATH" "APP_PATH" "NGINX_CONFIG_ROOT" "NGINX_MAINTENANCE_SITE" "NGINX_APP_SITE" "ENABLE_MAINTENANCE"
+for varname in ZDS_USER VIRTUALENV_PATH APP_PATH NGINX_CONFIG_ROOT NGINX_MAINTENANCE_SITE NGINX_APP_SITE ENABLE_MAINTENANCE MANUAL_BUILD_FRONT
 do
 	default_varname=_D_$varname
 	if [[ x${!default_varname} == x${!varname} ]]
 	then
-		echo $varname = ${!varname}
+		echo " - $varname = ${!varname}"
 	else
-		echo -e "$varname = \e[0;32m${!varname}\e[0m (default: ${!default_varname})"
+		echo -e " - $varname = \e[0;32m${!varname}\e[0m (default: ${!default_varname})"
 	fi
 done
 
@@ -65,26 +73,51 @@ then
 fi
 
 function enable_maintenance {
-	sudo rm -I $NGINX_CONFIG_ROOT/sites-enabled/$NGINX_APP_SITE
-	sudo ln $NGINX_CONFIG_ROOT/sites-{available,enabled}/$NGINX_MAINTENANCE_SITE
-	sudo service nginx reload
+	exe sudo rm -I $NGINX_CONFIG_ROOT/sites-enabled/$NGINX_APP_SITE
+	exe sudo ln $NGINX_CONFIG_ROOT/sites-{available,enabled}/$NGINX_MAINTENANCE_SITE
+	exe sudo service nginx reload
 }
 
 function disable_maintenance {
-	sudo rm -I $NGINX_CONFIG_ROOT/sites-enabled/$NGINX_MAINTENANCE_SITE
-	sudo ln $NGINX_CONFIG_ROOT/sites-{available,enabled}/$NGINX_APP_SITE
-	sudo service nginx reload
+	exe sudo rm -I $NGINX_CONFIG_ROOT/sites-enabled/$NGINX_MAINTENANCE_SITE
+	exe sudo ln $NGINX_CONFIG_ROOT/sites-{available,enabled}/$NGINX_APP_SITE
+	exe sudo service nginx reload
+}
+
+function clean_workspace {
+	echo "Cleaning up"
+
+	# Removes dist/ folder to avoid conflicts
+	exe rm -rf ./dist/
+
+	# Resetting HEAD
+	exe git reset --hard
+
+	# Delete old branch if exists and not on remote
+	exe git checkout prod
+	exe git branch -D $1
 }
 
 function update_backend {
 	# Update application data
-	source $VIRTUALENV_PATH/bin/activate
-	pip install --upgrade --use-mirrors -r requirements.txt
-	python manage.py migrate
-	python manage.py compilemessages
+	exe source $VIRTUALENV_PATH/bin/activate
+	exe pip install --upgrade --use-mirrors -r requirements.txt
+	exe python manage.py migrate
+	exe python manage.py compilemessages
 	# Collect all staticfiles from dist/ and python packages to static/
-	python manage.py collectstatic --noinput --clear
-	deactivate
+	exe python manage.py collectstatic --noinput --clear
+	exe deactivate
+}
+
+function update_frontend {
+	if npm -v > /dev/null 2>&1
+	then
+		exe npm install
+		exe npm run clean
+		exe npm run build
+	else
+		echo -e "\e[31m npm not found, can't build front \e[0m"
+	fi
 }
 
 function check_build {
@@ -106,33 +139,44 @@ then
 fi
 
 # Fetching tags
-git fetch --tags
+exe git fetch --tags
 # Server has git < 1.9, git fetch --tags doesn't retrieve commits...
-git fetch
+exe git fetch
 
-if check_build $1
+if $MANUAL_BUILD_FRONT
 then
-	echo "Cleaning up"
-	# Delete old branch if exists
-	git checkout prod
-	git branch -D $1
-	# Removes dist/ folder to avoid conflicts
-#	rm -rf ./dist/
+	clean_workspace $1
 
-	echo "Checking out tag $1-build"
-	# Checkout the tag
-	git checkout $1-build
-	# Create a branch with the same name - required to have version data in footer
-	git checkout -b $1
+	echo "Checking out $1"
+	exe git checkout $1
 
 	echo "Updating app"
+	update_frontend
 	update_backend
 
 	echo "Restarting app"
 	# Restart zds
-	sudo supervisorctl restart zds
+	exe sudo supervisorctl restart zds
 else
-	echo "Build tag doesn't exist. Check travis build status maybe ?"
+	if check_build $1
+	then
+		clean_workspace $1
+
+		echo "Checking out tag $1-build"
+		# Checkout the tag
+		exe git checkout $1-build
+		# Create a branch with the same name - required to have version data in footer
+		exe git checkout -b $1
+
+		echo "Updating app"
+		update_backend
+
+		echo "Restarting app"
+		# Restart zds
+		exe sudo supervisorctl restart zds
+	else
+		echo "Build tag doesn't exist. Check travis build status maybe ?"
+	fi
 fi
 
 if $ENABLE_MAINTENANCE
