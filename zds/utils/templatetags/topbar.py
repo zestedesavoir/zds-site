@@ -7,7 +7,7 @@ from django import template
 from django.conf import settings
 
 from zds.forum.models import Forum, Topic
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.models import CategorySubCategory, Tag
 
 
@@ -62,70 +62,41 @@ def top_categories(user):
     return {"tags": tags, "categories": cats}
 
 
-@register.filter('top_categories_tuto')
-def top_categories_tuto(user):
-    """
-        Get all the categories and their related subcategories
-        associed with an existing tutorial. The result is sorted
-        by alphabetic order.
-    """
+@register.filter('top_categories_content')
+def top_categories_content(_type):
+        """Get all the categories and their related subcategories associated with existing contents.
+        The result is sorted by alphabetic order.
 
-    # Ordered dict is use to keep order
-    cats = OrderedDict()
+        :param _type: type of the content
+        :type _type: str
+        :return: a dictionary, with the title being the name of the category and the content a list of subcategories,
+        Each of these are stored in a tuple of the form ``title, slug``.
+        :rtype: OrderedDict
+        """
 
-    subcats_tutos = PublishableContent.objects.values('subcategory')\
-        .filter(sha_public__isnull=False, type="TUTORIAL")\
-        .all()
-    catsubcats = CategorySubCategory.objects \
-        .filter(is_main=True)\
-        .filter(subcategory__in=subcats_tutos)\
-        .order_by('category__position', 'subcategory__title')\
-        .select_related('subcategory', 'category')\
-        .values('category__title', 'subcategory__title', 'subcategory__slug')\
-        .all()
+        subcategories_contents = PublishedContent.objects\
+            .filter(content_type=_type)\
+            .values('content__subcategory').all()
 
-    for csc in catsubcats:
-        key = csc['category__title']
+        categories_from_subcategories = CategorySubCategory.objects\
+            .filter(is_main=True)\
+            .filter(subcategory__in=subcategories_contents)\
+            .order_by('category__position', 'subcategory__title')\
+            .select_related('subcategory', 'category')\
+            .values('category__title', 'subcategory__title', 'subcategory__slug')\
+            .all()
 
-        if key in cats:
-            cats[key].append((csc['subcategory__title'], csc['subcategory__slug']))
-        else:
-            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
+        categories = OrderedDict()
 
-    return cats
+        for csc in categories_from_subcategories:
+            key = csc['category__title']
 
+            if key in categories:
+                categories[key].append((csc['subcategory__title'], csc['subcategory__slug']))
+            else:
+                categories[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
-@register.filter('top_categories_article')
-def top_categories_article(user):
-    """
-        Get all the categories and their related subcategories
-        associed with an existing articles. The result is sorted
-        by alphabetic order.
-    """
-
-    # Ordered dict is use to keep order
-    cats = OrderedDict()
-
-    subcats_articles = PublishableContent.objects.values('subcategory')\
-        .filter(sha_public__isnull=False, type="ARTICLE")\
-        .all()
-    catsubcats = CategorySubCategory.objects \
-        .filter(is_main=True)\
-        .filter(subcategory__in=subcats_articles)\
-        .order_by('category__position', 'subcategory__title')\
-        .select_related('subcategory', 'category')\
-        .values('category__title', 'subcategory__title', 'subcategory__slug')\
-        .all()
-
-    for csc in catsubcats:
-        key = csc['category__title']
-
-        if key in cats:
-            cats[key].append((csc['subcategory__title'], csc['subcategory__slug']))
-        else:
-            cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
-
-    return cats
+        return categories
 
 
 @register.filter('auth_forum')
