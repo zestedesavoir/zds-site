@@ -76,7 +76,7 @@ def interventions_topics(user):
         .filter(user=user)\
         .filter(topic__in=topicsfollowed)\
         .select_related("topic")\
-        .exclude(post=F('topic__last_message'))
+        .exclude(post=F('topic__last_message')).all()
 
     articlesfollowed = Reaction.objects\
         .filter(author=user, article__sha_public__isnull=False)\
@@ -87,7 +87,7 @@ def interventions_topics(user):
         .filter(user=user)\
         .filter(article__in=articlesfollowed)\
         .select_related("article")\
-        .exclude(reaction=F('article__last_reaction'))
+        .exclude(reaction=F('article__last_reaction')).all()
 
     tutorialsfollowed = Note.objects\
         .filter(author=user, tutorial__sha_public__isnull=False)\
@@ -97,13 +97,15 @@ def interventions_topics(user):
     tutorials_never_read = TutorialRead.objects\
         .filter(user=user)\
         .filter(tutorial__in=tutorialsfollowed)\
-        .exclude(note=F('tutorial__last_note'))
+        .exclude(note=F('tutorial__last_note')).all()
 
     content_to_read = ContentRead.objects\
         .select_related('note')\
+        .select_related('note__author')\
         .select_related('content')\
+        .select_related('content__public_version')\
         .filter(user=user)\
-        .exclude(note__pk=F('content__last_note__pk'))
+        .exclude(note__pk=F('content__last_note__pk')).all()
 
     posts_unread = []
 
