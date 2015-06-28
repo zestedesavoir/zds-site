@@ -558,7 +558,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             shutil.rmtree(temp)
 
         # then, modify each extracts
-        image_regex = re.compile(r"((?P<start>!\[.+?\]\()image:(?P<path>.+?)(?P<end>\)))")
+        image_regex = re.compile(r"((?P<start>!\[.*?\]\()image:(?P<path>.*?)(?P<end>\)))")
 
         for element in versioned_content.traverse(only_container=False):
             if isinstance(element, Container):
