@@ -1,5 +1,4 @@
 # coding: utf-8
-from collections import OrderedDict
 from datetime import datetime
 import json as json_writer
 from django.conf import settings
@@ -23,9 +22,10 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, mark_read
-from zds.utils.models import CommentDislike, CommentLike, CategorySubCategory, SubCategory, Alert
+from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
+from zds.utils.templatetags.topbar import top_categories_content
 
 
 class RedirectContentSEO(RedirectView):
@@ -241,36 +241,6 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     template_name = 'tutorialv2/index_online.html'
     tag = None
 
-    def top_categories(self):
-        """Get all the categories and their related subcategories associated with existing contents.
-        The result is sorted by alphabetic order."""
-
-        # TODO: since this is gonna be reused, it should go in zds/utils/tutorialsv2.py (and in topbar.py)
-
-        subcategories_contents = PublishedContent.objects\
-            .filter(content_type=self.current_content_type)\
-            .values('content__subcategory').all()
-
-        categories_from_subcategories = CategorySubCategory.objects\
-            .filter(is_main=True)\
-            .filter(subcategory__in=subcategories_contents)\
-            .order_by('category__position', 'subcategory__title')\
-            .select_related('subcategory', 'category')\
-            .values('category__title', 'subcategory__title', 'subcategory__slug')\
-            .all()
-
-        categories = OrderedDict()
-
-        for csc in categories_from_subcategories:
-            key = csc['category__title']
-
-            if key in categories:
-                categories[key].append((csc['subcategory__title'], csc['subcategory__slug']))
-            else:
-                categories[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
-
-        return categories
-
     def get_queryset(self):
         """Filter the contents to obtain the list of given type.
         If tag parameter is provided, only contents which have this category will be listed.
@@ -306,7 +276,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
 
         context['tag'] = self.tag
-        context['top_categories'] = self.top_categories()
+        context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
 
