@@ -103,7 +103,7 @@ def interventions_topics(user):
         .select_related('note')\
         .select_related('note__author')\
         .select_related('content')\
-        .select_related('content__public_version')\
+        .select_related('note__related_content__public_version')\
         .filter(user=user)\
         .exclude(note__pk=F('content__last_note__pk')).all()
 
