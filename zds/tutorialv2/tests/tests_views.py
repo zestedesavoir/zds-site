@@ -21,6 +21,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import publish_content
 from zds.gallery.factories import GalleryFactory
+from zds.gallery.models import Image
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
@@ -1424,6 +1425,9 @@ class ContentTests(TestCase):
         extract = new_chapter.children[-1]
         self.assertEqual(extract.get_text(), some_text)
 
+        # clean up
+        os.remove(draft_zip_path)
+
     def test_import_in_existing_content(self):
         """Test if the importation of a content into another is working"""
 
@@ -1541,6 +1545,122 @@ class ContentTests(TestCase):
 
         extract = new_chapter.children[-1]
         self.assertEqual(extract.get_text(), some_text)
+
+        # clean up
+        os.remove(draft_zip_path)
+
+    def test_import_image_with_archive(self):
+        """ensure that import archive work, and link are changed"""
+
+        prefix = settings.ZDS_APP['content']['import_image_prefix']
+        title = u'OSEF ici du titre :p'
+        text1 = u'![]({}:image1.png) ![]({}:dossier/image2.png)'.format(prefix, prefix)
+        text2 = u'![Piège](img3.png) ![Image qui existe pas]({}:img3.png) ![](mauvais:img3.png)'.format(prefix)
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # create an article
+        article = PublishableContentFactory(type='ARTICLE')
+
+        article.authors.add(self.user_author)
+        article.gallery = GalleryFactory()
+        article.licence = self.licence
+        article.save()
+
+        article_draft = article.load_version()
+
+        article_draft.repo_add_extract(title, text1)
+        version = article_draft.repo_add_extract(title, text2)
+
+        article.sha_draft = version
+        article.save()
+
+        # check that there is no image in gallery
+        self.assertEqual(Image.objects.filter(gallery=article.gallery).count(), 0)
+
+        # download and store
+        result = self.client.get(
+            reverse('content:download-zip', args=[article.pk, article.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
+        f = open(draft_zip_path, 'w')
+        f.write(result.content)
+        f.close()
+
+        # create the archive with images:
+        image_zip_path = os.path.join(tempfile.gettempdir(), '__images.zip')
+        zfile = zipfile.ZipFile(image_zip_path, 'a')
+
+        bytes = open('fixtures/noir_black.png').read()
+        zfile.writestr('image1.png', bytes)
+        zfile.writestr('dossier/image2.png', bytes)
+        zfile.close()
+
+        # then, use the archive to create a new content with images !
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(draft_zip_path),
+                'image_archive': open(image_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.count(), 3)  # import ok
+
+        new_article = PublishableContent.objects.last()
+        versioned = new_article.load_version()
+
+        self.assertEqual(len(versioned.children), 2)
+        self.assertEqual(Image.objects.filter(gallery=new_article.gallery).count(), 2)  # image import ok
+
+        # check changes:
+        self.assertNotEqual(versioned.children[0].get_text(), text1)
+        self.assertEqual(versioned.children[1].get_text(), text2)
+
+        # check links:
+        text = versioned.children[0].get_text()
+        for img in Image.objects.filter(gallery=new_article.gallery).all():
+            self.assertTrue('![]({})'.format(img.get_absolute_url()) in text)
+
+        # import into first article (that will only change the images)
+        result = self.client.post(
+            reverse('content:import', args=[article.pk, article.slug]),
+            {
+                'archive': open(draft_zip_path),
+                'image_archive': open(image_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        new_version = PublishableContent.objects.get(pk=article.pk)
+        versioned = new_version.load_version()
+
+        self.assertEqual(len(versioned.children), 2)
+        self.assertEqual(Image.objects.filter(gallery=new_version.gallery).count(), 2)  # image import ok
+
+        # check changes:
+        self.assertNotEqual(versioned.children[0].get_text(), text1)
+        self.assertEqual(versioned.children[1].get_text(), text2)  # this one does not contains valid links
+
+        # check links:
+        text = versioned.children[0].get_text()
+        for img in Image.objects.filter(gallery=new_version.gallery).all():
+            self.assertTrue('![]({})'.format(img.get_absolute_url()) in text)
+
+        # clean up
+        os.remove(draft_zip_path)
+        os.remove(image_zip_path)
 
     def test_diff_for_new_content(self):
         # login with author
