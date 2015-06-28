@@ -493,7 +493,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
     @staticmethod
     def use_images_from_archive(request, zip_file, versioned_content, gallery):
-        """Extract image from a gallery and then translate the ``![.+](image:filename)`` into the final image we want.
+        """Extract image from a gallery and then translate the ``![.+](prefix:filename)`` into the final image we want.
+        The ``prefix`` is defined into the settings.
         Note that this function does not perform any commit.
 
         :param zip_file: ZIP archive
@@ -558,7 +559,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             shutil.rmtree(temp)
 
         # then, modify each extracts
-        image_regex = re.compile(r"((?P<start>!\[.*?\]\()image:(?P<path>.*?)(?P<end>\)))")
+        image_regex = re.compile(r"((?P<start>!\[.*?\]\()" + settings.ZDS_APP['content']['import_image_prefix'] +
+                                 r":(?P<path>.*?)(?P<end>\)))")
 
         for element in versioned_content.traverse(only_container=False):
             if isinstance(element, Container):
@@ -586,7 +588,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         if image in translation_dic:
             return start + translation_dic[image] + end
         else:
-            return start + 'image:' + image + end
+            return start + settings.ZDS_APP['content']['import_image_prefix'] + ':' + image + end
 
     def form_valid(self, form):
         versioned = self.versioned_object

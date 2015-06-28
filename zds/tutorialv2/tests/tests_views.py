@@ -1552,9 +1552,10 @@ class ContentTests(TestCase):
     def test_import_image_with_archive(self):
         """ensure that import archive work, and link are changed"""
 
+        prefix = settings.ZDS_APP['content']['import_image_prefix']
         title = u'OSEF ici du titre :p'
-        text1 = u'![](image:image1.png) ![](image:dossier/image2.png)'
-        text2 = u'![Piège](img3.png) ![Image qui existe pas](image:img3.png)'  # this text will remain the same
+        text1 = u'![]({}:image1.png) ![]({}:dossier/image2.png)'.format(prefix, prefix)
+        text2 = u'![Piège](img3.png) ![Image qui existe pas]({}:img3.png) ![](mauvais:img3.png)'.format(prefix)
 
         # login with author
         self.assertEqual(
