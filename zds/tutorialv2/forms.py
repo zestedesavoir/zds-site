@@ -354,6 +354,15 @@ class ImportContentForm(forms.Form):
                 msg = _(u'L\'archive doit être au format .zip.')
                 self._errors['archive'] = self.error_class([msg])
 
+        image_archive = cleaned_data.get('image_archive')
+
+        if image_archive is not None:
+            ext = image_archive.name.split(".")[-1]
+            if ext != 'zip':
+                del cleaned_data['image_archive']
+                msg = _(u'L\'archive doit être au format .zip.')
+                self._errors['image_archive'] = self.error_class([msg])
+
         return cleaned_data
 
 
