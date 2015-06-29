@@ -4,6 +4,7 @@ import json as json_writer
 from git import Repo
 import os
 import shutil
+import codecs
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -13,7 +14,7 @@ from zds.settings import ZDS_APP
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.utils import slugify
 from zds.utils.misc import compute_hash
-from zds.utils.tutorials import get_blob
+from zds.tutorialv2.utils import get_blob
 
 
 class Container:
@@ -408,7 +409,7 @@ class Container:
         if self.introduction:
             path = os.path.join(self.top_container().get_prod_path(), self.introduction)
             if os.path.isfile(path):
-                return open(path, 'r').read()
+                return codecs.open(path, 'r', encoding='utf-8').read()
 
     def get_conclusion_online(self):
         """The conclusion content for online version.
@@ -419,11 +420,11 @@ class Container:
         if self.conclusion:
             path = os.path.join(self.top_container().get_prod_path(), self.conclusion)
             if os.path.isfile(path):
-                return open(path, 'r').read()
+                return codecs.open(path, 'r', encoding='utf-8').read()
 
     def get_content_online(self):
         if os.path.isfile(self.get_prod_path()):
-            return open(self.get_prod_path(), 'r').read()
+            return codecs.open(self.get_prod_path(), 'r', encoding='utf-8').read()
 
     def compute_hash(self):
         """Compute an MD5 hash from the introduction and conclusion, for comparison purpose
@@ -484,8 +485,8 @@ class Container:
             if self.introduction is None:
                 self.introduction = os.path.join(rel_path, 'introduction.md')
 
-            f = open(os.path.join(path, self.introduction), "w")
-            f.write(introduction.encode('utf-8'))
+            f = codecs.open(os.path.join(path, self.introduction), "w", encoding='utf-8')
+            f.write(introduction)
             f.close()
             repo.index.add([self.introduction])
 
@@ -498,8 +499,8 @@ class Container:
             if self.conclusion is None:
                 self.conclusion = os.path.join(rel_path, 'conclusion.md')
 
-            f = open(os.path.join(path, self.conclusion), "w")
-            f.write(conclusion.encode('utf-8'))
+            f = codecs.open(os.path.join(path, self.conclusion), "w", encoding='utf-8')
+            f.write(conclusion)
             f.close()
             repo.index.add([self.conclusion])
 
@@ -903,8 +904,8 @@ class Extract:
 
         if text is not None:
             self.text = self.get_path(relative=True)
-            f = open(os.path.join(path, self.text), "w")
-            f.write(text.encode('utf-8'))
+            f = codecs.open(os.path.join(path, self.text), "w", encoding='utf-8')
+            f.write(text)
             f.close()
 
             repo.index.add([self.text])
@@ -1166,8 +1167,8 @@ class VersionedContent(Container):
             man_path = os.path.join(self.get_path(), 'manifest.json')
         else:
             man_path = path
-        json_data = open(man_path, "w")
-        json_data.write(self.get_json().encode('utf-8'))
+        json_data = codecs.open(man_path, "w", encoding='utf-8')
+        json_data.write(self.get_json())
         json_data.close()
 
     def repo_update_top_container(self, title, slug, introduction, conclusion, commit_message='', do_commit=True):

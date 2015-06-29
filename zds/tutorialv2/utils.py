@@ -9,6 +9,7 @@ import cairosvg
 from urllib import urlretrieve
 from urlparse import urlparse
 from lxml import etree
+import codecs
 
 from PIL import Image as ImagePIL
 
@@ -454,10 +455,10 @@ def publish_container(db_object, base_dir, container):
 
     if container.has_extracts():  # the container can be rendered in one template
         parsed = render_to_string(template, {'container': container, 'is_js': is_js})
-        f = open(os.path.join(base_dir, container.get_prod_path(relative=True)), 'w')
+        f = codecs.open(os.path.join(base_dir, container.get_prod_path(relative=True)), 'w', encoding='utf-8')
 
         try:
-            f.write(parsed.encode('utf-8'))
+            f.write(parsed)
         except (UnicodeError, UnicodeEncodeError):
             raise FailureDuringPublication(
                 _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
@@ -480,7 +481,7 @@ def publish_container(db_object, base_dir, container):
 
         if container.introduction:
             path = os.path.join(container.get_prod_path(relative=True), 'introduction.html')
-            f = open(os.path.join(base_dir, path), 'w')
+            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
 
             try:
                 f.write(emarkdown(container.get_introduction(), db_object.js_support))
@@ -493,7 +494,7 @@ def publish_container(db_object, base_dir, container):
 
         if container.conclusion:
             path = os.path.join(container.get_prod_path(relative=True), 'conclusion.html')
-            f = open(os.path.join(base_dir, path), 'w')
+            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
 
             try:
                 f.write(emarkdown(container.get_conclusion(), db_object.js_support))
@@ -553,9 +554,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
 
     md_file_path = base_name + '.md'
-    md_file = open(md_file_path, 'w')
+    md_file = codecs.open(md_file_path, 'w', encoding='utf-8')
     try:
-        md_file.write(parsed_with_local_images.encode('utf-8'))
+        md_file.write(parsed_with_local_images)
     except (UnicodeError, UnicodeEncodeError):
         raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
                                          u'à télécharger, vérifiez le code markdown'))
@@ -986,3 +987,30 @@ def default_slug_pool():
 
 class InvalidOperationError(RuntimeError):
     pass
+
+
+def get_blob(tree, path):
+    """Return the data contained into a given file
+
+    :param tree: Git Tree object
+    :type tree: git.objects.tree.Tree
+    :param path: Path to file
+    :type path: str
+    :return: contains
+    :rtype: bytearray
+    """
+    for blob in tree.blobs:
+        try:
+            if os.path.abspath(blob.path) == os.path.abspath(path):
+                data = blob.data_stream.read()
+                return data
+        except (OSError, IOError):
+            return ""
+    if len(tree.trees) > 0:
+        for subtree in tree.trees:
+            result = get_blob(subtree, path)
+            if result is not None:
+                return result
+        return None
+    else:
+        return None
