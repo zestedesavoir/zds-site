@@ -9,26 +9,26 @@ La recherche se découpe en deux parties distinctes:
 L'indexation des données
 =========================
 
-**L'indexation** des données consiste à **rassembler toutes les données** sur lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au prealable.
+**L'indexation** des données consiste à **rassembler toutes les données** sur lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au préalable.
 L'indexation est faite de telle façon qu'on puisse rechercher sur les éléments suivants:
  - Les tutoriels (Les parties, les chapitres, les extraits)
  - Les articles (titre, description, date de publication, contenu en markdown)
  - Les sujets (titre, sous titres, auteurs, le contenu en markdown, le nom du forum)
  - Les réponses au sujets (auteur et contenu en markdown)
 
-L'indexation est réalisé à la demande, même si un jour, elle pourait être en `temps réel <https://zestedesavoir.com/forums/sujet/3334/indexation-en-temps-reel/>`_.
+L'indexation est réalisée à la demande, même si un jour, elle pourrait être en `temps réel <https://zestedesavoir.com/forums/sujet/3334/indexation-en-temps-reel/>`_.
 
-Aujourd'hui, l'indexation est réalisé toutes les trentaines de minutes, sur le serveur de production. Tous le contenu est ré-indexés à chaque fois, ce qui prend 100 pourcents du processus toutes les 5 minutes.
-Des solutions sont présentes dans `la documentation <http://django-haystack.readthedocs.org/en/latest/searchindex_api.html#get-updated-field>`_, sans qu'on puisse réellement `les appliquées <https://github.com/zestedesavoir/zds-site/pull/2771>`_.
+Aujourd'hui, l'indexation est réalisée toutes les trentaines de minutes, sur le serveur de production. Tout le contenu est ré-indexés à chaque fois, ce qui prend 100 pourcents du processus toutes les 5 minutes.
+Des solutions sont présentes dans `la documentation <http://django-haystack.readthedocs.org/en/latest/searchindex_api.html#get-updated-field>`_, sans qu'on puisse réellement `les appliquer <https://github.com/zestedesavoir/zds-site/pull/2771>`_.
 
 La recherche
 ============
 
-L'utilisateur peut utiliser la recherche, en utilisant la "sidebar".
+L'utilisateur peut utiliser la recherche, en utilisant la barre latérale.
 
    .. figure:: ../images/search/sidebar.png
 
-Des critères de recherche, peuvent être ajouté sur la page de recherche. Plus tard, on pourrais ajouter des facets, plus d'information sur `la ZEP correspondante <https://zestedesavoir.com/forums/sujet/1082/zep-15-navigation-a-facettes-a-travers-le-site/>`_.
+Des critères de recherche, peuvent être ajouté sur la page de recherche. Plus tard, on pourrait ajouter des facets, plus d'information sur `la ZEP correspondante <https://zestedesavoir.com/forums/sujet/1082/zep-15-navigation-a-facettes-a-travers-le-site/>`_.
 Les critères de recherches sont uniquement sur le type de contenu (tutoriel, article, sujet, réponse).
 
 Dans le code ?
