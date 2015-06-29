@@ -67,17 +67,18 @@
         </a>
 
         {% if online %}
-
-            <a class="content-reactions" href="
-                {% if article.last_note %}
-                    {{ article.last_read_note.get_absolute_url }}
-                {% else %}
-                    {{ link }}#reactions
-                {% endif %}"
-                title="{% if article.get_note_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_note_count }}{% endif %} {% trans "réaction" %}{{ article.get_note_count|pluralize }}"
-            >
-                <span>{{ article.get_note_count }}</span>
-            </a>
+            {% with note_count = article.get_note_count %}
+                <a class="content-reactions" href="
+                    {% if article.last_note %}
+                        {{ article.last_read_note.get_absolute_url }}
+                    {% else %}
+                        {{ link }}#reactions
+                    {% endif %}"
+                    title="{% if note_count == 0 %}{% trans "Aucune" %}{% else %}{{ note_count }}{% endif %} {% trans "réaction" %}{{ note_count|pluralize }}"
+                >
+                    <span>{{ note_count }}</span>
+                </a>
+            {% endwith %}
         {% endif %}
     </div>
 
