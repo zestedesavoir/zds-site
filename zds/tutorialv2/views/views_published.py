@@ -275,7 +275,10 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListOnlineContents, self).get_context_data(**kwargs)
-
+        for public_content in context["public_contents"]:
+            if public_content.content.last_note is not None:
+                public_content.content.last_note.related_content = public_content.content
+                public_content.content.public_version = public_content
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
