@@ -67,7 +67,7 @@
         </a>
 
         {% if online %}
-            {% with note_count = article.get_note_count %}
+            {% with note_count=article.get_note_count %}
                 <a class="content-reactions" href="
                     {% if article.last_note %}
                         {{ article.last_read_note.get_absolute_url }}
