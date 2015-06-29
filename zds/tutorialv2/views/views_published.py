@@ -264,8 +264,8 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__licence')\
             .select_related('content__image')\
             .select_related('content__last_note')\
-            .select_related('content__last_note__related_content__public_version')\
-
+            .select_related('content__last_note__related_content')\
+            .select_related('content__last_note__related_content__public_version')
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
