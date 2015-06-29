@@ -327,7 +327,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
                     display: none;
                 }
 
-                & > * {
+                &:not(.inline) > * {
                     display: block;
                 }
             }
