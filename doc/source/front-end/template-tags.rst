@@ -469,22 +469,22 @@ où,
 - ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__).
 
 
-``top_categories_tuto`` et ``top_categories_articles``
-------------------------------------------------------
+``top_categories_content``
+--------------------------
 
-Ces filtres renvoient une liste des catégories utilisées dans les articles/tutoriels publiés.
+Ce filtres renvoit une liste des catégories utilisées dans les articles/tutoriels publiés.
 
 Par exemple, pour les tutoriels, on retrouvera le code suivant:
 
 .. sourcecode:: html
 
-    {% with categories=user|top_categories_tuto %}
+    {% with categories="TUTORIAL"|top_categories_tuto %}
         {% for title, subcats in categories.items %}
             ...
         {% endfor %}
     {% endwith %}
 
-où ``categories`` est un dictionnaire contenant le nom de la catégorie (ici ``title``) et une liste des sous-catégories correspondantes, c'est-à-dire une liste d'objets de type ``CategorySubCategory`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.CategorySubCategory>`__).
+où ``categories`` est un dictionnaire contenant le nom de la catégorie (ici ``title``) et une liste des sous-catégories correspondantes (ici ``subcats``), c'est-à-dire un *tuple* de la forme ``titre, slug``
 
 ``auth_forum``
 --------------
@@ -499,10 +499,10 @@ Par exemple, le code suivant affichera le lien vers le forum uniquement si celui
         <a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a>
     {% endif %}
 
-feminize
-========
+Le module ``feminize``
+======================
 
-Permet de générer les déterminants et pronom adéquats en fonction du mot suivant dynamiquement généré. Typiquement
+Permet de générer les déterminants et pronoms adéquats en fonction du mot suivant dynamiquement généré. Typiquement
 ce templatetag est utile dans le cas de la hiérarchie des tutoriels où vous pouvez avoir *"une partie"* ou *"un chapitre"*.
 
 Ce templatetag est basé sur deux dictionnaires de mots : le premier qui associe le déterminant masculin à son homologue
@@ -520,8 +520,8 @@ Exemple :
 
     le templatetag ``feminize`` est internationalisé.
 
-times
-=====
+Le module ``times``
+===================
 
 Permet de générer une liste de nombre pour itérer dessus, utile dans les boucles.
 
@@ -534,10 +534,10 @@ Exemple :
         je suis dans l'itération {{ i }}
     {% endfor %}
 
-target_tree
-===========
+Le module ``target_tree``
+=========================
 
-Ce templatetag est utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
+Ce module défini un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
 des déplacements possibles d'un élément. Il s'agint d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
 
 Exemple :
@@ -552,45 +552,11 @@ Exemple :
             </option>
     {% endfor %}
 
-repo_blob et diff_text
-======================
+le module ``url_category``
+==========================
 
-Ces deux templatetags sont utilisés de concert dans le module de diff des contenus (v1 et v2).
+Ce module défini un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
 
-``repo_blob`` s'assure que les données brutes (texte) extraites du dépot sont bien encodée (py2).
-``diff_text`` transforme la sortie de gitdiff en html.
-
-Exemple :
-
-.. sourcecode:: html
-
-    {% load repo_reader %}
-    <h2>{% trans "Nouveaux Fichiers" %}</h2>
-    {% for add in path_add %}
-        {% with add_next=add.b_blob|repo_blob %}
-            <h3>{{ add.b_blob.path }}</h3>
-            <div class="diff_delta">
-                {{ ''|diff_text:add_next|safe }}
-            </div>
-        {% endwith %}
-    {% endfor %}
-
-    <h2>{% trans "Fichiers Modifiés" %}</h2>
-    {% for maj in path_maj %}
-        {% with maj_next=maj.b_blob|repo_blob %}
-            {% with maj_prev=maj.a_blob|repo_blob %}
-                <h3>{{ maj.a_blob.path }}</h3>
-                <div class="diff_delta">
-                    {{ maj_prev|diff_text:maj_next|safe }}
-                </div>
-            {% endwith %}
-        {% endwith %}
-    {% endfor %}
-
-url_category
-============
-
-Ce templatetag permet d'accéder à l'url des listes de tutoriels et articles filtrés par tag.
 Exemple :
 
 .. sourcecode:: html

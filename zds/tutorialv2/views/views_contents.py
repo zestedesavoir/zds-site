@@ -20,7 +20,7 @@ from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.generic import FormView, DeleteView
-from easy_thumbnails.models import File
+from easy_thumbnails.files import get_thumbnailer
 from git import GitCommandError
 import os
 import shutil
@@ -492,87 +492,113 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 copy_to.repo_add_extract(child.title, text, do_commit=False)
 
     @staticmethod
-    def flush_images_from_archive(request, archive, versionned_content, gallery):
-        """ extract image from a gallery and then translate the "![.+](image:filename) into the final image we want
+    def use_images_from_archive(request, zip_file, versioned_content, gallery):
+        """Extract image from a gallery and then translate the ``![.+](prefix:filename)`` into the final image we want.
+        The ``prefix`` is defined into the settings.
+        Note that this function does not perform any commit.
 
-        :param archive:
-        :param versionned_content:
-        :param gallery:
-        :return:
+        :param zip_file: ZIP archive
+        :type zip_file: zipfile.ZipFile
+        :param versioned_content: content
+        :type versioned_content: VersionedContent
+        :param gallery: gallery of image
+        :type gallery: Gallery
         """
         translation_dic = {}
-        temp = os.path.join(tempfile.gettempdir(), str(time.time()))
 
+        # create a temporary directory:
+        temp = os.path.join(tempfile.gettempdir(), str(time.time()))
         if not os.path.exists(temp):
             os.makedirs(temp)
-        zfile = zipfile.ZipFile(archive, "a")
 
-        for i in zfile.namelist():
-            filename = os.path.split(i)[1]
+        for image_path in zip_file.namelist():
 
-            ph_temp = os.path.abspath(os.path.join(temp, os.path.basename(i)))
+            image_basename = os.path.basename(image_path)
 
-            if filename.strip() == "":  # don't deal with directory
+            if image_basename.strip() == "":  # don't deal with directory
                 continue
 
-            # create file for image
-            f_im = open(ph_temp, "wb")
-            f_im.write(zfile.read(i))
+            temp_image_path = os.path.abspath(os.path.join(temp, image_basename))
+
+            # create a temporary file for the image
+            f_im = open(temp_image_path, "wb")
+            f_im.write(zip_file.read(image_path))
             f_im.close()
-            title = os.path.basename(i)
-
-            # if size is too large, don't save
-            if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
-                messages.error(
-                    request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
-                               u'Kio avant de l\'envoyer.').format(
-                                   title, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
-                continue
 
             # if it's not an image, pass
             try:
-                ImagePIL.open(ph_temp)
+                ImagePIL.open(temp_image_path)
             except IOError:
                 continue
 
-            # create picture in database:
-            f_im = File(open(ph_temp, "rb"))
-            f_im.name = title
+            # if size is too large, pass
+            if os.stat(temp_image_path).st_size > settings.ZDS_APP['gallery']['image_max_size']:
+                messages.error(
+                    request, _(u'Votre image "{}" est beaucoup trop lourde, réduisez sa taille à moins de {:.0f}'
+                               u'Kio avant de l\'envoyer.').format(
+                                   image_path, settings.ZDS_APP['gallery']['image_max_size'] / 1024))
+                continue
 
+            # create picture in database:
             pic = Image()
             pic.gallery = gallery
-            pic.title = title
+            pic.title = image_basename
+            pic.slug = slugify(image_basename)
+            pic.physical = get_thumbnailer(open(temp_image_path, "rb"), relative_name=temp_image_path)
             pic.pubdate = datetime.now()
-            pic.physical = f_im
             pic.save()
-            translation_dic[filename] = pic.get_absolute_url()
-            f_im.close()
 
-            if os.path.exists(ph_temp):
-                os.remove(ph_temp)
+            translation_dic[image_path] = pic.get_absolute_url()
 
-        zfile.close()
+            # finally, remove image
+            if os.path.exists(temp_image_path):
+                os.remove(temp_image_path)
 
+        zip_file.close()
         if os.path.exists(temp):
             shutil.rmtree(temp)
-        image_regex = re.compile(r"(!\[.+?\]\(image:(.+?)\))")
-        for element in versionned_content.traverse():
+
+        # then, modify each extracts
+        image_regex = re.compile(r"((?P<start>!\[.*?\]\()" + settings.ZDS_APP['content']['import_image_prefix'] +
+                                 r":(?P<path>.*?)(?P<end>\)))")
+
+        for element in versioned_content.traverse(only_container=False):
             if isinstance(element, Container):
                 continue
-            section_text = element.get_text()
-            all_images = [f[1] for f in image_regex.findall(section_text)]
 
-            for picture in all_images:
-                if picture in translation_dic:
-                    section_text.replace("image:" + picture, translation_dic[picture])
-            element.repo_update(element.title, section_text, '', False)
+            section_text = element.get_text()
+            section_text = image_regex.sub(
+                lambda g: UpdateContentWithArchive.update_image_link(g, translation_dic), section_text)
+
+            element.repo_update(element.title, section_text, do_commit=False)
+
+    @staticmethod
+    def update_image_link(group, translation_dic):
+        """callback function for the transformation of ``image:xxx`` to the right path in gallery
+
+        :param group: matching object
+        :type group: re.MatchObject
+        :param translation_dic: image to link into gallery dictionary
+        :type translation_dic: dict
+        :return: updated link
+        :rtype: str
+        """
+        start, image, end = group.group('start'), group.group('path'), group.group('end')
+
+        if image in translation_dic:
+            return start + translation_dic[image] + end
+        else:
+            return start + settings.ZDS_APP['content']['import_image_prefix'] + ':' + image + end
 
     def form_valid(self, form):
         versioned = self.versioned_object
 
         if self.request.FILES['archive']:
-            zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
-            # TODO catch exception here
+            try:
+                zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+            except zipfile.BadZipfile:
+                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP'))
+                return super(UpdateContentWithArchive, self).form_invalid(form)
 
             try:
                 new_version = UpdateContentWithArchive.extract_content_from_zip(zfile)
@@ -625,14 +651,24 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 if commit_message == '':
                     commit_message = _(u'Importation d\'une archive contenant « {} ».').format(new_version.title)
 
+                sha = versioned.commit_changes(commit_message)
+
+                # now, use the images from the archive if provided. To work, this HAVE TO happen after commiting files !
                 if "image_archive" in self.request.FILES:
-                    image_zip = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
-                    UpdateContentWithArchive.flush_images_from_archive(
+                    try:
+                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
+                    except zipfile.BadZipfile:
+                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP'))
+                        return self.form_invalid(form)
+
+                    UpdateContentWithArchive.use_images_from_archive(
                         self.request,
-                        image_zip,
+                        zfile,
                         versioned,
                         self.object.gallery)
-                sha = versioned.commit_changes(commit_message)
+
+                    commit_message = _(u'Utilisation des images de l\'archive pour « {} »').format(new_version.title)
+                    sha = versioned.commit_changes(commit_message)  # another commit
 
                 # of course, need to update sha
                 self.object.sha_draft = sha
@@ -654,7 +690,11 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
     def form_valid(self, form):
 
         if self.request.FILES['archive']:
-            zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+            try:
+                zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
+            except zipfile.BadZipfile:
+                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP'))
+                return self.form_invalid(form)
 
             try:
                 new_content = UpdateContentWithArchive.extract_content_from_zip(zfile)
@@ -715,13 +755,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # copy all:
                 versioned = self.object.load_version()
                 UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
-                if "image_archive" in self.request.FILES:
-                    image_zip = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
-                    UpdateContentWithArchive.flush_images_from_archive(
-                        self.request,
-                        image_zip,
-                        versioned,
-                        self.object.gallery)
+
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
 
@@ -729,6 +763,23 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                     commit_message = _(u'Importation d\'une archive contenant « {} »').format(new_content.title)
 
                 sha = versioned.commit_changes(commit_message)
+
+                # This HAVE TO happen after commiting files (if not, content are None)
+                if "image_archive" in self.request.FILES:
+                    try:
+                        zfile = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
+                    except zipfile.BadZipfile:
+                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP'))
+                        return self.form_invalid(form)
+
+                    UpdateContentWithArchive.use_images_from_archive(
+                        self.request,
+                        zfile,
+                        versioned,
+                        self.object.gallery)
+
+                    commit_message = _(u'Utilisation des images de l\'archive pour « {} »').format(new_content.title)
+                    sha = versioned.commit_changes(commit_message)  # another commit
 
                 # of course, need to update sha
                 self.object.sha_draft = sha

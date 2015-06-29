@@ -172,7 +172,7 @@ soit unique au sein de tous les contenus de ZdS.
     oublier la contrainte d'unicité à l'intérieur d'un conteneur.
 
 Cycle de vie des contenus
-==========================
+=========================
 
 Quelque soit le type de contenu, le cycle de vie de celui-ci reste toujours le même.
 Un contenu peut être rédigé par un ou plusieurs auteurs. Chaque modification 
@@ -299,25 +299,51 @@ contenu, reprenant votre message sous forme d'une citation. Vous participerez
 de détails si nécessaire.
 
 Import de contenus
-===================
+==================
 
 Zeste de Savoir permet d'importer des contenus provenant de sources 
-extérieures. Deux formats d'import sont actuellement supportés.
+extérieures.
 
-Les archives zip
-----------------
 
-Vous avez commencé à rédiger un contenu via l'éditeur en ligne de Zeste 
-de Savoir, puis avez téléchargé l'archive correspondante et apporté des 
-modifications sur les fichiers. Vous souhaitez maintenant importer ces 
-changements sur le site. Il suffit de faire une archive zip du répertoire 
-dans lequel se trouvent les fichiers de votre contenu et de renseigner les 
-deux champs relatifs à l'import d'une archive, puis de cliquer sur "Importer".
+Ce système est utilisable pour créer de nouveaux contenus à partir de zéros,
+ou bien si vous avez téléchargé l'archive correspondante à votre contenu, modifiée et
+que vous souhaitez importer les modifications.
 
-.. figure:: ../images/tutorial/import-archive.png
-    :align:   center
+Il suffit de faire une archive zip du répertoire
+dans lequel se trouvent les fichiers de votre contenu, puis de vous rendre soit sur
+"importer un nouveau contenu", soit sur "Importer une nouvelle version" dans n'importe quel contenu
+et de renseigner les champs relatifs à l'import d'une archive, puis de cliquer sur "Importer".
 
-Au maximum, ce système tentera d'être compréhensif envers une arborescence qui 
+    .. figure:: ../images/tutorial/import-archive.png
+       :align:   center
+
+       Exemple de formulaire d'importation : mise à jour d'un contenu
+
+Import d'image
+--------------
+
+À noter que si vous souhaitez importer des images de manière à ce qu'elles soient
+directement intégrée à votre contenu, vous devez écrire les liens vers cette image sous la
+forme ``![légende](archive:image.extension)``, puis créer une archive contenant toutes celles-ci.
+Le système se chargera alors d'importer les images dans la gallerie correspondante, puis de remplacer
+les liens quand c'est nécéssaire. Ainsi,
+
+.. sourcecode:: text
+
+    Voici ma belle image: ![Mon image](archive:image.png)
+
+Sera remplacé en
+
+.. sourcecode:: text
+
+    Voici ma belle image: ![Mon image](/media/galleries/xx/yyyyyy.png)
+
+À condition que ``image.png`` soit présent dans l'archive (à sa racine) et soit une image valide.
+
+Règles
+------
+
+Au maximum, le système d'importation tentera d'être compréhensif envers une arborescence qui
 différente de celle énoncée ci-dessus. Par contre 
 **l'importation réorganisera les fichiers importés de la manière décrite ci-dessus**, 
 afin de parer aux mauvaises surprises.
