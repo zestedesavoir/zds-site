@@ -8,7 +8,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
-from zds.tutorialv2.views.views_published import RedirectContentSEO, SendNoteFormView, UpvoteReaction, \
+from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, \
     DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
 urlpatterns = patterns('',
@@ -130,8 +130,5 @@ urlpatterns = patterns('',
 
                        # markdown import
                        url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
-                       url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
-
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
-                           r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
-                           RedirectContentSEO.as_view(), name="redirect_old_tuto"))
+                       url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import")
+                       )

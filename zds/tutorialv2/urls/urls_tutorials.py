@@ -3,7 +3,7 @@
 from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views.views_published import ListTutorials, DisplayOnlineTutorial, DisplayOnlineContainer, \
-    DownloadOnlineTutorial
+    DownloadOnlineTutorial, RedirectContentSEO
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
 urlpatterns = patterns('',
@@ -12,6 +12,9 @@ urlpatterns = patterns('',
                        url(r'^flux/atom/$', LastTutorialsFeedATOM(), name='feed-atom'),
 
                        # view
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<p2>\d+)/'
+                           r'(?P<parent_container_slug>.+)/(?P<p3>\d+)/(?P<container_slug>.+)/$',
+                           RedirectContentSEO.as_view(), name="redirect_old_tuto"),
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
                            DisplayOnlineContainer.as_view(),
                            name='view-container'),

@@ -19,11 +19,11 @@ from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_c
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
-    BetaMiniTutorialFactory
+    BetaMiniTutorialFactory, PublishedBigTutorial
 from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
 from zds.utils.models import CommentLike
 from zds.article.models import ArticleRead
-from zds.tutorial.models import TutorialRead
+from zds.tutorial.models import TutorialRead, Chapter
 from zds.tutorial.models import Validation as OldTutoValidation
 from zds.article.models import Validation as OldArticleValidation
 from zds.tutorialv2.models.models_database import Validation
@@ -414,6 +414,9 @@ class UtilsTests(TestCase):
         big_tuto = BigTutorialFactory()
         big_tuto.authors.add(self.user_author)
         big_tuto.save()
+        public_big_tuto = PublishedBigTutorial(light=False)
+        public_big_tuto.authors.add(self.user_author)
+        public_big_tuto.save()
         private_article = ArticleFactory()
         private_article.authors.add(self.user_author)
         private_article.save()
@@ -459,9 +462,9 @@ class UtilsTests(TestCase):
         beta_tuto.save()
         call_command('migrate_to_zep12')
         # 1 tuto in setup, 4 mini tutos, 1 big tuto, 3 articles
-        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 9)
+        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 10)
         # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
-        self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 2)
+        self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 3)
         self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
         migrated_pulished_article = PublishableContent.objects.filter(authors__in=[self.user_author],
                                                                       title=public_article.title,
@@ -505,6 +508,12 @@ class UtilsTests(TestCase):
             .replace(old_tutorial_module_prefix, new_tutorial_module_prefix)
         self.assertEqual(301, self.client.get(public_article_url).status_code)
         self.assertEqual(301, self.client.get(public_tutorial_url).status_code)
+        public_chapter = Chapter.objects.filter(part__tutorial__pk=public_big_tuto.pk).first()
+        self.assertIsNotNone(public_chapter)
+        public_chapter_url = public_chapter.get_absolute_url_online()
+        public_chapter_url = public_chapter_url.replace(old_tutorial_module_prefix, new_tutorial_module_prefix)
+        self.assertEqual(301, self.client.get(public_chapter_url).status_code)
+        self.assertEqual(200, self.client.get(public_chapter_url, follow=True).status_code)
         self.assertEqual(200, self.client.get(public_article_url, follow=True).status_code)
         self.assertEqual(200, self.client.get(public_tutorial_url, follow=True).status_code)
         tuto_validation = Validation.objects.filter(content__pk=migrated_pulished_tuto.pk).first()

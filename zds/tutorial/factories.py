@@ -72,12 +72,15 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         f.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
-
         tuto.sha_draft = cm.hexsha
         tuto.sha_beta = None
         tuto.gallery = GalleryFactory()
         for author in tuto.authors.all():
             UserGalleryFactory(user=author, gallery=tuto.gallery)
+        tuto.save()
+        part = PartFactory(light=light, tutorial=tuto, position_in_tutorial=1)
+        ChapterFactory(light=light, part=part, position_in_part=1)
+        tuto.save()
         return tuto
 
 
@@ -368,6 +371,21 @@ class PublishedMiniTutorial(MiniTutorialFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         tutorial = super(PublishedMiniTutorial, cls)._prepare(create, **kwargs)
+        tutorial.pubdate = datetime.now()
+        tutorial.sha_public = tutorial.sha_draft
+        tutorial.source = ''
+        tutorial.sha_validation = None
+        mep(tutorial, tutorial.sha_draft)
+        tutorial.save()
+        return tutorial
+
+
+class PublishedBigTutorial(BigTutorialFactory):
+    FACTORY_FOR = Tutorial
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        tutorial = super(PublishedBigTutorial, cls)._prepare(create, **kwargs)
         tutorial.pubdate = datetime.now()
         tutorial.sha_public = tutorial.sha_draft
         tutorial.source = ''

@@ -36,10 +36,11 @@ class RedirectContentSEO(RedirectView):
         obj = PublishableContent.objects.get(old_pk=kwargs["pk"])
         if obj is None or not obj.in_public():
             raise Http404("No public object has this pk.")
-
+        kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
+        kwargs["container_slug"] = str(kwargs["p3"]) + "_" + kwargs["container_slug"]
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
 
-        return obj.get_prod_path()
+        return obj.get_absolute_url_online()
 
 
 class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
