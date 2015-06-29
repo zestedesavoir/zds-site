@@ -327,7 +327,8 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
             beta_topic.add_tags([u"Supprimé"])
             beta_topic.save()
             post = beta_topic.first_post()
-            post.update_content(_(u"Le contenu qui était en béta a été supprimé par son auteur."))
+            post.update_content(_(u"[[a]]\n"
+                                  u"| Le contenu qui était en béta a été supprimé par son auteur.\n\n") + post.text)
 
             post.save()
 
