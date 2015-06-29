@@ -409,7 +409,7 @@ class PublishableContent(models.Model):
         """
         user = get_current_user()
 
-        if user:
+        if user and user.is_authenticated():
             try:
                 read = ContentRead.objects\
                     .select_related('note')\
