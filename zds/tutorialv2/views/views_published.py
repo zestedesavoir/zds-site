@@ -264,12 +264,13 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__licence')\
             .select_related('content__image')\
             .select_related('content__last_note')\
-            .extra(select={"count_note": sub_query})
+            .select_related('content__last_note__related_content__public_version')\
+
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
             queryset = queryset.filter(content__subcategory__in=[self.tag])
-
+        queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
