@@ -18,7 +18,7 @@ def get_last_articles():
                                      .select_related("public_version")\
                                      .prefetch_related("subcategory")\
                                      .extra(select={"count_note": sub_query})\
-                                     .order_by('-publication_date')[:home_number]
+                                     .order_by('-public_version__publication_date')[:home_number]
     published = []
     for content in all_contents:
         content.public_version.content = content
@@ -35,7 +35,7 @@ def get_last_tutorials():
                                      .select_related("last_note")\
                                      .select_related("public_version")\
                                      .prefetch_related("subcategory")\
-                                     .order_by('-publication_date')[:home_number]
+                                     .order_by('-public_version__publication_date')[:home_number]
     published = []
     for content in all_contents:
         content.public_version.content = content
