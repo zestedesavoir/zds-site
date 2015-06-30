@@ -549,7 +549,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.pubdate = datetime.now()
             pic.save()
 
-            translation_dic[image_path] = pic.get_absolute_url()
+            translation_dic[image_path] = settings.ZDS_APP['site']['url'] + pic.physical.url
 
             # finally, remove image
             if os.path.exists(temp_image_path):

@@ -334,7 +334,7 @@ class UtilsTests(TestCase):
             # JPEG:
             ('http://upload.wikimedia.org/wikipedia/commons/6/6b/01Aso.jpg', '01Aso.jpg'),
             # Image which does not exists:
-            ('http://test.com/test.png', 'test.png'),
+            ('http://test.com/test idiot.png', 'test_idiot.png'),  # NOTE: space changed into `_` !
             # SVG (will be converted to png):
             ('http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg', '10DF.png'),
             # GIF (will be converted to png):

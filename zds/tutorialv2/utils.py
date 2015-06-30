@@ -283,16 +283,16 @@ def retrieve_image(url, directory):
         img_extension = ''
         img_filename = img_basename
 
-    new_url = os.path.join('images', img_basename)
-    new_url_as_png = os.path.join('images', img_filename + '.png')
+    new_url = os.path.join('images', img_basename.replace(' ', '_'))
+    new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
 
     store_path = os.path.abspath(os.path.join(directory, new_url))  # destination
 
     if img_basename == '' or os.path.exists(store_path) or os.path.exists(os.path.join(directory, new_url_as_png)):
         # another image with the same name already exists (but assume the two are different)
         img_filename += "_" + str(datetime.now().microsecond)
-        new_url = os.path.join('images', img_filename + '.' + img_extension)
-        new_url_as_png = os.path.join('images', img_filename + '.png')
+        new_url = os.path.join('images', img_filename.replace(' ', '_') + '.' + img_extension)
+        new_url_as_png = os.path.join('images', img_filename.replace(' ', '_') + '.png')
         store_path = os.path.abspath(os.path.join(directory, new_url))
 
     try:
@@ -300,6 +300,10 @@ def retrieve_image(url, directory):
                 or parsed_url.netloc[:3] == "www" or parsed_url.path[:3] == "www":
             urlretrieve(url, store_path)  # download online image
         else:  # it's a local image, coming from a gallery
+
+            if url[0] == '/':  # because `os.path.join()` think it's an absolute path if it start with `/`
+                url = url[1:]
+
             source_path = os.path.join(settings.BASE_DIR, url)
             if os.path.isfile(source_path):
                 shutil.copy(source_path, store_path)
