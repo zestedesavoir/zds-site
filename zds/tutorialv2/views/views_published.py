@@ -26,6 +26,7 @@ from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
+from django.db.models import F
 
 
 class RedirectContentSEO(RedirectView):
@@ -266,12 +267,13 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__image')\
             .select_related('content__last_note')\
             .select_related('content__last_note__related_content')\
-            .select_related('content__last_note__related_content__public_version')
+            .select_related('content__last_note__related_content__public_version')\
+            .filter(pk=F('content__public_version__pk'))
 
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
             queryset = queryset.filter(content__subcategory__in=[self.tag])
-        queryset = queryset.extra(select={"count_note": sub_query})
+        queryset = queryset.extra(select={"content__count_note": sub_query})
         return queryset.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
