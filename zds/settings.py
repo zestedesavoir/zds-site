@@ -503,6 +503,11 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8" # noqa
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+# Properly handle HTTPS vs HTTP
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# /!\ WARNING : It will probably open security holes in your site if the proxy behing isn't well configured
+# Read the docs for further informations - https://docs.djangoproject.com/en/1.7/ref/settings/#secure-proxy-ssl-header
+
 # Load the production settings, overwrite the existing ones if needed
 try:
     from settings_prod import *
