@@ -175,7 +175,7 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
         error_log /opt/zdsenv/logs/nginx-error.log;
 
         location /author-files/ {
-        index index.html index.php;
+            index index.html index.php;
             alias /home/zds/tutos_sdzv3/script/;
             include php.fast.conf;
         }

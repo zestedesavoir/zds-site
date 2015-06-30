@@ -505,6 +505,8 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# /!\ WARNING : It will probably open security holes in your site if the proxy behing isn't well configured
+# Read the docs for further informations - https://docs.djangoproject.com/en/1.7/ref/settings/#secure-proxy-ssl-header
 
 # Load the production settings, overwrite the existing ones if needed
 try:
