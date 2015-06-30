@@ -273,7 +273,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         if 'tag' in self.request.GET:
             self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
             queryset = queryset.filter(content__subcategory__in=[self.tag])
-        queryset = queryset.extra(select={"content__count_note": sub_query})
+        queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
     def get_context_data(self, **kwargs):
@@ -282,6 +282,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             if public_content.content.last_note is not None:
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
+                public_content.content.count_note = public_content.count_note
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
