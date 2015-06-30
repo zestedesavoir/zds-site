@@ -35,7 +35,8 @@ content_light = u'Un contenu light pour quand ce n\'est pas vraiment ça qui est
 
 
 class BigTutorialFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tutorial
+    class Meta:
+        model = Tutorial
 
     title = factory.Sequence('Mon Tutoriel No{0}'.format)
     description = factory.Sequence('Description du Tutoriel No{0}'.format)
@@ -81,7 +82,8 @@ class BigTutorialFactory(factory.DjangoModelFactory):
 
 
 class MiniTutorialFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Tutorial
+    class Meta:
+        model = Tutorial
 
     title = factory.Sequence('Mon Tutoriel No{0}'.format)
     description = factory.Sequence('Description du Tutoriel No{0}'.format)
@@ -131,7 +133,8 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
 
 class PartFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Part
+    class Meta:
+        model = Part
 
     title = factory.Sequence('Ma partie No{0}'.format)
 
@@ -188,7 +191,8 @@ class PartFactory(factory.DjangoModelFactory):
 
 
 class ChapterFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Chapter
+    class Meta:
+        model = Chapter
 
     title = factory.Sequence('Mon Chapitre No{0}'.format)
 
@@ -283,7 +287,8 @@ class ChapterFactory(factory.DjangoModelFactory):
 
 
 class ExtractFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Extract
+    class Meta:
+        model = Extract
 
     title = factory.Sequence('Mon Extrait No{0}'.format)
 
@@ -303,7 +308,8 @@ class ExtractFactory(factory.DjangoModelFactory):
 
 
 class NoteFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Note
+    class Meta:
+        model = Note
 
     ip_address = '192.168.3.1'
     text = 'Bonjour, je me présente, je m\'appelle l\'homme au texte bidonné'
@@ -321,7 +327,8 @@ class NoteFactory(factory.DjangoModelFactory):
 
 
 class SubCategoryFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = SubCategory
+    class Meta:
+        model = SubCategory
 
     title = factory.Sequence('Sous-Categorie {0} pour Tuto'.format)
     subtitle = factory.Sequence('Sous titre de Sous-Categorie {0} pour Tuto'.format)
@@ -329,11 +336,13 @@ class SubCategoryFactory(factory.DjangoModelFactory):
 
 
 class ValidationFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Validation
+    class Meta:
+        model = Validation
 
 
 class LicenceFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Licence
+    class Meta:
+        model = Licence
 
     code = u'Licence bidon'
     title = u'Licence bidon'
@@ -345,7 +354,8 @@ class LicenceFactory(factory.DjangoModelFactory):
 
 
 class PublishedMiniTutorial(MiniTutorialFactory):
-    FACTORY_FOR = Tutorial
+    class Meta:
+        model = Tutorial
 
     @classmethod
     def _prepare(cls, create, **kwargs):
