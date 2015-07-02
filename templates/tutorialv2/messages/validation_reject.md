@@ -15,6 +15,7 @@ votre contenu :
 
 Si certains points vous semblent obscurs, voire injustes, vous êtes invité à 
 contacter le validateur pour lui en parler. Il sera ravi de vous fournir des 
-détails ainsi que des conseils.
+détails ainsi que des conseils. N'oubliez pas non plus que la communauté peut 
+vous aider à travers le système de bêta.
 
 {% endblocktrans %}

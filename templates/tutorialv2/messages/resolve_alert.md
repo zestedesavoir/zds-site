@@ -4,7 +4,7 @@
 
 Bonjour {{ name }},
 
-Ce message fait suite à votre alerte pour les propos de {{ user_name }}
+Ce message fait suite à votre alerte concernant les propos de {{ user_name }}
 dans {{ type_content }} [{{ title }}]({{ url }}) :
 
 {{alert_text}}
@@ -13,6 +13,6 @@ dans {{ type_content }} [{{ title }}]({{ url }}) :
 
 {{ message }}
 
-Toute l'équipe de modération vous remercie !
+Toute l'équipe de modération vous remercie et vous offre un smoothie !
 
 {%  endblocktrans %}

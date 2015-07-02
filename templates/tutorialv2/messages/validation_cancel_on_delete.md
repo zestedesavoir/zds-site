@@ -3,7 +3,7 @@
 
 {% blocktrans with title=content.title|safe user_url=user.get_absolute_url user_name=user.username|safe message=message|safe %}
 
-{{ validator }} ?
+{{ validator }},
 
 Je t'informe que la validation du contenu « {{ title }} », que tu as 
 courageusement réservé, a été annulée, pour la simple et bonne raison 

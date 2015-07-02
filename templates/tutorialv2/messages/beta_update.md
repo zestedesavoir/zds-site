@@ -2,14 +2,14 @@
 
 {% blocktrans with title=content.title %}
 
-Bonjour,
+Bonjour les agrumes !
 
-La bêta de votre {{ type }} « {{ title }} » a été mise à jour et 
-trépigne d'impatience à l'adresse suivante :
+La bêta {{ type }} « {{ title }} » a été mise à jour et coule sa pulpe 
+à l'adresse suivante :
 
--> [Bêta mais pas bête !]({{ url }}) <-
+-> [Oh ça va, personne n'est pressé.]({{ url }}) <-
 
-Merci d'avance pour vos commentaires et bon courage avec elle.
+Merci d'avance pour vos commentaires.
 
 {%  endblocktrans %}
 
