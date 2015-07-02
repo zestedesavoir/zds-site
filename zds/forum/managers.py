@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, F
 from model_utils.managers import InheritanceManager
 
 
@@ -101,7 +101,8 @@ class TopicReadManager(models.Manager):
 
         base_query_set = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
-            base_query_set = base_query_set.filter(topic__in=topic_sub_list)
+            base_query_set = base_query_set.filter(topic__in=topic_sub_list)\
+                                           .exclude(post=F("topic__last_message"))
 
         return base_query_set
 
