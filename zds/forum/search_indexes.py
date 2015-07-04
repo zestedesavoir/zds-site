@@ -24,7 +24,7 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
         return Topic
 
     def prepare_permissions(self, obj):
-        return obj.forum.group.values_list('name', flat=True).all() or None
+        return [group.name for group in obj.forum.group.all()] or "public"
 
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
@@ -57,4 +57,4 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
         return obj.topic.forum
 
     def prepare_permissions(self, obj):
-        return obj.topic.forum.group.values_list('name', flat=True).all() or None
+        return [group.name for group in obj.topic.forum.group.all()] or "public"

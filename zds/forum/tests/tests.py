@@ -1423,3 +1423,16 @@ class ManagerTests(TestCase):
 
             topics = Topic.objects.get_last_topics()
             self.assertEqual(2, len(topics))
+
+        def test_get_unread_post(self):
+            author = ProfileFactory()
+            topic = TopicFactory(author=author.user, forum=self.forum1)
+            post = PostFactory(topic=topic, position=1, author=author.user)
+            topic.last_post = post
+            topic.save()
+            TopicRead(user=author.user, post=post, topic=topic).save()
+            topic.last_post = PostFactory(author=self.staff.user, topic=topic, position=2)
+            topic.save()
+            TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
+            self.assertEqual(1, len(TopicRead.objects.list_read_topic_pk(self.staff.user)))
+            self.assertEqual(0, len(TopicRead.objects.list_read_topic_pk(author.user)))

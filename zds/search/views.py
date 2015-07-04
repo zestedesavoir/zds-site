@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.db.models import Q
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -42,12 +43,12 @@ class CustomSearchView(SearchView):
             groups = self.request.user.groups
 
             if groups.count() > 0:
-                return queryset.filter_or(permissions=None, permissions__in=groups.all())
+                return queryset.filter(Q(permissions="public") |
+                                       Q(permissions__in=[group.name for group in groups.all()]))
             else:
-                return queryset.filter(permissions=None)
-
+                return queryset.filter(permissions="public")
         else:
-            return queryset.filter(permissions=None)
+            return queryset.filter(permissions="public")
 
 
 def opensearch(request):

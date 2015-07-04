@@ -15,7 +15,7 @@
     {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
 {% endcaptureas %}
 
-<article class="content-item article-item has-reactions">
+<article class="content-item article-item {% if article.sha_public != None %}has-reactions{% endif %}">
     <a href="{{ link }}" tabindex="-1" class="content-illu">
         {% if article.image %}
             <img src="{{ article.image.content_thumb.url }}" alt="">
@@ -28,45 +28,43 @@
                 {{ article.title }}
             </h3>
 
-            {% if article.description and show_description %}
-                <p class="content-description">
-                    {{ article.description }}
-                </p>
-            {% endif %}
 
-
+            <p class="content-description">
+                {{ article.description }}
+            </p>
 
             <div class="content-meta">
                 <time class="content-pubdate" pubdate="{{ article.pubdate|date:"c" }}">
                     {{ article.pubdate|format_date|capfirst }}
                 </time>
 
-                {% if article.sha_public %}
-                    <p class="content-authors">
-                        {{ authors_text }}
-                    </p>
-                {% elif article.sha_validation %}
-                    <p class="content-state">
-                        {% trans "En validation" %}
-                    </p>
-                {% else %}
-                    <p class="content-state">
-                        {% trans "Brouillon" %}
-                    </p>
-                {% endif %}
+                <p>
+                    <span class="content-authors">{{ authors_text }}</span>
+                    {% if article.sha_public = None %}
+                        <span class="content-state">
+                            {% if article.sha_validation != None %}
+                                {% trans " - En validation" %}
+                            {% elif article.sha_public = None %}
+                                {% trans " - Brouillon" %}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </p>
             </div>
         </a>
 
-        <a class="content-reactions" href="
-            {% if article.last_read_reaction %}
-                {{ article.last_read_reaction.get_absolute_url }}
-            {% else %}
-                {{ article.get_absolute_url_online }}#reactions
-            {% endif %}"
-            title="{% if article.get_reaction_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_reaction_count }}{% endif %} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}"
-        >
-            <span>{{ article.get_reaction_count }}</span>
-        </a>
+        {% if article.sha_public != None %}
+            <a class="content-reactions" href="
+                {% if article.last_read_reaction %}
+                    {{ article.last_read_reaction.get_absolute_url }}
+                {% else %}
+                    {{ article.get_absolute_url_online }}#reactions
+                {% endif %}"
+                title="{% if article.get_reaction_count == 0 %}{% trans "Aucune" %}{% else %}{{ article.get_reaction_count }}{% endif %} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}"
+            >
+                <span>{{ article.get_reaction_count }}</span>
+            </a>
+        {% endif %}
     </div>
 
     {% if article.tags.all %}

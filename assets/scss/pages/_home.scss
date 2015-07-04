@@ -275,6 +275,10 @@ $content-width: 1145px;
         .home-description.short {
             display: block;
 
+            // Rules to don't be hidden by the .home-search-box::before background-image
+            width: auto;
+            padding: 0 20px;
+
             &:target {
                 .home-description-button {
                     display: none;
@@ -289,6 +293,10 @@ $content-width: 1145px;
                     margin-top: 20px;
                 }
             }
+        }
+        .home-description.connected {
+            // Rules to don't be hidden by the .home-search-box::before background-image
+            padding: 0 20px !important;
         }
 
         .home-description .featured-message {
