@@ -1,8 +1,16 @@
 # coding: utf-8
 
 import os
+import sys
 
+from django.contrib.messages import constants as message_constants
+from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
+
+# Changes the default encoding of python to UTF-8.
+# Theses instructions don't change encoding python outside Zeste de Savoir.
+reload(sys)
+sys.setdefaultencoding('UTF8')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -86,7 +94,7 @@ STATICFILES_FINDERS = (
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'))
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'
+SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z' # noqa
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -170,6 +178,7 @@ INSTALLED_APPS = (
     'zds.forum',
     'zds.tutorial',
     'zds.member',
+    'zds.featured',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -184,6 +193,7 @@ THUMBNAIL_ALIASES = {
         'avatar_mini': {'size': (24, 24), 'crop': True},
         'tutorial_illu': {'size': (60, 60), 'crop': True},
         'article_illu': {'size': (60, 60), 'crop': True},
+        'content_thumb': {'size': (96, 96), 'crop': True},
         'help_illu': {'size': (48, 48), 'crop': True},
         'help_mini_illu': {'size': (26, 26), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
@@ -263,7 +273,7 @@ CORS_EXPOSE_HEADERS = (
     'link'
 )
 
-if (DEBUG):
+if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
     )
@@ -309,7 +319,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
-    'auth.user': lambda u: '/membres/voir/{0}/'.format(u.username.encode('utf-8'))
+    'auth.user': lambda u: '/membres/voir/{0}/'.format(urlquote(u.username.encode('utf-8')))
 }
 
 
@@ -317,7 +327,11 @@ ABSOLUTE_URL_OVERRIDES = {
 SERVE = False
 
 PANDOC_LOC = ''
-PANDOC_PDF_PARAM = "--latex-engine=xelatex --template=../../assets/tex/template.tex -s -S -N --toc -V documentclass=scrbook -V lang=francais -V mainfont=Merriweather -V monofont=\"Andale Mono\" -V fontsize=12pt -V geometry:margin=1in "
+PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
+                    "--template=../../assets/tex/template.tex -s -S -N "
+                    "--toc -V documentclass=scrbook -V lang=francais "
+                    "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
+                    "-V fontsize=12pt -V geometry:margin=1in ")
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -330,13 +344,13 @@ HAYSTACK_CONNECTIONS = {
         # 'URL': 'http://127.0.0.1:8983/solr/mysite',
     },
 }
+HAYSTACK_CUSTOM_HIGHLIGHTER = 'zds.utils.highlighter.SearchHighlighter'
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
     message_constants.INFO: 'info',
@@ -364,6 +378,7 @@ ZDS_APP = {
         'repository': u"https://github.com/zestedesavoir/zds-site",
         'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
         'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
+        'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
         'short_description': u"",
         'long_description': u"Zeste de Savoir est un site de partage de connaissances "
                             u"sur lequel vous trouverez des tutoriels de tous niveaux, "
@@ -424,7 +439,7 @@ ZDS_APP = {
         'image_max_size': 1024 * 1024,
     },
     'article': {
-        'home_number': 5,
+        'home_number': 4,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
@@ -443,6 +458,14 @@ ZDS_APP = {
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
+        'home_number': 5,
+        'old_post_limit_days': 90
+    },
+    'topic': {
+        'home_number': 6,
+    },
+    'featured_resource': {
+        'featured_per_page': 100,
         'home_number': 5,
     },
     'paginator': {
@@ -474,11 +497,16 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8" # noqa
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
+# Properly handle HTTPS vs HTTP
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# /!\ WARNING : It will probably open security holes in your site if the proxy behing isn't well configured
+# Read the docs for further informations - https://docs.djangoproject.com/en/1.7/ref/settings/#secure-proxy-ssl-header
 
 # Load the production settings, overwrite the existing ones if needed
 try:

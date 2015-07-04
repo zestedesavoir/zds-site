@@ -74,7 +74,7 @@
     <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>
@@ -169,7 +169,7 @@
         {% endif %}
 
 
-        {% include "misc/message.part.html" with perms_change=perms.article.change_reaction topic=article comment_schema=True %}
+        {% include "misc/message.part.html" with topic=article comment_schema=True perms_change=is_staff %}
     {% endfor %}
 
 
@@ -187,7 +187,7 @@
 
 
 {% block sidebar_actions %}
-    {% if perms.article.change_article %}
+    {% if is_staff %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
             <h3>{% trans "Validation" %}</h3>
             <ul>

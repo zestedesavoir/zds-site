@@ -89,7 +89,7 @@
 
 
     {# Webfont async loading #}
-    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
 
 
     {% block extra_css %}
@@ -135,15 +135,15 @@
                 <a href="#content" accesskey="s">{% trans "Aller au contenu" %}</a>
             </li>
             <li>
-                <a href="#search" accesskey="4">{% trans "Aller à la recherche" %}</a>
+                <a href="#{% block searchbox_id %}search{% endblock %}" accesskey="4">{% trans "Aller à la recherche" %}</a>
             </li>
         </ul>
 
         <div id="cookies-eu-banner">
-            <span>
+            <div>
                 {% trans "Ce site utilise Google Analytics. En poursuivant votre navigation sur ce site, vous nous autorisez à déposer des cookies à des fins de mesure d'audience. Pour s'opposer à ce dépôt vous pouvez cliquer" %}
-            </span>
-            <button id="cookies-eu-reject">{% trans "ici" %}</button>.
+                <button id="cookies-eu-reject">{% trans "ici" %}</button>.
+            </div>
             <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
             <button id="cookies-eu-accept">{% trans "OK" %}</button>
         </div>
@@ -222,11 +222,11 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{% url "zds.forum.views.index" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
+                                <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
                                     {% trans "Forums" %}
                                 </a>
                                 <div class="dropdown header-menu-dropdown">
-                                    <a href="{% url "zds.forum.views.index" %}" class="dropdown-link-all">
+                                    <a href="{% url "cats-forums-list" %}" class="dropdown-link-all">
                                         {% trans "Tous les forums" %}
                                     </a>
 
@@ -365,42 +365,40 @@
 
                                 {# ALERTES MODERATION #}
                                 {% if perms.forum.change_post %}
-                                    {% with alerts=user|alerts_list %}
-                                        {%  with nb_alerts=alerts|length %}
-                                            <div>
-                                                <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
-                                                    <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
-                                                    {% if nb_alerts > 0 %}
-                                                        <span class="notif-count">{{ nb_alerts }}</span>
-                                                    {% endif %}
-                                                </a>
+                                    {% with alerts_list=user|alerts_list %}
+                                        <div>
+                                            <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
+                                                <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
+                                                {% if alerts_list.nb_alerts > 0 %}
+                                                    <span class="notif-count">{{ alerts_list.nb_alerts }}</span>
+                                                {% endif %}
+                                            </a>
 
-                                                <div class="dropdown">
-                                                    <span class="dropdown-title">{% trans "Alertes Modération" %}</span>
-                                                    <ul class="dropdown-list">
-                                                        {% for alert in alerts %}
-                                                            <li>
-                                                                <a href="{{ alert.url }}">
-                                                                    <span class="username">{{ alert.title }}</span>
-                                                                    <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
-                                                                    <span class="topic">{{ alert.text }}</span>
-                                                                </a>
-                                                            </li>
-                                                        {% empty %}
-                                                            <li class="dropdown-empty-message">
-                                                                {% trans "Aucune alerte" %}
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                    <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
-                                                        {% trans "Toutes les alertes" %}
-                                                    </a>
-                                                </div>
+                                            <div class="dropdown">
+                                                <span class="dropdown-title">{% trans "Alertes Modération" %}</span>
+                                                <ul class="dropdown-list">
+                                                    {% for alert in alerts_list.alerts %}
+                                                        <li>
+                                                            <a href="{{ alert.url }}">
+                                                                <span class="username">{{ alert.title }}</span>
+                                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                                                <span class="topic">{{ alert.text }}</span>
+                                                            </a>
+                                                        </li>
+                                                    {% empty %}
+                                                        <li class="dropdown-empty-message">
+                                                            {% trans "Aucune alerte" %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                                <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
+                                                    {% trans "Toutes les alertes" %}
+                                                </a>
                                             </div>
-                                        {%  endwith %}
+                                        </div>
                                     {% endwith %}
                                 {% else %}
-                                    <a href="{% url "update-member" %}"
+                                    <a href="{% url "member-detail" user.username %}"
                                        id="open-my-account"
                                        class="ico-link dont-click-if-sidebar"
                                        data-click="my-account"
@@ -412,11 +410,11 @@
 
                             <div>
                                 {% with profile=user.profile %}
-                                    <a href="{% url "update-member" %}"
+                                    <a href="{% url "member-detail" user.username %}"
                                        id="my-account"
                                        class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
-                                       title="{% blocktrans %}Mon compte{% endblocktrans %}"
-                                       data-title="{% blocktrans %}Mon compte{% endblocktrans %}"
+                                       title="{% trans 'Mon profil' %}"
+                                       data-title="{% trans 'Mon profil' %}"
 
                                        {% if not perms.forum.change_post %}
                                            data-active="open-my-account"
@@ -427,7 +425,7 @@
                                     </a>
                                 {% endwith %}
 
-                                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="Mon compte">
+                                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="{% trans 'Mon compte' %}">
                                     <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
 
                                     <ul class="dropdown-list">
@@ -458,6 +456,12 @@
                                                 <a href="{% url "zds.article.views.list_validation" %}">{% trans "Validation des articles" %}</a>
                                             </li>
                                         {% endif %}
+
+                                        {% if perms.featured.change_featuredresource %}
+                                            <li>
+                                                <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
+                                            </li>
+                                        {% endif %}
                                         <li>
                                             <form
                                                 method="post"
@@ -479,7 +483,6 @@
                     </div>
                 </div>
             </header>
-
 
             <div class="clearfix sub-header">
                 <div class="wrapper">
@@ -509,9 +512,6 @@
 
         <div class="main-container">
             {% block doc_api %}
-                {% block pre_content %}
-                {% endblock %}
-
                 <div class="main wrapper clearfix">
                     <main class="content-container" role="main" id="content">
                         {% if messages %}

@@ -5,15 +5,15 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden, Div
 
-from zds.member.commons import ProfileUsernameValidator, ProfileEmailValidator
 from zds.member.models import Profile, listing, KarmaNote
+from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
 from zds.utils.forms import CommonLayoutModalText
 
 # Max password length for the user.
@@ -51,7 +51,7 @@ class OldTutoForm(forms.Form):
 
 class LoginForm(forms.Form):
     """
-    The login form, including the "remember me" checkbox and the "password forget" link.
+    The login form, including the "remember me" checkbox.
     """
     username = forms.CharField(
         label=_(u"Nom d'utilisateur"),
@@ -91,9 +91,7 @@ class LoginForm(forms.Form):
             HTML('{% csrf_token %}'),
             ButtonHolder(
                 StrictButton(_(u'Se connecter'), type='submit'),
-            ),
-            HTML(u'<a href="{% url "zds.member.views.forgot_password" %}" '
-                 u'class="form-sub-link">Mot de passe oublié ?</a>'),
+            )
         )
 
 
@@ -207,7 +205,8 @@ class MiniProfileForm(forms.Form):
         required=False,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre biographie au format Markdown.')
+                'placeholder': _(u'Votre biographie au format Markdown.'),
+                'class': 'md-editor'
             }
         )
     )
@@ -465,8 +464,7 @@ class ChangePasswordForm(forms.Form):
         return cleaned_data
 
 
-# TODO Asks for a new password --> Requires a better name
-class ForgotPasswordForm(forms.Form):
+class UsernameAndEmailForm(forms.Form):
     username = forms.CharField(
         label=_(u'Nom d\'utilisateur'),
         required=False
@@ -478,7 +476,7 @@ class ForgotPasswordForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ForgotPasswordForm, self).__init__(*args, **kwargs)
+        super(UsernameAndEmailForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -501,7 +499,7 @@ class ForgotPasswordForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(ForgotPasswordForm, self).clean()
+        cleaned_data = super(UsernameAndEmailForm, self).clean()
 
         # Clean data
         username = cleaned_data.get('username')

@@ -28,7 +28,7 @@ from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
@@ -225,11 +225,11 @@ def modify_gallery(request):
                 return redirect(gallery.get_absolute_url())
             if user.profile.is_private():
                 return redirect(gallery.get_absolute_url())
-            ug = UserGallery()
-            ug.user = user
-            ug.gallery = gallery
-            ug.mode = request.POST["mode"]
-            ug.save()
+            user_gal = UserGallery()
+            user_gal.user = user
+            user_gal.gallery = gallery
+            user_gal.mode = request.POST["mode"]
+            user_gal.save()
         else:
             return render(request, "gallery/gallery/details.html", {
                 "gallery": gallery,

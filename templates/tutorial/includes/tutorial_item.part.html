@@ -1,29 +1,66 @@
+{% load captureas %}
 {% load thumbnail %}
+{% load i18n %}
+{% load date %}
 
-<article>
-    <a href="
-        {% if beta %}
-            {{ tutorial.get_absolute_url_beta }}
-        {% else %}
-            {{ tutorial.get_absolute_url_online }}
-        {% endif %}
-    ">
-        {% if tutorial.image.physical.tutorial_illu.url %}
-            <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" class="tutorial-img avatar">
-        {% endif %}
-        <div class="tutorial-infos {% if not tutorial.image.physical.tutorial_illu.url %}no-illu{% endif %}">
-            <h3 itemprop="itemListElement" title="{{ tutorial.title }}">{{ tutorial.title }}</h3>
-            
-            <span class="article-metadata">
+{% captureas link %}
+    {% if beta %}
+        {{ tutorial.get_absolute_url_beta }}
+    {% else %}
+        {{ tutorial.get_absolute_url_online }}
+    {% endif %}
+{% endcaptureas %}
+
+{# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
+{% captureas authors_text %}
+    {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
+{% endcaptureas %}
+
+{# Categories (in X, Y and Z) #}
+{% captureas categories_text %}
+    {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
+{% endcaptureas %}
+
+<article class="content-item expand-description tutorial-item{{ item_class }}">
+    <a href="{{ link }}" title="{{ tutorial.title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
+        <div class="content-illu">
+            {% if tutorial.image %}
+                <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
+            {% endif %}
+        </div>
+
+        <div class="content-info">
+            <h3 class="content-title" itemprop="itemListElement">
+                {{ tutorial.title }}
+            </h3>
+
+            {% if tutorial.description and show_description %}
+                <p class="content-description">
+                    {{ tutorial.description }}
+                </p>
+            {% endif %}
+
+            <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
                 {% if tutorial.subcategory %}
-                    {% for category in tutorial.subcategory.all %}
-                        {% if not forloop.first %}
-                            -
-                        {% endif %}
-                        {{ category.title }}                                    
-                    {% endfor %}
+                    <p class="content-categories">
+                        {{ categories_text }}
+                    </p>
                 {% endif %}
-            </span>
+
+                {% if tutorial.authors %}
+                    <p class="content-authors">
+                        {{ authors_text }}
+                    </p>
+                {% endif %}
+
+                {% if tutorial.pubdate %}
+                    <time class="content-pubdate" pubdate="{{ tutorial.pubdate|date:"c" }}">
+                        -
+                        <span class="long">{{ tutorial.pubdate|format_date|capfirst }}</span>
+                        <span class="short">{{ tutorial.pubdate|format_date:True|capfirst }}</span>
+                    </time>
+                {% endif %}
+            </div>
         </div>
     </a>
 </article>

@@ -1,10 +1,15 @@
 # coding: utf-8
-from django.core.urlresolvers import reverse
 
+from datetime import datetime, timedelta
+
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from zds.member.factories import ProfileFactory
+from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.member.factories import ProfileFactory, StaffFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.utils.models import Alert
+from zds.utils.templatetags.interventions import alerts_list
 
 
 class InterventionsTest(TestCase):
@@ -68,3 +73,40 @@ class InterventionsTest(TestCase):
         response = self.client.post(reverse('zds.pages.views.home'))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
+
+
+class AlertsTest(TestCase):
+    """
+        This class intend to test the templatetag 'alerts_list'
+    """
+
+    def setUp(self):
+        self.staff = StaffFactory()
+        self.dummy_author = ProfileFactory()
+
+        self.category = CategoryFactory(position=1)
+        self.forum = ForumFactory(category=self.category, position_in_category=1)
+        self.topic = TopicFactory(forum=self.forum, author=self.dummy_author.user)
+        self.post = PostFactory(topic=self.topic, author=self.dummy_author.user, position=1)
+
+        self.alerts = []
+        for i in range(20):
+            alert = Alert(author=self.dummy_author.user,
+                          comment=self.post,
+                          scope='F',
+                          text=u'pouet-{}'.format(i),
+                          pubdate=(datetime.now() + timedelta(minutes=i)))
+            alert.save()
+            self.alerts.append(alert)
+
+    def test_tag(self):
+
+        all_alerts = alerts_list(user=self.staff)
+        self.assertEqual(20, all_alerts['nb_alerts'])
+        self.assertEqual(10, len(all_alerts['alerts']))
+        self.assertEqual(self.alerts[-1].text, all_alerts['alerts'][0]['text'])
+
+        self.alerts[5].delete()
+        all_alerts = alerts_list(user=self.staff)
+        self.assertEqual(19, all_alerts['nb_alerts'])
+        self.assertEqual(10, len(all_alerts['alerts']))

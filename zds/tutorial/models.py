@@ -25,7 +25,7 @@ from zds.gallery.models import Image, Gallery
 from zds.utils import slugify, get_current_user
 from zds.utils.models import SubCategory, Licence, Comment, HelpWriting
 from zds.utils.tutorials import get_blob, export_tutorial
-from zds.tutorial.managers import TutorialManager
+from zds.tutorial.managers import TutorialManager, NoteManager
 
 
 TYPE_CHOICES = (
@@ -469,9 +469,16 @@ def get_last_tutorials():
     tutorials = Tutorial.objects.all()\
         .exclude(sha_public__isnull=True)\
         .exclude(sha_public__exact='')\
-        .order_by('-pubdate')[:n]
+        .order_by('-pubdate')\
+        .prefetch_related('authors', 'subcategory')[:n]
 
     return tutorials
+
+
+def get_tutorials_count():
+    return Tutorial.objects.exclude(sha_public__isnull=True)\
+        .exclude(sha_public__exact='')\
+        .count()
 
 
 class Note(Comment):
@@ -482,6 +489,7 @@ class Note(Comment):
         verbose_name_plural = 'notes sur un tutoriel'
 
     tutorial = models.ForeignKey(Tutorial, verbose_name='Tutoriel', db_index=True)
+    objects = NoteManager()
 
     def __unicode__(self):
         """Textual form of a post."""

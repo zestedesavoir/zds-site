@@ -1,8 +1,5 @@
 # coding: utf-8
 
-from datetime import datetime
-import json
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,8 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Q
-from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -20,16 +16,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant
-from zds.utils.mps import send_mp
+from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead, UpdatePrivatePost
+from zds.utils.forums import CreatePostView
+from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
-from zds.utils.templatetags.emarkdown import emarkdown
-from .forms import PrivateTopicForm, PrivatePostForm
-from .models import PrivateTopic, PrivatePost, \
-    never_privateread, mark_read, PrivateTopicRead
+from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
+from .models import PrivateTopic, PrivatePost
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -46,10 +42,7 @@ class PrivateTopicList(ZdSPagingListView):
         return super(PrivateTopicList, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return PrivateTopic.objects \
-            .filter(Q(participants__in=[self.request.user.id]) | Q(author=self.request.user.id)) \
-            .select_related("author", "participants") \
-            .distinct().order_by('-last_message__pubdate').all()
+        return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 
 class PrivateTopicNew(CreateView):
@@ -128,7 +121,27 @@ class PrivateTopicNew(CreateView):
         return redirect(p_topic.get_absolute_url())
 
 
-class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
+class PrivateTopicEdit(UpdateView):
+    """ Update mp informations """
+
+    model = PrivateTopic
+    template_name = "mp/topic/edit.html"
+    form_class = PrivateTopicEditForm
+    pk_url_kwarg = "pk"
+    context_object_name = "topic"
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(PrivateTopicEdit, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        topic = super(PrivateTopicEdit, self).get_object(queryset)
+        if topic is not None and not topic.author == self.request.user:
+            raise PermissionDenied
+        return topic
+
+
+class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView):
     """
     Leaves a MP.
     """
@@ -141,21 +154,12 @@ class PrivateTopicLeaveDetail(SingleObjectMixin, RedirectView):
 
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
-
-        if topic.participants.count() == 0:
-            topic.delete()
-        elif request.user.pk == topic.author.pk:
-            move = topic.participants.first()
-            topic.author = move
-            topic.participants.remove(move)
-            topic.save()
-        else:
-            topic.participants.remove(request.user)
-            topic.save()
-
+        self.perform_destroy(topic)
         messages.success(request, _(u'Vous avez quitté la conversation avec succès.'))
-
         return redirect(reverse('mp-list'))
+
+    def get_current_user(self):
+        return self.request.user
 
 
 class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
@@ -213,7 +217,7 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
 
 
-class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
+class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView):
     """
     Leaves a list of MP.
     """
@@ -224,24 +228,18 @@ class PrivateTopicLeaveList(MultipleObjectMixin, RedirectView):
 
     def get_queryset(self):
         list = self.request.POST.getlist('items')
-        return PrivateTopic.objects.filter(pk__in=list) \
-            .filter(Q(participants__in=[self.request.user]) | Q(author=self.request.user))
+        return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list)
 
     def post(self, request, *args, **kwargs):
         for topic in self.get_queryset():
-            if topic.participants.all().count() == 0:
-                topic.delete()
-            elif request.user == topic.author:
-                topic.author = topic.participants.all()[0]
-                topic.participants.remove(topic.participants.all()[0])
-                topic.save()
-            else:
-                topic.participants.remove(request.user)
-                topic.save()
+            self.perform_destroy(topic)
         return redirect(reverse('mp-list'))
 
+    def get_current_user(self):
+        return self.request.user
 
-class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
+
+class PrivatePostList(MarkPrivateTopicAsRead, ZdSPagingListView, SingleObjectMixin):
     """
     Display a thread and its posts using a pager.
     """
@@ -265,149 +263,47 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
         context['last_post_pk'] = self.object.last_message.pk
         context['form'] = PrivatePostForm(self.object)
         context['posts'] = self.build_list_with_previous_item(context['object_list'])
-        if never_privateread(self.object):
-            mark_read(self.object)
+        self.perform_list(self.object)
         return context
 
     def get_queryset(self):
-        return PrivatePost.objects \
-            .filter(privatetopic__pk=self.object.pk) \
-            .order_by('position_in_topic') \
-            .all()
+        return PrivatePost.objects.get_message_of_a_private_topic(self.object.pk)
 
 
-class PrivatePostAnswer(CreateView):
+class PrivatePostAnswer(CreatePostView):
     """
     Creates a post to answer on a MP.
     """
 
-    topic = None
-    posts = None
+    model_quote = PrivatePost
     form_class = PrivatePostForm
     template_name = 'mp/post/new.html'
     queryset = PrivateTopic.objects.all()
+    object = None
+    posts = None
 
     @method_decorator(login_required)
     @method_decorator(is_participant)
     def dispatch(self, request, *args, **kwargs):
-        return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        self.topic = super(PrivatePostAnswer, self).get_object(queryset)
+        self.object = self.get_object()
         self.posts = PrivatePost.objects \
-            .filter(privatetopic=self.topic) \
+            .filter(privatetopic=self.object) \
             .prefetch_related() \
             .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
-        return self.topic
+        return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        self.topic = self.get_object()
-        text = ''
-
-        # Using the quote button
-        if 'cite' in request.GET:
-            post_cite = get_object_or_404(PrivatePost, pk=(request.GET.get('cite')))
-
-            for line in post_cite.text.splitlines():
-                text = text + '> ' + line + '\n'
-
-            text = u'{0}Source:[{1}]({2}{3})'.format(
-                text,
-                post_cite.author.username,
-                settings.ZDS_APP['site']['url'],
-                post_cite.get_absolute_url())
-
-            if request.is_ajax():
-                resp = {}
-                resp['text'] = text
-                return HttpResponse(json.dumps(resp), content_type='application/json')
-
-        form = self.form_class(self.topic, initial={
-            'text': text
-        })
-        return render(request, self.template_name, {
-            'topic': self.topic,
-            'posts': self.posts,
-            'last_post_pk': self.topic.last_message.pk,
-            'form': form
-        })
-
-    def post(self, request, *args, **kwargs):
-        self.topic = self.get_object()
-        form = self.get_form(self.form_class)
-        newpost = None
-        if not request.is_ajax():
-            newpost = self.topic.last_message.pk != int(request.POST.get('last_post'))
-
-        if 'preview' in request.POST or newpost:
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST.get('text')})
-                return StreamingHttpResponse(content)
-            else:
-                form = self.form_class(self.topic, initial={
-                    'text': request.POST.get('text')
-                })
-        elif form.is_valid():
-            return self.form_valid(form)
-
-        return render(request, 'mp/post/new.html', {
-            'topic': self.topic,
-            'posts': self.posts,
-            'last_post_pk': self.topic.last_message.pk,
-            'newpost': newpost,
-            'form': form,
-        })
+    def create_forum(self, form_class, **kwargs):
+        return form_class(self.object, initial=kwargs)
 
     def get_form(self, form_class):
-        return form_class(self.topic, self.request.POST)
+        return form_class(self.object, self.request.POST)
 
     def form_valid(self, form):
-        post = PrivatePost()
-        post.privatetopic = self.topic
-        post.author = self.request.user
-        post.text = form.data.get('text')
-        post.text_html = emarkdown(form.data.get('text'))
-        post.pubdate = datetime.now()
-        post.position_in_topic = self.topic.get_post_count() + 1
-        post.save()
-
-        self.topic.last_message = post
-        self.topic.save()
-
-        # send email
-        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['abbr'],
-                                         _(u'Message Privé'),
-                                         self.topic.title)
-        from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                       settings.ZDS_APP['site']['email_noreply'])
-        parts = list(self.topic.participants.all())
-        parts.append(self.topic.author)
-        parts.remove(self.request.user)
-        for part in parts:
-            profile = part.profile
-            if profile.email_for_answer:
-                pos = post.position_in_topic - 1
-                last_read = PrivateTopicRead.objects.filter(
-                    privatetopic=self.topic,
-                    privatepost__position_in_topic=pos,
-                    user=part).count()
-                if last_read > 0:
-                    context = {
-                        'username': part.username,
-                        'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                        'author': self.request.user.username
-                    }
-                    message_html = render_to_string('email/mp/new.html', context)
-                    message_txt = render_to_string('email/mp/new.txt', context)
-
-                    msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-                    msg.attach_alternative(message_html, "text/html")
-                    msg.send()
-
-        return redirect(post.get_absolute_url())
+        send_message_mp(self.request.user, self.object, form.data.get('text'), True, False)
+        return redirect(self.object.last_message.get_absolute_url())
 
 
-class PrivatePostEdit(UpdateView):
+class PrivatePostEdit(UpdateView, UpdatePrivatePost):
     """
     Edits a post on a MP.
     """
@@ -471,9 +367,6 @@ class PrivatePostEdit(UpdateView):
         return form
 
     def form_valid(self, form):
-        self.current_post.text = self.request.POST.get('text')
-        self.current_post.text_html = emarkdown(self.request.POST.get('text'))
-        self.current_post.update = datetime.now()
-        self.current_post.save()
+        self.perform_update(self.current_post, self.request.POST)
 
         return redirect(self.current_post.get_absolute_url())

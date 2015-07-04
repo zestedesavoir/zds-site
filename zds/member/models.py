@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db import models
 from hashlib import md5
 from django.http import HttpRequest
-from django.utils.http import urlquote
 from django.contrib.sessions.models import Session
 from django.contrib.auth import logout
 import os
@@ -49,12 +48,12 @@ class Profile(models.Model):
         blank=True,
         null=True)
 
-    site = models.CharField('Site internet', max_length=128, blank=True)
+    site = models.CharField('Site internet', max_length=2000, blank=True)
     show_email = models.BooleanField('Afficher adresse mail publiquement',
                                      default=False)
 
     avatar_url = models.CharField(
-        'URL de l\'avatar', max_length=128, null=True, blank=True
+        'URL de l\'avatar', max_length=2000, null=True, blank=True
     )
 
     biography = models.TextField('Biographie', blank=True)
@@ -107,7 +106,7 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('member-detail', kwargs={'user_name': urlquote(self.user.username)})
+        return reverse('member-detail', kwargs={'user_name': self.user.username})
 
     def get_city(self):
         """
@@ -128,15 +127,19 @@ class Profile(models.Model):
                 os.path.join(
                     settings.GEOIP_PATH,
                     'GeoLiteCityv6.dat'))
+
         geo = gic.record_by_addr(self.last_ip_address)
 
-        return u'{0}, {1}'.format(
-            geo['city'], geo['country_name'])
+        if geo is not None:
+            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+        return ''
 
     def get_avatar_url(self):
-        """
-        Get the avatar URL for this profile. If the user has defined a custom URL, use it. If not, use Gravatar.
+        """Get the avatar URL for this profile.
+        If the user has defined a custom URL, use it.
+        If not, use Gravatar.
         :return: The avatar URL for this profile
+        :rtype: str
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
@@ -327,6 +330,9 @@ class TokenForgotPassword(models.Model):
         """
         return reverse('zds.member.views.new_password') + '?token={0}'.format(self.token)
 
+    def __unicode__(self):
+        return u"{0} - {1}".format(self.user.username, self.date_end)
+
 
 class TokenRegister(models.Model):
     """
@@ -386,6 +392,9 @@ class Ban(models.Model):
         blank=True,
         null=True, db_index=True)
 
+    def __unicode__(self):
+        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
+
 
 class KarmaNote(models.Model):
     """
@@ -409,6 +418,9 @@ class KarmaNote(models.Model):
     # TODO: coherence, "create_at" is called "pubdate" in Ban model.
     create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
+    def __unicode__(self):
+        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
+
 
 def logout_user(username):
     """
@@ -419,10 +431,11 @@ def logout_user(username):
     request = HttpRequest()
 
     sessions = Session.objects.filter(expire_date__gt=now)
+    user = User.objects.get(username=username)
 
     for session in sessions:
         user_id = session.get_decoded().get('_auth_user_id')
-        if username == user_id:
+        if user.id == user_id:
             engine = import_module(settings.SESSION_ENGINE)
             request.session = engine.SessionStore(session.session_key)
             logout(request)

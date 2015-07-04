@@ -14,12 +14,14 @@ from django.shortcuts import render
 from zds import settings
 
 from zds.article.models import get_last_articles
+from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
+from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
-from zds.tutorial.models import get_last_tutorials
+from zds.tutorial.models import get_last_tutorials, get_tutorials_count
 from zds.utils.models import Alert
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 
 def home(request):
@@ -38,15 +40,19 @@ def home(request):
         articles.append(data)
 
     try:
-        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as fh:
-            quote = random.choice(fh.readlines())
+        with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
+            quote = random.choice(quotes_file.readlines())
     except IOError:
         quote = settings.ZDS_APP['site']['slogan']
 
     return render(request, 'home.html', {
+        'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
         'last_articles': articles,
-        'quote': quote,
+        'last_featured_resources': FeaturedResource.objects.get_last_featured(),
+        'last_topics': Topic.objects.get_last_topics(),
+        'tutorials_count': get_tutorials_count(),
+        'quote': quote.replace('\n', ''),
     })
 
 
@@ -133,7 +139,7 @@ def eula(request):
 
 
 def cookies(request):
-    """Cookies explaination page."""
+    """Cookies explanation page."""
     return render(request, 'pages/cookies.html')
 
 
@@ -144,10 +150,10 @@ def alerts(request):
     if not request.user.has_perm('forum.change_post'):
         raise PermissionDenied
 
-    alerts = Alert.objects.all().order_by('-pubdate')
+    all_alerts = Alert.objects.all().order_by('-pubdate')
 
     return render(request, 'pages/alerts.html', {
-        'alerts': alerts,
+        'alerts': all_alerts,
     })
 
 

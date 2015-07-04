@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<p class="featured-message">
+    {% if featured_message.hook != None and featured_message.hook != '' %}
+        <span class="important home-hook">{{ featured_message.hook }}</span>
+    {% endif %}
+    {% if featured_message.message != None and featured_message.message != '' %}
+        <span class="home-message">{{ featured_message.message }}</span>
+    {% endif %}
+    {% if featured_message.url != None and featured_message.url != '' %}
+        <a class="home-description-button" href="{{ featured_message.url }}">
+            {% trans "En savoir plus" %}
+        </a>
+    {% endif %}
+</p>

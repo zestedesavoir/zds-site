@@ -1,4 +1,5 @@
 # coding: utf-8
+from django.db.models import Q
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -33,6 +34,21 @@ class CustomSearchView(SearchView):
 
         context.update(self.extra_context())
         return render(self.request, self.template, context)
+
+    def get_results(self):
+        queryset = super(CustomSearchView, self).get_results()
+
+        # We want to search only on authorized post and topic
+        if self.request.user.is_authenticated():
+            groups = self.request.user.groups
+
+            if groups.count() > 0:
+                return queryset.filter(Q(permissions="public") |
+                                       Q(permissions__in=[group.name for group in groups.all()]))
+            else:
+                return queryset.filter(permissions="public")
+        else:
+            return queryset.filter(permissions="public")
 
 
 def opensearch(request):

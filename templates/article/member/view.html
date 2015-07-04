@@ -65,7 +65,7 @@
     <ul class="taglist">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.title }}">
+                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>

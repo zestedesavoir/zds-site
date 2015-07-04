@@ -18,8 +18,8 @@ Define a filter to format date.
 # Date formatting constants
 
 __DATE_FMT_FUTUR = "Dans le futur"
-__ABS_DATE_FMT_SMALL = 'd/m/y à H\hi'       # Small format
-__ABS_DATE_FMT_NORMAL = 'l d F Y à H\hi'    # Normal format
+__ABS_DATE_FMT_SMALL = r'd/m/y à H\hi'       # Small format
+__ABS_DATE_FMT_NORMAL = r'l d F Y à H\hi'    # Normal format
 __ABS_HUMAN_TIME_FMT = "%d %b %Y, %H:%M:%S"
 
 
@@ -70,7 +70,7 @@ def tooltip_date(value):
 
 
 @register.filter('humane_time')
-def humane_time(t):
+def humane_time(timestamp):
     """Render time (number of second from epoch) to an human readable string"""
-    tp = time.localtime(t)
-    return time.strftime(__ABS_HUMAN_TIME_FMT, tp)
+    timing = time.localtime(timestamp)
+    return time.strftime(__ABS_HUMAN_TIME_FMT, timing)

@@ -158,61 +158,65 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
     }
     server {
         listen [::]:80 ipv6only=on;
+        listen [::]:443 ssl ipv6only=on;
         listen 80;
-
         listen 443 ssl;
-        ssl_certificate /etc/ssl/certs/zds/server.crt;
-        ssl_certificate_key /etc/ssl/certs/zds/server.key;
-        ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+        ssl_certificate /etc/ssl/certs/zds/ssl.crt;
+        ssl_certificate_key /etc/ssl/certs/zds/ssl.key;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers on;
+        ssl_session_cache builtin;
 
         server_name zestedesavoir.com;
         gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
-        access_log off;
+        server_tokens off;
         access_log /opt/zdsenv/logs/nginx-access.log;
         error_log /opt/zdsenv/logs/nginx-error.log;
 
-        location = /robots.txt {
-            alias /opt/zdsenv/ZesteDeSavoir/robots.txt ;
+        location /author-files/ {
+            index index.html index.php;
+            alias /home/zds/tutos_sdzv3/script/;
+            include php.fast.conf;
         }
 
-        location /static/admin/ {
-            alias /opt/zdsenv/lib/python2.7/site-packages/django/contrib/admin/static/admin/;
+        location = /robots.txt {
+            alias /opt/zdsenv/ZesteDeSavoir/robots.txt;
         }
 
         location /static/ {
             alias /opt/zdsenv/ZesteDeSavoir/static/;
-            expires 1d;
+            expires 1y;
             add_header Pragma public;
             add_header Cache-Control "public, must-revalidate, proxy-revalidate";
         }
 
         location /media/ {
             alias /opt/zdsenv/ZesteDeSavoir/media/;
-            expires 1d;
+            expires 1y;
             add_header Pragma public;
             add_header Cache-Control "public, must-revalidate, proxy-revalidate";
         }
 
         location / {
-                #if ($http_host ~* "^www\.(.+)$"){
-                    #rewrite ^(.*)$ http://%1$request_uri redirect;
-                #}
                 if ($uri !~ \. ){
-                    rewrite ^(.*[^/])$ $1/ permanent;
-                }
+                rewrite ^(.*[^/])$ $1/ permanent;
+            }
+                rewrite ^/teasing/$ / permanent;
                 client_max_body_size 100M;
                 proxy_read_timeout 1000s;
                 proxy_connect_timeout 1000s;
-                auth_basic "Qui es-tu noble etranger ?";
-                auth_basic_user_file  /home/zds/.htpasswdclose;
-                ####proxy_pass http://176.31.187.88:8001;
-                proxy_set_header X-Forwarded-Host $server_name;
-                proxy_set_header X-Forwaded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header REMOTE_ADDR $remote_addr;
+                proxy_redirect     off;
+                proxy_set_header   Host              $host;
+                proxy_set_header   X-Real-IP         $remote_addr;
+                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto $scheme;
+
                 add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
-                if (!-f $request_filename) {
+                add_header Strict-Transport-Security max-age=500;
+                add_header Access-Control-Allow-Origin *;
+                add_header X-Clacks-Overhead "GNU Terry Pratchett";
+            if (!-f $request_filename) {
                     proxy_pass http://zdsappserver;
                     break;
                 }
@@ -223,7 +227,175 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
         location = /500.html {
             root /opt/zdsenv/ZesteDeSavoir/templates/;
         }
+
+
+        # Conf anti-exploit, source : https://www.howtoforge.com/nginx-how-to-block-exploits-sql-injections-file-injections-spam-user-agents-etc
+        ## Block SQL injections
+        set $block_sql_injections 0;
+        if ($query_string ~ "union.*select.*\(") {
+            set $block_sql_injections 1;
+        }
+        if ($query_string ~ "union.*all.*select.*") {
+            set $block_sql_injections 1;
+        }
+        if ($query_string ~ "concat.*\(") {
+            set $block_sql_injections 1;
+        }
+        if ($block_sql_injections = 1) {
+            return 403;
+        }
+
+        ## Block file injections
+        set $block_file_injections 0;
+        if ($query_string ~ "[a-zA-Z0-9_]=http://") {
+            set $block_file_injections 1;
+        }
+        if ($query_string ~ "[a-zA-Z0-9_]=(\.\.//?)+") {
+            set $block_file_injections 1;
+        }
+        if ($query_string ~ "[a-zA-Z0-9_]=/([a-z0-9_.]//?)+") {
+            set $block_file_injections 1;
+        }
+        if ($block_file_injections = 1) {
+            return 403;
+        }
+
+        ## Block common exploits
+        set $block_common_exploits 0;
+        if ($query_string ~ "(<|%3C).*script.*(>|%3E)") {
+            set $block_common_exploits 1;
+        }
+        if ($query_string ~ "GLOBALS(=|\[|\%[0-9A-Z]{0,2})") {
+            set $block_common_exploits 1;
+        }
+        if ($query_string ~ "_REQUEST(=|\[|\%[0-9A-Z]{0,2})") {
+            set $block_common_exploits 1;
+        }
+        if ($query_string ~ "proc/self/environ") {
+            set $block_common_exploits 1;
+        }
+        if ($query_string ~ "mosConfig_[a-zA-Z_]{1,21}(=|\%3D)") {
+            set $block_common_exploits 1;
+        }
+        if ($query_string ~ "base64_(en|de)code\(.*\)") {
+            set $block_common_exploits 1;
+        }
+        if ($block_common_exploits = 1) {
+            return 403;
+        }
+
+        ## Block spam
+        set $block_spam 0;
+        if ($query_string ~ "\b(ultram|unicauca|valium|viagra|vicodin|xanax|ypxaieo)\b") {
+            set $block_spam 1;
+        }
+        if ($query_string ~ "\b(erections|hoodia|huronriveracres|impotence|levitra|libido)\b") {
+            set $block_spam 1;
+        }
+        if ($query_string ~ "\b(ambien|blue\spill|cialis|cocaine|ejaculation|erectile)\b") {
+            set $block_spam 1;
+        }
+        if ($query_string ~ "\b(lipitor|phentermin|pro[sz]ac|sandyauer|tramadol|troyhamby)\b") {
+            set $block_spam 1;
+        }
+        if ($block_spam = 1) {
+            return 403;
+        }
+
+        ## Block user agents
+        set $block_user_agents 0;
+
+        # Don't disable wget if you need it to run cron jobs!
+        #if ($http_user_agent ~ "Wget") {
+        #    set $block_user_agents 1;
+        #}
+
+        # Disable Akeeba Remote Control 2.5 and earlier
+        if ($http_user_agent ~ "Indy Library") {
+            set $block_user_agents 1;
+        }
+
+        # Common bandwidth hoggers and hacking tools.
+        if ($http_user_agent ~ "libwww-perl") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "GetRight") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "GetWeb!") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "Go!Zilla") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "Download Demon") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "Go-Ahead-Got-It") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "TurnitinBot") {
+            set $block_user_agents 1;
+        }
+        if ($http_user_agent ~ "GrabNet") {
+            set $block_user_agents 1;
+        }
+        # SpaceFox: adds HTTrack
+        if ($http_user_agent ~ "HTTrack") {
+            set $block_user_agents 1;
+        }
+
+
+        if ($block_user_agents = 1) {
+            return 403;
+        }
+
     }
+
+    server{
+        server_name uploads.beta.zestedesavoir.com;
+        root /home/zds/tutos_sdzv3/images_distantes;
+        index index.html index.htm;
+    }
+
+
+La configuration de la page de maintenance, quant à elle, se fait dans ``/etc/nginx/sites-available/zds-maintenance`` :
+
+.. code:: text
+
+    server {
+        listen [::]:80 ipv6only=on;
+        listen [::]:443 ssl ipv6only=on;
+        listen 80;
+        listen 443 ssl;
+        ssl_certificate /etc/ssl/certs/beta_zds/ssl.crt;
+        ssl_certificate_key /etc/ssl/certs/beta_zds/ssl.key;
+        ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+        ssl_ciphers HIGH:!aNULL:!MD5;
+
+            server_name zestedesavoir.com www.zestedesavoir.com;
+            gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+            access_log off;
+            access_log /opt/zdsenv/logs/nginx-access.log;
+            error_log /opt/zdsenv/logs/nginx-error.log;
+            root /opt/zdsenv/ZesteDeSavoir;
+
+            location /errors/css {
+            }
+
+            location /errors/images {
+            }
+
+            location / {
+                    return 503;
+            }
+
+            error_page 503 @maintenance;
+            location @maintenance  {
+                    rewrite ^.*$ /errors/maintenance.html break;
+            }
+    }
+
 
 Solr
 ~~~~
@@ -345,7 +517,7 @@ Ajouter les métriques suivantes au fichier ``/etc/munin/plugin-conf.d/munin-nod
 Mise à jour d'une instance existante
 ====================================
 
-`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/server/deploy.sh>` ! ;)
+`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/update_and_deploy.sh>` ! ;) (lequel appelle `le véritable script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/deploy.sh>`).
 
 Personnalisation d'une instance
 ===============================

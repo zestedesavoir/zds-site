@@ -162,12 +162,13 @@ class MoveTopicForm(forms.Form):
     def __init__(self, topic, *args, **kwargs):
         super(MoveTopicForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse(
-            'zds.forum.views.move_topic') + '?sujet=' + str(topic.pk)
+        self.helper.form_action = reverse('topic-edit')
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
             Field('forum'),
+            Hidden('move', ''),
+            Hidden('topic', topic.pk),
             StrictButton(_('Valider'), type='submit'),
         )

@@ -4,20 +4,19 @@ from django.test import TestCase
 from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import LoginForm, RegisterForm, \
     MiniProfileForm, ProfileForm, ChangeUserForm, \
-    ChangePasswordForm, ForgotPasswordForm, NewPasswordForm, \
-    KarmaForm
+    ChangePasswordForm, NewPasswordForm, \
+    KarmaForm, UsernameAndEmailForm
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
-stringof129chars = u'http://www.01234567890123456789123456789' \
-                   u'0123456789012345678901234567890123456789' \
-                   u'0123456789012345678901234567890123456789' \
-                   u'012345678'
 stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
-
+stringof2001chars = 'http://url.com/'
+for i in range(198):
+    stringof2001chars += "0123456789"
+stringof2001chars += "12.jpg"
 
 # This form is tricky to test as it needs a tuto to be done
 # class OldTutoFormTest(TestCase):
@@ -215,9 +214,11 @@ class MiniProfileFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_too_long_site_url_miniprofile_form(self):
+
+        # url is one char too long
         data = {
             'biography': '',
-            'site': stringof129chars,
+            'site': stringof2001chars,
             'avatar_url': '',
             'sign': ''
         }
@@ -228,7 +229,7 @@ class MiniProfileFormTest(TestCase):
         data = {
             'biography': '',
             'site': '',
-            'avatar_url': stringof129chars,
+            'avatar_url': stringof2001chars,
             'sign': ''
         }
         form = MiniProfileForm(data=data)
@@ -440,7 +441,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': self.user1.user.username,
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_non_valid_non_ascii_forgot_password_form(self):
@@ -448,7 +449,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': self.userNonAscii.user.username,
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_non_valid_non_ascii_email_forgot_password_form(self):
@@ -456,7 +457,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': '',
             'email': self.userNonAscii.user.email
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_valid_email_forgot_password_form(self):
@@ -464,7 +465,7 @@ class ForgotPasswordFormTest(TestCase):
             'email': self.user1.user.email,
             'username': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_empty_name_forgot_password_form(self):
@@ -472,7 +473,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': '',
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_full_forgot_password_form(self):
@@ -480,7 +481,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': 'John Doe',
             'email': 'john.doe@gmail.com'
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_username_forgot_password_form(self):
@@ -488,7 +489,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': 'John Doe',
             'email': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_email_forgot_password_form(self):
@@ -496,7 +497,7 @@ class ForgotPasswordFormTest(TestCase):
             'email': 'john.doe@gmail.com',
             'username': ''
         }
-        form = ForgotPasswordForm(data=data)
+        form = UsernameAndEmailForm(data=data)
         self.assertFalse(form.is_valid())
 
 

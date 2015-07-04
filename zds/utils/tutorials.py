@@ -9,20 +9,84 @@ from git import Repo, Actor
 from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from zds.utils import slugify
 from zds.utils.models import Licence
 
 
+# Used for indexing tutorials, we need to parse each manifest to know which content have been published
+class GetPublished:
+
+    published_part = []
+    published_chapter = []
+    published_extract = []
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def get_published_content(cls):
+        # If all array are empty load_it
+        if not len(GetPublished.published_part) and \
+           not len(GetPublished.published_chapter) and \
+           not len(GetPublished.published_extract):
+
+            # Get all published tutorials
+            from zds.tutorial.models import Tutorial
+            tutorials_database = Tutorial.objects.filter(sha_public__isnull=False).all()
+
+            for tutorial in tutorials_database:
+                # Load Manifest
+                json = tutorial.load_json_for_public()
+
+                # Parse it
+                GetPublished.load_tutorial(json)
+
+        return {"parts": GetPublished.published_part,
+                "chapters": GetPublished.published_chapter,
+                "extracts": GetPublished.published_extract}
+
+    @classmethod
+    def load_tutorial(cls, json):
+        # Load parts, chapter and extract
+        if 'parts' in json:
+            for part_json in json['parts']:
+
+                # If inside of parts we have chapters, load it
+                GetPublished.load_chapters(part_json)
+                GetPublished.load_extracts(part_json)
+
+                GetPublished.published_part.append(part_json['pk'])
+
+        GetPublished.load_chapters(json)
+        GetPublished.load_extracts(json)
+
+    @classmethod
+    def load_chapters(cls, json):
+        if 'chapters' in json:
+            for chapters_json in json['chapters']:
+
+                GetPublished.published_chapter.append(chapters_json['pk'])
+                GetPublished.load_extracts(chapters_json)
+
+        return GetPublished.published_chapter
+
+    @classmethod
+    def load_extracts(cls, json):
+        if 'extracts' in json:
+            for extract_json in json['extracts']:
+                GetPublished.published_extract.append(extract_json['pk'])
+
+        return GetPublished.published_extract
+
+
 # Export-to-dict functions
-
-
 def export_chapter(chapter, export_all=True):
     from zds.tutorial.models import Extract
-    '''
+    """
     Export a chapter to a dict
-    '''
+    """
     dct = OrderedDict()
     if export_all:
         dct['pk'] = chapter.pk
@@ -46,9 +110,9 @@ def export_chapter(chapter, export_all=True):
 
 def export_part(part):
     from zds.tutorial.models import Chapter
-    '''
+    """
     Export a part to a dict
-    '''
+    """
     dct = OrderedDict()
     dct['pk'] = part.pk
     dct['title'] = part.title
@@ -67,9 +131,9 @@ def export_part(part):
 
 def export_tutorial(tutorial):
     from zds.tutorial.models import Part, Chapter
-    '''
+    """
     Export a tutorial to a dict
-    '''
+    """
     dct = OrderedDict()
     dct['title'] = tutorial.title
     dct['description'] = tutorial.description
@@ -98,16 +162,16 @@ def export_tutorial(tutorial):
 
 
 def get_blob(tree, chemin):
-    for bl in tree.blobs:
+    for blob in tree.blobs:
         try:
-            if os.path.abspath(bl.path) == os.path.abspath(chemin):
-                data = bl.data_stream.read()
+            if os.path.abspath(blob.path) == os.path.abspath(chemin):
+                data = blob.data_stream.read()
                 return data.decode('utf-8')
         except (OSError, IOError):
             return ""
     if len(tree.trees) > 0:
-        for tr in tree.trees:
-            result = get_blob(tr, chemin)
+        for atree in tree.trees:
+            result = get_blob(atree, chemin)
             if result is not None:
                 return result
         return None
@@ -121,19 +185,15 @@ def export_tutorial_to_md(tutorial, sha=None):
     parts = None
     tuto = OrderedDict()
 
-    i = open(
-        os.path.join(
-            tutorial.get_prod_path(sha),
-            tutorial.introduction),
-        "r")
-    i_contenu = i.read()
-    i.close()
-    tuto['intro'] = i_contenu
+    intro = open(os.path.join(tutorial.get_prod_path(sha), tutorial.introduction), "r")
+    intro_contenu = intro.read()
+    intro.close()
+    tuto['intro'] = intro_contenu
 
-    c = open(os.path.join(tutorial.get_prod_path(sha), tutorial.conclusion), "r")
-    c_contenu = c.read()
-    c.close()
-    tuto['conclu'] = c_contenu
+    conclu = open(os.path.join(tutorial.get_prod_path(sha), tutorial.conclusion), "r")
+    conclu_contenu = conclu.read()
+    conclu.close()
+    tuto['conclu'] = conclu_contenu
 
     tuto['image'] = tutorial.image
     tuto['title'] = tutorial.title
@@ -478,11 +538,12 @@ def import_archive(request):
         # delete old file
         for filename in os.listdir(tutorial.get_path()):
             if not filename.startswith('.'):
-                mf = os.path.join(tutorial.get_path(), filename)
-                if os.path.isfile(mf):
-                    os.remove(mf)
-                elif os.path.isdir(mf):
-                    shutil.rmtree(mf)
+                manifest = os.path.join(tutorial.get_path(), filename)
+                if os.path.isfile(manifest):
+                    os.remove(manifest)
+                elif os.path.isdir(manifest):
+                    shutil.rmtree(manifest)
+
         # copy new file
         for i in zfile.namelist():
             ph = i

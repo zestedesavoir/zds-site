@@ -1,0 +1,29 @@
+{% extends "featured/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Création d'une nouvelle Une" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Création d'une nouvelle Une" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Création d'une nouvelle Une" %}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="content-wrapper featured-resource-edit-form">
+        {% include "featured/includes/featured_resource_item.part.html" %}
+        {% crispy form %}
+    </div>
+{% endblock %}

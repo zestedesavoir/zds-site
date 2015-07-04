@@ -3,9 +3,9 @@
 import os
 from zds import settings
 
-smileys_baseURL = os.path.join(settings.STATIC_URL, "smileys")
+SMILEYS_BASE_URL = os.path.join(settings.STATIC_URL, "smileys")
 
-smileys_base = {
+SMILEYS_BASE = {
     "smile.png": (":)", ":-)", ),
     "heureux.png": (":D", ":-D", ),
     "clin.png": (";)", ";-)", ),
@@ -34,6 +34,6 @@ smileys_base = {
 }
 
 smileys = {}
-for imageFile, symboles in smileys_base.iteritems():
+for imageFile, symboles in SMILEYS_BASE.iteritems():
     for symbole in symboles:
-        smileys[symbole] = os.path.join(smileys_baseURL, imageFile)
+        smileys[symbole] = os.path.join(SMILEYS_BASE_URL, imageFile)

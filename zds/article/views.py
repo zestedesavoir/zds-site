@@ -42,7 +42,7 @@ from zds.utils.models import SubCategory, Category, CommentLike, \
 from zds.utils.paginator import paginator_range
 from zds.utils.tutorials import get_sep, get_text_is_empty
 from zds.utils.templatetags.emarkdown import emarkdown
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from .forms import ArticleForm, ReactionForm, ActivJsForm
 from .models import Article, get_prev_article, get_next_article, Validation, \
@@ -138,11 +138,19 @@ def view(request, article_pk, article_slug):
 
 def view_online(request, article_pk, article_slug):
     """Show the given article if exists and is visible."""
-    article = get_object_or_404(Article, pk=article_pk)
-
+    article = Article.objects\
+        .prefetch_related("authors")\
+        .prefetch_related("authors__profile")\
+        .prefetch_related("subcategory")\
+        .select_related('licence')\
+        .select_related('last_reaction')\
+        .filter(pk=article_pk)\
+        .first()
+    if article is None:
+        raise Http404("pk {} not found".format(article_pk))
     # article is not online = 404
     if not article.on_line():
-        raise Http404
+        raise Http404("article is offline.")
 
     # Load the article.
     article_version = article.load_json_for_public()
@@ -164,10 +172,22 @@ def view_online(request, article_pk, article_slug):
 
     # Find all reactions of the article.
     reactions = Reaction.objects\
+        .select_related('author__profile')\
+        .prefetch_related('alerts')\
+        .prefetch_related('alerts__author')\
+        .prefetch_related('alerts__author__profile')\
         .filter(article__pk=article.pk)\
         .order_by('position')\
         .all()
-
+    reaction_ids = [post.pk for post in reactions]
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     # Check if the author is reachable
     authors_reachable_request = Profile.objects.contactable_members().filter(user__in=article.authors.all())
     authors_reachable = []
@@ -222,7 +242,10 @@ def view_online(request, article_pk, article_slug):
         'last_reaction_pk': last_reaction_pk,
         'form': form,
         'on_line': True,
-        'authors_reachable': authors_reachable
+        'authors_reachable': authors_reachable,
+        'is_staff': request.user.has_perm('article.change_article'),
+        'user_like': user_like,
+        'user_dislike': user_dislike
     })
 
 
@@ -621,9 +644,9 @@ def modify(request):
                     u'Désolé, le zeste **{0}** '
                     u'n\'a malheureusement pas passé l’étape de validation. '
                     u'Mais ne désespère pas, certaines corrections peuvent '
-                    u'surement être faite pour l’améliorer et repasser la '
+                    u'sûrement être faites pour l’améliorer et repasser la '
                     u'validation plus tard. Voici le message que [{1}]({2}), '
-                    u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas a '
+                    u'ton validateur t\'a laissé:\n\n`{3}`\n\nN\'hésite pas à '
                     u'lui envoyer un petit message pour discuter de la décision '
                     u'ou demander plus de détail si tout cela te semble '
                     u'injuste ou manque de clarté.'.format(
@@ -712,9 +735,9 @@ def modify(request):
                 msg = (
                     u'Félicitations ! Le zeste [{0}]({1}) '
                     u'est maintenant publié ! Les lecteurs du monde entier '
-                    u'peuvent venir le lire et réagir a son sujet. Je te conseille '
-                    u'de rester a leur écoute afin d\'apporter des '
-                    u'corrections/compléments. Un Article vivant et a jour '
+                    u'peuvent venir le lire et réagir à son sujet. Je te conseille '
+                    u'de rester à leur écoute afin d\'apporter des '
+                    u'corrections/compléments. Un article vivant et à jour '
                     u'est bien plus lu qu\'un sujet abandonné !'.format(
                         article.title,
                         settings.ZDS_APP['site']['url'] + article.get_absolute_url_online()))
@@ -780,9 +803,9 @@ def modify(request):
                 bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                 msg = \
                     (u'Bonjour {0},\n\n'
-                     u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation,  '
-                     u'pour retrouver les modifications qui ont été faites, je t\'invite à'
-                     u'consulter l\'historique des versions'
+                     u'L\'article *{1}* que tu as réservé a été mis à jour en zone de validation, '
+                     u'pour retrouver les modifications qui ont été faites, je t\'invite à '
+                     u'consulter l\'historique des versions.'
                      u'\n\nMerci'.format(old_validator.username, article.title))
                 send_mp(
                     bot,
@@ -1109,7 +1132,15 @@ def answer(request):
     reactions = Reaction.objects.filter(article=article) \
         .prefetch_related() \
         .order_by("-pubdate")[:settings.ZDS_APP['forum']['posts_per_page']]
-
+    reaction_ids = reactions.values_list('pk', flat=True)
+    user_dislike = CommentDislike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
+    user_like = CommentLike.objects\
+        .select_related('comment')\
+        .filter(user__pk=request.user.pk, comments__pk__in=reaction_ids)\
+        .values_list('pk', flat=True)
     # User would like preview his post or post a new reaction on the article.
     if request.method == 'POST':
         data = request.POST
@@ -1132,7 +1163,10 @@ def answer(request):
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
                     'reactions': reactions,
-                    'form': form
+                    'form': form,
+                    'is_staff': request.user.has_perm('tutorial.change_article'),
+                    'user_like': user_like,
+                    'user_dislike': user_dislike
                 })
 
         # Saving the message
@@ -1147,7 +1181,7 @@ def answer(request):
                 reaction.text = data['text']
                 reaction.text_html = emarkdown(data['text'])
                 reaction.pubdate = datetime.now()
-                reaction.position = article.get_reaction_count() + 1
+                reaction.position = Reaction.objects.count_reactions(article) + 1
                 reaction.ip_address = get_client_ip(request)
                 reaction.save()
 
@@ -1161,7 +1195,10 @@ def answer(request):
                     'last_reaction_pk': last_reaction_pk,
                     'newreaction': newreaction,
                     'reactions': reactions,
-                    'form': form
+                    'form': form,
+                    'is_staff': request.user.has_perm('tutorial.change_article'),
+                    'user_like': user_like,
+                    'user_dislike': user_dislike
                 })
 
     # Actions from the editor render to new.html.
@@ -1199,7 +1236,10 @@ def answer(request):
             'article': article,
             'reactions': reactions,
             'last_reaction_pk': last_reaction_pk,
-            'form': form
+            'form': form,
+            'is_staff': request.user.has_perm('tutorial.change_article'),
+            'user_like': user_like,
+            'user_dislike': user_dislike
         })
 
 
@@ -1275,17 +1315,17 @@ def edit_reaction(request):
     g_article = None
     if reaction.position >= 1:
         g_article = get_object_or_404(Article, pk=reaction.article.pk)
-
+    is_staff = request.user.has_perm('article.change_reaction')
     # Making sure the user is allowed to do that. Author of the reaction
     # must to be the user logged.
     if reaction.author != request.user \
-            and not request.user.has_perm('article.change_reaction') \
+            and not is_staff \
             and 'signal_message' not in request.POST:
         raise PermissionDenied
 
     if reaction.author != request.user \
             and request.method == 'GET' \
-            and request.user.has_perm('article.change_reaction'):
+            and is_staff:
         messages.add_message(
             request, messages.WARNING,
             u'Vous éditez ce message en tant que modérateur (auteur : {}).'
@@ -1297,15 +1337,15 @@ def edit_reaction(request):
 
         if 'delete_message' in request.POST:
             if reaction.author == request.user \
-                    or request.user.has_perm('article.change_reaction'):
+                    or is_staff:
                 reaction.alerts.all().delete()
                 reaction.is_visible = False
-                if request.user.has_perm('article.change_reaction'):
+                if is_staff:
                     reaction.text_hidden = request.POST['text_hidden']
                 reaction.editor = request.user
 
         if 'show_message' in request.POST:
-            if request.user.has_perm('article.change_reaction'):
+            if is_staff:
                 reaction.is_visible = True
                 reaction.text_hidden = ''
 

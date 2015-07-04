@@ -42,7 +42,7 @@ class UserGalleryFactory(factory.DjangoModelFactory):
         user = kwargs.pop('user', None)
         gallery = kwargs.pop('gallery', None)
         if user is not None and gallery is not None:
-            ug = super(UserGalleryFactory, cls)._prepare(create, user=user, gallery=gallery, **kwargs)
+            user_gal = super(UserGalleryFactory, cls)._prepare(create, user=user, gallery=gallery, **kwargs)
         else:
-            ug = None
-        return ug
+            user_gal = None
+        return user_gal

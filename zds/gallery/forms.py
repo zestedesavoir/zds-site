@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -11,7 +12,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from zds.gallery.models import Gallery, Image
-from django.utils.translation import ugettext_lazy as _
 
 
 class GalleryForm(forms.ModelForm):
@@ -202,8 +202,8 @@ class ArchiveImageForm(forms.Form):
     def clean(self):
         cleaned_data = super(ArchiveImageForm, self).clean()
 
-        file = cleaned_data.get('file')
-        extension = file.name.split('.')[-1]
+        zip_file = cleaned_data.get('file')
+        extension = zip_file.name.split('.')[-1]
 
         if extension != "zip":
             self._errors['file'] = self.error_class(

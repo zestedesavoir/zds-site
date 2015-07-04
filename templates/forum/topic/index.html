@@ -53,7 +53,7 @@
         <ul class="taglist" itemprop="keywords">
             {% for tag in topic.tags.all %}
                 <li>
-                    <a href="{% url "zds.forum.views.find_topic_by_tag" tag.pk tag.slug %}">
+                    <a href="{% url 'topic-tag-find' tag.pk tag.slug %}">
                         {{ tag.title }}
                     </a>
                 </li>
@@ -61,7 +61,7 @@
         </ul>
     {% endif %}
 
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
         <div 
             class="alert-box success ico-after tick light {% if not topic.is_solved %}empty{% endif %}"
@@ -69,27 +69,27 @@
         >
             {% trans "L'auteur de ce sujet a trouvé une solution à son problème" %}.
         </div>
-    
+
 
     {% for message in posts %}
         {% captureas edit_link %}
-            {% url "zds.forum.views.edit_post" %}?message={{ message.pk }}
+            {% url 'post-edit' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+            {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas helpful_link %}
-            {% url "zds.forum.views.useful_post" %}?message={{ message.pk }}
+            {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}
-            {% url "zds.forum.views.like_post" %}?message={{ message.pk }}
+            {% url 'post-like' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas downvote_link %}
-            {% url "zds.forum.views.dislike_post" %}?message={{ message.pk }}
+            {% url 'post-dislike' %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
@@ -97,30 +97,29 @@
         {% endcaptureas %}
 
         {% captureas unread_link %}
-            {% url "zds.forum.views.unread_post" %}?message={{ message.pk }}
+            {% url 'post-unread' %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% if forloop.first and nb > 1 %}
+        {% if forloop.first and page_obj.number > 1 %}
             {% set True as is_repeated_message %}
         {% else %}
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% if forloop.first and nb = 1 %}
+        {% if forloop.first and page_obj.number = 1 %}
             {% set False as answer_schema %}
         {% else %}
             {% set True as answer_schema %}
         {% endif %}
 
-        {% include "misc/message.part.html" with perms_change=perms.forum.change_topic answer_schema=answer_schema can_unread=True unread_link=unread_link %}
+        {% include "misc/message.part.html" with answer_schema=answer_schema can_unread=True unread_link=unread_link perms_change=is_staff%}
     {% endfor %}
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
-
+    {% include "misc/paginator.html" with position="bottom" %}
 
     {# Anwser form #}
     {% captureas form_action %}
-        {% url "zds.forum.views.answer" %}?sujet={{ topic.pk }}
+        {% url 'post-new' %}?sujet={{ topic.pk }}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user %}
@@ -129,17 +128,22 @@
 
 
 {% block new_btn %}
-    <a href="{% url "zds.forum.views.new" %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
+    <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
+    {% if topic.author.pk == user.pk or is_staff %}
+    <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
+        {% trans "Éditer le sujet" %}
+    </a>
+    {% endif %}
 {% endblock %}
 
 
 
 {% block sidebar_actions %}
-    {% if topic.author.pk == user.pk or perms.forum.change_topic %}
+    {% if topic.author.pk == user.pk or is_staff %}
         <li>
-            <form action="{% url "zds.forum.views.edit" %}" method="post">
+            <form action="{% url 'topic-edit' %}" method="post">
                 <input type="hidden" name="topic" value="{{ topic.pk }}">
                 <input type="hidden" name="nb" value="{{ nb }}">
                 <input type="hidden" name="page" value="{{ nb }}">
@@ -168,7 +172,7 @@
     {% endif %}
 
     <li>
-        <form action="{% url "zds.forum.views.edit" %}" method="post">
+        <form action="{% url 'topic-edit' %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="page" value="{{ nb }}">
@@ -195,7 +199,7 @@
         </form>
     </li>
     <li>
-        <form action="{% url "zds.forum.views.edit" %}" method="post">
+        <form action="{% url 'topic-edit' %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
             <input type="hidden" name="page" value="{{ nb }}">
@@ -226,7 +230,7 @@
 
 
 {% block sidebar_blocks %}
-    {% if perms.forum.change_topic %}
+    {% if is_staff %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Modération">
             <h3>{% trans "Modération" %}</h3>
             <ul>
@@ -238,7 +242,7 @@
                             {% trans "Fermer le sujet" %}
                         {% endif %}
                     </a>
-                    <form action="{% url "zds.forum.views.edit" %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-small">
+                    <form action="{% url 'topic-edit' %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-small">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">
@@ -264,7 +268,7 @@
                 </li>
 
                 <li>
-                    <form action="{% url "zds.forum.views.edit" %}" method="post">
+                    <form action="{% url 'topic-edit' %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">

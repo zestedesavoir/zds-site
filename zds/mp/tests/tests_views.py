@@ -504,6 +504,12 @@ class AnswerViewTest(TestCase):
 
         self.assertEqual(403, response.status_code)
 
+    def test_fail_cite_weird_pk(self):
+        response = self.client.get(reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug()]) +
+                                   '?cite=abcd')
+
+        self.assertEqual(404, response.status_code)
+
     def test_success_cite_post(self):
 
         response = self.client.get(reverse('private-posts-new', args=[self.topic1.pk, self.topic1.slug()]) +
@@ -957,3 +963,138 @@ class AddParticipantViewTest(TestCase):
             profile3.user,
             PrivateTopic.objects.get(pk=self.topic1.pk).participants.all()
         )
+
+
+class PrivateTopicEditTest(TestCase):
+
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+        self.profile2 = ProfileFactory()
+        self.topic1 = PrivateTopicFactory(author=self.profile1.user)
+        self.topic1.participants.add(self.profile2.user)
+        self.post1 = PrivatePostFactory(
+            privatetopic=self.topic1,
+            author=self.profile1.user,
+            position_in_topic=1)
+
+        self.post2 = PrivatePostFactory(
+            privatetopic=self.topic1,
+            author=self.profile2.user,
+            position_in_topic=2)
+
+    def test_denies_anonymous(self):
+
+        self.client.logout()
+        self.topic1.title = 'super title'
+        self.topic1.subtitle = 'super subtitle'
+        self.topic1.save()
+
+        # get
+        response = self.client.get(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), follow=True)
+
+        self.assertRedirects(
+            response,
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+
+        # post
+        response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
+            'title': 'test',
+            'subtitle': 'subtest'
+        }, follow=True)
+
+        self.assertRedirects(
+            response,
+            reverse('zds.member.views.login_view') +
+            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+
+        topic = PrivateTopic.objects.get(pk=self.topic1.pk)
+        self.assertEqual('super title', topic.title)
+        self.assertEqual('super subtitle', topic.subtitle)
+
+    def test_success_edit_topic(self):
+        self.assertTrue(
+            self.client.login(
+                username=self.profile1.user.username,
+                password='hostel77'
+            )
+        )
+
+        response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
+            'title': 'test',
+            'subtitle': 'subtest'
+        }, follow=True)
+
+        self.assertEqual(200, response.status_code)
+
+        topic = PrivateTopic.objects.get(pk=self.topic1.pk)
+        self.assertEqual('test', topic.title)
+        self.assertEqual('subtest', topic.subtitle)
+
+    def test_fail_user_is_not_author(self):
+
+        self.topic1.title = 'super title'
+        self.topic1.subtitle = 'super subtitle'
+        self.topic1.save()
+
+        self.assertTrue(
+            self.client.login(
+                username=self.profile2.user.username,
+                password='hostel77'
+            )
+        )
+
+        response = self.client.get(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), follow=True)
+        self.assertEqual(403, response.status_code)
+
+        response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
+            'title': 'test',
+            'subtitle': 'subtest'
+        }, follow=True)
+
+        self.assertEqual(403, response.status_code)
+
+        topic = PrivateTopic.objects.get(pk=self.topic1.pk)
+        self.assertEqual('super title', topic.title)
+        self.assertEqual('super subtitle', topic.subtitle)
+
+    def test_fail_topic_doesnt_exist(self):
+        self.assertTrue(
+            self.client.login(
+                username=self.profile1.user.username,
+                password='hostel77'
+            )
+        )
+
+        response = self.client.get(reverse('mp-edit-topic', args=[91, 'private-topic']), follow=True)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.post(reverse('mp-edit-topic', args=[91, 'private-topic']), {
+            'title': 'test',
+            'subtitle': 'subtest'
+        }, follow=True)
+        self.assertEqual(404, response.status_code)
+
+    def test_fail_blank_title(self):
+
+        self.topic1.title = 'super title'
+        self.topic1.subtitle = 'super subtitle'
+        self.topic1.save()
+
+        self.assertTrue(
+            self.client.login(
+                username=self.profile1.user.username,
+                password='hostel77'
+            )
+        )
+
+        response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
+            'title': '',
+            'subtitle': 'subtest'
+        }, follow=True)
+
+        self.assertEqual(200, response.status_code)
+
+        topic = PrivateTopic.objects.get(pk=self.topic1.pk)
+        self.assertEqual('super title', topic.title)
+        self.assertEqual('super subtitle', topic.subtitle)

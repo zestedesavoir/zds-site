@@ -31,4 +31,8 @@
     .page-container .header-logo-link {
         background-image: url('../images/logo-mobile@2x.png') !important;
     }
+
+    .home .home-search-box::before {
+        background-image: url('../images/home-clem@2x.png');
+    }
 }

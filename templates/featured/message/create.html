@@ -1,0 +1,28 @@
+{% extends "featured/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Édition du message d'accueil" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Édition du message d'accueil" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Édition du message d'accueil" %}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    <div class="content-wrapper featured-message-edit-form">
+        {% crispy form %}
+    </div>
+{% endblock %}

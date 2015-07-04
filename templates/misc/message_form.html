@@ -27,6 +27,16 @@
         {% trans "Vous êtes seul dans cette conversation" %}.
     </div>
 {% else %}
+    {% if topic.old_post_warning %}
+        <div class="alert-box warning">
+            <p>
+                {% blocktrans with old_post_limit_days=app.forum.old_post_limit_days %}
+                    Ce sujet est sans activité depuis plus de {{ old_post_limit_days }} jours. Êtes-vous certain de vouloir y contribuer ?
+                {% endblocktrans %}
+            </p>
+        </div>
+    {% endif %}
+
     <section class="topic-message">
         <form action="{{ form_action }}" method="post">
             {% include "misc/message_user.html" with hide_metadata=True %}

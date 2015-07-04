@@ -1,0 +1,56 @@
+{% extends "member/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Envoi du courriel de confirmation" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Envoi du courriel de confirmation" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Envoi du courriel de confirmation" %}</li>
+{% endblock %}
+
+
+
+{% block body_class %}form-email-username{% endblock %}
+
+
+
+{% block content %}
+
+    {% if not user.is_authenticated %}
+        {% if error %}
+            {{ error }}
+        {% endif %}
+
+        <p>
+            {% blocktrans %}
+            Vous n'avez pas reçu le mail de confirmation ? Nous pouvons vous le renvoyer, nous avons
+            besoin de l'une des informations suivantes : saisissez votre nom d'utilisateur ou votre adresse de courriel
+            dans les champs ci-dessous.
+            {% endblocktrans %}
+        </p>
+
+        <ul>
+            <li>
+                <button class="link" data-form-email-username-button="email">{% trans "Saisir votre adresse de courriel" %}</button>
+            </li>
+            <li>
+                <button class="link" data-form-email-username-button="username">{% trans "Saisir votre nom d'utilisateur" %}</button>
+            </li>
+        </ul>
+
+        {% crispy form %}
+    {% else %}
+        <p>{% trans "Vous êtes connecté" %}</p>
+    {% endif %}
+{% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% load staticfiles %}
 {% load emarkdown %}
 {% load date %}
@@ -6,166 +7,177 @@
 {% load topbar %}
 {% load thumbnail %}
 {% load i18n %}
+{% load captureas %}
 
 
 
-{% block body_class %}home content-cols{% endblock %}
+{% block body_class %}home{% endblock %}
 
+{% block searchbox_id %}search-home{% endblock %}
 
-
-{% block pre_content %}
+{% block content_out %}
     {% url 'zds.tutorial.views.index' as url_tutorials %}
     {% url 'zds.article.views.index' as url_articles %}
-    {% url 'zds.forum.views.index' as url_forums %}
+    {% url 'cats-forums-list' as url_forums %}
+
     {% url 'zds.pages.views.association' as url_association %}
-    {% if user.is_authenticated %}
-        <section class="home-quote home-simple-quote">
-            <div class="home-wrapper">
-                <img src="{% static "images/clem-home-quote.png" %}" alt="" width="39" height="80">
-                <blockquote>
-                    «&nbsp;{{ quote }}&nbsp;»
-                </blockquote>
-            </div>
-        </section>
-    {% else %}
-        <section class="home-quote home-full-description">
-            <div class="home-wrapper">
-                <img src="{% static "images/clem-home.png" %}" alt="" width="214" height="209">
-                <div class="home-full-description-text">
-                    <h2>{{app.site.slogan}}</h2>
 
-                    <blockquote>
-                        «&nbsp;{{ quote }}&nbsp;»
-                    </blockquote>
+    <section class="home-header">
+        <div class="home-wrapper">
+        {% if user.is_authenticated %}
+            <section class="home-description connected">
+                <blockquote><span>{{ quote }}</span></blockquote>
 
+                {% if featured_message %}
+                    {% include "featured/includes/featured_message.part.html" %}
+                {% endif %}
+            </section>
+        {% else %}
+            <section class="home-description short" id="description">
+                <blockquote><span>{% trans "Zeste de Savoir, la connaissance" %}</span> <span>{% trans "pour tous et sans pépins" %}</span></blockquote>
+                <a class="home-description-button" href="#description">
+                    {% trans "En savoir plus" %}
+                </a>
+                <a href="#" class="home-description-button close-description">
+                    {% trans "Fermer" %}
+                </a>
+            </section>
+            <section class="home-description">
+                <div class="column">
+                    <h2>
+                        {% trans "La connaissance pour tous" %}
+                    </h2>
                     <p>
                     {% blocktrans with site_name=app.site.litteral_name %}
-                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a> animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez
+                        des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des
+                        <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a>
+                        animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les
+                        sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
                     {% endblocktrans %}
                     </p>
+                </div>
+                <div class="column">
+                    <h2>
+                        {% trans "Partagez vos connaissances" %}
+                    </h2>
                     <p>
                     {% blocktrans %}
-                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>. Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant publication.
+                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>.
+                        Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant
+                        publication.
                     {% endblocktrans %}
                     </p>
-                    {% if app.site.association %}
+                </div>
+                <div class="column">
+                    <h2>
+                        {% trans "Gratuit et sans publicité" %}
+                    </h2>
                     <p>
                     {% blocktrans %}
-                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.
+                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré
+                        et financé par une <a href="{{url_association}}">association</a> à but non lucratif.
                     {% endblocktrans %}
+                    </p>
+                    {% if app.site.contribute_link %}
+                    <p>
+                        <a class="home-description-button" href="{{ app.site.contribute_link }}">
+                            {% trans "Aider à développer la plateforme" %}
+                        </a>
                     </p>
                     {% endif %}
                 </div>
+            </section>
+        {% endif %}
+
+             <section class="home-search-box">
+                <form action='{% url "haystack_search" %}' id="search-home">
+                    <label for="search-home-input">
+                        {% trans "Recherche" %}
+                    </label>
+                    <input type="text" id="search-home-input" name="q" placeholder='{% trans "Mathématiques, UDK, HTML, Java, PHP, ..." %}' >
+                    <button type="submit" class="ico-after ico-search" title='{% trans "Lancer la recherche" %}'></button>
+                </form>
+            </section>
+        </div>
+    </section>
+
+    <div class="home-wrapper">
+        <section class="home-pinned-content">
+            <h2 class="home-heading heading-white ico-after ico-news" itemprop="name">
+                {% trans "À la une" %}
+
+                {% if perms.featured.change_featuredresource %}
+                    <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les Unes" %}</a>
+                {% endif %}
+            </h2>
+
+            <div class="featured-resource-row">
+                {% for featured_resource in last_featured_resources %}
+                    {% include "featured/includes/featured_resource_item.part.html" %}
+                {% empty %}
+                    <p class="no-featured-resource">{% trans "Aucun élément &quot;À la une&quot; disponible" %}</p>
+                {% endfor %}
             </div>
         </section>
-    {% endif %}
-    
+        <div class="home-row">
+           <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
+                    {% trans "Derniers tutoriels" %}
+                    <a href="{% url "zds.tutorial.views.index" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                </h2>
 
+                <meta itemprop="itemListOrder" content="Descending">
 
-    <section class="search-box">
-        <form action="/rechercher" class="home-wrapper">
-            <label for="search-box-field">
-                {% trans "Tu cherches quelque chose" %} ?
-            </label>
-            <input type="text" name="q" placeholder="Exemples : HTML, Java, PHP, Jeux Vidéos, Mathématiques, ..." id="search-box-field">
-            <button type="submit" class="ico-after search-submit" title='{% trans "Lancer la recherche" %}'>
-                {% trans "OK" %}
-            </button>
-        </form>
-    </section>
-{% endblock %}
-
-
-
-{% block content_out %}
-    <section class="content-col-2 tutorial-list" itemscope itemtype="http://schema.org/ItemList">
-        <h2 class="ico-after ico-articles" itemprop="name">
-            {% trans "Derniers articles" %}
-        </h2>
-        
-        <meta itemprop="itemListOrder" content="Descending">
-
-        {% for article in last_articles %}
-            <article>
-                {% if article.image %}
-                    <a href="{{ article.get_absolute_url_online }}" tabindex="-1">
-                        <img src="{{ article.image.article_illu.url }}" alt="" class="tutorial-img avatar">
-                    </a>
-                {% endif %}
-                <div class="tutorial-infos {% if not article.image %}no-illu{% endif %}">
-                    <h3>
-                        <a href="{{ article.get_absolute_url_online }}" title="{{ article.title }}" itemprop="itemListElement">
-                            {{ article.title }}
-                        </a>
-                    </h3>
-                    
-                    <span class="article-metadata">
-                        {{ article.pubdate|format_date|capfirst }} -
-                        <a href="
-                            {% if article.last_read_reaction %}
-                                {{ article.last_read_reaction.get_absolute_url }}
-                            {% else %}
-                                {{ article.get_absolute_url_online }}#reactions
-                            {% endif %}
-                        ">
-                            {% if article.get_reaction_count == 0 %}
-                                {% trans "Aucune réaction" %}
-                            {% else %}
-                                {{ article.get_reaction_count }} {% trans "réaction" %}{{ article.get_reaction_count|pluralize }}
-                            {% endif %}
-                        </a>
-                    </span>
-                </div>
-
-                <p class="resume">
-                    {{ article.description }}
-                </p>
-            </article>
-        {% empty %}
-            <p>{% trans "Aucun article disponible." %}</p>
-        {% endfor %}
-    </section>
-
-    <section class="content-col-2 tutorial-list" itemscope itemtype="http://schema.org/ItemList">
-        <h2 class="ico-after ico-tutorials" itemprop="name">
-            {% trans "Derniers tutoriels" %}
-        </h2>
-        
-        <meta itemprop="itemListOrder" content="Descending">
-        
-        {% for tutorial in last_tutorials %}
-            {% include 'tutorial/includes/tutorial_item.part.html' %}
-        {% empty %}
-            <p>{% trans "Aucun tutoriel disponible." %}</p>
-        {% endfor %}
-    </section>
-{% endblock %}
-
-
-
-{% block sidebar %}
-    <aside class="sidebar accordeon mobile-menu-hide"
-           data-title='{% trans "Catégories de tutoriels" %}'
-    >
-        <h3>{% trans "Catégories" %} <span class="wide">{% trans "de tutoriels" %}</span></h3>
-
-        {% with categories='.'|top_categories_tuto %}
-            {% for title, subcats in categories.items %}
-                <h4>{{ title }}</h4>
-                <ul>
-                    {% for subcat, slug in subcats %}
-                        <li>
-			    <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}">
-                                {{ subcat }}
-                            </a>
-                        </li>
+                <div class="content-item-list">
+                    {% for tutorial in last_tutorials %}
+                        {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True item_class=forloop.first|yesno:", mini" %}
+                    {% empty %}
+                        <p>{% trans "Aucun tutoriel disponible." %}</p>
                     {% endfor %}
-                </ul>
-            {% empty %}
-                <ul>
-                    <li>{% trans "Aucune catégorie disponible." %}</li>
-                </ul>
-            {% endfor %}
-        {% endwith %}
-    </aside>
+                    <div class="content-item write-tutorial">
+                        <div class="write-tutorial-text">
+                            <p>{% blocktrans %}Il y a {{ tutorials_count }} tutoriels sur Zeste de Savoir.{% endblocktrans %}</p>
+                            <p class="lead">{% trans "Pourquoi pas le vôtre ?" %}</p>
+                        </div>
+                        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
+                    </div>
+                </div>
+            </section>
+
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-articles home-heading" itemprop="name">
+                    {% trans "Derniers articles" %}
+                    <a href="{% url "zds.article.views.index" %}" class="btn btn-grey">{% trans "Tous les articles" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                <div class="content-item-list">
+                    {% for article in last_articles %}
+                        {% include 'article/includes/article_item.part.html' with show_description=True %}
+                    {% empty %}
+                        <p>{% trans "Aucun article disponible." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <section itemscope itemtype="http://schema.org/ItemList">
+            <h2 class="home-heading ico-after ico-forum" itemprop="name">
+                {% trans "Derniers sujets" %}
+                <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+            </h2>
+
+            <meta itemprop="itemListOrder" content="Descending">
+
+            <div class="content-item-list">
+              {% for topic in last_topics %}
+                  {% include 'forum/includes/topic_item.part.html' %}
+              {% empty %}
+                  <p>{% trans "Aucun sujet disponible." %}</p>
+              {% endfor %}
+            </div>
+        </section>
+    </div>
 {% endblock %}

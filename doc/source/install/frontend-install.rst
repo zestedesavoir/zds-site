@@ -4,13 +4,33 @@ Installation du frontend
 
 Vous voulez nous aider au développement du frontend ? Installez Node.js et npm grâce aux instructions qui suivent !
 
+
 Installation de Node.js et npm
 ==============================
 
 Windows
 -------
 
-Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <http://nodejs.org/download/>`__. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
+.. Attention::
+
+    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
+
+Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <http://nodejs.org/download/>`_. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
+
+Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour mettre à jour npm, vous avez `trois possibilités <https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows)>`_, l'une d'elle est de faire ``npm install npm`` dans le dossier ``C:\Program Files (x86)\nodejs``.
+
+Veillez à respecter `ces conditions <https://github.com/TooTallNate/node-gyp#installation>`_, avant de faire  ``npm install`` (dans l'ordre d'installation) :
+
+- `Visual C++ 2010 Express <http://go.microsoft.com/?linkid=9709949>`_.
+- `Windows 7 64-bit SDK <http://www.microsoft.com/en-us/download/details.aspx?id=8279>`_, si vous êtes en 64bits.
+
+  En cas de problème, avec l'installation du SDK, suivez `ces instructions <http://www.mathworks.com/matlabcentral/answers/95039#answer_104391>`_ :
+   - Désinstallez : **Microsoft Visual C++ 2010 redistributable packages (x86 et x64)**, *dans le panneau de configuration*.
+   - Relancez **Windows 7 64-bit SDK**, décochez "**Visual C++ Compilers**" et "**Microsoft Visual C++ 2010**".
+   - Appliquez ce patch : `SDK 7.1 <http://www.microsoft.com/en-us/download/details.aspx?id=4422>`_.
+   - Réinstallez (ils se sont peut-être déjà réinstallés tous seuls) `Microsoft Visual C++ 2010 redistributable x64 <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`_ et `Microsoft Visual C++ 2010 redistributable x86 <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`_.
+
+- Vous devez posséder `Visual Studio Express 2013 pour Windows Desktop <https://app.vssps.visualstudio.com/profile/review?download=true&family=VisualStudioExpressDesktop>`_, la version 2012 ne suffit pas, forcez l'utilisation de vs 2013 comme ceci : ``npm install --msvs_version=2013``, il est même conseillé de faire ``npm config set msvs_version 2013``, pour les futurs installations/commandes.
 
 Mac OS X
 --------
@@ -117,6 +137,7 @@ L'installation de Gulp, ainsi que des différentes dépendances et bibliothèque
 
     npm install
 
+
 Utilisation des outils
 ======================
 
@@ -125,39 +146,81 @@ Vous avez installé les outils ? Voilà comment on s'en sert dans notre projet !
 Présentation de Gulp
 --------------------
 
-Gulp est un outil permettant d'automatiser les tâches liées au front. Dans notre cas, il permet de :
+Gulp est un outil permettant d'automatiser les tâches liées au *front-end*. Dans notre cas, il permet de :
 
-- Vérifier la syntaxe Javascript
-- Minimiser les fichiers Javascript et les rassembler en un fichier
-- Compiler les fichiers SCSS pour les transformer CSS
-- Compresser les images et créer un sprite
-
-.. note::
-
-    Vous voulez en savoir plus ?
-    Venez `ici <../front-end/design.html>`_ ! ;)
+- vérifier la syntaxe Javascript ;
+- minimiser les fichiers Javascript et les rassembler en un fichier ;
+- compiler les fichiers SCSS pour les transformer CSS ;
+- compresser les images et créer un sprite.
 
 Utilisation de Gulp
 -------------------
 
-Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer. Les différentes tâches sont :
+Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer.
 
- - ``clean`` : Nettoie le dossier ``dist/``
- - ``build`` : Compile tout (SCSS, JS et images)
- - ``test`` : Lance les tests (grâce à JSHint)
- - ``watch`` : Compile les différents fichiers dès qu'ils sont modifiés (utile pour le développement ; ``Ctrl+C`` pour arrêter)
+Générer les fichiers avec ``build``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
+``build`` permet de :
+
+- minimiser les fichiers Javascript et les rassembler en un fichier ;
+- compiler les fichiers SCSS pour les transformer CSS ;
+- compresser les images et créer un sprite.
+
+Les fichiers générés sont disponibles dans le dossier ``dist/`` (un aperçu est disponible
+`ici <../front-end/arborescence-des-fichiers.html>`_).
+
+.. note::
+   C'est la tâche que vous utiliserez sûrement le plus souvent car vous devez la lancer à chaque modification
+   de ``assets/`` !
+
+Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le
+cache de votre navigateur !
+
+Supprimer les fichiers générés avec ``clean``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``clean`` supprime les fichiers générés par ``build`` (il supprime simplement le dossier ``dist/``).
+
+Vérifier le code avec ``test``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``test`` vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Si le code ne
+respecte pas ces règles, le script va sortir une liste d'erreurs (*errors*) et/ou d'avertissements (*warnings*)
+que vous devez corriger.
+
+.. note::
+   L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque
+   *pull request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini,
+   il est plus pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``npm run gulp -- test``
+   (ou ``npm test``).
+
+Coder plus simplement avec ``watch``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très
+utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour arrêter cette
+commande, il suffit de presser ``Ctrl+C``.
 
 -----
 
-Pour information, la commande ``npm run`` est un raccourci de la commande ``npm run-script``, donc les deux commandes sont identiques !
+.. seealso::
 
-Si vous voulez utiliser directement la commande ``gulp [tâche]`` au lieu de ``npm run gulp -- [tâche]``, il vous faut lancer cette commande avec les droits administrateurs :
+    Vous voulez en savoir plus ?
+    Venez voir `la documentation consacrée au front-end <../front-end.html>`_ ! ;)
+
+Quelques informations supplémentaires
+-------------------------------------
+
+La commande ``npm run`` est un raccourci de la commande ``npm run-script``, donc les deux commandes sont identiques !
+
+Si vous voulez utiliser directement la commande ``gulp -- [tâche]`` au lieu de ``npm run gulp -- [tâche]``, vous pouvez
+tout simplement créer un alias :
 
 .. sourcecode:: bash
 
-    sudo npm install -g gulp
+    alias gulp="npm run gulp"
+
 
 Nettoyage des outils
 ====================

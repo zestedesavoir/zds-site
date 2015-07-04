@@ -48,12 +48,12 @@ class Category(models.Model):
 
     def get_tutos(self):
         from zds.tutorial.models import Tutorial
-        scat = CategorySubCategory.objects.filter(
+        catsubcat = CategorySubCategory.objects.filter(
             category__pk=self.pk,
             is_main=True)
         msct = []
-        for sc in scat:
-            msct.append(sc.subcategory)
+        for subcat in catsubcat:
+            msct.append(subcat.subcategory)
         return Tutorial.objects.filter(
             subcategory__in=msct).exclude(
             sha_public=None).exclude(
@@ -201,6 +201,9 @@ class Comment(models.Model):
         self.text = text
         self.text_html = emarkdown(self.text)
 
+    def __unicode__(self):
+        return u'{0}'.format(self.text)
+
 
 class Alert(models.Model):
 
@@ -256,6 +259,9 @@ class CommentLike(models.Model):
     comments = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, related_name='post_liked', db_index=True)
 
+    def __unicode__(self):
+        return u'{0} like {1}'.format(self.user.username, self.comments.pk)
+
 
 class CommentDislike(models.Model):
 
@@ -266,6 +272,9 @@ class CommentDislike(models.Model):
 
     comments = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
+
+    def __unicode__(self):
+        return u'{0} dislike {1}'.format(self.user.username, self.comments.pk)
 
 
 class Tag(models.Model):
@@ -283,9 +292,7 @@ class Tag(models.Model):
         return u"{0}".format(self.title)
 
     def get_absolute_url(self):
-        return reverse('zds.forum.views.find_topic_by_tag',
-                       kwargs={'tag_pk': self.pk,
-                               'tag_slug': self.slug})
+        return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
         self.title = smart_text(self.title).lower()
