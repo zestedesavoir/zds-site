@@ -4,8 +4,10 @@
 {% load date %}
 
 {% captureas link %}
-    {% if beta %}
+    {% if type_link == 'beta' %}
         {{ tutorial.get_absolute_url_beta }}
+    {% elif type_link == 'draft' %}
+        {{ tutorial.get_absolute_url }}
     {% else %}
         {{ tutorial.get_absolute_url_online }}
     {% endif %}
