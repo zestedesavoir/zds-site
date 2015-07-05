@@ -244,3 +244,39 @@ Pour régler ça, il faut faire les modifications de la migration nous-même.
   - Les deux commandes doivent passer sans souci
   - Quitter mysql
   - Puis feinter la migration de oauth2_provider : `python manage.py migrate oauth2_provider --fake`
+
+Ajout d'un groupe com'
+----------------------
+
+*À faire une fois la migration effectuée avec un super-utilisateur*
+
+Permet aux membres responsables de la communication de pouvoir ajouter/supprimer des Unes et la phrase "Nouveau"
+
+  - Dans la page d'administration
+  - Créer un groupe "Communication"
+  - Attribuer les droits `perms.featured.change_featuredresource` à ce nouveau groupe
+  - Ajouter les membres responsables de la communication à ce groupe
+
+Issues #2718, #2658 et #2615
+----------------------------
+
+1. **Sauvegarder** le fichiers de configuration Nginx `zestedesavoir` et `zds-maintenance`.
+2. Les **remplacer** par ceux [présents dans la documentation](http://zds-site.readthedocs.org/fr/latest/install/deploy-in-production.html).
+
+Si le fichier `zds-maintenance` n'est pas dans la doc, c'est que vous n'êtes pas sur la bonne version.
+
+Actions à faire pour mettre en prod la prochaine version
+========================================================
+
+Issue #????
+-----------
+
+La recherche est maintenant en français:
+
+  - Arrêter Solr : `supervisorctl stop solr`
+  - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
+  - Vérifier que les fichiers contractions_fr.txt et stopwords_fr.txt dans le dossier d'installation de Solr/example/solr/collection1/conf/lang/ sont pertinent.
+  - Si les fichiers contractions_fr.txt et stopwords_fr.txt ne sont pas pertinent. Télécharger et remplacer les fichiers par ceux contenu dans [ce drive](https:// drive.google.com/folderview?id=0B5ux7uNoD6owfklUNnpOVWhuaTFkVjltSzR0UER2bWcwT1VQdUQ1WW5telU5TWFGLXFqM0U&usp=sharing). 
+  - Redémarrer Solr : `supervisorctl start solr`
+  - Lancer l'indexation : `python manage.py rebuild_index`
+

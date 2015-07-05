@@ -15,56 +15,42 @@ class FeaturedResourceForm(forms.ModelForm):
 
         fields = ['title', 'type', 'authors', 'image_url', 'url']
 
-    title = forms.CharField(
-        label=_(u'Titre'),
-        max_length=FeaturedResource._meta.get_field('title').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'required': 'required',
-            }
-        )
-    )
+        widgets = {
+            'title': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Titre de la Une')
+                }
+            ),
 
-    type = forms.CharField(
-        label=_(u'Type'),
-        max_length=FeaturedResource._meta.get_field('type').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'ex: Un projet, un article, un tutoriel...'),
-                'required': 'required',
-            }
-        )
-    )
+            'type': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'ex: Un projet, Un article, Un tutoriel...')
+                }
+            ),
 
-    authors = forms.CharField(
-        label=_('Auteurs'),
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Les auteurs doivent être séparés par une virgule.'),
-                'required': 'required',
-                'data-autocomplete': '{ "type": "multiple" }'
-            }
-        )
-    )
+            'authors': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Des auteurs (ou pas) ?')
+                }
+            ),
 
-    image_url = forms.CharField(
-        label='Image URL',
-        max_length=FeaturedResource._meta.get_field('image_url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Lien vers l\'url de l\'image de la une (dimensions: 228x228).')
-            }
-        )
-    )
+            'image_url': forms.URLInput(
+                attrs={
+                    'placeholder': _(u'Lien vers l\'image de la Une (dimensions: 228x228px).')
+                }
+            ),
 
-    url = forms.CharField(
-        label='URL',
-        max_length=FeaturedResource._meta.get_field('url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Lien vers l\'url de la ressource.')
-            }
-        )
+            'url': forms.URLInput(
+                attrs={
+                    'placeholder': _(u'Lien vers la ressource.')
+                }
+            )
+        }
+
+    major_update = forms.BooleanField(
+        label=_(u'Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
+        initial=False,
+        required=False
     )
 
     def __init__(self, *args, **kwargs):
@@ -80,6 +66,7 @@ class FeaturedResourceForm(forms.ModelForm):
             Field('authors'),
             Field('image_url'),
             Field('url'),
+            Field('major_update'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
             ),
@@ -90,28 +77,27 @@ class FeaturedMessageForm(forms.ModelForm):
     class Meta:
         model = FeaturedMessage
 
-        fields = ['message', 'url']
+        fields = ['hook', 'message', 'url']
 
-    message = forms.CharField(
-        label=_(u'Message'),
-        max_length=FeaturedMessage._meta.get_field('message').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'required': 'required',
-            }
-        )
-    )
+        widgets = {
+            'hook': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Mot d\'accroche court ("Nouveau !")')
+                }
+            ),
 
-    url = forms.CharField(
-        label=_(u'URL'),
-        max_length=FeaturedMessage._meta.get_field('url').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _(u'Lien vers l\'url du message.'),
-                'required': 'required',
-            }
-        )
-    )
+            'message': forms.TextInput(
+                attrs={
+                    'placeholder': _(u'Message à afficher')
+                }
+            ),
+
+            'url': forms.URLInput(
+                attrs={
+                    'placeholder': _(u'Lien vers la description de la ressource')
+                }
+            )
+        }
 
     def __init__(self, *args, **kwargs):
         super(FeaturedMessageForm, self).__init__(*args, **kwargs)
@@ -121,6 +107,7 @@ class FeaturedMessageForm(forms.ModelForm):
         self.helper.form_action = reverse('featured-message-create')
 
         self.helper.layout = Layout(
+            Field('hook'),
             Field('message'),
             Field('url'),
             ButtonHolder(
