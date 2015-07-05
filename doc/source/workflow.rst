@@ -118,6 +118,47 @@ Vous l'avez lu : les corrections de ``master`` **ne sont pas remontées sur** ``
 
 Ceci fonctionne bien si les développements sont de bonne qualité, donc avec peu de correctifs sur la branche de *release* (idéalement aucun !)... les codes approximatifs et non testés seront donc refusés sans la moindre pitié !
 
+Rôles et Responsabilités
+========================
+
+Le projet Zeste de Savoir est dirigé par sa communauté. Ensuite les développeurs prennent en main l'aspect technique.
+On distingue cependant trois rôles particuliers au sein de l'équipe de développement.
+Voici leurs noms ainsi que leurs tâches :
+
+Le DTC (Directeur Technique)
+----------------------------
+
+  - Faire les déploiements
+  - Confirmer les choix techniques
+  - Trancher les choix techniques qui ne sont pas évidents
+  - Le DTC marque les tickets bloquants et le CdP donne les coups de fouet pour qu'ils soient fermés
+
+Le CdP (Chef de Projet)
+-----------------------
+
+  - S'assurer que les tickets vivent leur vie (tag par exemple)
+  - S'assurer que les PR s'écoulent et se débloquent
+  - Faire un suivi des développements en cours
+  - Gérer les tensions entre devs/membres si nécessaire
+  - Gérer la "vie de l'équipe" et sa logistique (droits github…)
+
+Le Sysadmin (administrateur systeme et reseau)
+----------------------------------------------
+
+  - Roles
+    - Gérer et monitorer l'infra (configuration des logiciels, logs, sécurité) [pré]prod'
+    - Assister/remplacer le DTC sur les histoires de migration prod -> préprod quand nécessaire
+    - Donner un avis sur les contraintes de changement de serveur (ou prévenir sur les limites de l'actuel quand nécessaire, cf. premier point)
+    - Suivre les tickets "infra" sur GH et faire les actions nécessaires
+    - Gérer les personnes ayant accès au serveur [pré]prod'
+    - Maintenir de la doc. sur les actions pour faire un suivi et assurer la relève/remplacement quand c'est nécessaire (maladie, vacances…)
+  - Responsabilités
+    - **Confidentialité** vis-a-vis des données privées présente sur les serveurs (email, contenu de MP…)
+    - Si possible, toujours tester en preprod' avant de reproduire en prod'
+    - **Professionnalisme**, "si on sait pas on fait pas" pour ne pas mettre la production en péril (sauf en preprod entre les releases)
+
+Chacun de ces postes est occupé par une personne différente (idéalement) qui aura été choisi parmi les développeurs et pour qui l'association Zeste de Savoir a donné son approbation (en raison du caractère confidentiel de certaines données).
+
 Glossaire
 =========
 

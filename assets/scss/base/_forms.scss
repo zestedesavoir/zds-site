@@ -139,8 +139,8 @@
             float: right;
         }
     }
-    [type=submit],
-    .btn-submit {
+    [type=submit]:not(.link),
+    .btn-submit:not(.link) {
         color: #FFF;
         background: $color-success;
 
@@ -159,7 +159,7 @@
             }
         }
     }
-    .btn-cancel {
+    .btn-cancel:not(.link) {
         background: $color-danger;
 
         &:not([disabled]):hover,
@@ -177,7 +177,7 @@
             }
         }
     }
-    .btn-grey {
+    .btn-grey:not(.link) {
         background: #EEE;
         color: #555;
 
@@ -207,7 +207,7 @@
         }
     }
 
-    .btn-facebook {
+    .btn-facebook:not(.link) {
         background: #3b5998;
 
         &:hover,
@@ -215,7 +215,7 @@
             background: darken(#3b5998, 10%);
         }
     }
-    .btn-twitter {
+    .btn-twitter:not(.link) {
         background: #4099FF;
 
         &:hover,
@@ -223,7 +223,7 @@
             background: darken(#4099FF, 10%);
         }
     }
-    .btn-google-plus {
+    .btn-google-plus:not(.link) {
         background: #d34836;
 
         &:hover,

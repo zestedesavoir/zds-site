@@ -5,8 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import Http404
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView
@@ -14,7 +13,6 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 
 from zds import settings
-from zds.member.models import Profile
 from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.utils.paginator import ZdSPagingListView
@@ -27,7 +25,7 @@ class FeaturedResourceList(ZdSPagingListView):
 
     context_object_name = 'featured_resource_list'
     paginate_by = settings.ZDS_APP['featured_resource']['featured_per_page']
-    queryset = FeaturedResource.objects.all()
+    queryset = FeaturedResource.objects.all().order_by('-pubdate')
     template_name = 'featured/index.html'
 
     @method_decorator(login_required)
@@ -58,29 +56,14 @@ class FeaturedResourceCreate(CreateView):
         return render(request, self.template_name, {'form': form})
 
     def form_valid(self, form):
-        authors = []
-        for author in form.data.get('authors').split(","):
-            current = author.strip()
-            if current == '':
-                continue
-
-            try:
-                current_author = get_object_or_404(Profile, user__username=current)
-            except Http404:
-                messages.warning(self.request, _(u'L\'utilisateur {} n\'existe pas.').format(current))
-                return render(self.request, self.template_name, {'form': form})
-
-            authors.append(current_author)
 
         featured_resource = FeaturedResource()
         featured_resource.title = form.data.get('title')
         featured_resource.type = form.data.get('type')
+        featured_resource.authors = form.data.get('authors')
         featured_resource.image_url = form.data.get('image_url')
         featured_resource.url = form.data.get('url')
         featured_resource.pubdate = datetime.now()
-        featured_resource.save()
-
-        featured_resource.authors.add(*authors)
         featured_resource.save()
 
         return redirect(reverse('featured-resource-list'))
@@ -106,9 +89,9 @@ class FeaturedResourceUpdate(UpdateView):
         form = self.form_class(initial={
             'title': self.featured_resource.title,
             'type': self.featured_resource.type,
+            'authors': self.featured_resource.authors,
             'image_url': self.featured_resource.image_url,
             'url': self.featured_resource.url,
-            'authors': ", ".join([author.user.username for author in self.featured_resource.authors.all()])
         })
         form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
         return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})
@@ -123,33 +106,16 @@ class FeaturedResourceUpdate(UpdateView):
         return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})
 
     def form_valid(self, form):
-        authors = []
-        for author in form.data.get('authors').split(","):
-            current = author.strip()
-            if current == '':
-                continue
-
-            try:
-                current_author = get_object_or_404(Profile, user__username=current)
-            except Http404:
-                messages.warning(self.request, _(u'L\'utilisateur {} n\'existe pas.').format(current))
-                return render(self.request,
-                              self.template_name,
-                              {'form': form, 'featured_resource': self.featured_resource})
-
-            authors.append(current_author)
 
         self.featured_resource.title = form.data.get('title')
         self.featured_resource.type = form.data.get('type')
+        self.featured_resource.authors = form.data.get('authors')
         self.featured_resource.image_url = form.data.get('image_url')
         self.featured_resource.url = form.data.get('url')
-        self.featured_resource.pubdate = datetime.now()
-        self.featured_resource.save()
+        if form.data.get('major_update') is not None:
+            self.featured_resource.pubdate = datetime.now()
 
-        self.featured_resource.authors.clear()
-        self.featured_resource.authors.add(*authors)
         self.featured_resource.save()
-
         return redirect(reverse('zds.pages.views.home'))
 
     def get_form(self, form_class):
@@ -215,6 +181,20 @@ class FeaturedMessageCreateUpdate(CreateView):
     def dispatch(self, request, *args, **kwargs):
         return super(FeaturedMessageCreateUpdate, self).dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        last_message = FeaturedMessage.objects.get_last_message()
+        init = {}
+        if last_message is not None:
+            init = {
+                'hook': last_message.hook,
+                'message': last_message.message,
+                'url': last_message.url,
+            }
+
+        form = self.form_class(initial=init)
+        form.helper.form_action = reverse('featured-message-create')
+        return render(request, self.template_name, {'form': form})
+
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
@@ -228,6 +208,7 @@ class FeaturedMessageCreateUpdate(CreateView):
         if last_message:
             last_message.delete()
         featured_message = FeaturedMessage()
+        featured_message.hook = form.data.get('hook')
         featured_message.message = form.data.get('message')
         featured_message.url = form.data.get('url')
         featured_message.save()

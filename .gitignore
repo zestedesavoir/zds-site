@@ -24,6 +24,8 @@ contents-public/
 
 /.tmp
 
+/scripts/release_summary.md
+
 # Front files
 /node_modules
 /dist

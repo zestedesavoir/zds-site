@@ -17,20 +17,10 @@
         $el.find("a").attr("href", data.link);
     }
 
-    function buildDescription(_authors, type) {
-        var authors = _authors.split(",");
-        authors = authors.map($.trim);
-        authors = authors.filter(function(e) { return e !== ""; });
-
-        var text = type + " par ";
-        authors.forEach(function(author, index) {
-            text += "<i>" + author + "</i>";
-            if(index === authors.length - 2) {
-                text += " et ";
-            } else if(index !== authors.length - 1) {
-                text += ", ";
-            }
-        });
+    function buildDescription(authors, type) {
+        var text = type;
+        if(authors.length > 0)
+            text += " par " + authors;
         return text;
     }
 
