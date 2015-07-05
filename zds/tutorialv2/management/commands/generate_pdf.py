@@ -43,8 +43,7 @@ class Command(BaseCommand):
 
         for content in public_contents:
             self.stdout.write(_(u"- {}").format(content.content_public_slug), ending='')
-            extra_content_dir = os.path.join(
-                content.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
+            extra_content_dir = content.get_extra_contents_directory()
             os.chdir(extra_content_dir)
             base_name = os.path.join(extra_content_dir, content.content_public_slug)
 
@@ -62,4 +61,4 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(' [ERREUR]')
 
-    os.chdir(settings.BASE_DIR)
+        os.chdir(settings.BASE_DIR)
