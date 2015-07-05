@@ -12,6 +12,10 @@ class ArticleIndex(indexes.SearchIndex, indexes.Indexable):
     pubdate = indexes.DateTimeField(model_attr='pubdate')
     txt = indexes.CharField(model_attr='text')
 
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
+
     def get_model(self):
         return Article
 
@@ -19,3 +23,6 @@ class ArticleIndex(indexes.SearchIndex, indexes.Indexable):
         """Used when the entire index for model is updated."""
         return self.get_model().objects\
             .filter(sha_public__isnull=False)
+
+    def prepare_permissions(self, obj):
+        return "public"
