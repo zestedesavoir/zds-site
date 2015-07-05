@@ -12,7 +12,8 @@ from zds.forum.models import Topic
 from zds.settings import BASE_DIR
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
+    PublishedContentFactory
 from zds.gallery.factories import GalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
@@ -524,6 +525,50 @@ class UtilsTests(TestCase):
         self.assertIsNotNone(article_validation)
         self.assertEqual(article_validation.status, "ACCEPT")
         self.assertEqual(article_validation.validator.pk, self.staff.pk)
+
+    def test_generate_pdf(self):
+        """ensure the behavior of the `python manage.py generate_pdf` commmand"""
+
+        tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
+        published = PublishedContent.objects.get(content_pk=tuto.pk)
+
+        tuto2 = PublishedContentFactory(type='TUTORIAL')  # generate and publish a second tutorial
+        published2 = PublishedContent.objects.get(content_pk=tuto2.pk)
+
+        # ensure that PDF exists in the first place
+        self.assertTrue(published.have_pdf())
+        self.assertTrue(published2.have_pdf())
+
+        pdf_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.pdf')
+        pdf_path2 = os.path.join(published2.get_extra_contents_directory(), published2.content_public_slug + '.pdf')
+        self.assertTrue(os.path.exists(pdf_path))
+        self.assertTrue(os.path.exists(pdf_path2))
+
+        # 1. re-generate (all) PDFs
+        os.remove(pdf_path)
+        os.remove(pdf_path2)
+        self.assertFalse(os.path.exists(pdf_path))
+        self.assertFalse(os.path.exists(pdf_path2))
+        call_command('generate_pdf')
+        self.assertTrue(os.path.exists(pdf_path))
+        self.assertTrue(os.path.exists(pdf_path2))  # both PDFs are generated
+
+        # 2. re-generate a given PDF
+        os.remove(pdf_path)
+        os.remove(pdf_path2)
+        self.assertFalse(os.path.exists(pdf_path))
+        self.assertFalse(os.path.exists(pdf_path2))
+        call_command('generate_pdf', 'id={}'.format(tuto.pk))
+        self.assertTrue(os.path.exists(pdf_path))
+        self.assertFalse(os.path.exists(pdf_path2))  # only the first PDF is generated
+
+        # 3. re-generate a given PDF with a wrong id
+        os.remove(pdf_path)
+        self.assertFalse(os.path.exists(pdf_path))
+        self.assertFalse(os.path.exists(pdf_path2))
+        call_command('generate_pdf', 'id=666666')  # I hope there is no content #666666 ;)
+        self.assertFalse(os.path.exists(pdf_path))
+        self.assertFalse(os.path.exists(pdf_path2))  # so no PDF is generated !
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
