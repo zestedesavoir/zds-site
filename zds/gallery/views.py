@@ -165,7 +165,11 @@ def modify_gallery(request):
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
         for g_pk in list_items:
-            if Tutorial.objects.filter(gallery__pk=g_pk).exists():
+            has_old_tuto = Tutorial.objects.filter(gallery__pk=g_pk).exists()
+            from zds.tutorialv2.models.models_database import PublishableContent
+
+            has_v2_content = PublishableContent.objects.filter(gallery__pk=g_pk).exists()
+            if has_old_tuto or has_v2_content:
                 gallery = Gallery.objects.get(pk=g_pk)
                 messages.error(
                     request,
