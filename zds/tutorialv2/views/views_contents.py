@@ -565,13 +565,20 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         for element in versioned_content.traverse(only_container=False):
             if isinstance(element, Container):
-                continue
+                introduction = element.get_introduction()
+                introduction = image_regex.sub(
+                    lambda g: UpdateContentWithArchive.update_image_link(g, translation_dic), introduction)
 
-            section_text = element.get_text()
-            section_text = image_regex.sub(
-                lambda g: UpdateContentWithArchive.update_image_link(g, translation_dic), section_text)
+                conclusion = element.get_conclusion()
+                conclusion = image_regex.sub(
+                    lambda g: UpdateContentWithArchive.update_image_link(g, translation_dic), conclusion)
+                element.repo_update(element.title, introduction, conclusion, do_commit=False)
+            else:
+                section_text = element.get_text()
+                section_text = image_regex.sub(
+                    lambda g: UpdateContentWithArchive.update_image_link(g, translation_dic), section_text)
 
-            element.repo_update(element.title, section_text, do_commit=False)
+                element.repo_update(element.title, section_text, do_commit=False)
 
     @staticmethod
     def update_image_link(group, translation_dic):
