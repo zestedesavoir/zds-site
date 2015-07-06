@@ -268,7 +268,7 @@ Si le fichier `zds-maintenance` n'est pas dans la doc, c'est que vous n'êtes pa
 Actions à faire pour mettre en prod la prochaine version
 ========================================================
 
-Issue #????
+Issue #2401
 -----------
 
 La recherche est maintenant en français:
