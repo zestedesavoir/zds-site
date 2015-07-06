@@ -566,7 +566,7 @@ class UtilsTests(TestCase):
         os.remove(pdf_path)
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))
-        call_command('generate_pdf', 'id=666666')  # I hope there is no content #666666 ;)
+        call_command('generate_pdf', 'id=-1')  # There is no content with pk=-1
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))  # so no PDF is generated !
 
