@@ -376,14 +376,14 @@ class UtilsTests(TestCase):
         shutil.rmtree(tempdir)
 
     def test_migrate_zep12(self):
-        private_mini_tuto = MiniTutorialFactory()
+        private_mini_tuto = MiniTutorialFactory(title="Private Mini tuto")
         private_mini_tuto.authors.add(self.user_author)
         private_mini_tuto.save()
-        multi_author_tuto = MiniTutorialFactory(title="Multi user tuto")
+        multi_author_tuto = MiniTutorialFactory(title="Multi User Tuto")
         multi_author_tuto.authors.add(self.user_author)
         multi_author_tuto.authors.add(self.staff)
         multi_author_tuto.save()
-        public_mini_tuto = PublishedMiniTutorial()
+        public_mini_tuto = PublishedMiniTutorial(title="Public Mini Tuto")
         public_mini_tuto.authors.add(self.user_author)
         public_mini_tuto.save()
         OldTutoValidation(tutorial=public_mini_tuto,
@@ -412,20 +412,20 @@ class UtilsTests(TestCase):
         like.comments = liked_note
         like.user = self.staff
         like.save()
-        big_tuto = BigTutorialFactory()
+        big_tuto = BigTutorialFactory(title="Big tuto")
         big_tuto.authors.add(self.user_author)
         big_tuto.save()
-        public_big_tuto = PublishedBigTutorial(light=False)
+        public_big_tuto = PublishedBigTutorial(light=False, title="Public Big Tuto")
         public_big_tuto.authors.add(self.user_author)
         public_big_tuto.save()
-        private_article = ArticleFactory()
+        private_article = ArticleFactory(title="Private Article")
         private_article.authors.add(self.user_author)
         private_article.save()
-        multi_author_article = ArticleFactory(title="mutlti author article")
+        multi_author_article = ArticleFactory(title="Multi Author Article")
         multi_author_article.authors.add(self.user_author)
         multi_author_article.authors.add(self.staff)
         multi_author_article.save()
-        public_article = PublishedArticleFactory()
+        public_article = PublishedArticleFactory(title="Public Article")
         public_article.authors.add(self.user_author)
         public_article.save()
         OldArticleValidation(article=public_article,
@@ -458,7 +458,7 @@ class UtilsTests(TestCase):
         forum11 = ForumFactory(
             category=category1,
             position_in_category=1)
-        beta_tuto = BetaMiniTutorialFactory(title=u"Un super tuto en beta", forum=forum11, author=self.user_author)
+        beta_tuto = BetaMiniTutorialFactory(title=u"Beta Tuto", forum=forum11, author=self.user_author)
         beta_tuto.authors.add(self.user_author)
         beta_tuto.save()
         call_command('migrate_to_zep12')
@@ -513,6 +513,7 @@ class UtilsTests(TestCase):
         self.assertIsNotNone(public_chapter)
         public_chapter_url = public_chapter.get_absolute_url_online()
         public_chapter_url = public_chapter_url.replace(old_tutorial_module_prefix, new_tutorial_module_prefix)
+
         self.assertEqual(301, self.client.get(public_chapter_url).status_code)
         self.assertEqual(200, self.client.get(public_chapter_url, follow=True).status_code)
         self.assertEqual(200, self.client.get(public_article_url, follow=True).status_code)
