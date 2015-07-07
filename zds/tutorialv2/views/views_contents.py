@@ -164,6 +164,8 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         self.get_forms(context)
 
+        context['gallery'] = self.object.gallery
+
         return context
 
 
@@ -211,6 +213,13 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['last_hash'] = versioned.compute_hash()
 
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(EditContent, self).get_context_data(**kwargs)
+
+        context['gallery'] = self.object.gallery
+
+        return context
 
     def form_valid(self, form):
         versioned = self.versioned_object
@@ -809,6 +818,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context = super(CreateContainer, self).get_context_data(**kwargs)
 
         context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
+        context['gallery'] = self.object.gallery
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -918,6 +928,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context = super(EditContainer, self).get_context_data(**kwargs)
         form = kwargs.pop('form', None)
         context['container'] = form.initial['container']
+        context['gallery'] = self.object.gallery
 
         return context
 
@@ -973,6 +984,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_context_data(self, **kwargs):
         context = super(CreateExtract, self).get_context_data(**kwargs)
         context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
+        context['gallery'] = self.object.gallery
 
         return context
 
@@ -1013,6 +1025,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         context = super(EditExtract, self).get_context_data(**kwargs)
         form = kwargs.pop('form', None)
         context['extract'] = form.initial['extract']
+        context['gallery'] = self.object.gallery
 
         return context
 

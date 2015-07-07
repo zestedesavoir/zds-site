@@ -341,6 +341,15 @@
             {% crispy formAskValidation %}
         </div>
     {% endif %}
+
+
+    {% if can_edit %}
+        <li>
+            <a href="{% url "gallery-details" gallery.pk gallery.slug %}" class="ico-after offline blue">
+                {% trans "Aller à la gallerie liée" %}
+            </a>
+        </li>
+    {% endif %}
 {% endblock %}
 
 
