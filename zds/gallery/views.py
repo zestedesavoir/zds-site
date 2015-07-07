@@ -40,14 +40,35 @@ class ListGallery(ListView):
 
     object = UserGallery
     template_name = "gallery/gallery/list.html"
-    context_object_name = "galleries"
+    context_object_name = "user_galleries"
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(ListGallery, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        return UserGallery.objects.all().filter(user=self.request.user)
+        return UserGallery.objects.filter(user=self.request.user).prefetch_related('gallery').all()
+
+    def get_context_data(self, **kwargs):
+        context = super(ListGallery, self).get_context_data(**kwargs)
+
+        # fetch content linked to galleries:
+        pk_list = [g.gallery.pk for g in context['user_galleries']]
+        contents_linked = {}
+        contents = PublishableContent.objects.prefetch_related('gallery').filter(gallery__pk__in=pk_list).all()
+
+        for content in contents:
+            contents_linked[content.gallery.pk] = content
+
+        # link galleries to contents
+        galleries = []
+        for g in context['user_galleries']:
+            content = None if g.gallery.pk not in contents_linked else contents_linked[g.gallery.pk]
+            galleries.append((g, g.gallery, content))
+
+        context['galleries'] = galleries
+
+        return context
 
 
 class NewGallery(CreateView):
@@ -120,6 +141,7 @@ class GalleryDetails(DetailView):
         context['gallery_mode'] = ensure_user_access(self.object, self.request.user)
         context['images'] = self.object.get_images()
         context['form'] = UserGalleryForm
+        context['content_linked'] = PublishableContent.objects.filter(gallery__pk=self.object.pk).first()
 
         return context
 
@@ -166,28 +188,27 @@ def modify_gallery(request):
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
         for g_pk in list_items:
-            has_old_tuto = Tutorial.objects.filter(gallery__pk=g_pk).first()
 
+            # check if the gallery is not linked to a content
+            has_old_tuto = Tutorial.objects.filter(gallery__pk=g_pk).first()
             v2_content = PublishableContent.objects.filter(gallery__pk=g_pk).first()
             has_v2_content = v2_content is not None
             if has_old_tuto or has_v2_content:
                 gallery = Gallery.objects.get(pk=g_pk)
                 if has_old_tuto:
-                    error_message = _(u"La galerie '{}' ne peut pas être supprimée car elle est "
-                                      u"liée à un tutoriel existant.")\
-                        .format(gallery.title)
-                if has_v2_content:  # if v2 content is linked to an old version tuto, v2 is better
-                    _type = v2_content.textual_type().lower()
-                    error_message = _(u"La galerie '{}' ne peut pas être supprimée car elle est liée à {} {}.")\
+                    error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée "
+                                      u"à un tutoriel existant.").format(gallery.title)
+                else:  # if v2 content is linked
+                    _type = _(u'au tutoriel')
+                    if v2_content.type == 'ARTICLE':
+                        _type = _(u'à l\'article')
+                    error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».")\
                         .format(gallery.title, _type, v2_content.title)
-                messages.error(
-                    request,
-                    error_message)
+                messages.error(request, error_message)
             else:
                 free_galleries.append(g_pk)
 
-        perms = UserGallery.objects.filter(gallery__pk__in=free_galleries,
-                                           user=request.user, mode="W").count()
+        perms = UserGallery.objects.filter(gallery__pk__in=free_galleries, user=request.user, mode="W").count()
 
         # Check that the user has the RW right on each gallery
 
