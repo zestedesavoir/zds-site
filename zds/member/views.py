@@ -805,8 +805,8 @@ def active_account(request):
         u'\n\n'
         u'Clem\'') \
         .format(username=usr.username,
-                tutorials_url=settings.ZDS_APP['site']['url'] + reverse("zds.tutorial.views.index"),
-                articles_url=settings.ZDS_APP['site']['url'] + reverse("zds.article.views.index"),
+                tutorials_url=settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
+                articles_url=settings.ZDS_APP['site']['url'] + reverse("article:list"),
                 members_url=settings.ZDS_APP['site']['url'] + reverse("member-list"),
                 forums_url=settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
                 site_name=settings.ZDS_APP['site']['litteral_name'])
