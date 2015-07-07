@@ -32,6 +32,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
+from zds.tutorialv2.models.models_database import PublishableContent
 
 
 class ListGallery(ListView):
@@ -165,16 +166,23 @@ def modify_gallery(request):
         # Don't delete gallery when it's link to tutorial
         free_galleries = []
         for g_pk in list_items:
-            has_old_tuto = Tutorial.objects.filter(gallery__pk=g_pk).exists()
-            from zds.tutorialv2.models.models_database import PublishableContent
+            has_old_tuto = Tutorial.objects.filter(gallery__pk=g_pk).first()
 
-            has_v2_content = PublishableContent.objects.filter(gallery__pk=g_pk).exists()
+            v2_content = PublishableContent.objects.filter(gallery__pk=g_pk).first()
+            has_v2_content = v2_content is not None
             if has_old_tuto or has_v2_content:
                 gallery = Gallery.objects.get(pk=g_pk)
+                if has_old_tuto:
+                    error_message = _(u"La galerie '{}' ne peut pas être supprimée car elle est "
+                                      u"liée à un tutoriel existant.")\
+                        .format(gallery.title)
+                if has_v2_content:  # if v2 content is linked to an old version tuto, v2 is better
+                    _type = v2_content.textual_type().lower()
+                    error_message = _(u"La galerie '{}' ne peut pas être supprimée car elle est liée à {} {}.")\
+                        .format(gallery.title, _type, v2_content.title)
                 messages.error(
                     request,
-                    _(u"La galerie '{}' ne peut pas être supprimée car elle est liée à un tutoriel existant.").format(
-                        gallery.title))
+                    error_message)
             else:
                 free_galleries.append(g_pk)
 
