@@ -28,7 +28,7 @@
                     <input
                         name="items"
                         type="checkbox"
-                        {% if not user_gallery.can_write or content %}
+                        {% if not user_gallery.can_write %}
                             disabled="true"
                         {% endif %}
                         value="{{ gallery.pk }}"
