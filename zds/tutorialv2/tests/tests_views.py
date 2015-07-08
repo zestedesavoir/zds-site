@@ -3345,6 +3345,39 @@ class ContentTests(TestCase):
             last = msg
         self.assertEqual(last.level, messages.ERROR)
 
+    def test_gallery_not_deleted_if_linked_to_content(self):
+        """Ensure that a gallery cannot be deleted if linked to a content"""
+        gallery = Gallery.objects.get(pk=self.tuto.gallery.pk)
+        self.assertIsNotNone(gallery)
+
+        self.assertEqual(1, Gallery.objects.filter(pk=self.tuto.gallery.pk).count())
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # try to delete gallery
+        result = self.client.post(
+            reverse('zds.gallery.views.modify_gallery'),
+            {
+                'delete_multi': '',
+                'items': [gallery.pk]
+            },
+            follow=True
+        )
+
+        self.assertEqual(1, Gallery.objects.filter(pk=self.tuto.gallery.pk).count())  # gallery not deleted
+
+        # check that we get an error
+        msgs = result.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

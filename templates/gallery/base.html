@@ -24,10 +24,10 @@
         {% block new_btn %}{% endblock %}
 
         {% block sidebar_actions %}
-           {%  if gallery_mode.can_write %}
-                <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-                    <h3>{% trans "Actions" %}</h3>
-                    <ul>
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>{% trans "Actions" %}</h3>
+                <ul>
+                    {%  if gallery_mode.can_write %}
                         <li>
                             <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
                                 {% trans "Ajouter une image" %}
@@ -38,9 +38,22 @@
                                 {% trans "Importer une archive" %}
                             </a>
                         </li>
-                    </ul>
-                </div>
-           {% endif %}
+                    {% endif %}
+                    {% if content_linked %}
+                        <li>
+                            <a href="{{ content_linked.get_absolute_url }}" class="ico-after offline blue">
+                                {% trans "Aller" %}
+                                {% if content_linked.type == "ARTICLE" %}
+                                    {% trans "à l'article" %}
+                                {% elif content_linked.type == "TUTORIAL" %}
+                                     {% trans "au tutoriel" %}
+                                {% endif %}
+                                {% trans "lié à cette galerie" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
         {% endblock %}
     </aside>
 {% endblock %}
