@@ -27,7 +27,12 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
-    }
+        'OPTIONS': {
+            'timeout': 20  # SQLite doesn't currently handle concurency well. This will increase the default timeout
+                           # value. This will simply make SQLite wait a bit longer before throwing “database is locked”
+                           # errors. it won’t really do anything to solve them.
+        }
+    },
 }
 
 # Local time zone for this installation. Choices can be found here:
@@ -181,6 +186,7 @@ INSTALLED_APPS = (
     'zds.tutorialv2',
     'zds.member',
     'zds.featured',
+    'zds.search',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -528,6 +534,13 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # /!\ WARNING : It will probably open security holes in your site if the proxy behing isn't well configured
 # Read the docs for further informations - https://docs.djangoproject.com/en/1.7/ref/settings/#secure-proxy-ssl-header
+
+# This tests whether the second commandline argument (after manage.py) was test
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+# Thread, SQLite and Django 1.7 doesn't work well together. For more info, you can checkout this ticket.
+# https://code.djangoproject.com/ticket/12118. In Django 1.8, the problem have been solved.
+# We need to create Thread in zds/search/utils.py, to improve perf at publication time.
+# When we will use django 1.8, we can delete this param and change zds/search/utils.py.
 
 # Load the production settings, overwrite the existing ones if needed
 try:

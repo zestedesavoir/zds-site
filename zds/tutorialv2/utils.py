@@ -1,25 +1,25 @@
 # coding: utf-8
 import shutil
 import zipfile
-from git import Repo, Actor
 import os
 from datetime import datetime
 import copy
-import cairosvg
 from urllib import urlretrieve
 from urlparse import urlparse
-from lxml import etree
 import codecs
-
-from PIL import Image as ImagePIL
-
 from collections import OrderedDict
 
+from git import Repo, Actor
+import cairosvg
+from lxml import etree
+from PIL import Image as ImagePIL
 from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
+from zds.search.models import SearchIndexContent
+from zds.search.utils import reindex_content
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
 from zds import settings
 from zds.settings import ZDS_APP
@@ -635,6 +635,10 @@ def publish_content(db_object, versioned, is_major_update=True):
         make_zip_file(public_version)
     except IOError:
         pass
+
+    # Launching index
+    reindex_content(versioned, db_object)
+
     return public_version
 
 
@@ -680,6 +684,9 @@ def unpublish_content(db_object):
 
         db_object.public_version = None
         db_object.save()
+
+        # We just delete all index that correspond to the content
+        SearchIndexContent.objects.filter(publishable_content=db_object).delete()
 
         return True
 

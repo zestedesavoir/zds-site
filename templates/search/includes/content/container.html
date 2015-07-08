@@ -1,0 +1,55 @@
+{% load highlight %}
+{% load date %}
+
+<article class="content-item expand-description tutorial-item">
+    <a href="{{ result.object.url_to_redirect }}" title="{{ result.object.title }}">
+        <div class="content-illu">
+
+            {% if result.urlimage %}
+                <img src="{{ result.urlimage }}" alt="Icone du contenu {{ result.object.title }}">
+            {% endif %}
+        </div>
+
+        <div class="content-info">
+            <h3 class="content-title" itemprop="itemListElement">
+                {% highlight result.object.title with query html_tag "mark" %}
+            </h3>
+
+            <p class="content-description">
+                {% with result.object.introduction|add:result.object.conclusion as text %}
+                    {% highlight text with query html_tag "mark" %}
+                {% endwith %}
+            </p>
+
+            <div class="content-meta" title="Publié le {{ result.pubdate }}">
+
+                <p>
+                    {% if result.level == 'part' %}
+                        Chapitre
+                    {% else %}
+                        Partie
+                    {% endif %}
+                </p>
+
+                -
+
+                <time class="content-pubdate" pubdate="{{ result.pubdate }}">
+                    <span class="long">{{ result.pubdate|format_date|capfirst }}</span>
+                    <span class="short">{{ result.pubdate|format_date:True|capfirst }}</span>
+                </time>
+
+            </div>
+        </div>
+    </a>
+    {% if result.tags %}
+        <ul class="content-tags" itemprop="keywords">
+            {% for tag in result.tags|slice:":3" %}
+                <li>
+                    {{ tag }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+</article>

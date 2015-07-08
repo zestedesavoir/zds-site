@@ -1,0 +1,41 @@
+{% load highlight %}
+{% load emarkdown %}
+{% load date %}
+
+<article class="content-item topic-item">
+    <div class="content-info">
+        <a href="{{ result.object.get_absolute_url }}" title="{{ result.object.title }}">
+            <h3 class="content-title" itemprop="itemListElement">
+                {% highlight result.object.title with query html_tag "mark" %}
+            </h3>
+        </a>
+
+        <p class="content-description">
+            {% with text=result.object.first_post.text|emarkdown|striptags|safe %}
+                {% highlight text with query html_tag "mark" %}
+            {% endwith %}
+        </p>
+
+
+        <div class="content-meta" title="Publié le {{ result.object.pubdate }}">
+            <p>
+                Sujet -
+            </p>
+
+            <time class="content-pubdate" pubdate="{{ result.object.pubdate }}">
+                <span class="long">{{ result.object.pubdate|format_date|capfirst }}</span>
+                <span class="short">{{ result.object.pubdate|format_date:True|capfirst }}</span>
+            </time>
+
+        </div>
+    </div>
+    {% if result.tags %}
+        <ul class="content-tags" itemprop="keywords">
+            {% for tag in result.tags|slice:":3" %}
+                <li>
+                    {{ tag.title }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</article>
