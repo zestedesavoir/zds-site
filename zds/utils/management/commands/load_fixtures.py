@@ -27,7 +27,7 @@ from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, Su
 from zds.utils import slugify
 from zds import settings
 from django.db import transaction
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.tutorialv2.utils import publish_content
@@ -285,10 +285,11 @@ def load_categories_content(cli, size, fake):
 
     lics = ["CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO", "Tout-Droits"]
     for lic in lics:
-        ex = Licence.objects.filter(code=lic)
-        if ex is None:
+        ex = Licence.objects.filter(code=lic).all()
+        if len(ex) is 0:
             licence = Licence(code=lic, title=lic, description="")
             licence.save()
+            cli.stdout.write(u'Note: ajout de la licence {}'.format(lic))
     categories = []
     sub_categories = []
     nb_categories = size * 5
@@ -732,7 +733,7 @@ def load_contents(cli, _type, size, fake):
 
     if nb_sub_categories == 0:
         cli.stdout.write(u"Il n'y a aucune catégories actuellement."
-                         u"Vous devez rajouter les membre dans vos fixtures (category_content)")
+                         u"Vous devez rajouter les catégories dans vos fixtures (category_content)")
         return
 
     perms = list(Permission.objects.filter(codename__startswith='change_').all())
@@ -744,9 +745,17 @@ def load_contents(cli, _type, size, fake):
                          u"Vous devez rajouter les staffs dans vos fixtures (staff)")
         return
 
+    licenses = list(Licence.objects.all())
+    nb_licenses = len(licenses)
+
+    if nb_licenses == 0:
+        cli.stdout.write(u"Il n'y a aucune licence actuellement."
+                         u"Vous devez rajouter les licences dans vos fixtures (category_content)")
+        return
+
     # create and so all:
     for i in range(nb_contents):
-        sys.stdout.write(u"Création {} : {}/{}  \r".format(textual_type, i + 1, nb_contents))
+        sys.stdout.write("Création {} : {}/{}  \r".format(textual_type, i + 1, nb_contents))
 
         current_size = content_sizes[i]
         to_do = what_to_do[i]
@@ -778,8 +787,9 @@ def load_contents(cli, _type, size, fake):
 
         # add some informations:
         content.authors.add(users[random.randint(0, nb_users - 1)].user)
-        content.licence = LicenceFactory()
+        content.licence = licenses[random.randint(0, nb_licenses - 1)]
         content.sha_draft = versioned.sha_draft
+        content.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
         content.save()
 
         # then, validation if needed:
@@ -835,6 +845,7 @@ class Command(BaseCommand):
                           "tutorial",
                           "article2",
                           "tutorial2",
+                          "comment",
                           "reaction"]
         for arg in args:
             options = arg.split("=")
