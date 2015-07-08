@@ -20,14 +20,15 @@ tricky_text_content = \
     u'![PNG qui existe pas](example.com/test.png)\n\n' \
     u'![SVG qui existe](http://upload.wikimedia.org/wikipedia/commons/f/f9/10DF.svg)\n\n' \
     u'![SVG qui existe pas](example.com/test.svg)\n\n' \
-    u'![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n' \
+    u'![GIF qui existe](http://upload.wikimedia.org/wikipedia/commons/2/27/AnimatedStar.gif)\n\n' \
     u'![GIF qui existe pas](example.com/test.gif)\n\n' \
     u'![Image locale qui existe](fixtures/image_test.jpg)\n\n' \
     u'![Image locale qui existe pas](does-not-exist/test.png)\n\n' \
     u'![Bonus: image bizarre](https://s.qwant.com/thumbr/?u=http%3A%2F%2Fwww.blogoergosum.com%2Fwp-content%2Fuploads' \
     u'%2F2010%2F02%2Fwikipedia-logo.jpg&h=338&w=600)\n\n' \
     u'![Bonus: le serveur existe pas !](http://unknown.image.zds/test.png)\n\n' \
-    u'![Bonus: juste du texte](URL invalide)'\
+    u'![Bonus: juste du texte](URL invalide)\n\n' \
+    u'# Et donc ...\n\n'\
     u'Voilà :)'
 
 
@@ -45,6 +46,13 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         if "author_list" in kwargs:
             auths = kwargs.pop("author_list")
 
+        light = True
+        if "light" in kwargs:
+            light = kwargs.pop("light")
+        text = text_content
+        if not light:
+            text = tricky_text_content
+
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
 
         for auth in auths:
@@ -54,7 +62,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery)
 
-        init_new_repo(publishable_content, text_content, text_content)
+        init_new_repo(publishable_content, text, text)
 
         return publishable_content
 
@@ -69,7 +77,14 @@ class ContainerFactory(factory.Factory):
         db_object = kwargs.pop('db_object', None)
         parent = kwargs.pop('parent', None)
 
-        sha = parent.repo_add_container(kwargs['title'], text_content, text_content)
+        light = True
+        if "light" in kwargs:
+            light = kwargs.pop("light")
+        text = text_content
+        if not light:
+            text = tricky_text_content
+
+        sha = parent.repo_add_container(kwargs['title'], text, text)
         container = parent.children[-1]
 
         if db_object:
@@ -88,7 +103,14 @@ class ExtractFactory(factory.Factory):
         db_object = kwargs.pop('db_object', None)
         parent = kwargs.pop('container', None)
 
-        sha = parent.repo_add_extract(kwargs['title'], text_content)
+        light = True
+        if "light" in kwargs:
+            light = kwargs.pop("light")
+        text = text_content
+        if not light:
+            text = tricky_text_content
+
+        sha = parent.repo_add_extract(kwargs['title'], text)
         extract = parent.children[-1]
 
         if db_object:
