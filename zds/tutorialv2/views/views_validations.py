@@ -24,7 +24,7 @@ from zds.utils.mps import send_mp
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """List the validations, with possibilities of filters"""
 
-    permissions = ["tutorialv2.change_tutorialv2"]
+    permissions = ["tutorialv2.change_publishablecontent"]
     context_object_name = "validations"
     template_name = "tutorialv2/validation/index.html"
 
@@ -48,7 +48,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                     status="PENDING")
             if type_ == "reserved":
                 queryset = queryset.filter(
-                    validator__isnull=True,
+                    validator__isnull=False,
                     status="PENDING_V")
             if type_ == "article":
                 queryset = queryset.filter(
