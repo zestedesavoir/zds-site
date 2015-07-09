@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 
 import os
 import shutil
+import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -11,7 +12,7 @@ from django.core.urlresolvers import reverse
 from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    SubCategoryFactory, PublishedContentFactory
+    SubCategoryFactory, PublishedContentFactory, ValidationFactory
 from zds.gallery.factories import GalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 
@@ -101,6 +102,101 @@ class ContentTests(TestCase):
         self.assertContains(resp, article.title)
         self.assertContains(resp, article_unpublished.title)
         self.assertContains(resp, "content-illu")
+
+    def test_validation_list(self):
+        """ensure the behavior of the `validation:list` page (with filters)"""
+
+        text = u'Ceci est un éléphant'
+
+        tuto_not_reserved = PublishableContentFactory(type="TUTORIAL", author_list=[self.user_author])
+        tuto_reserved = PublishableContentFactory(type="TUTORIAL", author_list=[self.user_author])
+        article_not_reserved = PublishableContentFactory(type="ARTICLE", author_list=[self.user_author])
+        article_reserved = PublishableContentFactory(type="ARTICLE", author_list=[self.user_author])
+
+        all_contents = [tuto_not_reserved, tuto_reserved, article_not_reserved, article_reserved]
+        reserved_contents = [tuto_reserved, article_reserved]
+
+        # apply a filter to test category filter
+        subcat = SubCategoryFactory()
+        article_reserved.subcategory.add(subcat)
+        article_reserved.save()
+
+        # send in validation
+        for content in all_contents:
+            v = ValidationFactory(content=content, status="PENDING")
+            v.date_proposition = datetime.datetime.now()
+            v.version = content.sha_draft
+            v.comment_authors = text
+
+            if content in reserved_contents:
+                v.validator = self.user_staff
+                v.date_reserve = datetime.datetime.now()
+                v.status = "PENDING_V"
+
+            v.save()
+
+        # first, test access for public
+        result = self.client.get(reverse('validation:list'), follow=False)
+        self.assertEqual(result.status_code, 302)  # get 302 → redirection to login
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(reverse('validation:list'), follow=False)
+        self.assertEqual(result.status_code, 403)  # get 403 not allowed
+
+        self.client.logout()
+
+        # connect with staff:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        response = self.client.get(reverse('validation:list'), follow=False)
+        self.assertEqual(response.status_code, 200)  # OK
+
+        validations = response.context['validations']
+        self.assertEqual(len(validations), 4)  # a total of 4 contents in validation
+
+        # test filters
+        response = self.client.get(reverse('validation:list') + "?type=article", follow=False)
+        self.assertEqual(response.status_code, 200)  # OK
+        validations = response.context['validations']
+        self.assertEqual(len(validations), 2)  # 2 articles
+
+        response = self.client.get(reverse('validation:list') + "?type=tuto", follow=False)
+        self.assertEqual(response.status_code, 200)  # OK
+        validations = response.context['validations']
+        self.assertEqual(len(validations), 2)  # 2 articles
+
+        response = self.client.get(reverse('validation:list') + "?type=orphan", follow=False)
+        self.assertEqual(response.status_code, 200)  # OK
+        validations = response.context['validations']
+        self.assertEqual(len(validations), 2)  # 2 not-reserved content
+
+        for validation in validations:
+            self.assertFalse(validation.content in reserved_contents)
+
+        response = self.client.get(reverse('validation:list') + "?type=reserved", follow=False)
+        self.assertEqual(response.status_code, 200)  # OK
+        validations = response.context['validations']
+        self.assertEqual(len(validations), 2)  # 2 reserved content
+
+        for validation in validations:
+            self.assertTrue(validation.content in reserved_contents)
+
+        response = self.client.get(reverse('validation:list') + "?subcategory={}".format(subcat.pk), follow=False)
+        self.assertEqual(response.status_code, 200)  # OK
+        validations = response.context['validations']
+        self.assertEqual(len(validations), 1)  # 1 content with this category
+
+        self.assertEqual(validations[0].content, article_reserved)  # the right content
 
     def tearDown(self):
 
