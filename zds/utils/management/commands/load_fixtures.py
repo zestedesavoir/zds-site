@@ -786,7 +786,9 @@ def load_contents(cli, _type, size, fake):
                             ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
 
         # add some informations:
-        content.authors.add(users[random.randint(0, nb_users - 1)].user)
+        author = users[random.randint(0, nb_users - 1)].user
+        content.authors.add(author)
+        UserGalleryFactory(gallery=content.gallery, mode="W", user=author)
         content.licence = licenses[random.randint(0, nb_licenses - 1)]
         content.sha_draft = versioned.sha_draft
         content.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
