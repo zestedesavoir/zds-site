@@ -59,9 +59,13 @@
 
                 {% if content %}
                     <p class="topic-last-answer">
-                        {{ content.textual_type|lower|capfirst }}
-                        «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;»
-                        {% trans "est lié à cette galerie" %}
+                        {% trans "Liée" %}
+                        {% if content.type == "ARTICLE" %}
+                            {% trans "à l'article" %}
+                        {% elif content.type == "TUTORIAL" %}
+                            {% trans "au tutoriel" %}
+                        {% endif %}
+                        «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
                     </p>
                 {% endif %}
             </div>
