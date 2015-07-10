@@ -1,11 +1,13 @@
 # coding: utf-8
 
 from datetime import datetime
+from git import Actor
 from git.repo import Repo
 import json as json_writer
 import os
 
 import factory
+from zds import settings
 from zds.forum.factories import TopicFactory, PostFactory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
@@ -312,14 +314,36 @@ class ExtractFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
         chapter = kwargs.pop('chapter', None)
+        with open(extract.get_path(relative=False), "w") as f:
+            f.write("This dumb content is just here to prove you zep12 is far better than old module")
         if chapter:
+
             if chapter.tutorial:
-                chapter.tutorial.sha_draft = 'EXTRACT-AAAA'
+                repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                         chapter.tutorial.get_phy_slug()))
+                index = repo.index
+                index.add([extract.get_path(relative=True)])
+                man_path = os.path.join(chapter.tutorial.get_path(), "manifest.json")
+                chapter.tutorial.dump_json(path=man_path)
+                index.add(["manifest.json"])
+                chapter.tutorial.sha_draft = index.commit(
+                    "bla",
+                    author=Actor("bla", "bla@bla.bla"),
+                    committer=Actor("bla", "bla@bla.bla"))
                 chapter.tutorial.save()
             elif chapter.part:
-                chapter.part.tutorial.sha_draft = 'EXTRACT-AAAA'
+                repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                         chapter.part.tutorial.get_phy_slug()))
+                index = repo.index
+                index.add([extract.get_path(relative=True)])
+                man_path = os.path.join(chapter.part.tutorial.get_path(), "manifest.json")
+                chapter.part.tutorial.dump_json(path=man_path)
+                index.add(["manifest.json"])
+                chapter.part.tutorial.sha_draft = index.commit(
+                    "bla",
+                    author=Actor("bla", "bla@bla.bla"),
+                    committer=Actor("bla", "bla@bla.bla"))
                 chapter.part.tutorial.save()
-
         return extract
 
 

@@ -342,6 +342,12 @@ class Command(BaseCommand):
     help = 'Migrate old tutorial and article stack to ZEP 12 stack (tutorialv2)'
 
     def handle(self, *args, **options):
-        migrate_articles()
-        migrate_tuto(Tutorial.objects.prefetch_related("licence").filter(type="MINI").all())
-        migrate_tuto(Tutorial.objects.prefetch_related("licence").filter(type="BIG").all(), "Exporting big tutos")
+        types = ["big", "mini", "article"]
+        if len(args) > 0:
+            types = args
+        if "article" in types:
+            migrate_articles()
+        if "mini" in types:
+            migrate_tuto(Tutorial.objects.prefetch_related("licence").filter(type="MINI").all())
+        if "big" in types:
+            migrate_tuto(Tutorial.objects.prefetch_related("licence").filter(type="BIG").all(), "Exporting big tutos")
