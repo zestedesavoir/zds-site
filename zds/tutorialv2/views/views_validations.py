@@ -403,7 +403,6 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                     read.user = user
                     read.content = db_object
                     read.save()
-            # TODO: deal with other kind of publications (HTML, PDF, archive, ...)
 
             if is_update:
                 msg = render_to_string(
