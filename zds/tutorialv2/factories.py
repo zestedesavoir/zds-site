@@ -54,13 +54,13 @@ class PublishableContentFactory(factory.DjangoModelFactory):
             text = tricky_text_content
 
         publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
+        publishable_content.gallery = GalleryFactory()
 
         for auth in auths:
             publishable_content.authors.add(auth)
 
-        publishable_content.gallery = GalleryFactory()
         for author in publishable_content.authors.all():
-            UserGalleryFactory(user=author, gallery=publishable_content.gallery)
+            UserGalleryFactory(user=author, gallery=publishable_content.gallery, mode='W')
 
         init_new_repo(publishable_content, text, text)
 

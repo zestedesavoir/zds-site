@@ -14,7 +14,7 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
     PublishedContentFactory
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
@@ -62,7 +62,7 @@ class UtilsTests(TestCase):
 
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.save()
 
@@ -106,7 +106,7 @@ class UtilsTests(TestCase):
         article = PublishableContentFactory(type='ARTICLE')
 
         article.authors.add(self.user_author)
-        article.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
         article.licence = self.licence
         article.save()
 
@@ -160,7 +160,7 @@ class UtilsTests(TestCase):
         midsize_tuto = PublishableContentFactory(type='TUTORIAL')
 
         midsize_tuto.authors.add(self.user_author)
-        midsize_tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=midsize_tuto.gallery, user=self.user_author, mode='W')
         midsize_tuto.licence = self.licence
         midsize_tuto.save()
 
@@ -204,7 +204,7 @@ class UtilsTests(TestCase):
         bigtuto = PublishableContentFactory(type='TUTORIAL')
 
         bigtuto.authors.add(self.user_author)
-        bigtuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=bigtuto.gallery, user=self.user_author, mode='W')
         bigtuto.licence = self.licence
         bigtuto.save()
 

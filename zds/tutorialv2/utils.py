@@ -116,15 +116,19 @@ def never_read(content, user=None):
 
     from zds.tutorialv2.models.models_database import ContentRead
 
-    if user is None:
+    if not user:
         user = get_current_user()
 
-    return ContentRead.objects\
-        .filter(note=content.last_note, content__pk=content.pk, user=user)\
-        .count() == 0
+    if user and user.is_authenticated() and content.last_note:
+        return ContentRead.objects.filter(
+            note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk).count() == 0
+    elif not content.last_note:
+        return False
+    else:
+        return True
 
 
-def mark_read(content):
+def mark_read(content, user=None):
     """Mark the last tutorial note as read for the user.
 
     :param content: the content to mark
@@ -132,15 +136,19 @@ def mark_read(content):
 
     from zds.tutorialv2.models.models_database import ContentRead
 
-    if content.last_note is not None:
-        ContentRead.objects.filter(
-            content__pk=content.pk,
-            user__pk=get_current_user().pk).delete()
-        a = ContentRead(
-            note=content.last_note,
-            content=content,
-            user=get_current_user())
-        a.save()
+    if not user:
+        user = get_current_user()
+
+    if user and user.is_authenticated():
+        if content.last_note is not None:
+            ContentRead.objects.filter(
+                content__pk=content.pk,
+                user__pk=user.pk).delete()
+            a = ContentRead(
+                note=content.last_note,
+                content=content,
+                user=user)
+            a.save()
 
 
 class TooDeepContainerError(ValueError):

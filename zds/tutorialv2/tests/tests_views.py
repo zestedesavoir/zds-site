@@ -18,9 +18,10 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
-from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
+from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
+    ContentRead
 from zds.tutorialv2.utils import publish_content
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
@@ -61,7 +62,7 @@ class ContentTests(TestCase):
 
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
@@ -1568,7 +1569,7 @@ class ContentTests(TestCase):
         article = PublishableContentFactory(type='ARTICLE')
 
         article.authors.add(self.user_author)
-        article.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
         article.licence = self.licence
         article.save()
 
@@ -2008,6 +2009,8 @@ class ContentTests(TestCase):
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
         published = PublishedContent.objects.filter(content=tuto).first()
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # author will receive notif's
 
         self.assertEqual(published.content.source, different_source)
         self.assertEqual(published.content_public_slug, self.tuto_draft.slug)
@@ -2715,7 +2718,7 @@ class ContentTests(TestCase):
         # create a tuto and populate
         tuto = PublishableContentFactory(type='TUTORIAL')
         tuto.authors.add(self.user_author)
-        tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=tuto.gallery, user=self.user_author, mode='W')
         tuto.licence = self.licence
         tuto.subcategory.add(self.subcategory)
         tuto.save()
@@ -3048,7 +3051,7 @@ class ContentTests(TestCase):
 
         tuto = PublishableContentFactory(type='TUTORIAL')
 
-        tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=tuto.gallery, user=self.user_author, mode='W')
         tuto.licence = self.licence
         tuto.authors.add(self.user_author)
         tuto.save()
@@ -3417,7 +3420,7 @@ class PublishedContentTests(TestCase):
         # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
@@ -3463,7 +3466,7 @@ class PublishedContentTests(TestCase):
         article = PublishableContentFactory(type='ARTICLE')
 
         article.authors.add(self.user_author)
-        article.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
         article.licence = self.licence
         article.save()
 
@@ -3545,7 +3548,7 @@ class PublishedContentTests(TestCase):
         midsize_tuto = PublishableContentFactory(type='TUTORIAL')
 
         midsize_tuto.authors.add(self.user_author)
-        midsize_tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=midsize_tuto.gallery, user=self.user_author, mode='W')
         midsize_tuto.licence = self.licence
         midsize_tuto.save()
 
@@ -3655,7 +3658,7 @@ class PublishedContentTests(TestCase):
         bigtuto = PublishableContentFactory(type='TUTORIAL')
 
         bigtuto.authors.add(self.user_author)
-        bigtuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=bigtuto.gallery, user=self.user_author, mode='W')
         bigtuto.licence = self.licence
         bigtuto.save()
 
@@ -3902,7 +3905,15 @@ class PublishedContentTests(TestCase):
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 200)
-        self.assertEqual(ContentReaction.objects.count(), 1)
+
+        reactions = ContentReaction.objects.all()
+        self.assertEqual(len(reactions), 1)
+
+        reads = ContentRead.objects.filter(user=self.user_guest).all()
+        self.assertEqual(len(reads), 1)
+        self.assertEqual(reads[0].content.pk, self.tuto.pk)
+        self.assertEqual(reads[0].note.pk, reactions[0].pk)
+
         self.assertEqual(
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
         result = self.client.post(
@@ -3912,6 +3923,21 @@ class PublishedContentTests(TestCase):
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 404)
+
+        # visit the tutorial trigger the creation of a ContentRead
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        self.assertEqual(
+            self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
+
+        reads = ContentRead.objects.filter(user=self.user_staff).all()
+        self.assertEqual(len(reads), 1)
+        self.assertEqual(reads[0].content.pk, self.tuto.pk)
+        self.assertEqual(reads[0].note.pk, reactions[0].pk)
 
     def test_upvote_downvote(self):
         self.assertEqual(
@@ -4323,6 +4349,166 @@ class PublishedContentTests(TestCase):
             follow=False
         )
         self.assertEqual(200, response.status_code)
+
+    def test_last_reactions(self):
+        """Test and ensure the behavior of last_read_note() and first_unread_note().
+
+        Note: for a unknown reason, `get_current_user()` does not return the good answer if a page is not
+        visited before, therefore this test will visit the index after each login (because :p)"""
+
+        # login with guest
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 0)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # no reaction yet:
+        self.assertIsNone(tuto.last_read_note())
+        self.assertIsNone(tuto.first_unread_note())
+        self.assertIsNone(tuto.first_note())
+
+        # post a reaction
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            {
+                'text': u'message',
+                'last_note': '0'
+            }, follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
+        self.assertEqual(len(reactions), 1)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 1)  # last reaction read
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        self.assertEqual(tuto.first_note(), reactions[0])
+        self.assertEqual(tuto.last_read_note(), reactions[0])
+        self.assertEqual(tuto.first_unread_note(), reactions[0])  # if no next reaction, first unread=last read
+
+        self.client.logout()
+
+        # login with author (could be staff, we don't care in this test)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 0)
+
+        self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
+        self.assertEqual(tuto.first_unread_note(), reactions[0])
+
+        # post another reaction
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
+            {
+                'text': u'message',
+                'last_note': reactions[0].pk
+            }, follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
+        self.assertEqual(len(reactions), 2)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
+
+        self.assertEqual(tuto.first_note(), reactions[0])  # first note is still first note
+        self.assertEqual(tuto.last_read_note(), reactions[1])
+        self.assertEqual(tuto.first_unread_note(), reactions[1])
+
+        # test if not connected
+        self.client.logout()
+
+        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.last_read_note(), reactions[0])  # last read note = first note
+        self.assertEqual(tuto.first_unread_note(), reactions[0])  # first unread note = first note
+
+        # visit tutorial
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        # but nothing has changed (because not connected = no notifications and no "tracking")
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.last_read_note(), reactions[0])  # last read note = first note
+        self.assertEqual(tuto.first_unread_note(), reactions[0])  # first unread note = first note
+
+        # re-login with guest
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 1)  # already read first reaction
+        reads = ContentRead.objects.filter(user=self.user_guest).all()
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.last_read_note(), reactions[0])
+        self.assertEqual(tuto.first_unread_note(), reactions[1])  # new reaction of author is unread
+
+        # visit tutorial to get rid of the notification
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.last_read_note(), reactions[1])  # now, new reaction is read !
+        self.assertEqual(tuto.first_unread_note(), reactions[1])
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 1)
+        self.assertNotEqual(reads, ContentRead.objects.filter(user=self.user_guest).all())  # not the same message
+
+        self.client.logout()
+
+        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        self.assertEqual(result.status_code, 200)
+
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
+        self.assertEqual(tuto.first_unread_note(), reactions[0])
+
+        # visit tutorial and read the two notes:
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 1)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.last_read_note(), reactions[1])  # now reactions are read
+        self.assertEqual(tuto.first_unread_note(), reactions[1])
 
     def tearDown(self):
 

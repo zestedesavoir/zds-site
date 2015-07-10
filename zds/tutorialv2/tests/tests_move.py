@@ -14,7 +14,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory
 from zds.tutorialv2.models.models_database import PublishableContent
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 
 
@@ -43,7 +43,7 @@ class ContentMoveTests(TestCase):
 
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()

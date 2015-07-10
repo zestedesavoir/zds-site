@@ -21,7 +21,7 @@ from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, N
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import search_container_or_404, mark_read
+from zds.tutorialv2.utils import search_container_or_404, never_read, mark_read
 from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
@@ -110,6 +110,10 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["user_can_modify"] = queryset_reactions_user
 
         context['isantispam'] = self.object.antispam()
+
+        # handle reactions:
+        if never_read(self.object):
+            mark_read(self.object)
 
         return context
 
