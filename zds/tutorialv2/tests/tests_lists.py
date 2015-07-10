@@ -13,7 +13,7 @@ from zds.settings import BASE_DIR
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, ValidationFactory
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 
 overrided_zds_app = settings.ZDS_APP
@@ -40,7 +40,7 @@ class ContentTests(TestCase):
 
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()

@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import Group
 
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.settings import BASE_DIR
@@ -56,7 +56,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
@@ -176,7 +176,7 @@ class LastArticlesFeedRSSTest(TestCase):
         # create an article
         self.article = PublishableContentFactory(type='ARTICLE')
         self.article.authors.add(self.user_author)
-        self.article.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.article.gallery, user=self.user_author, mode='W')
         self.article.licence = self.licence
         self.article.subcategory.add(self.subcategory)
         self.article.save()

@@ -20,7 +20,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import publish_content
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post
@@ -61,7 +61,7 @@ class ContentTests(TestCase):
 
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
@@ -1568,7 +1568,7 @@ class ContentTests(TestCase):
         article = PublishableContentFactory(type='ARTICLE')
 
         article.authors.add(self.user_author)
-        article.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
         article.licence = self.licence
         article.save()
 
@@ -2715,7 +2715,7 @@ class ContentTests(TestCase):
         # create a tuto and populate
         tuto = PublishableContentFactory(type='TUTORIAL')
         tuto.authors.add(self.user_author)
-        tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=tuto.gallery, user=self.user_author, mode='W')
         tuto.licence = self.licence
         tuto.subcategory.add(self.subcategory)
         tuto.save()
@@ -3048,7 +3048,7 @@ class ContentTests(TestCase):
 
         tuto = PublishableContentFactory(type='TUTORIAL')
 
-        tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=tuto.gallery, user=self.user_author, mode='W')
         tuto.licence = self.licence
         tuto.authors.add(self.user_author)
         tuto.save()
@@ -3417,7 +3417,7 @@ class PublishedContentTests(TestCase):
         # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
@@ -3463,7 +3463,7 @@ class PublishedContentTests(TestCase):
         article = PublishableContentFactory(type='ARTICLE')
 
         article.authors.add(self.user_author)
-        article.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
         article.licence = self.licence
         article.save()
 
@@ -3545,7 +3545,7 @@ class PublishedContentTests(TestCase):
         midsize_tuto = PublishableContentFactory(type='TUTORIAL')
 
         midsize_tuto.authors.add(self.user_author)
-        midsize_tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=midsize_tuto.gallery, user=self.user_author, mode='W')
         midsize_tuto.licence = self.licence
         midsize_tuto.save()
 
@@ -3655,7 +3655,7 @@ class PublishedContentTests(TestCase):
         bigtuto = PublishableContentFactory(type='TUTORIAL')
 
         bigtuto.authors.add(self.user_author)
-        bigtuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=bigtuto.gallery, user=self.user_author, mode='W')
         bigtuto.licence = self.licence
         bigtuto.save()
 
