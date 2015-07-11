@@ -254,11 +254,12 @@ def migrate_articles():
             # publish the article !
             published = publish_content(exported, exported.load_version(exported.sha_draft), False)
             exported.pubdate = current.pubdate
+            exported.update_date = datetime.now()
             exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
             published.content_public_slug = current.slug
-            published.publication_date = current.pubdate
+            published.publication_date = exported.pubdate
             published.save()
 
 
@@ -275,7 +276,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.sha_draft = current.sha_draft
         exported.sha_beta = current.sha_beta
         exported.licence = Licence.objects.filter(code=current.licence).first()
-
+        exported.update_date = current.update
         exported.creation_date = current.create_at
         exported.image = current.image
         exported.description = current.description
@@ -323,10 +324,10 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             exported.sha_public = current.sha_public
             exported.public_version = published
             exported.save()
-            exported.public_version.content_public_slug = current.slug
-            exported.public_version.publication_date = current.pubdate
+            published.content_public_slug = current.slug
+            published.publication_date = current.pubdate
 
-            exported.public_version.save()
+            published.save()
             # set mapping
             map_previous = PublishedContent()
             map_previous.content_public_slug = current.slug
