@@ -199,6 +199,7 @@ def migrate_articles():
         exported.save()  # before updating `ManyToMany` relation, we need to save !
 
         [exported.authors.add(author) for author in current.authors.all()]
+        [exported.subcategory.add(category) for category in current.subcategory.all()]
         new_gallery = create_gallery_for_article(exported)
 
         if current.image:
