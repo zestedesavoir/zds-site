@@ -17,8 +17,8 @@
     <span class="pubdate">
     {% if online %}
         {% trans "Publié" %} :
-        <time datetime="{{ content.update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
-            {{ public_object.publication_date|format_date }}
+        <time datetime="{{ content.pubdate|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ content.pubdate|format_date }}
         </time>
     {% else %}
         {% trans "Dernière mise à jour" %} :
