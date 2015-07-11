@@ -400,6 +400,8 @@ class PublishedMiniTutorial(MiniTutorialFactory):
         tutorial.source = ''
         tutorial.sha_validation = None
         mep(tutorial, tutorial.sha_draft)
+        tutorial.pubdate = datetime.now()
+        tutorial.update = datetime.now()
         tutorial.save()
         return tutorial
 
@@ -414,6 +416,8 @@ class PublishedBigTutorial(BigTutorialFactory):
         tutorial.sha_public = tutorial.sha_draft
         tutorial.source = ''
         tutorial.sha_validation = None
+        tutorial.pubdate = datetime.now()
+        tutorial.update = datetime.now()
         mep(tutorial, tutorial.sha_draft)
         tutorial.save()
         return tutorial
