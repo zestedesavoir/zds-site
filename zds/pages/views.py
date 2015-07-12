@@ -11,6 +11,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
 from django.shortcuts import render
+from django.utils.http import urlencode
 from zds import settings
 
 from zds.forum.models import Topic
@@ -119,15 +120,34 @@ def association(request):
 
 def contact(request):
     """Display contact page."""
+    contact_url = lambda members: reverse('mp-new') + '?' \
+        + '&'.join([urlencode({'username': member.username}) for member in members])
+
     staffs = User.objects.filter(
         groups__in=Group.objects.filter(
             name__contains='staff')).all()
+
+    communication_team = User.objects.filter(
+        groups__in=Group.objects.filter(
+            name__contains='com')).all()
+
     devs = User.objects.filter(
         groups__in=Group.objects.filter(
             name__contains='dev')).all()
+
+    assoc = User.objects.filter(
+        groups__in=Group.objects.filter(
+            name__contains='asso')).all()
+
     return render(request, 'pages/contact.html', {
         'staffs': staffs,
-        'devs': devs
+        'staffs_contact_url': contact_url(staffs),
+        'communication_team': communication_team,
+        'communication_team_contact_url': contact_url(communication_team),
+        'devs': devs,
+        'devs_contact_url': contact_url(devs),
+        'assoc': assoc,
+        'assoc_contact_url': contact_url(assoc)
     })
 
 
