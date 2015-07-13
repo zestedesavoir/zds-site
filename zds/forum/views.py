@@ -74,6 +74,9 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ForumTopicsListView, self).get_context_data(**kwargs)
+        context['topics'] = list(context['topics'].all())
+        # we need to load it in memory because later we will get the
+        # "already read topic" set out of this list and MySQL does not support that type of subquery
         context.update({
             'forum': self.object,
             'sticky_topics': self.filter_queryset(
@@ -84,7 +87,13 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         return context
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Forum, slug=self.kwargs.get('forum_slug'))
+        forum = Forum.objects\
+                     .select_related('category')\
+                     .filter(slug=self.kwargs.get('forum_slug'))\
+                     .first()
+        if forum is None:
+            raise Http404("Forum with slug {} was not found".format(self.kwargs.get('forum_slug')))
+        return forum
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_forum(self.object.pk)
@@ -354,6 +363,9 @@ class FindTopicByTag(FilterMixin, ZdSPagingListView, SingleObjectMixin):
 
     def get_context_data(self, *args, **kwargs):
         context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)
+        context['topics'] = list(context['topics'].all())
+        # we need to load it in memory because later we will get the
+        # "already read topic" set out of this list and MySQL does not support that type of subquery
         context.update({
             'tag': self.object,
             'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
