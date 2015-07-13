@@ -17,7 +17,8 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     author = indexes.CharField(model_attr='author')
     pubdate = indexes.DateTimeField(model_attr='pubdate', stored=True, indexed=False)
 
-    # Groups authorized to read this topic. If no group is defined, the forum is public (and anyone can read it).
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
     permissions = indexes.MultiValueField()
 
     def get_model(self):
@@ -38,7 +39,8 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     topic_author = indexes.CharField(stored=True, indexed=False)
     topic_forum = indexes.CharField(stored=True, indexed=False)
 
-    # Groups authorized to read this post. If no group is defined, the forum is public (and anyone can read it).
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
     permissions = indexes.MultiValueField()
 
     def get_model(self):

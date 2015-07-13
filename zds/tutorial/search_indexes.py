@@ -15,6 +15,10 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     subcategory = indexes.MultiValueField()
     sha_public = indexes.CharField(model_attr='sha_public')
 
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
+
     def get_model(self):
         return Tutorial
 
@@ -25,11 +29,18 @@ class TutorialIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_subcategory(self, obj):
         return obj.subcategory.values_list('title', flat=True).all() or None
 
+    def prepare_permissions(self, obj):
+        return "public"
+
 
 class PartIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     tutorial = indexes.CharField(model_attr='tutorial')
+
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
 
     def get_model(self):
         return Part
@@ -40,6 +51,9 @@ class PartIndex(indexes.SearchIndex, indexes.Indexable):
 
         return self.get_model().objects.filter(tutorial__sha_public__isnull=False, id__in=published_content["parts"])
 
+    def prepare_permissions(self, obj):
+        return "public"
+
 
 class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
@@ -47,6 +61,10 @@ class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
     # A Chapter belongs to a Part (big-tuto) **or** a Tutorial (mini-tuto)
     part = indexes.CharField(model_attr='part', null=True)
     tutorial = indexes.CharField(model_attr='tutorial', null=True)
+
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
 
     def get_model(self):
         return Chapter
@@ -59,12 +77,19 @@ class ChapterIndex(indexes.SearchIndex, indexes.Indexable):
                                                Q(part__tutorial__sha_public__isnull=False),
                                                id__in=published_content["chapters"])
 
+    def prepare_permissions(self, obj):
+        return "public"
+
 
 class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
     title = indexes.CharField(model_attr='title')
     chapter = indexes.CharField(model_attr='chapter')
     txt = indexes.CharField(model_attr='text')
+
+    # Groups authorized to read this topic.
+    # If a group "public" is defined, the forum is public (and anyone can read it).
+    permissions = indexes.MultiValueField()
 
     def get_model(self):
         return Extract
@@ -77,3 +102,6 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
         return self.get_model() .objects.filter(Q(chapter__tutorial__sha_public__isnull=False) |
                                                 Q(chapter__part__tutorial__sha_public__isnull=False),
                                                 id__in=published_content["extracts"])
+
+    def prepare_permissions(self, obj):
+        return "public"
