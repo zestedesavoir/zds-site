@@ -466,7 +466,8 @@ ZDS_APP = {
         'feed_length': 5,
         'user_page_number': 5,
         'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
-        'import_image_prefix': 'archive'
+        'import_image_prefix': 'archive',
+        'build_pdf_when_published': True
     },
     'forum': {
         'posts_per_page': 21,
