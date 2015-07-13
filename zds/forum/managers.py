@@ -98,7 +98,14 @@ class PostManager(InheritanceManager):
 class TopicReadManager(models.Manager):
 
     def topic_read_by_user(self, user, topic_sub_list=None):
+        """ get all the topic that the user has already read.
 
+        :param user: an authenticated user
+        :param topic_sub_list: optional list of topics. If not ``None`` no subject out of this list will be selected
+        :type topic_sub_list: list
+        :return: the queryset over the already read topics
+        :rtype: QuerySet
+        """
         base_query_set = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
             base_query_set = base_query_set.filter(topic__in=topic_sub_list)
@@ -107,4 +114,12 @@ class TopicReadManager(models.Manager):
         return base_query_set
 
     def list_read_topic_pk(self, user, topic_sub_list=None):
+        """ get all the topic that the user has already read in a flat list.
+
+        :param user: an authenticated user
+        :param topic_sub_list: optional list of topics. If not ``None`` no subject out of this list will be selected
+        :type topic_sub_list: list
+        :return: the flat list of all topics primary key
+        :rtype: list
+        """
         return self.topic_read_by_user(user, topic_sub_list).values_list('topic__pk', flat=True)
