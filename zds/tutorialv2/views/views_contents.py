@@ -460,6 +460,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             versioned = get_content_from_json(json_, None, '')
         except BadManifestError as e:
             raise BadArchiveError(e.message)
+        except Exception:
+            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive'))
 
         # is there everything in the archive ?
         for f in UpdateContentWithArchive.walk_content(versioned):

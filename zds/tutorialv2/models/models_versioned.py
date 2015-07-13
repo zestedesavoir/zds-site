@@ -179,14 +179,15 @@ class Container:
         """Add a slug to the slug pool to be taken into account when generate a unique slug
 
         :param slug: the slug to add
-        :raise Exception: if the slug already exists
+        :raise InvalidOperationErrpr: if the slug already exists
         """
         try:
             self.slug_pool[slug]  # test access
         except KeyError:
             self.slug_pool[slug] = 1
         else:
-            raise Exception('slug "{}" already in the slug pool !'.format(slug))
+            raise InvalidOperationError(
+                _(u'Le slug « {} » est déjà présent dans le conteneur « {} »').format(slug, self.title))
 
     def long_slug(self):
         """
@@ -242,7 +243,7 @@ class Container:
             self.children.append(container)
             self.children_dict[container.slug] = container
         else:
-            raise InvalidOperationError("Cannot add another level to this container")
+            raise InvalidOperationError(_(u"Impossible d'ajouter un conteneur au conteneur « {} »").format(self.title))
 
     def add_extract(self, extract, generate_slug=False):
         """Add a child container, but only if no container were previously added
@@ -262,7 +263,7 @@ class Container:
             self.children_dict[extract.slug] = extract
             extract.text = extract.get_path(True)
         else:
-            raise InvalidOperationError("Can't add an extract if this container already contains containers.")
+            raise InvalidOperationError(_(u"Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
 
     def update_children(self):
         """Update the path for introduction and conclusion for the container and all its children. If the children is an
@@ -533,7 +534,7 @@ class Container:
         # can a subcontainer be added ?
         try:
             self.add_container(subcontainer, generate_slug=True)
-        except Exception:
+        except InvalidOperationError:
             raise PermissionDenied
 
         # create directory
@@ -565,7 +566,7 @@ class Container:
         # can an extract be added ?
         try:
             self.add_extract(extract, generate_slug=True)
-        except Exception:
+        except InvalidOperationError:
             raise PermissionDenied
 
         # make it
