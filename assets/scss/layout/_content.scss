@@ -371,10 +371,6 @@
 }
 
 @media only screen and #{$media-extra-wide} {
-    .full-content-wrapper .tutorial-list article {
-        width: 29.3%;
-    }
-
     .main .content-container .topic-message .message .message-metadata .date {
         .short-date {
             display: none;
@@ -386,8 +382,7 @@
 }
 
 @media only screen and #{$media-wide} {
-    .content-wrapper,
-    .full-content-wrapper {
+    .content-wrapper {
         margin: 0 0 0 4%;
 
         &.without-margin {
@@ -418,8 +413,7 @@
                 font-size: 1.8ex;
             }
         }
-        .content-wrapper,
-        .full-content-wrapper {
+        .content-wrapper {
             h1:not(.ico-after),
             h2:not(.ico-after),
             h3,

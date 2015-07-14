@@ -338,7 +338,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 }
 
 @media only screen and #{$media-mobile-tablet} {
-    .full-content-wrapper .content-item {
+    .content-wrapper .content-item {
         .content-info {
             h3 {
                 padding: 0 !important;

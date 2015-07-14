@@ -292,7 +292,7 @@
             var $newBtns = $(".sidebar .new-btn:not(.mobile-btn-imported)");
             if($newBtns.length > 0){
                 var $prevElem = $("#content")
-                    .find("> .content-wrapper, > .full-content-wrapper, > .content-col-2")
+                    .find("> .content-wrapper, > .content-col-2")
                     .first()
                     .find("h1, h2")
                     .first();
