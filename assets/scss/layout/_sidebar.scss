@@ -148,7 +148,8 @@
                     border-right: 7px solid transparent;
                 }
 
-                img, span {
+                img,
+                span:not(.wide) {
                     vertical-align: middle;
                 }
 
