@@ -323,12 +323,14 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             .content-meta {
                 padding-top: 1px;
 
-                .content-pubdate {
-                    display: none;
-                }
+                &:not(.inline) {
+                    .content-pubdate {
+                        display: none;
+                    }
 
-                &:not(.inline) > * {
-                    display: block;
+                    & > * {
+                        display: block;
+                    }
                 }
             }
         }
