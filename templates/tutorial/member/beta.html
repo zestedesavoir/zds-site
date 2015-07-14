@@ -29,7 +29,7 @@
         </h2>
 
         {% if tutorials %}
-            <div class="tutorial-list">
+            <div class="content-item-list">
                 {% for tutorial in tutorials %}
                     {% include 'tutorial/includes/tutorial_item.part.html' with type_link='beta' show_description=True %}
                 {% endfor %}
