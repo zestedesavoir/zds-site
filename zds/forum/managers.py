@@ -11,8 +11,25 @@ class ForumManager(models.Manager):
     Custom forum manager.
     """
 
-    def get_public_forums_of_category(self, category):
-        return self.filter(category=category, group__isnull=True).select_related("category").distinct().all()
+    def get_public_forums_of_category(self, category, with_count=False):
+        """load all public forums for a category
+
+        :param category: the related category
+        :type category: zds.forum.models.Category
+        :param with_count: optional parameter: if true, will preload thread and post number for each forum inside \
+        category
+        :type with_count: bool
+        """
+        query_set = self.filter(category=category, group__isnull=True).select_related("category").distinct()
+        if with_count:
+            # this request count the threads in each forum
+            thread_sub_query = "SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id"
+            # this request count the posts in each forum
+            post_sub_query = "SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id " \
+                             "IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)"
+
+            query_set = query_set.extra(select={"thread_count": thread_sub_query, "post_count": post_sub_query})
+        return query_set.all()
 
     def get_private_forums_of_category(self, category, user):
         return self.filter(category=category, group__in=user.groups.all())\

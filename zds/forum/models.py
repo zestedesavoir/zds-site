@@ -65,12 +65,18 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('cat-forums-list', kwargs={'slug': self.slug})
 
-    def get_forums(self, user):
-        """
+    def get_forums(self, user, with_count=False):
+        """get all forums that user can access
+
+        :param user: the related user
+        :type user: User
+        :param with_count: If true will preload thread and post number for each forum of this category
+        :type with_count: bool
         :return: All forums in category, ordered by forum's position in category
+        :rtype: list[Forum]
         """
-        forums_pub = Forum.objects.get_public_forums_of_category(self)
-        if user.is_authenticated():
+        forums_pub = Forum.objects.get_public_forums_of_category(self, with_count=with_count)
+        if user is not None and user.is_authenticated():
             forums_private = Forum.objects.get_private_forums_of_category(self, user)
             return list(forums_pub | forums_private)
         return forums_pub
@@ -111,16 +117,26 @@ class Forum(models.Model):
         return reverse('forum-topics-list', kwargs={'cat_slug': self.category.slug, 'forum_slug': self.slug})
 
     def get_topic_count(self):
-        """
+        """Retrieve or agregate the number of threads in this forum. If this number already exists, it must be stored \
+        in thread_count. Otherwise it will process a SQL query
+
         :return: the number of threads in the forum.
         """
-        return Topic.objects.filter(forum=self).count()
+        try:
+            return self.thread_count
+        except AttributeError:
+            return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
-        """
+        """Retrieve or agregate the number of posts in this forum. If this number already exists, it must be stored \
+        in post_count. Otherwise it will process a SQL query
+
         :return: the number of posts for a forum.
         """
-        return Post.objects.filter(topic__forum=self).count()
+        try:
+            return self.post_count
+        except AttributeError:
+            return Post.objects.filter(topic__forum=self).count()
 
     def get_last_message(self):
         """
@@ -144,7 +160,7 @@ class Forum(models.Model):
         if self.group.count() == 0:
             return True
         else:
-            if user.is_authenticated():
+            if user is not None and user.is_authenticated():
                 groups = Group.objects.filter(user=user).all()
                 return Forum.objects.filter(
                     group__in=groups,
@@ -280,11 +296,55 @@ class Topic(models.Model):
         except TopicRead.DoesNotExist:
             return self.first_post()
 
+    def resolve_last_read_post_absolute_url(self):
+        """resolve the url that leads to the last post the current user has read. If current user is \
+        anonymous, just lead to the thread start.
+
+        :return: the url
+        :rtype: str
+        """
+        user = get_current_user()
+        if user is None or not user.is_authenticated():
+            return self.resolve_first_post_url()
+        else:
+            return '{0}?page=1#p{1}'.format(
+                self.get_absolute_url(),
+                self.resolve_last_post_pk_read_by_user(user))
+
+    def resolve_last_post_pk_read_by_user(self, user):
+        """get the primary key of the last post the user read
+
+        :param user: the current (authenticated) user. Please do not try with unauthenticated user, il would lead to a \
+        useless request.
+        :return: the primary key
+        :rtype: int
+        """
+        return TopicRead.objects\
+            .filter(topic__pk=self.pk,
+                    user__pk=user.pk) \
+            .latest('post__position')\
+            .values("pk")['pk']
+
+    def resolve_first_post_url(self):
+        """resolve the url that leads to this topic first post
+
+        :return: the url
+        """
+        pk = Post.objects\
+            .filter(topic__pk=self.pk)\
+            .order_by('-position')\
+            .values('pk').first()
+
+        return '{0}?page=1#p{1}'.format(
+            self.get_absolute_url(),
+            pk['pk'])
+
     def first_unread_post(self):
         """
-        Returns the first post of this topics the current user has never read, or the first post if it has never read
-        this topic.
+        Returns the first post of this topics the current user has never read, or the first post if it has never read \
+        this topic.\
         Used in notification menu.
+
         :return: The first unread post for this topic and this user.
         """
         # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?

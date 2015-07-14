@@ -41,7 +41,7 @@ class CategoriesForumsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
         for category in context.get('categories'):
-            category.forums = category.get_forums(self.request.user)
+            category.forums = category.get_forums(self.request.user, with_count=True)
         return context
 
 
