@@ -2,7 +2,8 @@ from django import forms
 from haystack.forms import SearchForm
 
 from zds.forum.models import Post, Topic
-from zds.search.constant import MODEL_NAMES
+from zds.search.constant import MODEL_NAMES, model_topic, model_post, model_extract, model_article, model_tutorial, \
+    model_part, model_chapter
 from zds.search.models import SearchIndexContent, SearchIndexContainer, SearchIndexExtract
 
 
@@ -23,52 +24,44 @@ class CustomSearchForm(SearchForm):
 
         list_model_accepted = ()
 
-        if MODEL_NAMES[0][0] not in self.cleaned_data["models"] and \
-           MODEL_NAMES[1][0] not in self.cleaned_data["models"] and \
-           MODEL_NAMES[2][0] not in self.cleaned_data["models"] and \
-           MODEL_NAMES[3][0] not in self.cleaned_data["models"] and \
-           MODEL_NAMES[4][0] not in self.cleaned_data["models"] and \
-           MODEL_NAMES[5][0] not in self.cleaned_data["models"] and \
-           MODEL_NAMES[6][0] not in self.cleaned_data["models"]:
-
+        if all([model[0] not in self.cleaned_data["models"] for model in MODEL_NAMES]):
             list_model_accepted = (Post, Topic, SearchIndexContent, SearchIndexContainer, SearchIndexExtract)
 
         else:
-
-            if MODEL_NAMES[0][0] in self.cleaned_data["models"]:
+            if model_topic() in self.cleaned_data["models"]:
                 list_model_accepted = list_model_accepted + (Topic,)
 
-            if MODEL_NAMES[1][0] in self.cleaned_data["models"]:
+            if model_post() in self.cleaned_data["models"]:
                 list_model_accepted = list_model_accepted + (Post,)
 
-            if MODEL_NAMES[6][0] in self.cleaned_data["models"]:
+            if model_extract() in self.cleaned_data["models"]:
                 list_model_accepted = list_model_accepted + (SearchIndexExtract,)
 
-            if MODEL_NAMES[2][0] in self.cleaned_data["models"] or \
-               MODEL_NAMES[3][0] in self.cleaned_data["models"]:
+            if model_article() in self.cleaned_data["models"] or \
+               model_tutorial() in self.cleaned_data["models"]:
                 list_model_accepted = list_model_accepted + (SearchIndexContent,)
 
-                if MODEL_NAMES[2][0] in self.cleaned_data["models"]:
+                if model_article() in self.cleaned_data["models"]:
                     list_model_accepted = list_model_accepted + (SearchIndexExtract,)
 
-            if MODEL_NAMES[2][0] not in self.cleaned_data["models"] and \
-               MODEL_NAMES[3][0] in self.cleaned_data["models"]:
+            if model_article() not in self.cleaned_data["models"] and \
+               model_tutorial() in self.cleaned_data["models"]:
                 sqs = sqs.exclude(type='article')
 
-            if MODEL_NAMES[2][0] in self.cleaned_data["models"] and \
-               MODEL_NAMES[3][0] not in self.cleaned_data["models"]:
+            if model_article() in self.cleaned_data["models"] and \
+               model_tutorial() not in self.cleaned_data["models"]:
                 sqs = sqs.exclude(type='tutorial')
 
-            if MODEL_NAMES[4][0] in self.cleaned_data["models"] or \
-               MODEL_NAMES[5][0] in self.cleaned_data["models"]:
+            if model_part() in self.cleaned_data["models"] or \
+               model_chapter() in self.cleaned_data["models"]:
                 list_model_accepted = list_model_accepted + (SearchIndexContainer,)
 
-            if MODEL_NAMES[4][0] in self.cleaned_data["models"] and \
-               MODEL_NAMES[5][0] not in self.cleaned_data["models"]:
+            if model_part() in self.cleaned_data["models"] and \
+               model_chapter() not in self.cleaned_data["models"]:
                 sqs = sqs.exclude(level='chapter')
 
-            if MODEL_NAMES[4][0] not in self.cleaned_data["models"] and \
-               MODEL_NAMES[5][0] in self.cleaned_data["models"]:
+            if model_part() not in self.cleaned_data["models"] and \
+               model_chapter() in self.cleaned_data["models"]:
                 sqs = sqs.exclude(level='part')
 
         return sqs.models(*list_model_accepted)
