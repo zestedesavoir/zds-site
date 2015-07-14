@@ -21,84 +21,76 @@
 
 
 
-{% block content_out %}
-    <section class="content-wrapper">
-        <h1>
-            {% block headline %}
-                {% trans "Validation des tutoriels" %}
-                {% if request.GET.type == "reserved" %}
-                    / {% trans "Reservés" %}
-                {% elif request.GET.type == "orphan" %}
-                    / {% trans "Non-reservés" %}
-                {% endif %}
-                ({{ validations|length }})
-            {% endblock %}
-        </h1>
 
-        {% captureas headlinesub %}
-            {% block headline_sub %}{% endblock %}
-        {% endcaptureas %}
-        {% if headlinesub %}
-            <h2 class="subtitle">{{ headlinesub|safe }}</h2>
+{% block headline %}
+    <h1>
+        {% trans "Validation des tutoriels" %}
+        {% if request.GET.type == "reserved" %}
+            / {% trans "Reservés" %}
+        {% elif request.GET.type == "orphan" %}
+            / {% trans "Non-reservés" %}
         {% endif %}
+        ({{ validations|length }})
+    </h1>
+{% endblock %}
 
-        {% block content %}
-            {% if validations %}
-                <table class="fullwidth">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Titre" %}</th>
-                            <th width="15%">{% trans "Auteur(s)" %}</th>
-                            <th width="10%">{% trans "Propos" %}é</th>
-                            <th width="24%">{% trans "Statut" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for validation in validations %}
-                            <tr>
-                                <td>
-                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
-                                        {{ validation.tutorial.title }}
-                                    </a>
-                                    <br>
-                                    {% if validation.tutorial.subcategory.all %}
-                                        {% trans "Catégories" %} : 
-                                        {% for subcategory in validation.tutorial.subcategory.all %}
-                                            {% if not forloop.first %}
-                                                -
-                                            {% endif %}
-                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{ subcategory.pk }}">
-                                                {{ subcategory.title }}</a>
-                                        {% endfor %}
-                                    {% else %}
-                                        <em>{% trans "Aucune catégorie" %}</em>
+
+
+{% block content %}
+    {% if validations %}
+        <table class="fullwidth">
+            <thead>
+                <tr>
+                    <th>{% trans "Titre" %}</th>
+                    <th width="15%">{% trans "Auteur(s)" %}</th>
+                    <th width="10%">{% trans "Propos" %}é</th>
+                    <th width="24%">{% trans "Statut" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for validation in validations %}
+                    <tr>
+                        <td>
+                            <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
+                                {{ validation.tutorial.title }}
+                            </a>
+                            <br>
+                            {% if validation.tutorial.subcategory.all %}
+                                {% trans "Catégories" %} : 
+                                {% for subcategory in validation.tutorial.subcategory.all %}
+                                    {% if not forloop.first %}
+                                        -
                                     {% endif %}
-                                </td>
-                                <td>
-                                    {% for author in validation.tutorial.authors.all %}
-                                        {% include 'misc/member_item.part.html' with member=author avatar=True %}
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
-                                </td>
-                                <td>
-                                    {% captureas reservation_url %}
-                                        {% url "zds.tutorial.views.reservation" validation.pk %}
-                                    {% endcaptureas %}
-                                    {% include "misc/validation.part.html" %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>
-                    {% trans "Aucun tutoriel soumis en validation" %}.
-                </p>
-            {% endif %}
-        {% endblock %}
-    </section>
+                                    <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                        {{ subcategory.title }}</a>
+                                {% endfor %}
+                            {% else %}
+                                <em>{% trans "Aucune catégorie" %}</em>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for author in validation.tutorial.authors.all %}
+                                {% include 'misc/member_item.part.html' with member=author avatar=True %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
+                        </td>
+                        <td>
+                            {% captureas reservation_url %}
+                                {% url "zds.tutorial.views.reservation" validation.pk %}
+                            {% endcaptureas %}
+                            {% include "misc/validation.part.html" %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            {% trans "Aucun tutoriel soumis en validation" %}.
+        </p>
+    {% endif %}
 {% endblock %}
 
 
