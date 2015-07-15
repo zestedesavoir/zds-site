@@ -256,14 +256,6 @@
             margin-left: 1.5%;
         }
     }
-
-    .full-content-wrapper .tutorial-list article {
-        width: 46%;
-        float: left;
-        &.extend {
-            width: 100%;
-        }
-    }
 }
 
 @media only screen and #{$media-mobile-tablet} {
