@@ -779,6 +779,16 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         response = client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_staff_apply_read_only_on_self(self):
+        """
+        A staff user can not put LS on himself
+        """
+        data = {
+            'ls-text': 'I am a bad staff!'
+        }
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.staff.pk]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class MemberDetailBanAPITest(APITestCase):
     def setUp(self):
@@ -926,6 +936,16 @@ class MemberDetailBanAPITest(APITestCase):
         authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
         response = client_authenticated.delete(reverse('api-member-ban', args=[self.profile.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_staff_apply_ban_on_self(self):
+        """
+        A staff user can not put a ban on himself
+        """
+        data = {
+            'ban-text': 'I am a bad staff!'
+        }
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.staff.pk]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
