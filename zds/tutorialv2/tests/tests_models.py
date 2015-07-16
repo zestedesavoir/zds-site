@@ -22,6 +22,10 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 class ContentTests(TestCase):
 
     def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
@@ -427,3 +431,6 @@ class ContentTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
