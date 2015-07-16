@@ -72,7 +72,6 @@
                                 <li>
                                     <form action="{% url 'topic-edit' %}" method="post">
                                         <input type="hidden" name="topic" value="{{ topic.pk }}">
-                                        <input type="hidden" name="nb" value="{% if nb %} {{ nb }} {% else %} {{ zds.settings.ZDS_APP.forum.posts_per_page }} {% endif %}">
                                         <input type="hidden" name="page" value="{% if page %} {{ page }} {% else %} 1 {% endif %}">
                                         <input type="hidden" name="follow" value="1">
                                         {% csrf_token %}
@@ -82,7 +81,7 @@
                                             {% trans "Ne plus suivre" %}
                                         </button>
                                     </form>
-                                    
+
                                     <a href="{% spaceless %}
                                             {% with first_unread=topic.first_unread_post %}
                                                 {% if first_unread %}
