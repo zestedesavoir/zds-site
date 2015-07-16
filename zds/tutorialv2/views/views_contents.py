@@ -191,6 +191,17 @@ class DisplayBetaContent(DisplayContent):
 
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(DisplayBetaContent, self).get_context_data(**kwargs)
+
+        if self.object.beta_topic:
+            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
+
+            if beta_topic:
+                context['beta_topic'] = beta_topic
+
+        return context
+
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/content.html'
@@ -920,6 +931,17 @@ class DisplayBetaContainer(DisplayContainer):
             self.kwargs['slug'] = obj.slug
 
         return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
+
+        if self.object.beta_topic:
+            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
+
+            if beta_topic:
+                context['beta_topic'] = beta_topic
+
+        return context
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
