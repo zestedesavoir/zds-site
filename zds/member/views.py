@@ -640,7 +640,7 @@ def login_view(request):
                     # redirect the user if needed
                     try:
                         return redirect(next_page)
-                    except:
+                    except TypeError:
                         return redirect(reverse("zds.pages.views.home"))
                 else:
                     messages.error(request,
@@ -867,7 +867,7 @@ def generate_token_account(request):
     msg.attach_alternative(message_html, "text/html")
     try:
         msg.send()
-    except:
+    except Exception:
         msg = None
     return render(request, 'member/register/success.html', {})
 

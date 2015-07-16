@@ -96,7 +96,7 @@ def send_message_mp(
                 msg.attach_alternative(message_html, "text/html")
                 try:
                     msg.send()
-                except:
+                except Exception:
                     msg = None
         else:
             subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
@@ -127,7 +127,7 @@ def send_message_mp(
                         msg.attach_alternative(message_html, "text/html")
                         try:
                             msg.send()
-                        except:
+                        except Exception:
                             msg = None
 
     return n_topic

@@ -102,7 +102,7 @@ def assoc_subscribe(request):
             try:
                 msg.send()
                 messages.success(request, _(u"Votre demande d'adhésion a bien été envoyée et va être étudiée."))
-            except:
+            except Exception:
                 msg = None
                 messages.error(request, _(u"Une erreur est survenue."))
 

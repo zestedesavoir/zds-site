@@ -211,7 +211,7 @@ def modify_gallery(request):
                                                user=request.user)
             if gal_mode.mode != "W":
                 raise PermissionDenied
-        except:
+        except ObjectDoesNotExist:
             raise PermissionDenied
         form = UserGalleryForm(request.POST)
         if form.is_valid():
