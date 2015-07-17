@@ -587,9 +587,10 @@ def publish_content(db_object, versioned, is_major_update=True):
     os.system(
         settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str)
     # 4. PDF
-    os.system(
-        settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
-        md_file_path + " -o " + base_name + ".pdf" + pandoc_debug_str)
+    if ZDS_APP['content']['build_pdf_when_published']:
+        os.system(
+            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
+            md_file_path + " -o " + base_name + ".pdf" + pandoc_debug_str)
 
     os.chdir(settings.BASE_DIR)
 
