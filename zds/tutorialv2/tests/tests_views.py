@@ -24,7 +24,7 @@ from zds.tutorialv2.utils import publish_content
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
 from zds.forum.factories import ForumFactory, CategoryFactory
-from zds.forum.models import Topic, Post
+from zds.forum.models import Topic, Post, TopicFollowed, TopicRead
 from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
 from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
@@ -47,6 +47,10 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentTests(TestCase):
     def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -563,6 +567,11 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
 
+        # create second author and add to tuto
+        second_author = ProfileFactory().user
+        self.tuto.authors.add(second_author)
+        self.tuto.save()
+
         # activ beta:
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         current_sha_beta = tuto.sha_draft
@@ -583,6 +592,11 @@ class ContentTests(TestCase):
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
+
+        # test if second author follow the topic
+        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=second_author.pk).count(), 1)
+        self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=second_author.pk).count(), 1)
+
         # test access for public
         self.client.logout()
 
@@ -652,6 +666,14 @@ class ContentTests(TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         self.assertNotEqual(current_sha_beta, tuto.sha_draft)
 
+        # add third author:
+        third_author = ProfileFactory().user
+        tuto.authors.add(third_author)
+        tuto.save()
+
+        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 0)
+        self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 0)
+
         # change beta:
         old_sha_beta = current_sha_beta
         current_sha_beta = tuto.sha_draft
@@ -667,6 +689,10 @@ class ContentTests(TestCase):
         self.assertEqual(tuto.sha_beta, current_sha_beta)
 
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
+
+        # test if third author follow the topic
+        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
+        self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
 
         # then test for guest
         self.client.logout()
@@ -3047,6 +3073,8 @@ class ContentTests(TestCase):
 
         NOTE: this test will take time !"""
 
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # obviously, need PDF build
+
         title = u'C\'est pas le plus important ici !'
 
         tuto = PublishableContentFactory(type='TUTORIAL')
@@ -3390,9 +3418,16 @@ class ContentTests(TestCase):
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+
 
 class PublishedContentTests(TestCase):
     def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -4518,3 +4553,6 @@ class PublishedContentTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True

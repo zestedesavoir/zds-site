@@ -42,6 +42,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool
 from zds.utils import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
+from zds.forum.models import Topic, TopicFollowed, follow, mark_read
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -189,6 +190,17 @@ class DisplayBetaContent(DisplayContent):
             self.kwargs['slug'] = obj.slug
 
         return obj
+
+    def get_context_data(self, **kwargs):
+        context = super(DisplayBetaContent, self).get_context_data(**kwargs)
+
+        if self.object.beta_topic:
+            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
+
+            if beta_topic:
+                context['beta_topic'] = beta_topic
+
+        return context
 
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -920,6 +932,17 @@ class DisplayBetaContainer(DisplayContainer):
 
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
+
+        if self.object.beta_topic:
+            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
+
+            if beta_topic:
+                context['beta_topic'] = beta_topic
+
+        return context
+
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/container.html'
@@ -1186,6 +1209,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         _type = self.object.type.lower()
         if _type == "tutorial":
             _type = _('tutoriel')
+
         # perform actions:
         if self.action == 'inactive':
             self.object.sha_beta = None
@@ -1232,14 +1256,22 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         all_tags.append(new_tag)
                     all_tags += existing_tags
 
-                    create_topic(request=self.request,
-                                 author=self.request.user,
-                                 forum=forum,
-                                 title=_(u"[beta][{}]{}").format(_type, beta_version.title),
-                                 subtitle=u"{}".format(beta_version.description),
-                                 text=msg,
-                                 related_publishable_content=self.object)
-                    topic = self.object.beta_topic
+                    topic = create_topic(request=self.request,
+                                         author=self.request.user,
+                                         forum=forum,
+                                         title=_(u"[beta][{}]{}").format(_type, beta_version.title),
+                                         subtitle=u"{}".format(beta_version.description),
+                                         text=msg,
+                                         related_publishable_content=self.object)
+
+                    topic = Topic.objects.get(pk=topic.pk)
+
+                    # make all authors follow the topic:
+                    for author in self.object.authors.all():
+                        if author.pk is not self.request.user.pk:
+                            follow(topic, author)
+                            mark_read(topic, author)
+
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
                         'tutorialv2/messages/beta_activate_pm.md',
@@ -1287,7 +1319,13 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
-                    send_post(self.request, topic, self.request.user, msg_post)
+                    topic = send_post(self.request, topic, self.request.user, msg_post)
+
+                    # make sure that all authors follow the topic:
+                    for author in self.object.authors.all():
+                        if TopicFollowed.objects.filter(topic__pk=topic.pk, user__pk=author.pk).count() == 0:
+                            follow(topic, author)
+                            mark_read(topic, author)
 
             # finally set the tags on the topic
             if topic:

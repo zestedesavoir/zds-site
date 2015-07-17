@@ -2,6 +2,7 @@
 from django.contrib.auth.models import Group
 
 import os
+import shutil
 from os.path import isdir, isfile
 
 from django.conf import settings
@@ -28,6 +29,10 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 class ContentMoveTests(TestCase):
 
     def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -512,3 +517,14 @@ class ContentMoveTests(TestCase):
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[0]
         self.assertEqual(self.chapter4.slug, chapter.slug)
+
+    def tearDown(self):
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True

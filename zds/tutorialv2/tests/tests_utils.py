@@ -51,6 +51,10 @@ overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data
 class UtilsTests(TestCase):
 
     def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.mas = ProfileFactory().user
         settings.ZDS_APP['member']['bot_account'] = self.mas.username
@@ -530,6 +534,8 @@ class UtilsTests(TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True  # this test need PDF build, if any
+
         tuto = PublishedContentFactory(type='TUTORIAL')  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
 
@@ -584,3 +590,6 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
         if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
             shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
