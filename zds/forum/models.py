@@ -456,19 +456,22 @@ def never_read(topic, user=None):
         .filter(post=topic.last_message, topic=topic, user=user).exists()
 
 
-def mark_read(topic):
+def mark_read(topic, user=None):
     """
     Mark the last message of a topic as read for the current user.
     :param topic: A topic.
     """
-    current_user = get_current_user()
-    # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
-    current_topic_read = TopicRead.objects.filter(topic=topic, user=current_user).first()
-    if current_topic_read is None:
-        current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=current_user)
-    else:
-        current_topic_read.post = topic.last_message
-    current_topic_read.save()
+    if not user:
+        user = get_current_user()
+
+    if user and user.is_authenticated():
+        # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
+        current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
+        if current_topic_read is None:
+            current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)
+        else:
+            current_topic_read.post = topic.last_message
+        current_topic_read.save()
 
 
 def follow(topic, user=None):
