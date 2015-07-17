@@ -41,7 +41,7 @@ class SearchIndexContent(models.Model):
     tags = models.ManyToManyField(SearchIndexTag, verbose_name='Tags', null=True, blank=True, db_index=True)
     authors = models.ManyToManyField(SearchIndexAuthors, verbose_name='Authors', db_index=True)
 
-    url_to_redirect = models.CharField('Adresse pour rediriger', max_length=200)
+    url_to_redirect = models.CharField('Adresse pour rediriger', max_length=400)
 
     introduction = models.TextField('Introduction', null=True, blank=True)
     conclusion = models.TextField('Conclusion', null=True, blank=True)
@@ -62,7 +62,7 @@ class SearchIndexContainer(models.Model):
 
     title = models.CharField('Titre', max_length=80)
 
-    url_to_redirect = models.CharField('Adresse pour rediriger', max_length=200)
+    url_to_redirect = models.CharField('Adresse pour rediriger', max_length=400)
 
     introduction = models.TextField('Introduction', null=True, blank=True)
     conclusion = models.TextField('Conclusion', null=True, blank=True)
@@ -83,7 +83,7 @@ class SearchIndexExtract(models.Model):
     search_index_content = models.ForeignKey(SearchIndexContent, verbose_name='content',
                                              related_name='extract_search_index_content', db_index=True)
 
-    url_to_redirect = models.CharField('Adresse pour rediriger', max_length=200)
+    url_to_redirect = models.CharField('Adresse pour rediriger', max_length=400)
 
     extract_content = models.TextField('Contenu', null=True, blank=True)
 

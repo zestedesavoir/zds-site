@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
-                ('url_to_redirect', models.CharField(max_length=200, verbose_name=b'Adresse pour rediriger')),
+                ('url_to_redirect', models.CharField(max_length=400, verbose_name=b'Adresse pour rediriger')),
                 ('introduction', models.TextField(null=True, verbose_name=b'Introduction', blank=True)),
                 ('conclusion', models.TextField(null=True, verbose_name=b'Conclusion', blank=True)),
                 ('level', models.CharField(max_length=80, verbose_name=b'level')),
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 ('update_date', models.DateTimeField(null=True, verbose_name=b'Date de mise \xc3\xa0 jours', blank=True)),
                 ('licence', models.CharField(max_length=80, verbose_name=b'Licence du contenu')),
                 ('url_image', models.CharField(max_length=200, null=True, verbose_name=b"L'adresse vers l'image du contenu", blank=True)),
-                ('url_to_redirect', models.CharField(max_length=200, verbose_name=b'Adresse pour rediriger')),
+                ('url_to_redirect', models.CharField(max_length=400, verbose_name=b'Adresse pour rediriger')),
                 ('introduction', models.TextField(null=True, verbose_name=b'Introduction', blank=True)),
                 ('conclusion', models.TextField(null=True, verbose_name=b'Conclusion', blank=True)),
                 ('keywords', models.TextField(verbose_name=b'Mots cl\xc3\xa9s du contenu')),
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
-                ('url_to_redirect', models.CharField(max_length=200, verbose_name=b'Adresse pour rediriger')),
+                ('url_to_redirect', models.CharField(max_length=400, verbose_name=b'Adresse pour rediriger')),
                 ('extract_content', models.TextField(null=True, verbose_name=b'Contenu', blank=True)),
                 ('keywords', models.TextField(verbose_name=b'Mots cl\xc3\xa9s du contenu')),
                 ('search_index_content', models.ForeignKey(related_name='extract_search_index_content', verbose_name=b'content', to='search.SearchIndexContent')),
