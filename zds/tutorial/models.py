@@ -719,7 +719,8 @@ class Chapter(models.Model):
 
     image = models.ForeignKey(Image,
                               verbose_name='Image du chapitre',
-                              blank=True, null=True)
+                              blank=True, null=True,
+                              on_delete=models.SET_NULL)
     # This field is required in order to use pagination in chapters, see the
     # update_position_in_tutorial() method.
     position_in_tutorial = models.IntegerField('Position dans le tutoriel',
