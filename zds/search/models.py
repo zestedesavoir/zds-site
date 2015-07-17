@@ -29,8 +29,8 @@ class SearchIndexContent(models.Model):
                                             related_name='search_index_content_publishable_content', db_index=False,
                                             on_delete=models.SET_NULL, null=True)
 
-    title = models.CharField('Titre', max_length=80)
-    description = models.CharField('Description', max_length=80)
+    title = models.CharField('Titre', max_length=200)
+    description = models.TextField('Description', null=True, blank=True)
 
     pub_date = models.DateTimeField('Date de création', auto_now_add=True)
     update_date = models.DateTimeField('Date de mise à jours', blank=True, null=True)

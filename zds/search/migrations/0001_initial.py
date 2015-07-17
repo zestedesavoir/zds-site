@@ -45,8 +45,8 @@ class Migration(migrations.Migration):
             name='SearchIndexContent',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
-                ('description', models.CharField(max_length=80, verbose_name=b'Description')),
+                ('title', models.CharField(max_length=200, verbose_name=b'Titre')),
+                ('description', models.TextField(null=True, verbose_name=b'Description', blank=True)),
                 ('pub_date', models.DateTimeField(auto_now_add=True, verbose_name=b'Date de cr\xc3\xa9ation')),
                 ('update_date', models.DateTimeField(null=True, verbose_name=b'Date de mise \xc3\xa0 jours', blank=True)),
                 ('licence', models.CharField(max_length=80, verbose_name=b'Licence du contenu')),
