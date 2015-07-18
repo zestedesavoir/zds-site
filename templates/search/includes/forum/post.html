@@ -30,14 +30,4 @@
 
         </div>
     </div>
-    {% if result.tags %}
-        <ul class="content-tags" itemprop="keywords">
-            {% for tag in result.tags|slice:":3" %}
-                <li>
-                    {{ tag }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
 </article>
