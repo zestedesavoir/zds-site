@@ -3409,6 +3409,68 @@ class ContentTests(TestCase):
             last = msg
         self.assertEqual(last.level, messages.ERROR)
 
+    def test_delete_with_multiple_authors(self):
+        """ensure that if more than one author, the user is just removed from list and the content is not deleted"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        new_author = ProfileFactory().user
+
+        # login with author and add user
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('content:add-author', args=[self.tuto.pk]),
+            {
+                'username': new_author.username
+            },
+            follow=False)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.authors.count(), 2)
+        self.assertEqual(tuto.authors.filter(pk=new_author.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(user=new_author, gallery=tuto.gallery).count(), 1)
+
+        # login with this new author, try to delete tuto
+        self.assertEqual(
+            self.client.login(
+                username=new_author.username,
+                password='hostel77'),
+            True)
+
+        # deleting
+        result = self.client.post(
+            reverse('content:delete', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 1)  # not deleted
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.authors.count(), 1)  # it just delete the author from list
+        self.assertEqual(tuto.authors.filter(pk=new_author.pk).count(), 0)
+        self.assertEqual(UserGallery.objects.filter(user=new_author, gallery=tuto.gallery).count(), 0)
+
+        # login with author
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # now, will work
+        result = self.client.post(
+            reverse('content:delete', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

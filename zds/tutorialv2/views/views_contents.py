@@ -317,43 +317,52 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         self.object = self.get_object()
         object_type = self.object.type.lower()
 
-        validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
+        if self.object.authors.count() > 1:  # if more than one author, just remove author from list
+            user = self.request.user
+            gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.object.gallery.pk).first()
+            if gallery:
+                gallery.delete()
+            self.object.authors.remove(user)
+        else:
 
-        if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
-            if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
-                messages.error(self.request, 'Merci de fournir une raison à la  suppression.')
-                return redirect(self.object.get_absolute_url())
-            else:
-                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                msg = render_to_string(
-                    'tutorialv2/messages/validation_cancel_on_delete.md',
-                    {
-                        'content': self.object,
-                        'validator': validation.validator.username,
-                        'user': self.request.user,
-                        'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
-                    })
+            validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
 
-                send_mp(
-                    bot,
-                    [validation.validator],
-                    _(u"Demande de validation annulée").format(),
-                    self.object.title,
-                    msg,
-                    False,
-                )
-        if self.object.beta_topic is not None:
-            beta_topic = self.object.beta_topic
-            beta_topic.is_locked = True
-            beta_topic.add_tags([u"Supprimé"])
-            beta_topic.save()
-            post = beta_topic.first_post()
-            post.update_content(_(u"[[a]]\n"
-                                  u"| Le contenu qui était en bêta a été supprimé par son auteur.\n\n") + post.text)
+            if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
+                if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
+                    messages.error(self.request, 'Merci de fournir une raison à la  suppression.')
+                    return redirect(self.object.get_absolute_url())
+                else:
+                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                    msg = render_to_string(
+                        'tutorialv2/messages/validation_cancel_on_delete.md',
+                        {
+                            'content': self.object,
+                            'validator': validation.validator.username,
+                            'user': self.request.user,
+                            'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
+                        })
 
-            post.save()
+                    send_mp(
+                        bot,
+                        [validation.validator],
+                        _(u"Demande de validation annulée").format(),
+                        self.object.title,
+                        msg,
+                        False,
+                    )
+            if self.object.beta_topic is not None:
+                beta_topic = self.object.beta_topic
+                beta_topic.is_locked = True
+                beta_topic.add_tags([u"Supprimé"])
+                beta_topic.save()
+                post = beta_topic.first_post()
+                post.update_content(_(u"[[a]]\n"
+                                      u"| Le contenu qui était en bêta a été supprimé par son auteur.\n\n") + post.text)
 
-        self.object.delete()
+                post.save()
+
+            self.object.delete()
+
         return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
 
 
