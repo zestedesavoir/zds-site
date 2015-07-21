@@ -2501,7 +2501,7 @@ class ContentTests(TestCase):
         self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
         # remove unexisting user
         result = self.client.post(
-            reverse('content:add-author', args=[tuto.pk]),
+            reverse('content:remove-author', args=[tuto.pk]),
             {
                 'username': "unknown"
             },
@@ -2510,13 +2510,34 @@ class ContentTests(TestCase):
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
         # remove last author must lead to no change
         result = self.client.post(
-            reverse('content:add-author', args=[tuto.pk]),
+            reverse('content:remove-author', args=[tuto.pk]),
             {
                 'username': self.user_author.username
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+
+        # re-add quest
+        result = self.client.post(
+            reverse('content:add-author', args=[tuto.pk]),
+            {
+                'username': self.user_guest.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 2)
+
+        # then, make `user_author` remove himself
+        result = self.client.post(
+            reverse('content:remove-author', args=[tuto.pk]),
+            {
+                'username': self.user_author.username
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.filter(pk=self.user_author.pk).count(), 0)
 
     def test_warn_typo(self):
         """
