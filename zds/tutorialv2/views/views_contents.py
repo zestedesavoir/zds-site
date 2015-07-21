@@ -317,14 +317,15 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         self.object = self.get_object()
         object_type = self.object.type.lower()
 
-        if self.object.authors.count() > 1:  # if more than one author, just remove author from list
-            user = self.request.user
-            gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.object.gallery.pk).first()
-            if gallery:
-                gallery.delete()
-            self.object.authors.remove(user)
-        else:
+        _type = _(u'ce tutoriel')
+        if self.object.type == 'ARTICLE':
+            _type = _(u'cet article')
 
+        if self.object.authors.count() > 1:  # if more than one author, just remove author from list
+            RemoveAuthorFromContent.remove_author(self.object, self.request.user)
+            messages.success(self.request, _(u'Vous avez quitté la rédaction de {}').format(_type))
+
+        else:
             validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
 
             if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
@@ -356,12 +357,16 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                 beta_topic.add_tags([u"Supprimé"])
                 beta_topic.save()
                 post = beta_topic.first_post()
-                post.update_content(_(u"[[a]]\n"
-                                      u"| Le contenu qui était en bêta a été supprimé par son auteur.\n\n") + post.text)
+                post.update_content(
+                    _(u"[[a]]\n"
+                      u"| Malheureusement, {} qui était en bêta a été supprimé par son auteur.\n\n").format(_type) +
+                    post.text)
 
                 post.save()
 
             self.object.delete()
+
+            messages.success(self.request, _(u'Vous avez bien supprimé {}').format(_type))
 
         return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
 
@@ -1598,9 +1603,9 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     def form_valid(self, form):
         _type = self.object.type.lower()
         if _type == "tutorial":
-            _type = _('du tutoriel')
+            _type = _(u'du tutoriel')
         else:
-            _type = _("de l'article")
+            _type = _(u'de l\'article')
         for user in form.cleaned_data["users"]:
             if user not in self.object.authors.all() and user != self.request.user:
                 self.object.authors.add(user)
@@ -1642,16 +1647,64 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
 class RemoveAuthorFromContent(AddAuthorToContent):
 
+    @staticmethod
+    def remove_author(content, user):
+        """Remove an user from the authors and ensure that he is access to the content's gallery is also removed.
+        The last author is not removed.
+
+        :param content: the content
+        :type content: zds.tutorialv2.models.models_database.PublishableContent
+        :param user: the author
+        :type user: User
+        :return: ``True`` if the author was removed, ``False`` otherwise
+        """
+        if user in content.authors.all() and content.authors.count() > 1:
+            gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=content.gallery.pk).first()
+            gallery.delete()
+            content.authors.remove(user)
+            return True
+
+        return False
+
     def form_valid(self, form):
-        for user in form.cleaned_data["users"]:
-            if user in self.object.authors.all() and user != self.request.user:
-                gallery = UserGallery.objects.filter(user=user, gallery=self.object.gallery).first()
-                gallery.delete()
-                self.object.authors.remove(user)
+
+        current_user = False
+        users = form.cleaned_data["users"]
+
+        _type = _(u'cet article')
+        if self.object.type == 'TUTORIAL':
+            _type = _(u'ce tutorial')
+
+        for user in users:
+            if RemoveAuthorFromContent.remove_author(self.object, user):
+                if user.pk == self.request.user.pk:
+                    current_user = True
+            else:  # if user is incorrect or alone
+                messages.error(self.request,
+                               _(u'Vous êtes le seul auteur de {} ou le membre sélectionné '
+                                 u'en a déjà quitté la rédaction.').format(_type))
+                return redirect(self.object.get_absolute_url())
 
         self.object.save()
 
-        self.success_url = self.object.get_absolute_url()
+        authors_list = u''
+
+        for index, user in enumerate(form.cleaned_data["users"]):
+            if index > 0:
+                if index == len(users) - 1:
+                    authors_list += _(u' et ')
+                else:
+                    authors_list += _(u', ')
+            authors_list += user.username
+
+        if not current_user:  # if the removed author is not current user
+            messages.success(
+                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de {}').format(authors_list, _type))
+            self.success_url = self.object.get_absolute_url()
+        else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
+            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}').format(_type))
+            self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
+
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
 
