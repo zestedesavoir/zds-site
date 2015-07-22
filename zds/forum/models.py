@@ -320,10 +320,11 @@ class Topic(models.Model):
         :rtype: int
         """
         return TopicRead.objects\
+            .select_related('post')\
             .filter(topic__pk=self.pk,
                     user__pk=user.pk) \
             .latest('post__position')\
-            .values("pk")['pk']
+            .pk
 
     def resolve_first_post_url(self):
         """resolve the url that leads to this topic first post
