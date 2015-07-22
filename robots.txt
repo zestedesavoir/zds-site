@@ -1,6 +1,6 @@
 # www.robotstxt.org
 
-Sitemap: http://zestedesavoir.com/sitemap.xml
+Sitemap: /sitemap.xml
 
 User-agent: *
 Disallow: /mp/
