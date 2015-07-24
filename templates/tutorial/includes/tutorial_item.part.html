@@ -24,8 +24,8 @@
 {% endcaptureas %}
 
 {% captureas tutorial_state %}
-    {% if tutorial.pubdate %}
-        {% trans "Publié" %} {{ tutorial.pubdate|format_date }}
+    {% if tutorial.on_line %}
+        {% trans "Publié" %} {% if tutorial.pubdate %}{{ tutorial.pubdate|format_date }}{% endif %}
     {% else %}
         {% trans "En rédaction" %}
     {% endif %}
