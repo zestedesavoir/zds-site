@@ -11,8 +11,25 @@ class ForumManager(models.Manager):
     Custom forum manager.
     """
 
-    def get_public_forums_of_category(self, category):
-        return self.filter(category=category, group__isnull=True).select_related("category").distinct().all()
+    def get_public_forums_of_category(self, category, with_count=False):
+        """load all public forums for a category
+
+        :param category: the related category
+        :type category: zds.forum.models.Category
+        :param with_count: optional parameter: if true, will preload thread and post number for each forum inside \
+        category
+        :type with_count: bool
+        """
+        query_set = self.filter(category=category, group__isnull=True).select_related("category").distinct()
+        if with_count:
+            # this request count the threads in each forum
+            thread_sub_query = "SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id"
+            # this request count the posts in each forum
+            post_sub_query = "SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id " \
+                             "IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)"
+
+            query_set = query_set.extra(select={"thread_count": thread_sub_query, "post_count": post_sub_query})
+        return query_set.all()
 
     def get_private_forums_of_category(self, category, user):
         return self.filter(category=category, group__in=user.groups.all())\
@@ -98,7 +115,14 @@ class PostManager(InheritanceManager):
 class TopicReadManager(models.Manager):
 
     def topic_read_by_user(self, user, topic_sub_list=None):
+        """ get all the topic that the user has already read.
 
+        :param user: an authenticated user
+        :param topic_sub_list: optional list of topics. If not ``None`` no subject out of this list will be selected
+        :type topic_sub_list: list
+        :return: the queryset over the already read topics
+        :rtype: QuerySet
+        """
         base_query_set = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
             base_query_set = base_query_set.filter(topic__in=topic_sub_list)
@@ -107,4 +131,12 @@ class TopicReadManager(models.Manager):
         return base_query_set
 
     def list_read_topic_pk(self, user, topic_sub_list=None):
+        """ get all the topic that the user has already read in a flat list.
+
+        :param user: an authenticated user
+        :param topic_sub_list: optional list of topics. If not ``None`` no subject out of this list will be selected
+        :type topic_sub_list: list
+        :return: the flat list of all topics primary key
+        :rtype: list
+        """
         return self.topic_read_by_user(user, topic_sub_list).values_list('topic__pk', flat=True)

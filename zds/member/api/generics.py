@@ -35,6 +35,11 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
         state = self.get_state_instance(request)
 
         ban = state.get_sanction(request.user, instance.user)
+
+        if ban.user == ban.moderator:
+            return Response({u'detail': u'Sanction can not be applied to yourself.'},
+                            status=status.HTTP_403_FORBIDDEN)
+
         try:
             state.apply_sanction(instance, ban)
         except ValueError:

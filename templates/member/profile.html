@@ -506,7 +506,7 @@
                 </li>
             </ul>
 
-            {% if not profile.is_private %}
+            {% if not profile.is_private and usr != user %}
             <h4>{% trans "Sanctions" %}</h4>
             <ul>
                 {% if profile.can_write_now %}

@@ -261,7 +261,7 @@ class ChapterForm(FormWithTitle):
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('image'),
+            # Field('image'),  # disable because not used yet
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
             Field('msg_commit'),

@@ -4,8 +4,10 @@
 {% load date %}
 
 {% captureas link %}
-    {% if beta %}
+    {% if type_link == 'beta' %}
         {{ tutorial.get_absolute_url_beta }}
+    {% elif type_link == 'draft' %}
+        {{ tutorial.get_absolute_url }}
     {% else %}
         {{ tutorial.get_absolute_url_online }}
     {% endif %}
@@ -19,6 +21,14 @@
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
     {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
+{% endcaptureas %}
+
+{% captureas tutorial_state %}
+    {% if tutorial.pubdate %}
+        {% trans "Publié" %} {{ tutorial.pubdate|format_date }}
+    {% else %}
+        {% trans "En rédaction" %}
+    {% endif %}
 {% endcaptureas %}
 
 <article class="content-item expand-description tutorial-item{{ item_class }}">
@@ -40,7 +50,7 @@
                 </p>
             {% endif %}
 
-            <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
+            <div class="content-meta" title="{{ tutorial_state }} {{ categories_text }} {{ authors_text }}">
                 {% if tutorial.subcategory %}
                     <p class="content-categories">
                         {{ categories_text }}
