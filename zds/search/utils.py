@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import thread
+import threading
 
 from bs4 import BeautifulSoup
 
@@ -176,6 +176,8 @@ def reindex_content(versioned, publishable_content):
     :return:
     """
     if not settings.TESTING:
-        thread.start_new_thread(reindex_thread, (versioned, publishable_content, ))
+        thread = threading.Thread(target=reindex_thread, args=(versioned, publishable_content, ))
+        thread.daemon = True                            # Daemonize thread
+        thread.start()                                  # Start the execution
     else:
         reindex_thread(versioned, publishable_content)
