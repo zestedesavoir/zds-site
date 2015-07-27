@@ -18,8 +18,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         query_set = PublishedContent.objects.exclude(sha_public__isnull=True).exclude(sha_public__exact='')
 
-        if options['id']:
+        if 'id' in options:
             query_set = query_set.filter(publishable_content__pk__in=options['id'])
+
         for content in query_set.all():
             reindex_content(content.load_public_version(), content)
             self.stdout.write('Successfully index content with id "%s"' % content.id)
