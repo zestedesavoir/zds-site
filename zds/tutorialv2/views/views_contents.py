@@ -1599,6 +1599,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
     must_be_author = True
     form_class = AuthorForm
     authorized_for_staff = True
+    already_finished = False
 
     def form_valid(self, form):
         _type = self.object.type.lower()
@@ -1634,8 +1635,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                 new_user.mode = GALLERY_WRITE
                 new_user.save()
         self.object.save()
-
-        self.success_url = self.object.get_absolute_url()
+        if not self.already_finished:
+            self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
 
@@ -1704,7 +1705,9 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
-
+        self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
+        # to the content itself. This does not please me but I think it is better to do that like that instead of
+        # super(FormView, self).form_valid(form). I find it so hard to understand.
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
 

@@ -2536,6 +2536,7 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.url, reverse("content:find-tutorial", args=[self.user_author.pk]))
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.filter(pk=self.user_author.pk).count(), 0)
 
