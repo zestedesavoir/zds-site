@@ -469,8 +469,8 @@ class Container:
                 # move things
                 if update_slug:
                     self.slug = self.parent.get_unique_slug(title)
-                new_path = self.get_path(relative=True)
-                repo.index.move([old_path, new_path])
+                    new_path = self.get_path(relative=True)
+                    repo.index.move([old_path, new_path])
 
                 # update manifest
                 self.update_children()
