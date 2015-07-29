@@ -1002,7 +1002,8 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         sha = container.repo_update(form.cleaned_data['title'],
                                     form.cleaned_data['introduction'],
                                     form.cleaned_data['conclusion'],
-                                    form.cleaned_data['msg_commit'])
+                                    form.cleaned_data['msg_commit'],
+                                    update_slug=self.object.public_version is not None)
 
         # then save
         self.object.sha_draft = sha

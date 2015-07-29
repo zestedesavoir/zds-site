@@ -442,7 +442,7 @@ class Container:
 
         return compute_hash(files)
 
-    def repo_update(self, title, introduction, conclusion, commit_message='', do_commit=True):
+    def repo_update(self, title, introduction, conclusion, commit_message='', do_commit=True, update_slug=True):
         """Update the container information and commit them into the repository
 
         :param title: the new title
@@ -467,7 +467,8 @@ class Container:
                 old_slug = self.slug
 
                 # move things
-                self.slug = self.parent.get_unique_slug(title)
+                if update_slug:
+                    self.slug = self.parent.get_unique_slug(title)
                 new_path = self.get_path(relative=True)
                 repo.index.move([old_path, new_path])
 
