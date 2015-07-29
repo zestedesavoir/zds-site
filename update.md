@@ -364,3 +364,18 @@ RECAPTCHA_PRIVATE_KEY = 'la-cle-ici'
 ```
 
 (les clés d'applications sont à créer auprès de l'association)
+
+Actions à faire pour mettre en prod la version 15
+=================================================
+
+Identifier les pk des [dis]likes pour la limite de désanonymisation - #1851
+---------------------------------------------------------------------------
+
+La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher la dernière PK de chacun des types de vote (Like ou Dislike) afin de les enregistrer dans le `settings_prod.py`. Voici les requètes à executer pour obtenir ces informations :
+
+```sql
+Select max(id) from utils_commentlike;
+Select max(id) from utils_commentdislike;
+```
+
+Le résultat de la première requète doit être placé dans le paramètre `LIKES_ID_LIMIT` et le second dans `DISLIKES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.

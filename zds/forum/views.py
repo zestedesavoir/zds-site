@@ -696,3 +696,38 @@ def complete_topic(request):
     the_data = json.dumps(suggestions)
 
     return HttpResponse(the_data, content_type='application/json')
+
+
+@login_required
+def post_find_likers(request, post_pk):
+    """" Find likers and dislikers of a message """
+    anon_likes_id_limit = settings.LIKES_ID_LIMIT
+    anon_dislikes_id_limit = settings.DISLIKES_ID_LIMIT
+
+    # fetch likers
+    likes = CommentLike.objects.filter(comments__id=post_pk) \
+                               .filter(id__gt=anon_likes_id_limit).select_related('user')
+    dislikes = CommentDislike.objects.filter(comments__id=post_pk) \
+                                     .filter(id__gt=anon_dislikes_id_limit).select_related('user')
+    # Count anonymous
+    anonymous_likes = CommentLike.objects.filter(comments__id=post_pk) \
+                                         .filter(id__lte=anon_likes_id_limit).count()
+    anonymous_dislikes = CommentDislike.objects.filter(comments__id=post_pk) \
+                                               .filter(id__lte=anon_dislikes_id_limit).count()
+
+    likers = [{'username': like.user.username,
+               'avatarUrl': like.user.profile.get_avatar_url()} for like in likes]
+    dislikers = [{'username': dislike.user.username,
+                  'avatarUrl': dislike.user.profile.get_avatar_url()} for dislike in dislikes]
+
+    if request.is_ajax():
+        resp = {
+            'likes': likers,
+            'dislikes': dislikers,
+            'anonymous_likes': anonymous_likes,
+            'anonymous_dislikes': anonymous_dislikes,
+        }
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    post = get_object_or_404(Post, pk=post_pk)
+    return redirect(post.get_absolute_url())
