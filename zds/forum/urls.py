@@ -46,6 +46,8 @@ urlpatterns = patterns('',
                        url(r'^message/like/$', PostLike.as_view(), name='post-like'),
                        url(r'^message/dislike/$', PostDisLike.as_view(), name='post-dislike'),
                        url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
+                       url(r'^message/likers/(?P<post_pk>\d+)/$', 'zds.forum.views.post_find_likers',
+                           name='post-find-likers'),
 
                        # Categories and forums list.
                        url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),

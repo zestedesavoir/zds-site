@@ -699,3 +699,31 @@ def complete_topic(request):
     the_data = json.dumps(suggestions)
 
     return HttpResponse(the_data, content_type='application/json')
+
+
+@login_required
+def post_find_likers(request, post_pk):
+    likes = CommentDislike.objects.filter(comments__pk=post_pk).select_related('user')
+    dislikes = CommentDislike.objects.filter(comments__pk=post_pk).select_related('user')
+
+    likers = []
+    dislikers = []
+
+    for like in likes:
+        likers.append({'username': like.user.username,
+                       'avatarUrl': like.user.profile.get_avatar_url()
+                       })
+    for dislike in dislikes:
+        dislikers.append({'username': dislike.user.username,
+                          'avatarUrl': dislike.user.profile.get_avatar_url()
+                          })
+
+    if request.is_ajax():
+        resp = {
+            'likes': likers,
+            'dislikes': dislikers
+        }
+        return HttpResponse(json.dumps(resp), content_type='application/json')
+
+    post = get_object_or_404(Post, pk=post_pk)
+    return redirect(post.get_absolute_url())
