@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -9,6 +10,15 @@ from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, Topi
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.utils.models import CommentLike, CommentDislike
+
+try:
+    import ujson as json_reader
+except ImportError:
+    try:
+        import simplejson as json_reader
+    except ImportError:
+        import json as json_reader
 
 
 class CategoriesForumsListViewTests(TestCase):
@@ -1505,6 +1515,98 @@ class PostLikeDisLikeTest(TestCase):
 
         response = self.client.post(reverse('post-dislike') + '?message={}'.format(post.pk), follow=False)
         self.assertEqual(302, response.status_code)
+
+    def test_find_likers_and_dislikers(self):
+        profile = ProfileFactory()
+        profile2 = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_profile = ProfileFactory()
+
+        upvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=2)
+        upvoted_answer.like += 2
+        upvoted_answer.save()
+        like1 = CommentLike.objects.create(user=profile.user, comments=upvoted_answer)
+        CommentLike.objects.create(user=profile2.user, comments=upvoted_answer)
+
+        downvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=3)
+        downvoted_answer.dislike += 2
+        downvoted_answer.save()
+        dislike1 = CommentDislike.objects.create(user=profile.user, comments=downvoted_answer)
+        CommentDislike.objects.create(user=profile2.user, comments=downvoted_answer)
+
+        equal_answer = PostFactory(topic=topic, author=another_profile.user, position=4)
+        equal_answer.like += 1
+        equal_answer.dislike += 1
+        equal_answer.save()
+        CommentLike.objects.create(user=profile.user, comments=equal_answer)
+        CommentDislike.objects.create(user=profile2.user, comments=equal_answer)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+
+        # on first message we should see 2 likes and 0 anonymous
+        response = self.client.post(reverse('post-find-likers', args=[upvoted_answer.pk]),
+                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, response.status_code)
+        json = json_reader.loads(response.content)
+        self.assertEqual(2, len(json['likes']))
+        self.assertEqual(0, len(json['dislikes']))
+        self.assertEqual(0, json['anonymous_likes'])
+        self.assertEqual(0, json['anonymous_dislikes'])
+
+        # on second message we should see 2 dislikes and 0 anonymous
+        response = self.client.post(reverse('post-find-likers', args=[downvoted_answer.pk]),
+                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, response.status_code)
+        json = json_reader.loads(response.content)
+        self.assertEqual(0, len(json['likes']))
+        self.assertEqual(2, len(json['dislikes']))
+        self.assertEqual(0, json['anonymous_likes'])
+        self.assertEqual(0, json['anonymous_dislikes'])
+
+        # on third message we should see 1 like and 1 dislike and 0 anonymous
+        response = self.client.post(reverse('post-find-likers', args=[equal_answer.pk]),
+                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, response.status_code)
+        json = json_reader.loads(response.content)
+        self.assertEqual(1, len(json['likes']))
+        self.assertEqual(1, len(json['dislikes']))
+        self.assertEqual(0, json['anonymous_likes'])
+        self.assertEqual(0, json['anonymous_dislikes'])
+
+        # Now we change the settings to keep anonymous the first [dis]like
+        settings.LIKES_ID_LIMIT = like1.pk
+        settings.DISLIKES_ID_LIMIT = dislike1.pk
+        # and we run the same tests
+        # on first message we should see 1 like and 1 anonymous
+        response = self.client.post(reverse('post-find-likers', args=[upvoted_answer.pk]),
+                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, response.status_code)
+        json = json_reader.loads(response.content)
+        self.assertEqual(1, len(json['likes']))
+        self.assertEqual(0, len(json['dislikes']))
+        self.assertEqual(1, json['anonymous_likes'])
+        self.assertEqual(0, json['anonymous_dislikes'])
+
+        # on second message we should see 1 dislikes and 1 anonymous
+        response = self.client.post(reverse('post-find-likers', args=[downvoted_answer.pk]),
+                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, response.status_code)
+        json = json_reader.loads(response.content)
+        self.assertEqual(0, len(json['likes']))
+        self.assertEqual(1, len(json['dislikes']))
+        self.assertEqual(0, json['anonymous_likes'])
+        self.assertEqual(1, json['anonymous_dislikes'])
+
+        # on third message we should see 1 like and 1 dislike and 0 anonymous
+        response = self.client.post(reverse('post-find-likers', args=[equal_answer.pk]),
+                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(200, response.status_code)
+        json = json_reader.loads(response.content)
+        self.assertEqual(1, len(json['likes']))
+        self.assertEqual(1, len(json['dislikes']))
+        self.assertEqual(0, json['anonymous_likes'])
+        self.assertEqual(0, json['anonymous_dislikes'])
 
 
 class FindPostTest(TestCase):

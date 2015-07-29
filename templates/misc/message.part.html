@@ -327,6 +327,12 @@
                                 </span>
                             </span>
                         {% endif %}
+                        {% if user.is_authenticated %}
+                            <form action="{% url 'post-find-likers' message.pk %}" method="post" class="screen">
+                                {% csrf_token %}
+                                <button type="submit" title='{% trans "Voir les votants" %}' class="likers ico-after view blue"></button>
+                            </form>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>
