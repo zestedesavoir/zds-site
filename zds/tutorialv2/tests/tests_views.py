@@ -259,7 +259,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.all().count(), 2)
 
-        tuto = PublishableContent.objects.last()
+        tuto = self.tuto
         pk = tuto.pk
         slug = tuto.slug
         versioned = tuto.load_version()
