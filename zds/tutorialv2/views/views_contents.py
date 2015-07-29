@@ -1674,7 +1674,7 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
         _type = _(u'cet article')
         if self.object.type == 'TUTORIAL':
-            _type = _(u'ce tutorial')
+            _type = _(u'ce tutoriel')
 
         for user in users:
             if RemoveAuthorFromContent.remove_author(self.object, user):
