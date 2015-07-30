@@ -259,7 +259,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.all().count(), 2)
 
-        tuto = self.tuto
+        tuto = PublishableContent.objects.last()
         pk = tuto.pk
         slug = tuto.slug
         versioned = tuto.load_version()
@@ -313,6 +313,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         versioned = PublishableContent.objects.get(pk=pk).load_version()
+
         self.assertEqual(len(versioned.children), 1)  # ok, the container is created
         container = versioned.children[0]
         self.assertEqual(container.title, title)
@@ -326,7 +327,6 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # edit container:
-        old_slug_container = container.slug
         result = self.client.post(
             reverse('content:edit-container', kwargs={'pk': pk, 'slug': slug, 'container_slug': container.slug}),
             {
@@ -343,7 +343,6 @@ class ContentTests(TestCase):
         self.assertEqual(container.title, random)
         self.assertEqual(container.get_introduction(), random)
         self.assertEqual(container.get_conclusion(), random)
-        self.assertNotEqual(container.slug, old_slug_container)
 
         # add a subcontainer
         result = self.client.post(
@@ -376,7 +375,6 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # edit subcontainer:
-        old_slug_subcontainer = subcontainer.slug
         result = self.client.post(
             reverse('content:edit-container',
                     kwargs={
@@ -399,7 +397,6 @@ class ContentTests(TestCase):
         self.assertEqual(subcontainer.title, random)
         self.assertEqual(subcontainer.get_introduction(), random)
         self.assertEqual(subcontainer.get_conclusion(), random)
-        self.assertNotEqual(subcontainer.slug, old_slug_subcontainer)
 
         # add extract to subcontainer:
         result = self.client.post(
