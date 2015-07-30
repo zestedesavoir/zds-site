@@ -446,7 +446,7 @@ class PublishableContent(models.Model):
                         .select_related('related_content__public_version')\
                         .filter(
                             related_content__pk=self.pk,
-                            pubdate__gt=last_note.pubdate)\
+                            pk__gt=last_note.pk)\
                         .select_related("author").first()
 
                     if next_note:
