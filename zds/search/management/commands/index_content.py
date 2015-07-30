@@ -24,4 +24,5 @@ class Command(BaseCommand):
         for content in query_set.all():
             reindex_content(content.load_public_version(), content)
             self.stdout.write('Successfully index content with id "%s"' % content.id)
-            self.stdout.write('Successfully indexed content')
+
+        self.stdout.write('Successfully indexed content')
