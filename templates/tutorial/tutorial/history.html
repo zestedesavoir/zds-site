@@ -39,9 +39,11 @@
         {% trans "Historique de" %} "{{ tutorial.title }}"
     </h1>
 
-    <h2 class="subtitle">
-        {{ tutorial.description }}
-    </h2>
+    {% if tutorial.description %}
+        <h2 class="subtitle">
+            {{ tutorial.description }}
+        </h2>
+    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
