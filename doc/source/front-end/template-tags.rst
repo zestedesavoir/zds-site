@@ -65,7 +65,7 @@ Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur
 .. sourcecode:: html
 
     {% load date %}
-    {{ date | format_date}}
+    {{ date|format_date }}
 
 ``tooltip_date``
 ----------------
@@ -80,13 +80,13 @@ Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisi
 .. sourcecode:: html
 
     {% load date %}
-    {{ date_epoch | humane_time}}
+    {{ date_epoch|humane_time }}
 
 sera rendu :
 
 .. sourcecode:: html
 
-    01 Jan 1970, 01:00:42
+    jeudi 01 janvier 1970 à 00h00
 
 Si le contenu de ``date_epoch`` etait de ``42``.
 

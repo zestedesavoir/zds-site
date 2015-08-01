@@ -3,10 +3,14 @@
 {% load thumbnail %}
 {% load date %}
 {% load i18n %}
+{% load captureas %}
+
 
 
 {% block title %}
-    {% trans "Historique de" %} "{{ tutorial.title }}"
+    {% blocktrans with title=tutorial.title %}
+        Historique de "{{ title }}"
+    {% endblocktrans %}
 {% endblock %}
 
 
@@ -36,7 +40,9 @@
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
-        {% trans "Historique de" %} "{{ tutorial.title }}"
+        {% blocktrans with title=tutorial.title %}
+            Historique de "{{ title }}"
+        {% endblocktrans %}
     </h1>
 
     {% if tutorial.description %}
@@ -65,8 +71,8 @@
                 <th colspan="2">{% trans "Comparer" %}</th>
                 <th width="18%">{% trans "Date" %}</th>
                 <th>{% trans "Version" %}</th>
-                <th width="10%">{% trans "Diff" %}.</th>
-                <th width="15%">{% trans "Auteur" %}</th>
+                <th>{% trans "Diff." %}</th>
+                <th>{% trans "Auteur" %}</th>
                 <th width="12%">{% trans "Bêta" %}</th>
             </tr>
         </thead>
@@ -118,7 +124,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ commit.authored_date|humane_time }}
+                        {{ commit.authored_date|humane_time:commit.author_tz_offset }}
                     </td>
                     <td>
                         <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ commit.hexsha }}" >
@@ -158,17 +164,16 @@
                                 <input type="hidden" name="{% if not tutorial.sha_beta %}activ_beta{% else %}update_beta{% endif %}">
                                 <input type="hidden" name="version" value="{{ commit.hexsha }}">
                                 <p>
-                                    {% blocktrans %}
-                                        Êtes-vous certain de vouloir <strong>
-                                    {% endblocktrans %}
-                                     {% if not tutorial.sha_beta %}
-                                        {% trans "activer" %}
-                                    {% else %}
-                                        {% trans "mettre à jour" %}
-                                    {% endif %}
-                                    {% blocktrans with date_version=commit.authored_date|humane_time tutorial_title=tutorial.title %}
-                                        </strong> la bêta sur le tutoriel
-                                        "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
+                                    {% captureas action %}
+                                        {% if not tutorial.sha_beta %}
+                                            {% trans "activer" %}
+                                        {% else %}
+                                            {% trans "mettre à jour" %}
+                                        {% endif %}
+                                    {% endcaptureas %}
+                                    {% blocktrans with action=action date_version=commit.authored_date|humane_time:commit.author_tz_offset tutorial_title=tutorial.title %}
+                                        Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta sur le tutoriel
+                                        "<em>{{ tutorial_title }}</em>" dans sa version de {{ date_version }} ?
                                     {% endblocktrans %}
                                 </p>
                                 <button type="submit">
