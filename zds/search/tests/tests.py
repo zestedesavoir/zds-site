@@ -6,7 +6,7 @@ from zds import settings
 from zds.gallery.factories import GalleryFactory
 from zds.member.factories import ProfileFactory
 from zds.search.models import SearchIndexContent, SearchIndexContainer, SearchIndexExtract
-from zds.search.utils import reindex_thread, filter_keyword, filter_text
+from zds.search.utils import filter_keyword, filter_text, reindex_content
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
     ExtractFactory
@@ -77,8 +77,8 @@ class TryToIndexTutorialTests(TestCase):
         '''
 
         # Reindex the tutorial
-        reindex_thread(self.version_content, self.tuto)
-        reindex_thread(self.article_version_content, self.article)
+        reindex_content(self.version_content, self.tuto)
+        reindex_content(self.article_version_content, self.article)
 
         self.assertEqual(SearchIndexContent.objects.count(), 2)
         self.assertEqual(SearchIndexContainer.objects.count(), 4)

@@ -39,8 +39,9 @@ def index_extract(search_index_content, extract):
 
     html = extract.get_text_online()
 
-    search_index_extract.extract_content = filter_text(html)
-    search_index_extract.keywords = filter_keyword(html)
+    if html:
+        search_index_extract.extract_content = filter_text(html)
+        search_index_extract.keywords = filter_keyword(html)
 
     search_index_extract.save()
 
@@ -153,13 +154,19 @@ def reindex_content(versioned, publishable_content):
     search_index_content.url_to_redirect = versioned.get_absolute_url_online()
 
     # Save introduction and conclusion
+    all_html = ""
     introduction_html = versioned.get_introduction_online()
-    search_index_content.introduction = filter_text(introduction_html)
+    if introduction_html:
+        all_html = introduction_html
+        search_index_content.introduction = filter_text(introduction_html)
 
     conclusion_html = versioned.get_conclusion_online()
-    search_index_content.conclusion = filter_text(conclusion_html)
+    if conclusion_html:
+        all_html = all_html + conclusion_html
+        search_index_content.conclusion = filter_text(conclusion_html)
 
-    search_index_content.keywords = filter_keyword(introduction_html + conclusion_html)
+    if all_html != "":
+        search_index_content.keywords = filter_keyword(all_html)
 
     if publishable_content.is_article():
         search_index_content.type = 'article'
