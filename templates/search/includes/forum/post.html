@@ -17,16 +17,15 @@
             {% endwith %}
         </p>
 
-        <div class="content-meta" title="Publié le {{ result.object.pubdate }}">
+        <div class="content-meta inline" title="Publié le {{ result.object.pubdate }}">
             <p>
                 Message dans le forum
                 -
+                <time class="content-pubdate" pubdate="{{ result.object.pubdate }}">
+                    <span class="long">{{ result.object.pubdate|format_date|capfirst }}</span>
+                    <span class="short">{{ result.object.pubdate|format_date:True|capfirst }}</span>
+                </time>
             </p>
-
-            <time class="content-pubdate" pubdate="{{ result.object.pubdate }}">
-                <span class="long">{{ result.object.pubdate|format_date|capfirst }}</span>
-                <span class="short">{{ result.object.pubdate|format_date:True|capfirst }}</span>
-            </time>
 
         </div>
     </div>
