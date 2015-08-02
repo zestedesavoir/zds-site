@@ -19,7 +19,6 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from zds.search.models import SearchIndexContent
-from zds.search.utils import reindex_content
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
 from zds import settings
 from zds.settings import ZDS_APP
@@ -594,6 +593,9 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     os.chdir(settings.BASE_DIR)
 
+    # 5. Copy markdown repo into extra-content
+    shutil.copytree(versioned.get_path(), extra_contents_path + "/" + versioned.slug, symlinks=False, ignore=None)
+
     # ok, now we can really publish the thing !
     is_update = False
 
@@ -620,6 +622,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_type = versioned.type
     public_version.content_pk = db_object.pk
     public_version.content = db_object
+    public_version.must_reindex = True
     public_version.save()
 
     # move the stuffs into the good position
@@ -635,9 +638,6 @@ def publish_content(db_object, versioned, is_major_update=True):
         make_zip_file(public_version)
     except IOError:
         pass
-
-    # Launching index
-    reindex_content(versioned, db_object)
 
     return public_version
 

@@ -1,13 +1,10 @@
 # coding: utf-8
 
-import threading
-
 from bs4 import BeautifulSoup
+from django.db import transaction
 
-from zds import settings
 from zds.search.models import SearchIndexExtract, SearchIndexContainer, SearchIndexContent, \
     SearchIndexTag, SearchIndexAuthors
-from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def filter_keyword(html):
@@ -40,14 +37,12 @@ def index_extract(search_index_content, extract):
     search_index_extract.title = extract.title
     search_index_extract.url_to_redirect = extract.get_absolute_url_online()
 
-    content = emarkdown(extract.get_text())
-    search_index_extract.extract_content = filter_text(content)
+    html = extract.get_text_online()
 
-    search_index_extract.keywords = filter_keyword(content)
+    search_index_extract.extract_content = filter_text(html)
+    search_index_extract.keywords = filter_keyword(html)
 
     search_index_extract.save()
-
-    return True
 
 
 def index_container(search_index_content, container, type):
@@ -56,18 +51,23 @@ def index_container(search_index_content, container, type):
     search_index_container.title = container.title
     search_index_container.url_to_redirect = container.get_absolute_url_online()
 
-    introduction_html = emarkdown(container.get_introduction())
-    search_index_container.introduction = filter_text(introduction_html)
+    all_html = ""
 
-    conclusion_html = emarkdown(container.get_conclusion())
-    search_index_container.conclusion = filter_text(conclusion_html)
+    introduction_html = container.get_introduction_online()
 
-    search_index_container.keywords = filter_keyword(introduction_html + conclusion_html)
+    if introduction_html:
+        all_html = introduction_html
+        search_index_container.introduction = filter_text(introduction_html)
+
+    conclusion_html = container.get_conclusion_online()
+    if conclusion_html:
+        all_html = all_html + conclusion_html
+        search_index_container.conclusion = filter_text(conclusion_html)
+
+    search_index_container.keywords = filter_keyword(all_html)
     search_index_container.level = type
 
     search_index_container.save()
-
-    return True
 
 
 def index_content(child, search_index_content):
@@ -94,7 +94,21 @@ def index_content(child, search_index_content):
         index_extract(search_index_content, child)
 
 
-def reindex_thread(versioned, publishable_content):
+@transaction.atomic
+def reindex_content(versioned, publishable_content):
+    """Index the new published version. Lot of IO, memory and cpu will be used, be warned when you use this fonction.
+    Don't try to loop on it, if you not sure of what you will do.
+
+    IO complexity is 2 + (2*number of containers) + number of extracts.
+    Database query complexity is on deletion 1+number of containers+number of extracts,
+                                 on addition 1+number of containers+number of extracts.
+
+    :param versioned: version of the content to publish
+    :type versioned: VersionedContent
+    :param publishable_content: Database representation of the content
+    :type publishable_content: PublishableContent
+    :return:
+    """
 
     # We just delete all index that correspond to the content
     SearchIndexContent.objects.filter(publishable_content=publishable_content).delete()
@@ -139,10 +153,10 @@ def reindex_thread(versioned, publishable_content):
     search_index_content.url_to_redirect = versioned.get_absolute_url_online()
 
     # Save introduction and conclusion
-    introduction_html = emarkdown(versioned.get_introduction())
+    introduction_html = versioned.get_introduction_online()
     search_index_content.introduction = filter_text(introduction_html)
 
-    conclusion_html = emarkdown(versioned.get_conclusion())
+    conclusion_html = versioned.get_conclusion_online()
     search_index_content.conclusion = filter_text(conclusion_html)
 
     search_index_content.keywords = filter_keyword(introduction_html + conclusion_html)
@@ -158,26 +172,5 @@ def reindex_thread(versioned, publishable_content):
     for child in versioned.children:
         index_content(child, search_index_content)
 
-    return True
-
-
-def reindex_content(versioned, publishable_content):
-    """Index the new published version. Lot of IO, memory and cpu will be used, be warned when you use this fonction.
-    Don't try to loop on it, if you not sure of what you will do.
-
-    IO complexity is 2 + (2*number of containers) + number of extracts.
-    Database query complexity is on deletion 1+number of containers+number of extracts,
-                                 on addition 1+number of containers+number of extracts.
-
-    :param versioned: version of the content to publish
-    :type versioned: VersionedContent
-    :param publishable_content: Database representation of the content
-    :type publishable_content: PublishableContent
-    :return:
-    """
-    if not settings.TESTING:
-        thread = threading.Thread(target=reindex_thread, args=(versioned, publishable_content, ))
-        thread.daemon = True                            # Daemonize thread
-        thread.start()                                  # Start the execution
-    else:
-        reindex_thread(versioned, publishable_content)
+    publishable_content.must_reindex = False
+    publishable_content.save()
