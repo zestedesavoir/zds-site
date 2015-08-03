@@ -55,7 +55,14 @@
 
 
 {% block content %}
-    <table class="fullwidth">
+    <form method="get" action="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}" class="commits-compare-form">
+        <input type="hidden" name="from" value="">
+        <input type="hidden" name="to" value="">
+
+        <button class="btn btn-grey" type="submit">{% trans "Comparer les versions sélectionnées" %}</button>
+    </form>
+
+    <table class="fullwidth commits-list">
         <thead>
             <tr>
                 <th colspan="2">{% trans "Comparer" %}</th>
@@ -93,6 +100,42 @@
                                     </li>
                                 {% endif %}
                             </ul>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.first %}
+                            <input type="radio" name="compare-from" value="{{ commit.hexsha }}"
+                                {% if forloop.counter == 2 %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.last %}
+                            <input type="radio" name="compare-to" value="{{ commit.hexsha }}"
+                                {% if forloop.first %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.first %}
+                            <input type="radio" name="compare-from" value="{{ commit.hexsha }}"
+                                {% if forloop.counter == 2 %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.last %}
+                            <input type="radio" name="compare-to" value="{{ commit.hexsha }}"
+                                {% if forloop.first %}
+                                    checked="checked"
+                                {% endif %}
+                            >
                         {% endif %}
                     </td>
                     <td>
