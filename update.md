@@ -280,3 +280,29 @@ La recherche est maintenant en français:
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
 
+
+ZEP-12 aka Apocalypse
+---------------------
+
+![ZEP 12](http://i.ytimg.com/vi/UVFku_WzSc8/maxresdefault.jpg)
+
+
+- `pip install -r requirements.txt` <- il y a PLUSIEURS nouvelles dépendances
+- refaire le front : gulb build
+- `python manage.py migrate`
+- **IMPORTANT** : vérifiez que la bdd ET les tables sont en UTF-8 
+  ```sql
+  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T,        information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="dbname";
+  ```
+  si ce n'est pas le cas, lancez la commande suivante :
+  ```bash
+  DB="dbname";USER="dbusername";PASS="dbpassword";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
+  ```
+- ***Pour accélérer la suite** : dans le fichier settings_prod.py ajouter `ZDS_APP['content']['build_pdf_when_published'] = False`
+- **ATTENTION, C'est Long** : python manage.py migrate_to_zep12
+- Arrêter Solr : `supervisorctl stop solr`
+- Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
+- Redémarrer Solr : `supervisorctl start solr`
+- Préparer l'indexation : `python manage.py index_content` <- Cette commande devra être mise dans un tachecron journalier
+- Indexer **Attention, C'est Long** : `python manage.py rebuild_index`
+- relancez la création de PDF : `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activer le log de Pandoc
