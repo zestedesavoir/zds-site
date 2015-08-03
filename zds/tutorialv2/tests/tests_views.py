@@ -1686,7 +1686,68 @@ class ContentTests(TestCase):
         os.remove(draft_zip_path)
         os.remove(image_zip_path)
 
-    def test_diff_for_new_content(self):
+    def test_display_history(self):
+        """Test DisplayHistory view"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # no public access
+        self.client.logout()
+        result = self.client.get(
+            reverse('content:history', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login as guest and test the non-access
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('content:history', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        # staff access
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('content:history', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        # login as author and test the access
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(
+            reverse('content:history', args=[tuto.pk, tuto.slug]),
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+
+    def test_display_diff(self):
+        """Test DisplayDiff view"""
+
+        from git import objects
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        repo = tuto.load_version().repository
+        commits = []
+        for commit in objects.commit.Commit.iter_items(repo, 'HEAD'):
+            commits.append(commit)
+        valid_sha1 = commits[0].hexsha
+        valid_sha2 = commits[-1].hexsha
+        invalid_sha = 'a' * 40
+
         # login with author
         self.assertEqual(
             self.client.login(
@@ -1694,33 +1755,41 @@ class ContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        # create tutorial
-        intro = u'une intro'
-        conclusion = u'une conclusion'
-        description = u'une description'
-        title = u'un titre'
-        result = self.client.post(
-            reverse('content:create'),
-            {
-                'title': title,
-                'description': description,
-                'introduction': intro,
-                'conclusion': conclusion,
-                'type': u'TUTORIAL',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.all().count(), 2)
-        new_content = PublishableContent.objects.last()
+        # check 404 if missing parameters
         result = self.client.get(
-            reverse('content:diff', kwargs={
-                'pk': new_content.pk,
-                'slug': new_content.slug
-            })
-        )
-        self.assertEqual(200, result.status_code)
+            reverse('content:diff', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?from=' + valid_sha1,  # missing to parameter
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            reverse('content:diff', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?to=' + valid_sha1,  # missing from parameter
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # check 404 if invalid SHA
+        result = self.client.get(
+            reverse('content:diff', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?from=' + invalid_sha + '&to=' + valid_sha2,  # from is not a valid SHA
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+        result = self.client.get(
+            reverse('content:diff', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?from=' + valid_sha1 + '&to=' + invalid_sha,  # to is not a valid SHA
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # check 200 with valid parameters
+        result = self.client.get(
+            reverse('content:diff', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?from=' + valid_sha1 + '&to=' + valid_sha2,
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.get(
+            reverse('content:diff', kwargs={'pk': tuto.pk, 'slug': tuto.slug}) +
+            '?from=HEAD&to=HEAD^',
+            follow=False)
+        self.assertEqual(result.status_code, 200)
 
     def test_validation_workflow(self):
         """test the different case of validation"""
