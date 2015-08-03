@@ -110,10 +110,10 @@ class PublishableContent(models.Model):
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
-    must_reindex = models.BooleanField('Si le contenu doit-être ré-indexe', default=True)
+    must_reindex = models.BooleanField(u'Si le contenu doit-être ré-indexé', default=True)
 
     public_version = models.ForeignKey(
-        'PublishedContent', verbose_name='Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+        'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         return self.title

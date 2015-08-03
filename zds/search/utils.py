@@ -14,9 +14,9 @@ def filter_keyword(html):
     '''
     bs = BeautifulSoup(html)
 
-    keywords = ''
+    keywords = u''
     for tag in bs.findAll(['h1', 'h2', 'h3', 'i', 'strong']):
-        keywords += ' ' + tag.text
+        keywords += u' ' + tag.text
 
     return keywords
 
@@ -28,7 +28,7 @@ def filter_text(html):
     :return: extracted words
     '''
     bs = BeautifulSoup(html)
-    return ' '.join(bs.findAll(text=True))
+    return u' '.join(bs.findAll(text=True))
 
 
 def index_extract(search_index_content, extract):
@@ -52,7 +52,7 @@ def index_container(search_index_content, container, type):
     search_index_container.title = container.title
     search_index_container.url_to_redirect = container.get_absolute_url_online()
 
-    all_html = ""
+    all_html = u''
 
     introduction_html = container.get_introduction_online()
 
@@ -154,7 +154,7 @@ def reindex_content(versioned, publishable_content):
     search_index_content.url_to_redirect = versioned.get_absolute_url_online()
 
     # Save introduction and conclusion
-    all_html = ""
+    all_html = u''
     introduction_html = versioned.get_introduction_online()
     if introduction_html:
         all_html = introduction_html
@@ -165,13 +165,10 @@ def reindex_content(versioned, publishable_content):
         all_html = all_html + conclusion_html
         search_index_content.conclusion = filter_text(conclusion_html)
 
-    if all_html != "":
+    if all_html != '':
         search_index_content.keywords = filter_keyword(all_html)
 
-    if publishable_content.is_article():
-        search_index_content.type = 'article'
-    else:
-        search_index_content.type = 'tutorial'
+    search_index_content.type = publishable_content.type.lower()
 
     search_index_content.save()
 
