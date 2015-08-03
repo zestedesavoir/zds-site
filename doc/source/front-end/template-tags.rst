@@ -58,7 +58,7 @@ Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur
 .. sourcecode:: html
 
     {% load date %}
-    {{ date | format_date}}
+    {{ date|format_date }}
 
 ``tooltip_date``
 ----------------
@@ -73,13 +73,13 @@ Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisi
 .. sourcecode:: html
 
     {% load date %}
-    {{ date_epoch | humane_time}}
+    {{ date_epoch|humane_time }}
 
 sera rendu :
 
 .. sourcecode:: html
 
-    01 Jan 1970, 01:00:42
+    jeudi 01 janvier 1970 à 00h00
 
 Si le contenu de ``date_epoch`` etait de ``42``.
 
@@ -166,6 +166,17 @@ génération des fichiers PDF et EPUB des tutos :
 - ``decale_header_1`` : Décale les titres de 1 niveau (un titre de niveau 1 devient un titre de niveau 2, etc.)
 - ``decale_header_2`` : Décale les titres de 2 niveaux (un titre de niveau 1 devient un titre de niveau 3, etc.)
 - ``decale_header_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
+
+Le module ``htmldiff``
+=========================
+
+Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
+
+.. sourcecode:: html
+
+    {% load htmldiff %}
+    {% htmldiff "Hello world!" "Hello world!!!" %}
+    {% htmldiff "Hello Pierre!" "Hello Peter!" %}
 
 Le module ``interventions``
 ===========================
@@ -364,36 +375,7 @@ Par exemple, le code suivant appliquera la classe "voted" si le message a reçu 
         {{ message.dislike }}
     </button>
 
-où ``profile_user`` est le profil (objet ``Profile``) d'un utilisateur et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations different légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
-
-Le module ``repo_reader``
-=========================
-
-Il est employé pour afficher le *diff* des tutoriels et articles.
-
-``repo_blob``
--------------
-
-Ce filtre est basé sur l'utilisation de la librairie `GitPython (en) <https://github.com/gitpython-developers/GitPython>`__ pour lire un dépôt Git et en extraire des informations. Il récupère le contenu d'un fichier donné dans le dépôt Git. Par exemple, le code suivant lit un fichier et en récupère le texte :
-
-.. sourcecode:: html
-
-    {% load repo_reader %}
-    {% with add_next=add.b_blob|repo_blob %}
-    ...
-    {% endwith %}
-
-``diff_text``
--------------
-
-Ce filtre affiche la différence entre deux chaines de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Ainsi, le code suivant affiche la différence entre ``maj_prev`` et ``maj_next`` :
-
-.. sourcecode:: html
-
-    {% load repo_reader %}
-    {{ maj_prev|diff_text:maj_next|safe }}
-
-À noter que le résultat de ce filtre est directement en HTML, d'où l'utilisation ici de ``safe``.
+où ``profile_user`` est le profil (objet ``Profile``) d'un utilisateur et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations diffèrent légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
 
 Le module ``roman``
 ===================
@@ -405,7 +387,7 @@ Défini le filtre ``roman``, qui transforme un nombre entier en chiffre romain, 
     {% load roman %}
     {{ 453|roman }}
 
-affichera ``CDLIII``, qui est bien la facon d'écrire 453 en chiffres romain.
+affichera ``CDLIII``, qui est bien la façon d'écrire 453 en chiffres romain.
 
 Le module ``set``
 =================

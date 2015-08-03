@@ -3,7 +3,6 @@ from datetime import datetime
 import re
 from PIL import Image as ImagePIL
 import json as json_reader
-from operator import attrgetter
 import zipfile
 from django.conf import settings
 from django.contrib import messages
@@ -21,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
 from django.views.generic import FormView, DeleteView
 from easy_thumbnails.files import get_thumbnailer
-from git import GitCommandError
+from git import BadName, BadObject, GitCommandError, objects
 import os
 import shutil
 import tempfile
@@ -1146,7 +1145,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
 class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
     Display the whole modification history.
-    This class has no reason to be adapted to any content type
+    This class has no reason to be adapted to any content type.
     """
 
     model = PublishableContent
@@ -1154,18 +1153,22 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayHistory, self).get_context_data(**kwargs)
+
         repo = self.versioned_object.repository
-        logs = repo.head.reference.log()
-        logs = sorted(logs, key=attrgetter("time"), reverse=True)
-        context['logs'] = logs
+        context['commits'] = objects.commit.Commit.iter_items(repo, 'HEAD')
+
+        # Git empty tree is 4b825dc642cb6eb9a060e54bf8d69288fbee4904, see
+        # http://stackoverflow.com/questions/9765453/gits-semi-secret-empty-tree
+        context['empty_sha'] = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
         return context
 
 
 class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
-    Display the difference between two version of a content.
-    Reference is always HEAD and compared version is a GET query parameter named sha
-    this class has no reason to be adapted to any content type
+    Display the difference between two versions of a content.
+    The left version is given in a GET query parameter named from, the right one with to.
+    This class has no reason to be adapted to any content type.
     """
 
     model = PublishableContent
@@ -1175,24 +1178,28 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     def get_context_data(self, **kwargs):
         context = super(DisplayDiff, self).get_context_data(**kwargs)
 
-        # open git repo and find diff between displayed version and head
+        if 'from' not in self.request.GET:
+            raise Http404("Missing 'from' GET parameter")
+        if 'to' not in self.request.GET:
+            raise Http404("Missing 'to' GET parameter")
+
+        # open git repo and find diff between two versions
         repo = self.versioned_object.repository
-        current_version_commit = repo.commit(self.sha)
         try:
-            diff_with_head = current_version_commit.diff("HEAD~1")
-            context['commit_msg'] = current_version_commit.message
-            context["path_add"] = diff_with_head.iter_change_type("A")
-            context["path_ren"] = diff_with_head.iter_change_type("R")
-            context["path_del"] = diff_with_head.iter_change_type("D")
-            context["path_maj"] = diff_with_head.iter_change_type("M")
+            # repo.commit raises BadObject or BadName if invalid SHA
+            commit_from = repo.commit(self.request.GET['from'])
+            commit_to = repo.commit(self.request.GET['to'])
+            # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
+            tdiff = commit_to.diff(commit_from, R=True)
+        except (GitCommandError, BadName, BadObject):
+            raise Http404
 
-        except GitCommandError:
-            context['commit_msg'] = _(u"La création est le seul commit disponible.")
-
-            context["path_add"] = []
-            context["path_ren"] = []
-            context["path_del"] = []
-            context["path_maj"] = []
+        context['commit_from'] = commit_from
+        context['commit_to'] = commit_to
+        context['modified'] = tdiff.iter_change_type('M')
+        context['added'] = tdiff.iter_change_type('A')
+        context['deleted'] = tdiff.iter_change_type('D')
+        context['renamed'] = tdiff.iter_change_type('R')
 
         return context
 
