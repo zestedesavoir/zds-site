@@ -1003,7 +1003,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
                                     form.cleaned_data['introduction'],
                                     form.cleaned_data['conclusion'],
                                     form.cleaned_data['msg_commit'],
-                                    update_slug=self.object.public_version is not None)
+                                    update_slug=self.object.public_version is None)
 
         # then save
         self.object.sha_draft = sha
