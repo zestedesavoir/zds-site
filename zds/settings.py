@@ -26,8 +26,8 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
-        'PORT': '',
-    }
+        'PORT': ''
+    },
 }
 
 # Local time zone for this installation. Choices can be found here:
@@ -181,6 +181,7 @@ INSTALLED_APPS = (
     'zds.tutorialv2',
     'zds.member',
     'zds.featured',
+    'zds.search',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

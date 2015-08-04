@@ -19,6 +19,7 @@ gitpython==1.0.1
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.7.zip
 easy-thumbnails==2.2
 CairoSVG==1.0.13
+beautifulsoup4==4.3.2
 
 # Api dependencies
 djangorestframework==3.1.1
