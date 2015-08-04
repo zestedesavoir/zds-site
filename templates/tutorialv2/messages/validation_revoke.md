@@ -7,7 +7,9 @@ Désolé, « [{{ title }}]({{ url }}) » a malheureusement été dépublié par
 
 {{ message }}
 
-N'hésitez surtout pas à contacter cette personne ; elle sera ravie de 
-vous expliquer son choix et de vous conseiller pour remédier à cela.
+N'hésitez surtout pas à contacter cette personne pour lui demander de 
+vous expliquer son choix et de vous conseiller pour remédier à cela. Sur ce 
+dernier point, n'oubliez pas que la communauté peut vous aider à travers le 
+système de bêta.
 
 {% endblocktrans %}

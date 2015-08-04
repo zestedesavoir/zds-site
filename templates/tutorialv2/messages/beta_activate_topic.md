@@ -3,17 +3,17 @@
 
 {% blocktrans with time=content.creation_date|format_date title=content.title|safe type=type|safe %}
 
-Debout là-dedans !
+Tout le monde se secoue ! :D
 
 J'ai commencé ({{ time }}) la rédaction d'un {{ type }} au doux nom 
 de « {{ title }} » et j'ai dans l'objectif de proposer en validation 
 un texte aux petits oignons. Je fais donc appel à votre bonté sans 
-limite pour obtenir un maximum de retours, que ce soit à propos 
-du fond ou de la forme. La bêta se place à votre disposition à l'adresse 
-suivante :
+limite pour dénicher le moindre pépin, que ce soit à propos 
+du fond ou de la forme. Vous pourrez consulter la bêta à votre guise à 
+l'adresse suivante :
 
--> [Bêta, pour vous servir.]({{ url }}) <-
+-> [À présent, c'est à vous !]({{ url }}) <-
 
-Je vous remercie pour votre aide.
+Merci !
 
 {%  endblocktrans %}
