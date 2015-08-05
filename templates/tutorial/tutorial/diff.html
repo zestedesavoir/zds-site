@@ -1,6 +1,6 @@
 {% extends "tutorial/base.html" %}
 {% load emarkdown %}
-{% load repo_reader %}
+{% load htmldiff %}
 {% load thumbnail %}
 {% load i18n %}
 
@@ -38,25 +38,43 @@
 
 
 {% block content_ext %}
-    <h2>{% trans "Nouveaux Fichiers" %}</h2>
-    {% for add in path_add %}
-        {% with add_next=add.b_blob|repo_blob %}
-            <h3>{{ add.a_blob.path }}</h3>
-            <div class="diff_delta">
-                {{ ''|diff_text:add_next|safe }}
-            </div>
-        {% endwith %}
+    <table>
+        <tr>
+            <th>{% trans "Légende" %}</th>
+            <td class="diff_add">{% trans "ajout" %}</td>
+            <td class="diff_chg">{% trans "modification" %}</td>
+            <td class="diff_sub">{% trans "suppression" %}</td>
+        </tr>
+    </table>
+
+    <h2>{% trans "Fichiers modifiés" %}</h2>
+    {% for diff in modified %}
+        <h3>{{ diff.a_path }}</h3>
+        {% htmldiff diff.a_blob.data_stream.read diff.b_blob.data_stream.read %}
+    {% empty %}
+        <p>{% trans "Aucun fichier modifié." %}</p>
     {% endfor %}
 
-    <h2>{% trans "Fichiers Modifiés" %}</h2>
-    {% for maj in path_maj %}
-        {% with maj_next=maj.b_blob|repo_blob %}
-            {% with maj_prev=maj.a_blob|repo_blob %}
-                <h3>{{ maj.a_blob.path }}</h3>
-                <div class="diff_delta">
-                    {{ maj_prev|diff_text:maj_next|safe }}
-                </div>
-            {% endwith %}
-        {% endwith %} 
+    <h2>{% trans "Nouveaux fichiers" %}</h2>
+    {% for diff in added %}
+        <h3>{{ diff.b_path }}</h3>
+        {% htmldiff "" diff.b_blob.data_stream.read %}
+    {% empty %}
+        <p>{% trans "Aucun nouveau fichier." %}</p>
+    {% endfor %}
+
+    <h2>{% trans "Fichiers supprimés" %}</h2>
+    {% for diff in deleted %}
+        <h3>{{ diff.a_path }}</h3>
+        {% htmldiff diff.a_blob.data_stream.read "" %}
+    {% empty %}
+        <p>{% trans "Aucun fichier supprimé." %}</p>
+    {% endfor %}
+
+    <h2>{% trans "Fichiers renommés" %}</h2>
+    {% for diff in renamed %}
+        <h3>{{ diff.rename_from }} ⇒ {{ diff.rename_to }}</h3>
+    {% empty %}
+        <p>{% trans "Aucun fichier renommé." %}</p>
     {% endfor %}
 {% endblock %}

@@ -37,25 +37,49 @@ table {
     &.fullwidth {
         width: 100%;
     }
+}
 
-    &.diff {
-        tbody tr {
-            border-bottom: none;
-            font-family : $font-monospace;
-            background: #FFF;
+/* Specific for diff */
+
+.diff_delta {
+    overflow-x: auto;
+    width: 100%;
+    margin: 15px 0; /* add margin to container */
+
+    table.diff {
+        font-family: $font-monospace;
+        font-size: 0.9em;
+        border: 2px solid gray;
+        margin: 0; /* abort table default margin */
+
+        tr {
             line-height: 1em;
-            .diff_next {
-                display: none;
-            }
-            td.diff_header {
-                padding : 5px;
-            }
+            border-bottom: none;
+        }
+
+        .diff_header {
+            background-color: #e0e0e0;
+            padding: 5px;
+        }
+
+        td.diff_header {
+            text-align: right;
+        }
+
+        .diff_next {
+            display: none;
         }
     }
 }
 
-.diff_delta {
-    overflow: scroll;
-    width: 100%;
-    font-size : 0.9em;
+.diff_add { /* added text */
+    background-color: #aaffaa;
+}
+
+.diff_chg { /* changed text */
+    background-color: #fff8ab;
+}
+
+.diff_sub { /* deleted text */
+    background-color: #ffaaaa;
 }
