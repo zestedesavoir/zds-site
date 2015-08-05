@@ -49,7 +49,7 @@
 
     <h2>{% trans "Fichiers modifiés" %}</h2>
     {% for diff in modified %}
-        <h3>{{ diff.a_path }}</h3>
+        <h3>{{ diff.a_blob.path }} {% if diff.b_blob.path != diff.a_blob.path %} ⇒ {{ diff.b_blob.path }} {% trans "(renommé)" %}{% endif %}</h3> 
         {% htmldiff diff.a_blob.data_stream.read diff.b_blob.data_stream.read %}
     {% empty %}
         <p>{% trans "Aucun fichier modifié." %}</p>
@@ -57,7 +57,7 @@
 
     <h2>{% trans "Nouveaux fichiers" %}</h2>
     {% for diff in added %}
-        <h3>{{ diff.b_path }}</h3>
+        <h3>{{ diff.b_blob.path }}</h3>
         {% htmldiff "" diff.b_blob.data_stream.read %}
     {% empty %}
         <p>{% trans "Aucun nouveau fichier." %}</p>
@@ -65,7 +65,7 @@
 
     <h2>{% trans "Fichiers supprimés" %}</h2>
     {% for diff in deleted %}
-        <h3>{{ diff.a_path }}</h3>
+        <h3>{{ diff.a_blob.path }}</h3>
         {% htmldiff diff.a_blob.data_stream.read "" %}
     {% empty %}
         <p>{% trans "Aucun fichier supprimé." %}</p>
