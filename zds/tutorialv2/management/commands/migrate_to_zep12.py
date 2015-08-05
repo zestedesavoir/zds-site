@@ -1,3 +1,5 @@
+# coding: utf-8
+
 try:
     from zds.article.models import Article, ArticleRead, Reaction
     from zds.article.models import Validation as ArticleValidation
@@ -134,8 +136,8 @@ def split_article_in_extracts(article):
 
     extracts = []
 
-    extract_text = ''
-    extract_title = ''
+    extract_text = u''
+    extract_title = u''
     in_code = False
 
     # split
@@ -159,7 +161,7 @@ def split_article_in_extracts(article):
                 extract_title = title_content
                 extract_text = u''
             else:
-                line = ''.join(['#' for i in range(title_level - 1)]) + ' ' + title_content
+                line = u''.join([u'#' for i in range(title_level - 1)]) + u' ' + title_content
                 extract_text += line + '\n'
 
         else:
@@ -179,6 +181,7 @@ def split_article_in_extracts(article):
 
 def migrate_articles():
     articles = Article.objects.all()
+
     if len(articles) == 0:
         return
     for i in progressbar(xrange(len(articles)), "Exporting articles", 100):
@@ -228,9 +231,7 @@ def migrate_articles():
             versioned.licence = exported.licence
 
         split_article_in_extracts(versioned)  # create extracts from text
-
-        versioned.dump_json()
-        exported.sha_draft = versioned.commit_changes(u"Migration version 2")
+        exported.sha_draft = versioned.commit_changes(u'Migration version 2')
         exported.old_pk = current.pk
         exported.save()
         # todo  : generate mapping
@@ -265,6 +266,10 @@ def migrate_articles():
 
 
 def migrate_tuto(tutos, title="Exporting mini tuto"):
+
+    if len(tutos) == 0:
+        return
+
     for i in progressbar(xrange(len(tutos)), title, 100):
         current = tutos[i]
         if not os.path.exists(current.get_path(False)):
@@ -294,6 +299,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
 
         versioned.type = "TUTORIAL"
         versioned.dump_json()
+        versioned.repository.index.add(['manifest.json'])  # index new manifest before commit
 
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
 
