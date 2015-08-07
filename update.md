@@ -306,3 +306,4 @@ ZEP-12 aka Apocalypse
 - Préparer l'indexation : `python manage.py index_content` <- Cette commande devra être mise dans un tachecron journalier
 - Indexer **Attention, C'est Long** : `python manage.py rebuild_index`
 - relancez la création de PDF : `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activer le log de Pandoc
+- repasser `ZDS_APP['content']['build_pdf_when_published'] = True` *si vous voulez que les pdf soient automatiquement générés*
