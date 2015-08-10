@@ -303,7 +303,8 @@ ZEP-12 aka Apocalypse
 - Arrêter Solr : `supervisorctl stop solr`
 - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
 - Redémarrer Solr : `supervisorctl start solr`
-- Préparer l'indexation : `python manage.py index_content` <- Cette commande devra être mise dans un tachecron journalier
+- Recopier les dépots markdown dans le contenu public: `python manage.py index_content --copy-repository`
+- Changer la tache cron qui perment d'indexer les contenus de: `python manage.py rebuild_index` à `python manage.py index_content --only-flagged && python manage.py rebuild_index`
 - Indexer **Attention, C'est Long** : `python manage.py rebuild_index`
 - relancez la création de PDF : `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activer le log de Pandoc
 - repasser `ZDS_APP['content']['build_pdf_when_published'] = True` *si vous voulez que les pdf soient automatiquement générés*
