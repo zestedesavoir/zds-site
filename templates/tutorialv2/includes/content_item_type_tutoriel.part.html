@@ -26,7 +26,7 @@
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %}{% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
+    {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
 {% endcaptureas %}
 
 <article class="content-item expand-description tutorial-item{{ item_class }}">
