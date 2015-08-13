@@ -473,7 +473,9 @@ class NoteForm(forms.Form):
             self._errors['text'] = self.error_class(
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
                    u'caractères.').format(settings.ZDS_APP['forum']['max_post_length'])])
-        last_note = cleaned_data.get("last_note", 0)
+        last_note = cleaned_data.get("last_note", "0")
+        if last_note is None:
+            last_note = "0"
         is_valid = self.content.last_note is None or int(last_note) == self.content.last_note.pk
         if not is_valid:
             self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
