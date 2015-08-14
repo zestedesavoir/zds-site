@@ -650,6 +650,7 @@ def make_zip_file(published_content):
     """
 
     publishable = published_content.content
+    publishable.sha_public = publishable.sha_draft  # ensure sha update so that archive is updated to
     path = os.path.join(published_content.get_extra_contents_directory(),
                         published_content.content_public_slug + ".zip")
     zip_file = zipfile.ZipFile(path, 'w')
@@ -1024,13 +1025,15 @@ def get_blob(tree, path):
     :return: contains
     :rtype: bytearray
     """
+    # get all extracts
     for blob in tree.blobs:
         try:
             if os.path.abspath(blob.path) == os.path.abspath(path):
                 data = blob.data_stream.read()
                 return data
-        except (OSError, IOError):
+        except (OSError, IOError):  # in case of deleted files, or the system cannot get the lock, juste return ""
             return ""
+    # traverse directories when we are at root or in a part or chapter
     if len(tree.trees) > 0:
         for subtree in tree.trees:
             result = get_blob(subtree, path)
