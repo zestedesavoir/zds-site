@@ -245,7 +245,7 @@ class ContentTests(TestCase):
         random = u'un truc à la rien à voir'
 
         result = self.client.post(
-            reverse('content:create'),
+            reverse('content:create-tutorial'),
             {
                 'title': title,
                 'description': description,
@@ -1171,7 +1171,7 @@ class ContentTests(TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse('content:create'),
+            reverse('content:create-tutorial'),
             {
                 'title': given_title,
                 'description': some_text,
@@ -1346,7 +1346,7 @@ class ContentTests(TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse('content:create'),
+            reverse('content:create-tutorial'),
             {
                 'title': given_title,
                 'description': some_text,
@@ -1467,7 +1467,7 @@ class ContentTests(TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse('content:create'),
+            reverse('content:create-tutorial'),
             {
                 'title': given_title,
                 'description': some_text,
