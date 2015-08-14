@@ -476,7 +476,7 @@ class NoteForm(forms.Form):
         last_note = cleaned_data.get("last_note", "0")
         if last_note is None:
             last_note = "0"
-        is_valid = self.content.last_note is None or int(last_note) == self.content.last_note.pk
+        is_valid = last_note == "0" or self.content.last_note is None or int(last_note) == self.content.last_note.pk
         if not is_valid:
             self._errors["last_note"] = self.error_class([_(u'Quelqu\'un a posté pendant que vous répondiez')])
         return cleaned_data
