@@ -81,8 +81,11 @@
 
 
 {% block sidebar_new %}
-    <a href="{% url "content:create" %}" class="new-btn ico-after more blue">
-        {% trans "Nouveau contenu" %}
+    <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+        {% trans "Nouveau tutoriel" %}
+    </a>
+     <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+        {% trans "Nouvel article" %}
     </a>
 
     <a href="{% url "content:import-new" %}" class="new-btn ico-after import blue">

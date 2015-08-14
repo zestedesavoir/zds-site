@@ -79,8 +79,11 @@
 
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans "Catégories des" %} {{ verbose_type_name_plural }}">
-        <a href="{% url "content:create" %}" class="new-btn ico-after more blue">
-            {% trans "Créer un nouveau contenu" %}
+        <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau tutoriel" %}
+        </a>
+         <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+            {% trans "Nouvel article" %}
         </a>
 
         <a href="{% url "content:helps" %}" class="new-btn ico-after help blue">

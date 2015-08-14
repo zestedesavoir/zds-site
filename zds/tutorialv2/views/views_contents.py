@@ -53,6 +53,12 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     model = PublishableContent
     form_class = ContentForm
     content = None
+    created_content_type = "TUTORIAL"
+
+    def get_form(self, form_class):
+        form = super(CreateContent, self).get_form(form_class)
+        form.initial["type"] = self.created_content_type
+        return form
 
     def form_valid(self, form):
         # create the object:

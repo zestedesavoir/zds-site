@@ -57,8 +57,10 @@ urlpatterns = patterns('',
                        url(r'^reactions/typo/$', WarnTypo.as_view(), name="warn-typo"),
 
                        # create:
-                       url(r'^nouveau/$', CreateContent.as_view(), name='create'),
-
+                       url(r'^nouveau-tutoriel/$',
+                           CreateContent.as_view(created_content_type="TUTORIAL"), name='create-tutorial'),
+                       url(r'^nouveau-article/$',
+                           CreateContent.as_view(created_content_type="ARTICLE"), name='create-article'),
                        url(r'^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
                            CreateContainer.as_view(),
                            name='create-container'),
