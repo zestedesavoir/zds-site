@@ -154,11 +154,15 @@ def view_online(request, article_pk, article_slug):
 
     # Load the article.
     article_version = article.load_json_for_public()
-    txt = open(os.path.join(article.get_path(),
-                            article_version['text'] + '.html'),
-               "r")
-    article_version['txt'] = txt.read()
-    txt.close()
+    try:
+        txt = open(os.path.join(article.get_path(),
+                                article_version['text'] + '.html'),
+                   "r")
+        article_version['txt'] = txt.read()
+        txt.close()
+    except IOError:
+        pass
+
     article_version = article.load_dic(article_version)
 
     # If the user is authenticated

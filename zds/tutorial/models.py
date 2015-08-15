@@ -311,17 +311,22 @@ class Tutorial(models.Model):
             return get_blob(repo.commit(sha).tree, path_tuto)
 
     def get_introduction_online(self):
-        if self.on_line():
-            intro = open(
-                os.path.join(
-                    self.get_prod_path(),
-                    self.introduction +
-                    '.html'),
-                "r")
-            intro_contenu = intro.read()
-            intro.close()
+        intro_contenu = None
 
-            return intro_contenu.decode('utf-8')
+        if self.on_line():
+            try:
+                intro = open(
+                    os.path.join(
+                        self.get_prod_path(),
+                        self.introduction +
+                        '.html'),
+                    "r")
+                intro_contenu = intro.read().decode('utf-8')
+                intro.close()
+            except IOError:
+                pass
+
+        return intro_contenu
 
     def get_conclusion(self, sha=None):
         # find hash code
@@ -338,17 +343,22 @@ class Tutorial(models.Model):
             return get_blob(repo.commit(sha).tree, path_tuto)
 
     def get_conclusion_online(self):
-        if self.on_line():
-            conclu = open(
-                os.path.join(
-                    self.get_prod_path(),
-                    self.conclusion +
-                    '.html'),
-                "r")
-            conclu_contenu = conclu.read()
-            conclu.close()
+        conclu_contenu = None
 
-            return conclu_contenu.decode('utf-8')
+        if self.on_line():
+            try:
+                conclu = open(
+                    os.path.join(
+                        self.get_prod_path(),
+                        self.conclusion +
+                        '.html'),
+                    "r")
+                conclu_contenu = conclu.read().decode('utf-8')
+                conclu.close()
+            except IOError:
+                pass
+
+        return conclu_contenu
 
     def delete_entity_and_tree(self):
         """deletes the entity and its filesystem counterpart"""
@@ -649,16 +659,20 @@ class Part(models.Model):
             return None
 
     def get_introduction_online(self):
-        intro = open(
-            os.path.join(
-                self.tutorial.get_prod_path(),
-                self.introduction +
-                '.html'),
-            "r")
-        intro_contenu = intro.read()
-        intro.close()
+        intro_contenu = None
+        try:
+            intro = open(
+                os.path.join(
+                    self.tutorial.get_prod_path(),
+                    self.introduction +
+                    '.html'),
+                "r")
+            intro_contenu = intro.read().decode('utf-8')
+            intro.close()
+        except IOError:
+            pass
 
-        return intro_contenu.decode('utf-8')
+        return intro_contenu
 
     def get_conclusion(self, sha=None):
 
@@ -683,14 +697,19 @@ class Part(models.Model):
             return None
 
     def get_conclusion_online(self):
-        conclu = open(
-            os.path.join(
-                self.tutorial.get_prod_path(),
-                self.conclusion +
-                '.html'),
-            "r")
-        conclu_contenu = conclu.read()
-        conclu.close()
+        conclu_contenu = None
+
+        try:
+            conclu = open(
+                os.path.join(
+                    self.tutorial.get_prod_path(),
+                    self.conclusion +
+                    '.html'),
+                "r")
+            conclu_contenu = conclu.read()
+            conclu.close()
+        except IOError:
+            pass
 
         return conclu_contenu.decode('utf-8')
 
@@ -944,8 +963,6 @@ class Chapter(models.Model):
                 return conclu_contenu.decode('utf-8')
             else:
                 return None
-
-            return conclu_contenu.decode('utf-8')
         else:
             return None
 

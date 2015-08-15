@@ -193,12 +193,17 @@ class Article(models.Model):
         json_data.close()
 
     def get_text(self):
-        path = os.path.join(self.get_path(), self.text)
-        txt = open(path, "r")
-        txt_contenu = txt.read()
-        txt.close()
+        txt_contenu = None
 
-        return txt_contenu.decode('utf-8')
+        try:
+            path = os.path.join(self.get_path(), self.text)
+            txt = open(path, "r")
+            txt_contenu = txt.read().decode('utf-8')
+            txt.close()
+        except IOError:
+            pass
+
+        return txt_contenu
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
