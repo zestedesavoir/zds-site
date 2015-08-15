@@ -81,12 +81,15 @@
 
 
 {% block sidebar_new %}
-    <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
-        {% trans "Nouveau tutoriel" %}
-    </a>
-     <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
-        {% trans "Nouvel article" %}
-    </a>
+    {% if tutorials != None %}
+        <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau tutoriel" %}
+        </a>
+    {% elif articles != None %}
+        <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+            {% trans "Nouvel article" %}
+        </a>
+    {% endif %}
 
     <a href="{% url "content:import-new" %}" class="new-btn ico-after import blue">
         {% trans "Importer un nouveau contenu" %}
