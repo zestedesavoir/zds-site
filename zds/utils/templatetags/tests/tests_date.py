@@ -107,4 +107,4 @@ class DateFormatterTest(TestCase):
         tr = Template("{% load date %}"
                       "{{ date_epoch | humane_time }}"
                       ).render(self.context)
-        self.assertEqual(u"01 Jan 1970, 01:00:42", tr)
+        self.assertEqual(u"jeudi 01 janvier 1970 à 00h00", tr)
