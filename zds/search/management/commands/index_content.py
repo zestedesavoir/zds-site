@@ -48,7 +48,9 @@ class Command(BaseCommand):
                     sys.exit(0)
 
         # Do the Query
-        query_set = PublishedContent.objects.exclude(sha_public__isnull=True).exclude(sha_public__exact='')
+        query_set = PublishedContent.objects.exclude(sha_public__isnull=True) \
+                                            .exclude(sha_public__exact='') \
+                                            .exclude(must_redirect=True)
 
         if args:
             query_set = query_set.filter(content__pk__in=args)
