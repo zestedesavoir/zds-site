@@ -55,7 +55,7 @@ class Command(BaseCommand):
 
         if 'only-flagged' in options:
             if options['only-flagged']:
-                query_set = query_set.filter(must_reindex=True)
+                query_set = query_set.filter(content__must_reindex=True)
 
         # Start to copy informations
         for content in query_set.all():
