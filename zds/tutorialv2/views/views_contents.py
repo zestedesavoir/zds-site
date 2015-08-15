@@ -1597,7 +1597,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour être"
                                            u" inclus dans un autre conteneur."))
         except KeyError:
-            messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire," 
+            messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire,"
                                              u"ou bien il est impossible de déplacer cet élément."))
         except ValueError:
             raise Http404("The specified tree is invalid.")
@@ -1628,7 +1628,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         for user in form.cleaned_data["users"]:
             if user not in self.object.authors.all() and user != self.request.user:
                 self.object.authors.add(user)
-                url_index =  reverse("content:find-" + self.object.type.lower(), args=[user.pk])
+                url_index = reverse("content:find-" + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
                     [user],
