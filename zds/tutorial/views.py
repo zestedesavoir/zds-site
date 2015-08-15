@@ -1414,14 +1414,20 @@ def view_part_online(
         part["position_in_tutorial"] = cpt_p
         if part_pk == str(part["pk"]):
             find = True
-            intro = open(os.path.join(tutorial.get_prod_path(),
-                                      part["introduction"] + ".html"), "r")
-            part["intro"] = intro.read()
-            intro.close()
-            conclu = open(os.path.join(tutorial.get_prod_path(),
-                                       part["conclusion"] + ".html"), "r")
-            part["conclu"] = conclu.read()
-            conclu.close()
+            try:
+                intro = open(os.path.join(tutorial.get_prod_path(),
+                                          part["introduction"] + ".html"), "r")
+                part["intro"] = intro.read()
+                intro.close()
+            except IOError:
+                pass
+            try:
+                conclu = open(os.path.join(tutorial.get_prod_path(),
+                                           part["conclusion"] + ".html"), "r")
+                part["conclu"] = conclu.read()
+                conclu.close()
+            except IOError:
+                pass
             final_part = part
         cpt_c = 1
         for chapter in part["chapters"]:
@@ -1834,35 +1840,45 @@ def view_chapter_online(
                 "get_absolute_url_online"] + "{0}/{1}/".format(chapter["pk"], chapter["slug"])
             if chapter_pk == str(chapter["pk"]):
                 find = True
-                intro = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter["introduction"] +
-                        ".html"),
-                    "r")
-                chapter["intro"] = intro.read()
-                intro.close()
-                conclu = open(
-                    os.path.join(
-                        tutorial.get_prod_path(),
-                        chapter["conclusion"] +
-                        ".html"),
-                    "r")
-                chapter["conclu"] = conclu.read()
-                conclu.close()
+                try:
+                    intro = open(
+                        os.path.join(
+                            tutorial.get_prod_path(),
+                            chapter["introduction"] +
+                            ".html"),
+                        "r")
+                    chapter["intro"] = intro.read()
+                    intro.close()
+                except IOError:
+                    pass
+
+                try:
+                    conclu = open(
+                        os.path.join(
+                            tutorial.get_prod_path(),
+                            chapter["conclusion"] +
+                            ".html"),
+                        "r")
+                    chapter["conclu"] = conclu.read()
+                    conclu.close()
+                except IOError:
+                    pass
+
                 cpt_e = 1
                 for ext in chapter["extracts"]:
                     ext["chapter"] = chapter
                     ext["position_in_chapter"] = cpt_e
                     ext["path"] = tutorial.get_path()
-                    text = open(os.path.join(tutorial.get_prod_path(),
-                                             ext["text"] + ".html"), "r")
-                    ext["txt"] = text.read()
-                    text.close()
+
+                    try:
+                        text = open(os.path.join(tutorial.get_prod_path(),
+                                                 ext["text"] + ".html"), "r")
+                        ext["txt"] = text.read()
+                        text.close()
+                    except IOError:
+                        pass
+
                     cpt_e += 1
-            else:
-                intro = None
-                conclu = None
             chapter_tab.append(chapter)
             if chapter_pk == str(chapter["pk"]):
                 final_chapter = chapter
