@@ -1621,13 +1621,11 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
             _type = _(u'du tutoriel')
         else:
             _type = _(u'de l\'article')
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         for user in form.cleaned_data["users"]:
             if user not in self.object.authors.all() and user != self.request.user:
                 self.object.authors.add(user)
-
-                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                url_index = settings.ZDS_APP['site']['url'] + \
-                    reverse("content:find-" + self.object.type.lower(), args=[self.request.user.pk])
+                url_index =  reverse("content:find-" + self.object.type.lower(), args=[user.pk])
                 send_mp(
                     bot,
                     [user],

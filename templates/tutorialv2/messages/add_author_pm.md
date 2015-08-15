@@ -4,7 +4,7 @@
 Bonjour {{ user }},
 
 Vous avez été intégré à la rédaction du contenu « [{{ title }}]({{ url }}) ». 
-La version brouillon, sur laquelle vous pourrez travailler, est disponible 
+Il a été ajouté à la liste de vos contenus en rédaction 
 [ici]({{ index }}).
 
 Plus rien maintenant ne retient votre plume, alors bon courage !
