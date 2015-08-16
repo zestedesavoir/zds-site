@@ -75,6 +75,12 @@ def export_comments(reacts, exported, read_class):
         new_reac.dislike = note.dislike
         new_reac.save()
 
+        # because there is an `auto_now_add=True` on zds.utils.models.Comment.pubdate, we need to update those fields
+        # after the first `save()`
+        new_reac.pubdate = note.pubdate
+        new_reac.update = note.update
+        new_reac.save()
+
         export_read_for_note(note, new_reac, read_class)
         exported.last_note = new_reac
         for like in CommentLike.objects.filter(comments__pk=note.pk).all():
@@ -83,7 +89,8 @@ def export_comments(reacts, exported, read_class):
         for dislike in CommentDislike.objects.filter(comments__pk=note.pk).all():
             dislike.comments = new_reac
             dislike.save()
-        exported.save()
+
+    exported.save()
 
 
 def progressbar(it, prefix="", size=60):
