@@ -260,7 +260,7 @@ def migrate_articles():
             exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
-            published.content_public_slug = current.slug
+            published.content_public_slug = exported.slug
             published.publication_date = exported.pubdate
             published.save()
 
@@ -337,7 +337,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             published.save()
             # set mapping
             map_previous = PublishedContent()
-            map_previous.content_public_slug = current.slug
+            map_previous.content_public_slug = exported.slug
             map_previous.content_pk = current.pk
             map_previous.content_type = 'TUTORIAL'
             map_previous.must_redirect = True  # will send HTTP 301 if visited !
