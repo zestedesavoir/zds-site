@@ -261,10 +261,10 @@ def migrate_articles():
             map_previous.save()
 
             # publish the article !
-            published = publish_content(exported, exported.load_version(exported.sha_draft), False)
+            published = publish_content(exported, exported.load_version(current.sha_public), False)
             exported.pubdate = current.pubdate
             exported.update_date = datetime.now()
-            exported.sha_public = exported.sha_draft
+            exported.sha_public = current.sha_public
             exported.public_version = published
             exported.save()
             published.content_public_slug = exported.slug
