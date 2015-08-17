@@ -248,7 +248,8 @@ def migrate_articles():
                                  .select_related("author")\
                                  .order_by("pubdate")\
                                  .all()
-        export_comments(reacts, exported, ArticleRead, current.last_reaction.pk)
+        if current.last_reaction:
+            export_comments(reacts, exported, ArticleRead, current.last_reaction.pk)
         migrate_validation(exported, ArticleValidation.objects.filter(article__pk=current.pk))
         # todo: handle publication
         if current.sha_public is not None and current.sha_public != "":
@@ -332,7 +333,8 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
                              .order_by("pubdate")\
                              .all()
         migrate_validation(exported, TutorialValidation.objects.filter(tutorial__pk=current.pk))
-        export_comments(reacts, exported, TutorialRead, current.last_note.pk)
+        if current.last_note:
+            export_comments(reacts, exported, TutorialRead, current.last_note.pk)
         if current.sha_public is not None and current.sha_public != "":
             published = publish_content(exported, exported.load_version(current.sha_public), False)
             exported.pubdate = current.pubdate
