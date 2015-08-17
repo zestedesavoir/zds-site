@@ -35,7 +35,7 @@ class SearchIndexContent(models.Model):
     pub_date = models.DateTimeField('Date de création', auto_now_add=True)
     update_date = models.DateTimeField('Date de mise à jours', blank=True, null=True)
 
-    licence = models.CharField('Licence du contenu', max_length=80)
+    licence = models.CharField('Licence du contenu', max_length=200)
     url_image = models.CharField('L\'adresse vers l\'image du contenu', max_length=200, null=True, blank=True)
 
     tags = models.ManyToManyField(SearchIndexTag, verbose_name='Tags', null=True, blank=True, db_index=True)
@@ -60,7 +60,7 @@ class SearchIndexContainer(models.Model):
     search_index_content = models.ForeignKey(SearchIndexContent, verbose_name='content',
                                              related_name='container_search_index_content', db_index=True)
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=200)
 
     url_to_redirect = models.CharField('Adresse pour rediriger', max_length=400)
 
@@ -78,7 +78,7 @@ class SearchIndexExtract(models.Model):
         verbose_name = 'SearchIndexExtract'
         verbose_name_plural = 'SearchIndexExtracts'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=200)
 
     search_index_content = models.ForeignKey(SearchIndexContent, verbose_name='content',
                                              related_name='extract_search_index_content', db_index=True)
