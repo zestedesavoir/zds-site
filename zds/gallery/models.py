@@ -98,7 +98,7 @@ class Image(models.Model):
     gallery = models.ForeignKey('Gallery', verbose_name=_(u'Galerie'), db_index=True)
     title = models.CharField(_(u'Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
-    physical = ThumbnailerImageField(upload_to=image_path)
+    physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
     legend = models.CharField(_(u'Légende'), max_length=80, null=True, blank=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
