@@ -30,6 +30,7 @@ from datetime import datetime
 from easy_thumbnails.exceptions import InvalidImageFormatError
 from zds.settings import MEDIA_ROOT
 
+
 def export_read_for_note(old_note, new_note, read_class):
     queryset = read_class.objects
     if read_class == ArticleRead:
