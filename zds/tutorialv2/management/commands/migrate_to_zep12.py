@@ -263,15 +263,19 @@ def migrate_articles():
             map_previous.save()
 
             # publish the article !
-            published = publish_content(exported, exported.load_version(current.sha_public), False)
+            published = publish_content(exported, exported.load_version(exported.sha_draft), False)
             exported.pubdate = current.pubdate
             exported.update_date = datetime.now()
-            exported.sha_public = current.sha_public
+            exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
             published.content_public_slug = exported.slug
             published.publication_date = exported.pubdate
             published.save()
+            # as we changed the structure we have to update the validation history. Yes, it's ugly.
+            old_validation = Validation.objects.filter(content__pk=exported.pk, version=current.sha_public).first()
+            old_validation.version = published.sha_public
+            old_validation.save()
 
 
 def migrate_tuto(tutos, title="Exporting mini tuto"):
