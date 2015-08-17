@@ -28,7 +28,7 @@ from zds.utils.models import Licence, CommentLike, CommentDislike
 from datetime import datetime
 
 from easy_thumbnails.exceptions import InvalidImageFormatError
-
+from zds.settings import MEDIA_ROOT
 
 def export_read_for_note(old_note, new_note, read_class):
     queryset = read_class.objects
@@ -126,6 +126,9 @@ def create_gallery_for_article(content):
         userg.save()
     content.gallery = gal
 
+    if not os.path.exists(gal.get_gallery_path()):
+        os.makedirs(gal.get_gallery_path())
+
     return gal
 
 
@@ -220,11 +223,32 @@ def migrate_articles():
                 pass
             else:
                 img = Image()
-                img.physical = os.path.join(settings.BASE_DIR, path_to_image)
-                img.gallery = new_gallery
-                img.title = path_to_image
-                img.slug = slugify(path_to_image)
+
+                # Create a new name for our image
+                filename = os.path.basename(current.image['article_illu'].url)
+
+                if "None" in path_to_image:
+                    # Move thumbnailer in the gallery folder
+                    os.rename(os.path.join(MEDIA_ROOT, path_to_image[7:]),
+                              os.path.join(new_gallery.get_gallery_path(), filename))
+
+                    # Find original name
+                    split = filename.split('.')
+                    original_filename = split[0] + '.' + split[1]
+
+                    # Move image in the gallery folder
+                    os.rename(os.path.join(MEDIA_ROOT, 'articles', 'None', original_filename),
+                              os.path.join(new_gallery.get_gallery_path(), original_filename))
+
+                    # Update image information
+                    img.physical = os.path.join('galleries', str(new_gallery.pk), filename)
+                else:
+                    img.physical = os.path.join(settings.BASE_DIR, path_to_image)
+
+                img.title = 'icone de l\'article'
+                img.slug = slugify(filename)
                 img.pubdate = datetime.now()
+                img.gallery = new_gallery
                 img.save()
                 exported.image = img
 
@@ -263,7 +287,7 @@ def migrate_articles():
             # publish the article !
             published = publish_content(exported, exported.load_version(exported.sha_draft), False)
             exported.pubdate = current.pubdate
-            exported.update_date = datetime.now()
+            exported.update_date = exported.update_date
             exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
