@@ -288,7 +288,6 @@ ZEP-12 aka Apocalypse
 
 
 - `pip install -r requirements.txt` <- il y a PLUSIEURS nouvelles dépendances
-- refaire le front : gulb build
 - `python manage.py migrate`
 - **IMPORTANT** : vérifiez que la bdd ET les tables sont en UTF-8 
   ```sql
@@ -300,6 +299,7 @@ ZEP-12 aka Apocalypse
   ```
 - ***Pour accélérer la suite** : dans le fichier settings_prod.py ajouter `ZDS_APP['content']['build_pdf_when_published'] = False`
 - **ATTENTION, C'est Long** : python manage.py migrate_to_zep12
+- désactiver temporairement l'indexation automatique via cron le temps de la migration
 - Arrêter Solr : `supervisorctl stop solr`
 - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
 - Redémarrer Solr : `supervisorctl start solr`
