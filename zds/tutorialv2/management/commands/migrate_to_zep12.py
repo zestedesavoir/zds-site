@@ -59,7 +59,7 @@ def migrate_validation(exported_content, validation_queryset):
         exported_validation.save()
 
 
-def export_comments(reacts, exported, read_class):
+def export_comments(reacts, exported, read_class, old_last_note_pk):
     c = 0
     for note in reacts:
         new_reac = ContentReaction()
@@ -82,7 +82,8 @@ def export_comments(reacts, exported, read_class):
         new_reac.save()
 
         export_read_for_note(note, new_reac, read_class)
-        exported.last_note = new_reac
+        if note.pk == old_last_note_pk:
+            exported.last_note = new_reac
         for like in CommentLike.objects.filter(comments__pk=note.pk).all():
             like.comments = new_reac
             like.save()
@@ -247,7 +248,7 @@ def migrate_articles():
                                  .select_related("author")\
                                  .order_by("pubdate")\
                                  .all()
-        export_comments(reacts, exported, ArticleRead)
+        export_comments(reacts, exported, ArticleRead, current.last_reaction.pk)
         migrate_validation(exported, ArticleValidation.objects.filter(article__pk=current.pk))
         # todo: handle publication
         if current.sha_public is not None and current.sha_public != "":
@@ -331,7 +332,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
                              .order_by("pubdate")\
                              .all()
         migrate_validation(exported, TutorialValidation.objects.filter(tutorial__pk=current.pk))
-        export_comments(reacts, exported, TutorialRead)
+        export_comments(reacts, exported, TutorialRead, current.last_note.pk)
         if current.sha_public is not None and current.sha_public != "":
             published = publish_content(exported, exported.load_version(current.sha_public), False)
             exported.pubdate = current.pubdate
