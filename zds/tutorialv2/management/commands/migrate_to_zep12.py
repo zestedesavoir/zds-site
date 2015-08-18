@@ -229,23 +229,25 @@ def migrate_articles():
                 # Create a new name for our image
                 filename = os.path.basename(current.image['article_illu'].url)
 
-                if "None" in path_to_image:
-                    # Move thumbnailer in the gallery folder
-                    os.rename(os.path.join(MEDIA_ROOT, path_to_image[7:]),
-                              os.path.join(new_gallery.get_gallery_path(), filename))
+                # Find original name
+                split = filename.split('.')
+                original_filename = split[0] + '.' + split[1]
 
-                    # Find original name
-                    split = filename.split('.')
-                    original_filename = split[0] + '.' + split[1]
+                if "None" in path_to_image:
 
                     # Move image in the gallery folder
-                    os.rename(os.path.join(MEDIA_ROOT, 'articles', 'None', original_filename),
+                    shutil.copyfile(os.path.join(MEDIA_ROOT, 'articles', 'None', original_filename),
                               os.path.join(new_gallery.get_gallery_path(), original_filename))
 
                     # Update image information
-                    img.physical = os.path.join('galleries', str(new_gallery.pk), filename)
+                    img.physical = os.path.join('galleries', str(new_gallery.pk), original_filename)
                 else:
-                    img.physical = os.path.join(settings.BASE_DIR, path_to_image)
+                    # Move image in the gallery folder
+                    shutil.copyfile(os.path.join(MEDIA_ROOT, 'articles', str(current.id), original_filename),
+                                    os.path.join(new_gallery.get_gallery_path(), original_filename))
+
+                    # Update image information
+                    img.physical = os.path.join('galleries', str(new_gallery.pk), original_filename)
 
                 img.title = 'icone de l\'article'
                 img.slug = slugify(filename)
@@ -290,7 +292,7 @@ def migrate_articles():
             # publish the article !
             published = publish_content(exported, exported.load_version(exported.sha_draft), False)
             exported.pubdate = current.pubdate
-            exported.update_date = exported.update_date
+            exported.update_date = current.update
             exported.sha_public = exported.sha_draft
             exported.public_version = published
             exported.save()
