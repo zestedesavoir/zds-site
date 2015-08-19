@@ -1581,7 +1581,9 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                             raise Http404("The target is not a child of its parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
-
+                    # now, I will fix a bug that happens when the slug changes
+                    # this one cost me so much of my hair
+                    child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
 
@@ -1599,8 +1601,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         except KeyError:
             messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire,"
                                              u"ou bien il est impossible de déplacer cet élément."))
-        except ValueError:
-            raise Http404("The specified tree is invalid.")
+        except ValueError as e:
+            raise Http404("The specified tree is invalid." + str(e))
         except IndexError:
             messages.warning(self.request, _(u"L'élément se situe déjà à la place souhaitée."))
         except TypeError:
