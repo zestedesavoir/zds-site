@@ -672,7 +672,7 @@ def unpublish_content(db_object):
     from zds.tutorialv2.models.models_database import PublishedContent
 
     try:
-        public_version = PublishedContent.objects.get(content=db_object)
+        public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
 
         # clean files
         old_path = public_version.get_prod_path()

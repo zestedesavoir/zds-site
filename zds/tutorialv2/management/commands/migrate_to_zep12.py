@@ -14,7 +14,6 @@ import shutil
 import sys
 
 from zds.forum.models import Topic
-from django.conf import settings
 
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent,\
     Validation
@@ -237,7 +236,7 @@ def migrate_articles():
 
                     # Move image in the gallery folder
                     shutil.copyfile(os.path.join(MEDIA_ROOT, 'articles', 'None', original_filename),
-                              os.path.join(new_gallery.get_gallery_path(), original_filename))
+                                    os.path.join(new_gallery.get_gallery_path(), original_filename))
 
                     # Update image information
                     img.physical = os.path.join('galleries', str(new_gallery.pk), original_filename)
@@ -278,7 +277,7 @@ def migrate_articles():
         if current.last_reaction:
             export_comments(reacts, exported, ArticleRead, current.last_reaction.pk)
         migrate_validation(exported, ArticleValidation.objects.filter(article__pk=current.pk))
-        # todo: handle publication
+
         if current.sha_public is not None and current.sha_public != "":
             # set mapping
             map_previous = PublishedContent()
@@ -300,9 +299,17 @@ def migrate_articles():
             published.publication_date = exported.pubdate
             published.save()
             # as we changed the structure we have to update the validation history. Yes, it's ugly.
-            old_validation = Validation.objects.filter(content__pk=exported.pk, version=current.sha_public).first()
-            old_validation.version = published.sha_public
-            old_validation.save()
+            last_validation = Validation.objects.filter(content__pk=exported.pk).last()
+            structure_validation = Validation(content=exported,
+                                              version=exported.sha_public,
+                                              comment_authors="Migration v2",
+                                              comment_validator="yeah",
+                                              status="ACCEPTED",
+                                              validator=last_validation.validator,
+                                              date_proposition=datetime.now(),
+                                              date_validation=datetime.now(),
+                                              date_reserve=datetime.now())
+            structure_validation.save()
 
 
 def migrate_tuto(tutos, title="Exporting mini tuto"):
