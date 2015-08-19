@@ -304,7 +304,7 @@ def migrate_articles():
                                               version=exported.sha_public,
                                               comment_authors="Migration v2",
                                               comment_validator="yeah",
-                                              status="ACCEPTED",
+                                              status="ACCEPT",
                                               validator=last_validation.validator,
                                               date_proposition=datetime.now(),
                                               date_validation=datetime.now(),
