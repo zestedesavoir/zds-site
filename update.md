@@ -286,25 +286,39 @@ ZEP-12 aka Apocalypse
 
 ![ZEP 12](http://i.ytimg.com/vi/UVFku_WzSc8/maxresdefault.jpg)
 
+**Étapes préliminaires**
 
-- `pip install -r requirements.txt` <- il y a PLUSIEURS nouvelles dépendances
-- `python manage.py migrate`
-- **IMPORTANT** : vérifiez que la bdd ET les tables sont en UTF-8 
+Il vous faut *absolument* faire une sauvegarde de secours de la base de données et du dossier media. 
+
+**Migrations des dépendences, de la base de données et des contenus**
+
+- Une nouvelle dépendances à été ajoutée beautifulsoup4 dans sa version 4.3.2. Pour installer cette nouvelle dépendence, utilisez la commande  `pip install -r requirements.txt`.
+- La base de données a été modifiée (ajout de nouvelles tables pour les contenus, ainsi que des tables pour la recherche). Pour installer ces nouvelles tables, utilisez la commande `python manage.py migrate`.
+- La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
+  Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le WHERE):
   ```sql
-  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T,        information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="dbname";
+  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
   ```
-  si ce n'est pas le cas, lancez la commande suivante :
+  Si dans la deuxiéme collonne, apparait autre chose que le mot "utf8_general_ci", appliquer la commande suivante (remplacer les mots dbname, dbusername et dbpassword par respectivement le nom de la base, le nom de l'utilisateur qui à les droits de modifier la base et sont password): 
   ```bash
-  DB="dbname";USER="dbusername";PASS="dbpassword";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
+  DB="dbname";USER="dbusername";PASS="dbusername";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
   ```
-- ***Pour accélérer la suite** : dans le fichier settings_prod.py ajouter `ZDS_APP['content']['build_pdf_when_published'] = False`
-- **ATTENTION, C'est Long** : python manage.py migrate_to_zep12
-- désactiver temporairement l'indexation automatique via cron le temps de la migration
+- La génération des PDF par Pandoc, peut-être trés long, il est fortement conseillé de désactiver temporrairement la génération de PDF . Pour cela, dans le fichier settings_prod.py, passer la variable `ZDS_APP['content']['build_pdf_when_published']` à False.
+- Il faut maintenant migrer tous les contenus, pour cela utiliser la commande `python manage.py migrate_to_zep12`. Cette commande peut prendre plusieurs minutes.
+- Lancer la génération des PDF avec la commande: `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activer le log de Pandoc.
+- Repasser la variable `ZDS_APP['content']['build_pdf_when_published']` à True.
+
+**Migrations du module de recherche**
+
 - Arrêter Solr : `supervisorctl stop solr`
-- Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
-- Redémarrer Solr : `supervisorctl start solr`
+- Regénérer le schema.xml avec la commande: `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
 - Recopier les dépots markdown dans le contenu public: `python manage.py index_content --copy-repository`
-- Changer la tache cron qui perment d'indexer les contenus de: `python manage.py rebuild_index` à `python manage.py index_content --only-flagged && python manage.py rebuild_index`
-- Indexer **Attention, C'est Long** : `python manage.py rebuild_index`
-- relancez la création de PDF : `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activer le log de Pandoc
-- repasser `ZDS_APP['content']['build_pdf_when_published'] = True` *si vous voulez que les pdf soient automatiquement générés*
+- Changer la tache cron qui perment d'indexer les contenus de: `python manage.py update_index` à `python manage.py index_content --only-flagged >> /var/log/indexation.txt && python manage.py update_index >> /var/log/indexation.txt`
+- Créé une autre tache cron pour supprimer réguliérement le fichier de log /var/log/indexation.txt.
+- Démarrer Solr : `supervisorctl start solr`
+- Indexer le contenu avec Solr: `python manage.py rebuild_index`. Attention, cette commande peut prendre plusieurs minutes.
+
+**Aprés la migration**
+
+ - Par défaut la pagination est mise à 50 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. 
+   Un nombre de 42 ou 54 (donc divisible par 2 ET 3) est envisageable. Pour le changez, il faut modifier la variable ZDS_APP['content']['content_per_page'] dans le settings.py
