@@ -2,6 +2,7 @@
 from optparse import make_option
 import os
 import shutil
+import traceback
 
 from django.core.management import BaseCommand
 from git import Git
@@ -68,16 +69,34 @@ class Command(BaseCommand):
 
             if 'copy-repository' in options and not os.path.isdir(path):
 
-                # Checkout the right commit
-                repo = Git(content.content.get_repo_path())
-                repo.checkout(content.content.sha_public)
+                try:
+                    # Checkout the right commit
+                    repo = Git(content.content.get_repo_path())
+                    repo.checkout(content.content.sha_public)
 
-                # Copy the markdown folder
-                shutil.copytree(content.content.get_repo_path(), path)
+                    # Copy the markdown folder
+                    shutil.copytree(content.content.get_repo_path(), path)
 
-                # Checkout the draft version
-                repo.checkout(content.content.sha_draft)
+                    # Checkout the draft version
+                    repo.checkout(content.content.sha_draft)
 
-            reindex_content(content.load_public_version(), content.content)
+                # Voluntary broad exception, in any case, we must stop the process.
+                except:
+                    print_error()
 
-            self.stdout.write('Successfully copy content information with id %s into database' % content.content.id)
+            try:
+                reindex_content(content.load_public_version(), content.content)
+
+                self.stdout.write('Successfully copy content information with id {0} into database ({1})'
+                                  .format(content.content.id, content.content.title))
+
+            # Voluntary broad exception, in any case, we must stop the process.
+            except:
+                print_error()
+
+
+def print_error():
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    to_display = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
+    sys.stderr = to_display
+    print to_display
