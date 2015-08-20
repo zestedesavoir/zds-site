@@ -8,7 +8,7 @@ class ContentIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True, use_template=True)
 
     # Search criteria
-    pubdate = indexes.DateTimeField(model_attr='pub_date', stored=True)
+    pubdate = indexes.DateTimeField(model_attr='pubdate', stored=True)
     updatedate = indexes.DateTimeField(model_attr='update_date', stored=True)
 
     licence = indexes.CharField(model_attr='licence', stored=True)
@@ -86,7 +86,7 @@ class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
         return obj.search_index_content.licence
 
     def prepare_pubdate(self, obj):
-        return obj.search_index_content.pub_date
+        return obj.search_index_content.pubdate
 
     def prepare_updatedate(self, obj):
         return obj.search_index_content.update_date
@@ -144,7 +144,7 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
         return obj.search_index_content.licence
 
     def prepare_pubdate(self, obj):
-        return obj.search_index_content.pub_date
+        return obj.search_index_content.pubdate
 
     def prepare_updatedate(self, obj):
         return obj.search_index_content.update_date

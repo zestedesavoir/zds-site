@@ -21,7 +21,7 @@
                 {% endwith %}
             </p>
 
-            <div class="content-meta" title="Publié le {{ result.object.pub_date }}">
+            <div class="content-meta" title="Publié le {{ result.object.pubdate }}">
                 <p>
                     {% if result.type == 'tutorial' %}
                         Tutoriel
@@ -32,9 +32,9 @@
                 -
                 </p>
 
-                <time class="content-pubdate" pubdate="{{ result.object.pub_date }}">
-                    <span class="long">{{ result.object.pub_date|format_date|capfirst }}</span>
-                    <span class="short">{{ result.object.pub_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ result.object.pubdate }}">
+                    <span class="long">{{ result.object.pubdate|format_date|capfirst }}</span>
+                    <span class="short">{{ result.object.pubdate|format_date:True|capfirst }}</span>
                 </time>
 
             </div>
