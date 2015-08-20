@@ -90,7 +90,6 @@ def export_comments(reacts, exported, read_class, old_last_note_pk):
         for dislike in CommentDislike.objects.filter(comments__pk=note.pk).all():
             dislike.comments = new_reac
             dislike.save()
-
     exported.save()
 
 
@@ -310,6 +309,16 @@ def migrate_articles():
                                               date_validation=datetime.now(),
                                               date_reserve=datetime.now())
             structure_validation.save()
+        # fix strange notification bug
+        authors = list(exported.authors.all())
+        reads_to_delete = ContentRead.objects\
+                                     .filter(content=exported)\
+                                     .exclude(user__pk__in=ContentReaction.objects
+                                                                          .filter(related_content=exported)
+                                                                          .exclude(author__in=authors)
+                                                                          .values_list("author__pk", flat=True))
+        for read in reads_to_delete.all():
+            read.delete()
 
 
 def migrate_tuto(tutos, title="Exporting mini tuto"):
@@ -391,6 +400,16 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             map_previous.must_redirect = True  # will send HTTP 301 if visited !
             map_previous.content = exported
             map_previous.save()
+        # fix strange notification bug
+        authors = list(exported.authors.all())
+        reads_to_delete = ContentRead.objects\
+                                     .filter(content=exported)\
+                                     .exclude(user__pk__in=ContentReaction.objects
+                                                                          .filter(related_content=exported)
+                                                                          .exclude(author__in=authors)
+                                                                          .values_list("author__pk", flat=True))
+        for read in reads_to_delete.all():
+            read.delete()
 
 
 @transaction.atomic
