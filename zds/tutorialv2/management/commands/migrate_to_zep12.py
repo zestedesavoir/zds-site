@@ -23,7 +23,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import slugify
-from zds.utils.models import Licence, CommentLike, CommentDislike
+from zds.utils.models import CommentLike, CommentDislike
 from datetime import datetime
 
 from easy_thumbnails.exceptions import InvalidImageFormatError
@@ -337,7 +337,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.title = current.title
         exported.sha_draft = current.sha_draft
         exported.sha_beta = current.sha_beta
-        exported.licence = Licence.objects.filter(code=current.licence).first()
+        exported.licence = current.licence
         exported.update_date = current.update
         exported.creation_date = current.create_at
         exported.image = current.image
