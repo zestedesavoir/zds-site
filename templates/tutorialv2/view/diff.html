@@ -67,8 +67,10 @@
 
     <h2>{% trans "Fichiers modifiés" %}</h2>
     {% for diff in modified %}
-        <h3>{{ diff.a_blob.path }} {% if diff.b_blob.path != diff.a_blob.path %} ⇒ {{ diff.b_blob.path }} {% trans "(renommé)" %}{% endif %}</h3>
-        {% htmldiff diff.a_blob.data_stream.read diff.b_blob.data_stream.read %}
+        {% if 'manifest' not in diff.a_blob.path %}
+            <h3>{{ diff.a_blob.path }} {% if diff.b_blob.path != diff.a_blob.path %} ⇒ {{ diff.b_blob.path }} {% trans "(renommé)" %}{% endif %}</h3>
+            {% htmldiff diff.a_blob.data_stream.read diff.b_blob.data_stream.read %}
+        {% endif %}
     {% empty %}
         <p>{% trans "Aucun fichier modifié." %}</p>
     {% endfor %}
