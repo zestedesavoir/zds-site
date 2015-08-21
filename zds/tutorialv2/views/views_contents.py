@@ -1311,7 +1311,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     send_mp(bot,
                             self.object.authors.all(),
-                            _(u"Tutoriel en bêta"),
+                            _(_type[0].upper() + _type[1:].lower() + u" en bêta"),
                             beta_version.title,
                             msg_pm,
                             False)
