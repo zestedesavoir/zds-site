@@ -320,5 +320,5 @@ Il vous faut *absolument* faire une sauvegarde de secours de la base de données
 
 **Aprés la migration**
 
- - Par défaut la pagination est mise à 50 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. 
+ - Par défaut la pagination est mise à 42 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. 
    Un nombre de 42 ou 54 (donc divisible par 2 ET 3) est envisageable. Pour le changez, il faut modifier la variable ZDS_APP['content']['content_per_page'] dans le settings.py
