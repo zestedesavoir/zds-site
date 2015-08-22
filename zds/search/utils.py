@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from bs4 import BeautifulSoup
+from datetime import datetime
 from django.db import transaction
 
 from zds.search.models import SearchIndexExtract, SearchIndexContainer, SearchIndexContent, \
@@ -120,8 +121,8 @@ def reindex_content(versioned, publishable_content):
     search_index_content.title = publishable_content.title
     search_index_content.description = publishable_content.description
 
-    search_index_content.pubdate = publishable_content.pubdate
-    search_index_content.update_date = publishable_content.update_date
+    search_index_content.pubdate = publishable_content.pubdate or datetime.now()
+    search_index_content.update_date = publishable_content.update_date or datetime.now()
 
     if publishable_content.licence:
         search_index_content.licence = publishable_content.licence.title
