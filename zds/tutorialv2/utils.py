@@ -8,6 +8,7 @@ from urllib import urlretrieve
 from urlparse import urlparse
 import codecs
 from collections import OrderedDict
+import subprocess
 
 from git import Repo, Actor
 import cairosvg
@@ -577,21 +578,25 @@ def publish_content(db_object, versioned, is_major_update=True):
     if settings.PANDOC_LOG_STATE:
         pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
 
-    os.chdir(extra_contents_path)  # for pandoc
-
     # 2. HTML
-    os.system(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str)
-    # 3. epub
-    os.system(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str)
+    subprocess.call(
+        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str,
+        shell=True,
+        cwd=extra_contents_path)
+
+    # 3. EPUB
+    subprocess.call(
+        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str,
+        shell=True,
+        cwd=extra_contents_path)
+
     # 4. PDF
     if ZDS_APP['content']['build_pdf_when_published']:
-        os.system(
-            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
-            md_file_path + " -o " + base_name + ".pdf" + pandoc_debug_str)
-
-    os.chdir(settings.BASE_DIR)
+        subprocess.call(
+            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
+            base_name + ".pdf" + pandoc_debug_str,
+            shell=True,
+            cwd=extra_contents_path)
 
     # 5. Copy markdown repo into extra-content
     shutil.copytree(versioned.get_path(), extra_contents_path + "/" + versioned.slug, symlinks=False, ignore=None)
