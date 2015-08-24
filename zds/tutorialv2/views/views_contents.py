@@ -1,9 +1,13 @@
 # coding: utf-8
 from datetime import datetime
-import re
-from PIL import Image as ImagePIL
 import json as json_reader
 import zipfile
+import shutil
+import tempfile
+import time
+
+import re
+from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -22,8 +26,6 @@ from django.views.generic import FormView, DeleteView
 from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 import os
-import shutil
-import tempfile
 from zds.forum.models import Forum
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -38,14 +40,13 @@ from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
-    default_slug_pool
+    default_slug_pool, BadArchiveError
 from zds.utils import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.forum.models import Topic, TopicFollowed, follow, mark_read
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
-import time
 
 
 class CreateContent(LoggedWithReadWriteHability, FormView):
@@ -420,14 +421,6 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
 
     def get_filename(self):
         return self.get_object().slug + '.zip'
-
-
-class BadArchiveError(Exception):
-    """ The exception that is raised when a bad archive is sent """
-    message = u''
-
-    def __init__(self, reason):
-        self.message = reason
 
 
 class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormViewMixin):

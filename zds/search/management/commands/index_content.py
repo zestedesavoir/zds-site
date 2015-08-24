@@ -1,13 +1,9 @@
 # coding: utf-8
 from optparse import make_option
-import os
-import shutil
 import traceback
 
 from django.core.management import BaseCommand
-from git import Git
 import sys
-from zds import settings
 from zds.search.utils import reindex_content
 from zds.tutorialv2.models.models_database import PublishedContent
 
@@ -20,12 +16,6 @@ class Command(BaseCommand):
            ''
 
     option_list = BaseCommand.option_list + (
-        make_option('--copy-repository',
-                    action='store_true',
-                    dest='copy-repository',
-                    default=False,
-                    help='Create the markdown folder in the public repository on the fly'),
-
         make_option('--only-flagged',
                     action='store_true',
                     dest='only-flagged',
@@ -51,7 +41,12 @@ class Command(BaseCommand):
         # Do the Query
         query_set = PublishedContent.objects.exclude(sha_public__isnull=True) \
                                             .exclude(sha_public__exact='') \
-                                            .exclude(must_redirect=True)
+                                            .exclude(must_redirect=True)\
+                                            .prefetch_related('content')\
+                                            .prefetch_related('content__subcategory')\
+                                            .prefetch_related('content__authors')\
+                                            .prefetch_related('content__licence')\
+                                            .prefetch_related('content__image')
 
         if args:
             query_set = query_set.filter(content__pk__in=args)
@@ -63,29 +58,8 @@ class Command(BaseCommand):
         # Start to copy informations
         for content in query_set.all():
 
-            # Check first if there is markdown folder in extra_contents
-            path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], content.content.slug,
-                                'extra_contents', content.content.slug)
-
-            if 'copy-repository' in options and not os.path.isdir(path):
-
-                try:
-                    # Checkout the right commit
-                    repo = Git(content.content.get_repo_path())
-                    repo.checkout(content.content.sha_public)
-
-                    # Copy the markdown folder
-                    shutil.copytree(content.content.get_repo_path(), path)
-
-                    # Checkout the draft version
-                    repo.checkout(content.content.sha_draft)
-
-                # Voluntary broad exception, in any case, we must stop the process.
-                except:
-                    print_error()
-
             try:
-                reindex_content(content.load_public_version(), content.content)
+                reindex_content(content)
 
                 self.stdout.write('Successfully copy content information with id {0} into database ({1})'
                                   .format(content.content.id, content.content.title))
@@ -98,5 +72,4 @@ class Command(BaseCommand):
 def print_error():
     exc_type, exc_value, exc_traceback = sys.exc_info()
     to_display = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
-    sys.stderr = to_display
-    print to_display
+    sys.stderr.write('\n'.join(to_display))
