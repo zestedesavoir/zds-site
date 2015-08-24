@@ -15,28 +15,15 @@ class Command(BaseCommand):
            'Example, manage.py index_content 1, will copy content id 1 information into database.' \
            ''
 
-    option_list = BaseCommand.option_list + (
+    option_list = BaseCommand.option_list + tuple([
         make_option('--only-flagged',
                     action='store_true',
                     dest='only-flagged',
                     default=False,
                     help='Only copy content informations that have been flagged by the system.')
-    )
+    ])
 
     def handle(self, *args, **options):
-
-        # Alert user that we shouldn't use the website during the copy of the markdown operation
-        if 'copy-repository' in options:
-            if options['copy-repository']:
-                self.stdout.write("This argument should not be used when the website is running. "
-                                  "Please, be sure that the website isn't running and no process can access the "
-                                  "contents-private repository. Is the website running ? y/N")
-                user_confirmation = raw_input()
-
-                if user_confirmation == 'y' or user_confirmation == 'yes':
-                    self.stdout.write("Please delete this option or kill every process that use the contents-private "
-                                      "repository.")
-                    sys.exit(0)
 
         # Do the Query
         query_set = PublishedContent.objects.exclude(sha_public__isnull=True) \

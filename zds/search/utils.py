@@ -238,5 +238,5 @@ def reindex_content(published_content):
     index_content(versioned, search_index_content, archive)
 
     # no need to index the next time
-    published_content.content.must_reindex = True
+    published_content.content.must_reindex = False
     published_content.content.save()

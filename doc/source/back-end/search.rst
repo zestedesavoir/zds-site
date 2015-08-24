@@ -263,19 +263,19 @@ Cette interface permet de savoir quels filtres sont appliqués et comment. Le ch
 
 Tapez une phrase d'exemple en français dans le champ à gauche comme dans la capture. Choisissez le champ, par-exemple : "text". Cliquez maintenant sur le bouton "Analyse Values" en bleu à droite. Vous avez un tableau avec chaque mot en colonne et sur les lignes ce sont les résultats après chaque filtre, dans la première colonne vous avez le nom des filtres, si vous passez votre curseur dessus.
 
-Utilisation de la commande index_content
-----------------------------------------
+Utilisation de la commande ``index_content``
+--------------------------------------------
 
-Cette commande permet de recopier les informations du contenus dans les tables spécifiques pour l'indexation.
+Cette commande permet de recopier les informations du contenu dans les tables spécifiques pour l'indexation. Ces contenus ne peuvent en effet pas être indexés directement (Solr ne permet pas d'indexer les fichiers), l'utilisation de cette commande est donc nécéssaire.
 
 .. attention::
 
-    À ne pas lancer en même temps, la commande update_content et la commande rebuild_index de Solr.
+    Ne pas lancer en même temps, la commande ``index_content`` et la commande ``rebuild_index`` de Solr.
 
-Elle possède plusieurs options, vous pouvez les consulter en utilisant la commande `python manage.py index_content -h` ou en lisant directement le code source dans le fichier zds/search/management/commands/index_content.py.
+Elle possède plusieurs options, vous pouvez les consulter en utilisant la commande ``python manage.py index_content -h`` ou en lisant directement le code source dans le fichier zds/search/management/commands/index_content.py.
 
-Si vous utilisez directement la commande `python manage.py index_content` sans argument, tous les contenus (article et tutoriel) est supprimés et recopiés dans les tables de recherche.
-La commande index_content peut recevoir des arguments. Les arguments que la commande attend sont des id des PublishableContent. Un exemple serais `python manage.py index_content 1 2 12`, si vous préciser ces arguments la, les informations des contenus 1, 2 et 12 serons recopié dans les tables de recherche.
-Deux options peuvent aussi être passées:
- - `--copy-repository` permettant de recopier le dépot markdown dans le dossier zds/search/nom-contenu/extra_content/nom-contenu/, si ce dossier n'existe pas. Cette option nécessite que le site soit hors-ligne car il peut impacter l'écritures des tutoriels
- - `--only-flagged` permet de sélectionner uniquement les contenus (article et tutoriels) qui ont le champ ré-index à True.
+Si vous utilisez directement la commande ``python manage.py index_content`` sans argument, tous les contenus (article et tutoriel) sont supprimés et recopiés dans les tables de recherche.
+
+La commande index_content peut recevoir des arguments. Les arguments que la commande attend sont des *pk* des ``PublishableContent``. Un exemple serais ``python manage.py index_content 1 2 12``: si vous préciser ces arguments, les informations des contenus 1, 2 et 12 serons recopié dans les tables de recherche.
+
+L'option ``--only-flagged`` peut être uilisée. Elle permet de sélectionner uniquement les contenus (article et tutoriels) qui ont le champ ``must_reindex`` à ``True``.
