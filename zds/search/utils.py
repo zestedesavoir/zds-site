@@ -15,7 +15,7 @@ from zds.search.models import SearchIndexExtract, SearchIndexContainer, SearchIn
 
 
 def get_file_content_in_zip(archive, path):
-    """Get file content in a zip archive
+    """Get file content of a file in a zip archive
 
     :param archive: a zip archive
     :type archive: zipfile.ZipFile
@@ -30,7 +30,7 @@ def get_file_content_in_zip(archive, path):
 
 
 def filter_keyword(html):
-    """Try to find important words in an html string. Search in all i and strong and each title
+    """Try to find important words in an HTML string. Search in all ``<i>``, ``<strong>`` and title (``<h*>``).
 
     :return: list of important words
     """
@@ -44,9 +44,9 @@ def filter_keyword(html):
 
 
 def filter_text(html):
-    """Filter word from the html version of the text
+    """Filter words from the HTML version of the text
 
-    :param html: The content which words must be extract
+    :param html: The text from which words must be extract
     :return: extracted words
     """
     bs = BeautifulSoup(html)
@@ -54,6 +54,15 @@ def filter_text(html):
 
 
 def index_extract(extract, search_index_content, archive):
+    """Index an extract.
+
+    :param extract: extact to index
+    :type extract: Extract
+    :param search_index_content: parent index
+    :type search_index_content: SearchIndexContent
+    :param archive: zip archive containing the content
+    :type archive: zipfile.ZipFile
+    """
     search_index_extract = SearchIndexExtract()
     search_index_extract.search_index_content = search_index_content
     search_index_extract.title = extract.title
@@ -75,6 +84,15 @@ def index_extract(extract, search_index_content, archive):
 
 
 def index_container(container, search_index_content, archive):
+    """Index a container.
+
+    :param container: container to index
+    :type container: Container
+    :param search_index_content: parent index
+    :type search_index_content: SearchIndexContent
+    :param archive: zip archive containing the content
+    :type archive: zipfile.ZipFile
+    """
 
     search_index_container = SearchIndexContainer()
     search_index_container.search_index_content = search_index_content
@@ -115,6 +133,15 @@ def index_container(container, search_index_content, archive):
 
 
 def index_content(versioned, search_index_content, archive):
+    """Index the child of a content.
+
+    :param versioned: versioned content to index
+    :type versioned: VersionedContent
+    :param search_index_content: parent index
+    :type search_index_content: SearchIndexContent
+    :param archive: zip archive containing the content
+    :type archive: zipfile.ZipFile
+    """
 
     for child in versioned.children:
         if isinstance(child, Container):
@@ -125,16 +152,24 @@ def index_content(versioned, search_index_content, archive):
 
 @transaction.atomic
 def reindex_content(published_content):
-    """Index the new published version. Lot of IO, memory and cpu will be used, be warned when you use this function.
-    Only loop on this function if you know what you are doing !
+    """Index the new published version.
 
-    IO complexity is 2 + (2*number of containers) + number of extracts.
-    Database query complexity is on deletion 1+number of containers+number of extracts,
-                                 on addition 1+number of containers+number of extracts.
+    .. attention::
+        Note that lots of IO, memory and CPU will be used when you use this function.
+        Only loop on it if you know what you are doing !
+
+    This function looks for the archive generated in any publication and containing the content in a version that
+    correspond to the public version, and then use it to create ``SearchIndex*`` objects by reading the archive.
+
+    IO complexity is ``2 + 2 * number of containers + number of extracts`` (through a ZIP archive).
+
+    Database query complexity is
+
+    * on deletion : ``1 + number of containers + number of extracts`` ;
+    * on addition : ``1 + number of containers + number of extracts``.
 
     :param published_content: Database representation of the public version of the content
     :type published_content: PublishedContent
-    :return:
     """
 
     # We just delete all index that correspond to the content

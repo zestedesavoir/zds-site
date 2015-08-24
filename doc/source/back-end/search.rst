@@ -134,26 +134,25 @@ La première méthode permet de définir le modèle du contenu à indexer et la 
 Plus d'information :
  - `Documentation de Haystack <http://django-haystack.readthedocs.org/en/v2.3.1/tutorial.html>`_
 
-Le cas particulié de l'indexation des tutoriels et articles
------------------------------------------------------------
+Le cas particulier de l'indexation des tutoriels et articles
+------------------------------------------------------------
 
 Depuis la ZEP-12, les tables dans la base de données pour les parties, chapitres et extraits ont été supprimées.
 
 Les contenus (tutoriels et articles) sont stockés dans des tables spéciales qui ne servent qu'à l'indexation.
-Ces tables sont nommés SearchIndexContent, SearchIndexContainers, SearchIndexExtracts, SearchIndexAuthors, SearchIndexTags.
+Ces tables sont nommés ``SearchIndexContent``, ``SearchIndexContainer``, ``SearchIndexExtract``, ``SearchIndexAuthors`` et ``SearchIndexTag``.
 
-Mais ces tables doivent-être remplies, il est impossible de le faire à la publication de façon synchrone et bloquante, car cette opération prend du temps et des IO. Pour rappel, c'est de cet ordre là:
+Mais ces tables doivent-être remplies, il est impossible de le faire à la publication de façon synchrone et bloquante, car cette opération prend du temps et des IO. Pour rappel,
 
-- IO: 2 + (2*nombre de conteneurs) + nombre d'extraits
+- IO: ``2 + 2 * nombre de conteneurs + nombre d'extraits`` (bien que cette opération se fasse au travers d'une archive compressée ZIP, ce qui modifie les performances)
 - Pour la base de données:
-   - En suppression: 1+nombre de conteneurs+nombre d'extraits,
-   - En ajout: 1+number de conteneurs + nombre d'extraits
+   - En suppression: ``1 + nombre de conteneurs + nombre d'extraits``,
+   - En ajout: ``1 + nombre de conteneurs + nombre d'extraits``
 
-Lors de la publication des données, dans la table PublishableContent, le champ `must_reindex` est passé à True indiquant que le contenu doit-être ré-indexé.
-Le dépot markdown est copié dans le dossier public-content/nom du contenus/extra_content/nom du contenus permettant ainsi d'accéder au markdown plus tard.
+Pour rappel, lors de la publication d'un contenu, dans la table ``PublishableContent``, le champ ``must_reindex`` est passé à ``True`` indiquant que le contenu doit-être ré-indexé.
 
-Plus tard, souvent avant l'utilisation de la commande `python manage.py rebuild_index`, la commande `python manage.py index_content` est utilisé.
-La commande `python manage.py index_content` permet de copier les données des articles et tutoriels dans les tables de recherche.
+Plus tard, souvent avant l'utilisation de la commande ``python manage.py rebuild_index``, la commande ``python manage.py index_content`` est utilisée.
+Elle permet de copier les données des articles et tutoriels dans les tables de recherche. Elle utilise pour cela la version du contenu qui est stocké dans le fichier ZIP généré à la publication, afin de gagner du temps.
 
 Vous pouvez trouver plus d'information, sur cette commande `ici <#utilisation-de-la-commande-index-content>`_.
 
@@ -274,8 +273,8 @@ Cette commande permet de recopier les informations du contenu dans les tables sp
 
 Elle possède plusieurs options, vous pouvez les consulter en utilisant la commande ``python manage.py index_content -h`` ou en lisant directement le code source dans le fichier zds/search/management/commands/index_content.py.
 
-Si vous utilisez directement la commande ``python manage.py index_content`` sans argument, tous les contenus (article et tutoriel) sont supprimés et recopiés dans les tables de recherche.
+Si vous utilisez directement la commande ``python manage.py index_content`` sans argument, tous les objets ``SearchIndex*`` correspondant aux contenus (articles et tutoriels) sont suprpimés puis à nouveau recopiés dans les tables de recherche.
 
-La commande index_content peut recevoir des arguments. Les arguments que la commande attend sont des *pk* des ``PublishableContent``. Un exemple serais ``python manage.py index_content 1 2 12``: si vous préciser ces arguments, les informations des contenus 1, 2 et 12 serons recopié dans les tables de recherche.
+La commande ``index_content`` peut recevoir des arguments : les *pk* correspondant aux ``PublishableContent``. Un exemple serais ``python manage.py index_content 1 2 12``: si vous préciser ces arguments, les informations des contenus 1, 2 et 12 seront recopiées dans les tables de recherche.
 
-L'option ``--only-flagged`` peut être uilisée. Elle permet de sélectionner uniquement les contenus (article et tutoriels) qui ont le champ ``must_reindex`` à ``True``.
+L'option ``--only-flagged`` peut être uilisée. Elle permet de sélectionner uniquement les contenus (articles et tutoriels) qui ont le champ ``must_reindex`` à ``True``, afin de ne ré-indexer que ce qui n'est nécésssaire.
