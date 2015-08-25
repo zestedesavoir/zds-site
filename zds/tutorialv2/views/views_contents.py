@@ -1511,7 +1511,6 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
     model = PublishableContent
-    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = MoveElementForm
     versioned = False
 
