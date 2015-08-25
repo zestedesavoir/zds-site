@@ -101,7 +101,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
             .values_list('pk', flat=True)
 
-        if self.request.user.has_perm('forum.change_post'):
+        if self.request.user.has_perm('tutorialv2.change_contentreaction'):
             context["user_can_modify"] = reaction_ids
         else:
             queryset_reactions_user = ContentReaction.objects\
@@ -401,7 +401,7 @@ class UpdateNoteView(SendNoteFormView):
             if self.reaction is None:
                 raise Http404("There is no reaction.")
             if self.reaction.author != self.request.user:
-                if not self.request.user.has_perm('forum.change_post'):
+                if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
         else:
             messages.error(self.request, 'Oh non ! Une erreur est survenue dans la requête !')
@@ -513,7 +513,8 @@ class HideReaction(FormView, LoginRequiredMixin):
             if 'text_hidden' in self.request.POST:
                 text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
-            if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
+            if not self.request.user.has_perm('tutorialv2.change_contentreaction') and \
+                    not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
@@ -523,7 +524,7 @@ class HideReaction(FormView, LoginRequiredMixin):
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
 
-    permissions = ["tutorial.change_post"]
+    permissions = ["tutorialv2.change_contentreaction"]
     http_method_names = ['post']
 
     @method_decorator(transaction.atomic)

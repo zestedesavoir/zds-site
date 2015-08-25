@@ -443,13 +443,10 @@
                                             <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                                         </li>
 
-                                        {% if perms.tutorialv2.change_tutorialv2 %}
+                                        {% if perms.tutorialv2.change_validation %}
                                             <li>
                                                 <a href="{% url "validation:list" %}?type=tuto">{% trans "Validation des tutoriels" %}</a>
                                             </li>
-                                        {% endif %}
-
-                                        {% if perms.tutorialv2.change_tutorialv2 %}
                                             <li>
                                                 <a href="{% url "validation:list" %}?type=article">{% trans "Validation des articles" %}</a>
                                             </li>

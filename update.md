@@ -303,7 +303,6 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 
 - De nouvelles dépendances ont été ajoutées (*beautifulsoup4*, *uuslug*). Pour installer ces nouvelles dépendences, utilisez la commande  `pip install -r requirements.txt`.
 - La base de données a été modifiée (ajout de nouvelles tables pour les contenus, ainsi que des tables pour la recherche). Pour installer ces nouvelles tables, utilisez la commande `python manage.py migrate`.
-- De nouvelles permissions ont été créées. Vérifiez que le groupe `staff` possède bien ses nouvelles permissions et modifiez le groupe si nécéssaire. 
 - La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
   Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le `WHERE`):
   ```sql
@@ -330,4 +329,8 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 
 **Aprés la migration**
 
-Par défaut la pagination est mise à 42 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. Pour le changer, il faut modifier la variable `ZDS_APP['content']['content_per_page']` dans le settings.py
+- Par défaut la pagination est mise à 42 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. Pour le changer, il faut modifier la variable `ZDS_APP['content']['content_per_page']` dans le settings_prod.py
+- De nouvelles permissions ont été créée automatiquement par Django, il est nécéssaire de les rajouter au groupe `staff`. Via l'interface d'administration, ajoutez au moins ces trois permissions :
+    - `tutorialv2 | Contenu | Can change Contenu` (`tutorialv2.change_publishablecontent`) pour le droit au staff d'accéder et de modifier les contenus
+    - `tutorialv2 | Validation | Can change Validation` (`tutorialv2.change_validation`) pour le droit au staff à valider des contenus
+    - `tutorialv2 | note sur un contenu | Can change note sur un contenu` (`tutorialv2.change_contentreaction`) pour le droit au staff à modérer les commentaires sur les contenus

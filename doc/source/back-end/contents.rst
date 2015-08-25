@@ -407,7 +407,7 @@ Le stockage *via* des dossiers
 Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre 
 (dont le nom est le *slug* du contenu), stocké dans l'endroit défini par la 
 variable ``ZDS_APP['content']['repo_path']``. Dans ce dossier se trouve le 
-fichier `manifest.json`.
+fichier ``manifest.json``.
 
 Pour chaque conteneur, un dossier est créé, contenant les éventuels fichiers 
 correspondant aux introduction, conclusion et différents extraits, ainsi que 
@@ -416,6 +416,17 @@ contenu tel que généré par ZdS en utilisant l'éditeur en ligne.
 
 Il est demandé de se conformer au maximum à cette structure pour éviter les 
 mauvaises surprises en cas d'édition externe (voir ci-dessous).
+
+Les permissions
+---------------
+
+Afin de gérer ce module, trois permissions peuvent être utilisées :
+
+- ``tutorialv2.change_publishablecontent`` : pour le droit d'accéder et de modifier les contenus même sans en être l'auteur ;
+- ``tutorialv2.change_validation`` : pour le droit à accéder à l'interface de validation, réserver, valider ou refuser des contenus ;
+- ``tutorialv2.change_contentreaction`` : pour le droit à modérer les commentaires sur les contenus une fois publiés (masquer, éditer, ...).
+
+Ces permissions doivent être accordées au administateurs/modérateurs/validateurs selon les besoins via l'interface d'administration de Django.
 
 Processus de publication
 ------------------------
@@ -448,7 +459,7 @@ deux cas se présentent :
 + L'utilisateur consulte un conteneur dont les enfants sont des extraits : le fichier HTML généré durant la mise en production est employé tel quel par le *template* correspondant, additionné de l'éventuelle possibilité de faire suivant/précédent (qui nécéssite la lecture du ``manifest.json``).
 
 Qu'en est-il des images ?
---------------------------------
+-------------------------
 
 Le versionning des images d'un contenu (celles qui font partie de la galerie 
 rattachée) continue à faire débat, et il a été décidé pour le moment de ne 
