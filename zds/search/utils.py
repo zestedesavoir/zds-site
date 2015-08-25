@@ -177,8 +177,7 @@ def reindex_content(published_content):
 
     # Load the manifest:
     if not published_content.have_zip():
-        raise Exception(
-            'Unable to index content with id {} due to the absence of ZIP file'.format(published_content.content_pk))
+        raise Exception('Unable to index content due to the absence of ZIP file')
 
     zip_path = os.path.join(
         published_content.get_extra_contents_directory(), published_content.content_public_slug + '.zip')
@@ -187,9 +186,7 @@ def reindex_content(published_content):
     try:
         manifest = get_file_content_in_zip(archive, 'manifest.json')
     except KeyError:
-        raise Exception(
-            'Unable to index content with id {} due to the absence of manifest in ZIP file'
-            .format(published_content.content_pk))
+        raise Exception('Unable to index content due to the absence of manifest in ZIP file')
 
     json_ = json_reader.loads(manifest)
     try:
@@ -197,8 +194,7 @@ def reindex_content(published_content):
     except BadManifestError as e:
         raise Exception(e.message)
     except Exception:
-        raise Exception('Unable to index content with id {} due to an error while opening manifest'
-                        .format(published_content.content_pk))
+        raise Exception('Unable to index content due to an error while opening manifest')
 
     published_content.content.insert_data_in_versioned(versioned)
 

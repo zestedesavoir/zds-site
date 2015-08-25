@@ -273,7 +273,7 @@ Cette commande permet de recopier les informations du contenu dans les tables sp
 
 Elle possède plusieurs options, vous pouvez les consulter en utilisant la commande ``python manage.py index_content -h`` ou en lisant directement le code source dans le fichier zds/search/management/commands/index_content.py.
 
-Si vous utilisez directement la commande ``python manage.py index_content`` sans argument, tous les objets ``SearchIndex*`` correspondant aux contenus (articles et tutoriels) sont suprpimés puis à nouveau recopiés dans les tables de recherche.
+Si vous utilisez directement la commande ``python manage.py index_content`` sans argument, tous les objets ``SearchIndex*`` correspondant aux contenus (articles et tutoriels) sont supprimés puis à nouveau recopiés dans les tables de recherche.
 
 La commande ``index_content`` peut recevoir des arguments : les *pk* correspondant aux ``PublishableContent``. Un exemple serais ``python manage.py index_content 1 2 12``: si vous préciser ces arguments, les informations des contenus 1, 2 et 12 seront recopiées dans les tables de recherche.
 

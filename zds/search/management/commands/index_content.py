@@ -46,17 +46,22 @@ class Command(BaseCommand):
         for content in query_set.all():
 
             try:
-                reindex_content(content)
 
-                self.stdout.write('Successfully copy content information with id {0} into database ({1})'
-                                  .format(content.content.id, content.content.title))
+                self.stdout.write('Copying content information with id {0} into database ({1})'
+                                  .format(content.content.id, content.content.title), ending='')
+
+                reindex_content(content)
 
             # Voluntary broad exception, in any case, we must stop the process.
             except:
+                self.stdout.write(' [FAIL]')
                 print_error()
+                continue
+
+            self.stdout.write(' [OK]')
 
 
 def print_error():
     exc_type, exc_value, exc_traceback = sys.exc_info()
-    to_display = repr(traceback.format_exception(exc_type, exc_value, exc_traceback))
-    sys.stderr.write('\n'.join(to_display))
+    to_display = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    sys.stdout.write('\n'.join(to_display))
