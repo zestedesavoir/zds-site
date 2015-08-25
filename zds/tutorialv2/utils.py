@@ -598,9 +598,6 @@ def publish_content(db_object, versioned, is_major_update=True):
             shell=True,
             cwd=extra_contents_path)
 
-    # 5. Copy markdown repo into extra-content
-    shutil.copytree(versioned.get_path(), extra_contents_path + "/" + versioned.slug, symlinks=False, ignore=None)
-
     # ok, now we can really publish the thing !
     is_update = False
 
@@ -1047,3 +1044,11 @@ def get_blob(tree, path):
         return None
     else:
         return None
+
+
+class BadArchiveError(Exception):
+    """ The exception that is raised when a bad archive is sent """
+    message = u''
+
+    def __init__(self, reason):
+        self.message = reason
