@@ -10,6 +10,8 @@ except ImportError:
     exit()
 
 import os
+from os.path import join as file_join
+from os.path import exists as file_exists
 import shutil
 import sys
 
@@ -350,6 +352,23 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         shutil.copytree(current.get_path(False), exported.get_repo_path(False))
         # now, re create the manifest.json
         versioned = exported.load_version()
+        # this loop is there because of old .tuto import that failed with their chapter intros
+        for container in versioned.traverse(True):
+            if container.parent is None:
+                continue
+            # in old .tuto file chapter intro are represented as chapter_slug/introduction.md
+            # instead of part_slug/chapter_slug/introduction.md
+            corrected_intro_path = file_join(container.get_path(relative=False),
+                                             "introduction.md")
+            corrected_ccl_path = file_join(container.get_path(relative=False),
+                                           "conclusion.md")
+            if container.get_path(True) not in container.introduction and file_exists(corrected_intro_path):
+                # need to use relative to get part_slug/chapter_slug/introduction.md
+                container.introduction = file_join(container.get_path(relative=True),
+                                                   "introduction.md")
+            if container.get_path(True) not in container.conclusion and file_exists(corrected_ccl_path):
+                container.conclusion = file_join(container.get_path(relative=True),
+                                                 "conclusion.md")
         versioned.licence = exported.licence
         exported.gallery = current.gallery
 
