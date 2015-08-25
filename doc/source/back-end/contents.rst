@@ -5,7 +5,7 @@ Les tutoriels et articles v2.0 (ZEP 12)
 Vocabulaire et définitions
 ==========================
 
-- **Contenu** (*content*): désigne, de manière générale, tout ce qui peut être produit et édité sur Zeste de Savoir, c'est-à-dire, à l'heure actuelle, un article ou un tutoriel. Tout contenu est rattaché un dossier qui lui est propre et dont l'organisation est explicitée plus bas. Ce dossier comporte des informations sur le contenu lui-même (*metadata* : un auteur, une description, une licence...) ainsi que des textes, agencés dans une arborescence bien précise.
+- **Contenu** (*content*): désigne, de manière générale, tout ce qui peut être produit et édité sur Zeste de Savoir, c'est-à-dire, à l'heure actuelle, un article ou un tutoriel. Tout contenu est rattaché à un dossier qui lui est propre et dont l'organisation est explicitée plus bas. Ce dossier comporte des informations sur le contenu lui-même (*metadata* : un auteur, une description, une licence...) ainsi que des textes, agencés dans une arborescence bien précise.
 - **Article** : contenu, généralement court, visant à faire découvrir un sujet plus qu'à l'expliquer au lecteur (introduit sans rentrer dans les détails) ou à fournir un état des lieux sur un point donné de manière concise (rapports de *release*, actualité...).
 - **Tutoriel** : contenu, en général plus long, ayant pour objectif d'enseigner un savoir-faire au lecteur.
 - **git**: système de gestion de versions employé (entre autres) par ZdS. Il permet de faire coexister différentes versions d'un contenu de manière simple et transparente pour l'auteur.
@@ -20,7 +20,7 @@ De la structure générale d'un contenu
 Des extraits
 ------------
 
-Un **extrait** est une unité de texte. Il possède un titre (*title*) et un 
+Un **extrait** est une unité de texte. Il possède un titre (*title*) et du 
 texte (*text*). Dans l'interface d'édition d'un tutoriel, un extrait est 
 désigné par le terme « section ».
 
@@ -29,7 +29,7 @@ Des conteneurs
 
 Un conteneur est une boîte ayant pour rôle de regrouper des éléments 
 sémantiquement proches. Il est caractérisé par son titre (*title*) et possède 
-une introduction (*introduction*) et une conclusion (*conclusion*), 
+une introduction (*introduction*) ainsi qu'une conclusion (*conclusion*), 
 possiblement vides. 
 
 Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux 
@@ -143,13 +143,13 @@ Tous les textes (introductions, conclusions et extraits) sont formatés en
 Markdown (dans la version étendue de ZdS).
 
 Conteneurs et extraits sont des **objets** (*object*). Dès lors, ils possèdent 
-tous deux un *slug* (litéralement, « limace ») : il s'agit d'une chaîne de 
+tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de 
 caractères générée à partir du titre de l'objet et qui, tout en restant lisible 
 par un être humain, le simplifie considérablement. Un *slug* est uniquement 
 composé de caractères alphanumériques minuscules et non-accentués 
 (``[a-z0-9]*``) ainsi que des caractères ``-`` (tiret) et ``_`` (*underscore*). 
 Ce *slug* a deux utilités : il est employé dans l'URL permettant de consulter 
-l'objet depuis le site Web et dans le nom de fichier/dossier employé pour le 
+l'objet depuis le site Web et dans le nom des fichiers ou dossiers employés pour le 
 stocker (détails plus bas). Dès lors, cette spécification **impose** que ce 
 *slug* soit unique au sein du conteneur parent, et que le *slug* du contenu 
 soit unique au sein de tous les contenus de ZdS.
@@ -223,7 +223,8 @@ L'envoi en validation n'est pas définitif, dans le sens où vous pouvez à tout
 moment mettre à jour la version en cours de validation. Évitez d'en abuser tout 
 de même, car, si un validateur commence à lire votre tutoriel, il devra 
 recommencer son travail si vous faites une mise à jour dessus. Cela pourrait non 
-seulement ralentir le processus de validation de votre tutoriel, mais aussi 
+seulement ralentir le processus de validation de votre tutoriel, mais aussi ceux 
+autres tutoriels !
 
 Comme pour la bêta, la version brouillon du tutoriel peut continuer à être 
 améliorée pendant que la version de validation reste figée. Auteurs et validateurs 
@@ -237,7 +238,7 @@ Une fois que le contenu est passé en validation et a satisfait les critères
 validation peut être assez long. De plus, un historique de validation est 
 disponible pour les validateurs.
 
-La publication d'un contenu entraîne la création d'export en plusieurs formats :
+La publication d'un contenu entraîne l'exportation du contenu en plusieurs formats :
 
 - Markdown : disponible uniquement pour les membres du staff et les auteurs du contenu
 - HTML
@@ -249,7 +250,7 @@ Pour différentes raisons, il se peut que l'export dans divers formats échoue.
 Dans ce cas, le lien de téléchargement n'est pas présenté. Un fichier de log 
 sur le serveur enregistre les problèmes liés à l'export d'un format.
 
-Aujourd'hui, il existe des bugs dans la conversion en PDF (blocs custom), 
+Aujourd'hui, il existe des bugs dans la conversion en PDF (notamment les blocs spécifiques à ZdS), 
 qui devraient être réglés plus tard avec la 
 `ZEP-05 <http://zestedesavoir.com/forums/sujet/676/zep-05-refonte-du-traitement-markdown-pour-lexport>`__)
 
@@ -271,7 +272,7 @@ faire aisément une demande d'aide pour les raisons suivantes
 - Désir d'abandonner le contenu et recherche d'un repreneur
 
 L'ensemble des contenus à la recherche d'aide est visible via la page 
-"/contenus/aides/". Cette page génère un tableau récapitulatif de toutes les 
+``/contenus/aides/``. Cette page génère un tableau récapitulatif de toutes les 
 demandes d'aides pour les différents contenus et des filtres peuvent être 
 appliqués.
 
@@ -311,7 +312,7 @@ que vous souhaitez importer les modifications.
 
 Il suffit de faire une archive zip du répertoire
 dans lequel se trouvent les fichiers de votre contenu, puis de vous rendre soit sur
-"importer un nouveau contenu", soit sur "Importer une nouvelle version" dans n'importe quel contenu
+"Importer un nouveau contenu", soit sur "Importer une nouvelle version" dans n'importe quel contenu
 et de renseigner les champs relatifs à l'import d'une archive, puis de cliquer sur "Importer".
 
     .. figure:: ../images/tutorial/import-archive.png
@@ -326,17 +327,17 @@ Import d'image
 directement intégrée à votre contenu, vous devez écrire les liens vers cette image sous la
 forme ``![légende](archive:image.extension)``, puis créer une archive contenant toutes celles-ci.
 Le système se chargera alors d'importer les images dans la gallerie correspondante, puis de remplacer
-les liens quand c'est nécéssaire. Ainsi,
+les liens quand c'est nécessaire. Ainsi,
 
 .. sourcecode:: text
 
-    Voici ma belle image: ![Mon image](archive:image.png)
+    Voici ma belle image : ![Mon image](archive:image.png)
 
 Sera remplacé en
 
 .. sourcecode:: text
 
-    Voici ma belle image: ![Mon image](/media/galleries/xx/yyyyyy.png)
+    Voici ma belle image : ![Mon image](/media/galleries/xx/yyyyyy.png)
 
 À condition que ``image.png`` soit présent dans l'archive (à sa racine) et soit une image valide.
 
@@ -371,7 +372,7 @@ suivante :
 + Les catégories auxquelles appartient le contenu ;
 + La miniature ;
 + L'origine du contenu, s'il n'a pas été créé sur ZdS mais importé avec une licence compatible ;
-+ La présence ou pas de JSFiddle dans le contenu ;
++ L'utilisation ou pas de JSFiddle dans le contenu ;
 + Différentes informations temporelles : date de création (``creation_date``), de publication (``pubdate``) et de dernière modification (``update_date``)
 + La galerie ;
 + Le sujet de la bêta, s'il existe.
@@ -396,7 +397,7 @@ employer pour résoudre une URL ou à travers une template correspondant
 Les métadonnées versionnées sont stockées dans le fichier ``manifest.json``. Ce 
 dernier est rattaché à une version du contenu par le truchement de git.
 
-À la publication du contenu, un objet PublishedContent est créé, reprenant 
+À la publication du contenu, un objet ``PublishedContent`` est créé, reprenant 
 les informations importantes de cette version. C'est alors cet objet qui est 
 utilisé pour résoudre les URLs. C'est également lui qui se cache derrière le 
 mécanisme de redirection si, entre deux versions, le *slug* du contenu change.
@@ -432,21 +433,21 @@ Processus de publication
 ------------------------
 
 Apès avoir passé les étapes de validation, le contenu est près à être publié. 
-Cette action est effectuée par un membre du STAFF. Le but de la publication 
+Cette action est effectuée par un membre du Staff. Le but de la publication 
 est double : permettre aux visiteurs de consulter le contenu, mais aussi 
 d’effectuer certains traitements (détaillés ci-après) afin que celui-ci soit 
 sous une forme qui soit plus rapidement affichable par ZdS. C’est pourquoi ces 
 contenus ne sont pas stockés au même endroit (voir 
 ``ZDS_AP['content']['repo_public_path']``) que les brouillons.
 
-La mise en production se passe comme suit :
+La publication se passe comme suit :
 
 1. Un dossier temporaire est créé, afin de ne pas affecter la version publique précédente, si elle existe. Ce dossier est nommé ``{slug}__build``;
 2. Le code *markdown* est converti en HTML afin de gagner du temps à l'affichage. Pour chaque conteneur, deux cas se présentent : 
     * Si celui-ci contient des extraits, ils sont tous rassemblés dans un seul fichier HTML, avec l'introduction et la conclusion ;
     * Dans le cas contraire, l'introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le *manifest* sont mis à jour.
 3. Le *manifest* correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
-4. L'export vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `pandoc (en) <http://pandoc.org/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images que contient le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
+4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `pandoc (en) <http://pandoc.org/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
 5. Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l'ancienne version publiée. Un objet ``PublishedContent`` est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l'affichage dans la liste des contenus publiés. Le ``sha_public`` est mis à jour dans la base de données et l'objet ``Validation`` est changé de même.
 
 Consultation d'un contenu publié
@@ -456,12 +457,12 @@ On n'utilise pas git pour afficher la version publiée d'un contenu. Dès lors,
 deux cas se présentent :
 
 + L'utilisateur consulte un conteneur dont les enfants sont eux-mêmes des conteneurs (c'est-à-dire le conteneur principal ou une partie d'un big-tutoriel) : le ``manifest.json`` est employé pour générer le sommaire, comme c'est le cas actuellement. L'introduction et la conclusion sont également affichées.
-+ L'utilisateur consulte un conteneur dont les enfants sont des extraits : le fichier HTML généré durant la mise en production est employé tel quel par le *template* correspondant, additionné de l'éventuelle possibilité de faire suivant/précédent (qui nécéssite la lecture du ``manifest.json``).
++ L'utilisateur consulte un conteneur dont les enfants sont des extraits : le fichier HTML généré durant la publication est employé tel quel par le gabarit correspondant, additionné de l'éventuelle possibilité de faire suivant/précédent (qui nécessite la lecture du ``manifest.json``).
 
 Qu'en est-il des images ?
 -------------------------
 
-Le versionning des images d'un contenu (celles qui font partie de la galerie 
+Le versionnage des images d'un contenu (celles qui font partie de la galerie 
 rattachée) continue à faire débat, et il a été décidé pour le moment de ne 
 pas les versionner, pour des raisons simples :
 
@@ -485,8 +486,8 @@ Migrer une archive v1 vers une archive v2
 Le premier cas qu'il est possible de rencontrer est la présence d'une 
 archive *hors ligne* d'un tutoriel à la version 1.
 
-La migration de cette archive consistera alors à ne migrer que le fichier 
-de manifeste. En effet, la nouvelle architecture étant bien plus souple du 
+La migration de cette archive consistera alors à ne migrer que le *manifest*.
+En effet, la nouvelle architecture étant bien plus souple du 
 point de vue des nomenclatures, il ne sera pas nécessaire de l'adapter.
 
 Un outil intégré au code de ZdS a été mis en place. Il vous faudra alors :
