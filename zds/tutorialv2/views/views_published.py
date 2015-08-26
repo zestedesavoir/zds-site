@@ -34,7 +34,7 @@ class RedirectContentSEO(RedirectView):
 
     def get_redirect_url(self, **kwargs):
         """Redirects the user to the new url"""
-        obj = PublishableContent.objects.get(old_pk=int(kwargs["pk"]))
+        obj = PublishableContent.objects.get(old_pk=int(kwargs["pk"]), type="TUTORIAL")
         if obj is None or not obj.in_public():
             raise Http404("No public object has this pk.")
         kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
