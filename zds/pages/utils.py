@@ -44,5 +44,6 @@ def get_last_tutorials():
 
 
 def get_tutorials_count():
-    return PublishedContent.objects.filter(content_type="TUTORIAL")\
+    return PublishedContent.objects\
+        .filter(content_type="TUTORIAL", must_redirect=False)\
         .count()
