@@ -345,6 +345,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.image = current.image
         exported.description = current.description
         exported.js_support = current.js_support
+        exported.source = current.source
         exported.save()
         [exported.subcategory.add(category) for category in current.subcategory.all()]
         [exported.helps.add(help) for help in current.helps.all()]
