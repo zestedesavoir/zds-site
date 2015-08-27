@@ -626,6 +626,7 @@ class PromoteMemberForm(forms.Form):
 
 class KarmaForm(forms.Form):
     warning = forms.CharField(
+        label=_(u"Commentaire"),
         max_length=KarmaNote._meta.get_field('comment').max_length,
         widget=forms.TextInput(
             attrs={
