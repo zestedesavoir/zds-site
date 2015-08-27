@@ -262,9 +262,6 @@ def reindex_content(published_content):
     search_index_content.type = published_content.content_type.lower()
     search_index_content.save()
 
-    search_index_content.type = published_content.content_type.lower()
-    search_index_content.save()
-
     # Also index children
     index_content(versioned, search_index_content, archive)
 
