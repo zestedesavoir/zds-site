@@ -60,7 +60,7 @@
                     <h3>{% trans "Télécharger" %}</h3>
                     <ul>
                         {% if public_object %}
-                            {% if is_staff %}
+                            {% if is_staff or is_author %}
                                 {% if public_object.have_md %}
                                     <li>
                                         <a href="{{ public_object.get_absolute_url_md }}" class="ico-after download blue">
