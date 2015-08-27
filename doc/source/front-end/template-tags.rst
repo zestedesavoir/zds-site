@@ -520,7 +520,7 @@ Le module ``target_tree``
 =========================
 
 Ce module défini un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
-des déplacements possibles d'un élément. Il s'agint d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
+des déplacements possibles d'un élément. Il s'agit d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
 
 Exemple :
 

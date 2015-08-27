@@ -301,8 +301,6 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 
 **Migrations des dépendences, de la base de données et des contenus**
 
-- De nouvelles dépendances ont été ajoutées (*beautifulsoup4*, *uuslug*). Pour installer ces nouvelles dépendences, utilisez la commande  `pip install -r requirements.txt`.
-- La base de données a été modifiée (ajout de nouvelles tables pour les contenus, ainsi que des tables pour la recherche). Pour installer ces nouvelles tables, utilisez la commande `python manage.py migrate`.
 - La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
   Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le `WHERE`):
   ```sql
@@ -312,24 +310,24 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
   ```bash
   DB="dbname";USER="dbusername";PASS="dbusername";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
   ```
-- La génération des PDF par Pandoc, peut-être très longue, il est fortement conseillé de désactiver temporairement la génération de PDF . Pour cela, dans le fichier settings_prod.py, passer la variable `ZDS_APP['content']['build_pdf_when_published']` à `False`.
+- La génération des PDF par Pandoc, peut-être très longue, il est fortement conseillé de désactiver temporairement la génération de PDF . Pour cela, dans le fichier settings_prod.py, passer la variable `ZDS_APP['content']['build_pdf_when_published']` à `False`. Il est nécessaire de relancer Django pour que ce paramètre soit pris en compte.
 - Il faut maintenant migrer tous les contenus, pour cela utiliser la commande `python manage.py migrate_to_zep12`. Cette commande peut prendre plusieurs minutes.
 - Lancer la génération des PDF avec la commande: `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activé le log de Pandoc.
-- Repasser la variable `ZDS_APP['content']['build_pdf_when_published']` à `True`.
+- Repasser la variable `ZDS_APP['content']['build_pdf_when_published']` à `True`. Il est nécessaire de relancer Django pour que ce paramètre soit pris en compte.
 
 **Migrations du module de recherche**
 
-- Arrêter Solr : `supervisorctl stop solr`
+- Arrêter Solr : `systemctl stop solr` (remplacer `solr` par le nom exact du service)
 - Regénérer le schema.xml avec la commande: `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
 - Recopier les dépots markdown dans le contenu public: `python manage.py index_content --copy-repository`
 - Changer la tache cron qui perment d'indexer les contenus de: `python manage.py update_index` à `python manage.py index_content --only-flagged >> /var/log/indexation.txt && python manage.py update_index >> /var/log/indexation.txt`
 - Créé une autre tache cron pour supprimer réguliérement le fichier de log /var/log/indexation.txt.
-- Démarrer Solr : `supervisorctl start solr`
+- Démarrer Solr : `systemctl start solr`
 - Indexer le contenu avec Solr: `python manage.py rebuild_index`. Attention, cette commande peut prendre plusieurs minutes.
 
-**Aprés la migration**
+**Après la migration**
 
-- Par défaut la pagination est mise à 42 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. Pour le changer, il faut modifier la variable `ZDS_APP['content']['content_per_page']` dans le settings_prod.py
+- Par défaut la pagination est mise à 42 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. Pour le changer, il faut modifier la variable `ZDS_APP['content']['content_per_page']` dans le settings_prod.py. Il est nécessaire de relancer Django pour que ce paramètre soit pris en compte.
 - De nouvelles permissions ont été créée automatiquement par Django, il est nécéssaire de les rajouter au groupe `staff`. Via l'interface d'administration, ajoutez au moins ces trois permissions :
     - `tutorialv2 | Contenu | Can change Contenu` (`tutorialv2.change_publishablecontent`) pour le droit au staff d'accéder et de modifier les contenus
     - `tutorialv2 | Validation | Can change Validation` (`tutorialv2.change_validation`) pour le droit au staff à valider des contenus
