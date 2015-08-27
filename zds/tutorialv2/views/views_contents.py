@@ -1242,9 +1242,10 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         # topic of the beta version:
         topic = self.object.beta_topic
 
-        if topic.forum_id != settings.ZDS_APP['forum']['beta_forum_id']:
-            # if the topic is moved from the beta forum, then a new one is created instead
-            topic = None
+        if topic:
+            if topic.forum_id != settings.ZDS_APP['forum']['beta_forum_id']:
+                # if the topic is moved from the beta forum, then a new one is created instead
+                topic = None
 
         _type = self.object.type.lower()
         if _type == "tutorial":
