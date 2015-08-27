@@ -34,11 +34,14 @@ class SingleContentViewMixin(object):
         - Check if its the beta or public version, and allow access if it's the case. Raise ``PermissionDenied``.
         - Check slug if ``self.kwargs['slug']`` is defined. Raise ``Http404`` if any.
 
+    3. In ``get_public_object()``, fetch the last published version, if any
+
     Any redefinition of any of these two functions should take care of those points.
     """
 
     object = None
     versioned_object = None
+    public_content_object = None
 
     prefetch_all = True
     sha = None
@@ -124,6 +127,12 @@ class SingleContentViewMixin(object):
 
         return versioned
 
+    def get_public_object(self):
+        """Get the published version, if any
+        """
+
+        return PublishedContent.objects.filter(content_pk=self.object.pk, must_redirect=False).last()
+
 
 class SingleContentPostMixin(SingleContentViewMixin):
     """
@@ -183,6 +192,7 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
+        self.public_content_object = self.get_public_object()
 
         return super(SingleContentFormViewMixin, self).dispatch(request, *args, **kwargs)
 
@@ -217,6 +227,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
                 self.sha = self.object.sha_draft
 
         self.versioned_object = self.get_versioned_object()
+        self.public_content_object = self.get_public_object()
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)

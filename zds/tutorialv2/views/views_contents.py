@@ -185,6 +185,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         self.get_forms(context)
 
         context['gallery'] = self.object.gallery
+        context['public_content_object'] = self.public_content_object
 
         return context
 
