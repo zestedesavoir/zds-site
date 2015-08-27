@@ -22,7 +22,7 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
-from django.views.generic import FormView, DeleteView
+from django.views.generic import FormView, DeleteView, RedirectView
 from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 import os
@@ -47,6 +47,19 @@ from zds.forum.models import Topic, TopicFollowed, follow, mark_read
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
+
+
+class RedirectOldBetaTuto(RedirectView):
+    """
+    allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug
+    """
+    permanent = True
+
+    def get_redirect_url(self, **kwargs):
+        tutorial = PublishableContent.objects.filter(type="TUTORIAL", old_pk=kwargs["pk"]).first()
+        if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == "":
+            raise Http404("No beta content has this old pk")
+        return tutorial.get_absolute_url_beta()
 
 
 class CreateContent(LoggedWithReadWriteHability, FormView):
