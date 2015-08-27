@@ -265,8 +265,10 @@ class LastArticlesFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
-            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 
