@@ -500,7 +500,7 @@ Exemple :
 
 .. attention::
 
-    le templatetag ``feminize`` est internationalisé.
+    le templatetag ``feminize`` est internationalisé. Il est également **sensible à la casse**.
 
 Le module ``times``
 ===================
