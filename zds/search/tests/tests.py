@@ -140,7 +140,7 @@ class TryToIndexTutorialTests(TestCase):
                 self.assertEqual(content.authors.count(), 1)
 
     def test_filter_keyword(self):
-        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><i>Keyword italic</i>"
+        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>"
 
         keywords = filter_keyword(html)
 
@@ -150,7 +150,7 @@ class TryToIndexTutorialTests(TestCase):
         self.assertIn('Keyword italic', keywords)
 
     def test_filter_text(self):
-        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><i>Keyword italic</i>"
+        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>"
 
         words = filter_text(html)
 

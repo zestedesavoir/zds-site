@@ -37,7 +37,7 @@ def filter_keyword(html):
     bs = BeautifulSoup(html)
 
     keywords = u''
-    for tag in bs.findAll(['h1', 'h2', 'h3', 'i', 'strong']):
+    for tag in bs.findAll(['h1', 'h2', 'h3', 'em', 'strong']):
         keywords += u' ' + tag.text
 
     return keywords
