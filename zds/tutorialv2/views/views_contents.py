@@ -1226,7 +1226,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     model = PublishableContent
     form_class = BetaForm
-    authorized_for_staff = False
+    authorized_for_staff = True
     only_draft_version = False
 
     action = None
@@ -1241,6 +1241,11 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
         # topic of the beta version:
         topic = self.object.beta_topic
+
+        if topic.forum_id != settings.ZDS_APP['forum']['beta_forum_id']:
+            # if the topic is moved from the beta forum, then a new one is created instead
+            topic = None
+
         _type = self.object.type.lower()
         if _type == "tutorial":
             _type = _('tutoriel')
