@@ -1,14 +1,13 @@
 # coding: utf-8
 
 import os
+import shutil
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-
-from shutil import rmtree
 
 from zds.settings import BASE_DIR
 from zds.forum.models import TopicFollowed
@@ -897,11 +896,9 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 405)
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
-            rmtree(settings.ZDS_APP['tutorial']['repo_path'])
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
-            rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
-        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
-            rmtree(settings.ZDS_APP['article']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
-            rmtree(settings.MEDIA_ROOT)
+            shutil.rmtree(settings.MEDIA_ROOT)

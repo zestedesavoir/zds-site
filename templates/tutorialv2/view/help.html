@@ -106,7 +106,7 @@
                             </a>
                         {% else %}
                             <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}Hors-ligne{% endblocktrans %}"
-                            title="{% blocktrans %}Tutoriel jamais publié{% endblocktrans %}" class="light" />
+                            title="{% if content.is_article %} {% trans "Article" %}{% else %}{% trans "Tutoriel" %}{% endif %}{% trans " jamais publié" %}" class="light" />
                         {% endif %}
 
                         {% if content.in_beta %}

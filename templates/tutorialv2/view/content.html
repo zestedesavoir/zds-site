@@ -311,6 +311,15 @@
             </li>
         {% endif %}
 
+        {% if public_content_object %}
+            <li>
+                <a href="{{ public_content_object.get_absolute_url_online }}" class="ico-after online blue">
+                    {% trans "Voir la version en ligne" %}
+                </a>
+            </li>
+        {% endif %}
+
+
         <li>
             <a href="{% url "content:history" content.pk content.slug %}" class="ico-after history blue">
                 {% trans "Historique des versions" %}

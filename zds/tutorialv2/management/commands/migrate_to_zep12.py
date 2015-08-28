@@ -14,8 +14,10 @@ from os.path import join as file_join
 from os.path import exists as file_exists
 import shutil
 import sys
+from bs4 import BeautifulSoup as bs
 
 from zds.forum.models import Topic
+from zds.utils.templatetags.emarkdown import emarkdown_inline
 
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent,\
     Validation
@@ -167,6 +169,7 @@ def split_article_in_extracts(article):
                     title_level += 1
 
             title_content = line[title_level:].strip()  # get text right after the `#`
+            title_content = bs(emarkdown_inline(title_content)).getText()  # remove markdown formatting !
 
             if title_level == 1 and title_content != '':
                 extracts.append((extract_title, extract_text))

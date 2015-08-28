@@ -6,7 +6,7 @@ MODEL_NAMES = [('sujets', 'Sujets du forum'),
                ('tutorial', 'Tutoriels'),
                ('parts', 'Parties des tutoriels'),
                ('chapters', 'Chapitres des tutoriels'),
-               ('extracts', 'Extraits des tutoriels')]
+               ('extracts', 'Sections des tutoriels')]
 
 
 def model_topic():

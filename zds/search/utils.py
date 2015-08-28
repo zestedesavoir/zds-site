@@ -37,7 +37,7 @@ def filter_keyword(html):
     bs = BeautifulSoup(html)
 
     keywords = u''
-    for tag in bs.findAll(['h1', 'h2', 'h3', 'i', 'strong']):
+    for tag in bs.findAll(['h1', 'h2', 'h3', 'em', 'strong']):
         keywords += u' ' + tag.text
 
     return keywords
@@ -258,9 +258,6 @@ def reindex_content(published_content):
 
     if all_html != u'':
         search_index_content.keywords = filter_keyword(all_html)
-
-    search_index_content.type = published_content.content_type.lower()
-    search_index_content.save()
 
     search_index_content.type = published_content.content_type.lower()
     search_index_content.save()
