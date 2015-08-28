@@ -262,7 +262,7 @@ class ExtractForm(FormWithTitle):
 class ImportForm(forms.Form):
 
     file = forms.FileField(
-        label=_(u'Sélectionnez le tutoriel à importer.'),
+        label=_(u'Sélectionnez le contenu à importer.'),
         required=True
     )
     images = forms.FileField(
