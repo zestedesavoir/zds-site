@@ -663,6 +663,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 messages.error(self.request, e.message)
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
+
+                # warn user if licence have changed:
+                manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
+                if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
+                    messages.info(
+                        self.request, _(u'la licence « {} » a été appliquée'.format(new_version.licence.code)))
+
                 # first, update DB object (in order to get a new slug if needed)
                 self.object.title = new_version.title
                 self.object.description = new_version.description
@@ -762,6 +769,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 messages.error(self.request, _(e.message + u" n'est pas correctement renseigné."))
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
+
+                # warn user if licence have changed:
+                manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
+                if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
+                    messages.info(
+                        self.request, _(u'la licence « {} » a été appliquée'.format(new_content.licence.code)))
+
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
                 self.object.title = new_content.title

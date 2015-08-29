@@ -735,7 +735,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
 
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
-        else:
+
+        if 'licence' not in json or not versioned.licence:
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
 
         if 'introduction' in json:
@@ -768,7 +769,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
             versioned.conclusion = json["conclusion"]
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
-        else:
+
+        if 'licence' not in json or not versioned.licence:
             versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
 
         if _type == 'ARTICLE':
