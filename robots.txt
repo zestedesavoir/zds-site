@@ -12,3 +12,5 @@ Disallow: /tutoriels/md/
 Disallow: /articles/html/
 Disallow: /articles/zip/
 Disallow: /articles/md/
+Disallow: /oldtutoriels/
+Disallow: /oldarticles/
