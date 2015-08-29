@@ -212,7 +212,8 @@ def migrate_articles():
         exported.description = current.description
         exported.sha_draft = current.sha_draft
         exported.licence = current.licence
-        exported.js_support = current.js_support  # todo: check articles have js_support
+        exported.js_support = current.js_support
+        exported.pubdate = current.pubdate
 
         exported.save()  # before updating `ManyToMany` relation, we need to save !
 
@@ -272,8 +273,7 @@ def migrate_articles():
         exported.sha_draft = versioned.commit_changes(u'Migration version 2')
         exported.old_pk = current.pk
         exported.save()
-        # todo  : generate mapping
-        # todo: handle notes
+
         reacts = Reaction.objects.filter(article__pk=current.pk)\
                                  .select_related("author")\
                                  .order_by("pubdate")\
@@ -349,6 +349,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.description = current.description
         exported.js_support = current.js_support
         exported.source = current.source
+        exported.pubdate = current.pubdate
         exported.save()
         [exported.subcategory.add(category) for category in current.subcategory.all()]
         [exported.helps.add(help) for help in current.helps.all()]
