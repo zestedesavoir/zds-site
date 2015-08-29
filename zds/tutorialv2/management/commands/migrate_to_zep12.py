@@ -211,6 +211,7 @@ def migrate_articles():
         exported.creation_date = current.create_at
         exported.description = current.description
         exported.sha_draft = current.sha_draft
+        exported.sha_validation = current.sha_validation
         exported.licence = current.licence
         exported.js_support = current.js_support  # todo: check articles have js_support
 
@@ -342,6 +343,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.title = current.title
         exported.sha_draft = current.sha_draft
         exported.sha_beta = current.sha_beta
+        exported.sha_validation = current.sha_validation
         exported.licence = current.licence
         exported.update_date = current.update
         exported.creation_date = current.create_at
