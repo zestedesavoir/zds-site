@@ -95,11 +95,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
         context["user_like"] = CommentLike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
             context["user_can_modify"] = reaction_ids
