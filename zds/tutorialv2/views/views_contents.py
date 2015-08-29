@@ -1739,7 +1739,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         """
         if user in content.authors.all() and content.authors.count() > 1:
             gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=content.gallery.pk).first()
-            gallery.delete()
+
+            if gallery:
+                gallery.delete()
+
             content.authors.remove(user)
             return True
 
