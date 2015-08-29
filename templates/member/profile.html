@@ -339,7 +339,7 @@
                             </a>
                         </li>
                     {% endif %}
-                    {% if profile.user == user or perms.tutorial.change_tutorial %}
+                    {% if profile.user == user %}
                         {% if validate_tutos_count > 0 %}
                             <li>
                                 <a href="{% url "content:find-tutorial" usr.pk %}?filter=validation"
@@ -406,7 +406,7 @@
                             </a>
                         </li>
                      {% endif %}
-                    {% if profile.user == user  or perms.tutorial.change_tutorial %}
+                    {% if profile.user == user %}
                         {% if articles_validation_count > 0 %}
                             <li>
                                 <a href="{% url "content:find-article" usr.pk %}?filter=validation"
