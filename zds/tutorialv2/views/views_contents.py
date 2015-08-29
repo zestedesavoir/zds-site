@@ -491,9 +491,16 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             manifest = unicode(zip_archive.read('manifest.json'), 'utf-8')
         except KeyError:
             raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json.'))
+        except UnicodeDecodeError:
+            raise BadArchiveError(_(u'L\'encodage du manifest.json n\'est pas de l\'UTF-8'))
 
         # is the manifest ok ?
-        json_ = json_reader.loads(manifest)
+        try:
+            json_ = json_reader.loads(manifest)
+        except ValueError:
+            raise BadArchiveError(
+                _(u'Une erreur est survenue durant la lecture du manifest, '
+                  u'vérifiez qu\'il s\'agit de JSON correctement formaté'))
         try:
             versioned = get_content_from_json(json_, None, '')
         except BadManifestError as e:
@@ -530,15 +537,28 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 conclusion = ''
 
                 if child.introduction:
-                    introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                    try:
+                        introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                    except UnicodeDecodeError:
+                        raise BadArchiveError(
+                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.introduction)))
                 if child.conclusion:
-                    conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+                    try:
+                        conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+                    except UnicodeDecodeError:
+                        raise BadArchiveError(
+                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.conclusion)))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
 
             elif isinstance(child, Extract):
-                text = unicode(zip_file.read(child.text), 'utf-8')
+                try:
+                    text = unicode(zip_file.read(child.text), 'utf-8')
+                except UnicodeDecodeError:
+                    raise BadArchiveError(
+                        _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.text)))
+
                 copy_to.repo_add_extract(child.title, text, do_commit=False)
 
     @staticmethod
@@ -700,7 +720,12 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     new_version.title, new_version.slug, introduction, conclusion, do_commit=False)
 
                 # then do the dirty job:
-                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
+                try:
+                    UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
+                except BadArchiveError as e:
+                    versioned.repository.index.reset()
+                    messages.error(self.request, e.message)
+                    return super(UpdateContentWithArchive, self).form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
@@ -811,7 +836,12 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # copy all:
                 versioned = self.object.load_version()
-                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+                try:
+                    UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+                except BadArchiveError as e:
+                    self.object.delete()  # abort content creation
+                    messages.error(self.request, e.message)
+                    return super(CreateContentFromArchive, self).form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']

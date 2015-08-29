@@ -26,7 +26,7 @@ import os
 from uuslug import uuslug
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery
-from zds.tutorialv2.utils import get_content_from_json
+from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment
 from zds.utils.tutorials import get_blob
@@ -332,7 +332,12 @@ class PublishableContent(models.Model):
 
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
-            json = json_reader.loads(data)
+            try:
+                json = json_reader.loads(data)
+            except ValueError:
+                raise BadManifestError(
+                    _(u'Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
+
             versioned = get_content_from_json(json, sha, self.slug)
 
         self.insert_data_in_versioned(versioned)
