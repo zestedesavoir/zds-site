@@ -1768,15 +1768,13 @@ class ContentOfAuthor(ZdSPagingListView):
     sort = ''
     filter = ''
     user = None
-    is_staff = False
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
-        self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
-        if self.user != self.request.user and not self.is_staff and 'filter' in self.request.GET:
-            filter = self.request.GET.get('filter').lower()
-            if filter in self.authorized_filters:
-                if not self.authorized_filters[filter][2]:
+        if self.user != self.request.user and 'filter' in self.request.GET:
+            filter_ = self.request.GET.get('filter').lower()
+            if filter_ in self.authorized_filters:
+                if not self.authorized_filters[filter_][2]:
                     raise PermissionDenied
             else:
                 raise Http404("The filter is not authorized.")
@@ -1800,7 +1798,7 @@ class ContentOfAuthor(ZdSPagingListView):
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
                 raise Http404("The filter is not authorized.")
-        elif self.user != self.request.user and not self.is_staff:
+        elif self.user != self.request.user:
             self.filter = 'public'
         if self.filter != '':
             queryset = self.authorized_filters[self.filter][0](queryset)
@@ -1820,14 +1818,12 @@ class ContentOfAuthor(ZdSPagingListView):
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
 
-        context['is_staff'] = self.is_staff
-
         context['usr'] = self.user
         for sort in self.sorts.keys():
             context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
-        for filter in self.authorized_filters.keys():
-            authorized_filter = self.authorized_filters[filter]
-            if self.user != self.request.user and not self.is_staff and not authorized_filter[2]:
+        for filter_ in self.authorized_filters.keys():
+            authorized_filter = self.authorized_filters[filter_]
+            if self.user != self.request.user and not authorized_filter[2]:
                 continue
-            context['filters'].append({'key': filter, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
+            context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context
