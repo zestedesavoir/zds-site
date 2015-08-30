@@ -260,6 +260,10 @@ def migrate_articles():
         if clean_commit:
             exported.sha_draft = clean_commit
 
+            # save clean up in old module to avoid any trouble
+            current.sha_draft = clean_commit
+            current.save()
+
         [exported.authors.add(author) for author in current.authors.all()]
         [exported.subcategory.add(category) for category in current.subcategory.all()]
         new_gallery = create_gallery_for_article(exported)
@@ -402,6 +406,10 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
 
         if clean_commit:
             exported.sha_draft = clean_commit
+
+            # save clean up in old module to avoid any trouble
+            current.sha_draft = clean_commit
+            current.save()
 
         exported.gallery = current.gallery
         exported.image = current.image
