@@ -363,8 +363,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.reaction:  # it's an edition
             self.reaction.update = datetime.now()
 
-            if self.reaction.author != self.request.user:  # made by an admin
-                self.reaction.editor = self.request.user
+            self.reaction.editor = self.request.user
 
         else:
             self.reaction = ContentReaction()
