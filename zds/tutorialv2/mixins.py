@@ -355,7 +355,10 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
     def get_object(self):
 
-        return self.public_content_object.content
+        obj = self.public_content_object.content
+        if obj is None:
+            raise Http404("Online object not found")
+        return obj
 
     def get_versioned_object(self):
 
