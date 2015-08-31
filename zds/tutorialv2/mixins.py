@@ -57,14 +57,17 @@ class SingleContentViewMixin(object):
         """
 
         # fetch object:
-        if 'pk' in self.kwargs:
-            pk = self.kwargs['pk']
-        elif 'pk' in self.request.GET:
-            pk = self.request.GET['pk']
-        elif 'pk' in self.request.POST:
-            pk = self.request.POST['pk']
-        else:
-            raise Http404("Cannot find the 'pk' parameter.")
+        try:
+            if 'pk' in self.kwargs:
+                pk = int(self.kwargs['pk'])
+            elif 'pk' in self.request.GET:
+                pk = int(self.request.GET['pk'])
+            elif 'pk' in self.request.POST:
+                pk = int(self.request.POST['pk'])
+            else:
+                raise Http404("Cannot find the 'pk' parameter.")
+        except ValueError as badvalue:
+            raise Http404("The pk value '{}' is not a valid integer".format(badvalue))
 
         queryset = PublishableContent.objects
 
@@ -309,16 +312,17 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         return public_version.content.public_version.get_absolute_url_online()
 
     def get_public_object(self):
-
-        if 'pk' in self.kwargs:
-            pk = self.kwargs['pk']
-        elif 'pk' in self.request.GET:
-            pk = self.request.GET['pk']
-        elif 'pk' in self.request.POST:
-            pk = self.request.POST['pk']
-        else:
-            raise Http404("Cannot find the 'pk' parameter.")
-
+        try:
+            if 'pk' in self.kwargs:
+                pk = int(self.kwargs['pk'])
+            elif 'pk' in self.request.GET:
+                pk = int(self.request.GET['pk'])
+            elif 'pk' in self.request.POST:
+                pk = int(self.request.POST['pk'])
+            else:
+                raise Http404("Cannot find the 'pk' parameter.")
+        except ValueError as badvalue:
+            raise Http404("The pk value '{}' is not a valid integer".format(badvalue))
         queryset = PublishedContent.objects\
             .filter(content_pk=pk)\
             .prefetch_related('content')\
