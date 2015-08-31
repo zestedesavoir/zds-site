@@ -896,7 +896,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
-    authorized_for_staff = False
+    authorized_for_staff = True  # former behaviour
 
     def get_context_data(self, **kwargs):
         context = super(CreateContainer, self).get_context_data(**kwargs)
@@ -1075,7 +1075,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
-    authorized_for_staff = False
+    authorized_for_staff = True
 
     def get_context_data(self, **kwargs):
         context = super(CreateExtract, self).get_context_data(**kwargs)
