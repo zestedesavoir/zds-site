@@ -90,6 +90,8 @@
 
     {% endif %}
 
+    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
+
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
 
 {% endblock %}

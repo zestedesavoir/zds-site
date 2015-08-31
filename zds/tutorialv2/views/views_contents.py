@@ -491,9 +491,16 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             manifest = unicode(zip_archive.read('manifest.json'), 'utf-8')
         except KeyError:
             raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json.'))
+        except UnicodeDecodeError:
+            raise BadArchiveError(_(u'L\'encodage du manifest.json n\'est pas de l\'UTF-8'))
 
         # is the manifest ok ?
-        json_ = json_reader.loads(manifest)
+        try:
+            json_ = json_reader.loads(manifest)
+        except ValueError:
+            raise BadArchiveError(
+                _(u'Une erreur est survenue durant la lecture du manifest, '
+                  u'vérifiez qu\'il s\'agit de JSON correctement formaté'))
         try:
             versioned = get_content_from_json(json_, None, '')
         except BadManifestError as e:
@@ -530,15 +537,28 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 conclusion = ''
 
                 if child.introduction:
-                    introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                    try:
+                        introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                    except UnicodeDecodeError:
+                        raise BadArchiveError(
+                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.introduction)))
                 if child.conclusion:
-                    conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+                    try:
+                        conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+                    except UnicodeDecodeError:
+                        raise BadArchiveError(
+                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.conclusion)))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
 
             elif isinstance(child, Extract):
-                text = unicode(zip_file.read(child.text), 'utf-8')
+                try:
+                    text = unicode(zip_file.read(child.text), 'utf-8')
+                except UnicodeDecodeError:
+                    raise BadArchiveError(
+                        _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.text)))
+
                 copy_to.repo_add_extract(child.title, text, do_commit=False)
 
     @staticmethod
@@ -663,6 +683,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 messages.error(self.request, e.message)
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
+
+                # warn user if licence have changed:
+                manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
+                if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
+                    messages.info(
+                        self.request, _(u'la licence « {} » a été appliquée'.format(new_version.licence.code)))
+
                 # first, update DB object (in order to get a new slug if needed)
                 self.object.title = new_version.title
                 self.object.description = new_version.description
@@ -700,7 +727,12 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     new_version.title, new_version.slug, introduction, conclusion, do_commit=False)
 
                 # then do the dirty job:
-                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
+                try:
+                    UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
+                except BadArchiveError as e:
+                    versioned.repository.index.reset()
+                    messages.error(self.request, e.message)
+                    return super(UpdateContentWithArchive, self).form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
@@ -762,6 +794,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 messages.error(self.request, _(e.message + u" n'est pas correctement renseigné."))
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
+
+                # warn user if licence have changed:
+                manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
+                if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
+                    messages.info(
+                        self.request, _(u'la licence « {} » a été appliquée'.format(new_content.licence.code)))
+
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
                 self.object.title = new_content.title
@@ -811,7 +850,12 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # copy all:
                 versioned = self.object.load_version()
-                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+                try:
+                    UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+                except BadArchiveError as e:
+                    self.object.delete()  # abort content creation
+                    messages.error(self.request, e.message)
+                    return super(CreateContentFromArchive, self).form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
@@ -1695,7 +1739,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         """
         if user in content.authors.all() and content.authors.count() > 1:
             gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=content.gallery.pk).first()
-            gallery.delete()
+
+            if gallery:
+                gallery.delete()
+
             content.authors.remove(user)
             return True
 
@@ -1768,15 +1815,13 @@ class ContentOfAuthor(ZdSPagingListView):
     sort = ''
     filter = ''
     user = None
-    is_staff = False
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
-        self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
-        if self.user != self.request.user and not self.is_staff and 'filter' in self.request.GET:
-            filter = self.request.GET.get('filter').lower()
-            if filter in self.authorized_filters:
-                if not self.authorized_filters[filter][2]:
+        if self.user != self.request.user and 'filter' in self.request.GET:
+            filter_ = self.request.GET.get('filter').lower()
+            if filter_ in self.authorized_filters:
+                if not self.authorized_filters[filter_][2]:
                     raise PermissionDenied
             else:
                 raise Http404("The filter is not authorized.")
@@ -1800,7 +1845,7 @@ class ContentOfAuthor(ZdSPagingListView):
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
                 raise Http404("The filter is not authorized.")
-        elif self.user != self.request.user and not self.is_staff:
+        elif self.user != self.request.user:
             self.filter = 'public'
         if self.filter != '':
             queryset = self.authorized_filters[self.filter][0](queryset)
@@ -1820,14 +1865,12 @@ class ContentOfAuthor(ZdSPagingListView):
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
 
-        context['is_staff'] = self.is_staff
-
         context['usr'] = self.user
         for sort in self.sorts.keys():
             context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
-        for filter in self.authorized_filters.keys():
-            authorized_filter = self.authorized_filters[filter]
-            if self.user != self.request.user and not self.is_staff and not authorized_filter[2]:
+        for filter_ in self.authorized_filters.keys():
+            authorized_filter = self.authorized_filters[filter_]
+            if self.user != self.request.user and not authorized_filter[2]:
                 continue
-            context['filters'].append({'key': filter, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
+            context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context

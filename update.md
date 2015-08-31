@@ -319,7 +319,7 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 
 - Arrêter Solr : `systemctl stop solr` (remplacer `solr` par le nom exact du service)
 - Regénérer le schema.xml avec la commande: `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
-- Recopier les dépots markdown dans le contenu public: `python manage.py index_content --copy-repository`
+- Insérer les données pour la recherche dans la BDD : `python manage.py index_content`
 - Changer la tache cron qui perment d'indexer les contenus de: `python manage.py update_index` à `python manage.py index_content --only-flagged >> /var/log/indexation.txt && python manage.py update_index >> /var/log/indexation.txt`
 - Créé une autre tache cron pour supprimer réguliérement le fichier de log /var/log/indexation.txt.
 - Démarrer Solr : `systemctl start solr`

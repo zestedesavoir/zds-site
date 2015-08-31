@@ -206,7 +206,7 @@ class ContentForm(ContainerForm):
                    u"Si vous avez besoin d'un coup de main,"
                    u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
                    u"et votre tutoriel apparaîtra alors sur <a href="
-                   u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
+                   u"\"{% url \"content:helps\" %}\" "
                    u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
             Field('helps'),
             Field('msg_commit'),
@@ -262,7 +262,7 @@ class ExtractForm(FormWithTitle):
 class ImportForm(forms.Form):
 
     file = forms.FileField(
-        label=_(u'Sélectionnez le tutoriel à importer.'),
+        label=_(u'Sélectionnez le contenu à importer.'),
         required=True
     )
     images = forms.FileField(

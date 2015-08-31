@@ -60,6 +60,8 @@ class ContentTests(TestCase):
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
 
+        settings.ZDS_APP['content']['default_licence_pk'] = self.licence.pk
+
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
@@ -1589,11 +1591,10 @@ class ContentTests(TestCase):
             True)
 
         # create an article
-        article = PublishableContentFactory(type='ARTICLE')
+        article = PublishableContentFactory(type='ARTICLE', licence=self.licence)
 
         article.authors.add(self.user_author)
         UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
-        article.licence = self.licence
         article.save()
 
         article_draft = article.load_version()
@@ -4503,7 +4504,7 @@ class PublishedContentTests(TestCase):
         )
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
-        self.assertEqual(len(contents), 3)  # 3 tutorials by user_author !
+        self.assertEqual(len(contents), 1)  # 1 published tutorial by user_author !
 
         # staff can use all filters without a 403 !
 
@@ -4512,14 +4513,14 @@ class PublishedContentTests(TestCase):
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
             follow=False
         )
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         # test redaction filter:
         response = self.client.get(
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
             follow=False
         )
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         # test beta filter:
         response = self.client.get(
@@ -4533,7 +4534,7 @@ class PublishedContentTests(TestCase):
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
             follow=False
         )
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_last_reactions(self):
         """Test and ensure the behavior of last_read_note() and first_unread_note().

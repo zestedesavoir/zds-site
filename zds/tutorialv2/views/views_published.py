@@ -77,7 +77,33 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(related_content=self.object)\
             .order_by("pubdate")
 
-        # pagination:
+        # pagination of articles
+        context['paginate_articles'] = False
+
+        if self.object.type == 'ARTICLE':
+            # fetch all articles in order to find the previous and the next one
+            all_articles = \
+                [a for a in PublishedContent.objects
+                    .filter(content_type="ARTICLE", must_redirect=False)
+                    .order_by('-publication_date')
+                    .all()]
+            articles_count = len(all_articles)
+
+            try:
+                position = all_articles.index(self.public_content_object)
+            except ValueError:
+                pass  # for an unknown reason, the article is not in the list. This should not happen
+            else:
+                context['paginate_articles'] = True
+                context['previous_article'] = None
+                context['next_article'] = None
+
+                if position > 0:
+                    context['previous_article'] = all_articles[position - 1]
+                if position < articles_count - 1:
+                    context['next_article'] = all_articles[position + 1]
+
+        # pagination of comments
         make_pagination(context,
                         self.request,
                         queryset_reactions,
@@ -95,11 +121,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
         context["user_like"] = CommentLike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
             context["user_can_modify"] = reaction_ids

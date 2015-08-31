@@ -261,7 +261,6 @@ class Container:
             extract.position_in_parent = self.get_last_child_position() + 1
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
-            extract.text = extract.get_path(True)
         else:
             raise InvalidOperationError(_(u"Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
 
