@@ -83,7 +83,10 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         if self.object.type == 'ARTICLE':
             # fetch all articles in order to find the previous and the next one
             all_articles = \
-                [a for a in PublishedContent.objects.filter(content_type="ARTICLE", must_redirect=False).all()]
+                [a for a in PublishedContent.objects
+                    .filter(content_type="ARTICLE", must_redirect=False)
+                    .order_by('-publication_date')
+                    .all()]
             articles_count = len(all_articles)
 
             try:
