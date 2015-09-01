@@ -4263,6 +4263,36 @@ class PublishedContentTests(TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
+
+        # test that edition of a comment with an alert by an admin also solve the alert
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:alert-reaction', args=[reaction.pk]),
+            {
+                "signal_text": 'No. Try not. Do... or do not. There is no try.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNotNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:update-reaction') + "?message={}&pk={}".format(reaction.pk, self.tuto.pk),
+            {
+                "text": 'Much to learn, you still have.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
 
     def test_warn_typo_without_accessible_author(self):
 
