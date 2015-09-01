@@ -220,6 +220,18 @@ class ContentForm(ContainerForm):
                 Field,
                 disabled=True)
 
+    def clean(self):
+        cleaned_data = super(ContentForm, self).clean()
+
+        image = cleaned_data.get('image')
+
+        if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
+            self._errors['image'] = self.error_class(
+                [_(u'Votre logo est trop lourd, la limite autorisée est de {} Ko')
+                 .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
+
+        return cleaned_data
+
 
 class ExtractForm(FormWithTitle):
 
