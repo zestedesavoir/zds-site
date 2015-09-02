@@ -27,6 +27,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     permissions = ["tutorialv2.change_validation"]
     context_object_name = "validations"
     template_name = "tutorialv2/validation/index.html"
+    subcategory = None
 
     def get_queryset(self):
 
@@ -63,20 +64,19 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
         # filtering by category
         try:
-            category = get_object_or_404(SubCategory, pk=self.request.GET["subcategory"])
-            queryset = queryset.filter(content__subcategory__in=[category])
+            category_pk = int(self.request.GET["subcategory"])
+            self.subcategory = get_object_or_404(SubCategory, pk=category_pk)
+            queryset = queryset.filter(content__subcategory__in=[self.subcategory])
         except KeyError:
             pass
+        except ValueError:
+            raise Http404("Invalid format for subcategory parameter")
 
         return queryset.order_by("date_proposition").all()
 
     def get_context_data(self, **kwargs):
         context = super(ValidationListView, self).get_context_data(**kwargs)
-
-        if 'subcategory' in self.request.GET:
-            context['category'] = get_object_or_404(SubCategory, pk=self.request.GET["subcategory"])
-            # TODO : two times the same request, here
-
+        context['category'] = self.subcategory
         return context
 
 
