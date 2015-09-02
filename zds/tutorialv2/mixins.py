@@ -351,6 +351,8 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         self.is_author = self.request.user in obj.content.authors.all()
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
 
+        self.current_content_type = obj.content_type
+
         return obj
 
     def get_object(self):
