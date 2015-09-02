@@ -452,7 +452,7 @@ class NoteForm(forms.Form):
 
         )
 
-        if content.antispam:
+        if content.antispam():
             if not reaction:
                 self.helper['text'].wrap(
                     Field,
