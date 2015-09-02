@@ -1,6 +1,7 @@
 # coding: utf-8
 from django import forms
 from django.conf import settings
+from uuslug import slugify
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -37,6 +38,9 @@ class FormWithTitle(forms.Form):
                 [_(u'Le champ du titre ne peut être vide.')])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
+
+        if slugify(title) == '':
+            self._errors['title'] = self.error_class([_(u'Ce titre n\'est pas autorisé, son slug est vide !')])
 
         return cleaned_data
 
@@ -222,7 +226,6 @@ class ContentForm(ContainerForm):
 
     def clean(self):
         cleaned_data = super(ContentForm, self).clean()
-
         image = cleaned_data.get('image')
 
         if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
