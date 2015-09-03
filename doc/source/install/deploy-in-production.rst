@@ -13,7 +13,7 @@ Paramètres généraux
 +------------------------+----------------------------+
 | Paramètre              | Valeur                     |
 +========================+============================+
-| OS                     | Linux, Debian 7 "Wheezy"   |
+| OS                     | Linux, Debian 8 "Jessie"   |
 +------------------------+----------------------------+
 | Serveurs web           | Nginx                      |
 +------------------------+----------------------------+
@@ -21,7 +21,7 @@ Paramètres généraux
 +------------------------+----------------------------+
 | SGBD                   | MySQL                      |
 +------------------------+----------------------------+
-| Contrôle des process   | Supervisor                 |
+| Contrôle des process   | systemd                    |
 +------------------------+----------------------------+
 | Surveillance           | Munin                      |
 +------------------------+----------------------------+
@@ -34,9 +34,9 @@ Paramètres spécifiques
 +================+=============================+=============================+
 | Nom            | beta.zestedesavoir.com      | zestedesavoir.com           |
 +----------------+-----------------------------+-----------------------------+
-| IPv4           | ``46.105.246.77``           | ``176.31.187.88``           |
+| IPv4           | ``46.105.246.77``           | ``149.202.54.142``          |
 +----------------+-----------------------------+-----------------------------+
-| IPv6           | x                           | ``2001:41d0:52:100::b4f``   |
+| IPv6           | x                           | Pas encore disponible…      |
 +----------------+-----------------------------+-----------------------------+
 | Identifiant    | *Demande privée*            | *Demande privée*            |
 +----------------+-----------------------------+-----------------------------+
@@ -108,39 +108,20 @@ Gunicorn
 
 Installer Gunicorn dans le virtualenv.
 
-Dans ``/opt/zdsenv/unicorn_start`` :
+Dans ``/opt/zdsenv/gunicorn_config.py`` :
 
-.. code:: bash
+.. code:: python
 
-    #!/bin/bash
+    command = '/opt/zdsenv/bin/gunicorn'
+    pythonpath = '/opt/zdsenv/ZesteDeSavoir'
+    bind = 'unix:/opt/zdsenv/bin/gunicorn.sock'
+    workers = 7
+    user = 'zds'
+    group = 'zds'
+    errorlog = '/opt/zdsenv/logs/gunicorn_error.log'
+    loglevel = 'info'
+    pid = '/opt/zdsenv/gunicorn.pid'
 
-    NAME="ZesteDeSavoir"
-    DJANGODIR=/opt/zdsenv/ZesteDeSavoir/
-    SOCKFILE=/opt/zdsenv/bin/gunicorn.sock
-    USER=zds
-    GROUP=root
-    NUM_WORKERS=7 # how many worker processes
-    DJANGO_SETTINGS_MODULE=zds.settings # django settings file
-    DJANGO_WSGI_MODULE=zds.wsgi # WSGI modul
-
-    echo "Starting $NAME"
-
-    # Activate the virtual environment
-    cd $DJANGODIR
-    source ../bin/activate
-    export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-    export PYTHONPATH=$DJANGODIR:$PYTHONPATH
-
-    RUNDIR=$(dirname $SOCKFILE)
-    test -d $RUNDIR || mkdir -p $RUNDIR
-
-    exec ../bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
-    --name $NAME \
-    --workers $NUM_WORKERS \
-    --user=$USER --group=$GROUP \
-    --log-level=debug \
-    --timeout=300 \
-    --bind=unix:$SOCKFILE
 
 Nginx
 ~~~~~
@@ -150,7 +131,7 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
 .. code:: text
 
     upstream zdsappserver {
-        server unix:/opt/zdsenv/bin/gunicorn.sock fail_timeout=0;
+         server unix:/opt/zdsenv/bin/gunicorn.sock fail_timeout=0;
     }
     server {
         listen [::]:80;
@@ -159,6 +140,8 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
         listen 443 ssl;
         ssl_certificate /etc/ssl/certs/zds/ssl_2015_unified.crt;
         ssl_certificate_key /etc/ssl/certs/zds/ssl_2015.key;
+    #    ssl_certificate /etc/ssl/certs/zds/selfgenerated.pem;
+    #    ssl_certificate_key /etc/ssl/certs/zds/selfgenerated.key;
         ssl_session_timeout 1d;
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK';
@@ -176,6 +159,8 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
         listen 443 ssl;
         ssl_certificate /etc/ssl/certs/zds/ssl_2015_unified.crt;
         ssl_certificate_key /etc/ssl/certs/zds/ssl_2015.key;
+    #    ssl_certificate /etc/ssl/certs/zds/selfgenerated.pem;
+    #    ssl_certificate_key /etc/ssl/certs/zds/selfgenerated.key;
         ssl_session_timeout 1d;
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK';
@@ -190,57 +175,67 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
         error_log /opt/zdsenv/logs/nginx-error.log;
 
         location /author-files/ {
-	    index index.html index.php;
-	    alias /home/zds/tutos_sdzv3/script/;
-	    include php.fast.conf;
+            index index.html index.php;
+            alias /home/zds/tutos_sdzv3/script/;
+            #include php.fast.conf;
         }
 
         location = /robots.txt {
-	    alias /opt/zdsenv/ZesteDeSavoir/robots.txt;
+            alias /opt/zdsenv/ZesteDeSavoir/robots.txt;
+        }
+        # Gandi
+        location = /D6BA7D30872A8A72ED225D5601248024.txt {
+            alias /opt/zdsenv/ZesteDeSavoir/D6BA7D30872A8A72ED225D5601248024.txt;
         }
 
         location /static/ {
-	    alias /opt/zdsenv/ZesteDeSavoir/static/;
-	    expires 1y;
-	    add_header Pragma public;
-	    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+            alias /opt/zdsenv/ZesteDeSavoir/static/;
+            expires 1y;
+            add_header Pragma public;
+            add_header Cache-Control "public, must-revalidate, proxy-revalidate";
         }
 
         location /media/ {
-	    alias /opt/zdsenv/ZesteDeSavoir/media/;
-	    expires 1y;
-	    add_header Pragma public;
-	    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+            alias /opt/zdsenv/ZesteDeSavoir/media/;
+            expires 1y;
+            add_header Pragma public;
+            add_header Cache-Control "public, must-revalidate, proxy-revalidate";
         }
 
         location / {
-	        if ($uri !~ \. ){
-	        rewrite ^(.*[^/])$ $1/ permanent;
-	    }
-	        rewrite ^/teasing/$ / permanent;
-	        client_max_body_size 100M;
-	        proxy_read_timeout 1000s;
-	        proxy_connect_timeout 1000s;
-	        proxy_redirect     off;
-	        proxy_set_header   Host              $host;
-	        proxy_set_header   X-Real-IP         $remote_addr;
-	        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
-	        proxy_set_header   X-Forwarded-Proto $scheme;
+                if ($uri !~ \. ){
+                    rewrite ^(.*[^/])$ $1/ permanent;
+                }
+                rewrite ^/teasing/$ / permanent;
+                client_max_body_size 100M;
+                sendfile        on;
+                keepalive_timeout  0;
+                proxy_read_timeout 1000s;
+                proxy_connect_timeout 1000s;
+                proxy_redirect     off;
+                proxy_set_header   Host              $host;
+                proxy_set_header   X-Real-IP         $remote_addr;
+                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+                proxy_set_header   X-Forwarded-Proto $scheme;
 
-	        add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
-	        add_header Strict-Transport-Security max-age=15768000;
-	        add_header Access-Control-Allow-Origin *;
-	        add_header X-Clacks-Overhead "GNU Terry Pratchett";
-	        if (!-f $request_filename) {
-	            proxy_pass http://zdsappserver;
-	            break;
-	        }
+                add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
+                add_header Strict-Transport-Security max-age=15768000;
+                add_header Access-Control-Allow-Origin *;
+                add_header X-Clacks-Overhead "GNU Terry Pratchett";
+
+                if (!-f $request_filename) {
+                    proxy_pass http://zdsappserver;
+                    break;
+                }
 
           }
         # Error pages
-        error_page 500 502 503 504 /500.html;
-        location = /500.html {
-	    root /opt/zdsenv/ZesteDeSavoir/templates/;
+        error_page 500 502 503 504 /errors/500.html;
+        #location = /500.html {
+        #    root /opt/zdsenv/ZesteDeSavoir/templates/;
+        #}
+        location /errors/ {
+            alias /opt/zdsenv/ZesteDeSavoir/errors/;
         }
 
 
@@ -248,73 +243,73 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
         ## Block SQL injections
         set $block_sql_injections 0;
         if ($query_string ~ "union.*select.*\(") {
-	    set $block_sql_injections 1;
+            set $block_sql_injections 1;
         }
         if ($query_string ~ "union.*all.*select.*") {
-	    set $block_sql_injections 1;
+            set $block_sql_injections 1;
         }
         if ($query_string ~ "concat.*\(") {
-	    set $block_sql_injections 1;
+            set $block_sql_injections 1;
         }
         if ($block_sql_injections = 1) {
-	    return 403;
+            return 403;
         }
 
         ## Block file injections
         set $block_file_injections 0;
         if ($query_string ~ "[a-zA-Z0-9_]=http://") {
-	    set $block_file_injections 1;
+            set $block_file_injections 1;
         }
         if ($query_string ~ "[a-zA-Z0-9_]=(\.\.//?)+") {
-	    set $block_file_injections 1;
+            set $block_file_injections 1;
         }
         if ($query_string ~ "[a-zA-Z0-9_]=/([a-z0-9_.]//?)+") {
-	    set $block_file_injections 1;
+            set $block_file_injections 1;
         }
         if ($block_file_injections = 1) {
-	    return 403;
+            return 403;
         }
 
         ## Block common exploits
         set $block_common_exploits 0;
         if ($query_string ~ "(<|%3C).*script.*(>|%3E)") {
-	    set $block_common_exploits 1;
+            set $block_common_exploits 1;
         }
         if ($query_string ~ "GLOBALS(=|\[|\%[0-9A-Z]{0,2})") {
-	    set $block_common_exploits 1;
+            set $block_common_exploits 1;
         }
         if ($query_string ~ "_REQUEST(=|\[|\%[0-9A-Z]{0,2})") {
-	    set $block_common_exploits 1;
+            set $block_common_exploits 1;
         }
         if ($query_string ~ "proc/self/environ") {
-	    set $block_common_exploits 1;
+            set $block_common_exploits 1;
         }
         if ($query_string ~ "mosConfig_[a-zA-Z_]{1,21}(=|\%3D)") {
-	    set $block_common_exploits 1;
+            set $block_common_exploits 1;
         }
         if ($query_string ~ "base64_(en|de)code\(.*\)") {
-	    set $block_common_exploits 1;
+            set $block_common_exploits 1;
         }
         if ($block_common_exploits = 1) {
-	    return 403;
+            return 403;
         }
 
         ## Block spam
         set $block_spam 0;
         if ($query_string ~ "\b(ultram|unicauca|valium|viagra|vicodin|xanax|ypxaieo)\b") {
-	    set $block_spam 1;
+            set $block_spam 1;
         }
         if ($query_string ~ "\b(erections|hoodia|huronriveracres|impotence|levitra|libido)\b") {
-	    set $block_spam 1;
+            set $block_spam 1;
         }
         if ($query_string ~ "\b(ambien|blue\spill|cialis|cocaine|ejaculation|erectile)\b") {
-	    set $block_spam 1;
+            set $block_spam 1;
         }
         if ($query_string ~ "\b(lipitor|phentermin|pro[sz]ac|sandyauer|tramadol|troyhamby)\b") {
-	    set $block_spam 1;
+            set $block_spam 1;
         }
         if ($block_spam = 1) {
-	    return 403;
+            return 403;
         }
 
         ## Block user agents
@@ -327,42 +322,42 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
 
         # Disable Akeeba Remote Control 2.5 and earlier
         if ($http_user_agent ~ "Indy Library") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
 
         # Common bandwidth hoggers and hacking tools.
         if ($http_user_agent ~ "libwww-perl") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "GetRight") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "GetWeb!") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "Go!Zilla") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "Download Demon") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "Go-Ahead-Got-It") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "TurnitinBot") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         if ($http_user_agent ~ "GrabNet") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
         # SpaceFox: adds HTTrack
         if ($http_user_agent ~ "HTTrack") {
-	    set $block_user_agents 1;
+            set $block_user_agents 1;
         }
 
 
         if ($block_user_agents = 1) {
-	    return 403;
+            return 403;
         }
 
     }
@@ -383,9 +378,9 @@ La configuration de la page de maintenance, quant à elle, se fait dans ``/etc/n
         listen [::]:443 ssl ipv6only=on;
         listen 80;
         listen 443 ssl;
-        ssl_certificate /etc/ssl/certs/beta_zds/ssl.crt;
-        ssl_certificate_key /etc/ssl/certs/beta_zds/ssl.key;
-        ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+        ssl_certificate /etc/ssl/certs/zds/ssl_2015_unified.crt;
+        ssl_certificate_key /etc/ssl/certs/zds/ssl_2015.key;
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers HIGH:!aNULL:!MD5;
 
             server_name zestedesavoir.com www.zestedesavoir.com;
@@ -427,29 +422,67 @@ Créer deux configurations :
 Configuration ZdS
 ^^^^^^^^^^^^^^^^^
 
-La conf dans ``/etc/supervisor/conf.d/zds.conf`` permet de lancer Solr à l'aide de ``supervisorctl start zds`` et l'arrêter avec ``supervisorctl stop zds``.
+Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.socket`` permet de lancer le serveur applicatif de Zeste de Savoir (Gunicorn) à l'aide de ``systemctl start zds.{service,socket}`` et l'arrêter avec ``systemctl stop zds.{service,socket}``.
 
 .. code:: text
 
-    [program:zds]
-    command = /opt/zdsenv/unicorn_start ;
-    user = zds ;
-    stdout_logfile = /opt/zdsenv/logs/gunicorn_supervisor.log ;
-    redirect_stderr = true ;
+    [Unit]
+    Description=Zeste de Savoir
+    Requires=zds.socket
+    After=network.target
+
+    [Service]
+    PIDFile=/run/gunicorn/pid
+    User=zds
+    Group=zds
+    WorkingDirectory=/opt/zdsenv
+    # ExecStart=/opt/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zdsenv/gunicorn_config.py zds.wsgi
+    ExecStart=/opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
+    ExecReload=/bin/kill -s HUP $MAINPID
+    ExecStop=/bin/kill -s TERM $MAINPID
+    PrivateTmp=true
+
+    [Install]
+    WantedBy=multi-user.target
+
+
+.. code:: text
+
+    [Unit]
+    Description=ZdS Gunicorn socket
+
+    [Socket]
+    #ListenStream=/run/gunicorn/socket
+    ListenStream=/opt/zdsenv/bin/gunicorn.sock
+    ListenStream=0.0.0.0:9000
+    ListenStream=[::]:8000
+
+    [Install]
+    WantedBy=sockets.target
 
 Configuration Solr
 ^^^^^^^^^^^^^^^^^^
 
-La conf dans ``/etc/supervisor/conf.d/solr.conf`` permet de lancer Solr à l'aide de ``supervisorctl start solr`` et l'arrêter avec ``supervisorctl stop solr``.
+La conf dans ``/etc/systemd/system/solr.service`` permet de lancer Solr à l'aide de ``systemctl start solr`` et l'arrêter avec ``systemctl stop solr``.
 
 .. code:: text
 
-    [program:solr]
-    command=java -jar start.jar
-    autostart=true
-    autorestart=true
-    stderr_logfile=/opt/zdsenv/logs/solr.err.log
-    stdout_logfile=/opt/zdsenv/logs/solr.out.log
+    [Unit]
+    Description=SolR ZdS
+    After=syslog.target network.target remote-fs.target nss-lookup.target
+
+    [Service]
+    PIDFile=/run/solrzds/pid
+    WorkingDirectory=/opt/zdsenv/apache-solr/example/
+    ExecStart=/usr/bin/java -jar start.jar
+    User=zds
+    Group=zds
+    ExecReload=/bin/kill -s HUP $MAINPID
+    ExecStop=/bin/kill -s QUIT $MAINPID
+    PrivateTmp=true
+
+    [Install]
+    WantedBy=multi-user.target
 
 Munin
 ~~~~~
