@@ -107,7 +107,7 @@
 
 
 {% block content %}
-    {% if content.get_introduction and content.get_introduction != "None" %}
+    {% if content.introduction and content.get_introduction != None %}
         {{ content.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
@@ -143,7 +143,7 @@
     <hr class="clearfix" />
     <hr />
 
-    {% if content.get_conclusion and content.get_conclusion != "None" %}
+    {% if content.conclusion and content.get_conclusion != None %}
         {{ content.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">

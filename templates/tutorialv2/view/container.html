@@ -77,7 +77,7 @@
 {% block content %}
     {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" %}
 
-    {% if container.get_introduction and container.get_introduction != "None" %}
+    {% if container.introduction and container.get_introduction %}
         {{ container.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
@@ -107,7 +107,7 @@
 
     <hr />
 
-    {% if container.get_conclusion and container.get_conclusion != "None" %}
+    {% if container.conclusion and container.get_conclusion %}
         {{ container.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">

@@ -161,7 +161,7 @@
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "content:json-reaction" message.pk %}
+            {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}

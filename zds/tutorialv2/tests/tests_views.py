@@ -4078,6 +4078,8 @@ class PublishedContentTests(TestCase):
 
     def test_add_note(self):
 
+        message_to_post = u'la ZEP-12, c\'est énorme ! (CMB)'
+
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
@@ -4087,13 +4089,14 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
             {
-                'text': u'message',
+                'text': message_to_post,
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 200)
 
         reactions = ContentReaction.objects.all()
         self.assertEqual(len(reactions), 1)
+        self.assertEqual(reactions[0].text, message_to_post)
 
         reads = ContentRead.objects.filter(user=self.user_guest).all()
         self.assertEqual(len(reads), 1)
@@ -4105,7 +4108,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse("content:add-reaction") + u'?clementine={}'.format(self.published.content.pk),
             {
-                'text': u'message',
+                'text': message_to_post,
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 404)
@@ -4124,6 +4127,69 @@ class PublishedContentTests(TestCase):
         self.assertEqual(len(reads), 1)
         self.assertEqual(reads[0].content.pk, self.tuto.pk)
         self.assertEqual(reads[0].note.pk, reactions[0].pk)
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # test preview (without JS)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            {
+                'text': message_to_post,
+                'last_note': reactions[0].pk,
+                'preview': True
+            })
+        self.assertEqual(result.status_code, 200)
+
+        self.assertTrue(message_to_post in result.context['text'])
+
+        # test preview (with JS)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            {
+                'text': message_to_post,
+                'last_note': reactions[0].pk,
+                'preview': True
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue(message_to_post in result_string)
+
+        # test quoting (without JS)
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk))
+        self.assertEqual(result.status_code, 200)
+
+        text_field_value = result.context['form'].initial['text']
+
+        self.assertTrue(message_to_post in text_field_value)
+        self.assertTrue(self.user_guest.username in text_field_value)
+        self.assertTrue(reactions[0].get_absolute_url() in text_field_value)
+
+        # test quoting (with JS)
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(result.status_code, 200)
+        json = {}
+
+        try:
+            json = json_reader.loads(''.join(result.streaming_content))
+        except Exception as e:  # broad exception on purpose
+            self.assertEqual(e, '')
+
+        self.assertTrue('text' in json)
+        text_field_value = json['text']
+
+        self.assertTrue(message_to_post in text_field_value)
+        self.assertTrue(self.user_guest.username in text_field_value)
+        self.assertTrue(reactions[0].get_absolute_url() in text_field_value)
 
     def test_upvote_downvote(self):
         self.assertEqual(

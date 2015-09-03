@@ -13,7 +13,6 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView
-from django.views.generic.detail import BaseDetailView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
@@ -339,11 +338,44 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     reaction = None
     template_name = "tutorialv2/comment/new.html"
 
+    quoted_reaction_text = ''
+
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
         kwargs['content'] = self.object
         kwargs['reaction'] = None
+
         return kwargs
+
+    def get_initial(self):
+        initial = super(SendNoteFormView, self).get_initial()
+
+        if self.quoted_reaction_text:
+            initial['text'] = self.quoted_reaction_text
+
+        return initial
+
+    def get(self, request, *args, **kwargs):
+
+        # handle quoting case
+        if 'cite' in self.request.GET:
+            try:
+                cited_pk = int(self.request.GET["cite"])
+            except ValueError:
+                raise Http404('The `cite` argument must be an integer')
+
+            reaction = ContentReaction.objects.filter(pk=cited_pk).first()
+
+            if reaction:
+                text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
+                text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
+
+                if self.request.is_ajax():
+                    return StreamingHttpResponse(json_writer.dumps({"text": text}, ensure_ascii=False))
+                else:
+                    self.quoted_reaction_text = text
+
+        return super(SendNoteFormView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
 
@@ -357,6 +389,9 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
+
+        if 'preview' in self.request.POST:  # previewing
+            return self.form_invalid(form)
 
         is_new = False
 
@@ -515,24 +550,6 @@ class DownvoteReaction(UpvoteReaction):
     remove_class = CommentLike
     add_like = 0
     add_dislike = 1
-
-
-class GetReaction(BaseDetailView):
-    model = ContentReaction
-
-    def get_queryset(self):
-        return ContentReaction.objects.filter(pk=int(self.kwargs["pk"]))
-
-    def render_to_response(self, context):
-
-        reaction = self.get_queryset().first()
-        if reaction is not None:
-            text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
-            text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
-            string = json_writer.dumps({"text": text}, ensure_ascii=False)
-        else:
-            string = u'{"text":""}'
-        return StreamingHttpResponse(string)
 
 
 class HideReaction(FormView, LoginRequiredMixin):
