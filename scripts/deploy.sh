@@ -31,7 +31,7 @@ cd /opt/zdsenv/ZesteDeSavoir/
 # Maintenance mode
 sudo rm /etc/nginx/sites-enabled/zestedesavoir
 sudo ln -s /etc/nginx/sites-available/zds-maintenance /etc/nginx/sites-enabled/zds-maintenance
-sudo service nginx reload
+sudo systemctl reload nginx.service
 
 # Delete old branch if exists
 git checkout prod
@@ -57,12 +57,12 @@ python manage.py collectstatic --noinput --clear
 deactivate
 
 # Restart zds
-sudo supervisorctl restart zds
+sudo systemctl restart zds.{service,socket}
 
 # Exit maintenance mode
 sudo rm /etc/nginx/sites-enabled/zds-maintenance
 sudo ln -s /etc/nginx/sites-available/zestedesavoir /etc/nginx/sites-enabled/zestedesavoir
-sudo service nginx reload
+sudo systemctl reload nginx.service
 
 # Display current branch and commit
 git status
