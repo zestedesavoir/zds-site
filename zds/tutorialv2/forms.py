@@ -39,8 +39,8 @@ class FormWithTitle(forms.Form):
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
-        if slugify(title) == '':
-            self._errors['title'] = self.error_class([_(u'Ce titre n\'est pas autorisé, son slug est vide !')])
+        if slugify(title).replace('-', '') == '':
+            self._errors['title'] = self.error_class([_(u'Ce titre n\'est pas autorisé, son slug est invalide !')])
 
         return cleaned_data
 

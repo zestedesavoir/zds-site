@@ -3560,6 +3560,35 @@ class ContentTests(TestCase):
 
         self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
 
+    def test_no_invalid_titles(self):
+        """Test that invalid title (empty or wrong slugs) are not allowed"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        dic = {
+            'title': u'',
+            'description': u'une description',
+            'introduction': u'une intro',
+            'conclusion': u'une conclusion',
+            'type': u'TUTORIAL',
+            'licence': self.licence.pk,
+            'subcategory': self.subcategory.pk,
+        }
+
+        disallowed_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ']
+
+        for title in disallowed_titles:
+            dic['title'] = title
+            result = self.client.post(reverse('content:create-tutorial'), dic, follow=False)
+            self.assertEqual(result.status_code, 200)
+            self.assertEqual(PublishableContent.objects.all().count(), 1)
+            self.assertFalse(result.context['form'].is_valid())
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
