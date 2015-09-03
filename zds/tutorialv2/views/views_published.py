@@ -390,7 +390,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 
-        if 'preview' in self.request.POST:  # previsualisation
+        if 'preview' in self.request.POST:  # previewing
             return self.form_invalid(form)
 
         is_new = False
