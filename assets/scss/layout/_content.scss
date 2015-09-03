@@ -459,3 +459,10 @@
         }
     }
 }
+
+@media only screen and #{$media-mobile} {
+    .main .content-container .article-content .btn {
+        float: none;
+        text-align: center;
+    }
+}

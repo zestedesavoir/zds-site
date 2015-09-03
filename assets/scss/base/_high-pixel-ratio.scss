@@ -13,7 +13,7 @@
     .breadcrumb ol li:not(:last-child):after,
     input[type=radio]:checked,
     input[type=checkbox]:checked {
-        @include sprite-retina();
+        @include sprite-2x();
     }
 }
 
@@ -25,7 +25,7 @@
        only screen and (min-resolution: 2dppx) and #{$media-mobile-tablet} {
 
     .js.enable-mobile-menu .mobile-menu-hide .page-container .mobile-menu-btn:after {
-        @include sprite-retina();
+        @include sprite-2x();
     }
 
     .page-container .header-logo-link {

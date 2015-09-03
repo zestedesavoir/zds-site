@@ -23,6 +23,14 @@
     {% for category in tutorial.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {{ category.title }}{% endfor %}
 {% endcaptureas %}
 
+{% captureas tutorial_state %}
+    {% if tutorial.on_line %}
+        {% trans "Publié" %} {% if tutorial.pubdate %}{{ tutorial.pubdate|format_date }}{% endif %}
+    {% else %}
+        {% trans "En rédaction" %}
+    {% endif %}
+{% endcaptureas %}
+
 <article class="content-item expand-description tutorial-item{{ item_class }}">
     <a href="{{ link }}" title="{{ tutorial.title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
         <div class="content-illu">
@@ -42,7 +50,7 @@
                 </p>
             {% endif %}
 
-            <div class="content-meta" title="{% trans "Publié" %} {{ tutorial.pubdate|format_date }} {{ categories_text }} {{ authors_text }}">
+            <div class="content-meta" title="{{ tutorial_state }} {{ categories_text }} {{ authors_text }}">
                 {% if tutorial.subcategory %}
                     <p class="content-categories">
                         {{ categories_text }}

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django import template
+from django.utils.http import urlquote
 from functools import wraps
 
 register = template.Library()
@@ -84,7 +85,7 @@ class AppendGetNode(template.Node):
             get[key] = self.__dict_pairs[key].resolve(context)
 
         if len(get) > 0:
-            list_arg = [u"{0}={1}".format(key, value) for key in get.keys() for value in get.getlist(key)]
+            list_arg = [u"{0}={1}".format(key, urlquote(value)) for key in get.keys() for value in get.getlist(key)]
             path += u"?" + u"&".join(list_arg)
 
         return path

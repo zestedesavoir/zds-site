@@ -323,12 +323,14 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             .content-meta {
                 padding-top: 1px;
 
-                .content-pubdate {
-                    display: none;
-                }
+                &:not(.inline) {
+                    .content-pubdate {
+                        display: none;
+                    }
 
-                &:not(.inline) > * {
-                    display: block;
+                    & > * {
+                        display: block;
+                    }
                 }
             }
         }
@@ -337,9 +339,13 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
 @media only screen and #{$media-mobile-tablet} {
     .full-content-wrapper .content-item {
-        .content-info * {
-            margin: 0 !important;
-            padding: 0 !important;
+        .content-info {
+            h3 {
+                padding: 0 !important;
+            }
+            p:not(.content-meta) {
+                margin: 0 !important;
+            }
         }
     }
 }

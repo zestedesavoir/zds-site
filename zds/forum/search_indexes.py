@@ -15,7 +15,7 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     title = indexes.CharField(model_attr='title')
     subtitle = indexes.CharField(model_attr='subtitle')
     author = indexes.CharField(model_attr='author')
-    pubdate = indexes.DateTimeField(model_attr='pubdate')
+    pubdate = indexes.DateTimeField(model_attr='pubdate', stored=True, indexed=False)
 
     # Groups authorized to read this topic.
     # If a group "public" is defined, the forum is public (and anyone can read it).

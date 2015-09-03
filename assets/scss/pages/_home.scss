@@ -259,8 +259,7 @@ $content-width: 1145px;
             &:after {
                 margin: 16px;
                 @include sprite-position($search);
-                //@include sprite-width($search);
-                width: 17px; // sprite-width's output (16px) isn't correct for some reason...
+                @include sprite-width($search);
                 @include sprite-height($search);
             }
         }
