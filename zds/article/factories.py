@@ -14,7 +14,8 @@ from zds.utils.models import SubCategory
 
 
 class ArticleFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Article
+    class Meta:
+        model = Article
 
     title = factory.Sequence('Mon Article No{0}'.format)
     description = factory.Sequence('Description de l\'article No{0}'.format)
@@ -47,7 +48,8 @@ class ArticleFactory(factory.DjangoModelFactory):
 
 
 class ReactionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Reaction
+    class Meta:
+        model = Reaction
 
     ip_address = '192.168.3.1'
     text = u'Bonjour, je me présente, je m\'appelle l\'homme au texte bidonné'
@@ -63,11 +65,13 @@ class ReactionFactory(factory.DjangoModelFactory):
 
 
 class ValidationFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Validation
+    class Meta:
+        model = Validation
 
 
 class LicenceFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Licence
+    class Meta:
+        model = Licence
 
     code = u'GNU_GPL'
     title = u'GNU General Public License'
@@ -79,7 +83,8 @@ class LicenceFactory(factory.DjangoModelFactory):
 
 
 class PublishedArticleFactory(ArticleFactory):
-    FACTORY_FOR = Article
+    class Meta:
+        model = Article
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -92,7 +97,8 @@ class PublishedArticleFactory(ArticleFactory):
 
 
 class SubCategoryFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = SubCategory
+    class Meta:
+        model = SubCategory
 
     title = factory.Sequence('Sous-Categorie {0} pour l\'article'.format)
     subtitle = factory.Sequence('Sous titre de Sous-Categorie {0} pour l\'article'.format)

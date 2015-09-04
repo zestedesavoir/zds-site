@@ -7,14 +7,16 @@ from zds.featured.models import FeaturedResource, FeaturedMessage
 
 
 class FeaturedResourceFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = FeaturedResource
+    class Meta:
+        model = FeaturedResource
 
     title = factory.Sequence('Ma featured No{0}'.format)
     pubdate = datetime.now()
 
 
 class FeaturedMessageFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = FeaturedMessage
+    class Meta:
+        model = FeaturedMessage
 
     message = factory.Sequence('Message No{0}'.format)
     url = factory.Sequence('http://www.google.com/?q={0}'.format)
