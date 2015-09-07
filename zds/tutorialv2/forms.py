@@ -209,7 +209,7 @@ class ContentForm(ContainerForm):
             HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                    u"Si vous avez besoin d'un coup de main,"
                    u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u"et votre tutoriel apparaîtra alors sur <a href="
+                   u"et votre contenu apparaîtra alors sur <a href="
                    u"\"{% url \"content:helps\" %}\" "
                    u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
             Field('helps'),
