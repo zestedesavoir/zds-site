@@ -147,7 +147,7 @@ class ContentForm(ContainerForm):
     )
 
     image = forms.ImageField(
-        label=_(u'Sélectionnez le logo du tutoriel (max. {} Ko).').format(
+        label=_(u'Sélectionnez le logo du contenu (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
@@ -281,7 +281,7 @@ class ImportForm(forms.Form):
         required=True
     )
     images = forms.FileField(
-        label=_(u'Fichier zip contenant les images du tutoriel.'),
+        label=_(u'Fichier zip contenant les images du contenu.'),
         required=False
     )
 
