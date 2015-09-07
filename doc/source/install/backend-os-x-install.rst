@@ -28,6 +28,10 @@ Installation de virtualenv
     echo "export WORKON_HOME=$HOME/.virtualenvs" >> ~/.bash_profile && export WORKON_HOME=$HOME/.virtualenvs
     echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bash_profile && source /usr/local/bin/virtualenvwrapper.sh
 
+.. Attention::
+
+    Il se peut que MacPorts ne vous installe pas virtualenvwrapper dans /usr/local/bin. Si ça diffère, pensez à mettre à jour la commande avec le chemin que MacPorts à utilisé.
+
 
 Création de votre environnement
 ===============================
@@ -44,12 +48,19 @@ Récupération de la librairie lxml pour python 2.7 via MacPorts
 
   sudo port install py27-lxml
 
-Récupération de la cairo (svg) via Homebrew
-==============================================================
+Récupération de cairo (svg)
+===========================
+
+Il existe 2 moyens d'installer cairo sur votre système. L'un avec Homebrew, l'autre avec MacPorts. Dans un premier temps, tentez d'installer cairo avec homebrew. Si ça ne fonctionne pas, désinstallez les dépendances Homebrew et tentez l'installation avec MacPorts.
 
 .. sourcecode:: bash
 
   brew install cairo --without-x11
+  brew install py2cairo # py3cairo quand ZdS sera en python 3
+
+.. sourcecode:: bash
+
+  sudo port install cairo
 
 
 Ajout de flags pour compiler avec gcc plutôt que clang lors de l'installation de lxml
@@ -76,11 +87,28 @@ Installation de toutes les dépendances
   gulp build
 
 
-Pour relancer votre environnement : ``source ~/.virtualenvs/zdsenv/bin/activate``
-Pour sortir de votre environnement : ``deactive``
+Pour relancer votre environnement : ``source ~/.virtualenvs/zdsenv/bin/activate``.
+
+Si vous avez installé virtualenvwrapper, vous pouvez utiliser le raccourcis ``workon zdsenv``.
+
+Pour sortir de votre environnement : ``deactive``.
+
+Lancer ZdS
+==========
+
+Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS :
+
+.. sourcecode:: bash
+
+    python manage.py migrate
+    python manage.py runserver
 
 Aller plus loin
 ===============
+
+.. Attention::
+
+    Cette section n'a jamais été testée. Si vous êtes parvenu à installer Latex et Pandoc et à les faire fonctionner avec ZdS, toute contribution à cette documentation est largement la bienvenue !
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 
