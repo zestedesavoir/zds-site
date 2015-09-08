@@ -782,14 +782,16 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
         else:  # it's a tutorial
             if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
                 for extract in json['chapter']['extracts']:
-                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'], slugify(extract['title'])))
+                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'],
+                                                                           slugify_raise_on_empty(extract['title'])))
                     if 'text' in extract:
                         new_extract.text = extract['text']
                     versioned.add_extract(new_extract, generate_slug=False)
 
             elif json['type'] == 'BIG' and 'parts' in json:
                 for part in json['parts']:
-                    new_part = Container(part['title'], '{}_{}'.format(part['pk'], slugify(part['title'])))
+                    new_part = Container(part['title'], '{}_{}'.format(part['pk'],
+                                                                       slugify_raise_on_empty(part['title'])))
                     if 'introduction' in part:
                         new_part.introduction = part['introduction']
                     if 'conclusion' in part:
@@ -799,7 +801,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                     if 'chapters' in part:
                         for chapter in part['chapters']:
                             new_chapter = Container(
-                                chapter['title'], '{}_{}'.format(chapter['pk'], slugify(chapter['title'])))
+                                chapter['title'], '{}_{}'.format(chapter['pk'], slugify_raise_on_empty(chapter['title'])))
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
                             if 'conclusion' in chapter:
@@ -809,13 +811,28 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                             if 'extracts' in chapter:
                                 for extract in chapter['extracts']:
                                     new_extract = Extract(
-                                        extract['title'], '{}_{}'.format(extract['pk'], slugify(extract['title'])))
+                                        extract['title'], '{}_{}'.format(extract['pk'],
+                                                                         slugify_raise_on_empty(extract['title'])))
                                     if 'text' in extract:
                                         new_extract.text = extract['text']
                                     new_chapter.add_extract(new_extract, generate_slug=False)
 
     return versioned
 
+
+def slugify_raise_on_empty(title):
+    """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty)\
+    we raise a ValueError
+    :param title: to be slugified title
+    :type title: str
+    :raise ValueError: on incorrect slug:
+    :return: the slugified title
+    :rtype: str
+    """"
+    slug = slugify(title)
+    if slug.replace("-", "").replace("_", "") == "":
+        raise ValueError("slug is incorrect")
+    return slug
 
 def fill_containers_from_json(json_sub, parent):
     """Function which call itself to fill container
@@ -833,8 +850,8 @@ def fill_containers_from_json(json_sub, parent):
             if child['object'] == 'container':
                 slug = ''
                 try:
-                    slug = child['slug']
-                except KeyError:
+                    slug = slugify_raise_on_empty(child['slug'])
+                except (ValueError, KeyError):
                     pass
                 new_container = Container(child['title'], slug)
                 if 'introduction' in child:
@@ -850,8 +867,8 @@ def fill_containers_from_json(json_sub, parent):
             elif child['object'] == 'extract':
                 slug = ''
                 try:
-                    slug = child['slug']
-                except KeyError:
+                    slug = slugify_raise_on_empty(child['slug'])
+                except (ValueError, KeyError):
                     pass
                 new_extract = Extract(child['title'], slug)
 
