@@ -828,7 +828,7 @@ def slugify_raise_on_empty(title):
     :raise ValueError: on incorrect slug:
     :return: the slugified title
     :rtype: str
-    """"
+    """
     slug = slugify(title)
     if slug.replace("-", "").replace("_", "") == "":
         raise ValueError("slug is incorrect")
