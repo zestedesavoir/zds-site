@@ -508,7 +508,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except BadManifestError as e:
             raise BadArchiveError(e.message)
         except Exception:
-            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive'))
+            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive : ' + e.message))
 
         # is there everything in the archive ?
         for f in UpdateContentWithArchive.walk_content(versioned):
