@@ -5,6 +5,7 @@
 
 import os
 
+from pip.download import PipSession
 from pip.req import parse_requirements
 
 from setuptools import setup
@@ -14,8 +15,12 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
-pkgs = [str(pkg.req) for pkg in parse_requirements('requirements.txt')]
-pkgs = pkgs + ['django-debug-toolbar', 'sqlparse']
+
+session = PipSession()
+pkgs = ['django-debug-toolbar', 'sqlparse']
+for pkg in parse_requirements('requirements.txt', session=session):
+    if pkg.req:
+        pkgs.append(str(pkg.req))
 
 setup(
     name='zds',
@@ -39,5 +44,5 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=pkgs,
-    tests_require=[str(pkg.req) for pkg in parse_requirements('requirements-dev.txt')],
+    tests_require=[str(pkg.req) for pkg in parse_requirements('requirements-dev.txt', session=session)],
 )
