@@ -801,7 +801,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                     if 'chapters' in part:
                         for chapter in part['chapters']:
                             new_chapter = Container(
-                                chapter['title'], '{}_{}'.format(chapter['pk'], slugify_raise_on_empty(chapter['title'])))
+                                chapter['title'], '{}_{}'.format(chapter['pk'],
+                                                                 slugify_raise_on_empty(chapter['title'])))
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
                             if 'conclusion' in chapter:
@@ -833,6 +834,7 @@ def slugify_raise_on_empty(title):
     if slug.replace("-", "").replace("_", "") == "":
         raise ValueError("slug is incorrect")
     return slug
+
 
 def fill_containers_from_json(json_sub, parent):
     """Function which call itself to fill container
