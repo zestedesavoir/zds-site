@@ -40,7 +40,7 @@ from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
-    default_slug_pool, BadArchiveError
+    default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.forum.models import Topic, TopicFollowed, follow, mark_read
@@ -507,6 +507,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             versioned = get_content_from_json(json_, None, '')
         except BadManifestError as e:
             raise BadArchiveError(e.message)
+        except InvalidSlugError:
+            raise BadArchiveError(_(u'Le titre et le slug doivent être bien formés (au moins une lettre).'))
         except Exception as e:
             raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive : ' + e.message))
 

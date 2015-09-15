@@ -720,10 +720,12 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
 
     if 'version' in json and json['version'] == 2:
         # create and fill the container
+        slugify_raise_on_empty(json['title'])
+        json_slug = slugify_raise_on_empty(json['slug'])
         if not public:
-            versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json['slug'], slug_last_draft)
+            versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json_slug, slug_last_draft)
         else:
-            versioned = PublicContent(sha, 'TUTORIAL', json['title'], json['slug'])
+            versioned = PublicContent(sha, 'TUTORIAL', json['title'], json_slug)
 
         # fill metadata :
         if 'description' in json:
@@ -820,6 +822,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
 
     return versioned
 
+def InvalidSlugError(ValueError):
+    pass
+
 
 def slugify_raise_on_empty(title):
     """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty)\
@@ -832,7 +837,7 @@ def slugify_raise_on_empty(title):
     """
     slug = slugify(title)
     if slug.replace("-", "").replace("_", "") == "":
-        raise ValueError("slug is incorrect")
+        raise InvalidSlugError("slug is incorrect")
     return slug
 
 
