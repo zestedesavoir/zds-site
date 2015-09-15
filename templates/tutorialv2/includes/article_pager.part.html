@@ -1,0 +1,21 @@
+{%  if paginate_articles %}
+
+    <ul class="pagination pagination-{{ position }} pagination-chapter">
+        {% if previous_article %}
+            <li class="prev">
+                <a href="{{ previous_article.get_absolute_url_online }}" class="ico-after arrow-left">
+                    {{ previous_article.content.title }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if next_article %}
+            <li class="next">
+                <a href="{{ next_article.get_absolute_url_online }}" class="ico-after arrow-right" >
+                    {{ next_article.content.title }}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+
+{% endif %}

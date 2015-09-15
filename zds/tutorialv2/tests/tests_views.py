@@ -60,6 +60,8 @@ class ContentTests(TestCase):
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
 
+        settings.ZDS_APP['content']['default_licence_pk'] = self.licence.pk
+
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
@@ -1589,11 +1591,10 @@ class ContentTests(TestCase):
             True)
 
         # create an article
-        article = PublishableContentFactory(type='ARTICLE')
+        article = PublishableContentFactory(type='ARTICLE', licence=self.licence)
 
         article.authors.add(self.user_author)
         UserGalleryFactory(gallery=article.gallery, user=self.user_author, mode='W')
-        article.licence = self.licence
         article.save()
 
         article_draft = article.load_version()
@@ -3559,6 +3560,35 @@ class ContentTests(TestCase):
 
         self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
 
+    def test_no_invalid_titles(self):
+        """Test that invalid title (empty or wrong slugs) are not allowed"""
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        dic = {
+            'title': u'',
+            'description': u'une description',
+            'introduction': u'une intro',
+            'conclusion': u'une conclusion',
+            'type': u'TUTORIAL',
+            'licence': self.licence.pk,
+            'subcategory': self.subcategory.pk,
+        }
+
+        disallowed_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ']
+
+        for title in disallowed_titles:
+            dic['title'] = title
+            result = self.client.post(reverse('content:create-tutorial'), dic, follow=False)
+            self.assertEqual(result.status_code, 200)
+            self.assertEqual(PublishableContent.objects.all().count(), 1)
+            self.assertFalse(result.context['form'].is_valid())
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
@@ -4077,6 +4107,8 @@ class PublishedContentTests(TestCase):
 
     def test_add_note(self):
 
+        message_to_post = u'la ZEP-12, c\'est énorme ! (CMB)'
+
         self.assertEqual(
             self.client.login(
                 username=self.user_guest.username,
@@ -4086,13 +4118,14 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
             {
-                'text': u'message',
+                'text': message_to_post,
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 200)
 
         reactions = ContentReaction.objects.all()
         self.assertEqual(len(reactions), 1)
+        self.assertEqual(reactions[0].text, message_to_post)
 
         reads = ContentRead.objects.filter(user=self.user_guest).all()
         self.assertEqual(len(reads), 1)
@@ -4104,7 +4137,7 @@ class PublishedContentTests(TestCase):
         result = self.client.post(
             reverse("content:add-reaction") + u'?clementine={}'.format(self.published.content.pk),
             {
-                'text': u'message',
+                'text': message_to_post,
                 'last_note': '0'
             }, follow=True)
         self.assertEqual(result.status_code, 404)
@@ -4123,6 +4156,69 @@ class PublishedContentTests(TestCase):
         self.assertEqual(len(reads), 1)
         self.assertEqual(reads[0].content.pk, self.tuto.pk)
         self.assertEqual(reads[0].note.pk, reactions[0].pk)
+
+        # login with author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # test preview (without JS)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            {
+                'text': message_to_post,
+                'last_note': reactions[0].pk,
+                'preview': True
+            })
+        self.assertEqual(result.status_code, 200)
+
+        self.assertTrue(message_to_post in result.context['text'])
+
+        # test preview (with JS)
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            {
+                'text': message_to_post,
+                'last_note': reactions[0].pk,
+                'preview': True
+            }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        result_string = ''.join(result.streaming_content)
+        self.assertTrue(message_to_post in result_string)
+
+        # test quoting (without JS)
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk))
+        self.assertEqual(result.status_code, 200)
+
+        text_field_value = result.context['form'].initial['text']
+
+        self.assertTrue(message_to_post in text_field_value)
+        self.assertTrue(self.user_guest.username in text_field_value)
+        self.assertTrue(reactions[0].get_absolute_url() in text_field_value)
+
+        # test quoting (with JS)
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.published.content.pk, reactions[0].pk),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(result.status_code, 200)
+        json = {}
+
+        try:
+            json = json_reader.loads(''.join(result.streaming_content))
+        except Exception as e:  # broad exception on purpose
+            self.assertEqual(e, '')
+
+        self.assertTrue('text' in json)
+        text_field_value = json['text']
+
+        self.assertTrue(message_to_post in text_field_value)
+        self.assertTrue(self.user_guest.username in text_field_value)
+        self.assertTrue(reactions[0].get_absolute_url() in text_field_value)
 
     def test_upvote_downvote(self):
         self.assertEqual(
@@ -4257,6 +4353,36 @@ class PublishedContentTests(TestCase):
             reverse('content:resolve-reaction'),
             {
                 "alert_pk": Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first().pk,
+                "text": 'Much to learn, you still have.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
+
+        # test that edition of a comment with an alert by an admin also solve the alert
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:alert-reaction', args=[reaction.pk]),
+            {
+                "signal_text": 'No. Try not. Do... or do not. There is no try.'
+            }, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertIsNotNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:update-reaction') + "?message={}&pk={}".format(reaction.pk, self.tuto.pk),
+            {
                 "text": 'Much to learn, you still have.'
             }, follow=False
         )
@@ -4503,7 +4629,7 @@ class PublishedContentTests(TestCase):
         )
         self.assertEqual(200, response.status_code)
         contents = response.context['tutorials']
-        self.assertEqual(len(contents), 3)  # 3 tutorials by user_author !
+        self.assertEqual(len(contents), 1)  # 1 published tutorial by user_author !
 
         # staff can use all filters without a 403 !
 
@@ -4512,14 +4638,14 @@ class PublishedContentTests(TestCase):
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
             follow=False
         )
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         # test redaction filter:
         response = self.client.get(
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
             follow=False
         )
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         # test beta filter:
         response = self.client.get(
@@ -4533,7 +4659,7 @@ class PublishedContentTests(TestCase):
             reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
             follow=False
         )
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
     def test_last_reactions(self):
         """Test and ensure the behavior of last_read_note() and first_unread_note().

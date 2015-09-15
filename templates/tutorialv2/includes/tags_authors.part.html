@@ -15,7 +15,7 @@
 
 {% if content.update_date %}
     <span class="pubdate">
-    {% if online %}
+    {% if online and content.update_date == content.pubdate %}
         {% trans "Publié" %} :
         <time datetime="{{ content.pubdate|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
             {{ content.pubdate|format_date }}

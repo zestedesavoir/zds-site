@@ -5,10 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 
 register = template.Library()
 articles = {
-    "le": "la",
-    "un": "une",
-    "Nouveau": "Nouvelle",
-    "Ce": "Cette"
+    _("le"): _("la"),
+    _("un"): _("une"),
+    _("Nouveau"): _("Nouvelle"),
+    _("Ce"): _("Cette")
 }
 
 words = {
@@ -25,4 +25,4 @@ def feminize(article, word):
         if words[word.lower()]:
             return articles[article]
 
-    return _(article)
+    return article

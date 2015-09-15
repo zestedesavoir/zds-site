@@ -32,7 +32,7 @@ class SearchIndexContent(models.Model):
     title = models.CharField('Titre', max_length=200)
     description = models.TextField('Description', null=True, blank=True)
 
-    pub_date = models.DateTimeField('Date de création', auto_now_add=True)
+    pubdate = models.DateTimeField('Date de création')
     update_date = models.DateTimeField('Date de mise à jours', blank=True, null=True)
 
     licence = models.CharField('Licence du contenu', max_length=200)

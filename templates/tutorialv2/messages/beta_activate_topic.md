@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load date %}
-
 {% blocktrans with time=content.creation_date|format_date title=content.title|safe type=type|safe %}
 
 Tout le monde se secoue ! :D
@@ -15,5 +14,4 @@ l'adresse suivante :
 -> [À présent, c'est à vous !]({{ url }}) <-
 
 Merci !
-
 {%  endblocktrans %}

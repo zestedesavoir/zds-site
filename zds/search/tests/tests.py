@@ -1,16 +1,19 @@
 # coding: utf-8
 import shutil
 from django.test import override_settings, TestCase
+from django.contrib.auth.models import Group
 import os
 from zds import settings
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.factories import UserGalleryFactory
+from zds.member.factories import StaffProfileFactory, UserFactory
+from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.member.factories import ProfileFactory
 from zds.search.models import SearchIndexContent, SearchIndexContainer, SearchIndexExtract
 from zds.search.utils import filter_keyword, filter_text, reindex_content
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
     ExtractFactory
-from zds.tutorialv2.models.models_versioned import VersionedContent
+from zds.tutorialv2.utils import publish_content
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -21,52 +24,80 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 @override_settings(ZDS_APP=overrided_zds_app)
 class TryToIndexTutorialTests(TestCase):
     def setUp(self):
-        # Create some tutorials
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
+        self.staff = StaffProfileFactory().user
+
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = ProfileFactory().user
+        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
+        bot.save()
+        self.external = UserFactory(
+            username=settings.ZDS_APP["member"]["external_account"],
+            password="anything")
+
+        self.beta_forum = ForumFactory(
+            pk=settings.ZDS_APP['forum']['beta_forum_id'],
+            category=CategoryFactory(position=1),
+            position_in_category=1)  # ensure that the forum, for the beta versions, is created
+
         self.licence = LicenceFactory()
-
         self.subcategory = SubCategoryFactory()
-        self.subcategory2 = SubCategoryFactory()
 
-        self.user_author_senpai = ProfileFactory().user
         self.user_author = ProfileFactory().user
+        self.user_staff = StaffProfileFactory().user
+        self.user_guest = ProfileFactory().user
 
+        # create a tutorial
         self.tuto = PublishableContentFactory(type='TUTORIAL')
-        self.tuto.authors.add(self.user_author_senpai)
         self.tuto.authors.add(self.user_author)
-        self.tuto.gallery = GalleryFactory()
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
-        self.tuto.subcategory.add(self.subcategory2)
         self.tuto.save()
 
-        self.version_content = VersionedContent(self.tuto.sha_draft,
-                                                'Tutorial', self.tuto.title, self.tuto.slug, '')
-        self.version_content.is_tutorial = True
-        self.part1 = ContainerFactory(parent=self.version_content, db_object=self.tuto)
+        # fill it with one part, containing one chapter, containing one extract
+        self.tuto_draft = self.tuto.load_version()
+        self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
 
-        self.part2 = ContainerFactory(parent=self.version_content, db_object=self.tuto)
-        self.chapter2 = ContainerFactory(parent=self.part2, db_object=self.tuto)
+        # then, publish it !
+        version = self.tuto_draft.current_version
+        self.published_tuto = publish_content(self.tuto, self.tuto_draft, is_major_update=True)
 
-        self.chapter3 = ContainerFactory(parent=self.version_content, db_object=self.tuto)
+        self.tuto.sha_public = version
+        self.tuto.sha_draft = version
+        self.tuto.public_version = self.published_tuto
+        self.tuto.save()
 
-        # We wanted to test with some article
+        # create an article
         self.article = PublishableContentFactory(type='ARTICLE')
-        self.article.authors.add(self.user_author_senpai)
-        self.article.gallery = GalleryFactory()
+        self.article.authors.add(self.user_author)
+        UserGalleryFactory(gallery=self.article.gallery, user=self.user_author, mode='W')
         self.article.licence = self.licence
         self.article.subcategory.add(self.subcategory)
         self.article.save()
 
-        self.article_version_content = VersionedContent(self.article.sha_draft,
-                                                        'Tutorial', self.article.title, self.article.slug, '')
-        self.article_version_content.is_article = True
-        self.extract_article1 = ExtractFactory(container=self.article_version_content, db_object=self.article)
-        self.extract_article2 = ExtractFactory(container=self.article_version_content, db_object=self.article)
+        # fill it with one extract
+        self.article_draft = self.article.load_version()
+        self.extract1 = ExtractFactory(container=self.article_draft, db_object=self.article)
+
+        # then, publish it !
+        version = self.article_draft.current_version
+        self.published_article = publish_content(self.article, self.article_draft, is_major_update=True)
+
+        self.article.sha_public = version
+        self.article.sha_draft = version
+        self.article.public_version = self.published_article
+        self.article.save()
 
     def test_index_tutorial_article(self):
-        '''
+        """
         Can at publication time, index a tutorial, this is what we aim for this test.
 
         We wanted to test, if we can save a tutorial in the search tables. This test cover reindex_thread method in
@@ -74,15 +105,15 @@ class TryToIndexTutorialTests(TestCase):
 
         This test doesn't do a verification in the search engine, it just test, if we can save the tutorial in the
         database.
-        '''
+        """
 
         # Reindex the tutorial
-        reindex_content(self.version_content, self.tuto)
-        reindex_content(self.article_version_content, self.article)
+        reindex_content(self.published_tuto)
+        reindex_content(self.published_article)
 
         self.assertEqual(SearchIndexContent.objects.count(), 2)
-        self.assertEqual(SearchIndexContainer.objects.count(), 4)
-        self.assertEqual(SearchIndexExtract.objects.count(), 3)
+        self.assertEqual(SearchIndexContainer.objects.count(), 2)
+        self.assertEqual(SearchIndexExtract.objects.count(), 2)
 
         for content in SearchIndexContent.objects.all():
             if content.type == 'article':
@@ -105,14 +136,11 @@ class TryToIndexTutorialTests(TestCase):
                 if self.tuto.image:
                     self.assertEqual(content.url_image, self.tuto.image.get_absolute_url())
 
-                self.assertEqual(content.tags.count(), 2)
-                self.assertEqual(content.authors.count(), 2)
-
-                self.assertEqual(SearchIndexContainer.objects.count(), 4)
-                self.assertEqual(SearchIndexExtract.objects.count(), 3)
+                self.assertEqual(content.tags.count(), 1)
+                self.assertEqual(content.authors.count(), 1)
 
     def test_filter_keyword(self):
-        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><i>Keyword italic</i>"
+        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>"
 
         keywords = filter_keyword(html)
 
@@ -122,7 +150,7 @@ class TryToIndexTutorialTests(TestCase):
         self.assertIn('Keyword italic', keywords)
 
     def test_filter_text(self):
-        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><i>Keyword italic</i>"
+        html = "<h1>Keyword h1</h1><h2>Keyword h2</h2><strong>Keyword strong</strong><em>Keyword italic</em>"
 
         words = filter_text(html)
 

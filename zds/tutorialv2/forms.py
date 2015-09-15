@@ -1,6 +1,7 @@
 # coding: utf-8
 from django import forms
 from django.conf import settings
+from uuslug import slugify
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -37,6 +38,9 @@ class FormWithTitle(forms.Form):
                 [_(u'Le champ du titre ne peut être vide.')])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
+
+        if slugify(title).replace('-', '') == '':
+            self._errors['title'] = self.error_class([_(u'Ce titre n\'est pas autorisé, son slug est invalide !')])
 
         return cleaned_data
 
@@ -143,7 +147,7 @@ class ContentForm(ContainerForm):
     )
 
     image = forms.ImageField(
-        label=_(u'Sélectionnez le logo du tutoriel (max. {} Ko).').format(
+        label=_(u'Sélectionnez le logo du contenu (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
         required=False
     )
@@ -154,7 +158,7 @@ class ContentForm(ContainerForm):
     )
 
     subcategory = forms.ModelMultipleChoiceField(
-        label=_(u"Sous catégories de votre tutoriel. Si aucune catégorie ne convient "
+        label=_(u"Sous catégories de votre contenu. Si aucune catégorie ne convient "
                 u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.order_by("title").all(),
         required=True,
@@ -205,8 +209,8 @@ class ContentForm(ContainerForm):
             HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                    u"Si vous avez besoin d'un coup de main,"
                    u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                   u"et votre tutoriel apparaîtra alors sur <a href="
-                   u"\"{% url \"zds.tutorial.views.help_tutorial\" %}\" "
+                   u"et votre contenu apparaîtra alors sur <a href="
+                   u"\"{% url \"content:helps\" %}\" "
                    u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
             Field('helps'),
             Field('msg_commit'),
@@ -219,6 +223,17 @@ class ContentForm(ContainerForm):
             self.helper['type'].wrap(
                 Field,
                 disabled=True)
+
+    def clean(self):
+        cleaned_data = super(ContentForm, self).clean()
+        image = cleaned_data.get('image')
+
+        if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
+            self._errors['image'] = self.error_class(
+                [_(u'Votre logo est trop lourd, la limite autorisée est de {} Ko')
+                 .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
+
+        return cleaned_data
 
 
 class ExtractForm(FormWithTitle):
@@ -262,11 +277,11 @@ class ExtractForm(FormWithTitle):
 class ImportForm(forms.Form):
 
     file = forms.FileField(
-        label=_(u'Sélectionnez le tutoriel à importer.'),
+        label=_(u'Sélectionnez le contenu à importer.'),
         required=True
     )
     images = forms.FileField(
-        label=_(u'Fichier zip contenant les images du tutoriel.'),
+        label=_(u'Fichier zip contenant les images du contenu.'),
         required=False
     )
 
@@ -440,7 +455,7 @@ class NoteForm(forms.Form):
 
         )
 
-        if content.antispam:
+        if content.antispam():
             if not reaction:
                 self.helper['text'].wrap(
                     Field,

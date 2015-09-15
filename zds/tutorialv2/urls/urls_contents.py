@@ -8,8 +8,8 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
-from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, \
-    DownvoteReaction, UpdateNoteView, GetReaction, HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
+from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
+    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
 urlpatterns = patterns('',
                        url(r'^tutoriels/(?P<pk>\d+)/$',
@@ -44,8 +44,7 @@ urlpatterns = patterns('',
 
                        # reactions:
                        url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
-                       url(r'^reactions/edit/$', UpdateNoteView.as_view(), name="update-reaction"),
-                       url(r'^reactions/get-json/(?P<pk>\d+)/$', GetReaction.as_view(), name="json-reaction"),
+                       url(r'^reactions/editer/$', UpdateNoteView.as_view(), name="update-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
                        url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),

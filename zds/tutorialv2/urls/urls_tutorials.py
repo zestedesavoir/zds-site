@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
+from zds.tutorialv2.views.views_contents import RedirectOldBetaTuto
 
 from zds.tutorialv2.views.views_published import ListTutorials, DisplayOnlineTutorial, DisplayOnlineContainer, \
     DownloadOnlineTutorial, RedirectContentSEO
@@ -35,6 +36,9 @@ urlpatterns = patterns('',
                            DownloadOnlineTutorial.as_view(requested_file='epub'), name='download-epub'),
                        url(r'^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$',
                            DownloadOnlineTutorial.as_view(requested_file='zip'), name='download-zip'),
+
+                       #  Old beta url compatibility
+                       url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name="old-beta-url"),
 
                        # Listing
                        url(r'^$', ListTutorials.as_view(), name='list'))

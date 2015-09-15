@@ -15,6 +15,23 @@
 {% endblock %}
 
 
+{% block menu_tutorial %}
+    {% if current_content_type == "TUTORIAL" %}
+        current
+    {% endif %}
+    {%  if content and content.type == "TUTORIAL" %}
+        current
+    {% endif %}
+{% endblock %}
+{% block menu_article %}
+    {% if current_content_type == "ARTICLE" %}
+        current
+    {% endif %}
+    {%  if content and content.type == "ARTICLE" %}
+        current
+    {% endif %}
+{% endblock %}
+
 
 {% block breadcrumb_base %}
     {% if user in content.authors.all %}
@@ -60,7 +77,7 @@
                     <h3>{% trans "Télécharger" %}</h3>
                     <ul>
                         {% if public_object %}
-                            {% if is_staff %}
+                            {% if is_staff or is_author %}
                                 {% if public_object.have_md %}
                                     <li>
                                         <a href="{{ public_object.get_absolute_url_md }}" class="ico-after download blue">

@@ -107,7 +107,7 @@
 
 
 {% block content %}
-    {% if content.get_introduction and content.get_introduction != "None" %}
+    {% if content.introduction and content.get_introduction != None %}
         {{ content.get_introduction|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
@@ -143,7 +143,7 @@
     <hr class="clearfix" />
     <hr />
 
-    {% if content.get_conclusion and content.get_conclusion != "None" %}
+    {% if content.conclusion and content.get_conclusion != None %}
         {{ content.get_conclusion|emarkdown:is_js }}
     {% elif not content.is_beta %}
         <p class="ico-after warning">
@@ -310,6 +310,15 @@
                 </form>
             </li>
         {% endif %}
+
+        {% if public_content_object %}
+            <li>
+                <a href="{{ public_content_object.get_absolute_url_online }}" class="ico-after online blue">
+                    {% trans "Voir la version en ligne" %}
+                </a>
+            </li>
+        {% endif %}
+
 
         <li>
             <a href="{% url "content:history" content.pk content.slug %}" class="ico-after history blue">

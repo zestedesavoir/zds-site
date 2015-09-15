@@ -152,7 +152,8 @@ class UtilsTests(TestCase):
         self.assertTrue(os.path.isfile(public.get_prod_path()))  # normally, an HTML file should exists
         self.assertIsNone(public.introduction)  # since all is in the HTML file, introduction does not exists anymore
         self.assertIsNone(public.conclusion)
-
+        article.public_version = published
+        article.save()
         # depublish it !
         unpublish_content(article)
         self.assertEqual(PublishedContent.objects.filter(content=article).count(), 0)  # published object disappear

@@ -106,7 +106,7 @@
                             </a>
                         {% else %}
                             <img src="{% static "images/tutorials.png" %}" alt="{% blocktrans %}Hors-ligne{% endblocktrans %}"
-                            title="{% blocktrans %}Tutoriel jamais publié{% endblocktrans %}" class="light" />
+                            title="{% if content.is_article %} {% trans "Article" %}{% else %}{% trans "Tutoriel" %}{% endif %}{% trans " jamais publié" %}" class="light" />
                         {% endif %}
 
                         {% if content.in_beta %}
@@ -159,7 +159,7 @@
                 <li>
                     <a style="background: url('{{ help.image.help_mini_illu.url }}') no-repeat; padding-left:32px;"
                        class="{% if request.GET.need and request.GET.need == help.slug %}selected{% endif %}"
-                       href="{% append_to_get need=help.slug %}">
+                       href="{% append_to_get need=help.slug,page=1 %}">
                         {{ help.title }}
                     </a>
                 </li>
@@ -170,7 +170,7 @@
             {% endfor %}
             {% if request.GET.need %}
                 <li>
-                    <a href="{% append_to_get need="" %}" class="ico-after cross red ">
+                    <a href="{% append_to_get need="",page=1 %}" class="ico-after cross red ">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>
@@ -179,18 +179,18 @@
     </div>
 
 
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Besoin">
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Type">
         <h3>{% trans "Type" %}</h3>
         <ul>
             <li>
-                <a href="{% append_to_get type="article" %}" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">Articles</a>
+                <a href="{% append_to_get type="article",page=1 %}" class="ico-after view {% if request.GET.type == "article" %}selected{% endif %}">Articles</a>
             </li>
             <li>
-                <a href="{% append_to_get type="tuto" %}" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
+                <a href="{% append_to_get type="tuto",page=1 %}" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">Tutoriels</a>
             </li>
             {% if request.GET.type %}
                 <li>
-                    <a href="{% append_to_get type="" %}" class="ico-after cross red ">
+                    <a href="{% append_to_get type="",page=1 %}" class="ico-after cross red ">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>

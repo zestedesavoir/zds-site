@@ -15,7 +15,6 @@ from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_a
 from zds.utils import slugify
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.utils import get_blob
-from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class Container:
@@ -262,7 +261,6 @@ class Container:
             extract.position_in_parent = self.get_last_child_position() + 1
             self.children.append(extract)
             self.children_dict[extract.slug] = extract
-            extract.text = extract.get_path(True)
         else:
             raise InvalidOperationError(_(u"Impossible d'ajouter un extrait au conteneur « {} »").format(self.title))
 
@@ -413,13 +411,6 @@ class Container:
             if os.path.isfile(path):
                 return codecs.open(path, 'r', encoding='utf-8').read()
 
-        if self.get_tree_depth() == 2:
-            path = os.path.join(settings.ZDS_APP['content']['repo_public_path'],
-                                self.top_container().slug, 'extra_contents', self.top_container().slug,
-                                self.parent.slug, self.slug, 'introduction.md')
-            if os.path.isfile(path):
-                return emarkdown(codecs.open(path, 'r', encoding='utf-8').read())
-
     def get_conclusion_online(self):
         """The conclusion content for online version.
 
@@ -430,13 +421,6 @@ class Container:
             path = os.path.join(self.top_container().get_prod_path(), self.conclusion)
             if os.path.isfile(path):
                 return codecs.open(path, 'r', encoding='utf-8').read()
-
-        if self.get_tree_depth() == 2:
-            path = os.path.join(settings.ZDS_APP['content']['repo_public_path'],
-                                self.top_container().slug, 'extra_contents', self.top_container().slug,
-                                self.parent.slug, self.slug, 'conclusion.md')
-            if os.path.isfile(path):
-                return emarkdown(codecs.open(path, 'r', encoding='utf-8').read())
 
     def get_content_online(self):
         if os.path.isfile(self.get_prod_path()):
@@ -873,19 +857,6 @@ class Extract:
             return get_blob(
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
                 self.text)
-
-    def get_text_online(self):
-        """
-        :return: versioned text
-        :rtype: str
-        """
-        if self.text:
-            path = os.path.join(settings.ZDS_APP['content']['repo_public_path'],
-                                self.container.top_container().slug, 'extra_contents',
-                                self.container.top_container().slug, self.text)
-
-            if os.path.isfile(path):
-                return emarkdown(codecs.open(path, 'r', encoding='utf-8').read())
 
     def compute_hash(self):
         """Compute an MD5 hash from the text, for comparison purpose

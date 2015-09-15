@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import os
+import subprocess
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from zds import settings
@@ -44,16 +45,19 @@ class Command(BaseCommand):
         for content in public_contents:
             self.stdout.write(_(u"- {}").format(content.content_public_slug), ending='')
             extra_content_dir = content.get_extra_contents_directory()
-            os.chdir(extra_content_dir)
+
             base_name = os.path.join(extra_content_dir, content.content_public_slug)
 
             # delete previous one
             if os.path.exists(base_name + '.pdf'):
                 os.remove(base_name + '.pdf')
 
-            # generate (assume images)
-            os.system(settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
-                      base_name + ".md -o " + base_name + ".pdf" + pandoc_debug_str)
+            # generate PDF (assume images)
+            subprocess.call(
+                settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
+                base_name + ".md -o " + base_name + ".pdf" + pandoc_debug_str,
+                shell=True,
+                cwd=extra_content_dir)
 
             # check:
             if os.path.exists(base_name + '.pdf'):

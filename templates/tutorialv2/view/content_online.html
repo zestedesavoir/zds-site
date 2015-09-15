@@ -77,9 +77,17 @@
             {{ content.get_introduction_online|safe }}
         {% endif %}
 
+        {%  if not content.has_sub_containers %}
+            <ol class="summary-part">
+        {% endif %}
+
         {% for child in content.children %}
-            {%  include "tutorialv2/includes/../export/../includes/child_online.part.html" with child=child %}
+            {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
         {% endfor %}
+
+        {%  if not content.has_sub_containers %}
+            </ol>
+        {% endif %}
 
         <hr class="clearfix" />
         <hr />
@@ -89,6 +97,8 @@
         {% endif %}
 
     {% endif %}
+
+    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
 
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
 
@@ -143,7 +153,7 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
-    {% set perms.tutorialv2.change_tutorialv2 as perms_change %}
+    {% set perms.tutorialv2.change_contentreaction as perms_change %}
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -151,7 +161,7 @@
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "content:json-reaction" message.pk %}
+            {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}

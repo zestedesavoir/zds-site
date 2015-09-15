@@ -13,7 +13,6 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView
-from django.views.generic.detail import BaseDetailView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
@@ -34,7 +33,7 @@ class RedirectContentSEO(RedirectView):
 
     def get_redirect_url(self, **kwargs):
         """Redirects the user to the new url"""
-        obj = PublishableContent.objects.get(old_pk=int(kwargs["pk"]))
+        obj = PublishableContent.objects.get(old_pk=int(kwargs["pk"]), type="TUTORIAL")
         if obj is None or not obj.in_public():
             raise Http404("No public object has this pk.")
         kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
@@ -77,7 +76,33 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .filter(related_content=self.object)\
             .order_by("pubdate")
 
-        # pagination:
+        # pagination of articles
+        context['paginate_articles'] = False
+
+        if self.object.type == 'ARTICLE':
+            # fetch all articles in order to find the previous and the next one
+            all_articles = \
+                [a for a in PublishedContent.objects
+                    .filter(content_type="ARTICLE", must_redirect=False)
+                    .order_by('-publication_date')
+                    .all()]
+            articles_count = len(all_articles)
+
+            try:
+                position = all_articles.index(self.public_content_object)
+            except ValueError:
+                pass  # for an unknown reason, the article is not in the list. This should not happen
+            else:
+                context['paginate_articles'] = True
+                context['previous_article'] = None
+                context['next_article'] = None
+
+                if position > 0:
+                    context['previous_article'] = all_articles[position - 1]
+                if position < articles_count - 1:
+                    context['next_article'] = all_articles[position + 1]
+
+        # pagination of comments
         make_pagination(context,
                         self.request,
                         queryset_reactions,
@@ -95,13 +120,13 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
         context["user_like"] = CommentLike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
 
-        if self.request.user.has_perm('forum.change_post'):
+        if self.request.user.has_perm('tutorialv2.change_contentreaction'):
             context["user_can_modify"] = reaction_ids
         else:
             queryset_reactions_user = ContentReaction.objects\
@@ -313,11 +338,44 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     reaction = None
     template_name = "tutorialv2/comment/new.html"
 
+    quoted_reaction_text = ''
+
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
         kwargs['content'] = self.object
         kwargs['reaction'] = None
+
         return kwargs
+
+    def get_initial(self):
+        initial = super(SendNoteFormView, self).get_initial()
+
+        if self.quoted_reaction_text:
+            initial['text'] = self.quoted_reaction_text
+
+        return initial
+
+    def get(self, request, *args, **kwargs):
+
+        # handle quoting case
+        if 'cite' in self.request.GET:
+            try:
+                cited_pk = int(self.request.GET["cite"])
+            except ValueError:
+                raise Http404('The `cite` argument must be an integer')
+
+            reaction = ContentReaction.objects.filter(pk=cited_pk).first()
+
+            if reaction:
+                text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
+                text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
+
+                if self.request.is_ajax():
+                    return StreamingHttpResponse(json_writer.dumps({"text": text}, ensure_ascii=False))
+                else:
+                    self.quoted_reaction_text = text
+
+        return super(SendNoteFormView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
 
@@ -332,13 +390,14 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 
+        if 'preview' in self.request.POST:  # previewing
+            return self.form_invalid(form)
+
         is_new = False
 
         if self.reaction:  # it's an edition
             self.reaction.update = datetime.now()
-
-            if self.reaction.author != self.request.user:  # made by an admin
-                self.reaction.editor = self.request.user
+            self.reaction.editor = self.request.user
 
         else:
             self.reaction = ContentReaction()
@@ -348,6 +407,12 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             self.reaction.related_content = self.object
 
             is_new = True
+
+        # also treat alerts if editor is a moderator
+        if self.request.user != self.reaction.author and not is_new:
+            alerts = Alert.objects.filter(comment__pk=self.reaction.pk).all()
+            for alert in alerts:
+                SolveNoteAlert.solve(alert, self.reaction, self.request.user)
 
         self.reaction.update_content(form.cleaned_data["text"])
         self.reaction.ip_address = get_client_ip(self.request)
@@ -386,9 +451,16 @@ class UpdateNoteView(SendNoteFormView):
         if self.reaction and self.reaction.author != self.request.user:
             messages.add_message(
                 self.request, messages.WARNING,
-                u'Vous éditez ce message en tant que modérateur (auteur : {}).'
-                u' Ne faites pas de bêtise !'
+                _(u'Vous éditez ce message en tant que modérateur (auteur : {}).'
+                  u' Ne faites pas de bêtise !')
                 .format(self.reaction.author.username))
+
+            # show alert, if any
+            alerts = Alert.objects.filter(comment__pk=self.reaction.pk).all()
+            if alerts.count() != 0:
+                msg_alert = _(u'Attention, en éditant ce message, vous résolvez également les alertes suivantes : {}')\
+                    .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
+                messages.warning(self.request, msg_alert)
 
         return context
 
@@ -401,7 +473,7 @@ class UpdateNoteView(SendNoteFormView):
             if self.reaction is None:
                 raise Http404("There is no reaction.")
             if self.reaction.author != self.request.user:
-                if not self.request.user.has_perm('forum.change_post'):
+                if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
         else:
             messages.error(self.request, 'Oh non ! Une erreur est survenue dans la requête !')
@@ -480,24 +552,6 @@ class DownvoteReaction(UpvoteReaction):
     add_dislike = 1
 
 
-class GetReaction(BaseDetailView):
-    model = ContentReaction
-
-    def get_queryset(self):
-        return ContentReaction.objects.filter(pk=int(self.kwargs["pk"]))
-
-    def render_to_response(self, context):
-
-        reaction = self.get_queryset().first()
-        if reaction is not None:
-            text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
-            text += "\nSource: " + reaction.author.username
-            string = json_writer.dumps({"text": text}, ensure_ascii=False)
-        else:
-            string = u'{"text":""}'
-        return StreamingHttpResponse(string)
-
-
 class HideReaction(FormView, LoginRequiredMixin):
     http_method_names = ["post"]
 
@@ -513,7 +567,8 @@ class HideReaction(FormView, LoginRequiredMixin):
             if 'text_hidden' in self.request.POST:
                 text = self.request.POST["text_hidden"][:80]  # Todo: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
-            if not self.request.user.has_perm('forum.change_post') and not self.request.user.pk == reaction.author.pk:
+            if not self.request.user.has_perm('tutorialv2.change_contentreaction') and \
+                    not self.request.user.pk == reaction.author.pk:
                 raise PermissionDenied
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
@@ -523,7 +578,7 @@ class HideReaction(FormView, LoginRequiredMixin):
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
 
-    permissions = ["tutorial.change_post"]
+    permissions = ["tutorialv2.change_contentreaction"]
     http_method_names = ['post']
 
     @method_decorator(transaction.atomic)
@@ -564,6 +619,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         alert.pubdate = datetime.now()
         alert.save()
 
+        messages.success(self.request, _(u"Ce commentaire a bien été signalé aux modérateurs"))
         return redirect(note.get_absolute_url())
 
 
@@ -573,36 +629,57 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
     def dispatch(self, *args, **kwargs):
         return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
 
+    @staticmethod
+    def solve(alert, note, user, text_solve=''):
+        """Solve alert (delete it) and send a PM if a explanation is given
+
+        :param alert: the alert to solve
+        :type alert: Alert
+        :param note: the note on which the alert has been raised
+        :type note: ContentReaction
+        :param text_solve: explanation
+        :type text_solve: str
+        """
+
+        if text_solve:
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            msg = render_to_string(
+                'tutorialv2/messages/resolve_alert.md',
+                {
+                    'content': note.related_content,
+                    'url': note.related_content.get_absolute_url_online(),
+                    'name': alert.author.username,
+                    'target_name': note.author.username,
+                    'modo_name': user.username,
+                    'message': '\n'.join(['> ' + line for line in text_solve.split('\n')]),
+                    'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
+                })
+
+            send_mp(
+                bot,
+                [alert.author],
+                _(u"Résolution d'alerte"),
+                note.related_content.title,
+                msg,
+                False,
+            )
+
+        alert.delete()
+
     def post(self, request, *args, **kwargs):
         if not request.user.has_perm("tutorialv2.change_contentreaction"):
             raise PermissionDenied
         try:
             alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
             note = ContentReaction.objects.get(pk=alert.comment.id)
-            content = note.related_content
-            if "text" in request.POST and request.POST["text"] != "":
-                bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-                msg = render_to_string(
-                    'tutorialv2/messages/resolve_alert.md',
-                    {
-                        'content': content,
-                        'url': content.get_absolute_url_online(),
-                        'name': alert.author.username,
-                        'target_name': note.author.username,
-                        'modo_name': self.request.user.username,
-                        'message': '\n'.join(['> ' + line for line in self.request.POST["text"].split('\n')]),
-                        'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
-                    })
-                send_mp(
-                    bot,
-                    [alert.author],
-                    _(u"Résolution d'alerte"),
-                    note.related_content.title,
-                    msg,
-                    False,
-                )
-            alert.delete()
-            messages.success(self.request, _(u"L'alerte a bien été résolue."))
-            return redirect(note.get_absolute_url())
         except (KeyError, ValueError):
             raise Http404("The alert does not exist.")
+
+        text = ''
+        if "text" in request.POST and request.POST["text"] != "":
+            text = request.POST['text']
+
+        SolveNoteAlert.solve(alert, note, self.request.user, text)
+
+        messages.success(self.request, _(u"L'alerte a bien été résolue."))
+        return redirect(note.get_absolute_url())

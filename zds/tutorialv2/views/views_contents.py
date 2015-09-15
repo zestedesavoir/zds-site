@@ -1,9 +1,13 @@
 # coding: utf-8
 from datetime import datetime
-import re
-from PIL import Image as ImagePIL
 import json as json_reader
 import zipfile
+import shutil
+import tempfile
+import time
+
+import re
+from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -18,12 +22,10 @@ from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
-from django.views.generic import FormView, DeleteView
+from django.views.generic import FormView, DeleteView, RedirectView
 from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 import os
-import shutil
-import tempfile
 from zds.forum.models import Forum
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -38,14 +40,27 @@ from zds.tutorialv2.models.models_database import PublishableContent, Validation
 from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
-    default_slug_pool
+    default_slug_pool, BadArchiveError
 from zds.utils import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.forum.models import Topic, TopicFollowed, follow, mark_read
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
-import time
+from zds.utils.models import Licence
+
+
+class RedirectOldBetaTuto(RedirectView):
+    """
+    allows to redirect /tutoriels/beta/old_pk/slug to /contenus/beta/new_pk/slug
+    """
+    permanent = True
+
+    def get_redirect_url(self, **kwargs):
+        tutorial = PublishableContent.objects.filter(type="TUTORIAL", old_pk=kwargs["pk"]).first()
+        if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == "":
+            raise Http404("No beta content has this old pk")
+        return tutorial.get_absolute_url_beta()
 
 
 class CreateContent(LoggedWithReadWriteHability, FormView):
@@ -58,6 +73,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     def get_form(self, form_class):
         form = super(CreateContent, self).get_form(form_class)
         form.initial["type"] = self.created_content_type
+        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
@@ -171,6 +187,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         self.get_forms(context)
 
         context['gallery'] = self.object.gallery
+        context['public_content_object'] = self.public_content_object
 
         return context
 
@@ -422,14 +439,6 @@ class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixi
         return self.get_object().slug + '.zip'
 
 
-class BadArchiveError(Exception):
-    """ The exception that is raised when a bad archive is sent """
-    message = u''
-
-    def __init__(self, reason):
-        self.message = reason
-
-
 class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     """Update a content using an archive"""
 
@@ -484,15 +493,22 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             manifest = unicode(zip_archive.read('manifest.json'), 'utf-8')
         except KeyError:
             raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json.'))
+        except UnicodeDecodeError:
+            raise BadArchiveError(_(u'L\'encodage du manifest.json n\'est pas de l\'UTF-8'))
 
         # is the manifest ok ?
-        json_ = json_reader.loads(manifest)
+        try:
+            json_ = json_reader.loads(manifest)
+        except ValueError:
+            raise BadArchiveError(
+                _(u'Une erreur est survenue durant la lecture du manifest, '
+                  u'vérifiez qu\'il s\'agit de JSON correctement formaté'))
         try:
             versioned = get_content_from_json(json_, None, '')
         except BadManifestError as e:
             raise BadArchiveError(e.message)
-        except Exception:
-            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive'))
+        except Exception as e:
+            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive : ' + e.message))
 
         # is there everything in the archive ?
         for f in UpdateContentWithArchive.walk_content(versioned):
@@ -523,15 +539,28 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 conclusion = ''
 
                 if child.introduction:
-                    introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                    try:
+                        introduction = unicode(zip_file.read(child.introduction), 'utf-8')
+                    except UnicodeDecodeError:
+                        raise BadArchiveError(
+                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.introduction)))
                 if child.conclusion:
-                    conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+                    try:
+                        conclusion = unicode(zip_file.read(child.conclusion), 'utf-8')
+                    except UnicodeDecodeError:
+                        raise BadArchiveError(
+                            _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.conclusion)))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
 
             elif isinstance(child, Extract):
-                text = unicode(zip_file.read(child.text), 'utf-8')
+                try:
+                    text = unicode(zip_file.read(child.text), 'utf-8')
+                except UnicodeDecodeError:
+                    raise BadArchiveError(
+                        _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.text)))
+
                 copy_to.repo_add_extract(child.title, text, do_commit=False)
 
     @staticmethod
@@ -656,6 +685,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 messages.error(self.request, e.message)
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
+
+                # warn user if licence have changed:
+                manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
+                if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
+                    messages.info(
+                        self.request, _(u'la licence « {} » a été appliquée'.format(new_version.licence.code)))
+
                 # first, update DB object (in order to get a new slug if needed)
                 self.object.title = new_version.title
                 self.object.description = new_version.description
@@ -693,7 +729,12 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     new_version.title, new_version.slug, introduction, conclusion, do_commit=False)
 
                 # then do the dirty job:
-                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
+                try:
+                    UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_version, zfile)
+                except BadArchiveError as e:
+                    versioned.repository.index.reset()
+                    messages.error(self.request, e.message)
+                    return super(UpdateContentWithArchive, self).form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
@@ -755,6 +796,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 messages.error(self.request, _(e.message + u" n'est pas correctement renseigné."))
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
+
+                # warn user if licence have changed:
+                manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
+                if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
+                    messages.info(
+                        self.request, _(u'la licence « {} » a été appliquée'.format(new_content.licence.code)))
+
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
                 self.object.title = new_content.title
@@ -804,7 +852,12 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # copy all:
                 versioned = self.object.load_version()
-                UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+                try:
+                    UpdateContentWithArchive.update_from_new_version_in_zip(versioned, new_content, zfile)
+                except BadArchiveError as e:
+                    self.object.delete()  # abort content creation
+                    messages.error(self.request, e.message)
+                    return super(CreateContentFromArchive, self).form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data['msg_commit']
@@ -845,7 +898,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/create/container.html'
     form_class = ContainerForm
     content = None
-    authorized_for_staff = False
+    authorized_for_staff = True  # former behaviour
 
     def get_context_data(self, **kwargs):
         context = super(CreateContainer, self).get_context_data(**kwargs)
@@ -1024,7 +1077,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/create/extract.html'
     form_class = ExtractForm
     content = None
-    authorized_for_staff = False
+    authorized_for_staff = True
 
     def get_context_data(self, **kwargs):
         context = super(CreateExtract, self).get_context_data(**kwargs)
@@ -1219,7 +1272,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     model = PublishableContent
     form_class = BetaForm
-    authorized_for_staff = False
+    authorized_for_staff = True
     only_draft_version = False
 
     action = None
@@ -1234,6 +1287,12 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
         # topic of the beta version:
         topic = self.object.beta_topic
+
+        if topic:
+            if topic.forum_id != settings.ZDS_APP['forum']['beta_forum_id']:
+                # if the topic is moved from the beta forum, then a new one is created instead
+                topic = None
+
         _type = self.object.type.lower()
         if _type == "tutorial":
             _type = _('tutoriel')
@@ -1311,7 +1370,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     )
                     send_mp(bot,
                             self.object.authors.all(),
-                            _(u"Tutoriel en bêta"),
+                            _(_type[0].upper() + _type[1:].lower() + u" en bêta"),
                             beta_version.title,
                             msg_pm,
                             False)
@@ -1518,7 +1577,6 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
 
     model = PublishableContent
-    permissions = ["tutorialv2.change_publishablecontent"]
     form_class = MoveElementForm
     versioned = False
 
@@ -1567,6 +1625,11 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                             raise Http404("The target is not a child of its parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
+                    # now, I will fix a bug that happens when the slug changes
+                    # this one cost me so much of my hair
+                    # and makes me think copy/past are killing kitty cat.
+                    child_slug = target_parent.children[-1].slug
+                    parent = target_parent
                     parent = target_parent
                 parent.move_child_after(child_slug, target.split("/")[-1])
             if form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
@@ -1581,7 +1644,9 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                             raise Http404("The target is not a child of its parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
-
+                    # now, I will fix a bug that happens when the slug changes
+                    # this one cost me so much of my hair
+                    child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
 
@@ -1599,8 +1664,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         except KeyError:
             messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire,"
                                              u"ou bien il est impossible de déplacer cet élément."))
-        except ValueError:
-            raise Http404("The specified tree is invalid.")
+        except ValueError as e:
+            raise Http404("The specified tree is invalid." + str(e))
         except IndexError:
             messages.warning(self.request, _(u"L'élément se situe déjà à la place souhaitée."))
         except TypeError:
@@ -1676,7 +1741,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
         """
         if user in content.authors.all() and content.authors.count() > 1:
             gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=content.gallery.pk).first()
-            gallery.delete()
+
+            if gallery:
+                gallery.delete()
+
             content.authors.remove(user)
             return True
 
@@ -1749,15 +1817,13 @@ class ContentOfAuthor(ZdSPagingListView):
     sort = ''
     filter = ''
     user = None
-    is_staff = False
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=int(self.kwargs["pk"]))
-        self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
-        if self.user != self.request.user and not self.is_staff and 'filter' in self.request.GET:
-            filter = self.request.GET.get('filter').lower()
-            if filter in self.authorized_filters:
-                if not self.authorized_filters[filter][2]:
+        if self.user != self.request.user and 'filter' in self.request.GET:
+            filter_ = self.request.GET.get('filter').lower()
+            if filter_ in self.authorized_filters:
+                if not self.authorized_filters[filter_][2]:
                     raise PermissionDenied
             else:
                 raise Http404("The filter is not authorized.")
@@ -1781,7 +1847,7 @@ class ContentOfAuthor(ZdSPagingListView):
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
                 raise Http404("The filter is not authorized.")
-        elif self.user != self.request.user and not self.is_staff:
+        elif self.user != self.request.user:
             self.filter = 'public'
         if self.filter != '':
             queryset = self.authorized_filters[self.filter][0](queryset)
@@ -1801,14 +1867,12 @@ class ContentOfAuthor(ZdSPagingListView):
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
 
-        context['is_staff'] = self.is_staff
-
         context['usr'] = self.user
         for sort in self.sorts.keys():
             context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
-        for filter in self.authorized_filters.keys():
-            authorized_filter = self.authorized_filters[filter]
-            if self.user != self.request.user and not self.is_staff and not authorized_filter[2]:
+        for filter_ in self.authorized_filters.keys():
+            authorized_filter = self.authorized_filters[filter_]
+            if self.user != self.request.user and not authorized_filter[2]:
                 continue
-            context['filters'].append({'key': filter, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
+            context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context

@@ -8,6 +8,7 @@ from urllib import urlretrieve
 from urlparse import urlparse
 import codecs
 from collections import OrderedDict
+import subprocess
 
 from git import Repo, Actor
 import cairosvg
@@ -577,24 +578,25 @@ def publish_content(db_object, versioned, is_major_update=True):
     if settings.PANDOC_LOG_STATE:
         pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
 
-    os.chdir(extra_contents_path)  # for pandoc
-
     # 2. HTML
-    os.system(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str)
-    # 3. epub
-    os.system(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str)
+    subprocess.call(
+        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str,
+        shell=True,
+        cwd=extra_contents_path)
+
+    # 3. EPUB
+    subprocess.call(
+        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str,
+        shell=True,
+        cwd=extra_contents_path)
+
     # 4. PDF
     if ZDS_APP['content']['build_pdf_when_published']:
-        os.system(
-            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
-            md_file_path + " -o " + base_name + ".pdf" + pandoc_debug_str)
-
-    os.chdir(settings.BASE_DIR)
-
-    # 5. Copy markdown repo into extra-content
-    shutil.copytree(versioned.get_path(), extra_contents_path + "/" + versioned.slug, symlinks=False, ignore=None)
+        subprocess.call(
+            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
+            base_name + ".pdf" + pandoc_debug_str,
+            shell=True,
+            cwd=extra_contents_path)
 
     # ok, now we can really publish the thing !
     is_update = False
@@ -733,8 +735,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
 
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
-        else:
-            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
+
+        if 'licence' not in json or not versioned.licence:
+            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
 
         if 'introduction' in json:
             versioned.introduction = json['introduction']
@@ -766,8 +769,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
             versioned.conclusion = json["conclusion"]
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
-        else:
-            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_license_pk']).first()
+
+        if 'licence' not in json or not versioned.licence:
+            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
 
         if _type == 'ARTICLE':
             extract = Extract("text", '')
@@ -778,14 +782,16 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
         else:  # it's a tutorial
             if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
                 for extract in json['chapter']['extracts']:
-                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'], slugify(extract['title'])))
+                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'],
+                                                                           slugify_raise_on_empty(extract['title'])))
                     if 'text' in extract:
                         new_extract.text = extract['text']
                     versioned.add_extract(new_extract, generate_slug=False)
 
             elif json['type'] == 'BIG' and 'parts' in json:
                 for part in json['parts']:
-                    new_part = Container(part['title'], '{}_{}'.format(part['pk'], slugify(part['title'])))
+                    new_part = Container(part['title'], '{}_{}'.format(part['pk'],
+                                                                       slugify_raise_on_empty(part['title'])))
                     if 'introduction' in part:
                         new_part.introduction = part['introduction']
                     if 'conclusion' in part:
@@ -795,7 +801,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                     if 'chapters' in part:
                         for chapter in part['chapters']:
                             new_chapter = Container(
-                                chapter['title'], '{}_{}'.format(chapter['pk'], slugify(chapter['title'])))
+                                chapter['title'], '{}_{}'.format(chapter['pk'],
+                                                                 slugify_raise_on_empty(chapter['title'])))
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
                             if 'conclusion' in chapter:
@@ -805,12 +812,28 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                             if 'extracts' in chapter:
                                 for extract in chapter['extracts']:
                                     new_extract = Extract(
-                                        extract['title'], '{}_{}'.format(extract['pk'], slugify(extract['title'])))
+                                        extract['title'], '{}_{}'.format(extract['pk'],
+                                                                         slugify_raise_on_empty(extract['title'])))
                                     if 'text' in extract:
                                         new_extract.text = extract['text']
                                     new_chapter.add_extract(new_extract, generate_slug=False)
 
     return versioned
+
+
+def slugify_raise_on_empty(title):
+    """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty)\
+    we raise a ValueError
+    :param title: to be slugified title
+    :type title: str
+    :raise ValueError: on incorrect slug:
+    :return: the slugified title
+    :rtype: str
+    """
+    slug = slugify(title)
+    if slug.replace("-", "").replace("_", "") == "":
+        raise ValueError("slug is incorrect")
+    return slug
 
 
 def fill_containers_from_json(json_sub, parent):
@@ -829,8 +852,8 @@ def fill_containers_from_json(json_sub, parent):
             if child['object'] == 'container':
                 slug = ''
                 try:
-                    slug = child['slug']
-                except KeyError:
+                    slug = slugify_raise_on_empty(child['slug'])
+                except (ValueError, KeyError):
                     pass
                 new_container = Container(child['title'], slug)
                 if 'introduction' in child:
@@ -846,8 +869,8 @@ def fill_containers_from_json(json_sub, parent):
             elif child['object'] == 'extract':
                 slug = ''
                 try:
-                    slug = child['slug']
-                except KeyError:
+                    slug = slugify_raise_on_empty(child['slug'])
+                except (ValueError, KeyError):
                     pass
                 new_extract = Extract(child['title'], slug)
 
@@ -1042,3 +1065,11 @@ def get_blob(tree, path):
         return None
     else:
         return None
+
+
+class BadArchiveError(Exception):
+    """ The exception that is raised when a bad archive is sent """
+    message = u''
+
+    def __init__(self, reason):
+        self.message = reason

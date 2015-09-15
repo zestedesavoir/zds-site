@@ -57,7 +57,7 @@ Les forumulaires (``forms.py``)
     :members:
 
 Les utilitaires (``utils.py``)
-===============================
+==============================
 
 .. automodule:: zds.tutorialv2.utils
     :members:

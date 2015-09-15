@@ -10,10 +10,14 @@ except ImportError:
     exit()
 
 import os
+from os.path import join as file_join
+from os.path import exists as file_exists
 import shutil
 import sys
+from bs4 import BeautifulSoup as bs
 
 from zds.forum.models import Topic
+from zds.utils.templatetags.emarkdown import emarkdown_inline
 
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent,\
     Validation
@@ -23,11 +27,12 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery, Image
 from zds.utils import slugify
-from zds.utils.models import Licence, CommentLike, CommentDislike
+from zds.utils.models import CommentLike, CommentDislike
 from datetime import datetime
 
 from easy_thumbnails.exceptions import InvalidImageFormatError
 from zds.settings import MEDIA_ROOT
+from git import Repo, InvalidGitRepositoryError
 
 
 def export_read_for_note(old_note, new_note, read_class):
@@ -90,7 +95,6 @@ def export_comments(reacts, exported, read_class, old_last_note_pk):
         for dislike in CommentDislike.objects.filter(comments__pk=note.pk).all():
             dislike.comments = new_reac
             dislike.save()
-
     exported.save()
 
 
@@ -166,6 +170,7 @@ def split_article_in_extracts(article):
                     title_level += 1
 
             title_content = line[title_level:].strip()  # get text right after the `#`
+            title_content = bs(emarkdown_inline(title_content)).getText()  # remove markdown formatting !
 
             if title_level == 1 and title_content != '':
                 extracts.append((extract_title, extract_text))
@@ -190,6 +195,37 @@ def split_article_in_extracts(article):
             article.repo_add_extract(title, text, do_commit=False)
 
 
+def copy_and_clean_repo(path_from, path_to):
+    """Try to clean the repository from old errors made in the past by previous code, then clone it to the new location
+
+    :param path_from: old repository
+    :param path_to: new repository
+    :return: sha of the commit if a clean up has been done, `None` otherwise
+    """
+
+    old_repo = Repo(path_from)
+
+    # look for files that are still in git but deleted in "real life"
+    to_delete = []
+    for entry in old_repo.index.entries:
+        rel_path = entry[0]
+        abs_path = os.path.join(path_from, rel_path)
+        if not os.path.exists(abs_path):
+            to_delete.append(rel_path)
+
+    # clean up
+    sha = None
+
+    if len(to_delete) != 0:
+        old_repo.index.remove(to_delete)
+        sha = old_repo.index.commit('Nettoyage pré-migratoire')
+
+    # then clone it to new repo
+    old_repo.clone(path_to)
+
+    return sha
+
+
 def migrate_articles():
     articles = Article.objects.all()
 
@@ -198,8 +234,9 @@ def migrate_articles():
     for i in progressbar(xrange(len(articles)), "Exporting articles", 100):
         current = articles[i]
         if not os.path.exists(current.get_path(False)):
-            print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
+            sys.stderr.write('Invalid physical path to repository « {} », skipping\n'.format(current.get_path(False)))
             continue
+
         exported = PublishableContent()
         exported.slug = current.slug
         exported.type = "ARTICLE"
@@ -207,10 +244,25 @@ def migrate_articles():
         exported.creation_date = current.create_at
         exported.description = current.description
         exported.sha_draft = current.sha_draft
+        exported.sha_validation = current.sha_validation
         exported.licence = current.licence
-        exported.js_support = current.js_support  # todo: check articles have js_support
-
+        exported.js_support = current.js_support
+        exported.pubdate = current.pubdate
         exported.save()  # before updating `ManyToMany` relation, we need to save !
+
+        try:
+            clean_commit = copy_and_clean_repo(current.get_path(False), exported.get_repo_path(False))
+        except InvalidGitRepositoryError as e:
+            exported.delete()
+            sys.stderr.write('Repository in « {} » is invalid, skipping\n'.format(e))
+            continue
+
+        if clean_commit:
+            exported.sha_draft = clean_commit
+
+            # save clean up in old module to avoid any trouble
+            current.sha_draft = clean_commit
+            current.save()
 
         [exported.authors.add(author) for author in current.authors.all()]
         [exported.subcategory.add(category) for category in current.subcategory.all()]
@@ -255,8 +307,6 @@ def migrate_articles():
                 img.save()
                 exported.image = img
 
-        # todo: migrate categories !!
-        shutil.copytree(current.get_path(False), exported.get_repo_path(False))
         # now, re create the manifest.json
         versioned = exported.load_version()
         versioned.type = "ARTICLE"
@@ -268,8 +318,7 @@ def migrate_articles():
         exported.sha_draft = versioned.commit_changes(u'Migration version 2')
         exported.old_pk = current.pk
         exported.save()
-        # todo  : generate mapping
-        # todo: handle notes
+
         reacts = Reaction.objects.filter(article__pk=current.pk)\
                                  .select_related("author")\
                                  .order_by("pubdate")\
@@ -304,12 +353,22 @@ def migrate_articles():
                                               version=exported.sha_public,
                                               comment_authors="Migration v2",
                                               comment_validator="yeah",
-                                              status="ACCEPTED",
+                                              status="ACCEPT",
                                               validator=last_validation.validator,
                                               date_proposition=datetime.now(),
                                               date_validation=datetime.now(),
                                               date_reserve=datetime.now())
             structure_validation.save()
+        # fix strange notification bug
+        authors = list(exported.authors.all())
+        reads_to_delete = ContentRead.objects\
+                                     .filter(content=exported)\
+                                     .exclude(user__pk__in=ContentReaction.objects
+                                                                          .filter(related_content=exported)
+                                                                          .exclude(author__in=authors)
+                                                                          .values_list("author__pk", flat=True))
+        for read in reads_to_delete.all():
+            read.delete()
 
 
 def migrate_tuto(tutos, title="Exporting mini tuto"):
@@ -320,7 +379,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
     for i in progressbar(xrange(len(tutos)), title, 100):
         current = tutos[i]
         if not os.path.exists(current.get_path(False)):
-            print(u'Le chemin physique vers {} n\'existe plus.'.format(current.get_path(False)))
+            sys.stderr.write('Invalid physical path to repository « {} », skipping\n'.format(current.get_path(False)))
             continue
         exported = PublishableContent()
         exported.slug = current.slug
@@ -328,26 +387,63 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
         exported.title = current.title
         exported.sha_draft = current.sha_draft
         exported.sha_beta = current.sha_beta
-        exported.licence = Licence.objects.filter(code=current.licence).first()
+        exported.sha_validation = current.sha_validation
+        exported.licence = current.licence
         exported.update_date = current.update
         exported.creation_date = current.create_at
-        exported.image = current.image
         exported.description = current.description
         exported.js_support = current.js_support
+        exported.source = current.source
+        exported.pubdate = current.pubdate
         exported.save()
+
+        try:
+            clean_commit = copy_and_clean_repo(current.get_path(False), exported.get_repo_path(False))
+        except InvalidGitRepositoryError as e:
+            exported.delete()
+            sys.stderr.write('Repository in « {} » is invalid, skipping\n'.format(e))
+            continue
+
+        if clean_commit:
+            exported.sha_draft = clean_commit
+
+            # save clean up in old module to avoid any trouble
+            current.sha_draft = clean_commit
+            current.save()
+
+        exported.gallery = current.gallery
+        exported.image = current.image
         [exported.subcategory.add(category) for category in current.subcategory.all()]
         [exported.helps.add(help) for help in current.helps.all()]
         [exported.authors.add(author) for author in current.authors.all()]
-        shutil.copytree(current.get_path(False), exported.get_repo_path(False))
+        exported.save()
+
         # now, re create the manifest.json
         versioned = exported.load_version()
-        versioned.licence = exported.licence
-        exported.gallery = current.gallery
 
+        # this loop is there because of old .tuto import that failed with their chapter intros
+        for container in versioned.traverse(True):
+            if container.parent is None:
+                continue
+            # in old .tuto file chapter intro are represented as chapter_slug/introduction.md
+            # instead of part_slug/chapter_slug/introduction.md
+            corrected_intro_path = file_join(container.get_path(relative=False), "introduction.md")
+            corrected_ccl_path = file_join(container.get_path(relative=False), "conclusion.md")
+            if container.get_path(True) not in container.introduction:
+                if file_exists(corrected_intro_path):
+                    container.introduction = file_join(container.get_path(relative=True), "introduction.md")
+                else:
+                    container.introduction = None
+            if container.get_path(True) not in container.conclusion:
+                if file_exists(corrected_ccl_path):
+                    container.conclusion = file_join(container.get_path(relative=True), "conclusion.md")
+                else:
+                    container.conclusion = None
+
+        versioned.licence = exported.licence
         versioned.type = "TUTORIAL"
         versioned.dump_json()
         versioned.repository.index.add(['manifest.json'])  # index new manifest before commit
-
         exported.sha_draft = versioned.commit_changes(u"Migration version 2")
 
         exported.old_pk = current.pk
@@ -379,18 +475,28 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             exported.sha_public = current.sha_public
             exported.public_version = published
             exported.save()
-            published.content_public_slug = current.slug
+            published.content_public_slug = exported.slug
             published.publication_date = current.pubdate
 
             published.save()
             # set mapping
             map_previous = PublishedContent()
-            map_previous.content_public_slug = exported.slug
+            map_previous.content_public_slug = current.slug
             map_previous.content_pk = current.pk
             map_previous.content_type = 'TUTORIAL'
             map_previous.must_redirect = True  # will send HTTP 301 if visited !
             map_previous.content = exported
             map_previous.save()
+        # fix strange notification bug
+        authors = list(exported.authors.all())
+        reads_to_delete = ContentRead.objects\
+                                     .filter(content=exported)\
+                                     .exclude(user__pk__in=ContentReaction.objects
+                                                                          .filter(related_content=exported)
+                                                                          .exclude(author__in=authors)
+                                                                          .values_list("author__pk", flat=True))
+        for read in reads_to_delete.all():
+            read.delete()
 
 
 @transaction.atomic
