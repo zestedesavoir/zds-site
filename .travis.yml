@@ -10,8 +10,8 @@ env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
   matrix:
-    - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.search"
-    - TEST_APP="-e back_mysql_tuto -- zds.article zds.tutorial zds.tutorialv2"
+    - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.search zds.featured"
+    - TEST_APP="-e back_mysql -- zds.article zds.tutorial zds.tutorialv2"
     - TEST_APP="-e front"
 
 
