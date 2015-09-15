@@ -322,7 +322,7 @@ class ImportForm(forms.Form):
 class ImportContentForm(forms.Form):
 
     archive = forms.FileField(
-        label=_(u"Sélectionnez l'archive de votre tutoriel."),
+        label=_(u"Sélectionnez l'archive de votre contenu."),
         required=True
     )
     image_archive = forms.FileField(
@@ -466,7 +466,7 @@ class NoteForm(forms.Form):
         elif content.is_locked:
             self.helper['text'].wrap(
                 Field,
-                placeholder=_(u'Ce tutoriel est verrouillé.'),
+                placeholder=_(u'Ce contenu est verrouillé.'),
                 disabled=True
             )
         if reaction is not None:
