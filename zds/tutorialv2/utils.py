@@ -822,6 +822,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
 
     return versioned
 
+
 class InvalidSlugError(ValueError):
     pass
 
