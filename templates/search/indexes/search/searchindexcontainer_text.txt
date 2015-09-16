@@ -1,0 +1,6 @@
+{{ object.title }}
+
+{{ object.introduction }}
+{{ object.conclusion }}
+
+{{ object.keywords }}

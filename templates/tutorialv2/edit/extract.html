@@ -1,0 +1,53 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Éditer la section" %}
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>
+        {% trans "Éditer la section" %}
+    </h1>
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+
+    {% with container=extract.container %}
+        {%  if container.parent.parent %}
+            <li><a href="{{ container.parent.parent.get_absolute_url }}">{{ container.parent.parent.title }}</a></li>
+        {% endif %}
+
+        {%  if container.parent %}
+            <li><a href="{{ container.parent.get_absolute_url }}">{{ container.parent.title }}</a></li>
+        {% endif %}
+
+        <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
+    {% endwith %}
+
+    <li>{% trans "Éditer la section" %}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+
+    {% if form.text.value %}
+        {% include "misc/previsualization.part.html" with text=form.text.value %}
+    {% endif %}
+{% endblock %}
+
+{% block sidebar_actions %}
+    <li>
+        <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
+            {% trans "Ajouter une image à la galerie" %}
+        </a>
+    </li>
+{% endblock %}

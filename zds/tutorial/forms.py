@@ -624,4 +624,4 @@ class ActivJsForm(forms.Form):
                 StrictButton(
                     _(u'Valider'),
                     type='submit'),),
-            Hidden('tutorial', '{{ tutorial.pk }}'), )
+            Hidden('content', '{{ tutorial.pk }}'), )

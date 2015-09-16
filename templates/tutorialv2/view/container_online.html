@@ -1,0 +1,116 @@
+{% extends "tutorialv2/base_online.html" %}
+{% load set %}
+{% load thumbnail %}
+{%  load emarkdown %}
+{% load i18n %}
+{% load times %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    {{ container.title }} - {{ content.title }}
+{% endblock %}
+
+
+
+{% block opengraph %}
+    {% include "tutorialv2/includes/opengraph.part.html" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {%  if container.parent.parent %}
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <span itemprop="title"><a href="{{ container.parent.parent.get_absolute_url_online }}">{{ container.parent.parent.title }}</a></span>
+        </li>
+    {% endif %}
+
+    {%  if container.parent %}
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            <span itemprop="title"><a href="{{ container.parent.get_absolute_url_online }}">{{ container.parent.title }}</a></span>
+        </li>
+    {% endif %}
+
+    <li>{{ container.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if content.licence %}
+        <p class="license">
+            {{ content.licence }}
+        </p>
+    {% endif %}
+
+    <h1>
+        {{ container.title }}
+    </h1>
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if not content.is_article %}
+        {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" online=True %}
+    {% endif %}
+    {% if container.has_extracts %}
+        {{ container.get_content_online|safe }}
+    {% else %}
+
+        {% if container.introduction %}
+            {{ container.get_introduction_online|safe }}
+            <hr />
+        {% endif %}
+
+        {%  if not container.has_extracts %}
+            <ol class="summary-part">
+        {% endif %}
+
+        {% for child in container.children %}
+            {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
+        {% endfor %}
+
+        {%  if not container.has_extracts %}
+            </ol>
+        {% endif %}
+
+        <hr class="clearfix" />
+        <hr />
+
+        {% if container.conclusion %}
+            {{ container.get_conclusion_online|safe }}
+        {% endif %}
+
+    {% endif %}
+    {% if not content.is_article %}
+        {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" online=True %}
+    {% endif %}
+
+    {% if container.has_extracts %}
+        {# possibility to signal a mistake to the author is only available on chapter #}
+        {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar_blocks %}
+    {% if is_staff or is_author %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+            <h3>{% blocktrans %}Admin<span class="wide">istration</span>{% endblocktrans %}</h3>
+            <ul>
+                <li><a href="{{ container.get_absolute_url }}?version={{ content.sha_public }}" class="ico-after offline blue">
+                    {% trans "Version hors-ligne" %}
+                </a></li>
+            </ul>
+        </div>
+    {% endif %}
+
+    {% include "tutorialv2/includes/summary.part.html" with current_container=container online=True %}
+
+    {% include "misc/social_buttons.part.html" with link=container.get_absolute_url_online text=container.title %}
+{% endblock %}

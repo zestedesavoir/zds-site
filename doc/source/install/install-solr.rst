@@ -60,8 +60,15 @@ Une question vous est alors posée :
 
 Répondez "y". Quand c'est fait, l'index est créé et vous avez une recherche fonctionnelle.
 
+Pour mettre à jour les informations sur les contenus (tutoriels et articles), il vous faudrait utiliser la commande:
+
+.. code:: bash
+
+    python manage.py index_content --only-flagged
+
 Pour mettre à jour un index existant, la commande est :
 
 .. code:: bash
 
     python manage.py update_index
+

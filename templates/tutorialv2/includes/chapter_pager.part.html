@@ -1,0 +1,39 @@
+{%  if has_pagination %}
+
+    <ul class="pagination pagination-{{ position }} pagination-chapter">
+        {% if previous %}
+            <li class="prev">
+                <a
+                    {% if online %}
+                        href="{{ previous.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ previous.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ previous.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                    class="ico-after arrow-left"
+                >
+                    {{ previous.title }}
+                </a>
+            </li>
+        {% endif %}
+
+        {% if next %}
+            <li class="next">
+                <a
+                    {% if online %}
+                        href="{{ next.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ next.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ next.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                    class="ico-after arrow-right"
+                >
+                    {{ next.title }}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+
+{% endif %}

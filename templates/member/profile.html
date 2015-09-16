@@ -126,8 +126,8 @@
         {% if tutorials %}
             <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">{% trans "Derniers tutoriels" %}</h2>
             <div class="content-item-list">
-                {% for tutorial in tutorials %}
-                    {% include 'tutorial/includes/tutorial_item.part.html' with show_description=True %}
+                {% for public_tutorial in tutorials %}
+                    {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with show_description=True %}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>
@@ -139,8 +139,8 @@
         {% if articles %}
             <h2 class="ico-after ico-articles" id="derniers-articles">{% trans "Derniers articles" %}</h2>
             <div class="content-item-list">
-                {% for article in articles %}
-                    {% include 'article/includes/article_item.part.html' with show_description=True %}
+                {% for public_article in articles %}
+                    {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -321,7 +321,7 @@
                 <ul>
                     {% if public_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}"
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=public"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ public_tutos_count }}</span>
@@ -331,7 +331,7 @@
                     {% endif %}
                     {% if beta_tutos_count > 0 %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta"
+                            <a href="{% url "content:find-tutorial" usr.pk %}?filter=beta"
                                class="mobile-menu-link mobile-menu-sublink"
                             >
                                 <span class="count">{{ beta_tutos_count }}</span>
@@ -342,7 +342,7 @@
                     {% if profile.user == user %}
                         {% if validate_tutos_count > 0 %}
                             <li>
-                                <a href="{% url "zds.member.views.tutorials" %}?type=validate"
+                                <a href="{% url "content:find-tutorial" usr.pk %}?filter=validation"
                                    class="mobile-menu-link mobile-menu-sublink"
                                 >
                                     <span class="count">{{ validate_tutos_count }}</span>
@@ -352,7 +352,7 @@
                         {% endif %}
                         {% if draft_tutos_count > 0 %}
                             <li>
-                                <a href="{% url "zds.member.views.tutorials" %}?type=draft"
+                                <a href="{% url "content:find-tutorial" usr.pk %}?filter=redaction"
                                    class="mobile-menu-link mobile-menu-sublink"
                                 >
                                     <span class="count">{{ draft_tutos_count }}</span>
@@ -382,48 +382,68 @@
             {% endif %}
         {% endwith %}
 
-        {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count %}
-            {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 %}
-                <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">Articles</h4>
+        {% with articles_draft_count=profile.get_draft_articles.count articles_validation_count=profile.get_validate_articles.count articles_public_count=profile.get_public_articles.count articles_beta_count=profile.get_beta_articles.count %}
+            {% if articles_draft_count > 0 or articles_validation_count > 0 or articles_public_count > 0 or articles_beta_count > 0 %}
+                <h4 class="mobile-menu-link" data-title="{% trans 'Articles' %}">{% trans 'Articles' %}</h4>
                 <ul>
-                    <li>
-                        <a href="{% url "zds.article.views.find_article" usr.pk %}"
-                           class="mobile-menu-link mobile-menu-sublink"
-                        >
-                            <span class="count">{{ articles_public_count }}</span>
-                            {% trans "En ligne" %}
-                        </a>
-                    </li>
+                    {% if articles_public_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-article" usr.pk %}?filter=public"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ articles_public_count }}</span>
+                                {% trans "En ligne" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if articles_beta_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-article" usr.pk %}?filter=beta"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ articles_beta_count }}</span>
+                                {% trans "En béta" %}
+                            </a>
+                        </li>
+                     {% endif %}
                     {% if profile.user == user %}
-                        <li>
-                            <a href="{% url "zds.member.views.articles" %}?type=validate"
-                               class="mobile-menu-link mobile-menu-sublink"
-                            >
-                                <span class="count">{{ articles_validation_count }}</span>
-                                {% trans "En validation" %}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url "zds.member.views.articles" %}?type=draft"
-                               class="mobile-menu-link mobile-menu-sublink"
-                            >
-                                <span class="count">{{ articles_draft_count }}</span>
-                                {% trans "En rédaction" %}
-                            </a>
-                        </li>
+                        {% if articles_validation_count > 0 %}
+                            <li>
+                                <a href="{% url "content:find-article" usr.pk %}?filter=validation"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
+                                    <span class="count">{{ articles_validation_count }}</span>
+                                    {% trans "En validation" %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if articles_draft_count > 0 %}
+                            <li>
+                                <a href="{% url "content:find-article" usr.pk %}?filter=redaction"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
+                                    <span class="count">{{ articles_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </a>
+                            </li>
+                         {% endif %}
                     {% else %}
-                        <li class="inactive mobile-menu-link mobile-menu-sublink">
-                            <span>
-                                <span class="count">{{ articles_validation_count }}</span>
-                                {% trans "En validation" %}
-                            </span>
-                        </li>
-                        <li class="inactive mobile-menu-link mobile-menu-sublink">
-                            <span>
-                                <span class="count">{{ articles_draft_count }}</span>
-                                {% trans "En rédaction" %}
-                            </span>
-                        </li>
+                        {% if articles_validation_count > 0 %}
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
+                                <span>
+                                    <span class="count">{{ articles_validation_count }}</span>
+                                    {% trans "En validation" %}
+                                </span>
+                            </li>
+                        {% endif %}
+                        {% if articles_draft_count > 0 %}
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
+                                <span>
+                                    <span class="count">{{ articles_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </span>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
             {% endif %}

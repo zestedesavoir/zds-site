@@ -1,0 +1,37 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Importer une nouvelle version de" %} {{ content.title }}
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Importer une nouvelle version" %}</li>
+{% endblock %}
+
+
+{% block headline %}
+
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% trans "Importer une nouvelle version" %}
+    </h1>
+
+{% endblock %}
+
+{% block content %}
+    <div class="alert-box info alert-box-not-closable">
+    {%  blocktrans with prefix=app.content.import_image_prefix %}
+        Pour importer des images, veuillez spécifier la seconde archive.
+        Les motifs <code>![légende]({{ prefix }}:chemin/vers/image.extension)</code>, référant aux images stockées dans l'archive, seront remplacés par les URLs générées par le site.
+    {% endblocktrans %}
+    </div>
+
+    {% crispy form %}
+{% endblock %}

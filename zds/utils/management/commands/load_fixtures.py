@@ -12,7 +12,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.tutorial.factories import BigTutorialFactory, PartFactory, ChapterFactory, NoteFactory, MiniTutorialFactory,\
-    ExtractFactory
+    ExtractFactory as OldExtractFactory
 from zds.article.factories import ReactionFactory, ArticleFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
@@ -27,6 +27,10 @@ from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, Su
 from zds.utils import slugify
 from zds import settings
 from django.db import transaction
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
+    Validation as CValidation, ContentReactionFactory
+from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.utils import publish_content
 
 
 def load_member(cli, size, fake, root):
@@ -281,10 +285,11 @@ def load_categories_content(cli, size, fake):
 
     lics = ["CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO", "Tout-Droits"]
     for lic in lics:
-        ex = Licence.objects.filter(code=lic)
-        if ex is None:
+        ex = Licence.objects.filter(code=lic).all()
+        if len(ex) is 0:
             licence = Licence(code=lic, title=lic, description="")
             licence.save()
+            cli.stdout.write(u'Note: ajout de la licence {}'.format(lic))
     categories = []
     sub_categories = []
     nb_categories = size * 5
@@ -372,6 +377,34 @@ def load_comment_tutorial(cli, size, fake):
     cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
+def load_comment_content(cli, size, fake):
+    """
+    Load content's comments
+    """
+    nb_avg_posts = size * 10
+    cli.stdout.write(u"Nombres de messages à poster en moyenne : {}".format(nb_avg_posts))
+    tps1 = time.time()
+    contents = list(PublishableContent.objects.filter(sha_public__isnull=False))
+    nb_contents = len(contents)
+    profiles = list(Profile.objects.all())
+    nb_users = len(profiles)
+    for i in range(0, nb_contents):
+        nb_posts = randint(0, nb_avg_posts * 2)
+        post = None
+        for j in range(0, nb_posts):
+            post = ContentReactionFactory(
+                related_content=contents[i], author=profiles[j % nb_users].user, position=j + 1)
+            post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
+            post.text_html = emarkdown(post.text)
+            post.save()
+            sys.stdout.write("Contenu {}/{}  \tCommentaire {}/{}  \r". format(i + 1, nb_contents, j + 1, nb_posts))
+            sys.stdout.flush()
+        contents[i].last_note = post
+        contents[i].save()
+    tps2 = time.time()
+    cli.stdout.write(u"\nFait en {:.3f} sec".format(tps2 - tps1))
+
+
 def load_tutorials(cli, size, fake):
     """
     Load tutorials
@@ -442,9 +475,9 @@ def load_tutorials(cli, size, fake):
                                                            title=fake.text(max_nb_chars=80)))
                             nb_ext = randint(0, nb_avg_extracts_in_tuto * 2)
                             for l in range(0, nb_ext):
-                                ExtractFactory(chapter=chapters[k],
-                                               position_in_chapter=l,
-                                               title=fake.text(max_nb_chars=80))
+                                OldExtractFactory(chapter=chapters[k],
+                                                  position_in_chapter=l,
+                                                  title=fake.text(max_nb_chars=80))
                     if i < int(nb_tutos * percent_tutos_with_validator):
                         validator = staffs[random.randint(0, nb_staffs - 1)]
                         valid = TValidation(tutorial=tuto,
@@ -492,9 +525,7 @@ def load_tutorials(cli, size, fake):
                     chap = ChapterFactory(tutorial=tutorials[j])
                     nb_ext = randint(0, nb_avg_extracts_in_tuto * 2)
                     for l in range(0, nb_ext):
-                        ExtractFactory(chapter=chap,
-                                       position_in_chapter=l,
-                                       title=fake.text(max_nb_chars=80))
+                        OldExtractFactory(chapter=chap, position_in_chapter=l, title=fake.text(max_nb_chars=80))
                     if i < int(nb_tutos * percent_tutos_with_validator):
                         validator = staffs[random.randint(0, nb_staffs - 1)]
                         valid = TValidation(tutorial=tuto,
@@ -623,6 +654,176 @@ def load_articles(cli, size, fake):
                 cli.stdout.write(u"\nFait en {} sec".format(tps2 - tps1))
 
 
+def load_contents(cli, _type, size, fake):
+    """Create v2 contents"""
+
+    nb_contents = size * 10
+    percent_contents_in_validation = 0.4
+    percent_contents_with_validator = 0.2
+    percent_contents_public = 0.3
+    percent_mini = 0.5
+    percent_medium = 0.3
+    percent_big = 0.2
+    nb_avg_containers_in_content = size
+    nb_avg_extracts_in_content = size
+
+    is_articles = _type == "ARTICLE"
+    is_tutorials = not is_articles
+
+    textual_type = u"article"
+    if is_tutorials:
+        textual_type = u"tutoriel"
+
+    # small introduction
+    cli.stdout.write(u'À créer: {:d} {}s'.format(nb_contents, textual_type), ending='')
+
+    if is_tutorials:
+        cli.stdout.write(u' ({:g} petits, {:g} moyens et {:g} grands)'
+                         .format(nb_contents * percent_mini, nb_contents * percent_medium, nb_contents * percent_big))
+    else:
+        cli.stdout.write('')
+
+    cli.stdout.write(
+        u' - {:g} en brouillon'.format(
+            nb_contents *
+            (1 - percent_contents_public - percent_contents_in_validation - percent_contents_with_validator)))
+    cli.stdout.write(
+        u' - {:g} en validation (dont {:g} réservés)'
+        .format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
+                nb_contents * percent_contents_with_validator))
+    cli.stdout.write(u' - {:g} publiés'.format(nb_contents * percent_contents_public))
+
+    tps1 = time.time()
+
+    # create tables with 0=draft, 1=in validation, 2=reserved, 3=published
+    what_to_do = []
+    for i in range(nb_contents):
+        what = 0  # in draft
+        if i < percent_contents_public * nb_contents:
+            what = 3
+        elif i < (percent_contents_public + percent_contents_with_validator) * nb_contents:
+            what = 2
+        elif i >= (1 - percent_contents_in_validation) * nb_contents:
+            what = 1
+        what_to_do.append(what)
+
+    # create a table with 0=mini, 1=medium, 2=big
+    content_sizes = []
+    for i in range(nb_contents):
+        sz = 0
+        if i < percent_big * nb_contents:
+            sz = 2
+        elif i >= (1 - percent_medium) * nb_contents:
+            sz = 1
+        content_sizes.append(sz)
+
+    # shuffle the whole thing
+    random.shuffle(what_to_do)
+    random.shuffle(content_sizes)
+
+    # checks that everything is ok
+    users = list(Profile.objects.all())
+    nb_users = len(users)
+    sub_categories = list(SubCategory.objects.all())
+    nb_sub_categories = len(sub_categories)
+    if nb_users == 0:
+        cli.stdout.write(u"Il n'y a aucun membre actuellement. "
+                         u"Vous devez rajouter les membre dans vos fixtures (member)")
+        return
+
+    if nb_sub_categories == 0:
+        cli.stdout.write(u"Il n'y a aucune catégories actuellement."
+                         u"Vous devez rajouter les catégories dans vos fixtures (category_content)")
+        return
+
+    perms = list(Permission.objects.filter(codename__startswith='change_').all())
+    staffs = list(User.objects.filter(groups__permissions__in=perms).all())
+    nb_staffs = len(staffs)
+
+    if nb_staffs == 0:
+        cli.stdout.write(u"Il n'y a aucun staff actuellement."
+                         u"Vous devez rajouter les staffs dans vos fixtures (staff)")
+        return
+
+    licenses = list(Licence.objects.all())
+    nb_licenses = len(licenses)
+
+    if nb_licenses == 0:
+        cli.stdout.write(u"Il n'y a aucune licence actuellement."
+                         u"Vous devez rajouter les licences dans vos fixtures (category_content)")
+        return
+
+    # create and so all:
+    for i in range(nb_contents):
+        sys.stdout.write("Création {} : {}/{}  \r".format(textual_type, i + 1, nb_contents))
+
+        current_size = content_sizes[i]
+        to_do = what_to_do[i]
+
+        # creation:
+        content = PublishableContentFactory(
+            type=_type,
+            title=fake.text(max_nb_chars=60),
+            description=fake.sentence(nb_words=15, variable_nb_words=True))
+
+        versioned = content.load_version()
+
+        if current_size == 0 or is_articles:
+            for j in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+                ExtractFactory(container=versioned, title=fake.text(max_nb_chars=60), light=False)
+        else:
+            for j in range(random.randint(1, nb_avg_containers_in_content * 2)):
+                container = ContainerFactory(parent=versioned, title=fake.text(max_nb_chars=60))
+
+                if current_size == 1:  # medium size tutorial
+                    for k in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+                        ExtractFactory(container=container, title=fake.text(max_nb_chars=60), light=False)
+                else:  # big-size tutorial
+                    for k in range(random.randint(1, nb_avg_containers_in_content * 2)):
+                        subcontainer = ContainerFactory(parent=container, title=fake.text(max_nb_chars=60))
+
+                        for l in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+                            ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
+
+        # add some informations:
+        author = users[random.randint(0, nb_users - 1)].user
+        content.authors.add(author)
+        UserGalleryFactory(gallery=content.gallery, mode="W", user=author)
+        content.licence = licenses[random.randint(0, nb_licenses - 1)]
+        content.sha_draft = versioned.sha_draft
+        content.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
+        content.save()
+
+        # then, validation if needed:
+        if to_do > 0:
+            valid = CValidation(
+                content=content, version=content.sha_draft, date_proposition=datetime.now(), status="PENDING")
+            valid.comment_validator = fake.text(max_nb_chars=200)
+
+            content.sha_validation = content.sha_draft
+
+            if to_do > 1:  # reserve validation
+                valid.date_reserve = datetime.now()
+                valid.validator = staffs[random.randint(0, nb_staffs - 1)]
+                valid.status = "PENDING_V"
+            if to_do > 2:  # publish content
+                valid.comment_validator = fake.text(max_nb_chars=80)
+                valid.status = "ACCEPT"
+                valid.date_validation = datetime.now()
+                content.sha_public = content.sha_draft
+
+                published = publish_content(content, versioned)
+                content.public_version = published
+
+            valid.save()
+            content.save()
+
+        sys.stdout.flush()
+
+    tps2 = time.time()
+    cli.stdout.write(u"\nFait en {:.3f} sec".format(tps2 - tps1))
+
+
 @transaction.atomic
 class Command(BaseCommand):
     args = 'size=[low|medium|high] type=member,staff,gallery,category_forum,category_content'
@@ -644,6 +845,9 @@ class Command(BaseCommand):
                           "note",
                           "gallery",
                           "tutorial",
+                          "article2",
+                          "tutorial2",
+                          "comment",
                           "reaction"]
         for arg in args:
             options = arg.split("=")
@@ -693,3 +897,9 @@ class Command(BaseCommand):
             load_tutorials(self, size, fake)
         if "note" in default_module:
             load_comment_tutorial(self, size, fake)
+        if "tutorial2" in default_module:
+            load_contents(self, "TUTORIAL", size, fake)
+        if "article2" in default_module:
+            load_contents(self, "ARTICLE", size, fake)
+        if "comment" in default_module:
+            load_comment_content(self, size, fake)

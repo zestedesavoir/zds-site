@@ -13,13 +13,12 @@ from django.template.loader import render_to_string
 from django.shortcuts import render
 from zds import settings
 
-from zds.article.models import get_last_articles
 from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
-from zds.tutorial.models import get_last_tutorials, get_tutorials_count
+from utils import get_last_tutorials, get_tutorials_count, get_last_articles
 from zds.utils.models import Alert
 from django.utils.translation import ugettext_lazy as _
 
@@ -29,14 +28,13 @@ def home(request):
 
     tutos = []
     for tuto in get_last_tutorials():
-        data = tuto.load_json_for_public()
-        tuto.load_dic(data)
+        data = tuto
+
         tutos.append(data)
 
     articles = []
     for article in get_last_articles():
-        data = article.load_json_for_public()
-        data = article.load_dic(data)
+        data = article
         articles.append(data)
 
     try:

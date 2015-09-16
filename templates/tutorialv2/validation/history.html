@@ -1,0 +1,84 @@
+{% extends "tutorialv2/base.html" %}
+{% load date %}
+{% load captureas %}
+{% load emarkdown %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Historique de validation" %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "validation:list" %}">{% trans "Validation" %}</a></li>
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Historique" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {{ content.title }}
+    </h1>
+
+    <h2 class="subtitle">
+        {% trans "Historique de validation" %}
+    </h2>
+
+    {% if user.user in content.authors.all %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
+    {% else %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if validations %}
+        <table class="fullwidth">
+            <thead>
+                <tr>
+                    <th width="50%">{% trans "Proposé" %}</th>
+                    <th width="50%">{% trans "Statut" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for validation in validations %}
+                    <tr>
+                        <td>
+                            {{ validation.date_proposition|format_date|capfirst }}
+                            {% if validation.comment_authors %}
+                                <br>
+                                <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
+                                    {% trans "Message laissé à la validation" %}
+                                </a>
+                                <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
+                                    <p>
+                                        {{ validation.comment_authors|emarkdown }}
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% captureas reservation_url %}
+                                {% url "validation:reserve" validation.pk %}
+                            {% endcaptureas %}
+                            {% include "misc/validation.part.html" %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            {% trans "Ce tutoriel n'a jamais été soumis en validation" %}.
+        </p>
+    {% endif %}
+{% endblock %}

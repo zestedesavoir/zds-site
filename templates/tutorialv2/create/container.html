@@ -1,0 +1,46 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load feminize %}
+
+{% block title %}
+    {{ "Nouveau"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
+{% endblock %}
+
+
+
+{% block headline %}
+    <h1>
+        {{ "Nouveau"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}
+    </h1>
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {%  if container.parent.parent %}
+        <li><a href="{{ container.parent.parent.get_absolute_url }}">{{ container.parent.parent.title }}</a></li>
+    {% endif %}
+
+    {%  if container.parent %}
+        <li><a href="{{ container.parent.get_absolute_url }}">{{ container.parent.title }}</a></li>
+    {% endif %}
+
+    <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
+
+    <li>{{ "Nouveau"|feminize:container.get_next_level_as_string }} {{ container.get_next_level_as_string|lower }}</li>
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}
+
+{% block sidebar_actions %}
+    <li>
+        <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
+            {% trans "Ajouter une image à la galerie" %}
+        </a>
+    </li>
+{% endblock %}

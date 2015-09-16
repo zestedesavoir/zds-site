@@ -11,7 +11,7 @@ from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post
 from zds.mp.models import PrivateTopic
 from zds.tutorial.models import Note, TutorialRead
 from zds.utils.models import Alert
-
+from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
 
 register = template.Library()
 
@@ -76,7 +76,7 @@ def interventions_topics(user):
         .filter(user=user)\
         .filter(topic__in=topicsfollowed)\
         .select_related("topic")\
-        .exclude(post=F('topic__last_message'))
+        .exclude(post=F('topic__last_message')).all()
 
     articlesfollowed = Reaction.objects\
         .filter(author=user, article__sha_public__isnull=False)\
@@ -87,7 +87,7 @@ def interventions_topics(user):
         .filter(user=user)\
         .filter(article__in=articlesfollowed)\
         .select_related("article")\
-        .exclude(reaction=F('article__last_reaction'))
+        .exclude(reaction=F('article__last_reaction')).all()
 
     tutorialsfollowed = Note.objects\
         .filter(author=user, tutorial__sha_public__isnull=False)\
@@ -97,7 +97,15 @@ def interventions_topics(user):
     tutorials_never_read = TutorialRead.objects\
         .filter(user=user)\
         .filter(tutorial__in=tutorialsfollowed)\
-        .exclude(note=F('tutorial__last_note'))
+        .exclude(note=F('tutorial__last_note')).all()
+
+    content_to_read = ContentRead.objects\
+        .select_related('note')\
+        .select_related('note__author')\
+        .select_related('content')\
+        .select_related('note__related_content__public_version')\
+        .filter(user=user)\
+        .exclude(note__pk=F('content__last_note__pk')).all()
 
     posts_unread = []
 
@@ -123,6 +131,18 @@ def interventions_topics(user):
                              'author': content.author,
                              'title': top.topic.title,
                              'url': content.get_absolute_url()})
+
+    for content_read in content_to_read:
+        content = content_read.content
+        reaction = content.first_unread_note()
+        if reaction is None:
+            reaction = content.first_note()
+        if reaction is None:
+            continue
+        posts_unread.append({'pubdate': reaction.pubdate,
+                             'author': reaction.author,
+                             'title': content.title,
+                             'url': reaction.get_absolute_url()})
 
     posts_unread.sort(cmp=comp)
 
@@ -173,6 +193,13 @@ def alerts_list(user):
         elif alert.scope == Alert.TUTORIAL:
             note = Note.objects.select_related('tutorial').get(pk=alert.comment.pk)
             total.append({'title': note.tutorial.title,
+                          'url': note.get_absolute_url(),
+                          'pubdate': alert.pubdate,
+                          'author': alert.author,
+                          'text': alert.text})
+        if alert.scope == Alert.CONTENT:
+            note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
+            total.append({'title': note.related_content.title,
                           'url': note.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,

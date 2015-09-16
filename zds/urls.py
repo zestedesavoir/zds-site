@@ -5,9 +5,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 
-from zds.article.models import Article
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.forum.models import Category, Forum, Topic, Tag
-from zds.tutorial.models import Tutorial
 
 from . import settings
 
@@ -18,13 +17,10 @@ class TutoSitemap(Sitemap):
     priority = 1
 
     def items(self):
-        return Tutorial.objects.filter(sha_public__isnull=False)
+        return PublishedContent.objects.filter(must_redirect=False, content_type="TUTORIAL").prefetch_related('content')
 
     def lastmod(self, tuto):
-        if tuto.update is None:
-            return tuto.pubdate
-        else:
-            return tuto.update
+        return tuto.content.update_date or tuto.publication_date
 
     def location(self, tuto):
         return tuto.get_absolute_url_online()
@@ -35,13 +31,10 @@ class ArticleSitemap(Sitemap):
     priority = 1
 
     def items(self):
-        return Article.objects.filter(sha_public__isnull=False)
+        return PublishedContent.objects.filter(must_redirect=False, content_type="ARTICLE").prefetch_related('content')
 
     def lastmod(self, article):
-        if article.update is None:
-            return article.pubdate
-        else:
-            return article.update
+        return article.content.update_date or article.publication_date
 
     def location(self, article):
         return article.get_absolute_url_online()
@@ -77,8 +70,9 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-                       url(r'^tutoriels/', include('zds.tutorial.urls')),
-                       url(r'^articles/', include('zds.article.urls')),
+                       url(r'^oldtutoriels/', include('zds.tutorial.urls')),
+                       url(r'^oldarticles/', include('zds.article.urls')),
+                       url(r'^', include('zds.tutorialv2.urls')),
                        url(r'^forums/', include('zds.forum.urls')),
                        url(r'^mp/', include('zds.mp.urls')),
                        url(r'^membres/', include('zds.member.urls')),

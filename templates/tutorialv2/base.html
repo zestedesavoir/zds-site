@@ -1,0 +1,129 @@
+{% extends "base_content_page.html" %}
+{% load captureas %}
+{% load i18n %}
+
+
+
+{% block title_base %}
+    &bull; {% trans "Contenus" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Contenus" %}
+{% endblock %}
+
+
+{% block menu_tutorial %}
+    {% if current_content_type == "TUTORIAL" %}
+        current
+    {% endif %}
+    {%  if content and content.type == "TUTORIAL" %}
+        current
+    {% endif %}
+{% endblock %}
+{% block menu_article %}
+    {% if current_content_type == "ARTICLE" %}
+        current
+    {% endif %}
+    {%  if content and content.type == "ARTICLE" %}
+        current
+    {% endif %}
+{% endblock %}
+
+
+{% block breadcrumb_base %}
+    {% if user in content.authors.all %}
+        {% if content.type == 'TUTORIAL' %}
+            <li><a href="{% url "content:find-tutorial" user.pk %}">{% trans "Tutoriels de" %} {{ user.username }}</a></li>
+        {% elif content.type == 'ARTICLE' %}
+            <li><a href="{% url "content:find-article" user.pk %}">{% trans "Articles de" %} {{ user.username }}</a></li>
+        {% endif %}
+    {% elif content %}
+        <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+            {% if content.type == 'TUTORIAL' %}
+                <a href="{% url "tutorial:list" %}" itemprop="url"><span itemprop="title">{% trans "Tutoriels" %}</span></a>
+            {% elif content.type == 'ARTICLE' %}
+                <a href="{% url 'article:list' %}" itemprop="url"><span itemprop="title">{% trans "Articles" %}</span></a>
+            {% endif %}
+        </li>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar summary mobile-menu-hide">
+        {% block sidebar_new %}{% endblock %}
+
+        {% captureas sidebaractions %}
+            {% block sidebar_actions %}{% endblock %}
+        {% endcaptureas %}
+
+        {% if sidebaractions %}
+            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+                <h3>{% trans "Actions" %}</h3>
+                <ul>
+                    {{ sidebaractions|safe }}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% block sidebar_blocks %}{% endblock %}
+        {% if content %}
+            {% if content.is_public or content.in_beta or can_edit or is_staff %}
+                <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+                    <h3>{% trans "Télécharger" %}</h3>
+                    <ul>
+                        {% if public_object %}
+                            {% if is_staff or is_author %}
+                                {% if public_object.have_md %}
+                                    <li>
+                                        <a href="{{ public_object.get_absolute_url_md }}" class="ico-after download blue">
+                                            {% trans "Markdown" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                            {% if public_object.have_html %}
+                                <li>
+                                    <a href="{{ public_object.get_absolute_url_html }}" class="ico-after download blue">
+                                        {% trans "HTML" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if public_object.have_pdf %}
+                                <li>
+                                    <a href="{{ public_object.get_absolute_url_pdf }}" class="ico-after download blue">
+                                        {% trans "PDF" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if public_object.have_epub %}
+                                <li>
+                                    <a href="{{ public_object.get_absolute_url_epub }}" class="ico-after download blue">
+                                        {% trans "EPUB" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if public_object.have_zip %}
+                                <li>
+                                    <a href="{{ public_object.get_absolute_url_zip }}" class="ico-after download blue">
+                                        {% trans "Archive" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li>
+                                <a href="{% url "content:download-zip" content.pk content.slug %}{% if version %}?version={{ version }}{% endif %}" class="ico-after download blue">
+                                    {% trans "Archive" %}
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endif %}
+    </aside>
+{% endblock %}

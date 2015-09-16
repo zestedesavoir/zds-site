@@ -9,8 +9,10 @@
 
     function accordeon($elem){
         $("h4 + ul, h4 + ol", $elem).each(function(){
-            if($(".current", $(this)).length === 0)
-                $(this).hide();
+            if(!$(this).hasClass("unfolded")){
+                if($(".current", $(this)).length === 0)
+                    $(this).hide();
+            }
         });
 
         $("h4", $elem).click(function(e){

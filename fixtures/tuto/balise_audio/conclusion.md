@@ -1,0 +1,3 @@
+S’il est encore nécessaire de montrer l’intérêt des balises modernes du HTML5, sachez par exemple que YouTube, le célèbre hébergeur de vidéos, a décidé d’arrêter complètement l'utilisation de Flash pour ses contenus. En effet, maintenant, toutes les vidéos passent par l'utilisation… de la balise `<video>` !
+
+Un gros merci à [Dominus Carnufex](https://zestedesavoir.com/membres/voir/Dominus%20Carnufex/) pour avoir pris le temps et le courage de venir relire et corriger toutes mes monstrueuses fautes ! Merci aussi à [viki53](https://zestedesavoir.com/membres/voir/viki53/) pour ses conseils sur le JavaScript et ses idées.

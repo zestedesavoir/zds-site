@@ -70,7 +70,8 @@ def create_topic(
         title,
         subtitle,
         text,
-        key):
+        key=None,
+        related_publishable_content=None):
     """create topic in forum"""
 
     (tags, title_only) = get_tag_by_title(title[:Topic._meta.get_field('title').max_length])
@@ -83,7 +84,11 @@ def create_topic(
     n_topic.pubdate = datetime.now()
     n_topic.author = author
     n_topic.key = key
+
     n_topic.save()
+    if related_publishable_content is not None:
+        related_publishable_content.beta_topic = n_topic
+        related_publishable_content.save()
     n_topic.add_tags(tags)
     n_topic.save()
 

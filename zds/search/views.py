@@ -3,11 +3,9 @@ from django.db.models import Q
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-
 from haystack.views import SearchView
 
 from zds import settings
-from zds.search.constants import MODEL_NAMES
 from zds.utils.paginator import paginator_range
 
 
@@ -26,7 +24,8 @@ class CustomSearchView(SearchView):
             'nb': page_nbr,
             'paginator': paginator,
             'suggestion': None,
-            'model_name': MODEL_NAMES
+            'model_name': '',
+            'models': self.request.GET.getlist('models', ''),
         }
 
         if self.results and hasattr(self.results, 'query') and self.results.query.backend.include_spelling:
