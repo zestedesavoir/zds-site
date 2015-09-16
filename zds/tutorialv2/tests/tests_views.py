@@ -1575,6 +1575,28 @@ class ContentTests(TestCase):
         # clean up
         os.remove(draft_zip_path)
 
+    def import_with_bad_title(self):
+        """Tests an error case that happen when someone sends an archive that modify the content title
+           with a string that cannont be properly slugified"""
+        new_article = PublishableContentFactory(type="ARTICLE", title="extension", authors=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        archive_path = os.path.join(settings.BASE_DIR, "fixtures", "tuto", "BadArchive.zip")
+        answer = self.client.post(reverse("content:import",
+                                 args=[new_article.pk, new_article.slug]),
+                         {'archive': ZipFile(archive_path, "r"),
+                          'image_archive': None,
+                          'msg_commit': 'let it go, let it goooooooo ! can\'t hold it back anymoooooore!'})
+        self.assertEqual(200, answer.status_code)
+        msgs = answer.context['messages']
+        last = None
+        for msg in msgs:
+            last = msg
+        self.assertEqual(last.level, messages.ERROR)
+
     def test_import_image_with_archive(self):
         """ensure that import archive work, and link are changed"""
 
