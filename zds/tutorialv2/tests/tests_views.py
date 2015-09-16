@@ -1586,10 +1586,10 @@ class ContentTests(TestCase):
             True)
         archive_path = os.path.join(settings.BASE_DIR, "fixtures", "tuto", "BadArchive.zip")
         answer = self.client.post(reverse("content:import",
-                                 args=[new_article.pk, new_article.slug]),
-                         {'archive': ZipFile(archive_path, "r"),
-                          'image_archive': None,
-                          'msg_commit': 'let it go, let it goooooooo ! can\'t hold it back anymoooooore!'})
+                                          args=[new_article.pk, new_article.slug]),
+                                  {'archive': open(archive_path, "r"),
+                                   'image_archive': None,
+                                   'msg_commit': 'let it go, let it goooooooo ! can\'t hold it back anymoooooore!'})
         self.assertEqual(200, answer.status_code)
         msgs = answer.context['messages']
         last = None
