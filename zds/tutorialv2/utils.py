@@ -18,6 +18,7 @@ from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from django.utils import translation
 
 from zds.search.models import SearchIndexContent
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
@@ -562,7 +563,14 @@ def publish_content(db_object, versioned, is_major_update=True):
     base_name = os.path.join(extra_contents_path, versioned.slug)
 
     # 1. markdown file (base for the others) :
-    parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
+    # If we come from a command line, we need to activate i18n, to have the date in the french language.
+    cur_language = translation.get_language()
+    try:
+        translation.activate(settings.LANGUAGE_CODE)
+        parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
+    finally:
+        translation.activate(cur_language)
+
     parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
 
     md_file_path = base_name + '.md'
