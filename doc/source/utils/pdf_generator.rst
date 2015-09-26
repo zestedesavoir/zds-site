@@ -6,7 +6,7 @@ Vous avez la possibilité de générer le (ou les) PDF(s) d'un (ou plusieurs) co
 
 .. sourcecode:: bash
 
-    python manage.py generate_pdf
+    python manage.py pdf_generator
 
 Les PDFs de tout les contenus publiés seront alors (re)générés.
 
@@ -18,7 +18,7 @@ Vous pouvez préciser une liste de contenus dont les PDF doivent être (re)gén�
 
 .. sourcecode:: bash
 
-    python manage.py generate_pdf id=125,142,56
+    python manage.py pdf_generator id=125,142,56
 
 Seuls ces PDFs seront alors (re)générés.
 
