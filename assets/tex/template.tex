@@ -16,6 +16,9 @@ $if(euro)$
 $endif$
 \else % if luatex or xelatex
   \ifxetex
+    % This will have to be removed some day : http://tex.stackexchange.com/questions/269786/unicode-math-broken
+    \expandafter\let\csname xetex_suppressfontnotfounderror:D\endcsname
+      \suppressfontnotfounderror
     \usepackage{mathspec}
     \usepackage{xltxtra,xunicode}
   \else
