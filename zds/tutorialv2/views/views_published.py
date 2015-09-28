@@ -374,8 +374,11 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                     return StreamingHttpResponse(json_writer.dumps({"text": text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
-
-        return super(SendNoteFormView, self).get(request, *args, **kwargs)
+        try:
+            return super(SendNoteFormView, self).get(request, *args, **kwargs)
+        except MustRedirect:  # if someone changed the pk arguments, and reached a "must redirect" public
+            # object
+            raise Http404("Not found public content with pk " + str(self.request.GET.get("pk", 0)))
 
     def post(self, request, *args, **kwargs):
 
