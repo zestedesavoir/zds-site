@@ -25,13 +25,13 @@ Assurez vous que les dépendances suivantes soient résolues :
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libffi : ``apt-get install libffi-dev``
-- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev``
+- libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev``
 
 Ou, en une ligne,
 
 .. sourcecode:: bash
 
-    apt-get install git python-dev python-setuptools '^geoip(-bin)?$' libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev
+    apt-get install git python-dev python-setuptools '^geoip(-bin)?$' libgeoip-dev libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev
     easy_install pip tox
 
 Installation et configuration de `virtualenv`
