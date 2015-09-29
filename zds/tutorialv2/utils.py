@@ -24,7 +24,9 @@ from zds.search.models import SearchIndexContent
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
 from zds import settings
 from zds.settings import ZDS_APP
-from zds.utils import get_current_user, slugify
+from zds.utils import get_current_user
+from uuslug import slugify
+from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -792,16 +794,17 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
         else:  # it's a tutorial
             if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
                 for extract in json['chapter']['extracts']:
-                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'],
-                                                                           slugify_raise_on_empty(extract['title'])))
+                    new_extract = Extract(
+                        extract['title'], '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['title'], True)))
                     if 'text' in extract:
                         new_extract.text = extract['text']
                     versioned.add_extract(new_extract, generate_slug=False)
 
             elif json['type'] == 'BIG' and 'parts' in json:
                 for part in json['parts']:
-                    new_part = Container(part['title'], '{}_{}'.format(part['pk'],
-                                                                       slugify_raise_on_empty(part['title'])))
+                    new_part = Container(
+                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_empty(part['title'], True)))
+
                     if 'introduction' in part:
                         new_part.introduction = part['introduction']
                     if 'conclusion' in part:
@@ -811,8 +814,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                     if 'chapters' in part:
                         for chapter in part['chapters']:
                             new_chapter = Container(
-                                chapter['title'], '{}_{}'.format(chapter['pk'],
-                                                                 slugify_raise_on_empty(chapter['title'])))
+                                chapter['title'],
+                                '{}_{}'.format(chapter['pk'], slugify_raise_on_empty(chapter['title'], True)))
+
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
                             if 'conclusion' in chapter:
@@ -822,8 +826,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
                             if 'extracts' in chapter:
                                 for extract in chapter['extracts']:
                                     new_extract = Extract(
-                                        extract['title'], '{}_{}'.format(extract['pk'],
-                                                                         slugify_raise_on_empty(extract['title'])))
+                                        extract['title'],
+                                        '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['title'], True)))
+
                                     if 'text' in extract:
                                         new_extract.text = extract['text']
                                     new_chapter.add_extract(new_extract, generate_slug=False)
@@ -835,18 +840,42 @@ class InvalidSlugError(ValueError):
     pass
 
 
-def slugify_raise_on_empty(title):
-    """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty)\
-    we raise a ValueError
+def check_slug(slug):
+    """If the title is incorrect (only special chars so slug is empty)
+
+    :param slug: slug to test
+    :type slug; str
+    :return: `True` if slug is valid, false otherwise
+    :rtype: bool
+    """
+    if slug.replace("-", "").replace("_", "") == "":
+        return False
+
+    return True
+
+
+def slugify_raise_on_empty(title, use_old_slugify=False):
+    """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty), an exception
+    is raised
+
     :param title: to be slugified title
     :type title: str
+    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull
+    for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !
+    :type use_old_slugify: bool
     :raise ValueError: on incorrect slug:
     :return: the slugified title
     :rtype: str
     """
-    slug = slugify(title)
-    if slug.replace("-", "").replace("_", "") == "":
-        raise InvalidSlugError("slug is incorrect")
+
+    if not use_old_slugify:
+        slug = slugify(title)
+    else:
+        slug = old_slugify(title)
+
+    if not check_slug(slug):
+        raise InvalidSlugError(slug)
+
     return slug
 
 
@@ -866,7 +895,9 @@ def fill_containers_from_json(json_sub, parent):
             if child['object'] == 'container':
                 slug = ''
                 try:
-                    slug = slugify_raise_on_empty(child['slug'])
+                    slug = child['slug']
+                    if not check_slug(slug):
+                        raise InvalidSlugError(slug)
                 except (ValueError, KeyError):
                     pass
                 new_container = Container(child['title'], slug)
@@ -883,7 +914,9 @@ def fill_containers_from_json(json_sub, parent):
             elif child['object'] == 'extract':
                 slug = ''
                 try:
-                    slug = slugify_raise_on_empty(child['slug'])
+                    slug = child['slug']
+                    if not check_slug(slug):
+                        raise InvalidSlugError(slug)
                 except (ValueError, KeyError):
                     pass
                 new_extract = Extract(child['title'], slug)

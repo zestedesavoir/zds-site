@@ -26,7 +26,7 @@ from zds.tutorialv2.utils import publish_content
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery, Image
-from zds.utils import slugify
+from uuslug import slugify
 from zds.utils.models import CommentLike, CommentDislike
 from datetime import datetime
 
