@@ -1359,7 +1359,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     for author in self.object.authors.all():
                         if author.pk is not self.request.user.pk:
                             follow(topic, author)
-                            mark_read(topic, author)
+                        mark_read(topic, author)
 
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
