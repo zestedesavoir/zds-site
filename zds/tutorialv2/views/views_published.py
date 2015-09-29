@@ -366,6 +366,9 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
+            if not reaction.is_visible:
+                raise PermissionDenied
+
             if reaction:
                 text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
                 text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())

@@ -4321,7 +4321,24 @@ class PublishedContentTests(TestCase):
         self.assertEqual(reaction.text_hidden, text_hidden[:80])
         self.assertEqual(reaction.editor, self.user_staff)
 
+        # test that someone else is not abble to quote the text
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
+        self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
+
         # then, unhide it !
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
         result = self.client.post(
             reverse('content:show-reaction', args=[reaction.pk]), follow=False)
 
