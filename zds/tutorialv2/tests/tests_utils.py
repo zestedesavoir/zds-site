@@ -15,8 +15,10 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
     PublishedContentFactory
 from zds.gallery.factories import UserGalleryFactory
+from zds.tutorialv2.models.models_versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
-    get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old
+    get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
+    InvalidSlugError, BadManifestError, get_content_from_json
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
@@ -597,6 +599,42 @@ class UtilsTests(TestCase):
         ContentRead(user=newUser, note=reac, content=article).save()
         self.assertFalse(last_participation_is_old(article, newUser))
         self.assertTrue(last_participation_is_old(article, self.user_author))
+
+    def testParseBadManifest(self):
+        base_content = PublishableContentFactory(author_list=[self.user_author])
+        versioned = base_content.load_version()
+        versioned.add_container(Container(u"un peu plus près de 42"))
+        versioned.dump_json()
+        manifest = os.path.join(versioned.get_path(), "manifest.json")
+        dictionary = json_reader.load(open(manifest))
+
+        old_title = dictionary['title']
+
+        # first bad title
+        dictionary['title'] = 81 * ['a']
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+        dictionary['title'] = "".join(dictionary['title'])
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+        dictionary['title'] = '...'
+        self.assertRaises(InvalidSlugError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+        dictionary['title'] = old_title
+        dictionary['children'][0]['title'] = 81 * ['a']
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+        dictionary['children'][0]['title'] = "bla"
+        dictionary['children'][0]['slug'] = "..."
+        self.assertRaises(InvalidSlugError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

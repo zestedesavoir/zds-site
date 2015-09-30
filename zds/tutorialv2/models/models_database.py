@@ -308,7 +308,7 @@ class PublishableContent(models.Model):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
-
+        max_title_length = PublishableContent._meta.get_field("title").max_length
         if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
             path = public.get_prod_path()
             slug = public.content_public_slug
@@ -321,7 +321,8 @@ class PublishableContent(models.Model):
 
             manifest = open(os.path.join(path, 'manifest.json'), 'r')
             json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(json, public.sha_public, slug, public=True)
+            versioned = get_content_from_json(json, public.sha_public,
+                                              slug, public=True, max_title_len=max_title_length)
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
@@ -338,7 +339,7 @@ class PublishableContent(models.Model):
                 raise BadManifestError(
                     _(u'Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
 
-            versioned = get_content_from_json(json, sha, self.slug)
+            versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
         self.insert_data_in_versioned(versioned)
         return versioned

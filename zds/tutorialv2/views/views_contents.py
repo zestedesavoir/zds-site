@@ -504,7 +504,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 _(u'Une erreur est survenue durant la lecture du manifest, '
                   u'vérifiez qu\'il s\'agit de JSON correctement formaté'))
         try:
-            versioned = get_content_from_json(json_, None, '')
+            versioned = get_content_from_json(json_, None, '',
+                                              max_title_len=PublishableContent._meta.get_field('title').max_length)
         except BadManifestError as e:
             raise BadArchiveError(e.message)
         except InvalidSlugError:
