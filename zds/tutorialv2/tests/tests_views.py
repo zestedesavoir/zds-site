@@ -2656,8 +2656,9 @@ class ContentTests(TestCase):
         self.assertEqual(302, response.status_code)
         sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
-
         tuto = PublishableContent.objects.get(pk=tuto.pk)
+        # checks the user follow it
+        self.assertEqual(TopicRead.objects.filter(topic__pk=tuto.beta_topic.pk).count(), 1)
         versioned = tuto.load_version(sha_beta)
 
         # check if author get error when warning typo on its own tutorial
