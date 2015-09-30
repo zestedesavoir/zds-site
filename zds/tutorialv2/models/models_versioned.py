@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from zds.settings import ZDS_APP
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from zds.utils import slugify
+from uuslug import slugify
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.utils import get_blob
 
