@@ -19,6 +19,14 @@
     {% endif %}
 {% endcaptureas %}
 
+{% captureas content_title %}
+    {% if public_tutorial and online %}
+        {{ public_tutorial.title }}
+    {% else %}
+        {{ tutorial.title }}
+    {% endif %}
+{% endcaptureas %}
+
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
     {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
@@ -39,7 +47,7 @@
         
         <div class="content-info">
             <h3 class="content-title" itemprop="itemListElement">
-                {{ tutorial.title }}
+                {{ content_title }}
             </h3>
 
             <p class="content-description">

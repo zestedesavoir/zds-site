@@ -19,6 +19,14 @@
     {% endif %}
 {% endcaptureas %}
 
+{% captureas content_title %}
+    {% if public_article and online %}
+        {{ public_article.title }}
+    {% else %}
+        {{ article.title }}
+    {% endif %}
+{% endcaptureas %}
+
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
     {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
@@ -32,9 +40,9 @@
     </a>
 
     <div class="content-info">
-        <a href="{{ link }}" title="{{ article.title }}{% if article.description and show_description %} − {{ article.description }}{% endif %}">
+        <a href="{{ link }}" title="{{ content_title }}{% if article.description and show_description %} − {{ article.description }}{% endif %}">
             <h3 class="content-title" itemprop="itemListElement">
-                {{ article.title }}
+                {{ content_title }}
             </h3>
             
             <p class="content-description">
