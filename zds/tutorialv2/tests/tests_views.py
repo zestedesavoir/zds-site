@@ -4787,7 +4787,7 @@ class PublishedContentTests(TestCase):
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
-        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
+        reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
         self.assertEqual(len(reactions), 2)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
@@ -4864,6 +4864,29 @@ class PublishedContentTests(TestCase):
         self.tuto.save()
         result = self.client.get(url_template.format(861489632, reaction.pk))
         self.assertEqual(404, result.status_code)
+
+    def test_cant_edit_not_owned_note(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        newUser = ProfileFactory().user
+        newReaction = ContentReaction(related_content=article, position=1)
+        newReaction.update_content("I will find you. And I will Kill you.")
+        newReaction.author = self.user_guest
+
+        newReaction.save()
+        self.assertEqual(
+            self.client.login(
+                username=newUser.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(
+            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk))
+        self.assertEqual(403, resp.status_code)
+        resp = self.client.post(
+            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk),
+            {
+                'text': "I edited it"
+            })
+        self.assertEqual(403, resp.status_code)
 
     def tearDown(self):
 
