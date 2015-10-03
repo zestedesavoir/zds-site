@@ -4848,32 +4848,6 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
-        # login with staff
-        self.assertEqual(
-            self.client.login(
-                username=self.user_staff.username,
-                password='hostel77'),
-            True)
-
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
-        self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
-
-        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
-        self.assertEqual(tuto.first_unread_note(), reactions[0])
-
-        # visit tutorial and read the two notes:
-        result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
-        self.assertEqual(result.status_code, 200)
-        # simple visit does not trigger follow
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
-
-        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), tuto.last_note)  # now reactions are read
-        self.assertEqual(tuto.first_unread_note(), reactions[-1])
-
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
