@@ -58,7 +58,7 @@ urlpatterns = patterns('',
                        # create:
                        url(r'^nouveau-tutoriel/$',
                            CreateContent.as_view(created_content_type="TUTORIAL"), name='create-tutorial'),
-                       url(r'^nouveau-article/$',
+                       url(r'^nouvel-article/$',
                            CreateContent.as_view(created_content_type="ARTICLE"), name='create-article'),
                        url(r'^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
                            CreateContainer.as_view(),
