@@ -1367,7 +1367,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         {
                             'content': beta_version,
                             'type': _type,
-                            'url': settings.ZDS_APP['site']['url'] + topic.get_absolute_url()
+                            'url': settings.ZDS_APP['site']['url'] + topic.get_absolute_url(),
+                            'user': self.request.user
                         }
                     )
                     send_mp(bot,
