@@ -4871,7 +4871,7 @@ class PublishedContentTests(TestCase):
         self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), reactions[1])  # now reactions are read
+        self.assertEqual(tuto.last_read_note(), tuto.last_note)  # now reactions are read
         self.assertEqual(tuto.first_unread_note(), reactions[-1])
 
     def tearDown(self):
