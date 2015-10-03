@@ -20,7 +20,7 @@ from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, N
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import search_container_or_404, never_read, mark_read
+from zds.tutorialv2.utils import search_container_or_404, mark_read, last_participation_is_old
 from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
@@ -137,7 +137,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
 
         # handle reactions:
-        if never_read(self.object):
+        if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object)
 
         return context
@@ -366,6 +366,9 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
+            if not reaction.is_visible:
+                raise PermissionDenied
+
             if reaction:
                 text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
                 text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
@@ -374,8 +377,11 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                     return StreamingHttpResponse(json_writer.dumps({"text": text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
-
-        return super(SendNoteFormView, self).get(request, *args, **kwargs)
+        try:
+            return super(SendNoteFormView, self).get(request, *args, **kwargs)
+        except MustRedirect:  # if someone changed the pk arguments, and reached a "must redirect" public
+            # object
+            raise Http404("Not found public content with pk " + str(self.request.GET.get("pk", 0)))
 
     def post(self, request, *args, **kwargs):
 

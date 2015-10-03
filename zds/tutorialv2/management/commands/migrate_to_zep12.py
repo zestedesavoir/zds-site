@@ -26,7 +26,7 @@ from zds.tutorialv2.utils import publish_content
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery, Image
-from zds.utils import slugify
+from uuslug import slugify
 from zds.utils.models import CommentLike, CommentDislike
 from datetime import datetime
 
@@ -378,125 +378,129 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
 
     for i in progressbar(xrange(len(tutos)), title, 100):
         current = tutos[i]
-        if not os.path.exists(current.get_path(False)):
-            sys.stderr.write('Invalid physical path to repository « {} », skipping\n'.format(current.get_path(False)))
-            continue
-        exported = PublishableContent()
-        exported.slug = current.slug
-        exported.type = "TUTORIAL"
-        exported.title = current.title
-        exported.sha_draft = current.sha_draft
-        exported.sha_beta = current.sha_beta
-        exported.sha_validation = current.sha_validation
-        exported.licence = current.licence
-        exported.update_date = current.update
-        exported.creation_date = current.create_at
-        exported.description = current.description
-        exported.js_support = current.js_support
-        exported.source = current.source
-        exported.pubdate = current.pubdate
-        exported.save()
-
         try:
-            clean_commit = copy_and_clean_repo(current.get_path(False), exported.get_repo_path(False))
-        except InvalidGitRepositoryError as e:
-            exported.delete()
-            sys.stderr.write('Repository in « {} » is invalid, skipping\n'.format(e))
-            continue
-
-        if clean_commit:
-            exported.sha_draft = clean_commit
-
-            # save clean up in old module to avoid any trouble
-            current.sha_draft = clean_commit
-            current.save()
-
-        exported.gallery = current.gallery
-        exported.image = current.image
-        [exported.subcategory.add(category) for category in current.subcategory.all()]
-        [exported.helps.add(help) for help in current.helps.all()]
-        [exported.authors.add(author) for author in current.authors.all()]
-        exported.save()
-
-        # now, re create the manifest.json
-        versioned = exported.load_version()
-
-        # this loop is there because of old .tuto import that failed with their chapter intros
-        for container in versioned.traverse(True):
-            if container.parent is None:
+            if not os.path.exists(current.get_path(False)):
+                sys.stderr.write(
+                    'Invalid physical path to repository « {} », skipping\n'.format(current.get_path(False)))
                 continue
-            # in old .tuto file chapter intro are represented as chapter_slug/introduction.md
-            # instead of part_slug/chapter_slug/introduction.md
-            corrected_intro_path = file_join(container.get_path(relative=False), "introduction.md")
-            corrected_ccl_path = file_join(container.get_path(relative=False), "conclusion.md")
-            if container.get_path(True) not in container.introduction:
-                if file_exists(corrected_intro_path):
-                    container.introduction = file_join(container.get_path(relative=True), "introduction.md")
-                else:
-                    container.introduction = None
-            if container.get_path(True) not in container.conclusion:
-                if file_exists(corrected_ccl_path):
-                    container.conclusion = file_join(container.get_path(relative=True), "conclusion.md")
-                else:
-                    container.conclusion = None
-
-        versioned.licence = exported.licence
-        versioned.type = "TUTORIAL"
-        versioned.dump_json()
-        versioned.repository.index.add(['manifest.json'])  # index new manifest before commit
-        exported.sha_draft = versioned.commit_changes(u"Migration version 2")
-
-        exported.old_pk = current.pk
-        exported.save()
-        # export beta forum post
-        former_topic = Topic.objects.filter(key=current.pk).first()
-        if former_topic is not None:
-            former_topic.related_publishable_content = exported
-
-            former_topic.save()
-            former_first_post = former_topic.first_post()
-            text = former_first_post.text
-            text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
-            former_first_post.update_content(text)
-            former_first_post.save()
-            exported.beta_topic = former_topic
-            exported.save()
-        # extract notes
-        reacts = Note.objects.filter(tutorial__pk=current.pk)\
-                             .select_related("author")\
-                             .order_by("pubdate")\
-                             .all()
-        migrate_validation(exported, TutorialValidation.objects.filter(tutorial__pk=current.pk))
-        if current.last_note:
-            export_comments(reacts, exported, TutorialRead, current.last_note.pk)
-        if current.sha_public is not None and current.sha_public != "":
-            published = publish_content(exported, exported.load_version(current.sha_public), False)
+            exported = PublishableContent()
+            exported.slug = current.slug
+            exported.type = "TUTORIAL"
+            exported.title = current.title
+            exported.sha_draft = current.sha_draft
+            exported.sha_beta = current.sha_beta
+            exported.sha_validation = current.sha_validation
+            exported.licence = current.licence
+            exported.update_date = current.update
+            exported.creation_date = current.create_at
+            exported.description = current.description
+            exported.js_support = current.js_support
+            exported.source = current.source
             exported.pubdate = current.pubdate
-            exported.sha_public = current.sha_public
-            exported.public_version = published
             exported.save()
-            published.content_public_slug = exported.slug
-            published.publication_date = current.pubdate
 
-            published.save()
-            # set mapping
-            map_previous = PublishedContent()
-            map_previous.content_public_slug = current.slug
-            map_previous.content_pk = current.pk
-            map_previous.content_type = 'TUTORIAL'
-            map_previous.must_redirect = True  # will send HTTP 301 if visited !
-            map_previous.content = exported
-            map_previous.save()
-        # fix strange notification bug
-        authors = list(exported.authors.all())
-        reads_to_delete = ContentRead.objects\
-                                     .filter(content=exported)\
-                                     .exclude(user__pk__in=ContentReaction.objects
-                                                                          .filter(related_content=exported)
-                                                                          .exclude(author__in=authors)
-                                                                          .values_list("author__pk", flat=True))
-        for read in reads_to_delete.all():
-            read.delete()
+            try:
+                clean_commit = copy_and_clean_repo(current.get_path(False), exported.get_repo_path(False))
+            except InvalidGitRepositoryError as e:
+                exported.delete()
+                sys.stderr.write('Repository in « {} » is invalid, skipping\n'.format(e))
+                continue
+
+            if clean_commit:
+                exported.sha_draft = clean_commit
+
+                # save clean up in old module to avoid any trouble
+                current.sha_draft = clean_commit
+                current.save()
+
+            exported.gallery = current.gallery
+            exported.image = current.image
+            [exported.subcategory.add(category) for category in current.subcategory.all()]
+            [exported.helps.add(help) for help in current.helps.all()]
+            [exported.authors.add(author) for author in current.authors.all()]
+            exported.save()
+
+            # now, re create the manifest.json
+            versioned = exported.load_version()
+
+            # this loop is there because of old .tuto import that failed with their chapter intros
+            for container in versioned.traverse(True):
+                if container.parent is None:
+                    continue
+                # in old .tuto file chapter intro are represented as chapter_slug/introduction.md
+                # instead of part_slug/chapter_slug/introduction.md
+                corrected_intro_path = file_join(container.get_path(relative=False), "introduction.md")
+                corrected_ccl_path = file_join(container.get_path(relative=False), "conclusion.md")
+                if container.get_path(True) not in container.introduction:
+                    if file_exists(corrected_intro_path):
+                        container.introduction = file_join(container.get_path(relative=True), "introduction.md")
+                    else:
+                        container.introduction = None
+                if container.get_path(True) not in container.conclusion:
+                    if file_exists(corrected_ccl_path):
+                        container.conclusion = file_join(container.get_path(relative=True), "conclusion.md")
+                    else:
+                        container.conclusion = None
+
+            versioned.licence = exported.licence
+            versioned.type = "TUTORIAL"
+            versioned.dump_json()
+            versioned.repository.index.add(['manifest.json'])  # index new manifest before commit
+            exported.sha_draft = versioned.commit_changes(u"Migration version 2")
+
+            exported.old_pk = current.pk
+            exported.save()
+            # export beta forum post
+            former_topic = Topic.objects.filter(key=current.pk).first()
+            if former_topic is not None:
+                former_topic.related_publishable_content = exported
+
+                former_topic.save()
+                former_first_post = former_topic.first_post()
+                text = former_first_post.text
+                text = text.replace(current.get_absolute_url_beta(), exported.get_absolute_url_beta())
+                former_first_post.update_content(text)
+                former_first_post.save()
+                exported.beta_topic = former_topic
+                exported.save()
+            # extract notes
+            reacts = Note.objects.filter(tutorial__pk=current.pk)\
+                                 .select_related("author")\
+                                 .order_by("pubdate")\
+                                 .all()
+            migrate_validation(exported, TutorialValidation.objects.filter(tutorial__pk=current.pk))
+            if current.last_note:
+                export_comments(reacts, exported, TutorialRead, current.last_note.pk)
+            if current.sha_public is not None and current.sha_public != "":
+                published = publish_content(exported, exported.load_version(current.sha_public), False)
+                exported.pubdate = current.pubdate
+                exported.sha_public = current.sha_public
+                exported.public_version = published
+                exported.save()
+                published.content_public_slug = exported.slug
+                published.publication_date = current.pubdate
+                published.save()
+                # set mapping
+                map_previous = PublishedContent()
+                map_previous.content_public_slug = current.slug
+                map_previous.content_pk = current.pk
+                map_previous.content_type = 'TUTORIAL'
+                map_previous.must_redirect = True  # will send HTTP 301 if visited !
+                map_previous.content = exported
+                map_previous.save()
+            # fix strange notification bug
+            authors = list(exported.authors.all())
+            reads_to_delete = ContentRead.objects\
+                                         .filter(content=exported)\
+                                         .exclude(user__pk__in=ContentReaction.objects
+                                                                              .filter(related_content=exported)
+                                                                              .exclude(author__in=authors)
+                                                                              .values_list("author__pk", flat=True))
+            for read in reads_to_delete.all():
+                read.delete()
+        except Exception as e:
+            sys.stderr.write(
+                current.title + u" d'identifiant " + str(current.pk) + u" n'a pas été migré à cause de : " + str(e))
 
 
 @transaction.atomic

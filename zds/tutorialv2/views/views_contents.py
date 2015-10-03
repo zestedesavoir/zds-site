@@ -41,7 +41,7 @@ from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
-from zds.utils import slugify
+from uuslug import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.forum.models import Topic, TopicFollowed, follow, mark_read
 from zds.utils.models import Tag, HelpWriting
@@ -1359,7 +1359,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     for author in self.object.authors.all():
                         if author.pk is not self.request.user.pk:
                             follow(topic, author)
-                            mark_read(topic, author)
+                        mark_read(topic, author)
 
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(

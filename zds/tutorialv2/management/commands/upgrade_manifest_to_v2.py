@@ -1,7 +1,7 @@
 from zds.tutorialv2.models.models_versioned import Extract, VersionedContent, Container
 from django.core.management.base import BaseCommand
 from zds.utils.models import Licence
-from zds.utils import slugify
+from uuslug import slugify
 import os
 
 try:

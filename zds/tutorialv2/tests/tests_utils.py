@@ -16,7 +16,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     PublishedContentFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
-    get_target_tagged_tree_for_extract, retrieve_and_update_images_links
+    get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
@@ -577,6 +577,26 @@ class UtilsTests(TestCase):
         call_command('generate_pdf', 'id=-1')  # There is no content with pk=-1
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))  # so no PDF is generated !
+
+    def test_last_participation_is_old(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        newUser = ProfileFactory().user
+        reac = ContentReaction(author=self.user_author, position=1, related_content=article)
+        reac.update_content("I will find you. And I Will Kill you.")
+        reac.save()
+        article.last_note = reac
+        article.save()
+
+        self.assertFalse(last_participation_is_old(article, newUser))
+        ContentRead(user=self.user_author, note=reac, content=article).save()
+        reac = ContentReaction(author=newUser, position=2, related_content=article)
+        reac.update_content("I will find you. And I Will Kill you.")
+        reac.save()
+        article.last_note = reac
+        article.save()
+        ContentRead(user=newUser, note=reac, content=article).save()
+        self.assertFalse(last_participation_is_old(article, newUser))
+        self.assertTrue(last_participation_is_old(article, self.user_author))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

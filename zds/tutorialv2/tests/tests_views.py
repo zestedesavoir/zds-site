@@ -2656,8 +2656,9 @@ class ContentTests(TestCase):
         self.assertEqual(302, response.status_code)
         sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
-
         tuto = PublishableContent.objects.get(pk=tuto.pk)
+        # checks the user follow it
+        self.assertEqual(TopicRead.objects.filter(topic__pk=tuto.beta_topic.pk).count(), 1)
         versioned = tuto.load_version(sha_beta)
 
         # check if author get error when warning typo on its own tutorial
@@ -3602,7 +3603,7 @@ class ContentTests(TestCase):
             'subcategory': self.subcategory.pk,
         }
 
-        disallowed_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ']
+        disallowed_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
 
         for title in disallowed_titles:
             dic['title'] = title
@@ -3610,6 +3611,20 @@ class ContentTests(TestCase):
             self.assertEqual(result.status_code, 200)
             self.assertEqual(PublishableContent.objects.all().count(), 1)
             self.assertFalse(result.context['form'].is_valid())
+
+        # Due to the internal use of `unicodedata.normalize()` by uuslug, some unicode characters are translated, and
+        # therefor gives allowed titles, let's ensure that !
+        # (see https://docs.python.org/2/library/unicodedata.html#unicodedata.normalize and
+        # https://github.com/un33k/python-slugify/blob/master/slugify/slugify.py#L117 for implementation !)
+        allowed_titles = [u'€€', u'£€']
+        prev_count = 1
+
+        for title in allowed_titles:
+            dic['title'] = title
+            result = self.client.post(reverse('content:create-tutorial'), dic, follow=False)
+            self.assertEqual(result.status_code, 302)
+            self.assertNotEqual(PublishableContent.objects.all().count(), prev_count)
+            prev_count += 1
 
     def tearDown(self):
 
@@ -4321,7 +4336,24 @@ class PublishedContentTests(TestCase):
         self.assertEqual(reaction.text_hidden, text_hidden[:80])
         self.assertEqual(reaction.editor, self.user_staff)
 
+        # test that someone else is not abble to quote the text
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
+        self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
+
         # then, unhide it !
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
         result = self.client.post(
             reverse('content:show-reaction', args=[reaction.pk]), follow=False)
 
