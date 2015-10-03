@@ -4190,7 +4190,8 @@ class PublishedContentTests(TestCase):
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
 
         reads = ContentRead.objects.filter(user=self.user_staff).all()
-        self.assertEqual(len(reads), 1)
+        # simple visit does not trigger follow
+        self.assertEqual(len(reads), 0)
         self.assertEqual(reads[0].content.pk, self.tuto.pk)
         self.assertEqual(reads[0].note.pk, reactions[0].pk)
 
@@ -4868,8 +4869,8 @@ class PublishedContentTests(TestCase):
         # visit tutorial and read the two notes:
         result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
         self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 1)
+        # simple visit does not trigger follow
+        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(tuto.last_read_note(), reactions[1])  # now reactions are read
