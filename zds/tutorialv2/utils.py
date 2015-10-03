@@ -131,6 +131,17 @@ def never_read(content, user=None):
         return True
 
 
+def last_participation_is_old(content, user):
+    from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
+    if user is None or not user.is_authenticated():
+        return False
+    if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
+        return False
+    return ContentRead.objects\
+                      .filter(note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk)\
+                      .count() == 0
+
+
 def mark_read(content, user=None):
     """Mark the last tutorial note as read for the user.
 
