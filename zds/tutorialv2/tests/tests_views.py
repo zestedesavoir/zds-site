@@ -4192,8 +4192,6 @@ class PublishedContentTests(TestCase):
         reads = ContentRead.objects.filter(user=self.user_staff).all()
         # simple visit does not trigger follow
         self.assertEqual(len(reads), 0)
-        self.assertEqual(reads[0].content.pk, self.tuto.pk)
-        self.assertEqual(reads[0].note.pk, reactions[0].pk)
 
         # login with author
         self.assertEqual(
@@ -4789,7 +4787,7 @@ class PublishedContentTests(TestCase):
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
-        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
+        reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
         self.assertEqual(len(reactions), 2)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
@@ -4874,7 +4872,7 @@ class PublishedContentTests(TestCase):
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(tuto.last_read_note(), reactions[1])  # now reactions are read
-        self.assertEqual(tuto.first_unread_note(), reactions[1])
+        self.assertEqual(tuto.first_unread_note(), reactions[-1])
 
     def tearDown(self):
 
