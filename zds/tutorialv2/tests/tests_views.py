@@ -4190,9 +4190,8 @@ class PublishedContentTests(TestCase):
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
 
         reads = ContentRead.objects.filter(user=self.user_staff).all()
-        self.assertEqual(len(reads), 1)
-        self.assertEqual(reads[0].content.pk, self.tuto.pk)
-        self.assertEqual(reads[0].note.pk, reactions[0].pk)
+        # simple visit does not trigger follow
+        self.assertEqual(len(reads), 0)
 
         # login with author
         self.assertEqual(
@@ -4788,7 +4787,7 @@ class PublishedContentTests(TestCase):
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
-        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
+        reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
         self.assertEqual(len(reactions), 2)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
@@ -4848,32 +4847,6 @@ class PublishedContentTests(TestCase):
 
         result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
-
-        # login with staff
-        self.assertEqual(
-            self.client.login(
-                username=self.user_staff.username,
-                password='hostel77'),
-            True)
-
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
-        self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
-
-        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
-        self.assertEqual(tuto.first_unread_note(), reactions[0])
-
-        # visit tutorial and read the two notes:
-        result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
-        self.assertEqual(result.status_code, 200)
-
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 1)
-
-        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), reactions[1])  # now reactions are read
-        self.assertEqual(tuto.first_unread_note(), reactions[1])
 
     def tearDown(self):
 
