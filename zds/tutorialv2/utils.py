@@ -31,6 +31,16 @@ from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
+def all_is_string_appart_from_children(dict_representation):
+    """check all keys are string appart from the children key
+    :param dict_representation: the json decoded dictionary
+    :type dict_representation: dict
+    :return:
+    :rtype: bool
+    """
+    return all([isinstance(value, basestring) for key, value in dict_representation.items() if key != "children"])
+
+
 def search_container_or_404(base_content, kwargs_array):
     """
     :param base_content: the base Publishable content we will use to retrieve the container
@@ -727,7 +737,7 @@ class BadManifestError(Exception):
         super(BadManifestError, self).__init__(*args, **kwargs)
 
 
-def get_content_from_json(json, sha, slug_last_draft, public=False):
+def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80):
     """Transform the JSON formated data into ``VersionedContent``
 
     :param json: JSON data from a `manifest.json` file
@@ -740,7 +750,14 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
     from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent
 
     if 'version' in json and json['version'] == 2:
+        json["version"] = "2"
+        if not all_is_string_appart_from_children(json):
+            json['version'] = 2
+            raise BadManifestError("manifest is not well formated")
+        json['version'] = 2
         # create and fill the container
+        if len(json['title']) > max_title_len:
+            raise BadManifestError("Title must be a string of less than {} chars".format(max_title_len))
         slugify_raise_on_empty(json['title'])
         json_slug = slugify_raise_on_empty(json['slug'])
         if not public:
@@ -771,6 +788,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False):
         fill_containers_from_json(json, versioned)
     else:
         # MINIMUM (!) fallback for version 1.0
+
         if "type" in json:
             if json['type'] == 'article':
                 _type = 'ARTICLE'
@@ -878,7 +896,9 @@ def slugify_raise_on_empty(title, use_old_slugify=False):
     :return: the slugified title
     :rtype: str
     """
-
+    slug = slugify(title)
+    if not isinstance(slug, basestring):
+        raise InvalidSlugError("slug is incorrect")
     if not use_old_slugify:
         slug = slugify(title)
     else:
@@ -902,14 +922,16 @@ def fill_containers_from_json(json_sub, parent):
     from zds.tutorialv2.models.models_versioned import Container, Extract
 
     if 'children' in json_sub:
+
         for child in json_sub['children']:
+            if not all_is_string_appart_from_children(child):
+                raise BadManifestError(u"Manifest is not well formed on container " + str(json_sub['title']))
             if child['object'] == 'container':
                 slug = ''
                 try:
                     slug = child['slug']
-                    if not check_slug(slug):
-                        raise InvalidSlugError(slug)
-                except (ValueError, KeyError):
+                    slugify_raise_on_empty(slug)
+                except KeyError:
                     pass
                 new_container = Container(child['title'], slug)
                 if 'introduction' in child:
@@ -926,9 +948,8 @@ def fill_containers_from_json(json_sub, parent):
                 slug = ''
                 try:
                     slug = child['slug']
-                    if not check_slug(slug):
-                        raise InvalidSlugError(slug)
-                except (ValueError, KeyError):
+                    slugify_raise_on_empty(slug)
+                except KeyError:
                     pass
                 new_extract = Extract(child['title'], slug)
 
