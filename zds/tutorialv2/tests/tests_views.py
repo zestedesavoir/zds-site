@@ -4787,7 +4787,7 @@ class PublishedContentTests(TestCase):
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
-        reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
+        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
         self.assertEqual(len(reactions), 2)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
@@ -4847,6 +4847,23 @@ class PublishedContentTests(TestCase):
 
         result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
+
+    def test_note_with_bad_param(self):
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        url_template = reverse("content:update-reaction") + "?pk={}&message={}"
+        result = self.client.get(url_template.format(self.tuto.pk, 454545665895123))
+        self.assertEqual(404, result.status_code)
+        reaction = ContentReaction(related_content=self.tuto, author=self.user_guest, position=1)
+        reaction.update_content("blah")
+        reaction.save()
+        self.tuto.last_note = reaction
+        self.tuto.save()
+        result = self.client.get(url_template.format(861489632, reaction.pk))
+        self.assertEqual(404, result.status_code)
 
     def tearDown(self):
 

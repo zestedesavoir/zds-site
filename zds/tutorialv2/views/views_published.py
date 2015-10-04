@@ -445,6 +445,8 @@ class UpdateNoteView(SendNoteFormView):
                 .prefetch_related("author")\
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
+            if self.reaction is None:
+                raise Http404("Message asked and not found")
             kwargs['reaction'] = self.reaction
         else:
             raise Http404("The 'message' parameter must be a digit.")
