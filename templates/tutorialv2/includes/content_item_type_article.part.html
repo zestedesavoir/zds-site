@@ -21,7 +21,7 @@
 
 {% captureas content_title %}
     {% if public_article and online %}
-        {{ public_article.title }}
+        {{ public_article.load_public_version.title }}
     {% else %}
         {{ article.title }}
     {% endif %}
