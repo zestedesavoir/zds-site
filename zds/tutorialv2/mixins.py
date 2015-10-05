@@ -51,6 +51,7 @@ class SingleContentViewMixin(object):
     is_author = False
     only_draft_version = True
     must_redirect = False
+    public_is_prioritary = True
 
     def get_object(self, queryset=None):
         """ Get database representation of the content by its `pk`, then check permissions
@@ -112,7 +113,7 @@ class SingleContentViewMixin(object):
 
         # if beta or public version, user can also access to it
         is_beta = self.object.is_beta(self.sha)
-        is_public = self.object.is_public(self.sha)
+        is_public = self.object.is_public(self.sha) and self.public_is_prioritary
 
         if not is_beta and not is_public and not self.is_author:
             if not self.is_staff or (not self.authorized_for_staff and self.must_be_author):
