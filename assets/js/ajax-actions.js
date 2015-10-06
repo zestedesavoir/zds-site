@@ -88,6 +88,48 @@
     });
 
     /**
+     * See who likes/dislikes a message
+     */
+    $(".topic-message").on("click", "button.likers", function(e){
+        var $viewer = $(this),
+            $form = $(this).parents("form:first"),
+            $message = $viewer.parents(".message-bottom:first");
+
+        var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
+
+        $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            dataType: "json",
+            data: {
+                "csrfmiddlewaretoken": csrfmiddlewaretoken
+            },
+            success: function(data){
+                $viewer.attr("disabled", "disabled");
+                var div = document.createElement("div");
+                div.className = "likers";
+                for (var keyLike in data.likes) {
+                    var imageLike = document.createElement("img");
+                    imageLike.src = data.likes[keyLike].avatarUrl;
+                    imageLike.title = data.likes[keyLike].username;
+                    imageLike.className = "avatar likers thumbUp";
+                    $(div).append(imageLike);
+                }
+                for (var keyDislike in data.dislikes) {
+                    var imageDislike = document.createElement("img");
+                    imageDislike.src = data.dislikes[keyDislike].avatarUrl;
+                    imageDislike.title = data.dislikes[keyDislike].username;
+                    imageDislike.className = "avatar likers thumbDown";
+                    $(div).append(imageDislike);
+                }
+                $message.prepend(div);
+            }
+        });
+
+        e.stopPropagation();
+        e.preventDefault();
+    });
+    /**
      * Follow a topic
      */
     $(".sidebar").on("click", "[data-ajax-input='follow-topic']", function(e){
