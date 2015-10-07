@@ -1,8 +1,9 @@
 {% load i18n %}
+{% load remove_url_protocole %}
 
 <article class="featured-resource-item">
     <a href="{{ featured_resource.url }}">
-        <img src="{{ featured_resource.image_url }}" alt="" class="featured-resource-illu">
+        <img src="{{ featured_resource.image_url|remove_url_protocole }}" alt="" class="featured-resource-illu">
         <div class="featured-resource-meta">
             <h3>{{ featured_resource.title }}</h3>
             <p class="featured-resource-description">{{ featured_resource.type }} {% if featured_resource.authors %} {% trans "par" %} <i>{{ featured_resource.authors }}</i>{% endif %}</p>
