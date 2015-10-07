@@ -4888,6 +4888,16 @@ class PublishedContentTests(TestCase):
             })
         self.assertEqual(403, resp.status_code)
 
+    def test_cant_view_private_even_if_draft_is_equal_to_public(self):
+        content = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
+        self.assertEqual(403, resp.status_code)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
