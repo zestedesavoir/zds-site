@@ -95,7 +95,7 @@ def export_comments(reacts, exported, read_class, old_last_note_pk):
         for dislike in CommentDislike.objects.filter(comments__pk=note.pk).all():
             dislike.comments = new_reac
             dislike.save()
-    exported.save()
+    exported.save(update_date=False)
 
 
 def progressbar(it, prefix="", size=60):
@@ -248,7 +248,8 @@ def migrate_articles():
         exported.licence = current.licence
         exported.js_support = current.js_support
         exported.pubdate = current.pubdate
-        exported.save()  # before updating `ManyToMany` relation, we need to save !
+        exported.update_date = current.update
+        exported.save(update_date=False)  # before updating `ManyToMany` relation, we need to save !
 
         try:
             clean_commit = copy_and_clean_repo(current.get_path(False), exported.get_repo_path(False))
@@ -317,7 +318,7 @@ def migrate_articles():
         split_article_in_extracts(versioned)  # create extracts from text
         exported.sha_draft = versioned.commit_changes(u'Migration version 2')
         exported.old_pk = current.pk
-        exported.save()
+        exported.save(update_date=False)
 
         reacts = Reaction.objects.filter(article__pk=current.pk)\
                                  .select_related("author")\
@@ -343,7 +344,7 @@ def migrate_articles():
             exported.update_date = current.update
             exported.sha_public = exported.sha_draft
             exported.public_version = published
-            exported.save()
+            exported.save(update_date=False)
             published.content_public_slug = exported.slug
             published.publication_date = exported.pubdate
             published.save()
@@ -397,7 +398,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             exported.js_support = current.js_support
             exported.source = current.source
             exported.pubdate = current.pubdate
-            exported.save()
+            exported.save(update_date=False)
 
             try:
                 clean_commit = copy_and_clean_repo(current.get_path(False), exported.get_repo_path(False))
@@ -418,7 +419,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             [exported.subcategory.add(category) for category in current.subcategory.all()]
             [exported.helps.add(help) for help in current.helps.all()]
             [exported.authors.add(author) for author in current.authors.all()]
-            exported.save()
+            exported.save(update_date=False)
 
             # now, re create the manifest.json
             versioned = exported.load_version()
@@ -449,7 +450,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
             exported.sha_draft = versioned.commit_changes(u"Migration version 2")
 
             exported.old_pk = current.pk
-            exported.save()
+            exported.save(update_date=False)
             # export beta forum post
             former_topic = Topic.objects.filter(key=current.pk).first()
             if former_topic is not None:
@@ -462,7 +463,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
                 former_first_post.update_content(text)
                 former_first_post.save()
                 exported.beta_topic = former_topic
-                exported.save()
+                exported.save(update_date=False)
             # extract notes
             reacts = Note.objects.filter(tutorial__pk=current.pk)\
                                  .select_related("author")\
@@ -476,7 +477,7 @@ def migrate_tuto(tutos, title="Exporting mini tuto"):
                 exported.pubdate = current.pubdate
                 exported.sha_public = current.sha_public
                 exported.public_version = published
-                exported.save()
+                exported.save(update_date=False)
                 published.content_public_slug = exported.slug
                 published.publication_date = current.pubdate
                 published.save()
