@@ -144,14 +144,14 @@ Version 2.0
         ]
     }
 
-1. ``type`` : Le type de contenu, vaut "TUTORIAL" ou "ARTICLE". **Obligatoire**
+1. ``type`` : Le type de contenu, vaut "TUTORIAL" ou "ARTICLE". *Si ce champ est absent ou invalide, le type vaudra par défaut "TUTORIAL".*
 2. ``description`` : La description du contenu. Est affichée comme sous-titre dans la page finale. **Obligatoire**
 3. ``title`` : Le titre du contenu. **Obligatoire**
 4. ``slug`` : slug du contenu qui permet de faire une url SEO-friendly. **Obligatoire**. ATENTION : si ce slug existe déjà dans notre base de données, il est possible qu'un nombre lui soit ajouté
 5. ``introduction`` : le nom du fichier Mardown qui possède l'introduction. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
 6. ``conclusion`` : le nom du fichier Mardown qui possède la conclusion. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
 7. ``licence`` : nom complet de la license. *A priori* les licences "CC" et "Tous drois réservés" sont supportées. Le support de toute autre licence dépendra du site utilisant le code de ZdS (fork) que vous visez. **Obligatoire**
-8. ``children`` : tableau contenant l'architecture du contenu. **Obligatoire**
+8. ``children`` : tableau contenant l'architecture du contenu.
     1. ``object`` : type d'enfant (*container* ou *extract*, selon qu'il s'agisse d'une section ou d'un texte). **Obligatoire**
     2. ``title`` : le titre de l'enfant. **Obligatoire**
     3. ``slug`` : le slug de l'enfant pour créer une url SEO-friendly, doit être unique dans le contenu, le slug est utilisé pour trouver le chemin vers l'enfant dans le système de fichier si c'est une section. **obligatoire**
