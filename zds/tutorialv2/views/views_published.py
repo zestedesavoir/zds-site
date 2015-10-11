@@ -628,7 +628,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         alert.pubdate = datetime.now()
         alert.save()
 
-        messages.success(self.request, _(u"Ce commentaire a bien été signalé aux modérateurs"))
+        messages.success(self.request, _(u"Ce commentaire a bien été signalé aux modérateurs."))
         return redirect(note.get_absolute_url())
 
 

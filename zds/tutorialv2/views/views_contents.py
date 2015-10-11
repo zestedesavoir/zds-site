@@ -345,14 +345,14 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
         if self.object.authors.count() > 1:  # if more than one author, just remove author from list
             RemoveAuthorFromContent.remove_author(self.object, self.request.user)
-            messages.success(self.request, _(u'Vous avez quitté la rédaction de {}').format(_type))
+            messages.success(self.request, _(u'Vous avez quitté la rédaction de {}.').format(_type))
 
         else:
             validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
 
             if validation and validation.status == 'PENDING_V':  # if the validation have a validator, warn him by PM
                 if 'text' not in self.request.POST or len(self.request.POST['text'].strip()) < 3:
-                    messages.error(self.request, 'Merci de fournir une raison à la  suppression.')
+                    messages.error(self.request, _(u'Merci de fournir une raison à la  suppression.'))
                     return redirect(self.object.get_absolute_url())
                 else:
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
@@ -388,7 +388,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
             self.object.delete()
 
-            messages.success(self.request, _(u'Vous avez bien supprimé {}').format(_type))
+            messages.success(self.request, _(u'Vous avez bien supprimé {}.').format(_type))
 
         return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
 
@@ -679,7 +679,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             try:
                 zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
             except zipfile.BadZipfile:
-                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP'))
+                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP.'))
                 return super(UpdateContentWithArchive, self).form_invalid(form)
 
             try:
@@ -693,7 +693,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
                     messages.info(
-                        self.request, _(u'la licence « {} » a été appliquée'.format(new_version.licence.code)))
+                        self.request, _(u'la licence « {} » a été appliquée.').format(new_version.licence.code))
 
                 # first, update DB object (in order to get a new slug if needed)
                 self.object.title = new_version.title
@@ -752,7 +752,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     try:
                         zfile = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
                     except zipfile.BadZipfile:
-                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP'))
+                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP.'))
                         return self.form_invalid(form)
 
                     UpdateContentWithArchive.use_images_from_archive(
@@ -787,7 +787,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
             try:
                 zfile = zipfile.ZipFile(self.request.FILES['archive'], "r")
             except zipfile.BadZipfile:
-                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP'))
+                messages.error(self.request, _(u'Cette archive n\'est pas au format ZIP.'))
                 return self.form_invalid(form)
 
             try:
@@ -804,7 +804,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 manifest = json_reader.loads(unicode(zfile.read('manifest.json'), 'utf-8'))
                 if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
                     messages.info(
-                        self.request, _(u'la licence « {} » a été appliquée'.format(new_content.licence.code)))
+                        self.request, _(u'la licence « {} » a été appliquée.'.format(new_content.licence.code)))
 
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
@@ -875,7 +875,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                     try:
                         zfile = zipfile.ZipFile(self.request.FILES["image_archive"], "r")
                     except zipfile.BadZipfile:
-                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP'))
+                        messages.error(self.request, _(u'L\'archive contenant les images n\'est pas au format ZIP.'))
                         return self.form_invalid(form)
 
                     UpdateContentWithArchive.use_images_from_archive(
@@ -913,7 +913,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def render_to_response(self, context, **response_kwargs):
         parent = context['container']
         if not parent.can_add_container():
-            messages.error(self.request, _(u'Vous ne pouvez plus ajouter de conteneur à « {} »').format(parent.title))
+            messages.error(self.request, _(u'Vous ne pouvez plus ajouter de conteneur à « {} ».').format(parent.title))
             return redirect(parent.get_absolute_url())
 
         return super(CreateContainer, self).render_to_response(context, **response_kwargs)
@@ -1092,7 +1092,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def render_to_response(self, context, **response_kwargs):
         parent = context['container']
         if not parent.can_add_extract():
-            messages.error(self.request, _(u'Vous ne pouvez plus ajouter de section à « {} »').format(parent.title))
+            messages.error(self.request, _(u'Vous ne pouvez plus ajouter de section à « {} ».').format(parent.title))
             return redirect(parent.get_absolute_url())
 
         return super(CreateExtract, self).render_to_response(context, **response_kwargs)
@@ -1787,10 +1787,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
         if not current_user:  # if the removed author is not current user
             messages.success(
-                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de {}').format(authors_list, _type))
+                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de « {} ».').format(authors_list, _type))
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
-            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}').format(_type))
+            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de « {} ».').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
         self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
         # to the content itself. This does not please me but I think it is better to do that like that instead of
