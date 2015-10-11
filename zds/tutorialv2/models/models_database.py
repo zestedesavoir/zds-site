@@ -558,12 +558,7 @@ class PublishedContent(models.Model):
         :return: the URL of the published content
         :rtype: str
         """
-        reversed_ = ''
-
-        if self.is_article():
-            reversed_ = 'article'
-        elif self.is_tutorial():
-            reversed_ = 'tutorial'
+        reversed_ = self.content_type.lower()
 
         return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
 
@@ -672,12 +667,7 @@ class PublishedContent(models.Model):
         allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
 
         if type_ in allowed_types:
-            reversed_ = ''
-
-            if self.is_article():
-                reversed_ = 'article'
-            elif self.is_tutorial():
-                reversed_ = 'tutorial'
+            reversed_ = self.content_type.lower()
 
             return reverse(
                 reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
