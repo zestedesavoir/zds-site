@@ -536,8 +536,6 @@ class PublishedContent(models.Model):
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related("content")`` !!
     """
 
-    # TODO: by playing with this class, it may solve most of the SEO problems !!
-
     class Meta:
         verbose_name = 'Contenu publié'
         verbose_name_plural = 'Contenus publiés'
