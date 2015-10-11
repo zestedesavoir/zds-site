@@ -491,17 +491,6 @@ class PublishableContent(models.Model):
                 if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                     return True
 
-        return False
-
-    def change_type(self, new_type):
-        """Allow someone to change the content type, basically from tutorial to article
-
-        :param new_type: the new type, either `"ARTICLE"` or `"TUTORIAL"`
-        """
-        if new_type not in TYPE_CHOICES:
-            raise ValueError("This type of content does not exist")
-        self.type = new_type
-
     def repo_delete(self):
         """
         Delete the entities and their filesystem counterparts
