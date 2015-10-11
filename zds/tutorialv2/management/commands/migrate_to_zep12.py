@@ -22,7 +22,7 @@ from zds.utils.templatetags.emarkdown import emarkdown_inline
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction, ContentRead, PublishedContent,\
     Validation
 
-from zds.tutorialv2.utils import publish_content
+from zds.tutorialv2.utils import publish_content, get_commit_author
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from zds.gallery.models import Gallery, UserGallery, Image
@@ -218,7 +218,7 @@ def copy_and_clean_repo(path_from, path_to):
 
     if len(to_delete) != 0:
         old_repo.index.remove(to_delete)
-        sha = old_repo.index.commit('Nettoyage pré-migratoire')
+        sha = old_repo.index.commit('Nettoyage pré-migratoire', **get_commit_author())
 
     # then clone it to new repo
     old_repo.clone(path_to)

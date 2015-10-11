@@ -29,6 +29,7 @@ from uuslug import slugify
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
+from zds.member.models import User
 
 
 def all_is_string_appart_from_children(dict_representation):
@@ -1014,14 +1015,15 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
 
 def get_commit_author():
-    """get a dictionary that represent the commit author with ``author`` and ``comitter`` key
+    """get a dictionary that represent the commit author with ``author`` and ``comitter`` key. If there is no users,
+    bot account pk is used.
 
     :return: correctly formatted commit author for ``repo.index.commit()``
     :rtype: dict
     """
     user = get_current_user()
 
-    if user:
+    if user and user.is_authenticated():
         aut_user = str(user.pk)
         aut_email = None
 
@@ -1029,11 +1031,16 @@ def get_commit_author():
             aut_email = user.email
 
     else:
-        aut_user = ZDS_APP['member']['bot_account']
+        try:
+            aut_user = str(User.objects.filter(username=settings.ZDS_APP['member']['bot_account']).first().pk)
+        except AttributeError:
+            aut_user = '0'
+
         aut_email = None
 
     if aut_email is None or aut_email.strip() == "":
-        aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
+        aut_email = _(u"inconnu@{}").format(settings.ZDS_APP['site']['dns'])
+
     return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
 
 

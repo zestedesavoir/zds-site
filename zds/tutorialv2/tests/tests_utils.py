@@ -10,6 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from zds.forum.models import Topic
 from zds.settings import BASE_DIR
+from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
@@ -18,7 +19,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.models_versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
-    InvalidSlugError, BadManifestError, get_content_from_json
+    InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
@@ -635,6 +636,43 @@ class UtilsTests(TestCase):
         self.assertRaises(InvalidSlugError,
                           get_content_from_json, dictionary, None, '',
                           max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+    def test_get_commit_author(self):
+        """Ensure the behavior of `get_commit_author()` :
+          - `git.Actor` use the pk of the bot account when no one is connected
+          - `git.Actor` use the pk (and the email) of the connected account when available
+
+        (Implementation of `git.Actor` is there :
+        https://github.com/gitpython-developers/GitPython/blob/master/git/util.py#L312)
+        """
+
+        # 1. With user connected
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # go to whatever page, if not, `get_current_user()` does not work at all
+        result = self.client.get(reverse('zds.pages.views.index'))
+        self.assertEqual(result.status_code, 200)
+
+        actor = get_commit_author()
+        self.assertEqual(actor['committer'].name, str(self.user_author.pk))
+        self.assertEqual(actor['author'].name, str(self.user_author.pk))
+        self.assertEqual(actor['committer'].email, self.user_author.email)
+        self.assertEqual(actor['author'].email, self.user_author.email)
+
+        # 2. Without connected user
+        self.client.logout()
+
+        # as above ...
+        result = self.client.get(reverse('zds.pages.views.index'))
+        self.assertEqual(result.status_code, 200)
+
+        actor = get_commit_author()
+        self.assertEqual(actor['committer'].name, str(self.mas.pk))
+        self.assertEqual(actor['author'].name, str(self.mas.pk))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
