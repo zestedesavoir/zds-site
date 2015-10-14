@@ -536,15 +536,29 @@ class PublishedContent(models.Model):
     content_pk = models.IntegerField('Pk du contenu publié', db_index=True)
 
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
+    update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
 
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
 
     objects = PublishedContentManager()
+    versioned_model = None
 
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
+
+    def title(self):
+        if self.versioned_model:
+            return self.versioned_model.title
+        else:
+            return self.load_public_version().title
+
+    def description(self):
+        if self.versioned_model:
+            return self.versioned_model.description
+        else:
+            return self.load_public_version().description
 
     def get_prod_path(self, relative=False):
         if not relative:
@@ -568,14 +582,16 @@ class PublishedContent(models.Model):
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :raise Http404: if the version is not available
         """
-        return self.content.load_version_or_404(sha=self.sha_public, public=self)
+        self.versioned_model = self.content.load_version_or_404(sha=self.sha_public, public=self)
+        return self.versioned_model
 
     def load_public_version(self):
         """
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :return: the public content
         """
-        return self.content.load_version(sha=self.sha_public, public=self)
+        self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
+        return self.versioned_model
 
     def is_article(self):
         """
@@ -718,6 +734,9 @@ class PublishedContent(models.Model):
         """
 
         return self.get_absolute_url_to_extra_content('zip')
+
+    def get_last_action_date(self):
+        return self.update_date or self.publication_date
 
 
 class ContentReaction(Comment):

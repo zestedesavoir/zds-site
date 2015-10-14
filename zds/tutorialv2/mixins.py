@@ -135,7 +135,10 @@ class SingleContentViewMixin(object):
         """Get the published version, if any
         """
 
-        return PublishedContent.objects.filter(content_pk=self.object.pk, must_redirect=False).last()
+        object = PublishedContent.objects.filter(content_pk=self.object.pk, must_redirect=False).last()
+        if object:
+            object.load_public_version()
+        return object
 
 
 class SingleContentPostMixin(SingleContentViewMixin):

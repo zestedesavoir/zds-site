@@ -256,6 +256,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
+                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -265,6 +266,9 @@ class ContentTests(TestCase):
         pk = tuto.pk
         slug = tuto.slug
         versioned = tuto.load_version()
+
+        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
 
         # access to tutorial
         result = self.client.get(
@@ -285,10 +289,13 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
-                'last_hash': versioned.compute_hash()
+                'last_hash': versioned.compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 2)  # new icon is uploaded
 
         tuto = PublishableContent.objects.get(pk=pk)
         self.assertEqual(tuto.title, random)
@@ -4890,6 +4897,53 @@ class PublishedContentTests(TestCase):
                 'text': "I edited it"
             })
         self.assertEqual(403, resp.status_code)
+
+    def test_quote_note(self):
+        """ Ensure the behavior of the `&cite=xxx` parameter on "content:add-reaction"
+        """
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        text = u'À force de temps, de patience et de crachats, ' \
+               u'on met un pépin de callebasse dans le derrière d\'un moustique (proverbe créole)'
+
+        # add note :
+        reaction = ContentReaction(related_content=tuto, position=1)
+        reaction.update_content(text)
+        reaction.author = self.user_guest
+        reaction.save()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # cite note
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+        self.assertEqual(200, result.status_code)
+
+        self.assertTrue(text in result.context['form'].initial['text'])  # ok, text quoted !
+
+        # cite with a abnormal parameter raises 404
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
+        self.assertEqual(404, result.status_code)
+
+        # cite not existing note just gives the form empty
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
+        self.assertEqual(200, result.status_code)
+
+        self.assertTrue('text' not in result.context['form'])  # nothing quoted, so no text cited
+
+        # it's not possible to cite an hidden note (get 403)
+        reaction.is_visible = False
+        reaction.save()
+
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+        self.assertEqual(403, result.status_code)
 
     def test_cant_view_private_even_if_draft_is_equal_to_public(self):
         content = PublishedContentFactory(author_list=[self.user_author])

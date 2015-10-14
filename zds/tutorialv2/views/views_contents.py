@@ -107,7 +107,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
             img.physical = self.request.FILES["image"]
             img.gallery = gal
             img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"])
+            img.slug = slugify(self.request.FILES["image"].name)
             img.pubdate = datetime.now()
             img.save()
             self.content.image = img
@@ -288,7 +288,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             img.physical = self.request.FILES["image"]
             img.gallery = publishable.gallery
             img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"])
+            img.slug = slugify(self.request.FILES["image"].name)
             img.pubdate = datetime.now()
             img.save()
             publishable.image = img

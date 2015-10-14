@@ -21,9 +21,17 @@
 
 {% captureas content_title %}
     {% if public_article and online %}
-        {{ public_article.load_public_version.title }}
+        {{ public_article.title }}
     {% else %}
         {{ article.title }}
+    {% endif %}
+{% endcaptureas %}
+
+{% captureas content_subtitle %}
+    {% if public_article and online %}
+        {{ public_article.description}}
+    {% else %}
+        {{ article.description }}
     {% endif %}
 {% endcaptureas %}
 
@@ -40,7 +48,7 @@
     </a>
 
     <div class="content-info">
-        <a href="{{ link }}" title="{{ content_title }}{% if article.description and show_description %} − {{ article.description }}{% endif %}">
+        <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
             <h3 class="content-title" itemprop="itemListElement">
                 {{ content_title }}
             </h3>
