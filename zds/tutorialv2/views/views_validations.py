@@ -119,7 +119,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         # warn the former validator that an update has been made, if any
         if old_validator:
             validation.validator = old_validator
-            # TODO: why not let the validator be the same using PENDING_V ?
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(

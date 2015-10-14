@@ -39,8 +39,6 @@ class Container:
     children_dict = {}
     slug_pool = {}
 
-    # TODO: thumbnails ?
-
     def __init__(self, title, slug='', parent=None, position_in_parent=1):
         """Initialize the data model that will handle the dialog with raw versionned data at level container
 
@@ -278,7 +276,6 @@ class Container:
                 child.update_children()
             elif isinstance(child, Extract):
                 child.text = child.get_path(relative=True)
-        # TODO : does this function should also rewrite `slug_pool` ?
 
     def get_path(self, relative=False):
         """Get the physical path to the draft version of the container.

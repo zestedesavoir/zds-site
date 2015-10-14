@@ -353,7 +353,7 @@ class PublishableContent(models.Model):
         """
 
         attrs = [
-            'pk', 'authors', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
+            'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
             'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
         ]
 
@@ -491,17 +491,6 @@ class PublishableContent(models.Model):
                 if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                     return True
 
-        return False
-
-    def change_type(self, new_type):
-        """Allow someone to change the content type, basically from tutorial to article
-
-        :param new_type: the new type, either `"ARTICLE"` or `"TUTORIAL"`
-        """
-        if new_type not in TYPE_CHOICES:
-            raise ValueError("This type of content does not exist")
-        self.type = new_type
-
     def repo_delete(self):
         """
         Delete the entities and their filesystem counterparts
@@ -536,8 +525,6 @@ class PublishedContent(models.Model):
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related("content")`` !!
     """
 
-    # TODO: by playing with this class, it may solve most of the SEO problems !!
-
     class Meta:
         verbose_name = 'Contenu publié'
         verbose_name_plural = 'Contenus publiés'
@@ -571,12 +558,7 @@ class PublishedContent(models.Model):
         :return: the URL of the published content
         :rtype: str
         """
-        reversed_ = ''
-
-        if self.is_article():
-            reversed_ = 'article'
-        elif self.is_tutorial():
-            reversed_ = 'tutorial'
+        reversed_ = self.content_type.lower()
 
         return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
 
@@ -685,12 +667,7 @@ class PublishedContent(models.Model):
         allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
 
         if type_ in allowed_types:
-            reversed_ = ''
-
-            if self.is_article():
-                reversed_ = 'article'
-            elif self.is_tutorial():
-                reversed_ = 'tutorial'
+            reversed_ = self.content_type.lower()
 
             return reverse(
                 reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})

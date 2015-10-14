@@ -3268,6 +3268,8 @@ class ContentTests(TestCase):
             self.assertTrue(published.have_type(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
+
+        # test that deletion give a 404
         markdown_url = published.get_absolute_url_md()
         md_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md')
         os.remove(md_path)
@@ -3275,8 +3277,9 @@ class ContentTests(TestCase):
         self.assertEqual('', published.get_absolute_url_to_extra_content('kboom'))
         self.client.logout()
 
-        with open(md_path, "w") as f:
+        with open(md_path, "w") as f:  # remake a .md file, whatever the content
             f.write("I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?")
+
         # same test with author:
         self.assertEqual(
             self.client.login(

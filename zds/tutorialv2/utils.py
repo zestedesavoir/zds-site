@@ -474,8 +474,6 @@ def publish_container(db_object, base_dir, container):
     if not isinstance(container, Container):
         raise FailureDuringPublication(_(u'Le conteneur n\'en est pas un !'))
 
-    # TODO: images stuff !!
-
     template = 'tutorialv2/export/chapter.html'
 
     # jsFiddle support
