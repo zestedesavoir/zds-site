@@ -364,10 +364,10 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
-            if not reaction.is_visible:
-                raise PermissionDenied
-
             if reaction:
+                if not reaction.is_visible:
+                    raise PermissionDenied
+
                 text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
                 text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
 
@@ -485,7 +485,7 @@ class UpdateNoteView(SendNoteFormView):
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
         else:
-            messages.error(self.request, 'Oh non ! Une erreur est survenue dans la requête !')
+            messages.error(self.request, _(u'Oh non ! Une erreur est survenue dans la requête !'))
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)

@@ -4891,6 +4891,53 @@ class PublishedContentTests(TestCase):
             })
         self.assertEqual(403, resp.status_code)
 
+    def test_quote_note(self):
+        """ Ensure the behavior of the `&cite=xxx` parameter on "content:add-reaction"
+        """
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        text = u'À force de temps, de patience et de crachats, ' \
+               u'on met un pépin de callebasse dans le derrière d\'un moustique (proverbe créole)'
+
+        # add note :
+        reaction = ContentReaction(related_content=tuto, position=1)
+        reaction.update_content(text)
+        reaction.author = self.user_guest
+        reaction.save()
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # cite note
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+        self.assertEqual(200, result.status_code)
+
+        self.assertTrue(text in result.context['form'].initial['text'])  # ok, text quoted !
+
+        # cite with a abnormal parameter raises 404
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
+        self.assertEqual(404, result.status_code)
+
+        # cite not existing note just gives the form empty
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
+        self.assertEqual(200, result.status_code)
+
+        self.assertTrue('text' not in result.context['form'])  # nothing quoted, so no text cited
+
+        # it's not possible to cite an hidden note (get 403)
+        reaction.is_visible = False
+        reaction.save()
+
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+        self.assertEqual(403, result.status_code)
+
     def test_cant_view_private_even_if_draft_is_equal_to_public(self):
         content = PublishedContentFactory(author_list=[self.user_author])
         self.assertEqual(
