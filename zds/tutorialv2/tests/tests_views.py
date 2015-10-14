@@ -256,6 +256,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
+                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -265,6 +266,9 @@ class ContentTests(TestCase):
         pk = tuto.pk
         slug = tuto.slug
         versioned = tuto.load_version()
+
+        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
 
         # access to tutorial
         result = self.client.get(
@@ -285,10 +289,13 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
-                'last_hash': versioned.compute_hash()
+                'last_hash': versioned.compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 2)  # new icon is uploaded
 
         tuto = PublishableContent.objects.get(pk=pk)
         self.assertEqual(tuto.title, random)
