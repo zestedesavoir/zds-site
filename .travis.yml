@@ -6,6 +6,7 @@ language: python
 cache:
   directories:
   - $HOME/.pip-cache
+  - ~/.texlive
 
 python:
   - 2.7
