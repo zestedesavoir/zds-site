@@ -3,12 +3,17 @@ git:
 
 language: python
 
+cache:
+  directories:
+  - $HOME/.pip-cache
+
 python:
   - 2.7
 
 env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
+    - PIP_DOWNLOAD_CACHE=$HOME/.pip-cache
   matrix:
     - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.search zds.featured"
     - TEST_APP="-e back_mysql -- zds.article zds.tutorial zds.tutorialv2"
@@ -78,8 +83,8 @@ install:
   - ~/cabal/bin/pandoc --version
 
   # Python dependencies
-  - travis_retry pip install coveralls
-  - travis_retry pip install tox==2.0.1
+  - travis_retry pip install --download-cache $PIP_DOWNLOAD_CACHE coveralls
+  - travis_retry pip install --download-cache $PIP_DOWNLOAD_CACHE tox==2.0.1
 
 script:
   - tox $TEST_APP
