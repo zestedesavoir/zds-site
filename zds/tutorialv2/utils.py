@@ -824,7 +824,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
                 for extract in json['chapter']['extracts']:
                     new_extract = Extract(
-                        extract['title'], '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['title'], True)))
+                        extract['title'], '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['slug'], True)))
                     if 'text' in extract:
                         new_extract.text = extract['text']
                     versioned.add_extract(new_extract, generate_slug=False)
@@ -832,7 +832,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             elif json['type'] == 'BIG' and 'parts' in json:
                 for part in json['parts']:
                     new_part = Container(
-                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_empty(part['title'], True)))
+                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_empty(part['slug'], True)))
 
                     if 'introduction' in part:
                         new_part.introduction = part['introduction']
@@ -844,7 +844,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                         for chapter in part['chapters']:
                             new_chapter = Container(
                                 chapter['title'],
-                                '{}_{}'.format(chapter['pk'], slugify_raise_on_empty(chapter['title'], True)))
+                                '{}_{}'.format(chapter['pk'], slugify_raise_on_empty(chapter['slug'], True)))
 
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
@@ -856,7 +856,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                                 for extract in chapter['extracts']:
                                     new_extract = Extract(
                                         extract['title'],
-                                        '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['title'], True)))
+                                        '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['slug'], True)))
 
                                     if 'text' in extract:
                                         new_extract.text = extract['text']
