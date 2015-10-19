@@ -866,7 +866,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
 
 class InvalidSlugError(ValueError):
-    pass
+
+    def __init__(self, *args, **kwargs):
+        super(InvalidSlugError, self).__init__(*args, **kwargs)
 
 
 def check_slug(slug):
@@ -948,7 +950,8 @@ def fill_containers_from_json(json_sub, parent):
                 slug = ''
                 try:
                     slug = child['slug']
-                    slugify_raise_on_empty(slug)
+                    if not check_slug(slug):
+                        raise InvalidSlugError(child['slug'])
                 except KeyError:
                     pass
                 new_extract = Extract(child['title'], slug)
