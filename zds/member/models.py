@@ -59,7 +59,7 @@ class Profile(models.Model):
 
     karma = models.IntegerField('Karma', default=0)
 
-    sign = models.TextField('Signature', max_length=250, blank=True)
+    sign = models.TextField('Signature', max_length=500, blank=True)
 
     show_sign = models.BooleanField('Voir les signatures', default=True)
 
