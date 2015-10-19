@@ -10,7 +10,11 @@ from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidato
 
 class UserListSerializer(serializers.ModelSerializer):
     """
-    Serializers of a user object.
+    Serializers of a user object. This serializer is necessary because
+    we have a bug between User/Profile. Sometimes, models uses a
+    foreign key to User, so we must use this serialize. Sometimes,
+    models uses a foreign key to Profile, so we must use Profile
+    serializers.
     """
 
     class Meta:
@@ -20,16 +24,17 @@ class UserListSerializer(serializers.ModelSerializer):
 
 class ProfileListSerializer(serializers.ModelSerializer):
     """
-    Serializers of a user object.
+    Serializers of a profile object.
     """
 
+    id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'is_active', 'date_joined')
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
@@ -38,13 +43,14 @@ class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, Profil
     Serializers of a user object to create one.
     """
 
+    id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
     email = serializers.EmailField(source='user.email')
     password = serializers.CharField(source='user.password')
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'email', 'password')
+        fields = ('id', 'username', 'email', 'password')
         write_only_fields = ('password')
 
     def create(self, validated_data):
@@ -61,6 +67,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     Serializers of a profile object.
     """
 
+    id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
     email = serializers.EmailField(source='user.email')
     is_active = serializers.BooleanField(source='user.is_active')
@@ -69,7 +76,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'email', 'is_active', 'date_joined',
+        fields = ('id', 'username', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
                   'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit')
 
@@ -92,6 +99,7 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
     Serializers of a profile object used to update a member.
     """
 
+    id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username', required=False, allow_blank=True)
     email = serializers.EmailField(source='user.email', required=False, allow_blank=True)
     is_active = serializers.BooleanField(source='user.is_active', required=False)
@@ -99,7 +107,7 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'email', 'is_active', 'date_joined',
+        fields = ('id', 'username', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
                   'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit')
         read_only_fields = ('is_active', 'date_joined', 'last_visit',)
@@ -137,10 +145,11 @@ class ProfileSanctionSerializer(serializers.ModelSerializer):
     Serializers of a profile object to set the user in reading only access.
     """
 
+    id = serializers.ReadOnlyField(source='user.id')
     username = serializers.ReadOnlyField(source='user.username')
     email = serializers.ReadOnlyField(source='user.email')
 
     class Meta:
         model = Profile
-        fields = ('pk', 'username', 'email', 'can_write', 'end_ban_write', 'can_read', 'end_ban_read')
+        fields = ('id', 'username', 'email', 'can_write', 'end_ban_write', 'can_read', 'end_ban_read')
         read_only_fields = ('can_write', 'end_ban_write', 'can_read', 'end_ban_read')

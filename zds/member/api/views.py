@@ -141,6 +141,7 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
     """
 
     queryset = Profile.objects.all()
+    lookup_field = 'id'
     obj_key_func = DetailKeyConstructor()
 
     @etag(obj_key_func)
@@ -200,6 +201,8 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
     """
     Profile resource to apply or remove read only sanction.
     """
+
+    lookup_field = 'id'
 
     def post(self, request, *args, **kwargs):
         """
@@ -266,6 +269,8 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
     """
     Profile resource to apply or remove ban sanction.
     """
+
+    lookup_field = 'id'
 
     def post(self, request, *args, **kwargs):
         """
