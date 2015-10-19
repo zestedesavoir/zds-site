@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
+from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
@@ -652,18 +653,14 @@ def solve_alert(request):
 
     if "text" in request.POST and request.POST["text"] != "":
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = \
-            (u'Bonjour {0},'
-             u'Vous recevez ce message car vous avez signalé le message de *{1}*, '
-             u'dans le sujet [{2}]({3}). Votre alerte a été traitée par **{4}** '
-             u'et il vous a laissé le message suivant :'
-             u'\n\n> {5}\n\nToute l\'équipe de la modération vous remercie !'.format(
-                 alert.author.username,
-                 post.author.username,
-                 post.topic.title,
-                 settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                 request.user.username,
-                 request.POST["text"],))
+        msg = render_to_string("forum/messages/solve_alert_pm.md", {
+            'alert_author': alert.author.username,
+            'post_author': post.author.username,
+            'post_title': post.topic.title,
+            'post_url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
+            'staff_name': request.user.username,
+            'staff_message': request.POST["text"]
+        })
         send_mp(
             bot,
             [alert.author],
