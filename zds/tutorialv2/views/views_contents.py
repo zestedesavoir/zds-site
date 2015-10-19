@@ -554,7 +554,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         raise BadArchiveError(
                             _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.conclusion)))
 
-                copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False)
+                copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False, slug=child.slug)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
 
             elif isinstance(child, Extract):
@@ -564,7 +564,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     raise BadArchiveError(
                         _(u'Le fichier « {} » n\'est pas encodé en UTF-8'.format(child.text)))
 
-                copy_to.repo_add_extract(child.title, text, do_commit=False)
+                copy_to.repo_add_extract(child.title, text, do_commit=False, slug=child.slug)
 
     @staticmethod
     def use_images_from_archive(request, zip_file, versioned_content, gallery):

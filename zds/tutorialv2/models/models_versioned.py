@@ -516,7 +516,7 @@ class Container:
         if do_commit:
             return self.top_container().commit_changes(commit_message)
 
-    def repo_add_container(self, title, introduction, conclusion, commit_message='', do_commit=True):
+    def repo_add_container(self, title, introduction, conclusion, commit_message='', do_commit=True, slug=None):
         """
         :param title: title of the new container
         :param introduction: text of its introduction
@@ -526,11 +526,13 @@ class Container:
         :return: commit sha
         :rtype: str
         """
-        subcontainer = Container(title)
-
+        if slug is None:
+            subcontainer = Container(title)
+        else:
+            subcontainer = Container(title, slug=slug)
         # can a subcontainer be added ?
         try:
-            self.add_container(subcontainer, generate_slug=True)
+            self.add_container(subcontainer, generate_slug=slug is None)
         except InvalidOperationError:
             raise PermissionDenied
 
@@ -549,20 +551,23 @@ class Container:
         return subcontainer.repo_update(
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
 
-    def repo_add_extract(self, title, text, commit_message='', do_commit=True):
+    def repo_add_extract(self, title, text, commit_message='', do_commit=True, slug=None):
         """
         :param title: title of the new extract
         :param text: text of the new extract
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: perform the commit in repository if ``True``
+        :param generate_slug: indicates that is must generate slug
         :return: commit sha
         :rtype: str
         """
-        extract = Extract(title)
-
+        if not slug:
+            extract = Extract(title)
+        else:
+            extract = Extract(title, slug)
         # can an extract be added ?
         try:
-            self.add_extract(extract, generate_slug=True)
+            self.add_extract(extract, generate_slug=slug is None)
         except InvalidOperationError:
             raise PermissionDenied
 
