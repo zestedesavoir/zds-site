@@ -50,17 +50,34 @@
                 "csrfmiddlewaretoken": csrfmiddlewaretoken
             },
             success: function(data){
+                var title = "";
                 // Update upvotes
                 if(data.upvotes > 0){
                     $upvote.addClass("has-vote").text("+" + data.upvotes);
+                    title = "Ce message est utile (" + data.upvotes + " personne";
+                    if(data.upvotes > 1)
+                        title += "s ont";
+                    else
+                        title += " a";
+                    title += " trouvé ce message utile)";
+                    $upvote.attr("title",  title);
                 } else {
                     $upvote.removeClass("has-vote").empty();
+                    $upvote.attr("title", "Ce message est utile");
                 }
                 // Update downvotes
                 if(data.downvotes > 0){
                     $downvote.addClass("has-vote").text("-" + data.downvotes);
+                    title = "Ce message n'est pas utile (" + data.downvotes + " personne";
+                    if(data.downvotes > 1)
+                        title += "s n'ont";
+                    else
+                        title += " n'a";
+                    title += " pas trouvé ce message utile)";
+                    $downvote.attr("title",  title);
                 } else {
                     $downvote.removeClass("has-vote").empty();
+                    $downvote.attr("title", "Ce message n'est pas utile");
                 }
 
                 // Show to the user what thumb is voted
