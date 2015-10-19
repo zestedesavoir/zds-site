@@ -1,6 +1,6 @@
 {% extends "featured/base.html" %}
 {% load i18n %}
-
+{% load remove_url_protocole %}
 
 {% block title %}
     {% trans "Liste des unes" %}
@@ -41,7 +41,7 @@
                         </div>
                         <div class="topic-description">
                             <a href="{% url 'featured-resource-update' featured_resource.pk %}" class="topic-title-link navigable-link">
-                                <img src="{{ featured_resource.image_url }}"
+                                <img src="{{ featured_resource.image_url|remove_url_protocole }}"
                                     data-caption="{{ featured_resource.title }}"
                                     alt="{{ featured_resource.title }}"
                                     class="topic-image"
