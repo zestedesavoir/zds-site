@@ -43,7 +43,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool, BadArchiveError, InvalidSlugError
 from uuslug import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.forum.models import Topic, TopicFollowed, follow, mark_read
+from zds.forum.models import Topic, follow, mark_read
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -1280,6 +1280,45 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     action = None
 
+    def _get_all_tags(self):
+        all_tags = []
+        categories = self.object.subcategory.all()
+        names = [smart_text(category.title).lower() for category in categories]
+        existing_tags = Tag.objects.filter(title__in=names).all()
+        existing_tags_names = [tag.title for tag in existing_tags]
+        unexisting_tags = list(set(names) - set(existing_tags_names))
+        for tag in unexisting_tags:
+            new_tag = Tag()
+            new_tag.title = tag[:20]
+            new_tag.save()
+            all_tags.append(new_tag)
+        all_tags += existing_tags
+        return all_tags
+
+    def _create_beta_topic(self, msg, beta_version, _type, tags):
+        topic_title = beta_version.title
+        tags = "[beta][{}]".format(_type)
+        i = 0
+        while len(topic_title) + len(tags) + len(tags[i]) + 2 < Topic._meta.get_field("title").max_length:
+            tags += '[{}]'.format(tags[i])
+            i += 1
+        forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
+        topic = create_topic(request=self.request,
+                             author=self.request.user,
+                             forum=forum,
+                             title=topic_title,
+                             subtitle=u"{}".format(beta_version.description),
+                             text=msg,
+                             related_publishable_content=self.object)
+        topic.save()
+        # make all authors follow the topic:
+        for author in self.object.authors.all():
+            if not topic.is_followed(author):
+                follow(topic, author)
+            mark_read(topic, author)
+
+        return topic
+
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super(ManageBetaContent, self).dispatch(*args, **kwargs)
@@ -1330,37 +1369,10 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                 if not topic:
                     # if first time putting the content in beta, send a message on the forum and a PM
-                    forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
 
                     # find tags
-                    # TODO: make a util's function of it
-                    categories = self.object.subcategory.all()
-                    names = [smart_text(category.title).lower() for category in categories]
-                    existing_tags = Tag.objects.filter(title__in=names).all()
-                    existing_tags_names = [tag.title for tag in existing_tags]
-                    unexisting_tags = list(set(names) - set(existing_tags_names))
-                    for tag in unexisting_tags:
-                        new_tag = Tag()
-                        new_tag.title = tag[:20]
-                        new_tag.save()
-                        all_tags.append(new_tag)
-                    all_tags += existing_tags
-
-                    topic = create_topic(request=self.request,
-                                         author=self.request.user,
-                                         forum=forum,
-                                         title=_(u"[beta][{}]{}").format(_type, beta_version.title),
-                                         subtitle=u"{}".format(beta_version.description),
-                                         text=msg,
-                                         related_publishable_content=self.object)
-
-                    topic = Topic.objects.get(pk=topic.pk)
-
-                    # make all authors follow the topic:
-                    for author in self.object.authors.all():
-                        if author.pk is not self.request.user.pk:
-                            follow(topic, author)
-                        mark_read(topic, author)
+                    all_tags = self._get_all_tags()
+                    topic = self._create_beta_topic(msg, beta_version, _type, all_tags)
 
                     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
                     msg_pm = render_to_string(
@@ -1379,18 +1391,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             msg_pm,
                             False)
                 else:
-                    categories = self.object.subcategory.all()
-                    names = [smart_text(category.title).lower() for category in categories]
-                    existing_tags = Tag.objects.filter(title__in=names).all()
-                    existing_tags_names = [tag.title for tag in existing_tags]
-                    unexisting_tags = list(set(names) - set(existing_tags_names))
-                    all_tags = []
-                    for tag in unexisting_tags:
-                        new_tag = Tag()
-                        new_tag.title = tag[:20]
-                        new_tag.save()
-                        all_tags.append(new_tag)
-                    all_tags += existing_tags
+                    all_tags = self._get_all_tags()
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
@@ -1414,7 +1415,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     # make sure that all authors follow the topic:
                     for author in self.object.authors.all():
-                        if TopicFollowed.objects.filter(topic__pk=topic.pk, user__pk=author.pk).count() == 0:
+                        if not topic.is_followed(author):
                             follow(topic, author)
                             mark_read(topic, author)
 

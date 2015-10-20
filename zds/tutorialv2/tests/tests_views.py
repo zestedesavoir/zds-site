@@ -587,14 +587,15 @@ class ContentTests(TestCase):
                 'version': current_sha_beta
             },
             follow=False)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(result.status_code, 302)
 
         # check if there is a new topic and a pm corresponding to the tutorial in beta
         self.assertEqual(Topic.objects.filter(forum=self.beta_forum).count(), 1)
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
-
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
+        self.assertTrue(beta_topic.is_followed(self.user_author))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
