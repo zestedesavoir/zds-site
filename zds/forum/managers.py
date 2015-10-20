@@ -61,7 +61,7 @@ class TopicManager(models.Manager):
 
     def get_last_topics(self):
         return self.order_by('-pubdate') \
-                   .exclude(Q(forum__group__isnull=False)) \
+                   .exclude(Q(forum__group__isnull=False)).exclude(Q(is_locked=True)) \
                    .all() \
                    .select_related('forum', 'author', 'last_message') \
                    .prefetch_related('tags')[:settings.ZDS_APP['topic']['home_number']]
