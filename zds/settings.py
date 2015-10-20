@@ -377,7 +377,7 @@ ZDS_APP = {
         'abbr': u"zds",
         'url': u"http://127.0.0.1:8000",
         'dns': u"zestedesavoir.com",
-        'email_contact': u"communication@zestedesavoir.com",
+        'email_contact': u"zestedesavoir@gmail.com",
         'email_noreply': u"noreply@zestedesavoir.com",
         'repository': u"https://github.com/zestedesavoir/zds-site",
         'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
@@ -391,7 +391,7 @@ ZDS_APP = {
         'association': {
             'name': u"Zeste de Savoir",
             'fee': u"20 €",
-            'email': u"association@zestedesavoir.com",
+            'email': u"zestedesavoir@gmail.com",
             'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
         },
         'licenses': {
