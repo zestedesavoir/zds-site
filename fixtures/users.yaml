@@ -78,6 +78,14 @@
         is_superuser: False
         groups:
             - 2
+-   model: auth.user
+    pk: 7
+    fields:
+        first_name: decalage
+        last_name: User
+        username: decal
+        password: pbkdf2_sha256$10000$w5hhXcOg2pIT$gluvdmTKlbOJDpo9U/C3pWJOmOytbXX2N38j2iplNcM=
+        is_superuser: False
 -   model: member.Profile
     pk: 1
     fields:
@@ -107,4 +115,9 @@
     pk: 6
     fields:
         user: 6
+        last_ip_address: 192.168.0.1
+-   model: member.Profile
+    pk: 20
+    fields:
+        user: 7
         last_ip_address: 192.168.0.1
