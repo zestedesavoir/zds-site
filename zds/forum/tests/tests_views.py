@@ -53,7 +53,7 @@ class CategoriesForumsListViewTests(TestCase):
         category, forum = create_category()
         topic = add_topic_in_a_forum(forum, profile)
 
-        nb_topics = len(Topic.objects.get_last_topics())
+        topics_nb = len(Topic.objects.get_last_topics())
 
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
         data = {
@@ -63,9 +63,9 @@ class CategoriesForumsListViewTests(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked
+        self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
 
-        self.assertTrue(len(Topic.objects.get_last_topics()) < nb_topics)
+        self.assertEqual(len(Topic.objects.get_last_topics()), topics_nb - 1)
 
 class CategoryForumsDetailViewTest(TestCase):
     def test_success_list_all_forums_of_a_category(self):
