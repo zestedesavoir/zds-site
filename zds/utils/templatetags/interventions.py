@@ -164,8 +164,7 @@ def alerts_list(user):
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
-
-        elif alert.scope == Alert.CONTENT:
+        if alert.scope == Alert.CONTENT:
             note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
             total.append({'title': note.related_content.title,
                           'url': note.get_absolute_url(),
