@@ -67,6 +67,7 @@ class CategoriesForumsListViewTests(TestCase):
 
         self.assertEqual(len(Topic.objects.get_last_topics()), topics_nb - 1)
 
+
 class CategoryForumsDetailViewTest(TestCase):
     def test_success_list_all_forums_of_a_category(self):
         profile = ProfileFactory()
