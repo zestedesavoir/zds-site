@@ -8,7 +8,6 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
-from zds.forum.models import Topic
 from zds.settings import BASE_DIR
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -17,18 +16,8 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from django.core.management import call_command
-from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
-    BetaMiniTutorialFactory, PublishedBigTutorial
-from zds.article.factories import ArticleFactory, PublishedArticleFactory, ReactionFactory
-from zds.utils.models import CommentLike
-from zds.article.models import ArticleRead
-from zds.tutorial.models import TutorialRead, Chapter
-from zds.tutorial.models import Validation as OldTutoValidation
-from zds.article.models import Validation as OldArticleValidation
-from zds.tutorialv2.models.models_database import Validation
-from zds.forum.factories import ForumFactory, CategoryFactory
 
 try:
     import ujson as json_reader
@@ -379,158 +368,6 @@ class UtilsTests(TestCase):
 
         # finally, clean up:
         shutil.rmtree(tempdir)
-
-    def test_migrate_zep12(self):
-        private_mini_tuto = MiniTutorialFactory(title="Private Mini tuto")
-        private_mini_tuto.authors.add(self.user_author)
-        private_mini_tuto.save()
-        multi_author_tuto = MiniTutorialFactory(title="Multi User Tuto")
-        multi_author_tuto.authors.add(self.user_author)
-        multi_author_tuto.authors.add(self.staff)
-        multi_author_tuto.save()
-        public_mini_tuto = PublishedMiniTutorial(title="Public Mini Tuto")
-        public_mini_tuto.authors.add(self.user_author)
-        public_mini_tuto.save()
-        OldTutoValidation(tutorial=public_mini_tuto,
-                          version=public_mini_tuto.sha_public,
-                          date_proposition=datetime.datetime.now(),
-                          comment_authors=u"La vie est belle, le destin s'en écarte.",
-                          comment_validator=u"Personne ne joue avec les mêmes cartes.",
-                          validator=self.staff,
-                          status="ACCEPT",
-                          date_reserve=datetime.datetime.now(),
-                          date_validation=datetime.datetime.now()).save()
-        staff_note = NoteFactory(
-            tutorial=public_mini_tuto,
-            position=1,
-            author=self.staff)
-        liked_note = NoteFactory(
-            tutorial=public_mini_tuto,
-            position=2,
-            author=self.user_author)
-        t_read = TutorialRead()
-        t_read.tutorial = public_mini_tuto
-        t_read.user = self.staff
-        t_read.note = staff_note
-        t_read.save()
-        like = CommentLike()
-        like.comments = liked_note
-        like.user = self.staff
-        like.save()
-        big_tuto = BigTutorialFactory(title="Big tuto")
-        big_tuto.authors.add(self.user_author)
-        big_tuto.save()
-        public_big_tuto = PublishedBigTutorial(light=False, title="Public Big Tuto")
-        public_big_tuto.authors.add(self.user_author)
-        public_big_tuto.save()
-        private_article = ArticleFactory(title="Private Article")
-        private_article.authors.add(self.user_author)
-        private_article.save()
-        multi_author_article = ArticleFactory(title="Multi Author Article")
-        multi_author_article.authors.add(self.user_author)
-        multi_author_article.authors.add(self.staff)
-        multi_author_article.save()
-        public_article = PublishedArticleFactory(title="Public Article")
-        public_article.authors.add(self.user_author)
-        public_article.save()
-        OldArticleValidation(article=public_article,
-                             version=public_article.sha_public,
-                             date_proposition=datetime.datetime.now(),
-                             comment_authors=u"Pourquoi fortune et infortune?",
-                             comment_validator=u"Pourquoi suis-je né les poches vides?",
-                             validator=self.staff,
-                             status="ACCEPT",
-                             date_reserve=datetime.datetime.now(),
-                             date_validation=datetime.datetime.now()).save()
-        staff_note = ReactionFactory(
-            article=public_article,
-            position=1,
-            author=self.staff)
-        liked_reaction = ReactionFactory(
-            article=public_article,
-            position=2,
-            author=self.user_author)
-        a_read = ArticleRead()
-        a_read.article = public_article
-        a_read.user = self.staff
-        a_read.reaction = staff_note
-        a_read.save()
-        like = CommentLike()
-        like.comments = liked_reaction
-        like.user = self.staff
-        like.save()
-        category1 = CategoryFactory(position=1)
-        forum11 = ForumFactory(
-            category=category1,
-            position_in_category=1)
-        beta_tuto = BetaMiniTutorialFactory(title=u"Beta Tuto", forum=forum11, author=self.user_author)
-        beta_tuto.authors.add(self.user_author)
-        beta_tuto.save()
-        call_command('migrate_to_zep12')
-        # 1 tuto in setup, 4 mini tutos, 1 big tuto, 3 articles
-        self.assertEqual(PublishableContent.objects.filter(authors__pk__in=[self.user_author.pk]).count(), 10)
-        # if we had n published content we must have 2 * n PublishedContent entities to handle redirections.
-        self.assertEqual(PublishedContent.objects.filter(content__authors__pk__in=[self.user_author.pk]).count(), 2 * 3)
-        self.assertEqual(ContentReaction.objects.filter(author__pk=self.staff.pk).count(), 2)
-        migrated_pulished_article = PublishableContent.objects.filter(authors__in=[self.user_author],
-                                                                      title=public_article.title,
-                                                                      type="ARTICLE").first()
-        self.assertIsNotNone(migrated_pulished_article)
-        self.assertIsNotNone(migrated_pulished_article.last_note)
-        self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_article).count())
-        self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_article).count())
-        self.assertTrue(migrated_pulished_article.is_public(migrated_pulished_article.sha_public))
-        self.assertTrue(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).has_extracts())
-        self.assertEqual(len(migrated_pulished_article.load_version(migrated_pulished_article.sha_public).children), 2)
-
-        migrated_pulished_tuto = PublishableContent.objects.filter(authors__in=[self.user_author],
-                                                                   title=public_mini_tuto.title,
-                                                                   type="TUTORIAL").first()
-        self.assertIsNotNone(migrated_pulished_tuto)
-        self.assertIsNotNone(migrated_pulished_tuto.last_note)
-        self.assertEqual(2, ContentReaction.objects.filter(related_content=migrated_pulished_tuto).count())
-        self.assertEqual(1, ContentRead.objects.filter(content=migrated_pulished_tuto).count())
-        self.assertTrue(migrated_pulished_tuto.is_public(migrated_pulished_tuto.sha_public))
-        beta_content = PublishableContent.objects.filter(title=beta_tuto.title).first()
-        self.assertIsNotNone(beta_content)
-        self.assertEqual(beta_content.sha_beta, beta_tuto.sha_beta)
-        self.assertEqual(Topic.objects.filter(key=beta_tuto.pk).first().pk, beta_content.beta_topic.pk)
-
-        multi_author_content = PublishableContent.objects.filter(type="TUTORIAL", title=multi_author_tuto.title)\
-            .first()
-        self.assertIsNotNone(multi_author_content)
-        self.assertEqual(multi_author_content.authors.count(), multi_author_tuto.authors.count())
-        multi_author_content = PublishableContent.objects.filter(type="ARTICLE", title=multi_author_article.title)\
-            .first()
-        self.assertIsNotNone(multi_author_content)
-        self.assertEqual(multi_author_content.authors.count(), multi_author_article.authors.count())
-        old_tutorial_module_prefix = "oldtutoriels"
-        old_article_module_prefix = "oldarticles"
-        new_tutorial_module_prefix = "tutoriels"
-        new_article_module_prefix = "articles"
-        public_article_url = public_article.get_absolute_url_online()\
-            .replace(old_article_module_prefix, new_article_module_prefix)
-        public_tutorial_url = public_mini_tuto.get_absolute_url_online()\
-            .replace(old_tutorial_module_prefix, new_tutorial_module_prefix)
-        self.assertEqual(301, self.client.get(public_article_url).status_code)
-        self.assertEqual(301, self.client.get(public_tutorial_url).status_code)
-        public_chapter = Chapter.objects.filter(part__tutorial__pk=public_big_tuto.pk).first()
-        self.assertIsNotNone(public_chapter)
-        public_chapter_url = public_chapter.get_absolute_url_online()
-        public_chapter_url = public_chapter_url.replace(old_tutorial_module_prefix, new_tutorial_module_prefix)
-
-        self.assertEqual(301, self.client.get(public_chapter_url).status_code)
-        self.assertEqual(200, self.client.get(public_chapter_url, follow=True).status_code)
-        self.assertEqual(200, self.client.get(public_article_url, follow=True).status_code)
-        self.assertEqual(200, self.client.get(public_tutorial_url, follow=True).status_code)
-        tuto_validation = Validation.objects.filter(content__pk=migrated_pulished_tuto.pk).first()
-        self.assertIsNotNone(tuto_validation)
-        self.assertEqual(tuto_validation.status, "ACCEPT")
-        self.assertEqual(tuto_validation.validator.pk, self.staff.pk)
-        article_validation = Validation.objects.filter(content__pk=migrated_pulished_article.pk).first()
-        self.assertIsNotNone(article_validation)
-        self.assertEqual(article_validation.status, "ACCEPT")
-        self.assertEqual(article_validation.validator.pk, self.staff.pk)
 
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""

@@ -5,11 +5,8 @@ import time
 
 from django import template
 from django.db.models import F
-
-from zds.article.models import Reaction, ArticleRead
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, TopicRead
 from zds.mp.models import PrivateTopic
-from zds.tutorial.models import Note, TutorialRead
 from zds.utils.models import Alert
 from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
 
@@ -78,27 +75,6 @@ def interventions_topics(user):
         .select_related("topic")\
         .exclude(post=F('topic__last_message')).all()
 
-    articlesfollowed = Reaction.objects\
-        .filter(author=user, article__sha_public__isnull=False)\
-        .values('article')\
-        .distinct().all()
-
-    articles_never_read = ArticleRead.objects\
-        .filter(user=user)\
-        .filter(article__in=articlesfollowed)\
-        .select_related("article")\
-        .exclude(reaction=F('article__last_reaction')).all()
-
-    tutorialsfollowed = Note.objects\
-        .filter(author=user, tutorial__sha_public__isnull=False)\
-        .values('tutorial')\
-        .distinct().all()
-
-    tutorials_never_read = TutorialRead.objects\
-        .filter(user=user)\
-        .filter(tutorial__in=tutorialsfollowed)\
-        .exclude(note=F('tutorial__last_note')).all()
-
     content_to_read = ContentRead.objects\
         .select_related('note')\
         .select_related('note__author')\
@@ -108,20 +84,6 @@ def interventions_topics(user):
         .exclude(note__pk=F('content__last_note__pk')).all()
 
     posts_unread = []
-
-    for art in articles_never_read:
-        content = art.article.first_unread_reaction()
-        posts_unread.append({'pubdate': content.pubdate,
-                             'author': content.author,
-                             'title': art.article.title,
-                             'url': content.get_absolute_url()})
-
-    for tuto in tutorials_never_read:
-        content = tuto.tutorial.first_unread_note()
-        posts_unread.append({'pubdate': content.pubdate,
-                             'author': content.author,
-                             'title': tuto.tutorial.title,
-                             'url': content.get_absolute_url()})
 
     for top in topics_never_read:
         content = top.topic.first_unread_post()
@@ -180,20 +142,6 @@ def alerts_list(user):
             post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
             total.append({'title': post.topic.title,
                           'url': post.get_absolute_url(),
-                          'pubdate': alert.pubdate,
-                          'author': alert.author,
-                          'text': alert.text})
-        elif alert.scope == Alert.ARTICLE:
-            reaction = Reaction.objects.select_related('article').get(pk=alert.comment.pk)
-            total.append({'title': reaction.article.title,
-                          'url': reaction.get_absolute_url(),
-                          'pubdate': alert.pubdate,
-                          'author': alert.author,
-                          'text': alert.text})
-        elif alert.scope == Alert.TUTORIAL:
-            note = Note.objects.select_related('tutorial').get(pk=alert.comment.pk)
-            total.append({'title': note.tutorial.title,
-                          'url': note.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
