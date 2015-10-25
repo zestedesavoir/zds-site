@@ -21,9 +21,17 @@
 
 {% captureas content_title %}
     {% if public_tutorial and online %}
-        {{ public_tutorial.load_public_version.title }}
+        {{ public_tutorial.title }}
     {% else %}
         {{ tutorial.title }}
+    {% endif %}
+{% endcaptureas %}
+
+{% captureas content_subtitle %}
+    {% if public_tutorial and online %}
+        {{ public_tutorial.description }}
+    {% else %}
+        {{ tutorial.description }}
     {% endif %}
 {% endcaptureas %}
 
@@ -38,7 +46,7 @@
 {% endcaptureas %}
 
 <article class="content-item expand-description tutorial-item{{ item_class }}">
-    <a href="{{ link }}" title="{{ content_title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
+    <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
         <div class="content-illu">
             {% if tutorial.image %}
                 <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
@@ -51,8 +59,8 @@
             </h3>
 
             <p class="content-description">
-                {% if tutorial.description and show_description %}
-                    {{ tutorial.description }}
+                {% if content_subtitle and show_description %}
+                    {{ content_subtitle }}
                 {% endif %}
             </p>
 

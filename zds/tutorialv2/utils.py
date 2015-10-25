@@ -664,6 +664,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     # save public version
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
+    elif is_update:
+        public_version.update_date = datetime.now()
 
     public_version.sha_public = versioned.current_version
     public_version.save()
