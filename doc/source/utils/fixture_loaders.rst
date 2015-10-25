@@ -138,9 +138,7 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 |note (**déprécié**) [#dep]_      |Note                               |20 (par tutoriel) [#moy]_    |
 +---------------------------------+-----------------------------------+-----------------------------+
 
+
 .. [#lic] Les licences suivantes seront créée : "CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO" et "Tout-Droits"
 .. [#cv2] C'est à dire 60% en validation (dont 20% réservés) et 30% publiés. S'il sagit de tutoriels, 50% de petits, 30% de moyen et 20% de *bigs*.
 .. [#moy] Ce nombre est une moyenne, le nombre réel est choisi au hasard autour de cette moyenne
-.. [#art] 40% en validation, 20% publiés
-.. [#tut] 40% en validation, 30% publiés. Principalement des *bigtutos*.
-.. [#dep] Ces commandes sont ammenées à disparaitre avec l'implémentation de la ZEP-12
