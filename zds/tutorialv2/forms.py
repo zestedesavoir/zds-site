@@ -635,6 +635,9 @@ class AcceptValidationForm(forms.Form):
 
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
+        # if content is already published, it's probably a minor change, so do not check `is_major`
+        self.fields['is_major'].initial = not validation.content.sha_public
+
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:accept', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
