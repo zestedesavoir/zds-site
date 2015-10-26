@@ -84,7 +84,7 @@
         first_name: decalage
         last_name: User
         username: decal
-        password: pbkdf2_sha256$10000$w5hhXcOg2pIT$gluvdmTKlbOJDpo9U/C3pWJOmOytbXX2N38j2iplNcM=
+        password: pbkdf2_sha256$15000$SaXZhZxZQ83e$SYz/pK0z9ZcuKhttYksJxjAn2zy6UOng4bWbWd7XF/g=
         is_superuser: False
 -   model: member.Profile
     pk: 1
