@@ -759,7 +759,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         json['version'] = 2
         # create and fill the container
         if len(json['title']) > max_title_len:
-            raise BadManifestError("Title must be a string of less than {} chars".format(max_title_len))
+            raise BadManifestError(
+                _(u"Le titre doit être une chaîne de caractère de moins de {} caractères").format(max_title_len))
         slugify_raise_on_empty(json['title'])
         json_slug = slugify_raise_on_empty(json['slug'])
         if not public:
