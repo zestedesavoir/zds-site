@@ -66,10 +66,10 @@ def search_container_or_404(base_content, kwargs_array):
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
             except KeyError:
-                raise Http404("No container found.")
+                raise Http404(_(u"Aucun conteneur trouvé."))
             else:
                 if not isinstance(container, Container):
-                    raise Http404("No container found.")
+                    raise Http404(_(u"Aucun conteneur trouvé."))
     else:
         container = base_content
 
@@ -78,15 +78,15 @@ def search_container_or_404(base_content, kwargs_array):
         try:
             container = container.children_dict[kwargs_array['container_slug']]
         except KeyError:
-            raise Http404("No container found.")
+            raise Http404(_(u"Aucun conteneur trouvé."))
         else:
             if not isinstance(container, Container):
-                raise Http404("No container found.")
+                raise Http404(_(u"Aucun conteneur trouvé."))
     elif container == base_content:
         # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404("No container found.")
+        raise Http404(_(u"Aucun conteneur trouvé."))
     return container
 
 
@@ -110,10 +110,10 @@ def search_extract_or_404(base_content, kwargs_array):
         try:
             extract = container.children_dict[kwargs_array['extract_slug']]
         except KeyError:
-            raise Http404("No extract found.")
+            raise Http404(_(u"Aucun extrait trouvé."))
         else:
             if not isinstance(extract, Extract):
-                raise Http404("No extract found.")
+                raise Http404(_(u"Aucun extrait trouvé."))
     return extract
 
 
@@ -755,12 +755,12 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         json["version"] = "2"
         if not all_is_string_appart_from_children(json):
             json['version'] = 2
-            raise BadManifestError("manifest is not well formated")
+            raise BadManifestError(_(u"Le fichier manifest n'est pas bien formaté."))
         json['version'] = 2
         # create and fill the container
         if len(json['title']) > max_title_len:
             raise BadManifestError(
-                _(u"Le titre doit être une chaîne de caractère de moins de {} caractères").format(max_title_len))
+                _(u"Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len))
         slugify_raise_on_empty(json['title'])
         json_slug = slugify_raise_on_empty(json['slug'])
         if not public:
@@ -903,7 +903,7 @@ def slugify_raise_on_empty(title, use_old_slugify=False):
     """
     slug = slugify(title)
     if not isinstance(slug, basestring):
-        raise InvalidSlugError("slug is incorrect")
+        raise InvalidSlugError(_(u"Le slug est incorrect"))
     if not use_old_slugify:
         slug = slugify(title)
     else:
@@ -930,7 +930,8 @@ def fill_containers_from_json(json_sub, parent):
 
         for child in json_sub['children']:
             if not all_is_string_appart_from_children(child):
-                raise BadManifestError(u"Manifest is not well formed on container " + str(json_sub['title']))
+                raise BadManifestError(
+                    _(u"Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
             if child['object'] == 'container':
                 slug = ''
                 try:

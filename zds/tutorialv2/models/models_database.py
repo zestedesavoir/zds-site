@@ -125,9 +125,9 @@ class PublishableContent(models.Model):
         :rtype: str
         """
         if self.is_article():
-            return _("L'Article")
+            return _(u"L'Article")
         else:
-            return _("Le Tutoriel")
+            return _(u"Le Tutoriel")
 
     def save(self, *args, **kwargs):
         """
@@ -284,7 +284,9 @@ class PublishableContent(models.Model):
         try:
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
-            raise Http404("sha is not None and related version could not be found due to {}".format(str(error)))
+            raise Http404(_(
+                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}".format(
+                    str(error))))
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -782,7 +784,7 @@ class ContentRead(models.Model):
         Save this model but check that if we have not a related note it is because the user is content author.
         """
         if self.user not in self.content.authors.all() and self.note is None:
-            raise ValueError("Must be related to a note or be an author")
+            raise ValueError(_(u"La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 

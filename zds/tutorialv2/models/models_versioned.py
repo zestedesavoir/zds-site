@@ -614,10 +614,10 @@ class Container:
         :raise IndexError: if the extract is already the first child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == 0:
-            raise IndexError(child_slug + " is the first element")
+            raise IndexError(_(child_slug + " est le premier élément."))
         self.children[child_pos], self.children[child_pos - 1] = self.children[child_pos - 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos + 1
         self.children[child_pos - 1].position_in_parent = child_pos
@@ -631,10 +631,10 @@ class Container:
         :raise IndexError: if the extract is already the last child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == len(self.children) - 1:
-            raise IndexError(child_slug + " is the last element")
+            raise IndexError(_(child_slug + " est le dernier élément."))
         self.children[child_pos], self.children[child_pos + 1] = self.children[child_pos + 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos
         self.children[child_pos + 1].position_in_parent = child_pos + 1
@@ -648,9 +648,9 @@ class Container:
         :raise ValueError: if one slug does not refer to an existing child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         if refer_slug not in self.children_dict:
-            raise ValueError(refer_slug + " does not exist")
+            raise ValueError(_(refer_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         refer_pos = self.children.index(self.children_dict[refer_slug])
 
@@ -672,9 +672,9 @@ class Container:
         :raise ValueError: if one slug does not refer to an existing child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         if refer_slug not in self.children_dict:
-            raise ValueError(refer_slug + " does not exist")
+            raise ValueError(_(refer_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         refer_pos = self.children.index(self.children_dict[refer_slug])
 
@@ -1058,9 +1058,9 @@ class VersionedContent(Container):
         :rtype: str
         """
         if self.is_article:
-            return _("L'Article")
+            return _(u"L'Article")
         else:
-            return _("Le Tutoriel")
+            return _(u"Le Tutoriel")
 
     def get_absolute_url(self, version=None):
         """
