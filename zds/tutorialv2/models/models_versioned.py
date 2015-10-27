@@ -14,7 +14,7 @@ from zds.settings import ZDS_APP
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from uuslug import slugify
 from zds.utils.misc import compute_hash
-from zds.tutorialv2.utils import get_blob
+from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
 
 
 class Container:
@@ -150,11 +150,22 @@ class Container:
         """Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
         "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
 
+        Note that the slug cannot be larger than `settings.ZDS_APP['content']['max_slug_size']`, due to maximum file
+        size limitation.
+
         :param title: title from which the slug is generated (with ``slugify()``)
         :return: the unique slug
         :rtype: str
         """
         base = slugify(title)
+
+        if not check_slug(base):
+            raise InvalidSlugError(base, source=title)
+
+        if len(base) > settings.ZDS_APP['content']['maximum_slug_size'] - 5:
+            # "-5" gives possibility to add "-xxxx" (up to 9999 possibility should be enough !)
+            base = base[:settings.ZDS_APP['content']['maximum_slug_size']] - 5
+
         find_slug = False
         new_slug = base
 

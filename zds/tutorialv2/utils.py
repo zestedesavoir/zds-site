@@ -21,7 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
 
 from zds.search.models import SearchIndexContent
-from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
+from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
 from zds import settings
 from zds.settings import ZDS_APP
 from zds.utils import get_current_user
@@ -761,8 +761,15 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         if len(json['title']) > max_title_len:
             raise BadManifestError(
                 _(u"Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len))
-        slugify_raise_on_empty(json['title'])
-        json_slug = slugify_raise_on_empty(json['slug'])
+
+        # check that title gives correct slug
+        slugify_raise_on_invalid(json['title'])
+
+        if not check_slug(json['slug']):
+            raise InvalidSlugError(json['slug'])
+        else:
+            json_slug = json['slug']
+
         if not public:
             versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json_slug, slug_last_draft)
         else:
@@ -827,7 +834,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
                 for extract in json['chapter']['extracts']:
                     new_extract = Extract(
-                        extract['title'], '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['title'], True)))
+                        extract['title'],
+                        '{}_{}'.format(extract['pk'], slugify_raise_on_invalid(extract['title'], True)))
                     if 'text' in extract:
                         new_extract.text = extract['text']
                     versioned.add_extract(new_extract, generate_slug=False)
@@ -835,7 +843,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             elif json['type'] == 'BIG' and 'parts' in json:
                 for part in json['parts']:
                     new_part = Container(
-                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_empty(part['title'], True)))
+                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_invalid(part['title'], True)))
 
                     if 'introduction' in part:
                         new_part.introduction = part['introduction']
@@ -847,7 +855,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                         for chapter in part['chapters']:
                             new_chapter = Container(
                                 chapter['title'],
-                                '{}_{}'.format(chapter['pk'], slugify_raise_on_empty(chapter['title'], True)))
+                                '{}_{}'.format(chapter['pk'], slugify_raise_on_invalid(chapter['title'], True)))
 
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
@@ -859,7 +867,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                                 for extract in chapter['extracts']:
                                     new_extract = Extract(
                                         extract['title'],
-                                        '{}_{}'.format(extract['pk'], slugify_raise_on_empty(extract['title'], True)))
+                                        '{}_{}'.format(extract['pk'], slugify_raise_on_invalid(extract['title'], True)))
 
                                     if 'text' in extract:
                                         new_extract.text = extract['text']
@@ -869,8 +877,22 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
 
 class InvalidSlugError(ValueError):
+    """ Error raised when a slug is invalid. Argument is the slug that cause the error.
+
+    ``source`` can also be provided, being the sentence from witch the slug was generated, if any.
+    ``had_source`` is set to ``True`` if the source is provided.
+
+    """
 
     def __init__(self, *args, **kwargs):
+
+        self.source = ''
+        self.had_source = False
+
+        if 'source' in kwargs:
+            self.source = kwargs.pop('source')
+            self.had_source = True
+
         super(InvalidSlugError, self).__init__(*args, **kwargs)
 
 
@@ -882,35 +904,42 @@ def check_slug(slug):
     :return: `True` if slug is valid, false otherwise
     :rtype: bool
     """
+
+    if not VALID_SLUG.match(slug):
+        return False
+
     if slug.replace("-", "").replace("_", "") == "":
+        return False
+
+    if len(slug) > settings.ZDS_APP['content']['maximum_slug_size']:
         return False
 
     return True
 
 
-def slugify_raise_on_empty(title, use_old_slugify=False):
-    """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty), an exception
-    is raised
+def slugify_raise_on_invalid(title, use_old_slugify=False):
+    """use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
+    is raised.
 
     :param title: to be slugified title
     :type title: str
     :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull
     for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !
     :type use_old_slugify: bool
-    :raise ValueError: on incorrect slug:
+    :raise InvalidSlugError: on incorrect slug:
     :return: the slugified title
     :rtype: str
     """
-    slug = slugify(title)
-    if not isinstance(slug, basestring):
-        raise InvalidSlugError(_(u"Le slug est incorrect"))
+
+    if not isinstance(title, basestring):
+        raise InvalidSlugError('', source=title)
     if not use_old_slugify:
         slug = slugify(title)
     else:
         slug = old_slugify(title)
 
     if not check_slug(slug):
-        raise InvalidSlugError(slug)
+        raise InvalidSlugError(slug, source=title)
 
     return slug
 
@@ -936,7 +965,8 @@ def fill_containers_from_json(json_sub, parent):
                 slug = ''
                 try:
                     slug = child['slug']
-                    slugify_raise_on_empty(slug)
+                    if not check_slug(slug):
+                        raise InvalidSlugError(slug)
                 except KeyError:
                     pass
                 new_container = Container(child['title'], slug)

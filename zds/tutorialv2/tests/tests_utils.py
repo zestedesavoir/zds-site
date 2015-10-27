@@ -19,7 +19,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.models_versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
-    InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author
+    InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
 from zds.tutorial.factories import BigTutorialFactory, MiniTutorialFactory, PublishedMiniTutorial, NoteFactory, \
@@ -673,6 +673,34 @@ class UtilsTests(TestCase):
         actor = get_commit_author()
         self.assertEqual(actor['committer'].name, str(self.mas.pk))
         self.assertEqual(actor['author'].name, str(self.mas.pk))
+
+    def invalid_slug_is_invalid(self):
+        """ensure that an exception is raised when it should"""
+
+        # exception are raised when title are invalid
+        invalid_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
+
+        for t in invalid_titles:
+            self.assertRaises(InvalidSlugError, slugify_raise_on_invalid, t)
+
+        # Those slugs are recognized as wrong slug
+        invalid_slugs = [
+            u'',  # empty
+            u'----',  # empty
+            u'___',  # empty
+            u'-_-',  # empty (!)
+            u'&;',  # invalid characters
+            u'!{',  # invalid characters
+            u'@',  # invalid character
+            u'a '  # space !
+        ]
+
+        for s in invalid_slugs:
+            self.assertFalse(check_slug(s))
+
+        # too long slugs are forbidden :
+        too_damn_long_slug = 'a' * (settings.ZDS_APP['content']['maximum_slug_size'] + 1)
+        self.assertFalse(check_slug(too_damn_long_slug))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
