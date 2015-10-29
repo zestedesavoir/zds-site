@@ -1,0 +1,478 @@
+# coding: utf-8
+from django.core.urlresolvers import reverse
+from datetime import datetime, timedelta
+import os
+import shutil
+
+from django.conf import settings
+from django.test import TestCase
+from django.test.utils import override_settings
+from zds.settings import BASE_DIR
+
+from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
+    PublishedContentFactory, SubCategoryFactory
+from zds.gallery.factories import UserGalleryFactory
+from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.utils import publish_content
+
+overrided_zds_app = settings.ZDS_APP
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+
+
+@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(ZDS_APP=overrided_zds_app)
+class ContentTests(TestCase):
+
+    def setUp(self):
+
+        # don't build PDF to speed up the tests
+        settings.ZDS_APP['content']['build_pdf_when_published'] = False
+
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.mas = ProfileFactory().user
+        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+
+        self.licence = LicenceFactory()
+
+        self.user_author = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
+
+        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto.authors.add(self.user_author)
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
+        self.tuto.licence = self.licence
+        self.tuto.save()
+
+        self.tuto_draft = self.tuto.load_version()
+        self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
+        self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+
+        self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
+
+    def test_workflow_content(self):
+        """
+        General tests for a content
+        """
+        # ensure the usability of manifest
+        versioned = self.tuto.load_version()
+        self.assertEqual(self.tuto_draft.title, versioned.title)
+        self.assertEqual(self.part1.title, versioned.children[0].title)
+        self.assertEqual(self.extract1.title, versioned.children[0].children[0].children[0].title)
+
+        # ensure url resolution project using dictionary :
+        self.assertTrue(self.part1.slug in versioned.children_dict.keys())
+        self.assertTrue(self.chapter1.slug in versioned.children_dict[self.part1.slug].children_dict)
+
+    def test_ensure_unique_slug(self):
+        """
+        Ensure that slugs for a container or extract are always unique
+        """
+        # get draft version
+        versioned = self.tuto.load_version()
+
+        # forbidden slugs :
+        slug_to_test = ['introduction', 'conclusion']
+
+        for slug in slug_to_test:
+            new_slug = versioned.get_unique_slug(slug)
+            self.assertNotEqual(slug, new_slug)
+            self.assertTrue(new_slug in versioned.slug_pool)  # ensure new slugs are in slug pool
+
+        # then test with "real" containers and extracts :
+        new_chapter_1 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
+        new_chapter_2 = ContainerFactory(title='aa', parent=versioned, db_object=self.tuto)
+        self.assertNotEqual(new_chapter_1.slug, new_chapter_2.slug)
+        new_extract_1 = ExtractFactory(title='aa', container=new_chapter_1, db_object=self.tuto)
+        self.assertEqual(new_extract_1.slug, new_chapter_1.slug)  # different level can have the same slug !
+
+        new_extract_2 = ExtractFactory(title='aa', container=new_chapter_2, db_object=self.tuto)
+        self.assertEqual(new_extract_2.slug, new_extract_1.slug)  # not the same parent, so allowed
+
+        new_extract_3 = ExtractFactory(title='aa', container=new_chapter_1, db_object=self.tuto)
+        self.assertNotEqual(new_extract_3.slug, new_extract_1.slug)  # same parent, forbidden
+
+    def test_ensure_unique_slug_2(self):
+        """This text is an extension of the previous one, with the manifest re-loaded each time"""
+
+        title = u'Il existe des gens que la ZEP-12 n\'aime pas'
+        random = u'... Mais c\'est pas sencé arriver, donc on va tout faire pour que ça disparaisse !'
+
+        # get draft version
+        versioned = self.tuto.load_version()
+
+        # add containers
+        version = versioned.repo_add_container(title, random, random)
+        new_version = self.tuto.load_version(sha=version)
+        self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
+
+        slugs = [new_version.children[-1].slug]
+
+        for i in range(0, 2):  # will add 3 new container
+            version = versioned.repo_add_container(title, random, random)
+            new_version = self.tuto.load_version(sha=version)
+            self.assertEqual(new_version.children[-1].slug, versioned.children[-1].slug)
+            self.assertTrue(new_version.children[-1].slug not in slugs)  # slug is different
+            self.assertTrue(versioned.children[-1].slug not in slugs)
+
+            slugs.append(new_version.children[-1].slug)
+
+        # add extracts
+        extract_title = u'On va changer de titre (parce qu\'on sais jamais) !'
+
+        chapter = versioned.children[-1]  # for this second test, the last chapter will be used
+        version = chapter.repo_add_extract(extract_title, random)
+        new_version = self.tuto.load_version(sha=version)
+        self.assertEqual(new_version.children[-1].children[-1].slug, chapter.children[-1].slug)
+
+        slugs = [new_version.children[-1].children[-1].slug]
+
+        for i in range(0, 2):  # will add 3 new extracts with the same title
+            version = chapter.repo_add_extract(extract_title, random)
+            new_version = self.tuto.load_version(sha=version)
+            self.assertTrue(new_version.children[-1].children[-1].slug not in slugs)
+            self.assertTrue(chapter.children[-1].slug not in slugs)
+
+            slugs.append(new_version.children[-1].children[-1].slug)
+
+    def test_workflow_repository(self):
+        """
+        Test to ensure the behavior of repo_*() functions :
+        - if they change the filesystem as they are suppose to ;
+        - if they change the `self.sha_*` as they are suppose to.
+        """
+
+        new_title = u'Un nouveau titre'
+        other_new_title = u'Un titre différent'
+        random_text = u'J\'ai faim!'
+        other_random_text = u'Oh, du chocolat <3'
+
+        versioned = self.tuto.load_version()
+        current_version = versioned.current_version
+        slug_repository = versioned.slug_repository
+
+        # VersionedContent:
+        old_path = versioned.get_path()
+        self.assertTrue(os.path.isdir(old_path))
+        new_slug = versioned.get_unique_slug(new_title)  # normally, you get a new slug by asking database !
+
+        versioned.repo_update_top_container(new_title, new_slug, random_text, random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        new_path = versioned.get_path()
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isdir(new_path))
+        self.assertFalse(os.path.isdir(old_path))
+
+        self.assertNotEqual(slug_repository, versioned.slug_repository)  # if this test fail, you're in trouble
+
+        # Container:
+
+        # 1. add new part:
+        versioned.repo_add_container(new_title, random_text, random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        part = versioned.children[-1]
+        old_path = part.get_path()
+        self.assertTrue(os.path.isdir(old_path))
+        self.assertTrue(os.path.exists(os.path.join(versioned.get_path(), part.introduction)))
+        self.assertTrue(os.path.exists(os.path.join(versioned.get_path(), part.conclusion)))
+        self.assertEqual(part.get_introduction(), random_text)
+        self.assertEqual(part.get_conclusion(), random_text)
+
+        # 2. update the part
+        part.repo_update(other_new_title, other_random_text, other_random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        new_path = part.get_path()
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isdir(new_path))
+        self.assertFalse(os.path.isdir(old_path))
+
+        self.assertEqual(part.get_introduction(), other_random_text)
+        self.assertEqual(part.get_conclusion(), other_random_text)
+
+        # 3. delete it
+        part.repo_delete()  # boom !
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        self.assertFalse(os.path.isdir(new_path))
+
+        # Extract :
+
+        # 1. add new extract
+        versioned.repo_add_container(new_title, random_text, random_text)  # need to add a new part before
+        part = versioned.children[-1]
+
+        part.repo_add_extract(new_title, random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        extract = part.children[-1]
+        old_path = extract.get_path()
+        self.assertTrue(os.path.isfile(old_path))
+        self.assertEqual(extract.get_text(), random_text)
+
+        # 2. update extract
+        extract.repo_update(other_new_title, other_random_text)
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+        current_version = versioned.current_version
+
+        new_path = extract.get_path()
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isfile(new_path))
+        self.assertFalse(os.path.isfile(old_path))
+
+        self.assertEqual(extract.get_text(), other_random_text)
+
+        # 3. update parent and see if it still works:
+        part.repo_update(other_new_title, other_random_text, other_random_text)
+
+        old_path = new_path
+        new_path = extract.get_path()
+
+        self.assertNotEqual(old_path, new_path)
+        self.assertTrue(os.path.isfile(new_path))
+        self.assertFalse(os.path.isfile(old_path))
+
+        self.assertEqual(extract.get_text(), other_random_text)
+
+        # 4. Boom, no more extract
+        extract.repo_delete()
+        self.assertNotEqual(versioned.sha_draft, current_version)
+        self.assertNotEqual(versioned.current_version, current_version)
+        self.assertEqual(versioned.current_version, versioned.sha_draft)
+
+        self.assertFalse(os.path.exists(new_path))
+
+    def test_if_none(self):
+        """Test the case where introduction and conclusion are `None`"""
+
+        given_title = u'La vie secrète de Clem\''
+        some_text = u'Tous ces secrets (ou pas)'
+        versioned = self.tuto.load_version()
+        # add a new part with `None` for intro and conclusion
+        version = versioned.repo_add_container(given_title, None, None)
+
+        # check on the model :
+        new_part = versioned.children[-1]
+        self.assertIsNone(new_part.introduction)
+        self.assertIsNone(new_part.conclusion)
+
+        # it remains when loading the manifest !
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].introduction)
+        self.assertIsNone(versioned.children[-1].conclusion)
+
+        version = new_part.repo_update(given_title, None, None)  # still `None`
+        self.assertIsNone(new_part.introduction)
+        self.assertIsNone(new_part.conclusion)
+
+        # does it still remains ?
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].introduction)
+        self.assertIsNone(versioned.children[-1].conclusion)
+
+        new_part.repo_update(given_title, some_text, some_text)
+        self.assertIsNotNone(new_part.introduction)  # now, value given
+        self.assertIsNotNone(new_part.conclusion)
+
+        old_intro = new_part.introduction
+        old_conclu = new_part.conclusion
+        self.assertTrue(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))
+        self.assertTrue(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
+
+        # when loaded the manifest, not None, this time
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNotNone(versioned.children[-1].introduction)
+        self.assertIsNotNone(versioned.children[-1].conclusion)
+
+        version = new_part.repo_update(given_title, None, None)  # and we go back to `None`
+        self.assertIsNone(new_part.introduction)
+        self.assertIsNone(new_part.conclusion)
+        self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_intro)))  # introduction is deleted
+        self.assertFalse(os.path.isfile(os.path.join(versioned.get_path(), old_conclu)))
+
+        # does it go back to None ?
+        versioned2 = self.tuto.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].introduction)
+        self.assertIsNone(versioned.children[-1].conclusion)
+
+        new_part.repo_update(given_title, '', '')  # empty string != `None`
+        self.assertIsNotNone(new_part.introduction)
+        self.assertIsNotNone(new_part.conclusion)
+
+    def test_extract_is_none(self):
+        """Test the case of a null extract"""
+
+        article = PublishableContentFactory(type="ARTICLE")
+        versioned = article.load_version()
+
+        given_title = u'Peu importe, en fait, ça compte peu'
+        some_text = u'Disparaitra aussi vite que possible'
+
+        # add a new extract with `None` for text
+        version = versioned.repo_add_extract(given_title, None)
+
+        # check on the model :
+        new_extract = versioned.children[-1]
+        self.assertIsNone(new_extract.text)
+
+        # it remains when loading the manifest !
+        versioned2 = article.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].text)
+
+        version = new_extract.repo_update(given_title, None)
+        self.assertIsNone(new_extract.text)
+
+        # it remains
+        versioned2 = article.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].text)
+
+        version = new_extract.repo_update(given_title, some_text)
+        self.assertIsNotNone(new_extract.text)
+        self.assertEqual(some_text, new_extract.get_text())
+
+        # now it change
+        versioned2 = article.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNotNone(versioned.children[-1].text)
+
+        # ... and lets go back
+        version = new_extract.repo_update(given_title, None)
+        self.assertIsNone(new_extract.text)
+
+        # it has changed
+        versioned2 = article.load_version(sha=version)
+        self.assertIsNotNone(versioned2)
+        self.assertIsNone(versioned.children[-1].text)
+
+    def test_ensure_slug_stay(self):
+        """This test ensure that slug are not modified when coming from a manifest"""
+
+        tuto = PublishableContentFactory(type='TUTORIAL')
+        versioned = tuto.load_version()
+
+        random = u'Non, piti bug, tu ne reviendra plus !!!'
+        title = u'N\'importe quel titre'
+
+        # add three container with the same title
+        versioned.repo_add_container(title, random, random)  # x
+        versioned.repo_add_container(title, random, random)  # x-1
+        version = versioned.repo_add_container(title, random, random)  # x-2
+        self.assertEqual(len(versioned.children), 3)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children), 3)
+
+        for index, child in enumerate(current.children):
+            self.assertEqual(child.slug, versioned.children[index].slug)  # same order
+
+        # then, delete the second one:
+        last_slug = versioned.children[2].slug
+        version = versioned.children[1].repo_delete()
+        self.assertEqual(len(versioned.children), 2)
+        self.assertEqual(versioned.children[1].slug, last_slug)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children), 2)
+
+        for index, child in enumerate(current.children):
+            self.assertEqual(child.slug, versioned.children[index].slug)  # slug remains
+
+        # same test with extracts
+        chapter = versioned.children[0]
+        chapter.repo_add_extract(title, random)  # x
+        chapter.repo_add_extract(title, random)  # x-1
+        version = chapter.repo_add_extract(title, random)  # x-2
+        self.assertEqual(len(chapter.children), 3)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children[0].children), 3)
+
+        for index, child in enumerate(current.children[0].children):
+            self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains
+
+        # delete the second one !
+        last_slug = chapter.children[2].slug
+        version = chapter.children[1].repo_delete()
+        self.assertEqual(len(chapter.children), 2)
+        self.assertEqual(chapter.children[1].slug, last_slug)
+
+        current = tuto.load_version(sha=version)
+        self.assertEqual(len(current.children[0].children), 2)
+
+        for index, child in enumerate(current.children[0].children):
+            self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains for extract as well !
+
+    def test_publication_and_attributes_consistency(self):
+        pubdate = datetime.now() - timedelta(days=1)
+        article = PublishedContentFactory(type="ARTILCE", author_list=[self.user_author])
+        public_version = article.public_version
+        public_version.publication_date = pubdate
+        public_version.save()
+        # everything must come from database to have good datetime comparison
+        article = PublishableContent.objects.get(pk=article.pk)
+        article.public_version.load_public_version()
+        old_date = article.public_version.publication_date
+        old_title = article.public_version.title()
+        old_description = article.public_version.description()
+        article.licence = LicenceFactory()
+        article.save()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        self.client.post(reverse("content:edit", args=[article.pk, article.slug]), {
+            "title": old_title + "bla",
+            "description": old_description + "bla",
+            "type": "ARTICLE",
+            "licence": article.licence.pk,
+            "subcategory": SubCategoryFactory().pk,
+            "last_hash": article.sha_draft
+        })
+        article = PublishableContent.objects.prefetch_related("public_version").get(pk=article.pk)
+        article.public_version.load_public_version()
+        self.assertEqual(old_title, article.public_version.title())
+        self.assertEqual(old_description, article.public_version.description())
+        self.assertEqual(old_date, article.public_version.publication_date)
+        publish_content(article, article.load_version(), False)
+        article = PublishableContent.objects.get(pk=article.pk)
+        article.public_version.load_public_version()
+        self.assertEqual(old_date, article.public_version.publication_date)
+        self.assertNotEqual(old_date, article.public_version.update_date)
+
+    def tearDown(self):
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
+
+        # re-active PDF build
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True

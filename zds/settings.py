@@ -26,8 +26,8 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
-        'PORT': '',
-    }
+        'PORT': ''
+    },
 }
 
 # Local time zone for this installation. Choices can be found here:
@@ -175,10 +175,13 @@ INSTALLED_APPS = (
     'zds.gallery',
     'zds.mp',
     'zds.article',
+    
     'zds.forum',
     'zds.tutorial',
+    'zds.tutorialv2',
     'zds.member',
     'zds.featured',
+    'zds.search',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -329,7 +332,7 @@ SERVE = False
 
 PANDOC_LOC = ''
 PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
-                    "--template=../../assets/tex/template.tex -s -S -N "
+                    "--template=../../../assets/tex/template.tex -s -S -N "
                     "--toc -V documentclass=scrbook -V lang=francais "
                     "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
                     "-V fontsize=12pt -V geometry:margin=1in ")
@@ -448,7 +451,25 @@ ZDS_APP = {
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
         'default_license_pk': 7,
         'home_number': 5,
-        'helps_per_page': 20
+        'helps_per_page': 20,
+        'content_per_page': 42,
+        'feed_length': 5
+    },
+    'content': {
+        'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
+        'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
+        'extra_contents_dirname': 'extra_contents',
+        'max_tree_depth': 3,
+        'default_licence_pk': 7,
+        'content_per_page': 50,
+        'notes_per_page': 25,
+        'helps_per_page': 20,
+        'feed_length': 5,
+        'user_page_number': 5,
+        'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
+        'import_image_prefix': 'archive',
+        'build_pdf_when_published': True,
+        'maximum_slug_size': 150
     },
     'forum': {
         'posts_per_page': 21,

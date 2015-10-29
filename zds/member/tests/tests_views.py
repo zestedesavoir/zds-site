@@ -1,14 +1,13 @@
 # coding: utf-8
 
 import os
+import shutil
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-
-from shutil import rmtree
 
 from zds.settings import BASE_DIR
 from zds.forum.models import TopicFollowed
@@ -17,10 +16,8 @@ from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
-from zds.tutorial.factories import MiniTutorialFactory, PublishedMiniTutorial
-from zds.tutorial.models import Tutorial
-from zds.article.factories import ArticleFactory, PublishedArticleFactory
-from zds.article.models import Article
+from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
@@ -29,9 +26,8 @@ from zds.utils.models import CommentLike
 
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
-overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
-overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -299,41 +295,44 @@ class MemberTests(TestCase):
         UserGalleryFactory(gallery=shared_gallery, user=user.user)
         UserGalleryFactory(gallery=shared_gallery, user=user2.user)
         # first case : a published tutorial with only one author
-        published_tutorial_alone = PublishedMiniTutorial(light=True)
+        published_tutorial_alone = PublishedContentFactory(type='TUTORIAL')
         published_tutorial_alone.authors.add(user.user)
         published_tutorial_alone.save()
         # second case : a published tutorial with two authors
-        published_tutorial_2 = PublishedMiniTutorial(light=True)
+        published_tutorial_2 = PublishedContentFactory(type='TUTORIAL')
         published_tutorial_2.authors.add(user.user)
         published_tutorial_2.authors.add(user2.user)
         published_tutorial_2.save()
         # third case : a private tutorial with only one author
-        writing_tutorial_alone = MiniTutorialFactory(light=True)
+        writing_tutorial_alone = PublishableContentFactory(type='TUTORIAL')
         writing_tutorial_alone.authors.add(user.user)
         writing_tutorial_alone.save()
         writing_tutorial_alone_galler_path = writing_tutorial_alone.gallery.get_gallery_path()
-        writing_tutorial_alone_path = writing_tutorial_alone.get_path()
         # fourth case : a private tutorial with at least two authors
-        writing_tutorial_2 = MiniTutorialFactory(light=True)
+        writing_tutorial_2 = PublishableContentFactory(type='TUTORIAL')
         writing_tutorial_2.authors.add(user.user)
         writing_tutorial_2.authors.add(user2.user)
         writing_tutorial_2.save()
         self.client.login(username=self.staff.username, password="hostel77")
         # same thing for articles
-        published_article_alone = PublishedArticleFactory()
+        published_article_alone = PublishedContentFactory(type='ARTICLE')
         published_article_alone.authors.add(user.user)
         published_article_alone.save()
-        published_article_2 = PublishedArticleFactory()
+        published_article_2 = PublishedContentFactory(type='ARTICLE')
         published_article_2.authors.add(user.user)
         published_article_2.authors.add(user2.user)
         published_article_2.save()
-        writing_article_alone = ArticleFactory()
+        writing_article_alone = PublishableContentFactory(type='ARTICLE')
         writing_article_alone.authors.add(user.user)
         writing_article_alone.save()
-        writing_article_2 = ArticleFactory()
+        writing_article_2 = PublishableContentFactory(type='ARTICLE')
         writing_article_2.authors.add(user.user)
         writing_article_2.authors.add(user2.user)
         writing_article_2.save()
+        # beta content
+        beta_forum = ForumFactory(category=CategoryFactory())
+        beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
+        beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
         authored_topic = TopicFactory(author=user.user, forum=self.forum11)
         answered_topic = TopicFactory(author=user2.user, forum=self.forum11)
@@ -351,6 +350,8 @@ class MemberTests(TestCase):
         private_topic.participants.add(user2.user)
         private_topic.save()
         PrivatePostFactory(author=user.user, privatetopic=private_topic, position_in_topic=1)
+
+        # login and unregister:
         login_check = self.client.login(
             username=user.user.username,
             password='hostel77')
@@ -359,6 +360,8 @@ class MemberTests(TestCase):
             reverse('zds.member.views.unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        # check that the bot have taken authorship of tutorial:
         self.assertEqual(published_tutorial_alone.authors.count(), 1)
         self.assertEqual(published_tutorial_alone.authors.first().username,
                          settings.ZDS_APP["member"]["external_account"])
@@ -367,54 +370,71 @@ class MemberTests(TestCase):
         self.assertEqual(published_tutorial_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])
                          .count(), 0)
-        self.assertIsNotNone(published_tutorial_2.get_prod_path())
-        self.assertTrue(os.path.exists(published_tutorial_2.get_prod_path()))
-        self.assertIsNotNone(published_tutorial_alone.get_prod_path())
-        self.assertTrue(os.path.exists(published_tutorial_alone.get_prod_path()))
+
+        # check that published tutorials remain published and accessible
+        self.assertIsNotNone(published_tutorial_2.public_version.get_prod_path())
+        self.assertTrue(os.path.exists(published_tutorial_2.public_version.get_prod_path()))
+        self.assertIsNotNone(published_tutorial_alone.public_version.get_prod_path())
+        self.assertTrue(os.path.exists(published_tutorial_alone.public_version.get_prod_path()))
         self.assertEqual(self.client.get(
-            reverse('zds.tutorial.views.view_tutorial_online', args=[
+            reverse('tutorial:view', args=[
                     published_tutorial_alone.pk,
                     published_tutorial_alone.slug]), follow=False).status_code, 200)
         self.assertEqual(self.client.get(
-            reverse('zds.tutorial.views.view_tutorial_online', args=[
+            reverse('tutorial:view', args=[
                     published_tutorial_2.pk,
                     published_tutorial_2.slug]), follow=False).status_code, 200)
-        self.assertTrue(os.path.exists(published_article_alone.get_path()))
+
+        # test that published articles remain accessible
+        self.assertTrue(os.path.exists(published_article_alone.public_version.get_prod_path()))
         self.assertEqual(self.client.get(
             reverse(
-                'zds.article.views.view_online',
+                'article:view',
                 args=[
                     published_article_alone.pk,
                     published_article_alone.slug]),
             follow=True).status_code, 200)
         self.assertEqual(self.client.get(
             reverse(
-                'zds.article.views.view_online',
+                'article:view',
                 args=[
                     published_article_2.pk,
                     published_article_2.slug]),
             follow=True).status_code, 200)
-        self.assertEqual(Tutorial.objects.filter(pk=writing_tutorial_alone.pk).count(), 0)
+
+        # check that the tutorial for which the author was alone does not exists anymore
+        self.assertEqual(PublishableContent.objects.filter(pk=writing_tutorial_alone.pk).count(), 0)
+        self.assertFalse(os.path.exists(writing_tutorial_alone.get_repo_path()))
+
+        # check that bot haven't take the authorship of the tuto with more than one author
         self.assertEqual(writing_tutorial_2.authors.count(), 1)
         self.assertEqual(writing_tutorial_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"])
                          .count(), 0)
+
+        # authorship for the article for which user was the only author
         self.assertEqual(published_article_alone.authors.count(), 1)
         self.assertEqual(published_article_alone.authors
                          .first().username, settings.ZDS_APP["member"]["external_account"])
         self.assertEqual(published_article_2.authors.count(), 1)
+
+        self.assertEqual(PublishableContent.objects.filter(pk=writing_article_alone.pk).count(), 0)
+        self.assertFalse(os.path.exists(writing_article_alone.get_repo_path()))
+
+        # not bot if another author:
         self.assertEqual(published_article_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
-        self.assertEqual(Article.objects.filter(pk=writing_article_alone.pk).count(), 0)
         self.assertEqual(writing_article_2.authors.count(), 1)
         self.assertEqual(writing_article_2.authors
                          .filter(username=settings.ZDS_APP["member"]["external_account"]).count(), 0)
+
+        # topics, gallery and PMs:
         self.assertEqual(Topic.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(Post.objects.filter(editor__username=user.user.username).count(), 0)
         self.assertEqual(PrivatePost.objects.filter(author__username=user.user.username).count(), 0)
         self.assertEqual(PrivateTopic.objects.filter(author__username=user.user.username).count(), 0)
-        self.assertFalse(os.path.exists(writing_tutorial_alone_path))
+
         self.assertIsNotNone(Topic.objects.get(pk=authored_topic.pk))
         self.assertIsNotNone(PrivateTopic.objects.get(pk=private_topic.pk))
         self.assertIsNotNone(Gallery.objects.get(pk=alone_gallery.pk))
@@ -424,10 +444,16 @@ class MemberTests(TestCase):
         self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
         self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
+        # zep 12, published contents and beta
+        self.assertIsNotNone(PublishedContent.objects.filter(content__pk=published_tutorial_alone.pk).first())
+        self.assertIsNotNone(PublishedContent.objects.filter(content__pk=published_tutorial_2.pk).first())
+        self.assertTrue(Topic.objects.get(pk=beta_content.beta_topic.pk).is_locked)
+        self.assertFalse(Topic.objects.get(pk=beta_content_2.beta_topic.pk).is_locked)
+
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
 
-        # empty the test outbox
+        # Empty the test outbox
         mail.outbox = []
 
         result = self.client.post(
@@ -443,7 +469,7 @@ class MemberTests(TestCase):
         # check email has been sent
         self.assertEquals(len(mail.outbox), 1)
 
-        # click on the link which has been sent in mail
+        # clic on the link which has been sent in mail
         user = User.objects.get(username=self.mas.user.username)
 
         token = TokenForgotPassword.objects.get(user=user)
@@ -452,62 +478,6 @@ class MemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 200)
-
-    def test_send_email_validation(self):
-        """To test nominal scenario of a email validation."""
-
-        # create a non activate user
-        profile = ProfileFactory()
-        profile.user.is_active = False
-        profile.user.save()
-
-        # empty the test outbox
-        mail.outbox = []
-
-        result = self.client.post(
-            reverse('send-validation-email'),
-            {
-                'username': profile.user.username,
-                'email': '',
-            },
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
-        # check email has been sent
-        self.assertEquals(len(mail.outbox), 1)
-
-        # click on the link which has been sent in mail
-        token = TokenRegister.objects.get(user=profile.user)
-        result = self.client.get(
-            settings.ZDS_APP['site']['url'] + token.get_absolute_url(),
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
-    def test_already_active_send_email_validation(self):
-        """Test if a active user can ask for validation email."""
-
-        # create a active user
-        profile = ProfileFactory()
-        profile.user.is_active = True
-        profile.user.save()
-
-        # empty the test outbox
-        mail.outbox = []
-
-        result = self.client.post(
-            reverse('send-validation-email'),
-            {
-                'username': profile.user.username,
-                'email': '',
-            },
-            follow=False)
-
-        self.assertEqual(result.status_code, 200)
-
-        # check email has not been sent
-        self.assertEquals(len(mail.outbox), 0)
 
     def test_sanctions(self):
         """
@@ -926,11 +896,9 @@ class MemberTests(TestCase):
         self.assertEqual(result.status_code, 405)
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
-            rmtree(settings.ZDS_APP['tutorial']['repo_path'])
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
-            rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
-        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
-            rmtree(settings.ZDS_APP['article']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
-            rmtree(settings.MEDIA_ROOT)
+            shutil.rmtree(settings.MEDIA_ROOT)

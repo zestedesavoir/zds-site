@@ -22,10 +22,10 @@
         </p>
 
         <p class="content-meta inline">
-            {% with answer=topic.get_last_answer last_read=topic.last_read_post %}
+            {% with answer=topic.get_last_answer last_read_url=topic.resolve_last_read_post_absolute_url %}
                 {% if answer %}
                     {% spaceless %}
-                    <a href="{{ last_read.get_absolute_url }}" class="last-read-link">
+                    <a href="{{ last_read_url }}" class="last-read-link">
                         {% trans "Dernière réponse :" %}
                         <time class="content-pubdate" pubdate="{{ answer.pubdate|date:"c" }}">
                             <span class="long">{{ answer.pubdate|format_date|capfirst }}</span>

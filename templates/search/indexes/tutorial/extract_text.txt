@@ -1,8 +1,0 @@
-{{ object.get_text_online }}
-{{ object.chapter.tutorial.title }}
-{{ object.chapter.tutorial.description }}
-{{ object.chapter.tutorial.pubdate }}
-{{ object.chapter.part.tutorial.title }}
-{{ object.chapter.part.tutorial.description }}
-{{ object.chapter.part.tutorial.pubdate }}
-{{ object.title }}

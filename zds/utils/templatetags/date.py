@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from datetime import timedelta
-import time
 
 from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -69,8 +68,7 @@ def tooltip_date(value):
     return date_formatter(value, tooltip=True, small=False)
 
 
-@register.filter('humane_time')
-def humane_time(timestamp):
+@register.filter
+def humane_time(timestamp, tz_offset=0):
     """Render time (number of second from epoch) to an human readable string"""
-    timing = time.localtime(timestamp)
-    return time.strftime(__ABS_HUMAN_TIME_FMT, timing)
+    return format_date(datetime.utcfromtimestamp(timestamp - tz_offset))

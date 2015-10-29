@@ -585,15 +585,17 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
             'email_contact': u"communication@zestedesavoir.com",
             'email_noreply': u"noreply@zestedesavoir.com",
             'repository': u"https://github.com/zestedesavoir/zds-site",
+            'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
+            'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
+            'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
             'short_description': u"",
             'long_description': u"Zeste de Savoir est un site de partage de connaissances "
                                 u"sur lequel vous trouverez des tutoriels de tous niveaux, "
                                 u"des articles et des forums d'entraide animés par et pour "
                                 u"la communauté.",
-            'year': u"2014",
             'association': {
                 'name': u"Zeste de Savoir",
-                'fee': u"30 €",
+                'fee': u"20 €",
                 'email': u"association@zestedesavoir.com",
                 'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
             },
@@ -602,7 +604,7 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
                     'code': u"CC-BY",
                     'title': u"Creative Commons License",
                     'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - "
-                                u"Partage dans les Mêmes Conditions 4.0 International.",
+                                   u"Partage dans les Mêmes Conditions 4.0 International.",
                     'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
                     'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
                     'author': u"MaxRoyo"
@@ -618,9 +620,10 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
                     'code': u"GPL v3",
                     'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
                     'provider_name': u"Progdupeupl",
-                    'provider_url': u"http://pdp.microjoe.org/",
+                    'provider_url': u"http://pdp.microjoe.org",
                 },
-                'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-licences-sur-zeste-de-savoir/',
+                'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
+                                      u'ences-sur-zeste-de-savoir/',
                 'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
             },
             'hosting': {
@@ -645,15 +648,32 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
             'image_max_size': 1024 * 1024,
         },
         'article': {
-            'home_number': 5,
-            'repo_path': os.path.join(SITE_ROOT, 'articles-data')
+            'home_number': 4,
+            'repo_path': os.path.join(BASE_DIR, 'articles-data')
         },
         'tutorial': {
-            'repo_path': os.path.join(SITE_ROOT, 'tutoriels-private'),
-            'repo_public_path': os.path.join(SITE_ROOT, 'tutoriels-public'),
+            'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
+            'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
             'default_license_pk': 7,
             'home_number': 5,
-            'helps_per_page': 20
+            'helps_per_page': 20,
+            'content_per_page': 50,
+            'feed_length': 5
+        },
+        'content': {
+            'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
+            'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
+            'extra_contents_dirname': 'extra_contents',
+            'max_tree_depth': 3,
+            'default_license_pk': 7,
+            'content_per_page': 50,
+            'notes_per_page': 25,
+            'helps_per_page': 20,
+            'feed_length': 5,
+            'user_page_number': 5,
+            'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
+            'import_image_prefix': 'archive',
+            'build_pdf_when_published': True
         },
         'forum': {
             'posts_per_page': 21,
@@ -664,8 +684,17 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
             'beta_forum_id': 1,
             'max_post_length': 1000000,
             'top_tag_max': 5,
+            'home_number': 5,
+            'old_post_limit_days': 90
         },
-        'paginator':{
+        'topic': {
+            'home_number': 6,
+        },
+        'featured_resource': {
+            'featured_per_page': 100,
+            'home_number': 5,
+        },
+        'paginator': {
             'folding_limit': 4
         }
     }

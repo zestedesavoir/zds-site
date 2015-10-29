@@ -280,3 +280,55 @@ La recherche est maintenant en français:
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
 
+
+ZEP-12 aka Apocalypse
+---------------------
+
+![ZEP 12](http://i.ytimg.com/vi/UVFku_WzSc8/maxresdefault.jpg)
+
+**Étapes préliminaires**
+
+Il vous faut *absolument* faire une sauvegarde de secours de la base de données et du dossier `media/`. 
+
+Il est fortement conseillé de détecter les tutoriels et articles dont le dépot GIT est cassé via les commandes suivantes ([testées sur la bêta ici](https://github.com/artragis/zds-site/issues/238#issuecomment-131577950)) :
+
+```bash
+find tutoriels-private/ -mindepth 1 -maxdepth 1 -type d '!' -exec test -e '{}/.git/refs/heads/master' ';' -print
+find articles-data/ -mindepth 1 -maxdepth 1 -type d '!' -exec test -e '{}/.git/refs/heads/master' ';' -print
+```
+
+et de les écarter temporairement (en les déplacant dans un autre dossier), afin de ne pas gêner la migration. Ils devront être ré-importé manuellement dans le futur, si cela est possible.
+
+**Migrations des dépendences, de la base de données et des contenus**
+
+- La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
+  Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le `WHERE`):
+  ```sql
+  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
+  ```
+  Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe): 
+  ```bash
+  DB="dbname";USER="dbusername";PASS="dbusername";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
+  ```
+- La génération des PDFs par Pandoc, peut-être très longue, il est fortement conseillé de désactiver temporairement la génération de PDF. Pour cela, dans le fichier `settings_prod.py`, passer la variable `ZDS_APP['content']['build_pdf_when_published']` à `False`.  Il est nécessaire de relancer Django pour que ce paramètre soit pris en compte.
+- Il faut maintenant migrer tous les contenus, pour cela utilisez la commande `python manage.py migrate_to_zep12`. Cette commande peut prendre plusieurs minutes.
+- Lancez la génération des PDFs avec la commande : `python manage.py generate_pdf`, si vous désirez que les erreurs générées soient loggées, envoyez la sortie standard vers le fichier de votre choix. Prendre soin d'avoir activé le log de Pandoc.
+- Repassez la variable `ZDS_APP['content']['build_pdf_when_published']` à `True`. Il est nécessaire de relancer Django pour que ce paramètre soit pris en compte.
+
+**Migrations du module de recherche**
+
+- Arrêter Solr : `systemctl stop solr` (remplacer `solr` par le nom exact du service)
+- Regénérer `schema.xml` avec la commande `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
+- Insérer les données pour la recherche dans la BDD : `python manage.py index_content`
+- Changer la tâche cron qui permet d'indexer les contenus de `python manage.py update_index` à `python manage.py index_content --only-flagged >> /var/log/indexation.txt && python manage.py update_index >> /var/log/indexation.txt`
+- Créer une autre tâche cron pour supprimer réguliérement le fichier de log `/var/log/indexation.txt`.
+- Démarrer Solr : `systemctl start solr`
+- Indexer le contenu avec Solr: `python manage.py rebuild_index`. Attention, cette commande peut prendre plusieurs minutes.
+
+**Après la migration**
+
+- Par défaut la pagination est mise à 42 éléments, mais nous affichons 2 ou 3 colonnes selon les largeurs d'écran. Pour la changer, il faut modifier la variable `ZDS_APP['content']['content_per_page']` dans `settings_prod.py`. Il est nécessaire de relancer Django pour que ce paramètre soit pris en compte.
+- De nouvelles permissions ont été créées automatiquement par Django, il est nécessaire de les rajouter au groupe `staff`. Via l'interface d'administration, ajoutez au moins ces trois permissions :
+    - `tutorialv2 | Contenu | Can change Contenu` (`tutorialv2.change_publishablecontent`) pour le droit au staff d'accéder et de modifier les contenus
+    - `tutorialv2 | Validation | Can change Validation` (`tutorialv2.change_validation`) pour le droit au staff de valider des contenus
+    - `tutorialv2 | note sur un contenu | Can change note sur un contenu` (`tutorialv2.change_contentreaction`) pour le droit au staff de modérer les commentaires sur les contenus

@@ -21,11 +21,16 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     # If a group "public" is defined, the forum is public (and anyone can read it).
     permissions = indexes.MultiValueField()
 
+    tags = indexes.MultiValueField()
+
     def get_model(self):
         return Topic
 
     def prepare_permissions(self, obj):
         return [group.name for group in obj.forum.group.all()] or "public"
+
+    def prepare_tags(self, obj):
+        return [tag.title for tag in obj.tags.all()] or None
 
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
@@ -39,8 +44,9 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
     topic_author = indexes.CharField(stored=True, indexed=False)
     topic_forum = indexes.CharField(stored=True, indexed=False)
 
-    # Groups authorized to read this topic.
-    # If a group "public" is defined, the forum is public (and anyone can read it).
+    tags = indexes.MultiValueField()
+
+    # Groups authorized to read this post. If no group is defined, the forum is public (and anyone can read it).
     permissions = indexes.MultiValueField()
 
     def get_model(self):
@@ -57,6 +63,9 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_topic_forum(self, obj):
         return obj.topic.forum
+
+    def prepare_tags(self, obj):
+        return [tag.title for tag in obj.topic.tags.all()] or None
 
     def prepare_permissions(self, obj):
         return [group.name for group in obj.topic.forum.group.all()] or "public"

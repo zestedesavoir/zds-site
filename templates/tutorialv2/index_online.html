@@ -1,0 +1,160 @@
+{% extends "tutorialv2/base_online.html" %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+
+
+
+{% block title %}
+    {% if tag %}
+        {{ tag }}
+    {% else %}
+        {% trans "Tous les" %} {{ verbose_type_name_plural }}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block description %}
+    {% if tag %}
+        {% blocktrans %}
+            Découvrez tous nos {{ verbose_type_name_plural }} sur {{ tag }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans %}
+            Les {{ verbose_type_name_plural }} vous permettent d'apprendre divers sujets tous plus intéressants les uns que les autres.
+        {% endblocktrans %}
+    {% endif %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% if tag %}
+        <li>{{ tag }}</li>
+    {% else %}
+        <li>{% trans "Tous les" %} {{ verbose_type_name_plural }}</li>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% endif %}" itemprop="name">
+            {% block headline %}
+                {% if tag %}
+                    {{ verbose_type_name_plural|title }} : {{ tag }}
+                {% else %}
+                    {% trans "Tous les" %} {{ verbose_type_name_plural }}
+                {% endif %}
+            {% endblock %}
+        </h1>
+
+        <meta itemprop="itemListOrder" content="Unordered">
+
+        {% include "misc/paginator.html" with position="top" %}
+
+        {% if public_contents %}
+            <div class="content-item-list">
+                {% for public_content in public_contents %}
+                    {% if public_content.content_type == "TUTORIAL" %}
+                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with public_tutorial=public_content online=True show_description=True %}
+                    {% elif public_content.content_type == "ARTICLE" %}
+                        {% include "tutorialv2/includes/content_item_type_article.part.html" with public_article=public_content show_description=True %}
+                    {% endif %}
+                {% endfor %}
+                <div class="fill"></div>
+                <div class="fill"></div>
+                <div class="fill"></div>
+            </div>
+        {% else %}
+            <p>
+                {% trans "Aucun contenu disponible" %}.
+            </p>
+        {% endif %}
+
+        {% include "misc/paginator.html" with position="bottom-clear" %}
+    </section>
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans "Catégories des" %} {{ verbose_type_name_plural }}">
+        {% if current_content_type == "TUTORIAL" %}
+            <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+                {% trans "Nouveau tutoriel" %}
+            </a>
+
+            <a href="{% url 'content:helps' %}?type=tuto" class="new-btn ico-after help blue">
+                {% trans "Aider les auteurs" %}
+            </a>
+        {% elif current_content_type == "ARTICLE" %}
+            <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+                {% trans "Nouvel article" %}
+            </a>
+
+            <a href="{% url 'content:helps' %}?type=article" class="new-btn ico-after help blue">
+                {% trans "Aider les auteurs" %}
+            </a>
+        {% endif %}
+
+        <h3>{% blocktrans %} Catégories <span class="wide">des {{ verbose_type_name_plural }}</span> {% endblocktrans %}</h3>
+
+        {% captureas content_list_url %}
+            {% if current_content_type == "ARTICLE" %}
+                {% url "article:list" %}
+            {% elif current_content_type == "TUTORIAL" %}
+                {% url "tutorial:list" %}
+            {% endif %}
+        {% endcaptureas %}
+
+        {% for title, subcats in top_categories.items %}
+            <h4 class="mobile-menu-link">{{ title }}</h4>
+            <ul>
+                {% for subcat,slug in subcats %}
+                    <li>
+                        <a href="{{ content_list_url }}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                            {{  subcat }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% empty %}
+            <ul>
+                <li>
+                    {% trans "Aucune catégorie disponible." %}
+                </li>
+            </ul>
+        {% endfor %}
+
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
+            <h3>{% trans "Flux" %}</h3>
+            <ul>
+                <li>
+                    <a
+                        {% if current_content_type == "ARTICLE" %}
+                            href="{% url "article:feed-rss" %}"
+                        {% elif current_content_type == "TUTORIAL" %}
+                            href="{% url "tutorial:feed-rss" %}"
+                        {% endif %}
+                    class="ico-after rss blue">
+                        {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (RSS) {% endblocktrans %}
+                    </a>
+                </li>
+                <li>
+                    <a
+                        {% if current_content_type == "ARTICLE" %}
+                            href="{% url "article:feed-atom" %}"
+                        {% elif current_content_type == "TUTORIAL" %}
+                            href="{% url "tutorial:feed-atom" %}"
+                        {% endif %}
+                    class="ico-after rss blue">
+                        {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (ATOM) {% endblocktrans %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+{% endblock %}

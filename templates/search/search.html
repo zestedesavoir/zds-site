@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load date %}
 {% load emarkdown %}
-{% load model_name %}
 {% load highlight %}
 {% load topbar %}
 {% load i18n %}
@@ -41,7 +40,23 @@
     <aside class="sidebar mobile-menu-hide">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
             <h3>{% trans "Filtrer les résultats" %}</h3>
-            {{ form.models }}
+
+            <ul>
+                {% for radio in form.models %}
+                    <li>
+                        {{ radio.choice_label }}
+
+                        <input id="{{ radio.id_for_label }}"
+                               form="search_form" name="models"
+                               type="checkbox" value="{{ radio.choice_value }}"
+
+                                {% if radio.choice_value in models %}
+                                    checked
+                                {% endif %}
+                                >
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </aside>
 {% endblock %}
@@ -62,87 +77,18 @@
             <div class="topic-list navigable-list">
                 {% for result in page.object_list %}
                     {% if result and result.object %}
-                        <div class="topic navigable-elem">
-                            <div class="topic-infos">
-                            </div>
-                            <div class="topic-description">
-                                {% if result.object.first_post %}
-                                    <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
-                                        <div class="topic-title">
-                                            {% highlight result.object.title with query html_tag "mark" %}
-                                        </div>
-                                {% elif result.object.get_text_online %}
-                                    <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                        <div class="topic-title">
-                                            {% highlight result.object.title with query html_tag "mark" %}
-                                        </div>
-                                {% elif result.object.topic %}
-                                    <a href="{{ result.object.get_absolute_url }}" class="topic-title-link navigable-link">
-                                        <div class="topic-title">
-                                            {% highlight result.object.topic.title with query html_tag "mark" %}
-                                        </div>
-                                {% else %}
-                                    <a href="{{ result.object.get_absolute_url_online }}" class="topic-title-link navigable-link">
-                                        <div class="topic-title">
-                                            {% highlight result.object.title with query html_tag "mark" %}
-                                        </div>
-                                {% endif %}
-                                        <div class="topic-subtitle">
-                                            {% if result.object.first_post %}
-                                                {% with text=result.object.first_post.text|emarkdown|striptags|safe %}
-                                                    {% highlight text with query html_tag "mark" %}
-                                                {% endwith %}
-                                            {% elif result.object.get_text_online %}
-                                                {% with text=result.object.get_text_online|striptags|safe %}
-                                                    {% highlight text with query html_tag "mark" %}
-                                                {% endwith %}
-                                            {% elif result.object.get_text %}
-                                                {% with text=result.object.get_text|striptags|safe %}
-                                                    {% highlight text with query html_tag "mark" %}
-                                                {% endwith %}
-                                            {% elif result.object.topic %}
-                                                {% with text=result.object.text|emarkdown|striptags|safe %}
-                                                    {% highlight text with query html_tag "mark" %}
-                                                {% endwith %}
-                                            {% else %}
-                                                {% with text=result.object.get_introduction_online|striptags|safe %}
-                                                    {% highlight text with query html_tag "mark" %}
-                                                {% endwith %}
-                                            {% endif %}
-                                        </div>
-                                    </a>
-                                    <div class="topic-members">
-                                        {% model_name result.app_label result.model_name False %}
-                                    </div>
-                            </div>
-                            <div class="topic-last-answer">
-                                {% if result.object.pubdate %}
-                                    <a href="
-                                        {% if result.object.first_post %}
-                                            {{ result.object.get_absolute_url }}
-                                        {% elif result.object.get_introduction_online %}
-                                            {{ result.object.get_absolute_url_online }}
-                                        {% else %}
-                                            {{ result.object.get_absolute_url }}
-                                        {% endif %}
-                                    ">
-                                        {{ result.object.pubdate|format_date|capfirst }}
-                                    </a>
-                                {% elif result.object.tutorial.pubdate %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.tutorial.pubdate|format_date|capfirst }}
-                                    </a>
-                                {% elif result.object.part.tutorial.pubdate %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.part.tutorial.pubdate|format_date|capfirst }}
-                                    </a>
-                                {% elif result.object.chapter.tutorial.pubdate %}
-                                    <a href="{{ result.object.get_absolute_url_online }}">
-                                        {{ result.object.chapter.tutorial.pubdate|format_date|capfirst }}
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
+                        {% if result.content_type == "search.searchindexcontent" %}
+                            {% include "search/includes/content/content.html" with result=result query=query %}
+                        {% elif result.content_type == "search.searchindexcontainer" %}
+                            {% include "search/includes/content/container.html" %}
+                        {% elif result.content_type == "search.searchindexextract" %}
+                            {% include "search/includes/content/extract.html" %}
+                        {% elif result.content_type == "forum.topic"  %}
+                            {% include "search/includes/forum/topic.html" %}
+                        {% elif result.content_type == "forum.post"  %}
+                            {% include "search/includes/forum/post.html" %}
+                        {% endif %}
+
                     {% endif %}
                 {% endfor %}
             </div>

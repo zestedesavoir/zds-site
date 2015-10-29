@@ -11,21 +11,19 @@ from django.test.utils import override_settings
 from django.contrib.auth.models import Group
 from hashlib import md5
 
-from zds.article.factories import ArticleFactory
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
-from zds.tutorial.factories import MiniTutorialFactory
+from zds.tutorialv2.factories import PublishableContentFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.utils.models import Alert
 from zds.settings import BASE_DIR
 
 
 overrided_zds_app = settings.ZDS_APP
-overrided_zds_app['tutorial']['repo_path'] = os.path.join(BASE_DIR, 'tutoriels-private-test')
-overrided_zds_app['tutorial']['repo_public_path'] = os.path.join(BASE_DIR, 'tutoriels-public-test')
-overrided_zds_app['article']['repo_path'] = os.path.join(BASE_DIR, 'article-data-test')
+overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
+overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -85,7 +83,7 @@ class MemberModelsTest(TestCase):
         # Start with 0
         self.assertEqual(self.user1.get_tuto_count(), 0)
         # Create Tuto !
-        minituto = MiniTutorialFactory()
+        minituto = PublishableContentFactory(type='TUTORIAL')
         minituto.authors.add(self.user1.user)
         minituto.gallery = GalleryFactory()
         minituto.save()
@@ -96,7 +94,7 @@ class MemberModelsTest(TestCase):
         # Start with 0
         self.assertEqual(len(self.user1.get_tutos()), 0)
         # Create Tuto !
-        minituto = MiniTutorialFactory()
+        minituto = PublishableContentFactory(type='TUTORIAL')
         minituto.authors.add(self.user1.user)
         minituto.gallery = GalleryFactory()
         minituto.save()
@@ -109,7 +107,7 @@ class MemberModelsTest(TestCase):
         # Start with 0
         self.assertEqual(len(self.user1.get_draft_tutos()), 0)
         # Create Tuto !
-        drafttuto = MiniTutorialFactory()
+        drafttuto = PublishableContentFactory(type='TUTORIAL')
         drafttuto.authors.add(self.user1.user)
         drafttuto.gallery = GalleryFactory()
         drafttuto.save()
@@ -122,7 +120,7 @@ class MemberModelsTest(TestCase):
         # Start with 0
         self.assertEqual(len(self.user1.get_public_tutos()), 0)
         # Create Tuto !
-        publictuto = MiniTutorialFactory()
+        publictuto = PublishableContentFactory(type='TUTORIAL')
         publictuto.authors.add(self.user1.user)
         publictuto.gallery = GalleryFactory()
         publictuto.sha_public = 'whatever'
@@ -136,7 +134,7 @@ class MemberModelsTest(TestCase):
         # Start with 0
         self.assertEqual(len(self.user1.get_validate_tutos()), 0)
         # Create Tuto !
-        validatetuto = MiniTutorialFactory()
+        validatetuto = PublishableContentFactory(type='TUTORIAL')
         validatetuto.authors.add(self.user1.user)
         validatetuto.gallery = GalleryFactory()
         validatetuto.sha_validation = 'whatever'
@@ -150,7 +148,7 @@ class MemberModelsTest(TestCase):
         # Start with 0
         self.assertEqual(len(self.user1.get_beta_tutos()), 0)
         # Create Tuto !
-        betatetuto = MiniTutorialFactory()
+        betatetuto = PublishableContentFactory(type='TUTORIAL')
         betatetuto.authors.add(self.user1.user)
         betatetuto.gallery = GalleryFactory()
         betatetuto.sha_beta = 'whatever'
@@ -160,11 +158,22 @@ class MemberModelsTest(TestCase):
         self.assertEqual(len(betatetutos), 1)
         self.assertEqual(betatetuto, betatetutos[0])
 
+    def test_get_article_count(self):
+        # Start with 0
+        self.assertEqual(self.user1.get_tuto_count(), 0)
+        # Create article !
+        minituto = PublishableContentFactory(type='ARTICLE')
+        minituto.authors.add(self.user1.user)
+        minituto.gallery = GalleryFactory()
+        minituto.save()
+        # Should be 1
+        self.assertEqual(self.user1.get_article_count(), 1)
+
     def test_get_articles(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_articles()), 0)
-        # Create Tuto !
-        article = ArticleFactory()
+        # Create article !
+        article = PublishableContentFactory(type='ARTICLE')
         article.authors.add(self.user1.user)
         article.save()
         # Should be 1
@@ -175,8 +184,8 @@ class MemberModelsTest(TestCase):
     def test_get_public_articles(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_public_articles()), 0)
-        # Create Tuto !
-        article = ArticleFactory()
+        # Create article !
+        article = PublishableContentFactory(type='ARTICLE')
         article.authors.add(self.user1.user)
         article.sha_public = 'whatever'
         article.save()
@@ -188,8 +197,8 @@ class MemberModelsTest(TestCase):
     def test_get_validate_articles(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_validate_articles()), 0)
-        # Create Tuto !
-        article = ArticleFactory()
+        # Create article !
+        article = PublishableContentFactory(type='ARTICLE')
         article.authors.add(self.user1.user)
         article.sha_validation = 'whatever'
         article.save()
@@ -201,13 +210,25 @@ class MemberModelsTest(TestCase):
     def test_get_draft_articles(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_draft_articles()), 0)
-        # Create Tuto !
-        article = ArticleFactory()
+        # Create article !
+        article = PublishableContentFactory(type='ARTICLE')
+        article.authors.add(self.user1.user)
+        article.save()
+        # Should be 1
+        articles = self.user1.get_draft_articles()
+        self.assertEqual(len(articles), 1)
+        self.assertEqual(article, articles[0])
+
+    def test_get_beta_articles(self):
+        # Start with 0
+        self.assertEqual(len(self.user1.get_beta_articles()), 0)
+        # Create article !
+        article = PublishableContentFactory(type='ARTICLE')
         article.authors.add(self.user1.user)
         article.sha_beta = 'whatever'
         article.save()
         # Should be 1
-        articles = self.user1.get_draft_articles()
+        articles = self.user1.get_beta_articles()
         self.assertEqual(len(articles), 1)
         self.assertEqual(article, articles[0])
 
@@ -340,12 +361,10 @@ class MemberModelsTest(TestCase):
         self.assertIn(profile_ls_temp, profiles_reacheable)
 
     def tearDown(self):
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
-            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
-        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
-            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
 

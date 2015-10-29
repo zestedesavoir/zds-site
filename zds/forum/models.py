@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from zds.settings import ZDS_APP
 from zds.utils import slugify
 from math import ceil
 import os
@@ -65,12 +66,18 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('cat-forums-list', kwargs={'slug': self.slug})
 
-    def get_forums(self, user):
-        """
+    def get_forums(self, user, with_count=False):
+        """get all forums that user can access
+
+        :param user: the related user
+        :type user: User
+        :param with_count: If true will preload thread and post number for each forum of this category
+        :type with_count: bool
         :return: All forums in category, ordered by forum's position in category
+        :rtype: list[Forum]
         """
-        forums_pub = Forum.objects.get_public_forums_of_category(self)
-        if user.is_authenticated():
+        forums_pub = Forum.objects.get_public_forums_of_category(self, with_count=with_count)
+        if user is not None and user.is_authenticated():
             forums_private = Forum.objects.get_private_forums_of_category(self, user)
             return list(forums_pub | forums_private)
         return forums_pub
@@ -111,16 +118,26 @@ class Forum(models.Model):
         return reverse('forum-topics-list', kwargs={'cat_slug': self.category.slug, 'forum_slug': self.slug})
 
     def get_topic_count(self):
-        """
+        """Retrieve or agregate the number of threads in this forum. If this number already exists, it must be stored \
+        in thread_count. Otherwise it will process a SQL query
+
         :return: the number of threads in the forum.
         """
-        return Topic.objects.filter(forum=self).count()
+        try:
+            return self.thread_count
+        except AttributeError:
+            return Topic.objects.filter(forum=self).count()
 
     def get_post_count(self):
-        """
+        """Retrieve or agregate the number of posts in this forum. If this number already exists, it must be stored \
+        in post_count. Otherwise it will process a SQL query
+
         :return: the number of posts for a forum.
         """
-        return Post.objects.filter(topic__forum=self).count()
+        try:
+            return self.post_count
+        except AttributeError:
+            return Post.objects.filter(topic__forum=self).count()
 
     def get_last_message(self):
         """
@@ -144,7 +161,7 @@ class Forum(models.Model):
         if self.group.count() == 0:
             return True
         else:
-            if user.is_authenticated():
+            if user is not None and user.is_authenticated():
                 groups = Group.objects.filter(user=user).all()
                 return Forum.objects.filter(
                     group__in=groups,
@@ -280,11 +297,65 @@ class Topic(models.Model):
         except TopicRead.DoesNotExist:
             return self.first_post()
 
+    def resolve_last_read_post_absolute_url(self):
+        """resolve the url that leads to the last post the current user has read. If current user is \
+        anonymous, just lead to the thread start.
+
+        :return: the url
+        :rtype: str
+        """
+        user = get_current_user()
+        if user is None or not user.is_authenticated():
+            return self.resolve_first_post_url()
+        else:
+            try:
+                pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
+                return '{}?page={}#p{}'.format(
+                    self.get_absolute_url(),
+                    pos / ZDS_APP["forum"]["posts_per_page"] + 1, pk)
+            except TopicRead.DoesNotExist:
+                return self.resolve_first_post_url()
+
+    def resolve_last_post_pk_and_pos_read_by_user(self, user):
+        """get the primary key and position of the last post the user read
+
+        :param user: the current (authenticated) user. Please do not try with unauthenticated user, il would lead to a \
+        useless request.
+        :return: the primary key
+        :rtype: int
+        """
+        t_read = TopicRead.objects\
+                          .select_related('post')\
+                          .filter(topic__pk=self.pk,
+                                  user__pk=user.pk) \
+                          .latest('post__position')
+        if t_read:
+            return t_read.post.pk, t_read.post.position
+        return Post.objects\
+            .filter(topic__pk=self.pk)\
+            .order_by('position')\
+            .values('pk', "position").first().values()
+
+    def resolve_first_post_url(self):
+        """resolve the url that leads to this topic first post
+
+        :return: the url
+        """
+        pk = Post.objects\
+            .filter(topic__pk=self.pk)\
+            .order_by('position')\
+            .values('pk').first()
+
+        return '{0}?page=1#p{1}'.format(
+            self.get_absolute_url(),
+            pk['pk'])
+
     def first_unread_post(self):
         """
-        Returns the first post of this topics the current user has never read, or the first post if it has never read
-        this topic.
+        Returns the first post of this topics the current user has never read, or the first post if it has never read \
+        this topic.\
         Used in notification menu.
+
         :return: The first unread post for this topic and this user.
         """
         # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
@@ -456,19 +527,22 @@ def never_read(topic, user=None):
         .filter(post=topic.last_message, topic=topic, user=user).exists()
 
 
-def mark_read(topic):
+def mark_read(topic, user=None):
     """
     Mark the last message of a topic as read for the current user.
     :param topic: A topic.
     """
-    current_user = get_current_user()
-    # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
-    current_topic_read = TopicRead.objects.filter(topic=topic, user=current_user).first()
-    if current_topic_read is None:
-        current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=current_user)
-    else:
-        current_topic_read.post = topic.last_message
-    current_topic_read.save()
+    if not user:
+        user = get_current_user()
+
+    if user and user.is_authenticated():
+        # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
+        current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
+        if current_topic_read is None:
+            current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)
+        else:
+            current_topic_read.post = topic.last_message
+        current_topic_read.save()
 
 
 def follow(topic, user=None):

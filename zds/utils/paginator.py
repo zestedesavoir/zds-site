@@ -2,6 +2,8 @@
 
 from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin
+from django.core.paginator import Paginator, EmptyPage
+from django.http import Http404
 
 from zds.settings import ZDS_APP
 
@@ -87,3 +89,54 @@ def paginator_range(current, stop, start=1):
             # And ignore all other numbers
 
     return lst
+
+
+def make_pagination(
+        context, request, queryset_objs, page_size, context_list_name='object_list', with_previous_item=False):
+    """This function will fill the context to use it for the paginator template, usefull if you cannot use
+    `ZdSPagingListView`.
+
+    Note that `/templates/misc/paginator.html` expect the following variables to be defined:
+
+    - `paginator`: a valid `Paginator` object
+    - `page_obj` : `QuerySet` object, portion of the `object_list`
+    - `pages`: results from `paginator_range()`
+
+    :param context: context
+    :param request: page request
+    :param queryset_objs: objects to paginate
+    :param page_size: number of objects in a pages (last one from previous page not included!)
+    :param context_list_name: control the name of the list object in the context
+    :param with_previous_item: if `True`, will include the last object of the previous page to the list of shown objects
+    """
+
+    paginator = Paginator(queryset_objs, page_size)
+
+    # retrieve page number
+    if "page" in request.GET and request.GET["page"].isdigit():
+        page_number = int(request.GET["page"])
+    elif "page" not in request.GET:
+        page_number = 1
+    else:
+        raise Http404
+    try:
+        page_obj = paginator.page(page_number)
+    except EmptyPage:
+        raise Http404
+
+    page_objects_list = page_obj.object_list
+
+    if page_number != 1 and with_previous_item:
+        new_list = []
+        last_page = paginator.page(page_obj.number - 1).object_list
+        last_item = last_page[len(last_page) - 1]
+        new_list.append(last_item)
+        for item in page_objects_list:
+            new_list.append(item)
+        page_objects_list = new_list
+
+    # fill context
+    context['paginator'] = paginator
+    context['page_obj'] = page_obj
+    context['pages'] = paginator_range(page_number, paginator.num_pages)
+    context[context_list_name] = page_objects_list

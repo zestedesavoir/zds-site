@@ -1,0 +1,110 @@
+{% load emarkdown %}
+{% load profile %}
+{% load roman %}
+{% load i18n %}
+
+
+
+<div class="mobile-menu-bloc {% if not content.has_extracts %}accordeon{% endif %}" data-title="Sommaire du contenu">
+    <h3>{% trans "Sommaire" %}</h3>
+    {% if not content.children %}
+        <ul>
+            <li class="inactive">
+                <span class="disabled mobile-menu-link">{% trans "Ce conteneur est vide" %}</span>
+            </li>
+        </ul>
+    {% endif %}
+
+    {% if content.has_extracts %} {#  Mini-tutorial or article #}
+        <ol>
+            {% for child in content.children %}
+                <li>
+                    <a data-num="{{ child.position_in_parent }}"
+                       href="#{{ child.position_in_parent }}-{{ child.slug }}"
+                       class="mobile-menu-link mobile-menu-sublink"
+                    >
+                        {{ child.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        {% for child in content.children %}
+             <h4 data-num="{{ child.position_in_parent|roman }}">
+                <a class="mobile-menu-link"
+                    {% if online %}
+                        href="{{ child.get_absolute_url_online }}"
+                    {% elif content.is_beta %}
+                        href="{{ child.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                >
+                    {{ child.title }}
+                </a>
+            </h4>
+            {% if child.has_extracts %}
+               <ul {% if current_container.long_slug == child.long_slug %}class="unfolded"{% endif %}>
+                    {% for extract in child.children %}
+                        <li>
+                            <a
+                                {% if online %}
+                                    href="{{ extract.get_absolute_url_online }}"
+                                {% elif content.is_beta %}
+                                    href="{{ extract.get_absolute_url_beta }}"
+                                {% else %}
+                                    href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                {% endif %}
+                            >
+                                {{ extract.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+               </ul>
+            {% else %}
+                <ol>
+                    {% for subchild in child.children %}
+                        <li {% if current_container.long_slug == subchild.long_slug %}class="current"{% endif %}>
+                            <a data-num="{{ subchild.position_in_parent }}"
+                                {% if online %}
+                                    href="{{ subchild.get_absolute_url_online }}"
+                                {% elif content.is_beta %}
+                                     href="{{ subchild.get_absolute_url_beta }}"
+                                {% else %}
+                                    {% if subchild.text %}
+                                        {# subchild is an extract #}
+                                        href="{{ subchild.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ subchild.position_in_parent }}-{{ subchild.slug }}"
+                                    {% else %}
+                                        href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                                    {% endif %}
+                                {% endif %}
+                                class="mobile-menu-link mobile-menu-sublink {% if current_container.long_slug == subchild.long_slug %}unread{% endif %}"
+                            >
+                                {{ subchild.title }}
+                            </a>
+                            {% if current_container.long_slug == subchild.long_slug %}
+                                <ol class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
+                                    {% for extract in subchild.children %}
+                                        <li>
+                                            <a
+                                                {% if online %}
+                                                    href="{{ extract.get_absolute_url_online }}"
+                                                {% elif content.is_beta %}
+                                                    href="{{ extract.get_absolute_url_beta }}"
+                                                {% else %}
+                                                    href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                                {% endif %}
+                                            >
+                                                {{ extract.title }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+        {% endfor %}
+    {%  endif %}
+</div>

@@ -27,7 +27,7 @@
         <p class="topic-last-answer">
             {% with last_message=forum.get_last_message %}
                 {% if last_message %}
-                    <a href="{{ last_message.topic.last_read_post.get_absolute_url }}">
+                    <a href="{{ last_message.topic.resolve_last_read_post_absolute_url }}">
                         <span class="forum-last-message">
                             <span class="forum-last-message-long">
                                 {{ last_message.pubdate|format_date|capfirst }}

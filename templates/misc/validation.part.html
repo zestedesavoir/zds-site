@@ -66,5 +66,7 @@
                 </p>
             </div>
         {% endif %}
+    {% elif validation.is_cancel %}
+        {% trans "Annulé" %} {{ validation.date_validation|format_date:True }}
     {% endif %}
 {% endif %}

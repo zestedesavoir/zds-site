@@ -3,13 +3,13 @@
 
 
 {% block title %}
-    {% trans "La modification du mot de passe a été éffectuée" %}
+    {% trans "La modification du mot de passe a été effectuée" %}
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "La modification du mot de passe a été éffectuée" %}
+    {% trans "La modification du mot de passe a été effectuée" %}
 {% endblock %}
 
 
@@ -22,6 +22,6 @@
 
 {% block content %}
     <p>
-        {% trans "Votre mot de passe a bien été modifié" %}. <a href="{% url "zds.member.views.login_view" %}">{% trans "Vous connectez" %}</a>.
+        {% trans "Votre mot de passe a bien été modifié, vous pouvez dès maintenant" %} <a href="{% url "zds.member.views.login_view" %}">{% trans "vous connecter" %}</a>.
     </p>
 {% endblock %}

@@ -6,6 +6,8 @@ base.db
 /static
 /tutoriels-private
 /tutoriels-public
+/contents-private
+/contents-public
 /media
 /articles-data
 
@@ -13,6 +15,8 @@ base.db
 /tutoriels-public-test
 /media-test
 /articles-data-test
+/contents-private-test
+/contents-public-test
 
 /apache-solr
 

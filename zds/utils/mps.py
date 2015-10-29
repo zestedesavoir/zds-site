@@ -99,35 +99,44 @@ def send_message_mp(
                 except:
                     msg = None
         else:
+            for part in n_topic.participants.all():
+                send_email(author, n_topic, part, pos)
+
+            send_email(author, n_topic, n_topic.author, pos)
+
+    return n_topic
+
+
+def send_email(author, n_topic, to, pos):
+    profile = to.profile
+
+    if profile.email_for_answer or pos == 1:
+        # Don't send the e-mail if the user is already notified.
+        last_read = PrivateTopicRead.objects.filter(
+            privatetopic=n_topic,
+            privatepost__position_in_topic=pos - 1,
+            user=to).count()
+
+        if (last_read > 0 or pos == 1) and author.username != to.username:
+            context = {
+                'username': to.username,
+                'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
+                'author': author,
+                'site_name': settings.ZDS_APP['site']['litteral_name']
+            }
+            message_html = render_to_string('email/mp/new.html', context)
+            message_txt = render_to_string('email/mp/new.txt', context)
+
             subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
                                              _(u'Message Privé'),
                                              n_topic.title)
+
             from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                            settings.ZDS_APP['site']['email_noreply'])
-            for part in n_topic.participants.all():
-                profile = part.profile
-                if profile.email_for_answer or pos == 1:
-                    # Don't send the e-mail if the user is already notified.
-                    last_read = PrivateTopicRead.objects.filter(
-                        privatetopic=n_topic,
-                        privatepost__position_in_topic=pos - 1,
-                        user=part).count()
 
-                    if last_read > 0 or pos == 1:
-                        context = {
-                            'username': part.username,
-                            'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
-                            'author': n_topic.author.username,
-                            'site_name': settings.ZDS_APP['site']['litteral_name']
-                        }
-                        message_html = render_to_string('email/mp/new.html', context)
-                        message_txt = render_to_string('email/mp/new.txt', context)
-
-                        msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-                        msg.attach_alternative(message_html, "text/html")
-                        try:
-                            msg.send()
-                        except:
-                            msg = None
-
-    return n_topic
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [to.email])
+            msg.attach_alternative(message_html, "text/html")
+            try:
+                msg.send()
+            except:
+                msg = None

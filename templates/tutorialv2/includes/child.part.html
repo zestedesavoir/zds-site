@@ -1,0 +1,136 @@
+{% load emarkdown %}
+{% load i18n %}
+{% load times %}
+{% load target_tree %}
+{% load feminize %}
+
+<h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+    <a
+    {% if content.is_beta %}
+        href="{{ child.get_absolute_url_beta }}"
+    {% else %}
+        {%  if child.text %}
+            href="{{ child.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ child.position_in_parent }}-{{ child.slug }}"
+        {% else %}
+            href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+        {% endif %}
+    {% endif %}
+    >
+        {{ child.title }}
+    </a>
+</h2>
+
+{% if can_edit or is_staff %}
+    {%  if not version or version == content.sha_draft %}
+        <div class="actions-title">
+            <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
+                {% trans "Éditer" %}
+            </a>
+            <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
+                <form action="{% url "content:move-element" %}" method="post" class="modal modal-small" id="move-{{ child.slug }}">
+                    <select name="moving_method">
+                        <option disabled="disabled">{% trans "Déplacer" %}</option>
+                        {% if child.position_in_parent > 1 %}
+                            <option value="up">{% trans "Monter" %}</option>
+                        {% endif %}
+
+                        {% if child.position_in_parent < child.parent.children|length %}
+                            <option value="down">{% trans "Descendre" %}</option>
+                        {% endif %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
+                        {% for element in child|target_tree %}
+                                <option value="before:{{element.0}}" 
+                                {% if not element.3 %} disabled {% endif %}>
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                </option>
+                        {% endfor %}
+                        <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
+                        {% for element in child|target_tree %}
+                                <option value="after:{{element.0}}" 
+                                {% if not element.3 %} disabled {% endif %}>
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="child_slug" value="{{ child.slug }}">
+                    {% if child.text %}
+                        <input type="hidden" name="container_slug" value="{{ child.container.slug }}">
+                        <input type="hidden" name="first_level_slug" value="{{ child.get_first_level_slug }}">
+                    {%  else %}
+                        <input type="hidden" name="container_slug" value="{{ child.parent.slug }}">
+                    {% endif %}
+
+                    <input type="hidden" name="pk" value="{{ content.pk }}">
+                    {% csrf_token %}
+                    <button type="submit">
+                        {% trans "Déplacer" %}
+                    </button>
+                </form>
+            {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
+    </div>
+    {% endif %}
+{% endif %}
+
+{% if child.text %}
+    {# child is an extract #}
+    {% if child.get_text.strip|length == 0 %}
+        <p class="ico-after warning">
+            {% trans "Cette section est actuellement vide." %}
+        </p>
+    {% else %}
+        {{ child.get_text|emarkdown:is_js }}
+    {% endif %}
+{% else %}
+    {# child is a container #}
+
+    {% if child.has_extracts %}
+        <ol>
+            {% for extract in child.children %}
+            <li>
+                <a
+                    {% if content.is_beta %}
+                        href="{{ extract.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                    {% endif %}
+                >{{ extract.title }}</a>
+            </li>
+            {% endfor %}
+        </ol>
+    {%  elif child.has_sub_containers %}
+        <ol class="summary-part">
+            {% for subchild in child.children %}
+            <li>
+                <h3>
+                    <a
+                    {% if content.is_beta %}
+                        href="{{ subchild.get_absolute_url_beta }}"
+                    {% else %}
+                        href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
+                    {% endif %}
+                    >{{ subchild.title }}</a>
+                </h3>
+                <ol class="summary-part">
+                    {% for extract in subchild.children %}
+                        <li>
+                            <h4>
+                                <a
+                                    {% if content.is_beta %}
+                                        href="{{ extract.get_absolute_url_beta }}"
+                                    {% else %}
+                                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
+                                    {% endif %}
+                                >{{ extract.title }}</a>
+                            </h4>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        <p class="ico-after warning">
+          {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }}  {% trans " est actuellement vide" %}.
+        </p>
+    {% endif %}
+{% endif %}

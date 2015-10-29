@@ -104,15 +104,13 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 |staff                            |Profile (avec droit de staff)      |3                            |
 +---------------------------------+-----------------------------------+-----------------------------+
-|gallery                          |Gallery/UserGallery(au hasard)     |3 (par user)                 |
+|gallery                          |Gallery/UserGallery (au hasard)    |3 (par user)                 |
 |                                 +-----------------------------------+-----------------------------+
 |                                 |Image                              |5 (par gallery)              |
 +---------------------------------+-----------------------------------+-----------------------------+
 |category_forum                   |forum.Category                     |8                            |
 +---------------------------------+-----------------------------------+-----------------------------+
-|category_content                 |Licence                            |"CB-BY", "CC-BY-ND",         |
-|                                 |                                   |"CC-BY-ND-SA", "CC-BY-SA",   |
-|                                 |                                   |"CC","CC-BY-IO","Tout-Droits"|
+|category_content                 |Licence                            | Plusieurs [#lic]_           |
 |                                 +-----------------------------------+-----------------------------+
 |                                 |utils.Category                     |5                            |
 |                                 +-----------------------------------+-----------------------------+
@@ -122,17 +120,26 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 |tag                              |Tag                                |50                           |
 +---------------------------------+-----------------------------------+-----------------------------+
-|topic                            |Topic (dont sticky et locked)      |20                           |
+|topic                            |Topic (dont *sticky* et *locked*)  |20                           |
 +---------------------------------+-----------------------------------+-----------------------------+
-|post                             |Post                               |10(en moyenne par topic)     |
+|post                             |Post                               |10 (par topic) [#moy]_       |
 +---------------------------------+-----------------------------------+-----------------------------+
-|article                          |Article(40% en validation, 20% pub)|10                           |
+|comment                          |ContentReaction                    |10 (par contenu) [#moy]_     |
 +---------------------------------+-----------------------------------+-----------------------------+
-|reaction                         |Reaction                           |20(en moyenne par article    |
+|tutorial2 et article2            |PublishableContent [#cv2]_         |10                           |
 +---------------------------------+-----------------------------------+-----------------------------+
-|tutorial                         |Tutorial                           |10                           |
-|                                 |40% en validation, 30% pub         |                             |
-|                                 |Principalement des bigtuto         |                             |
+|article  (**déprécié**) [#dep]_  |Article [#art]_                    |10                           |
 +---------------------------------+-----------------------------------+-----------------------------+
-|note                             |Note                               |20(en moyenne par tutoriel)  |
+|reaction  (**déprécié**) [#dep]_ |Reaction                           |20 (par article) [#moy]_     |
 +---------------------------------+-----------------------------------+-----------------------------+
+|tutorial (**déprécié**) [#dep]_  |Tutorial [#tut]_                   |10                           |
++---------------------------------+-----------------------------------+-----------------------------+
+|note (**déprécié**) [#dep]_      |Note                               |20 (par tutoriel) [#moy]_    |
++---------------------------------+-----------------------------------+-----------------------------+
+
+.. [#lic] Les licences suivantes seront créée : "CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO" et "Tout-Droits"
+.. [#cv2] C'est à dire 60% en validation (dont 20% réservés) et 30% publiés. S'il sagit de tutoriels, 50% de petits, 30% de moyen et 20% de *bigs*.
+.. [#moy] Ce nombre est une moyenne, le nombre réel est choisi au hasard autour de cette moyenne
+.. [#art] 40% en validation, 20% publiés
+.. [#tut] 40% en validation, 30% publiés. Principalement des *bigtutos*.
+.. [#dep] Ces commandes sont ammenées à disparaitre avec l'implémentation de la ZEP-12

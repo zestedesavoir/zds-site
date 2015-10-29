@@ -122,6 +122,7 @@ gulp.task("sprite", function() {
       style: "_sprite.scss",
       template: path.join(sourceDir, sassDir, "sprite-template.hbs")
     })
+    .pipe($.if("*.png", $.imagemin(imageminConfig)))
     .pipe($.if("*.png", gulp.dest(path.join(destDir, imagesDir)), gulp.dest(path.join(sourceDir, sassDir))));
 });
 

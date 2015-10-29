@@ -1,25 +1,18 @@
-==================================
-Elements de gabarits personnalisés
-==================================
+===================================
+Elements de templates personnalisés
+===================================
 
 Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres personnalisés pouvant être utilisés dans les gabarits (*templates*),
 `voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/1.7/howto/custom-template-tags/>`_.
 
-Pour les utiliser, vous devez "charger" le module dans le gabarit à l'aide du code suivant:
+La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
+Python.
 
-.. sourcecode:: html
+append_to_get
+=============
 
-   {% load nom_du_module %}
-
-La majorité de ces modules proposent aussi des fonctions permettant les mêmes fonctionnalités depuis le reste du code Python.
-
-Vous retrouverez si dessous une liste des modules et chacune des fonctions disponibles dans ceux-ci.
-
-Le module ``append_to_get``
-===========================
-
-Ce module défini l'élément ``append_to_get``, qui permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
-``module/toto``, le code de gabarit suivant :
+L'élément ``append_to_get`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
+``module/toto``, le code de template suivant :
 
 .. sourcecode:: html
 
@@ -65,7 +58,7 @@ Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur
 .. sourcecode:: html
 
     {% load date %}
-    {{ date | format_date}}
+    {{ date|format_date }}
 
 ``tooltip_date``
 ----------------
@@ -80,13 +73,13 @@ Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisi
 .. sourcecode:: html
 
     {% load date %}
-    {{ date_epoch | humane_time}}
+    {{ date_epoch|humane_time }}
 
 sera rendu :
 
 .. sourcecode:: html
 
-    01 Jan 1970, 01:00:42
+    jeudi 01 janvier 1970 à 00h00
 
 Si le contenu de ``date_epoch`` etait de ``42``.
 
@@ -167,12 +160,23 @@ Il permet de rendre un texte Markdown en HTML. Il y a deux commandes :
 Markdown vers Markdown
 ----------------------
 
-Ces élements sont utilisés dans le cadre de la transformation du Markdown avant d'être traité par ``Pandoc`` lors de la
+Ces élements sont utilisés dans le cadre de la transformation du markdown avant d'être traité par ``Pandoc`` lors de la
 génération des fichiers PDF et EPUB des tutos :
 
 - ``decale_header_1`` : Décale les titres de 1 niveau (un titre de niveau 1 devient un titre de niveau 2, etc.)
 - ``decale_header_2`` : Décale les titres de 2 niveaux (un titre de niveau 1 devient un titre de niveau 3, etc.)
 - ``decale_header_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
+
+Le module ``htmldiff``
+=========================
+
+Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
+
+.. sourcecode:: html
+
+    {% load htmldiff %}
+    {% htmldiff "Hello world!" "Hello world!!!" %}
+    {% htmldiff "Hello Pierre!" "Hello Peter!" %}
 
 Le module ``interventions``
 ===========================
@@ -371,36 +375,7 @@ Par exemple, le code suivant appliquera la classe "voted" si le message a reçu 
         {{ message.dislike }}
     </button>
 
-où ``profile_user`` est le profil (objet ``Profile``) d'un utilisateur et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations different légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
-
-Le module ``repo_reader``
-=========================
-
-Il est employé pour afficher le *diff* des tutoriels et articles.
-
-``repo_blob``
--------------
-
-Ce filtre est basé sur l'utilisation de la librairie `GitPython (en) <https://github.com/gitpython-developers/GitPython>`__ pour lire un dépôt Git et en extraire des informations. Il récupère le contenu d'un fichier donné dans le dépôt Git. Par exemple, le code suivant lit un fichier et en récupère le texte :
-
-.. sourcecode:: html
-
-    {% load repo_reader %}
-    {% with add_next=add.b_blob|repo_blob %}
-    ...
-    {% endwith %}
-
-``diff_text``
--------------
-
-Ce filtre affiche la différence entre deux chaines de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Ainsi, le code suivant affiche la différence entre ``maj_prev`` et ``maj_next`` :
-
-.. sourcecode:: html
-
-    {% load repo_reader %}
-    {{ maj_prev|diff_text:maj_next|safe }}
-
-À noter que le résultat de ce filtre est directement en HTML, d'où l'utilisation ici de ``safe``.
+où ``profile_user`` est le profil (objet ``Profile``) d'un utilisateur et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations diffèrent légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
 
 Le module ``roman``
 ===================
@@ -412,7 +387,7 @@ Défini le filtre ``roman``, qui transforme un nombre entier en chiffre romain, 
     {% load roman %}
     {{ 453|roman }}
 
-affichera ``CDLIII``, qui est bien la facon d'écrire 453 en chiffres romain.
+affichera ``CDLIII``, qui est bien la façon d'écrire 453 en chiffres romain.
 
 Le module ``set``
 =================
@@ -476,22 +451,22 @@ où,
 - ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__).
 
 
-``top_categories_tuto`` et ``top_categories_articles``
-------------------------------------------------------
+``top_categories_content``
+--------------------------
 
-Ces filtres renvoient une liste des catégories utilisées dans les articles/tutoriels publiés.
+Ce filtres renvoit une liste des catégories utilisées dans les articles/tutoriels publiés.
 
 Par exemple, pour les tutoriels, on retrouvera le code suivant:
 
 .. sourcecode:: html
 
-    {% with categories=user|top_categories_tuto %}
+    {% with categories="TUTORIAL"|top_categories_tuto %}
         {% for title, subcats in categories.items %}
             ...
         {% endfor %}
     {% endwith %}
 
-où ``categories`` est un dictionnaire contenant le nom de la catégorie (ici ``title``) et une liste des sous-catégories correspondantes, c'est-à-dire une liste d'objets de type ``CategorySubCategory`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.CategorySubCategory>`__).
+où ``categories`` est un dictionnaire contenant le nom de la catégorie (ici ``title``) et une liste des sous-catégories correspondantes (ici ``subcats``), c'est-à-dire un *tuple* de la forme ``titre, slug``
 
 ``auth_forum``
 --------------
@@ -504,4 +479,74 @@ Par exemple, le code suivant affichera le lien vers le forum uniquement si celui
 
     {% if forum|auth_forum:user %}
         <a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a>
+    {% endif %}
+
+Le module ``feminize``
+======================
+
+Permet de générer les déterminants et pronoms adéquats en fonction du mot suivant dynamiquement généré. Typiquement
+ce templatetag est utile dans le cas de la hiérarchie des tutoriels où vous pouvez avoir *"une partie"* ou *"un chapitre"*.
+
+Ce templatetag est basé sur deux dictionnaires de mots : le premier qui associe le déterminant masculin à son homologue
+féminin est le second qui associe un mot à un booléen qui indique s'il est féminin ``True`` ou masculin ``False``.
+
+Exemple :
+
+.. sourcecode:: html
+
+
+    {% load feminize %}
+    {{ "le"|feminize:"partie" }} partie <!-- affiche "la partie" si vous êtes en langue française -->
+
+.. attention::
+
+    le templatetag ``feminize`` est internationalisé. Il est également **sensible à la casse**.
+
+Le module ``times``
+===================
+
+Permet de générer une liste de nombre pour itérer dessus, utile dans les boucles.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% load times %}
+    {% for i in 25|times %}
+        je suis dans l'itération {{ i }}
+    {% endfor %}
+
+Le module ``target_tree``
+=========================
+
+Ce module défini un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
+des déplacements possibles d'un élément. Il s'agit d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% load target_tree %}
+    {% for element in child|target_tree %}
+            <option value="before:{{element.0}}"
+            {% if not element.3 %} disabled {% endif %}>
+                 &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+            </option>
+    {% endfor %}
+
+le module ``url_category``
+==========================
+
+Ce module défini un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% if content.subcategory.all|length > 0 %}
+        <ul class="taglist" itemprop="keywords">
+            {% for catofsubcat in content.subcategory.all %}
+                <li><a href="{{ catofsubcat|category_url:content }}">{{ catofsubcat.title }}</a></li>
+            {% endfor %}
+        </ul>
     {% endif %}

@@ -1,5 +1,0 @@
-{{ object.get_conclusion_online }}
-{{ object.get_introduction_online }}
-{{ object.title }}
-{{ object.tutorial.pubdate }}
-{{ object.part.tutorial.pubdate }}

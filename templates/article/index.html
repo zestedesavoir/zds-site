@@ -77,7 +77,7 @@
 
         <h3>{% blocktrans %} Catégories <span class="wide">des articles</span> {% endblocktrans %}</h3>
 
-        {% with categories='.'|top_categories_article %}
+        {% with categories='ARTICLE'|top_categories_content %}
             {% for title, subcats in categories.items %}
                 <h4 class="mobile-menu-link">{{ title }}</h4>
                 <ul>

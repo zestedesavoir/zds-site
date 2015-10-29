@@ -1,10 +1,10 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
-
 from haystack.views import search_view_factory
+
+from zds.search.form import CustomSearchForm
 from zds.search.views import CustomSearchView
-from zds.search.forms import CustomSearchForm
 
 urlpatterns = patterns('haystack.views',
                        url(r'^$', search_view_factory(

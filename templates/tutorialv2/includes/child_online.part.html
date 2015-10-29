@@ -1,0 +1,54 @@
+{% load emarkdown %}
+{% load i18n %}
+{% load times %}
+{% load target_tree %}
+
+{% if child.has_sub_containers %}
+
+<h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+    <a href="{{ child.get_absolute_url_online }}">
+        {{ child.title }}
+    </a>
+</h2>
+
+{% else %}
+    <li>
+        <h3>
+            <a href="{{ child.get_absolute_url_online }}">{{ child.title }}</a>
+        </h3>
+{% endif %}
+
+{% if child.has_extracts %}
+    <ol class="summary-part">
+        {% for extract in child.children %}
+        <li>
+            <h4>
+                <a href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+            </h4>
+        </li>
+        {% endfor %}
+    </ol>
+{%  elif child.has_sub_containers %}
+    <ol class="summary-part">
+        {% for subchild in child.children %}
+        <li>
+            <h3>
+                <a href="{{ subchild.get_absolute_url_online }}">{{ subchild.title }}</a>
+            </h3>
+            <ol class="summary-part">
+                {% for extract in subchild.children %}
+                    <li>
+                        <h4>
+                            <a href="{{ extract.container.get_absolute_url_online }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                        </h4>
+                    </li>
+                {% endfor %}
+            </ol>
+        </li>
+        {% endfor %}
+    </ol>
+{% endif %}
+
+{% if not child.has_sub_containers %}
+    </li>
+{% endif %}

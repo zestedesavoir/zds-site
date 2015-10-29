@@ -1,0 +1,220 @@
+{% extends "tutorialv2/base_online.html" %}
+{% load emarkdown %}
+{% load profile %}
+{% load captureas %}
+{% load set %}
+{% load thumbnail %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+
+{% block title %}
+    {{ content.title }}
+{% endblock %}
+
+
+
+{% block description %}
+    {{ content.description }}
+{% endblock %}
+
+
+
+{% block meta_image %}{% spaceless %}
+    {% if content.image %}
+        {{ content.image.physical.tutorial_illu.url }}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endspaceless %}{% endblock %}
+
+
+
+{% block opengraph %}
+    {% include "tutorialv2/includes/opengraph.part.html" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ content.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if content.licence %}
+        <span class="license" itemprop="license">
+            {{ content.licence }}
+        </span>
+    {% endif %}
+
+    <h1 {% if content.image %}class="illu"{% endif %} itemprop="name">
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+        {% endif %}
+        {{ content.title }}
+    </h1>
+
+    {% if content.description %}
+        <h2 class="subtitle" itemprop="description">
+            {{ content.description }}
+        </h2>
+    {% endif %}
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
+{% endblock %}
+
+
+
+{% block content %}
+
+    {% if content.has_extracts %}
+        {{ content.get_content_online|safe }}
+    {% else %}
+
+        {% if content.introduction %}
+            {{ content.get_introduction_online|safe }}
+        {% endif %}
+
+        {%  if not content.has_sub_containers %}
+            <ol class="summary-part">
+        {% endif %}
+
+        {% for child in content.children %}
+            {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
+        {% endfor %}
+
+        {%  if not content.has_sub_containers %}
+            </ol>
+        {% endif %}
+
+        <hr class="clearfix" />
+        <hr />
+
+        {% if content.conclusion %}
+            {{ content.get_conclusion_online|safe }}
+        {% endif %}
+
+    {% endif %}
+
+    {% include "tutorialv2/includes/article_pager.part.html" with content=content %}
+
+    {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+
+{% endblock %}
+
+{% block sidebar_blocks %}
+    {% include "tutorialv2/includes/summary.part.html" with online=True %}
+
+    {% if is_staff or is_author %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
+            <h3>{% blocktrans %}Admin<span class="wide">istration</span>{% endblocktrans %}</h3>
+            <ul>
+                <li>
+                    <a href="{{ content.get_absolute_url }}?version={{ content.sha_public }}" class="ico-after offline blue">
+                        {% trans "Version hors-ligne" %}
+                    </a>
+                </li>
+                {% if is_staff %}
+                <li>
+                    <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                        {% trans "Historique validation" %}
+                    </a>
+                </li>
+                <li>
+                    <a href="#unpublish" class="ico-after open-modal cross blue">
+                        {% trans "Dépublier" %}
+                    </a>
+                    <div class="modal modal-big" id="unpublish">
+                        {% crispy formRevokeValidation %}
+                    </div>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}
+{% endblock %}
+
+{% block content_after %}
+    <h3 class="comments-title" id="comments">
+        {% if content.get_note_count > 0 %}
+            <span itemprop="commentCount">
+                {{ content.get_note_count }}
+            </span>
+            {% trans "commentaire" %}{{ content.get_note_count|pluralize }}
+        {% else %}
+            {% trans "Aucun commentaire" %}
+        {% endif %}
+    </h3>
+
+
+    {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
+
+    {% set perms.tutorialv2.change_contentreaction as perms_change %}
+    {% for message in reactions %}
+
+        {% captureas edit_link %}
+            {% url "content:update-reaction" %}?message={{ message.pk }}&amp;pk={{ content.pk }}
+        {% endcaptureas %}
+
+        {% captureas cite_link %}
+            {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
+        {% endcaptureas %}
+
+        {% captureas upvote_link %}
+            {% url "content:up-vote" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas downvote_link %}
+            {% url "content:down-vote" %}?message={{ message.pk }}
+        {% endcaptureas %}
+
+        {% captureas alert_solve_link %}
+            {% url "content:resolve-reaction" %}
+        {% endcaptureas %}
+        {% captureas alert_link %}
+            {% url "content:alert-reaction" message.pk %}
+        {% endcaptureas %}
+        {% captureas hide_link %}
+            {% url "content:hide-reaction" message.pk%}
+        {% endcaptureas %}
+
+        {% captureas show_link %}
+            {% url "content:show-reaction" message.pk %}
+        {% endcaptureas %}
+
+        {% if forloop.first and page_obj.number > 1 %}
+            {% set True as is_repeated_message %}
+        {% else %}
+            {% set False as is_repeated_message %}
+        {% endif %}
+
+        {% if message.pk in user_can_modify %}
+            {% set True as can_edit %}
+        {% else %}
+            {% set False as can_edit %}
+        {% endif %}
+
+        {% include "tutorialv2/includes/reaction_message.part.html" with topic=object %}
+    {% endfor %}
+
+
+    {% include "misc/paginator.html" with position="bottom" topic=content is_online=True anchor="comments" %}
+
+
+
+    {% captureas form_action %}
+        {% url 'content:add-reaction' %}?pk={{ content.pk }}
+    {% endcaptureas %}
+
+    {% if object.last_note %}
+        {% captureas last_note_pk %}
+            {{ object.last_note.pk }}
+        {% endcaptureas %}
+    {% endif %}
+
+    {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
+{% endblock %}

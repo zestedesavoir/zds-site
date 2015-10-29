@@ -22,31 +22,31 @@
 
 {% block content %}
     <div class="topic-list topic-list-small navigable-list">
-        {% for gallery in galleries %}
+        {% for user_gallery,gallery,content in galleries %}
             <div class="topic navigable-elem">
                 <div class="topic-infos">
                     <input
                         name="items"
                         type="checkbox"
-                        {% if not gallery.can_write %}
+                        {% if not user_gallery.can_write %}
                             disabled="true"
                         {% endif %}
-                        value="{{ gallery.gallery.pk }}"
+                        value="{{ gallery.pk }}"
                         form="delete-galleries"
                     >
                 </div>
                 <div class="topic-description">
-                    <a href="{{ gallery.gallery.get_absolute_url }}" class="topic-title-link navigable-link">
+                    <a href="{{ gallery.get_absolute_url }}" class="topic-title-link navigable-link">
                         <span class="topic-title">
-                            {{ gallery.gallery.title }}
+                            {{ gallery.title }}
                         </span>
                         <span class="topic-subtitle">
-                            {{ gallery.gallery.subtitle }}
+                            {{ gallery.subtitle }}
                         </span>
                     </a>
                 </div>
                 <p class="topic-answers">
-                    {% with img_count=gallery.gallery.get_images.count %}
+                    {% with img_count=gallery.get_images.count %}
                         {% if img_count == 0 %}
                             {% trans "Aucune image" %}
                         {% elif img_count == 1 %}
@@ -56,6 +56,18 @@
                         {% endif %}
                     {% endwith %}
                 </p>
+
+                {% if content %}
+                    <p class="topic-last-answer">
+                        {% trans "Liée" %}
+                        {% if content.type == "ARTICLE" %}
+                            {% trans "à l'article" %}
+                        {% elif content.type == "TUTORIAL" %}
+                            {% trans "au tutoriel" %}
+                        {% endif %}
+                        «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
+                    </p>
+                {% endif %}
             </div>
         {% endfor %}
     </div>

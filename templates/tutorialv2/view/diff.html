@@ -1,0 +1,100 @@
+{% extends "tutorialv2/base.html" %}
+{% load emarkdown %}
+{% load htmldiff %}
+{% load thumbnail %}
+{% load i18n %}
+
+
+{% block title %}
+    {{ content.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li><a href="{% url "content:history" content.pk content.slug %}">{% trans "Historique des modifications" %}</a></li>
+    <li>{%  trans "Différences entre deux versions" %}</li>
+{% endblock %}
+
+
+
+{# No sidebar on this page #}
+{% block body_class %}no-sidebar{% endblock %}
+{% block sidebar %}{% endblock %}
+
+
+
+{% block headline %}
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {{ content.title }}
+    </h1>
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' %}
+{% endblock %}
+
+
+
+{% block content_ext %}
+    <ul>
+        <li>
+            <strong>Version 1 :</strong>
+            {{ commit_from.message }}
+            (<a href="{% url "content:view" content.pk content.slug %}?version={{ commit_from.hexsha }}">
+                {{ commit_from.hexsha|truncatechars:8 }}
+            </a>)
+        </li>
+        <li>
+            <strong>Version 2 :</strong>
+            {{ commit_to.message }}
+            (<a href="{% url "content:view" content.pk content.slug %}?version={{ commit_to.hexsha }}">
+                {{ commit_to.hexsha|truncatechars:8 }}
+            </a>)
+        </li>
+    </ul>
+
+    <table>
+        <tr>
+            <th>{% trans "Légende" %}</th>
+            <td class="diff_add">{% trans "ajout" %}</td>
+            <td class="diff_chg">{% trans "modification" %}</td>
+            <td class="diff_sub">{% trans "suppression" %}</td>
+        </tr>
+    </table>
+
+    <h2>{% trans "Fichiers modifiés" %}</h2>
+    {% for diff in modified %}
+        {% if 'manifest' not in diff.a_blob.path %}
+            <h3>{{ diff.a_blob.path }} {% if diff.b_blob.path != diff.a_blob.path %} ⇒ {{ diff.b_blob.path }} {% trans "(renommé)" %}{% endif %}</h3>
+            {% htmldiff diff.a_blob.data_stream.read diff.b_blob.data_stream.read %}
+        {% endif %}
+    {% empty %}
+        <p>{% trans "Aucun fichier modifié." %}</p>
+    {% endfor %}
+
+    <h2>{% trans "Nouveaux fichiers" %}</h2>
+    {% for diff in added %}
+        <h3>{{ diff.b_blob.path }}</h3>
+        {% htmldiff "" diff.b_blob.data_stream.read %}
+    {% empty %}
+        <p>{% trans "Aucun nouveau fichier." %}</p>
+    {% endfor %}
+
+    <h2>{% trans "Fichiers supprimés" %}</h2>
+    {% for diff in deleted %}
+        <h3>{{ diff.a_blob.path }}</h3>
+        {% htmldiff diff.a_blob.data_stream.read "" %}
+    {% empty %}
+        <p>{% trans "Aucun fichier supprimé." %}</p>
+    {% endfor %}
+
+    <h2>{% trans "Fichiers renommés" %}</h2>
+    {% for diff in renamed %}
+        <h3>{{ diff.rename_from }} ⇒ {{ diff.rename_to }}</h3>
+    {% empty %}
+        <p>{% trans "Aucun fichier renommé." %}</p>
+    {% endfor %}
+{% endblock %}

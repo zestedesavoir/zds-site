@@ -3,10 +3,14 @@
 {% load thumbnail %}
 {% load date %}
 {% load i18n %}
+{% load captureas %}
+
 
 
 {% block title %}
-    {% trans "Historique de" %} "{{ tutorial.title }}"
+    {% blocktrans with title=tutorial.title %}
+        Historique de "{{ title }}"
+    {% endblocktrans %}
 {% endblock %}
 
 
@@ -36,12 +40,16 @@
         {% if tutorial.image %}
             <img src="{{ tutorial.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
         {% endif %}
-        {% trans "Historique de" %} "{{ tutorial.title }}"
+        {% blocktrans with title=tutorial.title %}
+            Historique de "{{ title }}"
+        {% endblocktrans %}
     </h1>
 
-    <h2 class="subtitle">
-        {{ tutorial.description }}
-    </h2>
+    {% if tutorial.description %}
+        <h2 class="subtitle">
+            {{ tutorial.description }}
+        </h2>
+    {% endif %}
 
     {% include 'tutorial/includes/tags_authors.part.html' %}
 {% endblock %}
@@ -49,39 +57,46 @@
 
 
 {% block content %}
-    <table class="fullwidth">
+    <form method="get" action="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}" class="commits-compare-form">
+        <input type="hidden" name="from" value="">
+        <input type="hidden" name="to" value="">
+
+        <button class="btn btn-grey" type="submit">{% trans "Comparer les versions sélectionnées" %}</button>
+    </form>
+
+    <table class="fullwidth commits-list">
         <thead>
             <tr>
-                <th width="10%">{% trans "État" %}</th>
+                <th colspan="2">{% trans "Comparer" %}</th>
                 <th width="18%">{% trans "Date" %}</th>
                 <th>{% trans "Version" %}</th>
-                <th width="10%">{% trans "Diff" %}.</th>
-                <th width="15%">{% trans "Auteur" %}</th>
+                <th>{% trans "Diff." %}.</th>
+                <th>{% trans "Auteur" %}</th>
                 <th width="12%">{% trans "Bêta" %}</th>
             </tr>
         </thead>
         <tbody>
-            {% for log in logs %}
+            {% for commit in commits %}
                 <tr>
                     <td>
-                        {% if tutorial.sha_public == log.newhexsha or tutorial.sha_validation == log.newhexsha or tutorial.sha_beta == log.newhexsha or tutorial.sha_draft == log.newhexsha %}
+                        {% if tutorial.sha_public == commit.hexsha or tutorial.sha_validation == commit.hexsha or tutorial.sha_beta == commit.hexsha or tutorial.sha_draft == commit.hexsha %}
                                 <ul class="unstyled-list">
-                                {% if tutorial.sha_public == log.newhexsha %}
+                                {% if tutorial.sha_public == commit.hexsha %}
                                     <li>
                                         {% trans "En ligne" %}
                                     </li>
                                 {% endif %}
-                                {% if tutorial.sha_validation == log.newhexsha %}
+                                {% if tutorial.sha_validation == commit.hexsha %}
                                     <li>
                                         {% trans "En validation" %}
                                     </li>
                                 {% endif %}
-                                {% if tutorial.sha_beta == log.newhexsha %}
+                                {% if tutorial.sha_beta == commit.hexsha %}
                                     <li>
                                         {% trans "En bêta" %}
                                     </li>
                                 {% endif %}
-                                {% if tutorial.sha_draft == log.newhexsha %}
+                                {% if tutorial.sha_draft == commit.hexsha %}
                                     <li>
                                         {% trans "Brouillon" %}
                                     </li>
@@ -90,53 +105,92 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ log.time.0|humane_time }}
+                        {% if not forloop.first %}
+                            <input type="radio" name="compare-from" value="{{ commit.hexsha }}"
+                                {% if forloop.counter == 2 %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ log.newhexsha }}" >
-                            {{ log.message }}
+                        {% if not forloop.last %}
+                            <input type="radio" name="compare-to" value="{{ commit.hexsha }}"
+                                {% if forloop.first %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.first %}
+                            <input type="radio" name="compare-from" value="{{ commit.hexsha }}"
+                                {% if forloop.counter == 2 %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.last %}
+                            <input type="radio" name="compare-to" value="{{ commit.hexsha }}"
+                                {% if forloop.first %}
+                                    checked="checked"
+                                {% endif %}
+                            >
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ commit.authored_date|humane_time }}
+                    </td>
+                    <td>
+                        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ commit.hexsha }}" >
+                            {{ commit.message }}
                         </a>
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?sha={{ log.newhexsha }}" >
-                            {{ log.newhexsha|truncatechars:8 }}
+                        <a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?from={{ commit.parents.0.hexsha|default:empty_sha }}&amp;to={{ commit.hexsha }}">
+                            {{ commit.hexsha|truncatechars:8 }}
                         </a>
                     </td>
                     <td>
-                        {% with u=log.actor.name|user %}
-                            {% if u %}
-                                {% include "misc/member_item.part.html" with member=u avatar=True %}
-                            {% else %}
-                                <em>{% trans "Inconnu" %}</em>
-                            {% endif %}
-                        {% endwith %}
+                        {% if commit.author.name.isdigit %}
+                            {% with u=commit.author.name|user %}
+                                {% if u %}
+                                    {% include "misc/member_item.part.html" with member=u avatar=True %}
+                                {% else %}
+                                    <em>{% trans "Inconnu" %}</em>
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            <a href="mailto:{{ commit.author.email }}">{{ commit.author.name }}</a>
+                        {% endif %}
                     </td>
                     <td>
-                        {% if not tutorial.sha_beta == log.newhexsha %}
-                            <a href="#activ-beta-{{ log.newhexsha }}" class="open-modal">
+                        {% if not tutorial.sha_beta == commit.hexsha %}
+                            <a href="#activ-beta-{{ commit.hexsha }}" class="open-modal">
                                 {% if not tutorial.sha_beta %}
                                     {% trans "Activer" %}
                                 {% else %}
                                     {% trans "Mettre à jour" %}
                                 {% endif %}
                             </a>
-                            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta-{{ log.newhexsha }}">
+                            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta-{{ commit.hexsha }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                                 <input type="hidden" name="{% if not tutorial.sha_beta %}activ_beta{% else %}update_beta{% endif %}">
-                                <input type="hidden" name="version" value="{{ log.newhexsha }}">
+                                <input type="hidden" name="version" value="{{ commit.hexsha }}">
                                 <p>
-                                    {% blocktrans %}
-                                        Êtes-vous certain de vouloir <strong>
-                                    {% endblocktrans %}
-                                     {% if not tutorial.sha_beta %}
-                                        {% trans "activer" %}
-                                    {% else %}
-                                        {% trans "mettre à jour" %}
-                                    {% endif %}
-                                    {% blocktrans with date_version=log.time.0|humane_time tutorial_title=tutorial.title %}
-                                        </strong> la bêta sur le tutoriel
-                                        "<em>{{ tutorial_title }}</em>" dans sa version du {{ date_version }} ?
+                                    {% captureas action %}
+                                        {% if not tutorial.sha_beta %}
+                                            {% trans "activer" %}
+                                        {% else %}
+                                            {% trans "mettre à jour" %}
+                                        {% endif %}
+                                    {% endcaptureas %}
+                                    {% blocktrans with action=action date_version=commit.authored_date|humane_time tutorial_title=tutorial.title %}
+                                        Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta sur le tutoriel
+                                        "<em>{{ tutorial_title }}</em>" dans sa version de {{ date_version }} ?
                                     {% endblocktrans %}
                                 </p>
                                 <button type="submit">

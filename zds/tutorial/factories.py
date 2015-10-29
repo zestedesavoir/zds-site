@@ -1,11 +1,14 @@
 # coding: utf-8
 
 from datetime import datetime
+from git import Actor
 from git.repo import Repo
 import json as json_writer
 import os
 
 import factory
+from zds import settings
+from zds.forum.factories import TopicFactory, PostFactory
 
 from zds.tutorial.models import Tutorial, Part, Chapter, Extract, Note,\
     Validation
@@ -71,12 +74,15 @@ class BigTutorialFactory(factory.DjangoModelFactory):
         f.close()
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
-
         tuto.sha_draft = cm.hexsha
         tuto.sha_beta = None
         tuto.gallery = GalleryFactory()
         for author in tuto.authors.all():
             UserGalleryFactory(user=author, gallery=tuto.gallery)
+        tuto.save()
+        part = PartFactory(light=light, tutorial=tuto, position_in_tutorial=1)
+        ChapterFactory(light=light, part=part, position_in_part=1)
+        tuto.save()
         return tuto
 
 
@@ -122,11 +128,28 @@ class MiniTutorialFactory(factory.DjangoModelFactory):
 
         repo.index.add(['manifest.json', tuto.introduction, tuto.conclusion])
         cm = repo.index.commit("Init Tuto")
-
         tuto.sha_draft = cm.hexsha
         tuto.gallery = GalleryFactory()
         for author in tuto.authors.all():
             UserGalleryFactory(user=author, gallery=tuto.gallery)
+        return tuto
+
+
+class BetaMiniTutorialFactory(MiniTutorialFactory):
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        author = kwargs.pop("author", None)
+        beta_forum = kwargs.pop("forum", None)
+        tuto = super(BetaMiniTutorialFactory, cls)._prepare(create, **kwargs)
+        tuto.sha_beta = tuto.sha_draft
+        if beta_forum is not None and author is not None:
+            tuto.authors.add(author)
+            tuto.save()
+            beta_topic = TopicFactory(title="[beta]" + tuto.title, author=author,
+                                      forum=beta_forum, key=tuto.pk)
+            PostFactory(topic=beta_topic, position=1, author=author)
+            beta_topic.key = tuto.pk
+            beta_topic.save()
         return tuto
 
 
@@ -291,14 +314,36 @@ class ExtractFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         extract = super(ExtractFactory, cls)._prepare(create, **kwargs)
         chapter = kwargs.pop('chapter', None)
+        with open(extract.get_path(relative=False), "w") as f:
+            f.write("This dumb content is just here to prove you zep12 is far better than old module")
         if chapter:
+
             if chapter.tutorial:
-                chapter.tutorial.sha_draft = 'EXTRACT-AAAA'
+                repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                         chapter.tutorial.get_phy_slug()))
+                index = repo.index
+                index.add([extract.get_path(relative=True)])
+                man_path = os.path.join(chapter.tutorial.get_path(), "manifest.json")
+                chapter.tutorial.dump_json(path=man_path)
+                index.add(["manifest.json"])
+                chapter.tutorial.sha_draft = index.commit(
+                    "bla",
+                    author=Actor("bla", "bla@bla.bla"),
+                    committer=Actor("bla", "bla@bla.bla"))
                 chapter.tutorial.save()
             elif chapter.part:
-                chapter.part.tutorial.sha_draft = 'EXTRACT-AAAA'
+                repo = Repo(os.path.join(settings.ZDS_APP['tutorial']['repo_path'],
+                                         chapter.part.tutorial.get_phy_slug()))
+                index = repo.index
+                index.add([extract.get_path(relative=True)])
+                man_path = os.path.join(chapter.part.tutorial.get_path(), "manifest.json")
+                chapter.part.tutorial.dump_json(path=man_path)
+                index.add(["manifest.json"])
+                chapter.part.tutorial.sha_draft = index.commit(
+                    "bla",
+                    author=Actor("bla", "bla@bla.bla"),
+                    committer=Actor("bla", "bla@bla.bla"))
                 chapter.part.tutorial.save()
-
         return extract
 
 
@@ -354,6 +399,25 @@ class PublishedMiniTutorial(MiniTutorialFactory):
         tutorial.sha_public = tutorial.sha_draft
         tutorial.source = ''
         tutorial.sha_validation = None
+        mep(tutorial, tutorial.sha_draft)
+        tutorial.pubdate = datetime.now()
+        tutorial.update = datetime.now()
+        tutorial.save()
+        return tutorial
+
+
+class PublishedBigTutorial(BigTutorialFactory):
+    FACTORY_FOR = Tutorial
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        tutorial = super(PublishedBigTutorial, cls)._prepare(create, **kwargs)
+        tutorial.pubdate = datetime.now()
+        tutorial.sha_public = tutorial.sha_draft
+        tutorial.source = ''
+        tutorial.sha_validation = None
+        tutorial.pubdate = datetime.now()
+        tutorial.update = datetime.now()
         mep(tutorial, tutorial.sha_draft)
         tutorial.save()
         return tutorial

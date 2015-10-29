@@ -1,0 +1,176 @@
+{% extends "tutorialv2/base.html" %}
+{% load profile %}
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+
+
+{% block title %}
+    {% blocktrans with title=content.title %}
+        Historique de "{{ title }}"
+    {% endblocktrans %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Historique des modifications" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if content.licence %}
+        <p class="license">
+            {{ content.licence }}
+        </p>
+    {% endif %}
+
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% blocktrans with title=content.title %}
+            Historique de "{{ title }}"
+        {% endblocktrans %}
+    </h1>
+
+    {% if content.description %}
+        <h2 class="subtitle">
+            {{ content.description }}
+        </h2>
+    {% endif %}
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+{% endblock %}
+
+
+
+{% block content %}
+    <form method="get" action="{% url "content:diff" content.pk content.slug %}" class="commits-compare-form">
+        <input type="hidden" name="from" value=""/>
+        <input type="hidden" name="to" value=""/>
+        <button class="btn btn-grey" type="submit">{% trans "Comparer les versions sélectionnées" %}</button>
+    </form>
+
+    <table class="fullwidth commits-list">
+        <thead>
+            <tr>
+                <th width="10%">{% trans "État" %}</th>
+                <th colspan="2">{% trans "Comparer" %}</th>
+                <th width="18%">{% trans "Date" %}</th>
+                <th>{% trans "Version" %}</th>
+                <th>{% trans "Diff." %}</th>
+                <th>{% trans "Auteur" %}</th>
+                <th width="12%">{% trans "Bêta" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commit in commits %}
+                <tr>
+                    <td>
+                        {% if content.sha_public == commit.hexsha or content.sha_validation == commit.hexsha or content.sha_beta == commit.hexsha or content.sha_draft == commit.hexsha %}
+                            <ul class="unstyled-list">
+                                {% if content.sha_validation == commit.hexsha %}
+                                    <li>{% trans "Validation" %}</li>
+                                {% endif %}
+                                {% if content.sha_beta == commit.hexsha %}
+                                    <li>{% trans "Bêta" %}</li>
+                                {% endif %}
+                                {% if content.sha_draft == commit.hexsha %}
+                                    <li>{% trans "Brouillon" %}</li>
+                                {% endif %}
+                                {% if content.sha_public == commit.hexsha %}
+                                    <li>{% trans "Publiée" %}</li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.first %}
+                            <input type="radio" name="compare-from" value="{{ commit.hexsha }}"
+                                {% if forloop.counter == 2 %}
+                                    checked="checked"
+                                {% endif %}
+                            />
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not forloop.last %}
+                            <input type="radio" name="compare-to" value="{{ commit.hexsha }}"
+                                {% if forloop.first %}
+                                    checked="checked"
+                                {% endif %}
+                            />
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ commit.authored_date|humane_time:commit.author_tz_offset }}
+                    </td>
+                    <td>
+                        <a href="{% url "content:view" content.pk content.slug %}?version={{ commit.hexsha }}" >
+                            {{ commit.message }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if not forloop.last %}
+                            <a href="{% url "content:diff" content.pk content.slug %}?from={{ commit.parents.0.hexsha|default:empty_sha }}&amp;to={{ commit.hexsha }}" >
+                                {{ commit.hexsha|truncatechars:8 }}
+                            </a>
+                        {% else %}
+                            {{ commit.hexsha|truncatechars:8 }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if commit.author.name.isdigit %}
+                            {% with u=commit.author.name|user %}
+                                {% if u %}
+                                    {% include "misc/member_item.part.html" with member=u avatar=True %}
+                                {% else %}
+                                    <em>{% trans "Inconnu" %}</em>
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            <a href="mailto:{{ commit.author.email }}">{{ commit.author.name }}</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if content.sha_beta != commit.hexsha %}
+                            <a href="#activ-beta-{{ commit.hexsha }}" class="open-modal">
+                                {% if not content.sha_beta %}
+                                    {% trans "Activer" %}
+                                {% else %}
+                                    {% trans "Mettre à jour" %}
+                                {% endif %}
+                            </a>
+                            <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="activ-beta-{{ commit.hexsha }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="version" value="{{ commit.hexsha }}"/>
+                                <p>
+                                    {% captureas action %}
+                                        {% if not content.sha_beta %}
+                                            {% trans "activer" %}
+                                        {% else %}
+                                            {% trans "mettre à jour" %}
+                                        {% endif %}
+                                    {% endcaptureas %}
+                                    {% blocktrans with action=action date_version=commit.authored_date|humane_time:commit.author_tz_offset content_title=content.title %}
+                                        Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta pour le contenu
+                                        "<em>{{ content_title }}</em>" dans sa version de {{ date_version }} ?
+                                    {% endblocktrans %}
+                                </p>
+                                <button type="submit">
+                                    {% trans "Confirmer" %}
+                                </button>
+                            </form>
+                        {% else %}
+                            <em>{% trans "En bêta" %}</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

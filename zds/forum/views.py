@@ -41,7 +41,7 @@ class CategoriesForumsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
         for category in context.get('categories'):
-            category.forums = category.get_forums(self.request.user)
+            category.forums = category.get_forums(self.request.user, with_count=True)
         return context
 
 
@@ -75,14 +75,16 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super(ForumTopicsListView, self).get_context_data(**kwargs)
         context['topics'] = list(context['topics'].all())
+        sticky = list(
+            self.filter_queryset(
+                Topic.objects.get_all_topics_of_a_forum(self.object.pk, is_sticky=True),
+                context['filter']))
         # we need to load it in memory because later we will get the
         # "already read topic" set out of this list and MySQL does not support that type of subquery
         context.update({
             'forum': self.object,
-            'sticky_topics': self.filter_queryset(
-                Topic.objects.get_all_topics_of_a_forum(self.object.pk, is_sticky=True),
-                context['filter']),
-            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
+            'sticky_topics': sticky,
+            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'] + sticky)
         })
         return context
 

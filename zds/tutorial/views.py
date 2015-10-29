@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from datetime import datetime
-from operator import attrgetter
 from urllib import urlretrieve
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from urlparse import urlparse, parse_qs
@@ -37,7 +36,7 @@ from django.http import Http404, HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, render_to_response
 from django.utils.encoding import smart_str
 from django.views.decorators.http import require_POST
-from git import Repo, Actor
+from git import BadObject, BadName, GitCommandError, Repo, Actor, objects
 from lxml import etree
 
 from forms import TutorialForm, PartForm, ChapterForm, EmbdedChapterForm, \
@@ -203,22 +202,29 @@ def reservation(request, validation_pk):
 @login_required
 def diff(request, tutorial_pk, tutorial_slug):
     try:
-        sha = request.GET["sha"]
+        sha_from = request.GET["from"]
+        sha_to = request.GET["to"]
     except KeyError:
         raise Http404
+
     tutorial = get_object_or_404(Tutorial, pk=tutorial_pk)
     if request.user not in tutorial.authors.all():
         if not request.user.has_perm("tutorial.change_tutorial"):
             raise PermissionDenied
+
     repo = Repo(tutorial.get_path())
-    hcommit = repo.commit(sha)
-    tdiff = hcommit.diff("HEAD~1")
+    try:
+        hcommit = repo.commit(sha_to)  # raise BadObject or BadName if invalid sha
+        tdiff = hcommit.diff(sha_from, R=True)  # raise GitCommandError if invalid sha
+    except (BadObject, BadName, GitCommandError):
+        raise Http404
+
     return render(request, "tutorial/tutorial/diff.html", {
         "tutorial": tutorial,
-        "path_add": tdiff.iter_change_type("A"),
-        "path_ren": tdiff.iter_change_type("R"),
-        "path_del": tdiff.iter_change_type("D"),
-        "path_maj": tdiff.iter_change_type("M"),
+        "modified": tdiff.iter_change_type("M"),
+        "added": tdiff.iter_change_type("A"),
+        "deleted": tdiff.iter_change_type("D"),
+        "renamed": tdiff.iter_change_type("R"),
     })
 
 
@@ -232,10 +238,14 @@ def history(request, tutorial_pk, tutorial_slug):
             raise PermissionDenied
 
     repo = Repo(tutorial.get_path())
-    logs = repo.head.reference.log()
-    logs = sorted(logs, key=attrgetter("time"), reverse=True)
-    return render(request, "tutorial/tutorial/history.html",
-                           {"tutorial": tutorial, "logs": logs})
+    commits = objects.commit.Commit.iter_items(repo, 'HEAD')
+    return render(request, "tutorial/tutorial/history.html", {
+        "tutorial": tutorial,
+        "commits": commits,
+        # Git empty tree is 4b825dc642cb6eb9a060e54bf8d69288fbee4904, see
+        # http://stackoverflow.com/questions/9765453/gits-semi-secret-empty-tree
+        "empty_sha": "4b825dc642cb6eb9a060e54bf8d69288fbee4904",
+    })
 
 
 @login_required

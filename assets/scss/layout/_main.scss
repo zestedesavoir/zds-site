@@ -118,6 +118,10 @@
     margin-top: 0;
 }
 
+.pagination-bottom-clear{
+    clear: both;
+}
+
 @media only screen and #{$media-mega-wide} {
     .main .content-container {
         .content-wrapper {
