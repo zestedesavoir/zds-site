@@ -256,6 +256,7 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
+                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -265,6 +266,9 @@ class ContentTests(TestCase):
         pk = tuto.pk
         slug = tuto.slug
         versioned = tuto.load_version()
+
+        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
 
         # access to tutorial
         result = self.client.get(
@@ -285,10 +289,13 @@ class ContentTests(TestCase):
                 'type': u'TUTORIAL',
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
-                'last_hash': versioned.compute_hash()
+                'last_hash': versioned.compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 2)  # new icon is uploaded
 
         tuto = PublishableContent.objects.get(pk=pk)
         self.assertEqual(tuto.title, random)
@@ -580,14 +587,15 @@ class ContentTests(TestCase):
                 'version': current_sha_beta
             },
             follow=False)
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(result.status_code, 302)
 
         # check if there is a new topic and a pm corresponding to the tutorial in beta
         self.assertEqual(Topic.objects.filter(forum=self.beta_forum).count(), 1)
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
-
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
+        self.assertTrue(beta_topic.is_followed(self.user_author))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
@@ -2656,8 +2664,9 @@ class ContentTests(TestCase):
         self.assertEqual(302, response.status_code)
         sha_beta = PublishableContent.objects.get(pk=tuto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
-
         tuto = PublishableContent.objects.get(pk=tuto.pk)
+        # checks the user follow it
+        self.assertEqual(TopicRead.objects.filter(topic__pk=tuto.beta_topic.pk).count(), 1)
         versioned = tuto.load_version(sha_beta)
 
         # check if author get error when warning typo on its own tutorial
@@ -3267,6 +3276,8 @@ class ContentTests(TestCase):
             self.assertTrue(published.have_type(extra))
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
+
+        # test that deletion give a 404
         markdown_url = published.get_absolute_url_md()
         md_path = os.path.join(published.get_extra_contents_directory(), published.content_public_slug + '.md')
         os.remove(md_path)
@@ -3274,8 +3285,9 @@ class ContentTests(TestCase):
         self.assertEqual('', published.get_absolute_url_to_extra_content('kboom'))
         self.client.logout()
 
-        with open(md_path, "w") as f:
+        with open(md_path, "w") as f:  # remake a .md file, whatever the content
             f.write("I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?")
+
         # same test with author:
         self.assertEqual(
             self.client.login(
@@ -3602,7 +3614,7 @@ class ContentTests(TestCase):
             'subcategory': self.subcategory.pk,
         }
 
-        disallowed_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ']
+        disallowed_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
 
         for title in disallowed_titles:
             dic['title'] = title
@@ -3610,6 +3622,20 @@ class ContentTests(TestCase):
             self.assertEqual(result.status_code, 200)
             self.assertEqual(PublishableContent.objects.all().count(), 1)
             self.assertFalse(result.context['form'].is_valid())
+
+        # Due to the internal use of `unicodedata.normalize()` by uuslug, some unicode characters are translated, and
+        # therefor gives allowed titles, let's ensure that !
+        # (see https://docs.python.org/2/library/unicodedata.html#unicodedata.normalize and
+        # https://github.com/un33k/python-slugify/blob/master/slugify/slugify.py#L117 for implementation !)
+        allowed_titles = [u'€€', u'£€']
+        prev_count = 1
+
+        for title in allowed_titles:
+            dic['title'] = title
+            result = self.client.post(reverse('content:create-tutorial'), dic, follow=False)
+            self.assertEqual(result.status_code, 302)
+            self.assertNotEqual(PublishableContent.objects.all().count(), prev_count)
+            prev_count += 1
 
     def tearDown(self):
 
@@ -4175,9 +4201,8 @@ class PublishedContentTests(TestCase):
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
 
         reads = ContentRead.objects.filter(user=self.user_staff).all()
-        self.assertEqual(len(reads), 1)
-        self.assertEqual(reads[0].content.pk, self.tuto.pk)
-        self.assertEqual(reads[0].note.pk, reactions[0].pk)
+        # simple visit does not trigger follow
+        self.assertEqual(len(reads), 0)
 
         # login with author
         self.assertEqual(
@@ -4321,7 +4346,24 @@ class PublishedContentTests(TestCase):
         self.assertEqual(reaction.text_hidden, text_hidden[:80])
         self.assertEqual(reaction.editor, self.user_staff)
 
+        # test that someone else is not abble to quote the text
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(self.tuto.pk, reaction.pk), follow=False)
+        self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
+
         # then, unhide it !
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
         result = self.client.post(
             reverse('content:show-reaction', args=[reaction.pk]), follow=False)
 
@@ -4756,7 +4798,7 @@ class PublishedContentTests(TestCase):
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
-        reactions = ContentReaction.objects.filter(related_content=self.tuto).all()
+        reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
         self.assertEqual(len(reactions), 2)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
@@ -4817,31 +4859,102 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
-        # login with staff
+    def test_note_with_bad_param(self):
         self.assertEqual(
             self.client.login(
                 username=self.user_staff.username,
                 password='hostel77'),
             True)
+        url_template = reverse("content:update-reaction") + "?pk={}&message={}"
+        result = self.client.get(url_template.format(self.tuto.pk, 454545665895123))
+        self.assertEqual(404, result.status_code)
+        reaction = ContentReaction(related_content=self.tuto, author=self.user_guest, position=1)
+        reaction.update_content("blah")
+        reaction.save()
+        self.tuto.last_note = reaction
+        self.tuto.save()
+        result = self.client.get(url_template.format(861489632, reaction.pk))
+        self.assertEqual(404, result.status_code)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
-        self.assertEqual(result.status_code, 200)
+    def test_cant_edit_not_owned_note(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        newUser = ProfileFactory().user
+        newReaction = ContentReaction(related_content=article, position=1)
+        newReaction.update_content("I will find you. And I will Kill you.")
+        newReaction.author = self.user_guest
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 0)
+        newReaction.save()
+        self.assertEqual(
+            self.client.login(
+                username=newUser.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(
+            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk))
+        self.assertEqual(403, resp.status_code)
+        resp = self.client.post(
+            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk),
+            {
+                'text': "I edited it"
+            })
+        self.assertEqual(403, resp.status_code)
+
+    def test_quote_note(self):
+        """ Ensure the behavior of the `&cite=xxx` parameter on "content:add-reaction"
+        """
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
-        self.assertEqual(tuto.first_unread_note(), reactions[0])
+        text = u'À force de temps, de patience et de crachats, ' \
+               u'on met un pépin de callebasse dans le derrière d\'un moustique (proverbe créole)'
 
-        # visit tutorial and read the two notes:
-        result = self.client.get(reverse('tutorial:view', kwargs={'pk': tuto.pk, 'slug': tuto.slug}))
-        self.assertEqual(result.status_code, 200)
+        # add note :
+        reaction = ContentReaction(related_content=tuto, position=1)
+        reaction.update_content(text)
+        reaction.author = self.user_guest
+        reaction.save()
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_staff).count(), 1)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
 
-        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        self.assertEqual(tuto.last_read_note(), reactions[1])  # now reactions are read
-        self.assertEqual(tuto.first_unread_note(), reactions[1])
+        # cite note
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+        self.assertEqual(200, result.status_code)
+
+        self.assertTrue(text in result.context['form'].initial['text'])  # ok, text quoted !
+
+        # cite with a abnormal parameter raises 404
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 'lililol'), follow=True)
+        self.assertEqual(404, result.status_code)
+
+        # cite not existing note just gives the form empty
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, 99999999), follow=True)
+        self.assertEqual(200, result.status_code)
+
+        self.assertTrue('text' not in result.context['form'])  # nothing quoted, so no text cited
+
+        # it's not possible to cite an hidden note (get 403)
+        reaction.is_visible = False
+        reaction.save()
+
+        result = self.client.get(
+            reverse("content:add-reaction") + u'?pk={}&cite={}'.format(tuto.pk, reaction.pk), follow=True)
+        self.assertEqual(403, result.status_code)
+
+    def test_cant_view_private_even_if_draft_is_equal_to_public(self):
+        content = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+        resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
+        self.assertEqual(403, resp.status_code)
 
     def tearDown(self):
 

@@ -468,7 +468,8 @@ ZDS_APP = {
         'user_page_number': 5,
         'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
         'import_image_prefix': 'archive',
-        'build_pdf_when_published': True
+        'build_pdf_when_published': True,
+        'maximum_slug_size': 150
     },
     'forum': {
         'posts_per_page': 21,
