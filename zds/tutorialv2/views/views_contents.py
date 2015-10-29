@@ -494,7 +494,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except KeyError:
             raise BadArchiveError(_(u'Cette archive ne contient pas de fichier manifest.json.'))
         except UnicodeDecodeError:
-            raise BadArchiveError(_(u'L\'encodage du manifest.json n\'est pas de l\'UTF-8'))
+            raise BadArchiveError(_(u'L\'encodage du manifest.json n\'est pas de l\'UTF-8.'))
 
         # is the manifest ok ?
         try:
@@ -502,16 +502,20 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         except ValueError:
             raise BadArchiveError(
                 _(u'Une erreur est survenue durant la lecture du manifest, '
-                  u'vérifiez qu\'il s\'agit de JSON correctement formaté'))
+                  u'vérifiez qu\'il s\'agit de JSON correctement formaté.'))
         try:
             versioned = get_content_from_json(json_, None, '',
                                               max_title_len=PublishableContent._meta.get_field('title').max_length)
         except BadManifestError as e:
             raise BadArchiveError(e.message)
-        except InvalidSlugError:
-            raise BadArchiveError(_(u'Le titre et le slug doivent être bien formés (au moins une lettre).'))
+        except InvalidSlugError as e:
+            e1 = _(u'Le slug "{}" est invalide').format(e)
+            e2 = u''
+            if e.had_source:
+                e2 = _(u' (slug généré à partir de "{}")').format(e.source)
+            raise BadArchiveError(_(u'{}{} !').format(e1, e2))
         except Exception as e:
-            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive : ' + e.message))
+            raise BadArchiveError(_(u'Une erreur est survenue lors de la lecture de l\'archive : {}.').format(e))
 
         # is there everything in the archive ?
         for f in UpdateContentWithArchive.walk_content(versioned):

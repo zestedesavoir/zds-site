@@ -1,7 +1,6 @@
 # coding: utf-8
 from django import forms
 from django.conf import settings
-from uuslug import slugify
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -15,6 +14,7 @@ from zds.utils.models import HelpWriting
 from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
+from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 
 
 class FormWithTitle(forms.Form):
@@ -39,8 +39,11 @@ class FormWithTitle(forms.Form):
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
-        if slugify(title).replace('-', '') == '':
-            self._errors['title'] = self.error_class([_(u'Ce titre n\'est pas autorisé, son slug est invalide !')])
+        try:
+            slugify_raise_on_invalid(title)
+        except InvalidSlugError as e:
+            self._errors['title'] = self.error_class(
+                [_(u'Ce titre n\'est pas autorisé, son slug est invalide {}!').format(e if e.message != '' else '')])
 
         return cleaned_data
 
