@@ -4167,7 +4167,7 @@ class PublishedContentTests(TestCase):
             reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
-                'last_note': '0'
+                'last_note': 0
             }, follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -4266,6 +4266,20 @@ class PublishedContentTests(TestCase):
         self.assertTrue(message_to_post in text_field_value)
         self.assertTrue(self.user_guest.username in text_field_value)
         self.assertTrue(reactions[0].get_absolute_url() in text_field_value)
+
+        # test that if the wrong last_note is given, user get a message
+        self.assertEqual(ContentReaction.objects.count(), 1)
+
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            {
+                'text': message_to_post,
+                'last_note': -1  # wrong pk
+            }, follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentReaction.objects.count(), 1)  # no new reaction has been posted
+        self.assertTrue(result.context['newnote'])  # message appears !
 
     def test_upvote_downvote(self):
         self.assertEqual(
