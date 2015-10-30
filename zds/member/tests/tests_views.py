@@ -75,9 +75,20 @@ class MemberTests(TestCase):
         nb_users = len(result.context['members'])
 
         # Test that inactive user don't show up
-        unactive_user = UserFactory()
-        unactive_user.is_active = False
-        unactive_user.save()
+        unactive_user = ProfileFactory()
+        unactive_user.user.is_active = False
+        unactive_user.user.save()
+        result = self.client.get(
+            reverse('member-list'),
+            follow=False
+        )
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(nb_users, len(result.context['members']))
+
+        # Add a Bot and check that list didn't change
+        bot_profile = ProfileFactory()
+        bot_profile.user.groups.add(self.bot)
+        bot_profile.user.save()
         result = self.client.get(
             reverse('member-list'),
             follow=False
@@ -490,6 +501,11 @@ class MemberTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
 
+        # list of members.
+        result = self.client.get(reverse('member-list'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        nb_users = len(result.context['members'])
+
         # Test: LS
         user_ls = ProfileFactory()
         result = self.client.post(
@@ -508,6 +524,10 @@ class MemberTests(TestCase):
         self.assertEqual(ban.text, 'Texte de test pour LS')
         self.assertEquals(len(mail.outbox), 1)
 
+        result = self.client.get(reverse('member-list'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEquals(nb_users + 1, len(result.context['members']))  # LS guy still shows up, good
+
         # Test: Un-LS
         result = self.client.post(
             reverse(
@@ -525,6 +545,10 @@ class MemberTests(TestCase):
         self.assertEqual(ban.type, u'Autorisation d\'écrire')
         self.assertEqual(ban.text, 'Texte de test pour un-LS')
         self.assertEquals(len(mail.outbox), 2)
+
+        result = self.client.get(reverse('member-list'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEquals(nb_users + 1, len(result.context['members']))  # LS guy still shows up, good
 
         # Test: LS temp
         user_ls_temp = ProfileFactory()
@@ -546,6 +570,11 @@ class MemberTests(TestCase):
         self.assertEqual(ban.text, u'Texte de test pour LS TEMP')
         self.assertEquals(len(mail.outbox), 3)
 
+        # reset nb_users
+        result = self.client.get(reverse('member-list'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        nb_users = len(result.context['members'])
+
         # Test: BAN
         user_ban = ProfileFactory()
         result = self.client.post(
@@ -563,6 +592,10 @@ class MemberTests(TestCase):
         self.assertEqual(ban.type, u'Ban définitif')
         self.assertEqual(ban.text, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 4)
+
+        result = self.client.get(reverse('member-list'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEquals(nb_users, len(result.context['members']))  # Banned guy doesn't show up, good
 
         # Test: un-BAN
         result = self.client.post(
@@ -582,6 +615,10 @@ class MemberTests(TestCase):
         self.assertEqual(ban.type, u'Autorisation de se connecter')
         self.assertEqual(ban.text, u'Texte de test pour BAN')
         self.assertEquals(len(mail.outbox), 5)
+
+        result = self.client.get(reverse('member-list'), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEquals(nb_users + 1, len(result.context['members']))  # UnBanned guy shows up, good
 
         # Test: BAN temp
         user_ban_temp = ProfileFactory()

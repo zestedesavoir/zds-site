@@ -448,7 +448,7 @@ class ImportImages(GalleryMixin, FormView):
             f_im = open(ph_temp, "wb")
             f_im.write(zfile.read(i))
             f_im.close()
-            title = os.path.basename(i)
+            (title, ext) = os.path.splitext(os.path.basename(i))
 
             # if size is too large, don't save
             if os.stat(ph_temp).st_size > settings.ZDS_APP['gallery']['image_max_size']:
@@ -471,6 +471,7 @@ class ImportImages(GalleryMixin, FormView):
             pic = Image()
             pic.gallery = gallery
             pic.title = title
+            pic.legend = ""
             pic.pubdate = datetime.now()
             pic.physical = f_im
             pic.save()

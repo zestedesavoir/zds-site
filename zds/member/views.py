@@ -49,12 +49,19 @@ class MemberList(ZdSPagingListView):
 
     context_object_name = 'members'
     paginate_by = settings.ZDS_APP['member']['members_per_page']
-    # TODO When User will be no more used, you can make this request with
-    # Profile.objects.all_members_ordered_by_date_joined()
-    queryset = User.objects.filter(is_active=True) \
-                           .order_by('-date_joined') \
-                           .all().select_related("profile")
     template_name = 'member/index.html'
+
+    def get_queryset(self):
+        excluded_groups = [Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])]
+        now = datetime.now()
+        # TODO When User will be no more used, you can make this request with
+        # Profile.objects.all_members_ordered_by_date_joined()
+        self.queryset = User.objects.filter(is_active=True)\
+            .exclude(groups__in=excluded_groups)\
+            .filter(Q(profile__can_read=True) | Q(profile__end_ban_read__lte=now))\
+            .order_by('-date_joined')\
+            .all().select_related("profile")
+        return super(MemberList, self).get_queryset()
 
 
 class MemberDetail(DetailView):
