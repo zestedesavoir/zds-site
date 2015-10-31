@@ -429,7 +429,8 @@ class PublishableContent(models.Model):
                     .select_related('related_content__public_version')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
-                if read is not None:
+                if read is not None and read.note:  # one case can show a read without note : the author has just
+                    # published his content and one comment has been posted by someone else.
                     return read.note
 
             except ContentRead.DoesNotExist:

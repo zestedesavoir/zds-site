@@ -102,7 +102,7 @@ def interventions_topics(user):
 
     for content_read in content_to_read:
         content = content_read.content
-        if content.pk not in content_followed_pk:
+        if content.pk not in content_followed_pk and user not in content.authors.all():
             continue
         reaction = content.first_unread_note()
         if reaction is None:
