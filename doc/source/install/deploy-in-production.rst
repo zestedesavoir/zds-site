@@ -217,6 +217,7 @@ Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zest
                 proxy_set_header   X-Real-IP         $remote_addr;
                 proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
                 proxy_set_header   X-Forwarded-Proto $scheme;
+                proxy_intercept_errors on;
 
                 add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
                 add_header Strict-Transport-Security max-age=15768000;
