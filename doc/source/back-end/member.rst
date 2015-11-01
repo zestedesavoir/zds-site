@@ -128,6 +128,8 @@ Cet outil à deux rôles. Permettre d'identifier les membres *perturbateurs* mai
 
 Pour modifier le karma d'un membre, il faut donc être modérateur sur le site. Sur la fiche profil d'un membre apparait alors un formulaire pour ajouter un bonus/malus et une liste des modifications précédentes montrant l'impact (+/-), le message, l'auteur du bonus/malus et la date d'effet de ce dernier.
 
+Lorsqu'un membre change de pseudo, une note de karma (de 0 point) est automatiquement ajouté au profil en faisant mention de l'ancien et du nouveau pseudo du membre (afin de garder une tracabilité pour les membres du staff).
+
 L'interface de réinitialisation de mot de passe
 -----------------------------------------------
 

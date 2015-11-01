@@ -932,6 +932,24 @@ class MemberTests(TestCase):
         result = self.client.get(reverse('zds.member.views.modify_karma'), follow=False)
         self.assertEqual(result.status_code, 405)
 
+    def test_karma_and_pseudo_change(self):
+        """
+        To test that a karma note is added when a member change its pseudo
+        """
+        tester = ProfileFactory()
+        old_pseudo = tester.user.username
+        self.client.login(username=tester.user.username, password="hostel77")
+        data = {
+            'username': 'dummy',
+            'email': ''
+        }
+        result = self.client.post(reverse('update-username-email-member'), data, follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        notes = KarmaNote.objects.filter(user=tester.user).all()
+        self.assertEqual(len(notes), 1)
+        self.assertTrue(old_pseudo in notes[0].comment and 'dummy' in notes[0].comment)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
