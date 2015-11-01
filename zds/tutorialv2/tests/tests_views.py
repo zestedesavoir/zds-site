@@ -4974,6 +4974,105 @@ class PublishedContentTests(TestCase):
         resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
         self.assertEqual(403, resp.status_code)
 
+    def test_republish_with_different_slug(self):
+        """Ensure that a new PublishedContent object is created and well filled"""
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        old_published = PublishedContent.objects.filter(content__pk=self.tuto.pk).first()
+        self.assertIsNotNone(old_published)
+        self.assertFalse(old_published.must_redirect)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # change title
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_slug = tuto.slug
+        random = u'Whatever, we don\'t care about the details'
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': u'{} ({})'.format(self.tuto.title, u'modified'),  # will change slug
+                'description': random,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version().compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertNotEqual(tuto.slug, old_slug)
+
+        # ask validation
+        text_validation = u'Valide moi ce truc, please !'
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content__pk=tuto.pk).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': False,  # minor modification (just the title)
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 2)
+
+        old_published = PublishedContent.objects.get(pk=old_published.pk)
+        self.assertIsNotNone(old_published)  # still exists
+        self.assertTrue(old_published.must_redirect)  # do redirection if any
+        self.assertIsNone(old_published.update_date)
+
+        new_published = PublishedContent.objects.filter(content__pk=self.tuto.pk).last()
+        self.assertIsNotNone(new_published)  # new version exists
+        self.assertNotEqual(old_published.pk, new_published.pk)  # not the old one
+        self.assertEqual(new_published.publication_date, old_published.publication_date)  # keep publication date
+        self.assertIsNotNone(new_published.update_date)  # ... But is updated !
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.public_version.pk, new_published.pk)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
