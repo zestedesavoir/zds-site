@@ -29,6 +29,8 @@ from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
 from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
+from zds.utils.templatetags.interventions import interventions_topics
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -4201,8 +4203,10 @@ class PublishedContentTests(TestCase):
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
 
         reads = ContentRead.objects.filter(user=self.user_staff).all()
-        # simple visit does not trigger follow
-        self.assertEqual(len(reads), 0)
+        # simple visit does not trigger follow but remembers reading
+        self.assertEqual(len(reads), 1)
+        interventions = [post["url"] for post in interventions_topics(self.user_staff)]
+        self.assertTrue(reads.first().note.get_absolute_url() not in interventions)
 
         # login with author
         self.assertEqual(

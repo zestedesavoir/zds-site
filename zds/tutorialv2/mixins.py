@@ -11,6 +11,7 @@ from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext_lazy as _
 
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
+from zds.tutorialv2.utils import mark_read
 
 
 class SingleContentViewMixin(object):
@@ -356,7 +357,8 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
 
         self.current_content_type = obj.content_type
-
+        if obj and obj.content.last_note:
+            mark_read(obj.content)
         return obj
 
     def get_object(self):
