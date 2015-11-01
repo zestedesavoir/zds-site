@@ -643,9 +643,13 @@ def publish_content(db_object, versioned, is_major_update=True):
         # if the slug change, instead of using the same object, a new one will be created
         if versioned.slug != public_version.content_public_slug:
             public_version.must_redirect = True  # set redirection
+            publication_date = public_version.publication_date
             public_version.save()
             db_object.public_version = PublishedContent()
             public_version = db_object.public_version
+
+            # if content have already been published, keep publication date !
+            public_version.publication_date = publication_date
 
     else:
         public_version = PublishedContent()

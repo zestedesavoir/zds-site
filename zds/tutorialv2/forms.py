@@ -447,6 +447,9 @@ class NoteForm(forms.Form):
         :param args:
         :param kwargs:
         """
+
+        last_note = kwargs.pop('last_note', 0)
+
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:add-reaction') + u'?pk={}'.format(content.pk)
@@ -454,8 +457,7 @@ class NoteForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutEditor(),
-            Field('last_note')
-
+            Field('last_note') if not last_note else Hidden('last_note', last_note)
         )
 
         if content.antispam():
@@ -472,8 +474,10 @@ class NoteForm(forms.Form):
                 placeholder=_(u'Ce contenu est verrouillé.'),
                 disabled=True
             )
+
         if reaction is not None:
             self.initial.setdefault("text", reaction.text)
+
         self.content = content
 
     def clean(self):

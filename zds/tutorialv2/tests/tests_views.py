@@ -29,6 +29,8 @@ from zds.mp.models import PrivateTopic
 from django.utils.encoding import smart_text
 from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
+from zds.utils.templatetags.interventions import interventions_topics
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -4167,7 +4169,7 @@ class PublishedContentTests(TestCase):
             reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
             {
                 'text': message_to_post,
-                'last_note': '0'
+                'last_note': 0
             }, follow=True)
         self.assertEqual(result.status_code, 200)
 
@@ -4201,8 +4203,10 @@ class PublishedContentTests(TestCase):
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200)
 
         reads = ContentRead.objects.filter(user=self.user_staff).all()
-        # simple visit does not trigger follow
-        self.assertEqual(len(reads), 0)
+        # simple visit does not trigger follow but remembers reading
+        self.assertEqual(len(reads), 1)
+        interventions = [post["url"] for post in interventions_topics(self.user_staff)]
+        self.assertTrue(reads.first().note.get_absolute_url() not in interventions)
 
         # login with author
         self.assertEqual(
@@ -4266,6 +4270,20 @@ class PublishedContentTests(TestCase):
         self.assertTrue(message_to_post in text_field_value)
         self.assertTrue(self.user_guest.username in text_field_value)
         self.assertTrue(reactions[0].get_absolute_url() in text_field_value)
+
+        # test that if the wrong last_note is given, user get a message
+        self.assertEqual(ContentReaction.objects.count(), 1)
+
+        result = self.client.post(
+            reverse("content:add-reaction") + u'?pk={}'.format(self.published.content.pk),
+            {
+                'text': message_to_post,
+                'last_note': -1  # wrong pk
+            }, follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        self.assertEqual(ContentReaction.objects.count(), 1)  # no new reaction has been posted
+        self.assertTrue(result.context['newnote'])  # message appears !
 
     def test_upvote_downvote(self):
         self.assertEqual(
@@ -4955,6 +4973,105 @@ class PublishedContentTests(TestCase):
             True)
         resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
         self.assertEqual(403, resp.status_code)
+
+    def test_republish_with_different_slug(self):
+        """Ensure that a new PublishedContent object is created and well filled"""
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        old_published = PublishedContent.objects.filter(content__pk=self.tuto.pk).first()
+        self.assertIsNotNone(old_published)
+        self.assertFalse(old_published.must_redirect)
+
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # change title
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        old_slug = tuto.slug
+        random = u'Whatever, we don\'t care about the details'
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': u'{} ({})'.format(self.tuto.title, u'modified'),  # will change slug
+                'description': random,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version().compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertNotEqual(tuto.slug, old_slug)
+
+        # ask validation
+        text_validation = u'Valide moi ce truc, please !'
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content__pk=tuto.pk).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': False,  # minor modification (just the title)
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 2)
+
+        old_published = PublishedContent.objects.get(pk=old_published.pk)
+        self.assertIsNotNone(old_published)  # still exists
+        self.assertTrue(old_published.must_redirect)  # do redirection if any
+        self.assertIsNone(old_published.update_date)
+
+        new_published = PublishedContent.objects.filter(content__pk=self.tuto.pk).last()
+        self.assertIsNotNone(new_published)  # new version exists
+        self.assertNotEqual(old_published.pk, new_published.pk)  # not the old one
+        self.assertEqual(new_published.publication_date, old_published.publication_date)  # keep publication date
+        self.assertIsNotNone(new_published.update_date)  # ... But is updated !
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        self.assertEqual(tuto.public_version.pk, new_published.pk)
 
     def tearDown(self):
 

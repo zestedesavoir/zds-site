@@ -337,11 +337,23 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     template_name = "tutorialv2/comment/new.html"
 
     quoted_reaction_text = ''
+    new_note = False
 
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
         kwargs['content'] = self.object
         kwargs['reaction'] = None
+
+        # handle the case when another user have post something in between
+        if 'last_note' in self.request.POST and self.request.POST['last_note'].strip() != '':
+            try:
+                last_note = int(self.request.POST['last_note'])
+            except ValueError:
+                pass
+            else:
+                if self.object.last_note and last_note != self.object.last_note.pk:
+                    self.new_note = True
+                    kwargs['last_note'] = self.object.last_note.pk
 
         return kwargs
 
@@ -352,6 +364,27 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             initial['text'] = self.quoted_reaction_text
 
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SendNoteFormView, self).get_context_data(**kwargs)
+
+        # handle the case were there is a new message in the discussion
+        if self.new_note:
+            context['newnote'] = True
+
+        # last few messages
+        context['notes'] = ContentReaction.objects\
+            .select_related('author')\
+            .select_related('author__profile')\
+            .select_related('editor')\
+            .prefetch_related('author__post_liked')\
+            .prefetch_related('author__post_disliked')\
+            .prefetch_related('alerts')\
+            .prefetch_related('alerts__author')\
+            .filter(related_content=self.object)\
+            .order_by("-pubdate")[:settings.ZDS_APP['content']['notes_per_page']]
+
+        return context
 
     def get(self, request, *args, **kwargs):
 
