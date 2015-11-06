@@ -47,7 +47,7 @@ L'installation peut se faire simplement via ``apt-get`` :
 
 .. sourcecode:: bash
 
-    sudo apt-get install nodejs
+    sudo apt-get install nodejs npm # Fedora : utilisez sudo dnf install nodejs npm
 
 Mais il est possible d'avoir une version un peu plus récente avec :
 
@@ -57,7 +57,7 @@ Mais il est possible d'avoir une version un peu plus récente avec :
     sudo apt-get update
     sudo apt-get install nodejs
 
-Certaines dépendances utilisent ``node`` au lieu de ``nodejs``, pour y remédier :
+Certaines dépendances utilisent ``node`` au lieu de ``nodejs``, pour y remédier (pas besoin sous Fedora !) :
 
 .. sourcecode:: bash
 
@@ -135,7 +135,7 @@ L'installation de Gulp, ainsi que des différentes dépendances et bibliothèque
 
 .. sourcecode:: bash
 
-    npm install
+    npm install # A faire dans le répertoire du clone de votre fork, installe Gulp et d'autres outils frontend - ne PAS être sudo
 
 
 Utilisation des outils
@@ -160,6 +160,12 @@ Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche �
 
 Générer les fichiers avec ``build``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Saisissez la commande suivante (elle vous permet de générer les fichiers Web du site pour vous permettre de consulter Zeste de Savoir sur votre navigateur, en local) :
+
+.. sourcecode:: bash
+
+    npm run gulp build # A faire dans le répertoire du clone de votre fork, crée le répertoire dist - ne PAS être sudo, activation de l'environnement Python requise
 
 ``build`` permet de :
 
