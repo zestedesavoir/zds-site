@@ -56,7 +56,7 @@
         {% include "misc/paginator.html" with position="top" %}
 
         {% if public_contents %}
-            <div class="tutorial-list">
+            <div class="content-item-list">
                 {% for public_content in public_contents %}
                     {% if public_content.content_type == "TUTORIAL" %}
                         {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with public_tutorial=public_content online=True show_description=True %}
@@ -64,6 +64,9 @@
                         {% include "tutorialv2/includes/content_item_type_article.part.html" with public_article=public_content show_description=True %}
                     {% endif %}
                 {% endfor %}
+                <div class="fill"></div>
+                <div class="fill"></div>
+                <div class="fill"></div>
             </div>
         {% else %}
             <p>

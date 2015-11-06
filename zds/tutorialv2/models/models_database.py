@@ -125,16 +125,18 @@ class PublishableContent(models.Model):
         :rtype: str
         """
         if self.is_article():
-            return _("L'Article")
+            return _(u"L'Article")
         else:
-            return _("Le Tutoriel")
+            return _(u"Le Tutoriel")
 
     def save(self, *args, **kwargs):
         """
         Rewrite the `save()` function to handle slug uniqueness
         """
         self.slug = uuslug(self.title, instance=self, max_length=80)
-        self.update_date = datetime.now()
+        update_date = kwargs.pop("update_date", True)
+        if update_date:
+            self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -282,7 +284,9 @@ class PublishableContent(models.Model):
         try:
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
-            raise Http404("sha is not None and related version could not be found due to {}".format(str(error)))
+            raise Http404(_(
+                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}".format(
+                    str(error))))
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -308,7 +312,7 @@ class PublishableContent(models.Model):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
-
+        max_title_length = PublishableContent._meta.get_field("title").max_length
         if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
             path = public.get_prod_path()
             slug = public.content_public_slug
@@ -321,7 +325,8 @@ class PublishableContent(models.Model):
 
             manifest = open(os.path.join(path, 'manifest.json'), 'r')
             json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(json, public.sha_public, slug, public=True)
+            versioned = get_content_from_json(json, public.sha_public,
+                                              slug, public=True, max_title_len=max_title_length)
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
@@ -338,7 +343,7 @@ class PublishableContent(models.Model):
                 raise BadManifestError(
                     _(u'Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
 
-            versioned = get_content_from_json(json, sha, self.slug)
+            versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
         self.insert_data_in_versioned(versioned)
         return versioned
@@ -350,7 +355,7 @@ class PublishableContent(models.Model):
         """
 
         attrs = [
-            'pk', 'authors', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
+            'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
             'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
         ]
 
@@ -424,7 +429,8 @@ class PublishableContent(models.Model):
                     .select_related('related_content__public_version')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
-                if read is not None:
+                if read is not None and read.note:  # one case can show a read without note : the author has just
+                    # published his content and one comment has been posted by someone else.
                     return read.note
 
             except ContentRead.DoesNotExist:
@@ -488,17 +494,6 @@ class PublishableContent(models.Model):
                 if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                     return True
 
-        return False
-
-    def change_type(self, new_type):
-        """Allow someone to change the content type, basically from tutorial to article
-
-        :param new_type: the new type, either `"ARTICLE"` or `"TUTORIAL"`
-        """
-        if new_type not in TYPE_CHOICES:
-            raise ValueError("This type of content does not exist")
-        self.type = new_type
-
     def repo_delete(self):
         """
         Delete the entities and their filesystem counterparts
@@ -533,8 +528,6 @@ class PublishedContent(models.Model):
     Linked to a ``PublishableContent`` for the rest. Don't forget to add a ``.prefetch_related("content")`` !!
     """
 
-    # TODO: by playing with this class, it may solve most of the SEO problems !!
-
     class Meta:
         verbose_name = 'Contenu publié'
         verbose_name_plural = 'Contenus publiés'
@@ -546,15 +539,29 @@ class PublishedContent(models.Model):
     content_pk = models.IntegerField('Pk du contenu publié', db_index=True)
 
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
+    update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
 
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
 
     objects = PublishedContentManager()
+    versioned_model = None
 
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
+
+    def title(self):
+        if self.versioned_model:
+            return self.versioned_model.title
+        else:
+            return self.load_public_version().title
+
+    def description(self):
+        if self.versioned_model:
+            return self.versioned_model.description
+        else:
+            return self.load_public_version().description
 
     def get_prod_path(self, relative=False):
         if not relative:
@@ -568,12 +575,7 @@ class PublishedContent(models.Model):
         :return: the URL of the published content
         :rtype: str
         """
-        reversed_ = ''
-
-        if self.is_article():
-            reversed_ = 'article'
-        elif self.is_tutorial():
-            reversed_ = 'tutorial'
+        reversed_ = self.content_type.lower()
 
         return reverse(reversed_ + ':view', kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
 
@@ -583,14 +585,16 @@ class PublishedContent(models.Model):
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :raise Http404: if the version is not available
         """
-        return self.content.load_version_or_404(sha=self.sha_public, public=self)
+        self.versioned_model = self.content.load_version_or_404(sha=self.sha_public, public=self)
+        return self.versioned_model
 
     def load_public_version(self):
         """
         :rtype: zds.tutorialv2.models.models_database.PublicContent
         :return: the public content
         """
-        return self.content.load_version(sha=self.sha_public, public=self)
+        self.versioned_model = self.content.load_version(sha=self.sha_public, public=self)
+        return self.versioned_model
 
     def is_article(self):
         """
@@ -682,12 +686,7 @@ class PublishedContent(models.Model):
         allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
 
         if type_ in allowed_types:
-            reversed_ = ''
-
-            if self.is_article():
-                reversed_ = 'article'
-            elif self.is_tutorial():
-                reversed_ = 'tutorial'
+            reversed_ = self.content_type.lower()
 
             return reverse(
                 reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
@@ -739,6 +738,9 @@ class PublishedContent(models.Model):
 
         return self.get_absolute_url_to_extra_content('zip')
 
+    def get_last_action_date(self):
+        return self.update_date or self.publication_date
+
 
 class ContentReaction(Comment):
     """
@@ -783,7 +785,7 @@ class ContentRead(models.Model):
         Save this model but check that if we have not a related note it is because the user is content author.
         """
         if self.user not in self.content.authors.all() and self.note is None:
-            raise ValueError("Must be related to a note or be an author")
+            raise ValueError(_(u"La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 

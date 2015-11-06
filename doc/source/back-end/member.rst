@@ -70,7 +70,7 @@ Le clic sur "me désinscrire" entraîne alors une série d'action (qui sont **ir
 Les membres dans les environnement de test et de développement
 ==============================================================
 
-Afin de faciliter les procédures de tests en local, 6 utilisateurs ont été créés via la fixture ``users.yaml`` (utilisateur/mot de passe):
+Afin de faciliter les procédures de tests en local, 7 utilisateurs ont été créés via la fixture ``users.yaml`` (utilisateur/mot de passe):
 
 - user/user : Utilisateur normal
 - staff/staff : Utilisateur avec les droits d'un staff
@@ -78,6 +78,7 @@ Afin de faciliter les procédures de tests en local, 6 utilisateurs ont été cr
 - anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums, dans les commentaires d'articles et de tutoriels ainsi que dans les MPs
 - external/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
 - ïtrema/ïtrema : Utilisateur de test supplémentaire sans droit
+- decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
 
 Pour que ces membres soient ajoutés à la base de données, il est donc nécéssaire d'exécuter la commande, suivante, à la racine du site
 

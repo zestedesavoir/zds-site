@@ -54,6 +54,37 @@ Prérequis
 
 Pour redémarrer virtualenv les fois suivantes : ``workon zdsenv``.
 
+Lancez par la suite ``pip install -r requirements.txt -r requirements-dev.txt``.
+
+Si l'erreur suivante appairait :
+
+.. error::
+    Unable to find vcvarsall.bat
+
+Cliquez sur : Ordinateur -> Click-droit + "Propriétés" -> Paramètres système avancées.
+Dans la fenêtes modale qui s'ouvre "Variables d'environnement".
+
+Vous devez y trouver dans le bas de la liste des paramètres telles que VSXXXCMNTOOLS où XXX vaut le plus souvent 100, 120 ou 140.
+Si vous ne voyez pas la variable VS90CMNTOOLS dans la liste, appuyez sur "nouvelle" puis entrez VS90CMNTOOLS comme nom et la même valeur que la variable VSXXXCMNTOOLS la plus récente. (100, 120 et 140 étant des versions du compilateur VS)
+
+Si vous n'avez aucune variable, téléchargez l'exécutable `Suivant <http://www.microsoft.com/en-us/download/details.aspx?id=41151>`_. Puis liez la variable ainsi créée à VS90CMNTOOLS.
+
+Pour que la modification soit effective, relancer une nouvelle fenêtre powershell.
+
+Les virtualenvs et pycharm
+--------------------------
+
+Avec PyCharm (Pour avoir une license Pro contactez le directeur technique (DTC)) vous pouvez gérer les virtualenv de manière bien plus performante qu'avec la commande powershell de base.
+Bien que le wrapper doive être installé comme dit au dessus, PyCharm vous offre une interface plus maniable.
+Ouvrez le projet dans PyCharm, puis allez dans Fichier(File)->Settings
+Dans "Project interpreter" sélectionnez la version "Python 2.7" que vous avez installée. Cliquez alors sur la roue dentée puis "Create virtualenv". Vous pourrez alors sélectionner le dossier dans lequel
+se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifiera alors que vous n'avez pas toutes les dépendances et vous proposera de les installer.
+
+.. attention::
+    Par défaut PyCharm ne va pas chercher les dépendances dans requirements-dev.txt.
+    Vous pouvez installer les dépendances depuis PowerShell ou bien aller dans l'onglet Tools des settings puis dans la partie "Python Integration" pour y changer temporairement le chemin vers le fichier de dépendances.
+
+
 Installation des outils front-end
 =================================
 

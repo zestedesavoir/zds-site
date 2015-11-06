@@ -114,6 +114,7 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
+    'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
@@ -320,6 +321,12 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
+# Change to True to force HTTPS for members
+FORCE_HTTPS_FOR_MEMBERS = False
+# Change to True to force HTTPS on views with `@https_required`
+ENABLE_HTTPS_DECORATOR = False
+
+
 LOGIN_URL = '/membres/connexion'
 
 ABSOLUTE_URL_OVERRIDES = {
@@ -377,7 +384,7 @@ ZDS_APP = {
         'abbr': u"zds",
         'url': u"http://127.0.0.1:8000",
         'dns': u"zestedesavoir.com",
-        'email_contact': u"communication@zestedesavoir.com",
+        'email_contact': u"zestedesavoir@gmail.com",
         'email_noreply': u"noreply@zestedesavoir.com",
         'repository': u"https://github.com/zestedesavoir/zds-site",
         'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
@@ -391,7 +398,7 @@ ZDS_APP = {
         'association': {
             'name': u"Zeste de Savoir",
             'fee': u"20 €",
-            'email': u"association@zestedesavoir.com",
+            'email': u"zestedesavoir@gmail.com",
             'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
         },
         'licenses': {
@@ -468,7 +475,8 @@ ZDS_APP = {
         'user_page_number': 5,
         'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
         'import_image_prefix': 'archive',
-        'build_pdf_when_published': True
+        'build_pdf_when_published': True,
+        'maximum_slug_size': 150
     },
     'forum': {
         'posts_per_page': 21,

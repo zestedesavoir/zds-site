@@ -21,23 +21,24 @@ urlpatterns = patterns('',
 
                        url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
-                           DisplayContainer.as_view(),
+                           DisplayContainer.as_view(public_is_prioritary=False),
                            name='view-container'),
                        url(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
-                           DisplayContainer.as_view(),
+                           DisplayContainer.as_view(public_is_prioritary=False),
                            name='view-container'),
 
-                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayContent.as_view(), name='view'),
+                       url(r'^(?P<pk>\d+)/(?P<slug>.+)/$', DisplayContent.as_view(public_is_prioritary=False),
+                           name='view'),
 
                        url(r'^telecharger/(?P<pk>\d+)/(?P<slug>.+)/$', DownloadContent.as_view(),
                            name='download-zip'),
 
                        # beta:
                        url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
-                           DisplayBetaContainer.as_view(),
+                           DisplayBetaContainer.as_view(public_is_prioritary=False),
                            name='beta-view-container'),
                        url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
-                           DisplayBetaContainer.as_view(),
+                           DisplayBetaContainer.as_view(public_is_prioritary=False),
                            name='beta-view-container'),
 
                        url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayBetaContent.as_view(), name='beta-view'),
@@ -58,7 +59,7 @@ urlpatterns = patterns('',
                        # create:
                        url(r'^nouveau-tutoriel/$',
                            CreateContent.as_view(created_content_type="TUTORIAL"), name='create-tutorial'),
-                       url(r'^nouveau-article/$',
+                       url(r'^nouvel-article/$',
                            CreateContent.as_view(created_content_type="ARTICLE"), name='create-article'),
                        url(r'^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$',
                            CreateContainer.as_view(),

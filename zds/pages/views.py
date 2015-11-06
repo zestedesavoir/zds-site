@@ -43,6 +43,12 @@ def home(request):
     except IOError:
         quote = settings.ZDS_APP['site']['slogan']
 
+    try:
+        with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
+            suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + ', ...'
+    except IOError:
+        suggestions = 'Mathématiques, UDK, HTML, Java, Python'
+
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
         'last_tutorials': tutos,
@@ -51,6 +57,7 @@ def home(request):
         'last_topics': Topic.objects.get_last_topics(),
         'tutorials_count': get_tutorials_count(),
         'quote': quote.replace('\n', ''),
+        'suggestions': suggestions,
     })
 
 

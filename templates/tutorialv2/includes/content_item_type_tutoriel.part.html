@@ -19,6 +19,22 @@
     {% endif %}
 {% endcaptureas %}
 
+{% captureas content_title %}
+    {% if public_tutorial and online %}
+        {{ public_tutorial.title }}
+    {% else %}
+        {{ tutorial.title }}
+    {% endif %}
+{% endcaptureas %}
+
+{% captureas content_subtitle %}
+    {% if public_tutorial and online %}
+        {{ public_tutorial.description }}
+    {% else %}
+        {{ tutorial.description }}
+    {% endif %}
+{% endcaptureas %}
+
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
     {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
@@ -30,7 +46,7 @@
 {% endcaptureas %}
 
 <article class="content-item expand-description tutorial-item{{ item_class }}">
-    <a href="{{ link }}" title="{{ tutorial.title }}{% if tutorial.description and show_description %} − {{ tutorial.description }}{% endif %}">
+    <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
         <div class="content-illu">
             {% if tutorial.image %}
                 <img src="{{ tutorial.image.physical.content_thumb.url }}" alt="">
@@ -39,12 +55,12 @@
         
         <div class="content-info">
             <h3 class="content-title" itemprop="itemListElement">
-                {{ tutorial.title }}
+                {{ content_title }}
             </h3>
 
             <p class="content-description">
-                {% if tutorial.description and show_description %}
-                    {{ tutorial.description }}
+                {% if content_subtitle and show_description %}
+                    {{ content_subtitle }}
                 {% endif %}
             </p>
 
