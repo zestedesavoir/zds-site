@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'rest_framework_swagger',
     'corsheaders',
     'oauth2_provider',
+    'captcha',
 
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
@@ -528,6 +529,14 @@ SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8" # noqa
+
+# ReCaptcha stuff
+USE_CAPTCHA = False
+NOCAPTCHA = True  # Use the "No Captcha engine"
+RECAPTCHA_USE_SSL = True
+# keys (should be overriden in the settings_prod.py file)
+RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa
+RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
