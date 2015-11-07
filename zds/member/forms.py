@@ -1,12 +1,14 @@
 # coding: utf-8
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from captcha.fields import ReCaptchaField
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
@@ -133,14 +135,28 @@ class RegisterForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
 
-        self.helper.layout = Layout(
+        layout = Layout(
             Field('username'),
             Field('password'),
             Field('password_confirm'),
             Field('email'),
+        )
+
+        # Add Captcha field if needed
+        if settings.USE_CAPTCHA and settings.RECAPTCHA_PUBLIC_KEY != '' and settings.RECAPTCHA_PRIVATE_KEY != '':
+            self.fields['captcha'] = ReCaptchaField()
+            layout = Layout(
+                layout,
+                Field('captcha'),
+            )
+
+        layout = Layout(
+            layout,
             ButtonHolder(
                 Submit('submit', _(u'Valider mon inscription')),
             ))
+
+        self.helper.layout = layout
 
     def clean(self):
         """

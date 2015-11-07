@@ -347,3 +347,19 @@ Dans le `settings_prod.py`, rajouter deux lignes :
 FORCE_HTTPS_FOR_MEMBERS = True
 ENABLE_HTTPS_DECORATOR = True
 ```
+
+Actions à faire pour mettre en prod la version 14
+=================================================
+
+Ajout d'un module de captcha
+----------------------------
+
+Dans le fichier settings_prod.py, ajouter et paramètrer les lignes suivantes :
+
+USE_CAPTCHA = True
+NOCAPTCHA = True  # Use the "No Captcha engine"
+RECAPTCHA_USE_SSL = True
+RECAPTCHA_PUBLIC_KEY = 'la-cle-ici'
+RECAPTCHA_PRIVATE_KEY = 'la-cle-ici'
+
+(les clés d'applications sont à créer auprès de l'association)
