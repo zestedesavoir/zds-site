@@ -47,7 +47,7 @@ L'installation peut se faire simplement via ``apt-get`` :
 
 .. sourcecode:: bash
 
-    sudo apt-get install nodejs npm # Fedora : utilisez sudo dnf install nodejs npm
+    sudo apt-get install nodejs npm
 
 Mais il est possible d'avoir une version un peu plus récente avec :
 
@@ -79,8 +79,7 @@ Il vous faut tout simplement faire :
 
 .. sourcecode:: bash
 
-    sudo curl -sL https://rpm.nodesource.com/setup | bash -
-    sudo yum install -y nodejs
+    sudo dnf install nodejs
 
 Arch Linux
 ~~~~~~~~~~
@@ -165,7 +164,7 @@ Saisissez la commande suivante (elle vous permet de générer les fichiers Web d
 
 .. sourcecode:: bash
 
-    npm run gulp build # A faire dans le répertoire du clone de votre fork, crée le répertoire dist - ne PAS être sudo, activation de l'environnement Python requise
+    npm run gulp build # A faire dans le répertoire du clone de votre fork, crée le répertoire "dist" - Ne PAS être sudo, activation de l'environnement Python requise
 
 ``build`` permet de :
 

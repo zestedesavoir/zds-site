@@ -17,7 +17,6 @@ Assurez vous que les dépendances suivantes soient résolues :
 - easy_install : ``apt-get install python-setuptools``
 - pip : ``easy_install pip``
 - tox : ``pip install tox``
-- libgeoip-dev : ``apt-get install libgeoip-dev``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python-lxml``
 - libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
@@ -74,8 +73,8 @@ Une fois dans votre environnement python (``source ../bin/activate`` si vous uti
 
 .. sourcecode:: bash
 
-    pip install --upgrade -r requirements.txt -r requirements-dev.txt # Installe les dépendances Python (--upgrade = permet de mettre à jour les fichiers si et seulement si qq a màj les fichiers requirements) - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise)
-    python manage.py migrate # Cf. migrate de Django (le faire à l'installation et à la mise à jour) - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
+    pip install --upgrade -r requirements.txt -r requirements-dev.txt # Installe les dépendances Python (--upgrade = permet de mettre à jour les fichiers si et seulement si quelqu'un a mis à jour les fichiers "requirements") - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
+    python manage.py migrate # Cf. "migrate" de Django (le faire à l'installation et à la mise à jour) - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
     python manage.py runserver # Démarre l'instance de ZdS - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
     deactivate
 
