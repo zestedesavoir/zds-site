@@ -31,79 +31,14 @@ Plus précisément :
 
 Sauf cas exceptionnel, la numérotation de X commence à 1, la numérotation de Y commence à 0, la numérotation de Z commence à 0.
 
-La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( ``{ version: "2.0.0"}``).
-L'absence du champ version est interprétée comme ``{version: "1.0"}``.
-Les 0 non significatifs sont optionnels ainsi ``{version: "1"}`` est strictement équivalent à ``{version: "1.0"}`` lui-même strictement équivalent à ``{version: "1.0.0"}``.
-
-Version 2.0
------------
-
-La version 2.0 est la version actuelement utilisée.
-
-.. sourcecode:: json
-
-    {
-        "object": "container",
-        "slug": "un-tutoriel",
-        "title": "Un tutoriel",
-        "introduction": "introduction.md",
-        "conclusion": "conclusion.md",
-        "version": 2,
-        "description": "Une description",
-        "type": "TUTORIAL",
-        "licence": "Beerware",
-        "children": [
-            {
-                "object": "container",
-                "slug": "titre-de-mon-chapitre",
-                "title": "Titre de mon chapitre",
-                "introduction": "titre-de-mon-chapitre/introduction.md",
-                "conclusion": "titre-de-mon-chapitre/conclusion.md",
-                "children": [
-                    {
-                        "object": "extract",
-                        "slug": "titre-de-mon-extrait",
-                        "title": "Titre de mon extrait",
-                        "text": "titre-de-mon-chapitre/titre-de-mon-extrait.md"
-                    },
-                    (...)
-                ]
-            },
-            (...)
-        ]
-    }
-
-1. ``type`` : Le type de contenu, vaut "TUTORIAL" ou "ARTICLE". *Si ce champ est absent ou invalide, le type vaudra par défaut "TUTORIAL".*
-2. ``description`` : La description du contenu. Est affichée comme sous-titre dans la page finale. **Obligatoire**
-3. ``title`` : Le titre du contenu. **Obligatoire**
-4. ``slug`` : slug du contenu qui permet de faire une url SEO-friendly. Pour rappel, `certaines contraintes doivent être respectées dans le choix du slug <contents.html#des-objets-en-general>`_. **Obligatoire**.  ATENTION : si ce slug existe déjà dans notre base de données, il est possible qu'un nombre lui soit ajouté
-5. ``introduction`` : le nom du fichier Mardown qui possède l'introduction. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
-6. ``conclusion`` : le nom du fichier Mardown qui possède la conclusion. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
-7. ``licence`` : nom complet de la license. *A priori* les licences "CC" et "Tous drois réservés" sont supportées. Le support de toute autre licence dépendra du site utilisant le code de ZdS (fork) que vous visez. **Obligatoire**
-8. ``children`` : tableau contenant l'architecture du contenu.
-    1. ``object`` : type d'enfant (*container* ou *extract*, selon qu'il s'agisse d'une section ou d'un texte). **Obligatoire**
-    2. ``title`` : le titre de l'enfant. **Obligatoire**
-    3. ``slug`` : le slug de l'enfant pour créer une url SEO-friendly, doit être unique dans le contenu, le slug est utilisé pour trouver le chemin vers l'enfant dans le système de fichier si c'est une section. Attention, `certaines contraintes doivent être respectées dans le choix du slug <contents.html#des-objets-en-general>`_. **Obligatoire**
-    4. ``introduction`` : nom du fichier contenant l'introduction quand l'enfant est de type *container*. *Optionnel mais conseillé*
-    5. ``conclusion`` : nom du fichier contenant la conclusion quand l'enfant est de type *container*. *Optionnel mais conseillé*
-    6. ``children`` : tableau vers les enfants de niveau inférieur si l'enfant est de type *container*. **Obligatoire**
-    7. ``text`` : nom du fichier contenant le texte quand l'enfant est de type *extract*. Nous conseillons de garder la convention ``nom de fichier = slug.md`` mais rien n'est obligatoire à ce sujet. **Obligatoire**
-
-
-
+La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( ```{ version="2.0.0"}```).
+L'absence du champ version est interprétée comme ``̀{version="1.0.0"}```.
+Les 0 non significatifs sont optionnels ainsi ```{version="1"}``` est strictement équivalent à ```{version:"1.0"}``` lui-même strictement équivalent à ```{version:"1.0.0"}```.
 
 Version 1.0
 -----------
 
-
-.. note::
-
-    La version 1.0 est dépréciée, et il est conseillé d'employer la version 2.0. Il est ceci dit toujours possible
-    `d'importer des contenus <contents.html#import-de-contenus>`_ dont le manifeste est toujours en version 1.0, mais à vos risques et périls.
-
-
 La version 1.0 définit trois types de manifeste selon que nous faisons face à un article,  un mini tutoriel ou un big tutoriel.
-
 
 MINI TUTO
 +++++++++
@@ -171,3 +106,56 @@ Article
         "type": "article",
         "text": "text.md"
     }
+
+
+Version 2.0
+-----------
+
+.. sourcecode:: json
+
+    {
+        "object": "container",
+        "slug": "un-tutoriel",
+        "title": "Un tutoriel",
+        "introduction": "introduction.md",
+        "conclusion": "conclusion.md",
+        "version": 2,
+        "description": "Une description",
+        "type": "TUTORIAL",
+        "licence": "Beerware",
+        "children": [
+            {
+                "object": "container",
+                "slug": "titre-de-mon-chapitre",
+                "title": "Titre de mon chapitre",
+                "introduction": "titre-de-mon-chapitre/introduction.md",
+                "conclusion": "titre-de-mon-chapitre/conclusion.md",
+                "children": [
+                    {
+                        "object": "extract",
+                        "slug": "titre-de-mon-extrait",
+                        "title": "Titre de mon extrait",
+                        "text": "titre-de-mon-chapitre/titre-de-mon-extrait.md"
+                    },
+                    (...)
+                ]
+            },
+            (...)
+        ]
+    }
+
+1. ``type`` : Le type de contenu, vaut "TUTORIAL" ou "ARTICLE". **Obligatoire**
+2. ``description`` : La description du contenu. Est affichée comme sous-titre dans la page finale. **Obligatoire**
+3. ``title`` : Le titre du contenu. **Obligatoire**
+4. ``slug`` : slug du contenu qui permet de faire une url SEO-friendly. **Obligatoire**. ATENTION : si ce slug existe déjà dans notre base de données, il est possible qu'un nombre lui soit ajouté
+5. ``introduction`` : le nom du fichier Mardown qui possède l'introduction. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
+6. ``conclusion`` : le nom du fichier Mardown qui possède la conclusion. Il doit pointer vers le dossier courant. *Optionnel mais conseillé*
+7. ``licence`` : nom complet de la license. *A priori* les licences "CC" et "Tous drois réservés" sont supportées. Le support de toute autre licence dépendra du site utilisant le code de ZdS (fork) que vous visez. **Obligatoire**
+8. ``children`` : tableau contenant l'architecture du contenu. **Obligatoire**
+    1. ``object`` : type d'enfant (*container* ou *extract*, selon qu'il s'agisse d'une section ou d'un texte). **Obligatoire**
+    2. ``title`` : le titre de l'enfant. **Obligatoire**
+    3. ``slug`` : le slug de l'enfant pour créer une url SEO-friendly, doit être unique dans le contenu, le slug est utilisé pour trouver le chemin vers l'enfant dans le système de fichier si c'est une section. **obligatoire**
+    4. ``introduction`` : nom du fichier contenant l'introduction quand l'enfant est de type *container*. *Optionnel mais conseillé*
+    5. ``conclusion`` : nom du fichier contenant la conclusion quand l'enfant est de type *container*. *Optionnel mais conseillé*
+    6. ``children`` : tableau vers les enfants de niveau inférieur si l'enfant est de type *container*. **Obligatoire**
+    7. ``text`` : nom du fichier contenant le texte quand l'enfant est de type *extract*. Nous conseillons de garder la convention ``nom de fichier = slug.md`` mais rien n'est obligatoire à ce sujet. **Obligatoire**

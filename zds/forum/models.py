@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.db import models
-from zds.settings import ZDS_APP
 from zds.utils import slugify
 from math import ceil
 import os
@@ -195,7 +194,7 @@ class Topic(models.Model):
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
 
     is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
-    is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
+    is_locked = models.BooleanField('Est verrouillé', default=False)
     is_sticky = models.BooleanField('Est en post-it', default=False, db_index=True)
 
     tags = models.ManyToManyField(
@@ -308,33 +307,24 @@ class Topic(models.Model):
         if user is None or not user.is_authenticated():
             return self.resolve_first_post_url()
         else:
-            try:
-                pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
-                return '{}?page={}#p{}'.format(
-                    self.get_absolute_url(),
-                    pos / ZDS_APP["forum"]["posts_per_page"] + 1, pk)
-            except TopicRead.DoesNotExist:
-                return self.resolve_first_post_url()
+            return '{0}?page=1#p{1}'.format(
+                self.get_absolute_url(),
+                self.resolve_last_post_pk_read_by_user(user))
 
-    def resolve_last_post_pk_and_pos_read_by_user(self, user):
-        """get the primary key and position of the last post the user read
+    def resolve_last_post_pk_read_by_user(self, user):
+        """get the primary key of the last post the user read
 
         :param user: the current (authenticated) user. Please do not try with unauthenticated user, il would lead to a \
         useless request.
         :return: the primary key
         :rtype: int
         """
-        t_read = TopicRead.objects\
-                          .select_related('post')\
-                          .filter(topic__pk=self.pk,
-                                  user__pk=user.pk) \
-                          .latest('post__position')
-        if t_read:
-            return t_read.post.pk, t_read.post.position
-        return Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk', "position").first().values()
+        return TopicRead.objects\
+            .select_related('post')\
+            .filter(topic__pk=self.pk,
+                    user__pk=user.pk) \
+            .latest('post__position')\
+            .pk
 
     def resolve_first_post_url(self):
         """resolve the url that leads to this topic first post
@@ -343,7 +333,7 @@ class Topic(models.Model):
         """
         pk = Post.objects\
             .filter(topic__pk=self.pk)\
-            .order_by('position')\
+            .order_by('-position')\
             .values('pk').first()
 
         return '{0}?page=1#p{1}'.format(

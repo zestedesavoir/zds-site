@@ -7,15 +7,6 @@ from zds.featured.managers import FeaturedResourceManager, FeaturedMessageManage
 
 
 class FeaturedResource(models.Model):
-    """
-        A FeaturedResource is a link to a resource that is featured by the Staff
-        It displays 3 main informations:
-            - A background picture
-            - A title
-            - The author(s) of the resource
-        Currently, the five newer FeaturedResource are displayed on the front page.
-    """
-
     class Meta:
         verbose_name = _(u'Une')
         verbose_name_plural = _(u'Unes')
@@ -39,15 +30,6 @@ class FeaturedResource(models.Model):
 
 
 class FeaturedMessage(models.Model):
-    """
-        The Featured Message is a simple one-line information on the home page.
-        This message is divided in three parts:
-            - The hook : displayed in bold, it shows the topic of the message (i.e.: "New", "Warning", "Info", ...)
-            - The message : the info message itself (i.e.: "The site will be down for maintenance tomorrow")
-            - The "tell me more" url : A tell me more button linking to a page giving more details
-        All those elements are facultative.
-    """
-
     class Meta:
         verbose_name = _(u'Message')
         verbose_name_plural = _(u'Messages')

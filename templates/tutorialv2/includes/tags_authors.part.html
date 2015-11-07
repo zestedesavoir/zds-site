@@ -1,7 +1,7 @@
 {% load date %}
 {% load i18n %}
 {% load category_url %}
-{% load set %}
+
 
 {% if content.subcategory.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
@@ -11,23 +11,19 @@
     </ul>
 {% endif %}
 
-{% if online %}
-    {% set public_object.get_last_action_date as update_date %}
-{% else %}
-    {% set  content.update_date as update_date %}
-{% endif %}
 
-{% if update_date %}
+
+{% if content.update_date %}
     <span class="pubdate">
-    {% if online and update_date == public_object.publication_date %}
+    {% if online and content.update_date == content.pubdate %}
         {% trans "Publié" %} :
-        <time datetime="{{ update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
-            {{ update_date|format_date }}
+        <time datetime="{{ content.pubdate|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ content.pubdate|format_date }}
         </time>
     {% else %}
         {% trans "Dernière mise à jour" %} :
-        <time datetime="{{ update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
-            {{ update_date|format_date }}
+        <time datetime="{{ content.update_date|date:"c" }}" pubdate="pubdate" itemprop="dateModified">
+            {{ content.update_date|format_date }}
         </time>
     {% endif %}
     </span>

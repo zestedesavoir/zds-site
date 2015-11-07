@@ -46,27 +46,6 @@ class CategoriesForumsListViewTests(TestCase):
         self.assertEqual(category, current_category)
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
 
-    def test_topic_list_home_page(self):
-        staff = StaffProfileFactory()
-
-        profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-
-        topics_nb = len(Topic.objects.get_last_topics())
-
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'lock': 'true',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
-
-        self.assertEqual(302, response.status_code)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
-
-        self.assertEqual(len(Topic.objects.get_last_topics()), topics_nb - 1)
-
 
 class CategoryForumsDetailViewTest(TestCase):
     def test_success_list_all_forums_of_a_category(self):
@@ -272,41 +251,6 @@ class TopicNewTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(forum, response.context['forum'])
         self.assertIsNotNone(response.context['form'])
-
-    def test_last_read_topic_url(self):
-        profile = ProfileFactory()
-        profile2 = ProfileFactory()
-        notvisited = ProfileFactory()
-        category, forum = create_category()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
-        }
-        self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
-        self.client.logout()
-        self.assertTrue(self.client.login(username=profile2.user.username, password='hostel77'))
-        data = {
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
-        }
-        self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
-        self.client.logout()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        topic = Topic.objects.last()
-        post = Post.objects.filter(topic__pk=topic.pk).first()
-        # for user
-        url = topic.resolve_last_read_post_absolute_url()
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
-
-        # for anonymous
-        self.client.logout()
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
-        # for no visit
-        self.assertTrue(self.client.login(username=notvisited.user.username, password='hostel77'))
-        self.assertEquals(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
 
     def test_success_create_topic_with_post_in_preview_in_ajax(self):
         profile = ProfileFactory()

@@ -371,11 +371,11 @@ Par exemple, le code suivant appliquera la classe "voted" si le message a reçu 
 .. sourcecode:: html
 
     {% load profiles %}
-    <button class="{% if user|disliked:message.pk %}voted{% endif %}">
+    <button class="{% if profile_user|disliked:message.pk %}voted{% endif %}">
         {{ message.dislike }}
     </button>
 
-où ``user`` est l'utilisateur (objet ``User``) et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations diffèrent légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
+où ``profile_user`` est le profil (objet ``Profile``) d'un utilisateur et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations diffèrent légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
 
 Le module ``roman``
 ===================
