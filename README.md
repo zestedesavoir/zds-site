@@ -28,7 +28,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 
 ## Fonctionnalités à venir
 
-Elles sont reportées essentiellement dans le [*bugtraker*](https://github.com/zestedesavoir/zds-site/issues).
+Elles sont reportées essentiellement dans le [*bug tracker*](https://github.com/zestedesavoir/zds-site/issues).
 
 
 ## Comment démarrer une instance de ZdS ?
