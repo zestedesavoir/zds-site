@@ -2,7 +2,7 @@
 
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
-    get_object_or_404, RetrieveUpdateAPIView, ListAPIView
+    get_object_or_404, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -17,18 +17,12 @@ from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSer
     PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
 from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.utils.templatetags.interventions import interventions_privatetopics
 
 
 class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search', 'ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
-    unique_view_id = bits.UniqueViewIdKeyBit()
-
-
-class PagingPrivateTopicUnreadListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
 
 
@@ -430,51 +424,3 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
 
     def get_queryset(self):
         return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs['pk_ptopic'])
-
-
-class PrivateTopicReadAPI(ListAPIView):
-    """
-    Private topic unread resource to list of the member authenticated.
-    """
-
-    serializer_class = PrivateTopicSerializer
-    permission_classes = (IsAuthenticated,)
-    list_key_func = PagingPrivateTopicUnreadListKeyConstructor()
-
-    @etag(list_key_func)
-    @cache_response(key_func=list_key_func)
-    def get(self, request, *args, **kwargs):
-        """
-        Displays all private topics unread.
-        ---
-
-        parameters:
-            - name: Authorization
-              description: Bearer token to make a authenticated request.
-              required: true
-              paramType: header
-            - name: page
-              description: Displays users of the page given.
-              required: false
-              paramType: query
-            - name: page_size
-              description: Sets size of the pagination.
-              required: false
-              paramType: query
-            - name: expand
-              description: Expand a field with an identifier.
-              required: false
-              paramType: query
-        responseMessages:
-            - code: 401
-              message: Not authenticated
-            - code: 404
-              message: Not found
-        """
-        return self.list(request, *args, **kwargs)
-
-    def get_current_user(self):
-        return self.request.user
-
-    def get_queryset(self):
-        return interventions_privatetopics(user=self.get_current_user())['unread']

@@ -38,7 +38,6 @@ from zds.member.decorator import can_write_and_read_now
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
     DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.utils.decorators import https_required
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -50,19 +49,12 @@ class MemberList(ZdSPagingListView):
 
     context_object_name = 'members'
     paginate_by = settings.ZDS_APP['member']['members_per_page']
+    # TODO When User will be no more used, you can make this request with
+    # Profile.objects.all_members_ordered_by_date_joined()
+    queryset = User.objects.filter(is_active=True) \
+                           .order_by('-date_joined') \
+                           .all().select_related("profile")
     template_name = 'member/index.html'
-
-    def get_queryset(self):
-        excluded_groups = [Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])]
-        now = datetime.now()
-        # TODO When User will be no more used, you can make this request with
-        # Profile.objects.all_members_ordered_by_date_joined()
-        self.queryset = User.objects.filter(is_active=True)\
-            .exclude(groups__in=excluded_groups)\
-            .filter(Q(profile__can_read=True) | Q(profile__end_ban_read__lte=now))\
-            .order_by('-date_joined')\
-            .all().select_related("profile")
-        return super(MemberList, self).get_queryset()
 
 
 class MemberDetail(DetailView):
@@ -238,10 +230,6 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
 
     form_class = RegisterForm
     template_name = 'member/register/index.html'
-
-    @method_decorator(https_required)
-    def dispatch(self, *args, **kwargs):
-        return super(RegisterView, self).dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
@@ -615,7 +603,6 @@ def settings_mini_profile(request, user_name):
         return render(request, "member/settings/profile.html", data)
 
 
-@https_required
 def login_view(request):
     """Log in user."""
 
@@ -688,7 +675,6 @@ def logout_view(request):
     return redirect(reverse("zds.pages.views.home"))
 
 
-@https_required
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
@@ -741,7 +727,6 @@ def forgot_password(request):
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 
-@https_required
 def new_password(request):
     """Create a new password for a user."""
 
@@ -769,7 +754,6 @@ def new_password(request):
     return render(request, "member/new_password/index.html", {"form": form})
 
 
-@https_required
 def active_account(request):
     """Active token for a user."""
 
@@ -844,7 +828,6 @@ def active_account(request):
     return render(request, "member/register/token_success.html", {"usr": usr, "form": form})
 
 
-@https_required
 def generate_token_account(request):
     """Generate token for account."""
 

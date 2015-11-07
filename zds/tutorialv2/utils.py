@@ -21,25 +21,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import translation
 
 from zds.search.models import SearchIndexContent
-from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2 import REPLACE_IMAGE_PATTERN
 from zds import settings
 from zds.settings import ZDS_APP
-from zds.utils import get_current_user
-from uuslug import slugify
-from zds.utils import slugify as old_slugify
+from zds.utils import get_current_user, slugify
 from zds.utils.models import Licence
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.member.models import User
-
-
-def all_is_string_appart_from_children(dict_representation):
-    """check all keys are string appart from the children key
-    :param dict_representation: the json decoded dictionary
-    :type dict_representation: dict
-    :return:
-    :rtype: bool
-    """
-    return all([isinstance(value, basestring) for key, value in dict_representation.items() if key != "children"])
 
 
 def search_container_or_404(base_content, kwargs_array):
@@ -66,10 +53,10 @@ def search_container_or_404(base_content, kwargs_array):
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
             except KeyError:
-                raise Http404(_(u"Aucun conteneur trouvé."))
+                raise Http404("No container found.")
             else:
                 if not isinstance(container, Container):
-                    raise Http404(_(u"Aucun conteneur trouvé."))
+                    raise Http404("No container found.")
     else:
         container = base_content
 
@@ -78,15 +65,15 @@ def search_container_or_404(base_content, kwargs_array):
         try:
             container = container.children_dict[kwargs_array['container_slug']]
         except KeyError:
-            raise Http404(_(u"Aucun conteneur trouvé."))
+            raise Http404("No container found.")
         else:
             if not isinstance(container, Container):
-                raise Http404(_(u"Aucun conteneur trouvé."))
+                raise Http404("No container found.")
     elif container == base_content:
         # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404(_(u"Aucun conteneur trouvé."))
+        raise Http404("No container found.")
     return container
 
 
@@ -110,10 +97,10 @@ def search_extract_or_404(base_content, kwargs_array):
         try:
             extract = container.children_dict[kwargs_array['extract_slug']]
         except KeyError:
-            raise Http404(_(u"Aucun extrait trouvé."))
+            raise Http404("No extract found.")
         else:
             if not isinstance(extract, Extract):
-                raise Http404(_(u"Aucun extrait trouvé."))
+                raise Http404("No extract found.")
     return extract
 
 
@@ -140,17 +127,6 @@ def never_read(content, user=None):
         return False
     else:
         return True
-
-
-def last_participation_is_old(content, user):
-    from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
-    if user is None or not user.is_authenticated():
-        return False
-    if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
-        return False
-    return ContentRead.objects\
-                      .filter(note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk)\
-                      .count() == 0
 
 
 def mark_read(content, user=None):
@@ -475,6 +451,8 @@ def publish_container(db_object, base_dir, container):
     if not isinstance(container, Container):
         raise FailureDuringPublication(_(u'Le conteneur n\'en est pas un !'))
 
+    # TODO: images stuff !!
+
     template = 'tutorialv2/export/chapter.html'
 
     # jsFiddle support
@@ -587,7 +565,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     # 1. markdown file (base for the others) :
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
     cur_language = translation.get_language()
-    versioned.pubdate = datetime.now()
     try:
         translation.activate(settings.LANGUAGE_CODE)
         parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
@@ -643,13 +620,9 @@ def publish_content(db_object, versioned, is_major_update=True):
         # if the slug change, instead of using the same object, a new one will be created
         if versioned.slug != public_version.content_public_slug:
             public_version.must_redirect = True  # set redirection
-            publication_date = public_version.publication_date
             public_version.save()
             db_object.public_version = PublishedContent()
             public_version = db_object.public_version
-
-            # if content have already been published, keep publication date !
-            public_version.publication_date = publication_date
 
     else:
         public_version = PublishedContent()
@@ -668,8 +641,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     # save public version
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
-    elif is_update:
-        public_version.update_date = datetime.now()
 
     public_version.sha_public = versioned.current_version
     public_version.save()
@@ -743,7 +714,7 @@ class BadManifestError(Exception):
         super(BadManifestError, self).__init__(*args, **kwargs)
 
 
-def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80):
+def get_content_from_json(json, sha, slug_last_draft, public=False):
     """Transform the JSON formated data into ``VersionedContent``
 
     :param json: JSON data from a `manifest.json` file
@@ -756,24 +727,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
     from zds.tutorialv2.models.models_versioned import Container, Extract, VersionedContent, PublicContent
 
     if 'version' in json and json['version'] == 2:
-        json["version"] = "2"
-        if not all_is_string_appart_from_children(json):
-            json['version'] = 2
-            raise BadManifestError(_(u"Le fichier manifest n'est pas bien formaté."))
-        json['version'] = 2
         # create and fill the container
-        if len(json['title']) > max_title_len:
-            raise BadManifestError(
-                _(u"Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len))
-
-        # check that title gives correct slug
-        slugify_raise_on_invalid(json['title'])
-
-        if not check_slug(json['slug']):
-            raise InvalidSlugError(json['slug'])
-        else:
-            json_slug = json['slug']
-
+        slugify_raise_on_empty(json['title'])
+        json_slug = slugify_raise_on_empty(json['slug'])
         if not public:
             versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json_slug, slug_last_draft)
         else:
@@ -802,7 +758,6 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         fill_containers_from_json(json, versioned)
     else:
         # MINIMUM (!) fallback for version 1.0
-
         if "type" in json:
             if json['type'] == 'article':
                 _type = 'ARTICLE'
@@ -837,18 +792,16 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         else:  # it's a tutorial
             if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
                 for extract in json['chapter']['extracts']:
-                    new_extract = Extract(
-                        extract['title'],
-                        '{}_{}'.format(extract['pk'], slugify_raise_on_invalid(extract['title'], True)))
+                    new_extract = Extract(extract['title'], '{}_{}'.format(extract['pk'],
+                                                                           slugify_raise_on_empty(extract['title'])))
                     if 'text' in extract:
                         new_extract.text = extract['text']
                     versioned.add_extract(new_extract, generate_slug=False)
 
             elif json['type'] == 'BIG' and 'parts' in json:
                 for part in json['parts']:
-                    new_part = Container(
-                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_invalid(part['title'], True)))
-
+                    new_part = Container(part['title'], '{}_{}'.format(part['pk'],
+                                                                       slugify_raise_on_empty(part['title'])))
                     if 'introduction' in part:
                         new_part.introduction = part['introduction']
                     if 'conclusion' in part:
@@ -858,9 +811,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                     if 'chapters' in part:
                         for chapter in part['chapters']:
                             new_chapter = Container(
-                                chapter['title'],
-                                '{}_{}'.format(chapter['pk'], slugify_raise_on_invalid(chapter['title'], True)))
-
+                                chapter['title'], '{}_{}'.format(chapter['pk'],
+                                                                 slugify_raise_on_empty(chapter['title'])))
                             if 'introduction' in chapter:
                                 new_chapter.introduction = chapter['introduction']
                             if 'conclusion' in chapter:
@@ -870,9 +822,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                             if 'extracts' in chapter:
                                 for extract in chapter['extracts']:
                                     new_extract = Extract(
-                                        extract['title'],
-                                        '{}_{}'.format(extract['pk'], slugify_raise_on_invalid(extract['title'], True)))
-
+                                        extract['title'], '{}_{}'.format(extract['pk'],
+                                                                         slugify_raise_on_empty(extract['title'])))
                                     if 'text' in extract:
                                         new_extract.text = extract['text']
                                     new_chapter.add_extract(new_extract, generate_slug=False)
@@ -881,70 +832,21 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
 
 class InvalidSlugError(ValueError):
-    """ Error raised when a slug is invalid. Argument is the slug that cause the error.
-
-    ``source`` can also be provided, being the sentence from witch the slug was generated, if any.
-    ``had_source`` is set to ``True`` if the source is provided.
-
-    """
-
-    def __init__(self, *args, **kwargs):
-
-        self.source = ''
-        self.had_source = False
-
-        if 'source' in kwargs:
-            self.source = kwargs.pop('source')
-            self.had_source = True
-
-        super(InvalidSlugError, self).__init__(*args, **kwargs)
+    pass
 
 
-def check_slug(slug):
-    """If the title is incorrect (only special chars so slug is empty)
-
-    :param slug: slug to test
-    :type slug; str
-    :return: `True` if slug is valid, false otherwise
-    :rtype: bool
-    """
-
-    if not VALID_SLUG.match(slug):
-        return False
-
-    if slug.replace("-", "").replace("_", "") == "":
-        return False
-
-    if len(slug) > settings.ZDS_APP['content']['maximum_slug_size']:
-        return False
-
-    return True
-
-
-def slugify_raise_on_invalid(title, use_old_slugify=False):
-    """use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
-    is raised.
-
+def slugify_raise_on_empty(title):
+    """use uuslug to generate a slug but if the title is incorrect (only special chars so slug is empty)\
+    we raise a ValueError
     :param title: to be slugified title
     :type title: str
-    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull
-    for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !
-    :type use_old_slugify: bool
-    :raise InvalidSlugError: on incorrect slug:
+    :raise ValueError: on incorrect slug:
     :return: the slugified title
     :rtype: str
     """
-
-    if not isinstance(title, basestring):
-        raise InvalidSlugError('', source=title)
-    if not use_old_slugify:
-        slug = slugify(title)
-    else:
-        slug = old_slugify(title)
-
-    if not check_slug(slug):
-        raise InvalidSlugError(slug, source=title)
-
+    slug = slugify(title)
+    if slug.replace("-", "").replace("_", "") == "":
+        raise InvalidSlugError("slug is incorrect")
     return slug
 
 
@@ -960,18 +862,12 @@ def fill_containers_from_json(json_sub, parent):
     from zds.tutorialv2.models.models_versioned import Container, Extract
 
     if 'children' in json_sub:
-
         for child in json_sub['children']:
-            if not all_is_string_appart_from_children(child):
-                raise BadManifestError(
-                    _(u"Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
             if child['object'] == 'container':
                 slug = ''
                 try:
-                    slug = child['slug']
-                    if not check_slug(slug):
-                        raise InvalidSlugError(slug)
-                except KeyError:
+                    slug = slugify_raise_on_empty(child['slug'])
+                except (ValueError, KeyError):
                     pass
                 new_container = Container(child['title'], slug)
                 if 'introduction' in child:
@@ -987,10 +883,8 @@ def fill_containers_from_json(json_sub, parent):
             elif child['object'] == 'extract':
                 slug = ''
                 try:
-                    slug = child['slug']
-                    if not check_slug(slug):
-                        raise InvalidSlugError(child['slug'])
-                except KeyError:
+                    slug = slugify_raise_on_empty(child['slug'])
+                except (ValueError, KeyError):
                     pass
                 new_extract = Extract(child['title'], slug)
 
@@ -1054,15 +948,14 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
 
 def get_commit_author():
-    """get a dictionary that represent the commit author with ``author`` and ``comitter`` key. If there is no users,
-    bot account pk is used.
+    """get a dictionary that represent the commit author with ``author`` and ``comitter`` key
 
     :return: correctly formatted commit author for ``repo.index.commit()``
     :rtype: dict
     """
     user = get_current_user()
 
-    if user and user.is_authenticated():
+    if user:
         aut_user = str(user.pk)
         aut_email = None
 
@@ -1070,16 +963,11 @@ def get_commit_author():
             aut_email = user.email
 
     else:
-        try:
-            aut_user = str(User.objects.filter(username=settings.ZDS_APP['member']['bot_account']).first().pk)
-        except AttributeError:
-            aut_user = '0'
-
+        aut_user = ZDS_APP['member']['bot_account']
         aut_email = None
 
     if aut_email is None or aut_email.strip() == "":
-        aut_email = _(u"inconnu@{}").format(settings.ZDS_APP['site']['dns'])
-
+        aut_email = "inconnu@{}".format(settings.ZDS_APP['site']['dns'])
     return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
 
 

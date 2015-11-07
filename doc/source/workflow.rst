@@ -62,7 +62,6 @@ Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets s
    -  Evolution
    -  Bug
    -  Régression
-   -  Zombie
 -  Difficulté
    -  Facile
 
@@ -71,9 +70,8 @@ Certains de ces tags possèdent cependant quelques règles d'applications :
 -  Le tag **Facile** : Ce tag est facultatif. Il est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
 -  Le tag **Bloquant** : Il ne concerne que les tickets désignant un **bug** ou une **régression** qui empêchent une utilisation correcte du site (connexion impossible, forte atteinte aux performances, etc).
 -  **Régression** ou **Bug** ? : Une régression *est* un bug. La différence est temporelle. Un bug peut apparaitre suite à la mise en place d'une nouvelle fonctionnalité. Une régression quant à elle est un bug apparu suite à une correction incomplète, ratée ou encore si une nouvelle fonctionnalité altère un comportement antérieur.
--  **Zombie** : Les tickets sous ce tag sont des évolutions ou bugs mineurs n'ayant pas donnée signe de vie depuis longtemps. Ils sont donc non-résolu mais fermé et placé sous cette étiquette pour garder propre la pile des tickets actifs. Dans l'idéal il faudrait les résoudre un jour...
 
-Dans un monde parfait, les priorités de développement devraient être les suivantes : Bloquant > Régression > Bug > Évolution > Zombie.
+Dans un monde parfait, les priorités de développement devraient être les suivantes : Bloquant > Régression > Bug > Évolution.
 
 *Workflow* de mise en production
 ================================

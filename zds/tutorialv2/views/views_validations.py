@@ -70,7 +70,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         except KeyError:
             pass
         except ValueError:
-            raise Http404(_(u"Format invalide pour le paramètre de la sous-catégorie."))
+            raise Http404("Invalid format for subcategory parameter")
 
         return queryset.order_by("date_proposition").all()
 
@@ -119,6 +119,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         # warn the former validator that an update has been made, if any
         if old_validator:
             validation.validator = old_validator
+            # TODO: why not let the validator be the same using PENDING_V ?
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
@@ -341,7 +342,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
     modal_form = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Publier un contenu depuis la validation n'est pas disponible en GET."))
+        raise Http404("Validation acceptance is not reachable with GET method")
 
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()

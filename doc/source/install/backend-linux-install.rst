@@ -23,7 +23,7 @@ Assurez vous que les dépendances suivantes soient résolues :
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libffi : ``apt-get install libffi-dev``
-- libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev``
+- libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev``
 
 Ou, en une ligne :
 

@@ -265,8 +265,8 @@ Issues #2718, #2658 et #2615
 
 Si le fichier `zds-maintenance` n'est pas dans la doc, c'est que vous n'êtes pas sur la bonne version.
 
-Actions à faire pour mettre en prod la version : v15.7
-======================================================
+Actions à faire pour mettre en prod la prochaine version
+========================================================
 
 Issue #2401
 -----------
@@ -280,8 +280,6 @@ La recherche est maintenant en français:
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
 
-Actions à faire pour mettre en prod la version : v15.9
-======================================================
 
 ZEP-12 aka Apocalypse
 ---------------------
@@ -334,16 +332,3 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
     - `tutorialv2 | Contenu | Can change Contenu` (`tutorialv2.change_publishablecontent`) pour le droit au staff d'accéder et de modifier les contenus
     - `tutorialv2 | Validation | Can change Validation` (`tutorialv2.change_validation`) pour le droit au staff de valider des contenus
     - `tutorialv2 | note sur un contenu | Can change note sur un contenu` (`tutorialv2.change_contentreaction`) pour le droit au staff de modérer les commentaires sur les contenus
-
-Actions à faire pour mettre en prod la prochaine version
-========================================================
-
-#1376 - Forcer l'HTTPS pour les membres connectés
--------------------------------------------------
-
-Dans le `settings_prod.py`, rajouter deux lignes :
-
-```py
-FORCE_HTTPS_FOR_MEMBERS = True
-ENABLE_HTTPS_DECORATOR = True
-```

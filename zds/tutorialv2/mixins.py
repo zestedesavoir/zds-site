@@ -11,7 +11,6 @@ from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext_lazy as _
 
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
-from zds.tutorialv2.utils import mark_read
 
 
 class SingleContentViewMixin(object):
@@ -52,7 +51,6 @@ class SingleContentViewMixin(object):
     is_author = False
     only_draft_version = True
     must_redirect = False
-    public_is_prioritary = True
 
     def get_object(self, queryset=None):
         """ Get database representation of the content by its `pk`, then check permissions
@@ -67,9 +65,9 @@ class SingleContentViewMixin(object):
             elif 'pk' in self.request.POST:
                 pk = int(self.request.POST['pk'])
             else:
-                raise Http404(_(u"Impossible de trouver le paramètre 'pk'."))
+                raise Http404("Cannot find the 'pk' parameter.")
         except ValueError as badvalue:
-            raise Http404(_(u"La valeur du paramètre pk '{}' n'est pas un entier valide.".format(badvalue)))
+            raise Http404("The pk value '{}' is not a valid integer".format(badvalue))
 
         queryset = PublishableContent.objects
 
@@ -82,7 +80,7 @@ class SingleContentViewMixin(object):
         obj = queryset.filter(pk=pk).first()
 
         if not obj:
-            raise Http404(_(u"Aucun contenu ne possède cet identifiant."))
+            raise Http404("No contents has this pk.")
 
         # check permissions:
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
@@ -114,7 +112,7 @@ class SingleContentViewMixin(object):
 
         # if beta or public version, user can also access to it
         is_beta = self.object.is_beta(self.sha)
-        is_public = self.object.is_public(self.sha) and self.public_is_prioritary
+        is_public = self.object.is_public(self.sha)
 
         if not is_beta and not is_public and not self.is_author:
             if not self.is_staff or (not self.authorized_for_staff and self.must_be_author):
@@ -128,7 +126,7 @@ class SingleContentViewMixin(object):
             slug = self.kwargs['slug']
             if versioned.slug != slug:
                 if slug != self.object.slug:  # retro-compatibility, but should raise permanent redirect instead
-                    raise Http404(_(u"Ce slug n'existe pas pour ce contenu."))
+                    raise Http404("This slug does not exist for this content.")
 
         return versioned
 
@@ -136,10 +134,7 @@ class SingleContentViewMixin(object):
         """Get the published version, if any
         """
 
-        object = PublishedContent.objects.filter(content_pk=self.object.pk, must_redirect=False).last()
-        if object:
-            object.load_public_version()
-        return object
+        return PublishedContent.objects.filter(content_pk=self.object.pk, must_redirect=False).last()
 
 
 class SingleContentPostMixin(SingleContentViewMixin):
@@ -178,7 +173,7 @@ class ModalFormView(FormView):
                 messages.error(self.request, errors[errors.keys()[0]][0][0])  # only the first error is provided
             else:
                 messages.error(
-                    self.request, _(u'Une erreur inconnue est survenue durant le traitement des données.'))
+                    self.request, _(u'Une erreur inconnue est survenue durant le traitement des données'))
 
             if hasattr(form, 'previous_page_url'):
                 return redirect(form.previous_page_url)
@@ -325,9 +320,9 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             elif 'pk' in self.request.POST:
                 pk = int(self.request.POST['pk'])
             else:
-                raise Http404(_(u"Impossible de trouver le paramètre 'pk'."))
+                raise Http404("Cannot find the 'pk' parameter.")
         except ValueError as badvalue:
-            raise Http404(_(u"La valeur du paramètre pk '{}' n'est pas un entier valide.".format(badvalue)))
+            raise Http404("The pk value '{}' is not a valid integer".format(badvalue))
         queryset = PublishedContent.objects\
             .filter(content_pk=pk)\
             .prefetch_related('content')\
@@ -344,28 +339,27 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
         obj = queryset.order_by('publication_date').last()  # "last" version must be the most recent to be published
         if obj is None:
-            raise Http404(_(u"Aucun contenu ne possède ce slug."))
+            raise Http404("No contents has this slug.")
 
         # Redirection ?
         if obj.must_redirect:
             if obj.content.public_version:
                 raise MustRedirect(self.get_redirect_url(obj))
             else:  # should only happen if the content is unpublished
-                raise Http404(_(u"La redirection est activée mais le contenu n'est pas public."))
+                raise Http404("The redirection is activated but the content is not public.")
 
         self.is_author = self.request.user in obj.content.authors.all()
         self.is_staff = self.request.user.has_perm('tutorialv2.change_publishablecontent')
 
         self.current_content_type = obj.content_type
-        if obj and obj.content.last_note:
-            mark_read(obj.content)
+
         return obj
 
     def get_object(self):
 
         obj = self.public_content_object.content
         if obj is None:
-            raise Http404(_(u"Le contenu de la publication n'est pas trouvé."))
+            raise Http404("Online object not found")
         return obj
 
     def get_versioned_object(self):

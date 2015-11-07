@@ -459,7 +459,8 @@ class EditImageViewTest(TestCase):
                 follow=True
             )
         self.assertEqual(200, response.status_code)
-        self.assertEqual(nb_files + 2, len(os.listdir(self.gallery.get_gallery_path())))
+        # should have one picture and 2 thumbnails, so 3 new images
+        self.assertEqual(nb_files + 3, len(os.listdir(self.gallery.get_gallery_path())))
 
         image_test = Image.objects.get(pk=self.image.pk)
         self.assertEqual('edit title', image_test.title)
@@ -633,7 +634,6 @@ class NewImageViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(self.gallery.get_images()))
-        self.assertEqual(2, len(os.listdir(self.gallery.get_gallery_path())))  # New image and thumbnail
         self.gallery.get_images()[0].delete()
 
     def test_fail_new_image_with_read_permission(self):

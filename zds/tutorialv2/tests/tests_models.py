@@ -1,6 +1,5 @@
 # coding: utf-8
-from django.core.urlresolvers import reverse
-from datetime import datetime, timedelta
+
 import os
 import shutil
 
@@ -10,11 +9,8 @@ from django.test.utils import override_settings
 from zds.settings import BASE_DIR
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    PublishedContentFactory, SubCategoryFactory
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory
 from zds.gallery.factories import UserGalleryFactory
-from zds.tutorialv2.models.models_database import PublishableContent
-from zds.tutorialv2.utils import publish_content
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -427,44 +423,6 @@ class ContentTests(TestCase):
 
         for index, child in enumerate(current.children[0].children):
             self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains for extract as well !
-
-    def test_publication_and_attributes_consistency(self):
-        pubdate = datetime.now() - timedelta(days=1)
-        article = PublishedContentFactory(type="ARTILCE", author_list=[self.user_author])
-        public_version = article.public_version
-        public_version.publication_date = pubdate
-        public_version.save()
-        # everything must come from database to have good datetime comparison
-        article = PublishableContent.objects.get(pk=article.pk)
-        article.public_version.load_public_version()
-        old_date = article.public_version.publication_date
-        old_title = article.public_version.title()
-        old_description = article.public_version.description()
-        article.licence = LicenceFactory()
-        article.save()
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        self.client.post(reverse("content:edit", args=[article.pk, article.slug]), {
-            "title": old_title + "bla",
-            "description": old_description + "bla",
-            "type": "ARTICLE",
-            "licence": article.licence.pk,
-            "subcategory": SubCategoryFactory().pk,
-            "last_hash": article.sha_draft
-        })
-        article = PublishableContent.objects.prefetch_related("public_version").get(pk=article.pk)
-        article.public_version.load_public_version()
-        self.assertEqual(old_title, article.public_version.title())
-        self.assertEqual(old_description, article.public_version.description())
-        self.assertEqual(old_date, article.public_version.publication_date)
-        publish_content(article, article.load_version(), False)
-        article = PublishableContent.objects.get(pk=article.pk)
-        article.public_version.load_public_version()
-        self.assertEqual(old_date, article.public_version.publication_date)
-        self.assertNotEqual(old_date, article.public_version.update_date)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
