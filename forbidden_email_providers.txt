@@ -132,6 +132,7 @@
 @eco.wretch.twbbs.org
 @einrot.com
 @einrot.de
+@email.com
 @email-jetable.
 @email60.com
 @emailgo.de
