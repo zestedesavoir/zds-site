@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 from datetime import datetime, timedelta
 
 from django.test import TestCase
@@ -107,4 +108,10 @@ class DateFormatterTest(TestCase):
         tr = Template("{% load date %}"
                       "{{ date_epoch | humane_time }}"
                       ).render(self.context)
-        self.assertEqual(u"jeudi 01 janvier 1970 à 00h00", tr)
+
+        # Since ZdS is in Europe/Paris, hours can be 1 or 2
+        is_dst = time.daylight and time.localtime().tm_isdst > 0
+        utc_offset_sec = time.altzone if is_dst else time.timezone
+        hours = -1 * utc_offset_sec / 3600
+
+        self.assertEqual(tr, u"jeudi 01 janvier 1970 à 0{}h00".format(hours))

@@ -69,6 +69,6 @@ def tooltip_date(value):
 
 
 @register.filter
-def humane_time(timestamp, tz_offset=0):
+def humane_time(timestamp):
     """Render time (number of second from epoch) to an human readable string"""
-    return format_date(datetime.utcfromtimestamp(timestamp - tz_offset))
+    return format_date(datetime.fromtimestamp(timestamp))
