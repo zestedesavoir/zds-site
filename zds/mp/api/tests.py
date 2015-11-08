@@ -1,6 +1,5 @@
 # coding: utf-8
 from collections import OrderedDict
-from unittest import skip
 from django.contrib.auth.models import Group
 from django.core.cache import get_cache
 
@@ -942,7 +941,6 @@ class PrivatePostDetailAPI(APITestCase):
         self.assertEqual(response.data.get('text'), data.get('text'))
 
 
-@skip("MP API is disable.")
 class PrivateTopicUnreadListAPITest(APITestCase):
 
     def setUp(self):
