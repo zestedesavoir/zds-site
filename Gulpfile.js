@@ -5,8 +5,7 @@ var gulp = require("gulp"),
     del = require("del");
 
 var autoprefixer = require("autoprefixer"),
-    cssnano = require("cssnano"),
-    scss = require("postcss-scss");
+    cssnano = require("cssnano");
 
 var postcssProcessors = [
   require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
@@ -73,7 +72,7 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
         title: "Javascript error",
         message: "<%= error.message %>"
       })))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("./", vendorsDir) }))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", vendorsDir) }))
     .pipe($.size({ title: "Scripts (vendors)" }))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
@@ -94,7 +93,7 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
         message: "<%= error.message %>"
       }))
       .pipe($.postcss(postcssProcessors))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("/", sourceDir, sassDir) }))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, sassDir) }))
     .on("error", function() { this.emit("end"); })
     .pipe($.size({ title: "Stylesheet" }))
     .pipe(gulp.dest(path.join(destDir, "css/")));
@@ -152,7 +151,7 @@ gulp.task("scripts", function() {
         title: "Javascript error",
         message: "<%= error.message %>"
       })))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("./") }))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))
     .pipe($.size({ title: "Scripts" }))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
@@ -173,7 +172,7 @@ gulp.task("merge-scripts", ["vendors", "scripts"], function() {
   return gulp.src(path.join(destDir, scriptsDir, "{vendors,main}.js"))
     .pipe($.sourcemaps.init({ loadMaps: true }))
       .pipe($.concat("all.js"))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("/", sourceDir, scriptsDir) }))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))
     .pipe($.size({ title: "Scripts (all)" }))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
