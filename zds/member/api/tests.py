@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
 from zds.member.models import TokenRegister
 from rest_framework_extensions.settings import extensions_api_settings
 from django.core.cache import get_cache
@@ -395,6 +395,15 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(self.profile.hover_or_click, response.data.get('hover_or_click'))
         self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
 
+    def test_detail_with_user_not_synchronized(self):
+        """
+        Gets all information about a user not synchronized.
+        """
+        decal = ProfileNotSyncFactory()
+        response = self.client.get(reverse('api-member-detail', args=[decal.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), decal.user.id)
+
     def test_detail_of_a_member_who_accepts_to_show_his_email(self):
         """
         Gets all information about a user but not his email because the request isn't authenticated.
@@ -445,6 +454,20 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(self.profile.show_sign, response.data.get('show_sign'))
         self.assertEqual(self.profile.hover_or_click, response.data.get('hover_or_click'))
         self.assertEqual(self.profile.email_for_answer, response.data.get('email_for_answer'))
+
+    def test_update_member_details_with_user_not_synchronized(self):
+        """
+        Updates a member of a user not synchronized.
+        """
+        decal = ProfileNotSyncFactory()
+
+        client_oauth2 = create_oauth2_client(decal.user)
+        client_authenticated = APIClient()
+        authenticate_client(client_authenticated, client_oauth2, decal.user.username, 'hostel77')
+
+        response = client_authenticated.put(reverse('api-member-detail', args=[decal.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), decal.user.id)
 
     def test_update_member_details_not_exist(self):
         """
@@ -654,6 +677,16 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         self.assertEqual(response.data.get('email'), self.profile.user.email)
         self.assertFalse(response.data.get('can_write'))
 
+    def test_apply_read_only_at_a_user_not_synchronized(self):
+        """
+        Applies a read only sanction at a user not synchronized.
+        """
+        decal = ProfileNotSyncFactory()
+
+        response = self.client_authenticated.post(reverse('api-member-read-only', args=[decal.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), decal.user.id)
+
     def test_apply_temporary_read_only_at_a_member(self):
         """
         Applies a temporary read only sanction at a member given by a staff user.
@@ -812,6 +845,16 @@ class MemberDetailBanAPITest(APITestCase):
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
         self.assertFalse(response.data.get('can_read'))
+
+    def test_apply_ban_at_a_user_not_synchronized(self):
+        """
+        Applies a ban sanction at a user not synchronized.
+        """
+        decal = ProfileNotSyncFactory()
+
+        response = self.client_authenticated.post(reverse('api-member-ban', args=[decal.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('id'), decal.user.id)
 
     def test_apply_temporary_ban_at_a_member(self):
         """
