@@ -222,6 +222,13 @@ class UpdateUsernameEmailMember(UpdateMember):
 
     def update_profile(self, profile, form):
         if form.data['username']:
+            # Add a karma message for the staff
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            KarmaNote(user=profile.user,
+                      staff=bot,
+                      comment=_(u"{} s'est renommé {}").format(profile.user.username, form.data['username']),
+                      value=0).save()
+            # Change the pseudo
             profile.user.username = form.data['username']
         if form.data['email']:
             if form.data['email'].strip() != '':
