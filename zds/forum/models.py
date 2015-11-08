@@ -312,7 +312,7 @@ class Topic(models.Model):
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(),
-                    pos / ZDS_APP["forum"]["posts_per_page"] + 1, pk)
+                    (pos - 1) / ZDS_APP["forum"]["posts_per_page"] + 1, pk)
             except TopicRead.DoesNotExist:
                 return self.resolve_first_post_url()
 
