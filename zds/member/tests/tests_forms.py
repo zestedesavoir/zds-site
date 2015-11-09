@@ -13,6 +13,7 @@ stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
                    u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
+stringof501chars = ['1' for n in range(501)]
 stringof2001chars = 'http://url.com/'
 for i in range(198):
     stringof2001chars += "0123456789"
@@ -240,7 +241,7 @@ class MiniProfileFormTest(TestCase):
             'biography': '',
             'site': '',
             'avatar_url': '',
-            'sign': stringof251chars
+            'sign': stringof501chars
         }
         form = MiniProfileForm(data=data)
         self.assertFalse(form.is_valid())
