@@ -219,6 +219,7 @@ class PrivateTopicListAPITest(APITestCase):
         author = response.data.get('results')[0].get('author')
         self.assertIsInstance(author, OrderedDict)
         self.assertEqual(author.get('username'), self.profile.user.username)
+        self.assertEqual(author.get('avatar_url'), self.profile.get_avatar_url())
 
     def test_create_private_topics_with_client_unauthenticated(self):
         """

@@ -16,10 +16,11 @@ class UserListSerializer(serializers.ModelSerializer):
     models uses a foreign key to Profile, so we must use Profile
     serializers.
     """
+    avatar_url = serializers.CharField(source='profile.get_avatar_url')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url')
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
@@ -31,10 +32,11 @@ class ProfileListSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
+    avatar_url = serializers.CharField(source='get_avatar_url')
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'is_active', 'date_joined')
+        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url')
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
