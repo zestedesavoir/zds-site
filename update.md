@@ -335,10 +335,12 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
     - `tutorialv2 | Validation | Can change Validation` (`tutorialv2.change_validation`) pour le droit au staff de valider des contenus
     - `tutorialv2 | note sur un contenu | Can change note sur un contenu` (`tutorialv2.change_contentreaction`) pour le droit au staff de modérer les commentaires sur les contenus
 
-Actions à faire pour mettre en prod la prochaine version
-========================================================
 
-#1376 - Forcer l'HTTPS pour les membres connectés
+
+Actions à faire pour mettre en prod la version 14
+=================================================
+
+Forcer l'HTTPS pour les membres connectés - #1376
 -------------------------------------------------
 
 Dans le `settings_prod.py`, rajouter deux lignes :
@@ -348,18 +350,17 @@ FORCE_HTTPS_FOR_MEMBERS = True
 ENABLE_HTTPS_DECORATOR = True
 ```
 
-Actions à faire pour mettre en prod la version 14
-=================================================
-
-Ajout d'un module de captcha
-----------------------------
+Ajout d'un module de captcha - #1262
+------------------------------------
 
 Dans le fichier settings_prod.py, ajouter et paramètrer les lignes suivantes :
 
-USE_CAPTCHA = True
+```py
+USE_CAPTCHA = False
 NOCAPTCHA = True  # Use the "No Captcha engine"
 RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = 'la-cle-ici'
 RECAPTCHA_PRIVATE_KEY = 'la-cle-ici'
+```
 
 (les clés d'applications sont à créer auprès de l'association)
