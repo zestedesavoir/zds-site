@@ -5073,6 +5073,32 @@ class PublishedContentTests(TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(tuto.public_version.pk, new_published.pk)
 
+    def test_logical_article_pagination(self):
+        """Test that the past is "left" and the future is "right", or in other word that the good article
+        are given to pagination and not the opposite"""
+
+        article1 = PublishedContentFactory(type="ARTICLE")
+
+        # force "article1" to be the first one by setting a publication date equals to one hour before the test
+        article1.public_version.publication_date = datetime.datetime.now() - datetime.timedelta(0, 1)
+        article1.public_version.save()
+
+        article2 = PublishedContentFactory(type="ARTICLE")
+
+        self.assertEqual(PublishedContent.objects.count(), 3)  # both articles have been published
+
+        # visit article 1 (so article2 is next)
+        result = self.client.get(reverse('article:view', kwargs={'pk': article1.pk, 'slug': article1.slug}))
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.context['next_article'].pk, article2.public_version.pk)
+        self.assertIsNone(result.context['previous_article'])
+
+        # visit article 2 (so article1 is previous)
+        result = self.client.get(reverse('article:view', kwargs={'pk': article2.pk, 'slug': article2.slug}))
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.context['previous_article'].pk, article1.public_version.pk)
+        self.assertIsNone(result.context['next_article'])
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
