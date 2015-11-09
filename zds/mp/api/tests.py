@@ -1,6 +1,5 @@
 # coding: utf-8
 from collections import OrderedDict
-from unittest import skip
 from django.contrib.auth.models import Group
 from django.core.cache import get_cache
 
@@ -23,7 +22,6 @@ overrided_drf['MAX_PAGINATE_BY'] = 20
 
 
 @override_settings(REST_FRAMEWORK=overrided_drf)
-@skip("MP API is disable.")
 class PrivateTopicListAPITest(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
@@ -368,7 +366,6 @@ class PrivateTopicListAPITest(APITestCase):
         return [PrivateTopicFactory(author=user) for private_topic in xrange(0, number_of_users)]
 
 
-@skip("MP API is disable.")
 class PrivateTopicDetailAPITest(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
@@ -614,7 +611,6 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.assertNotIn(self.profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).participants.all())
 
 
-@skip("MP API is disable.")
 class PrivatePostListAPI(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
@@ -803,7 +799,6 @@ class PrivatePostListAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
-@skip("MP API is disable.")
 class PrivatePostDetailAPI(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
@@ -946,7 +941,6 @@ class PrivatePostDetailAPI(APITestCase):
         self.assertEqual(response.data.get('text'), data.get('text'))
 
 
-@skip("MP API is disable.")
 class PrivateTopicUnreadListAPITest(APITestCase):
 
     def setUp(self):

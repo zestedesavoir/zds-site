@@ -84,6 +84,13 @@ class ProfileFactory(factory.DjangoModelFactory):
     sign = 'Please look my flavour'
 
 
+class ProfileNotSyncFactory(ProfileFactory):
+    """
+    Use this factory when you want a user with wrong identifiers.
+    """
+    id = factory.Sequence(lambda n: n + 99999)
+
+
 class StaffProfileFactory(factory.DjangoModelFactory):
     """
     Use this factory when you need a complete Profile for a staff user.
