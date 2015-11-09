@@ -82,7 +82,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             all_articles = \
                 [a for a in PublishedContent.objects
                     .filter(content_type="ARTICLE", must_redirect=False)
-                    .order_by('-publication_date')
+                    .order_by('publication_date')
                     .all()]
             articles_count = len(all_articles)
 
