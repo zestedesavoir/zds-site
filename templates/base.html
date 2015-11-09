@@ -8,7 +8,7 @@
 {% load captureas %}
 {% load thumbnail %}
 {% load i18n %}
-
+{% load remove_url_protocole %}
 
 
 <!DOCTYPE html>
@@ -296,7 +296,7 @@
                                                         {% endif %}
                                                         <a href="{{ topic.last_read_post.get_absolute_url }}">
                                                             {% with p=last_answer.author.profile %}
-                                                                <img src="{{ p.get_avatar_url }}" alt="" class="avatar">
+                                                                <img src="{{ p.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ last_answer.author.username }}</span>
                                                             <span class="date">{{ last_answer.pubdate|format_date:True|capfirst }}</span>
@@ -339,7 +339,7 @@
                                                     <li>
                                                         <a href="{{ first_unread.url }}">
                                                             {% with p=first_unread.author.profile %}
-                                                                <img src="{{ p.get_avatar_url  }}" alt="" class="avatar">
+                                                                <img src="{{ p.get_avatar_url|remove_url_protocole  }}" alt="" class="avatar">
                                                             {% endwith %}
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
