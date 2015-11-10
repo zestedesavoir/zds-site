@@ -1,3 +1,5 @@
+sudo: false
+
 git:
   depth: 1
 
@@ -6,12 +8,21 @@ language: python
 python:
   - 2.7
 
+cache:
+  apt: true
+  pip: true
+  directories:
+    - $HOME/.texlive/texmf-var
+    - $HOME/.texlive/texmf-local
+    - $HOME/.texlive/texmf-dist
+    - node_modules
+
 env:
   global:
     - secure: "azmDZZQZzf88zpbkYpLpxI66vpEVyv+kniW0QdWAt4qlys8P5OcO3VJBR5YT85vlvnjN9b6raWQAL1ymee0WmVdTmzXed8XjZv7t9QXVw7pfezxMKlEftVp/4Cu4wtvbew0ViZXNWV2hNXHzEqlhgnoIOq94i0UzZ7grMrI0xm0="
   matrix:
-    - TEST_APP="-e back_mysql -- zds.member zds.mp zds.utils zds.forum zds.gallery zds.pages zds.search zds.featured"
-    - TEST_APP="-e back_mysql -- zds.article zds.tutorial zds.tutorialv2"
+    - TEST_APP="-e back_mysql -- zds.mp zds.utils zds.forum zds.gallery zds.pages zds.search zds.featured"
+    - TEST_APP="-e back_mysql_pandoc -- zds.tutorialv2 zds.member"
     - TEST_APP="-e front"
 
 
@@ -22,10 +33,8 @@ notifications:
     skip_join: true
 
 services:
- - mysql
- - memcached
-
-sudo: false
+  - mysql
+  - memcached
 
 addons:
   apt:
@@ -50,36 +59,42 @@ before_script:
 
 install:
   - |
-    if [[ "$TEST_APP" == *"back"* ]]
+    # Install only front dependencies
+    if [[ "$TEST_APP" == *"front"* ]]
     then
-      ./scripts/install_texlive.sh
-      export PATH=~/.texlive/bin/x86_64-linux:$PATH
-    else
       nvm install 0.12
       nvm use 0.12
       npm install -g npm
-    fi
-  - export RESOURCES_URL="http://www.googledrive.com/host/0BzabS14KitJgfmV2ekdWSktmVEpieU93TG11RFNkWlZqS0JwZk93ZGhMR1lCWVg5NzFVc00"
-  # Add fonts
-  - mkdir -p ~/.fonts/truetype
-  - wget -P ~/.fonts/truetype $RESOURCES_URL/Andale-Mono.ttf
-  - wget -P ~/.fonts/truetype $RESOURCES_URL/Merriweather.zip
-  - unzip ~/.fonts/truetype/Merriweather.zip -d ~/.fonts/truetype/Merriweather/
-  - chmod a+r ~/.fonts/truetype/Merriweather/*.ttf
-  - chmod a+r ~/.fonts/truetype/Andale-Mono.ttf
-  - fc-cache -f -v
+    else
+      # Install only pandoc dependencies
+      if [[ "$TEST_APP" == *"pandoc"* ]]
+      then
+        ./scripts/install_texlive.sh
+        export PATH=~/.texlive/bin/x86_64-linux:$PATH
+        export RESOURCES_URL="http://www.googledrive.com/host/0BzabS14KitJgfmV2ekdWSktmVEpieU93TG11RFNkWlZqS0JwZk93ZGhMR1lCWVg5NzFVc00"
 
-  # Cabal + Pandoc stuff
-  - mkdir -p ~/cabal/bin
-  - mkdir -p ~/.pandoc
-  - wget -P ~/cabal/bin $RESOURCES_URL/pandoc
-  - wget -P ~/.pandoc/templates $RESOURCES_URL/default.epub
-  - wget -P ~/.pandoc/templates $RESOURCES_URL/default.html
-  - touch ~/.pandoc/epub.css
-  - touch ~/.pandoc/templates/epub.css
-  - chmod u+x,g+x,o+x ~/cabal/bin/pandoc
-  - export PATH=$PATH:~/cabal/bin
-  - ~/cabal/bin/pandoc --version
+        # Add fonts
+        mkdir -p ~/.fonts/truetype
+        wget -P ~/.fonts/truetype $RESOURCES_URL/Andale-Mono.ttf
+        wget -P ~/.fonts/truetype $RESOURCES_URL/Merriweather.zip
+        unzip ~/.fonts/truetype/Merriweather.zip -d ~/.fonts/truetype/Merriweather/
+        chmod a+r ~/.fonts/truetype/Merriweather/*.ttf
+        chmod a+r ~/.fonts/truetype/Andale-Mono.ttf
+        fc-cache -f -v
+
+        # Cabal + Pandoc stuff
+        mkdir -p ~/cabal/bin
+        mkdir -p ~/.pandoc
+        wget -P ~/cabal/bin $RESOURCES_URL/pandoc
+        wget -P ~/.pandoc/templates $RESOURCES_URL/default.epub
+        wget -P ~/.pandoc/templates $RESOURCES_URL/default.html
+        touch ~/.pandoc/epub.css
+        touch ~/.pandoc/templates/epub.css
+        chmod u+x,g+x,o+x ~/cabal/bin/pandoc
+        export PATH=$PATH:~/cabal/bin
+        ~/cabal/bin/pandoc --version
+      fi
+    fi
 
   # Python dependencies
   - travis_retry pip install coveralls
