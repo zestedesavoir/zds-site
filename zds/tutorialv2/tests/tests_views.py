@@ -1991,7 +1991,7 @@ class ContentTests(TestCase):
 
         # ... Therefore, a new Validation object is created
         validation = Validation.objects.filter(content=tuto).last()
-        self.assertEqual(validation.status, 'PENDING')
+        self.assertEqual(validation.status, 'PENDING_V')
         self.assertEqual(validation.validator, None)
         self.assertEqual(validation.version, self.tuto_draft.current_version)
 

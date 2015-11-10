@@ -114,13 +114,13 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         validation.date_proposition = datetime.now()
         validation.comment_authors = form.cleaned_data['text']
         validation.version = form.cleaned_data['version']
+        if old_validator:
+            validation.validator = old_validator
+            validation.status = 'PENDING_V'
         validation.save()
 
         # warn the former validator that an update has been made, if any
         if old_validator:
-            validation.validator = old_validator
-            validation.status = "PENDING_V"
-
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
                 'tutorialv2/messages/validation_change.md',
