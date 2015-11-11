@@ -248,6 +248,9 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('subtitle'), private_topics[0].subtitle)
         self.assertEqual(response.data.get('participants')[0], private_topics[0].participants.all()[0].id)
         self.assertEqual(data.get('text'), private_topics[0].last_message.text)
+        self.assertEqual(response.data.get('author'), self.profile.user.id)
+        self.assertIsNotNone(response.data.get('last_message'))
+        self.assertIsNotNone(response.data.get('pubdate'))
 
     def test_create_of_private_topics_without_subtitle(self):
         """
@@ -267,6 +270,9 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('subtitle'), private_topics[0].subtitle)
         self.assertEqual(response.data.get('participants')[0], private_topics[0].participants.all()[0].id)
         self.assertEqual(data.get('text'), private_topics[0].last_message.text)
+        self.assertEqual(response.data.get('author'), self.profile.user.id)
+        self.assertIsNotNone(response.data.get('last_message'))
+        self.assertIsNotNone(response.data.get('pubdate'))
 
     def test_create_of_private_topics_without_title(self):
         """

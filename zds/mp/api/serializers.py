@@ -42,8 +42,9 @@ class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, 
 
     class Meta:
         model = PrivateTopic
-        fields = ('id', 'title', 'subtitle', 'participants', 'text')
-        read_only_fields = ('id',)
+        fields = ('id', 'title', 'subtitle', 'participants', 'text',
+                  'author', 'participants', 'last_message', 'pubdate')
+        read_only_fields = ('id', 'author', 'last_message', 'pubdate')
 
     def create(self, validated_data):
         # This hack is necessary because `text` isn't a field of PrivateTopic.
