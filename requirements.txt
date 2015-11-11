@@ -33,5 +33,5 @@ django-cors-headers==1.0.0
 dry-rest-permissions==0.1.6
 
 # Zep 12 dependency
-django-uuslug==1.0.3
+django-uuslug==1.1.6
 watchdog==0.8.3 # use last non-bc-breaking version
