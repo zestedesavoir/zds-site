@@ -49,7 +49,7 @@ git checkout -b $1
 
 # Update application data
 source ../bin/activate
-pip install --upgrade --use-mirrors -r requirements.txt
+pip install --upgrade -r requirements.txt
 python manage.py migrate
 python manage.py compilemessages
 # Collect all staticfiles from dist/ and python packages to static/

@@ -9,11 +9,13 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from zds.settings import BASE_DIR
+from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
     PublishedContentFactory
 from zds.gallery.factories import UserGalleryFactory
+from zds.tutorialv2.models.models_versioned import Container
 from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
     get_target_tagged_tree_for_extract, retrieve_and_update_images_links
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent

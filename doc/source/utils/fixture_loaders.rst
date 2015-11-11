@@ -27,6 +27,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
     - ïtrema/ïtrema un utilisateur normal, sans problème mais qui aime l'utf8
     - Anonymous/anonymous : le compte d'anonymisation
     - External/external: le compte pour accueillir les cours externes des auteurs ne voulant pas devenir membre ou quittant le site
+    - decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
 
 De ce fait, le moyen le plus simple de charger l'ensemble des données de base est ``python manage.py loaddata fixtures/*.yaml``.
 
@@ -128,6 +129,7 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 |tutorial2 et article2            |PublishableContent [#cv2]_         |10                           |
 +---------------------------------+-----------------------------------+-----------------------------+
+
 
 
 .. [#lic] Les licences suivantes seront créée : "CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO" et "Tout-Droits"

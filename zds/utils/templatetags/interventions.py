@@ -75,6 +75,10 @@ def interventions_topics(user):
         .select_related("topic")\
         .exclude(post=F('topic__last_message')).all()
 
+    content_followed_pk = ContentReaction.objects\
+        .filter(author=user, related_content__public_version__isnull=False)\
+        .values_list('related_content__pk', flat=True)
+
     content_to_read = ContentRead.objects\
         .select_related('note')\
         .select_related('note__author')\
@@ -96,6 +100,8 @@ def interventions_topics(user):
 
     for content_read in content_to_read:
         content = content_read.content
+        if content.pk not in content_followed_pk and user not in content.authors.all():
+            continue
         reaction = content.first_unread_note()
         if reaction is None:
             reaction = content.first_note()

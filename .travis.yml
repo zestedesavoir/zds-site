@@ -21,7 +21,7 @@ notifications:
       - irc.smoothirc.net#zds-dev
     skip_join: true
 
-services: 
+services:
  - mysql
  - memcached
 
@@ -54,6 +54,10 @@ install:
     then
       ./scripts/install_texlive.sh
       export PATH=~/.texlive/bin/x86_64-linux:$PATH
+    else
+      nvm install 0.12
+      nvm use 0.12
+      npm install -g npm
     fi
   - export RESOURCES_URL="http://www.googledrive.com/host/0BzabS14KitJgfmV2ekdWSktmVEpieU93TG11RFNkWlZqS0JwZk93ZGhMR1lCWVg5NzFVc00"
   # Add fonts

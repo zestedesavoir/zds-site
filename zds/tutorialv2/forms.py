@@ -1,7 +1,6 @@
 # coding: utf-8
 from django import forms
 from django.conf import settings
-from uuslug import slugify
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -15,6 +14,7 @@ from zds.utils.models import HelpWriting
 from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
+from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 
 
 class FormWithTitle(forms.Form):
@@ -39,8 +39,11 @@ class FormWithTitle(forms.Form):
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
-        if slugify(title).replace('-', '') == '':
-            self._errors['title'] = self.error_class([_(u'Ce titre n\'est pas autorisé, son slug est invalide !')])
+        try:
+            slugify_raise_on_invalid(title)
+        except InvalidSlugError as e:
+            self._errors['title'] = self.error_class(
+                [_(u'Ce titre n\'est pas autorisé, son slug est invalide {}!').format(e if e.message != '' else '')])
 
         return cleaned_data
 
@@ -386,7 +389,7 @@ class ImportNewContentForm(ImportContentForm):
     subcategory = forms.ModelMultipleChoiceField(
         label=_(u"Sous catégories de votre contenu. Si aucune catégorie ne convient "
                 u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
-        queryset=SubCategory.objects.all(),
+        queryset=SubCategory.objects.order_by("title").all(),
         required=True,
         widget=forms.SelectMultiple(
             attrs={
@@ -444,6 +447,9 @@ class NoteForm(forms.Form):
         :param args:
         :param kwargs:
         """
+
+        last_note = kwargs.pop('last_note', 0)
+
         super(NoteForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:add-reaction') + u'?pk={}'.format(content.pk)
@@ -451,8 +457,7 @@ class NoteForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutEditor(),
-            Field('last_note')
-
+            Field('last_note') if not last_note else Hidden('last_note', last_note)
         )
 
         if content.antispam():
@@ -469,8 +474,10 @@ class NoteForm(forms.Form):
                 placeholder=_(u'Ce contenu est verrouillé.'),
                 disabled=True
             )
+
         if reaction is not None:
             self.initial.setdefault("text", reaction.text)
+
         self.content = content
 
     def clean(self):
@@ -634,6 +641,9 @@ class AcceptValidationForm(forms.Form):
             }) + '?version=' + validation.version
 
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
+
+        # if content is already published, it's probably a minor change, so do not check `is_major`
+        self.fields['is_major'].initial = not validation.content.sha_public
 
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:accept', kwargs={'pk': validation.pk})

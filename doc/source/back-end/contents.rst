@@ -1,6 +1,6 @@
-=======================================
-Les tutoriels et articles v2.0 (ZEP 12)
-=======================================
+=========================
+Les tutoriels et articles
+=========================
 
 Vocabulaire et définitions
 ==========================
@@ -153,6 +153,12 @@ l'objet depuis le site Web et dans le nom des fichiers ou dossiers employés pou
 stocker (détails plus bas). Dès lors, cette spécification **impose** que ce 
 *slug* soit unique au sein du conteneur parent, et que le *slug* du contenu 
 soit unique au sein de tous les contenus de ZdS.
+
+La taille des *slugs* ne peut dépasser une certaine limite, définie dans le code par
+``ZDS_APP['content']['maximum_slug_size']`` (par défaut 150). Cette limite est due à
+une contrainte sur la taille maximum d'un nom de fichier sur les différents systèmes
+(généralement 255 octets sur la plupart des systèmes de fichier modernes, voir à ce sujet
+`l'article Wikipedia correspondant (en) <https://en.wikipedia.org/wiki/Comparison_of_file_systems#Limits>`_).
 
 .. note::
 

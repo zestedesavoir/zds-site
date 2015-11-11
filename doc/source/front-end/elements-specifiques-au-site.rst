@@ -107,3 +107,127 @@ Pour avoir la lecture zen, il suffit d'inclure le bouton "Lecture zen" là où v
    {% include "misc/zen_button.part.html" %}
 
 Au clic du bouton, le Javascript se chargera de mettre ou d'enlever la classe ``zen-mode`` à ``.content-container``.
+
+Les *items* représentant les contenus et les derniers sujets
+============================================================
+
+Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d'accueil sont représentés dans des *items*.
+
+.. figure:: ../images/design/item-contenu.png
+   :align: center
+
+   En voici un exemple
+
+Importation dans un gabarit
+---------------------------
+
+Article
+~~~~~~~
+
+.. sourcecode:: html
+
+   {% include "tutorialv2/includes/content_item_type_article.part.html" %}
+
+Vous pouvez passer trois arguments aux fichiers :
+
+- ``public_article`` (ou ``article`` s'il n'est pas publié) : un objet de type ``PublishableContent``. **Obligatoire**
+- ``show_description`` : un booléen pour afficher ou non la description de l'article. *Est à False par défaut.*
+- ``type`` : doit avoir pour valeur ``"beta"`` pour afficher la version béta. *Est vide par défaut.*
+
+Par exemple, pour afficher un article publié avec sa description :
+
+.. sourcecode:: html
+
+   {% include "tutorialv2/includes/content_item_type_article.part.html" with public_article=article show_description=True %}
+
+Ou sinon, pour afficher un article en béta sans description :
+
+.. sourcecode:: html
+
+   {% include "tutorialv2/includes/content_item_type_article.part.html" with article=article type="beta" %}
+
+
+Tutoriel
+~~~~~~~~
+
+.. sourcecode:: html
+
+   {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" %}
+
+Vous pouvez passer quatre arguments aux fichiers :
+
+- ``public_tutorial`` (ou ``tutorial`` s'il n'est pas publié) : un objet de type ``PublishableContent``. **Obligatoire**
+- ``show_description`` : un booléen pour afficher ou non la description du tutoriel. *Est par défaut à False.*
+- ``type`` : doit avoir pour valeur ``"beta"`` pour afficher la version béta. *Est vide par défaut.*
+- ``item_class`` : ajoute des classes au tutoriel (par exemple, la classe "mini" pour afficher le tutoriel en plus petit). *Est vide par défaut.*
+
+Par exemple, pour afficher un tutoriel publié avec sa description :
+
+.. sourcecode:: html
+
+   {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with public_tutorial=tutorial show_description=True %}
+
+Ou sinon, pour afficher un tutoriel en béta sans description et en taille réduite :
+
+.. sourcecode:: html
+
+   {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with tutorial=tutorial type="beta" item_class="mini" %}
+
+
+.. figure:: ../images/design/item-contenu-mini.png
+   :align: center
+
+   Voici deux tutoriels en taille réduite
+
+Sujet
+~~~~~
+
+.. sourcecode:: html
+
+   {% include "forum/includes/topic_item.part.html" %}
+
+Vous devez passer en argument ``topic`` qui est un objet de type ``Topic``.
+
+Faire une liste d'*items*
+-------------------------
+
+Si vous voulez faire une liste de tutoriels, il faut les regrouper dans une ``<div class="content-item-list"></div>``.
+
+.. sourcecode:: html
+
+   <div class="content-item-list">
+       <!-- Mes tutoriels -->
+   </div>
+
+Ils sont répartis une ou des colonnes (une seule sur mobile jusqu'à quatre sur un écran haute définition).
+
+Malheureusement, si les tutoriels sont affichés sur deux colonnes et qu'ils sont en nombre impair, le dernier tutoriel va prendre la même place que deux. Un exemple vaut mille mots :
+
+.. sourcecode:: bash
+
+   |   Tutoriel   | |   Tutoriel   |
+   |           Tutoriel            |
+
+.. figure:: ../images/design/item-contenu-sans-fill.png
+   :align: center
+
+   Voici trois tutoriels sur deux colonnes avec le problème
+
+Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles trois ``<div class="fill"></div>``. Cela donne au final ceci :
+
+
+.. sourcecode:: html
+
+   <div class="content-item-list">
+       <!-- Mes tutoriels -->
+       <div class="fill"></div>
+       <div class="fill"></div>
+       <div class="fill"></div>
+   </div>
+
+.. figure:: ../images/design/item-contenu-avec-fill.png
+   :align: center
+
+   Voici trois tutoriels sur deux colonnes sans le problème
+
+(Pour l'explication technique, c'est dû à l'utilisation de *flexbox*.)

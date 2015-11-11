@@ -12,9 +12,9 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from zds.settings import ZDS_APP
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from zds.utils import slugify
+from uuslug import slugify
 from zds.utils.misc import compute_hash
-from zds.tutorialv2.utils import get_blob
+from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
 
 
 class Container:
@@ -38,8 +38,6 @@ class Container:
     children = []
     children_dict = {}
     slug_pool = {}
-
-    # TODO: thumbnails ?
 
     def __init__(self, title, slug='', parent=None, position_in_parent=1):
         """Initialize the data model that will handle the dialog with raw versionned data at level container
@@ -152,11 +150,22 @@ class Container:
         """Generate a slug from title, and check if it is already in slug pool. If it is the case, recursively add a
         "-x" to the end, where "x" is a number starting from 1. When generated, it is added to the slug pool.
 
+        Note that the slug cannot be larger than `settings.ZDS_APP['content']['max_slug_size']`, due to maximum file
+        size limitation.
+
         :param title: title from which the slug is generated (with ``slugify()``)
         :return: the unique slug
         :rtype: str
         """
         base = slugify(title)
+
+        if not check_slug(base):
+            raise InvalidSlugError(base, source=title)
+
+        if len(base) > settings.ZDS_APP['content']['maximum_slug_size'] - 5:
+            # "-5" gives possibility to add "-xxxx" (up to 9999 possibility should be enough !)
+            base = base[:settings.ZDS_APP['content']['maximum_slug_size']] - 5
+
         find_slug = False
         new_slug = base
 
@@ -278,7 +287,6 @@ class Container:
                 child.update_children()
             elif isinstance(child, Extract):
                 child.text = child.get_path(relative=True)
-        # TODO : does this function should also rewrite `slug_pool` ?
 
     def get_path(self, relative=False):
         """Get the physical path to the draft version of the container.
@@ -519,7 +527,7 @@ class Container:
         if do_commit:
             return self.top_container().commit_changes(commit_message)
 
-    def repo_add_container(self, title, introduction, conclusion, commit_message='', do_commit=True):
+    def repo_add_container(self, title, introduction, conclusion, commit_message='', do_commit=True, slug=None):
         """
         :param title: title of the new container
         :param introduction: text of its introduction
@@ -529,11 +537,13 @@ class Container:
         :return: commit sha
         :rtype: str
         """
-        subcontainer = Container(title)
-
+        if slug is None:
+            subcontainer = Container(title)
+        else:
+            subcontainer = Container(title, slug=slug)
         # can a subcontainer be added ?
         try:
-            self.add_container(subcontainer, generate_slug=True)
+            self.add_container(subcontainer, generate_slug=slug is None)
         except InvalidOperationError:
             raise PermissionDenied
 
@@ -552,20 +562,23 @@ class Container:
         return subcontainer.repo_update(
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit)
 
-    def repo_add_extract(self, title, text, commit_message='', do_commit=True):
+    def repo_add_extract(self, title, text, commit_message='', do_commit=True, slug=None):
         """
         :param title: title of the new extract
         :param text: text of the new extract
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: perform the commit in repository if ``True``
+        :param generate_slug: indicates that is must generate slug
         :return: commit sha
         :rtype: str
         """
-        extract = Extract(title)
-
+        if not slug:
+            extract = Extract(title)
+        else:
+            extract = Extract(title, slug)
         # can an extract be added ?
         try:
-            self.add_extract(extract, generate_slug=True)
+            self.add_extract(extract, generate_slug=slug is None)
         except InvalidOperationError:
             raise PermissionDenied
 
@@ -612,10 +625,10 @@ class Container:
         :raise IndexError: if the extract is already the first child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == 0:
-            raise IndexError(child_slug + " is the first element")
+            raise IndexError(_(child_slug + " est le premier élément."))
         self.children[child_pos], self.children[child_pos - 1] = self.children[child_pos - 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos + 1
         self.children[child_pos - 1].position_in_parent = child_pos
@@ -629,10 +642,10 @@ class Container:
         :raise IndexError: if the extract is already the last child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         if child_pos == len(self.children) - 1:
-            raise IndexError(child_slug + " is the last element")
+            raise IndexError(_(child_slug + " est le dernier élément."))
         self.children[child_pos], self.children[child_pos + 1] = self.children[child_pos + 1], self.children[child_pos]
         self.children[child_pos].position_in_parent = child_pos
         self.children[child_pos + 1].position_in_parent = child_pos + 1
@@ -646,9 +659,9 @@ class Container:
         :raise ValueError: if one slug does not refer to an existing child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         if refer_slug not in self.children_dict:
-            raise ValueError(refer_slug + " does not exist")
+            raise ValueError(_(refer_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         refer_pos = self.children.index(self.children_dict[refer_slug])
 
@@ -670,9 +683,9 @@ class Container:
         :raise ValueError: if one slug does not refer to an existing child
         """
         if child_slug not in self.children_dict:
-            raise ValueError(child_slug + " does not exist")
+            raise ValueError(_(child_slug + " n'existe pas."))
         if refer_slug not in self.children_dict:
-            raise ValueError(refer_slug + " does not exist")
+            raise ValueError(_(refer_slug + " n'existe pas."))
         child_pos = self.children.index(self.children_dict[child_slug])
         refer_pos = self.children.index(self.children_dict[refer_slug])
 
@@ -1056,9 +1069,9 @@ class VersionedContent(Container):
         :rtype: str
         """
         if self.is_article:
-            return _("L'Article")
+            return _(u"L'Article")
         else:
-            return _("Le Tutoriel")
+            return _(u"Le Tutoriel")
 
     def get_absolute_url(self, version=None):
         """
