@@ -129,6 +129,7 @@ class FeaturedResourceDeleteDetail(SingleObjectMixin, RedirectView):
     Deletes a featured resource.
     """
     queryset = FeaturedResource.objects.all()
+    permanent = False
 
     @method_decorator(login_required)
     @method_decorator(transaction.atomic)
@@ -149,6 +150,7 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
     """
     Deletes a list of featured resources.
     """
+    permanent = False
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
