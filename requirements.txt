@@ -6,7 +6,8 @@ python-social-auth==0.2.9
 # Explicit dependencies (references in code)
 django==1.8.0
 coverage==4.0.1
-django-crispy-forms==1.4.0
+# full compatibility with django 1.8 and 1.9
+django-crispy-forms==1.6.0
 django-haystack==2.4.1
 django-model-utils==2.4
 django-munin==0.2.1
