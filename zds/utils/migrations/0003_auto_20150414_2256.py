@@ -8,7 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0001_initial'),
+        ('utils', '0002_comment_update_index_date'),
     ]
 
     operations = [

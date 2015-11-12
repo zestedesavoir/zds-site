@@ -4,9 +4,8 @@ pygments==2.0.2
 python-social-auth==0.2.9
 
 # Explicit dependencies (references in code)
-django==1.8.0
+Django==1.8.9
 coverage==4.0.1
-# full compatibility with django 1.8 and 1.9
 django-crispy-forms==1.6.0
 django-haystack==2.4.1
 django-model-utils==2.4
@@ -29,8 +28,7 @@ djangorestframework-xml==1.0.1
 django-filter==0.12
 django-oauth-toolkit==0.10.0
 drf-extensions==0.2.8
-# TODO : django-rest-swagger
-https://github.com/marcgibbons/django-rest-swagger/archive/master.zip
+django-rest-swagger==0.3.4
 django-cors-middleware==1.2.0
 dry-rest-permissions==0.1.6
 
@@ -38,7 +36,3 @@ dry-rest-permissions==0.1.6
 django-uuslug==1.0.3
 python-slugify==1.1.4 # next versions of this library break previous behavior for slug generation from string with single quotes
 watchdog==0.8.3 # use last non-bc-breaking version
-
-# TODO : fix temp bug
-# should run this after install :
-# pip install --upgrade https://github.com/carljm/django-model-utils/archive/master.zip

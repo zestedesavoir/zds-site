@@ -13,7 +13,7 @@ from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZ
 from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
 from zds.member.models import TokenRegister
 from rest_framework_extensions.settings import extensions_api_settings
-from django.core.cache import caches
+from django.core.cache import caches, get_cache
 
 
 class MemberListAPITest(APITestCase):

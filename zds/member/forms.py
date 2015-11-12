@@ -356,7 +356,7 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
             attrs={
                 'placeholder': _(u'Ne mettez rien pour conserver l\'ancien')
             }
-        )
+        ),
     )
 
     email = forms.EmailField(
