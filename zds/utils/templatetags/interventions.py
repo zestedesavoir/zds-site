@@ -5,10 +5,8 @@ import time
 
 from django import template
 from django.db.models import F
-
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, TopicRead
 from zds.mp.models import PrivateTopic
-
 from zds.utils.models import Alert
 from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
 
@@ -153,8 +151,7 @@ def alerts_list(user):
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
-
-        elif alert.scope == Alert.CONTENT:
+        if alert.scope == Alert.CONTENT:
             note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
             total.append({'title': note.related_content.title,
                           'url': note.get_absolute_url(),

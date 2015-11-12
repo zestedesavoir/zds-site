@@ -3,8 +3,6 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
-from zds.article.models import Article, Validation as AValidation
-from zds.tutorial.models import Tutorial, Validation as TValidation
 from zds.forum.models import Forum, Topic, Category as FCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
     HelpWriting, Licence
@@ -24,10 +22,6 @@ class CommandsTestCase(TestCase):
         self.assertTrue(User.objects.count() > 0)
         self.assertTrue(Permission.objects.count() > 0)
         self.assertTrue(Profile.objects.count() > 0)
-        self.assertTrue(Article.objects.count() > 0)
-        self.assertTrue(AValidation.objects.count() > 0)
-        self.assertTrue(Tutorial.objects.count() > 0)
-        self.assertTrue(TValidation.objects.count() > 0)
         self.assertTrue(Forum.objects.count() > 0)
         self.assertTrue(Topic.objects.count() > 0)
         self.assertTrue(FCategory.objects.count() > 0)

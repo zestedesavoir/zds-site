@@ -30,7 +30,6 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
 
 from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
-from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
 from zds.forum.models import Topic, follow, TopicFollowed, TopicRead
@@ -42,7 +41,7 @@ from zds.utils.decorators import https_required
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.models_database import PublishedContent, PublishableContent
 
 
 class MemberList(ZdSPagingListView):
@@ -559,8 +558,8 @@ def articles(request):
     elif state == 'public':
         user_articles = profile.get_public_articles()
     else:
-        user_articles = Article.objects\
-            .filter(authors__pk__in=[request.user.pk])\
+        user_articles = PublishableContent.objects\
+            .filter(authors__pk__in=[request.user.pk], type="ARTICLE")\
             .prefetch_related("authors", "authors__profile")
 
     # Order articles (abc by default)

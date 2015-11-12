@@ -24,7 +24,6 @@ from zds.utils import slugify
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files import File
-from zds.tutorial.models import Tutorial
 import zipfile
 import shutil
 import os
@@ -190,20 +189,15 @@ def modify_gallery(request):
         for g_pk in list_items:
 
             # check if the gallery is not linked to a content
-            has_old_tuto = Tutorial.objects.filter(gallery__pk=g_pk).first()
             v2_content = PublishableContent.objects.filter(gallery__pk=g_pk).first()
             has_v2_content = v2_content is not None
-            if has_old_tuto or has_v2_content:
+            if has_v2_content:
                 gallery = Gallery.objects.get(pk=g_pk)
-                if has_old_tuto:
-                    error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée "
-                                      u"à un tutoriel existant.").format(gallery.title)
-                else:  # if v2 content is linked
-                    _type = _(u'au tutoriel')
-                    if v2_content.type == 'ARTICLE':
-                        _type = _(u'à l\'article')
-                    error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».")\
-                        .format(gallery.title, _type, v2_content.title)
+                _type = _(u'au tutoriel')
+                if v2_content.type == 'ARTICLE':
+                    _type = _(u'à l\'article')
+                error_message = _(u"La galerie « {} » ne peut pas être supprimée car elle est liée {} « {} ».")\
+                    .format(gallery.title, _type, v2_content.title)
                 messages.error(request, error_message)
             else:
                 free_galleries.append(g_pk)
