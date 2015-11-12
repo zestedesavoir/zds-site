@@ -248,7 +248,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
             - code: 401
               message: Not authenticated
             - code: 403
-              message: Insufficient rights to call this procedure. Must to be a staff user.
+              message: Insufficient rights to call this procedure. Must be a staff user.
             - code: 404
               message: Not found
         """
