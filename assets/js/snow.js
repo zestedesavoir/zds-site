@@ -4,14 +4,14 @@ var LetItSnow = function(element) {
     this._canvas = document.createElement("canvas");
     this.resize();
 
-    this._canvas.style.zIndex = 0;
+    this._canvas.style.zIndex = -1;
     this._canvas.style.position = "absolute";
     this._canvas.style.top = this._canvas.style.left = this._canvas.style.right = this._canvas.style.bottom = 0;
 
-    for(var i = 0; i < this._parent.children.length; i++) { // Set all the children on front of the canvas
-        this._parent.children[i].style.position = "relative";
-        this._parent.children[i].style.zIndex = this._parent.children[i].style.zIndex || 1;
-    }
+    this._canvas.style.background = window
+        .getComputedStyle(this._parent)
+        .getPropertyValue('background-color');
+    this._parent.style.background = "transparent";
 
     // Append the canvas...
     if(this._parent.children.length > 0) { // As first element if there is other children
