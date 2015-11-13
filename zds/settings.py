@@ -377,6 +377,14 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'conf/locale/'),
 )
 
+# best quality, 100 is the same but documentation says
+# " values up to 100 are allowed, but this is not recommended"
+# so let's use 95
+THUMBNAIL_QUALITY = 95
+# Let's use the default value BUT if we want to let png in lossless format, we have tu use (png,) instead of None
+THUMBNAIL_PRESERVE_EXTENSIONS = None
+
+
 ZDS_APP = {
     'site': {
         'name': u"ZesteDeSavoir",
