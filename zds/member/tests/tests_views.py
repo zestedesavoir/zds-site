@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.settings import BASE_DIR
-from zds.forum.models import TopicFollowed
+from zds.notification.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword

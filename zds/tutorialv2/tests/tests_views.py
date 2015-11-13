@@ -1,34 +1,34 @@
 # coding: utf-8
-from django.contrib.auth.models import Group
-
-import os
+import datetime
 import shutil
 import tempfile
 import zipfile
 
+import os
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import Group
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
-from django.contrib import messages
-import datetime
+from django.utils.encoding import smart_text
 
+from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.models import Topic, Post, TopicRead
+from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
-from zds.settings import BASE_DIR
+from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.mp.models import PrivateTopic
+from zds.notification.models import TopicFollowed
+from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content
-from zds.gallery.factories import UserGalleryFactory
-from zds.gallery.models import Image
-from zds.forum.factories import ForumFactory, CategoryFactory
-from zds.forum.models import Topic, Post, TopicFollowed, TopicRead
-from zds.mp.models import PrivateTopic
-from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
+from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.templatetags.interventions import interventions_topics
 
 try:
@@ -598,7 +598,7 @@ class ContentTests(TestCase):
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
-        self.assertTrue(beta_topic.is_followed(self.user_author))
+        self.assertTrue(TopicFollowed.objects.is_followed(beta_topic, self.user_author))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])

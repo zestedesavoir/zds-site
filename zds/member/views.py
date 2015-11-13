@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from datetime import datetime, timedelta
 import uuid
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -14,34 +14,34 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.utils.http import urlunquote
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.http import urlunquote
 from django.utils.translation import string_concat
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
+
+from zds.forum.models import Topic
+from zds.gallery.forms import ImageAsAvatarForm
+from zds.gallery.models import UserGallery
+from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
+    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
+from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
-
-from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
-from zds.gallery.forms import ImageAsAvatarForm
-from zds.gallery.models import UserGallery
-from zds.forum.models import Topic, follow, TopicFollowed, TopicRead
-from zds.member.decorator import can_write_and_read_now
-from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
-    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
+from zds.notification.models import TopicRead, TopicFollowed, follow
+from zds.tutorialv2.models.models_database import PublishedContent, PublishableContent
 from zds.utils.decorators import https_required
+from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
-from zds.tutorialv2.models.models_database import PublishedContent, PublishableContent
 
 
 class MemberList(ZdSPagingListView):

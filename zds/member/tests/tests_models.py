@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 from hashlib import md5
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.forum.models import TopicFollowed
+from zds.notification.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory

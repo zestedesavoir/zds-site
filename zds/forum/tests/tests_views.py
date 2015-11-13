@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
-from zds.forum.models import TopicFollowed, Topic, Post
+from zds.forum.models import Topic, Post
+from zds.notification.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 
 

@@ -1,21 +1,21 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from zds.settings import ZDS_APP
-from zds.utils import slugify
-from math import ceil
 import os
 import string
 import uuid
-
-from django.contrib.auth.models import Group, User
 from datetime import datetime, timedelta
+from math import ceil
+
+from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils.encoding import smart_text
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
+from zds.settings import ZDS_APP
 from zds.utils import get_current_user
+from zds.utils import slugify
 from zds.utils.models import Comment, Tag
 
 
@@ -277,12 +277,6 @@ class Topic(models.Model):
             self.tags.add(current_tag)
         self.save()
 
-    def get_followers_by_email(self):
-        """
-        :return: the set of users that follows this topic by email.
-        """
-        return TopicFollowed.objects.filter(topic=self, email=True).select_related("user")
-
     def last_read_post(self):
         """
         Returns the last post the current user has read in this topic.
@@ -376,32 +370,6 @@ class Topic(models.Model):
         except (TopicRead.DoesNotExist, Post.DoesNotExist):
             return self.first_post()
 
-    def is_followed(self, user=None):
-        """
-        Checks if the user follows this topic.
-        :param user: An user. If undefined, the current user is used.
-        :return: `True` if the user follows this topic, `False` otherwise.
-        """
-        if user is None:
-            user = get_current_user()
-
-        return TopicFollowed.objects.filter(topic=self, user=user).exists()
-
-    def is_email_followed(self, user=None):
-        """
-        Checks if the user follows this topic by email.
-        :param user: An user. If undefined, the current user is used.
-        :return: `True` if the user follows this topic by email, `False` otherwise.
-        """
-        if user is None:
-            user = get_current_user()
-
-        try:
-            TopicFollowed.objects.get(topic=self, user=user, email=True)
-        except TopicFollowed.DoesNotExist:
-            return False
-        return True
-
     def antispam(self, user=None):
         """
         Check if the user is allowed to post in a topic according to the `ZDS_APP['forum']['spam_limit_seconds']` value.
@@ -442,9 +410,6 @@ class Topic(models.Model):
                 return True
 
         return False
-
-    def never_read(self):
-        return never_read(self)
 
 
 class Post(Comment):
@@ -493,110 +458,6 @@ class TopicRead(models.Model):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
-
-
-class TopicFollowed(models.Model):
-    """
-    This model tracks which user follows which topic.
-    It serves only to manual topic following.
-    This model also indicates if the topic is followed by email.
-    """
-    class Meta:
-        verbose_name = 'Sujet suivi'
-        verbose_name_plural = 'Sujets suivis'
-
-    topic = models.ForeignKey(Topic, db_index=True)
-    user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
-    email = models.BooleanField('Notification par courriel', default=False, db_index=True)
-
-    def __unicode__(self):
-        return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
-                                                     self.user.username)
-
-
-def never_read(topic, user=None):
-    """
-    Check if the user has read the **last post** of the topic.
-    Note if the user has already read the topic but not the last post, it will consider it has never read the topic...
-    Technically this is done by check if there is a `TopicRead` for the topic, its last post and the user.
-    :param topic: A topic
-    :param user: A user. If undefined, the current user is used.
-    :return:
-    """
-    # TODO: cette méthode est très mal nommée en plus d'avoir un nom "booléen négatif" !
-    if user is None:
-        user = get_current_user()
-
-    return not TopicRead.objects\
-        .filter(post=topic.last_message, topic=topic, user=user).exists()
-
-
-def mark_read(topic, user=None):
-    """
-    Mark the last message of a topic as read for the current user.
-    :param topic: A topic.
-    """
-    if not user:
-        user = get_current_user()
-
-    if user and user.is_authenticated():
-        # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
-        current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
-        if current_topic_read is None:
-            current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)
-        else:
-            current_topic_read.post = topic.last_message
-        current_topic_read.save()
-
-
-def follow(topic, user=None):
-    """
-    Toggle following of a topic for an user.
-    :param topic: A topic.
-    :param user: A user. If undefined, the current user is used.
-    :return: `True` if the topic is now followed, `False` if is has been un-followed.
-    """
-    if user is None:
-        user = get_current_user()
-    try:
-        existing = TopicFollowed.objects.get(topic=topic, user=user)
-    except TopicFollowed.DoesNotExist:
-        existing = None
-
-    if not existing:
-        # Make the user follow the topic
-        topic_followed = TopicFollowed(topic=topic, user=user)
-        topic_followed.save()
-        return True
-
-    # If user is already following the topic, we make him don't anymore
-    existing.delete()
-    return False
-
-
-def follow_by_email(topic, user=None):
-    """
-    Toggle following by email of a topic for an user.
-    :param topic: A topic.
-    :param user: A user. If undefined, the current user is used.
-    :return: `True` if the topic is now followed, `False` if is has been un-followed.
-    """
-    if user is None:
-        user = get_current_user()
-    try:
-        existing = TopicFollowed.objects.get(topic=topic, user=user)
-    except TopicFollowed.DoesNotExist:
-        existing = None
-
-    if not existing:
-        # Make the user follow the topic
-        topic_followed = TopicFollowed(topic=topic, user=user, email=True)
-        topic_followed.save()
-        return True
-
-    existing.email = not existing.email
-    existing.save()
-    return existing.email
 
 
 def get_last_topics(user):

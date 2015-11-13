@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from django.core.exceptions import PermissionDenied
+
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.views.generic.detail import SingleObjectMixin
-from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post, TopicRead
 from django.utils.translation import ugettext as _
+from django.views.generic.detail import SingleObjectMixin
+
+from zds.forum.models import Forum, Post
+from zds.notification import signals
+from zds.notification.models import TopicRead, TopicFollowed, follow, follow_by_email
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, CommentLike, CommentDislike
 
@@ -138,9 +142,6 @@ class PostEditMixin(object):
         Marks a post unread so we create a notification between the user and the topic host of the post.
         But, if there is only one post in the topic, we mark the topic unread but we don't create a notification.
         """
-        if TopicFollowed.objects.filter(user=user, topic=post.topic).count() == 0:
-            TopicFollowed(user=user, topic=post.topic).save()
-
         topic_read = TopicRead.objects.filter(topic=post.topic, user=user).first()
         if topic_read is None and post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
@@ -153,6 +154,8 @@ class PostEditMixin(object):
                 topic_read.save()
             else:
                 topic_read.delete()
+
+        signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
 
     @staticmethod
     def perform_like_post(post, user):

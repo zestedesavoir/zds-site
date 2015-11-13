@@ -1,13 +1,14 @@
 # coding: utf-8
 import logging
-from datetime import datetime
 import json as json_reader
-import zipfile
+import os
+import re
 import shutil
 import tempfile
 import time
+import zipfile
+from datetime import datetime
 
-import re
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
@@ -21,16 +22,19 @@ from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView, RedirectView
 from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
-import os
+from uuslug import slugify
+
 from zds.forum.models import Forum
+from zds.forum.models import Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
+from zds.notification.models import mark_read, follow, TopicFollowed
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm
@@ -42,13 +46,11 @@ from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
-from uuslug import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.forum.models import Topic, follow, mark_read
+from zds.utils.models import Licence
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
-from zds.utils.models import Licence
 
 
 class RedirectOldBetaTuto(RedirectView):
@@ -1301,7 +1303,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         topic.save()
         # make all authors follow the topic:
         for author in self.object.authors.all():
-            if not topic.is_followed(author):
+            if not TopicFollowed.objects.is_followed(topic, author):
                 follow(topic, author)
             mark_read(topic, author)
 
@@ -1403,7 +1405,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     # make sure that all authors follow the topic:
                     for author in self.object.authors.all():
-                        if not topic.is_followed(author):
+                        if not TopicFollowed.objects.is_followed(topic, author):
                             follow(topic, author)
                             mark_read(topic, author)
 

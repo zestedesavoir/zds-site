@@ -1,19 +1,16 @@
 # coding: utf-8
 
 import json
-
 from datetime import datetime
-from django.core.mail import EmailMultiAlternatives
+
 from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render, render_to_response
-from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 
-from zds import settings
-from zds.forum.models import Topic, Post, follow, TopicRead
+from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
+from zds.notification import signals
 from zds.utils.mixins import QuoteMixin
 
 
@@ -114,40 +111,7 @@ def send_post(request, topic, author, text, send_by_mail=False,):
     topic.last_message = post
     topic.save()
 
-    # Send mail
-    if send_by_mail:
-        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'], _(u'Forum'), topic.title)
-        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                      settings.ZDS_APP['site']['email_noreply'])
-
-        followers = topic.get_followers_by_email()
-        for follower in followers:
-            receiver = follower.user
-            if receiver == post.author:
-                continue
-            last_read = TopicRead.objects.filter(
-                topic=topic,
-                post__position=post.position - 1,
-                user=receiver).count()
-            if last_read > 0:
-                context = {
-                    'username': receiver.username,
-                    'title': topic.title,
-                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                    'author': post.author.username,
-                    'site_name': settings.ZDS_APP['site']['litteral_name']
-                }
-                message_html = render_to_string('email/forum/new_post.html', context)
-                message_txt = render_to_string('email/forum/new_post.txt', context)
-
-                msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
-                msg.attach_alternative(message_html, "text/html")
-                msg.send()
-
-    # Follow topic on answering
-    if not topic.is_followed(user=post.author):
-        follow(topic)
-
+    signals.new_content.send(sender=post.__class__, instance=post, by_mail=send_by_mail)
     return topic
 
 

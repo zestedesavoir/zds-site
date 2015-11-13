@@ -1,23 +1,22 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.test import TestCase
-
-from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
-from zds.utils import slugify
-
 from datetime import datetime, timedelta
+
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
-from django.core import mail
-
-from zds.forum.models import Post, Topic, TopicFollowed, TopicRead
-from zds.utils.forums import get_tag_by_title
 from zds.forum.models import Forum
+from zds.forum.models import Post, Topic
+from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.notification.models import TopicRead, TopicFollowed
+from zds.utils import slugify
+from zds.utils.forums import get_tag_by_title
+from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
 
 
 class ForumMemberTests(TestCase):
