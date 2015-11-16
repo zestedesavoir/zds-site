@@ -5127,6 +5127,16 @@ class PublishedContentTests(TestCase):
         self.assertIn(old_title, result.content)
         self.assertNotIn(new_title, result.content)
 
+    def test_public_authors_versioned(self):
+        published = PublishedContentFactory(author_list=[self.user_author])
+        other_author = ProfileFactory()
+        published.authors.add(other_author.user)
+        published.save()
+        response = self.client.get(published.get_absolute_url_online())
+        self.assertIn(self.user_author.username, response.content)
+        self.assertNotIn(other_author.user.username, response.content)
+        self.assertEqual(0, len(other_author.get_public_contents()))
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

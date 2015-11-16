@@ -545,6 +545,8 @@ class PublishedContent(models.Model):
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
 
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
+
     objects = PublishedContentManager()
     versioned_model = None
 
