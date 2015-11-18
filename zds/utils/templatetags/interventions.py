@@ -25,6 +25,11 @@ def is_read(topic):
         return True
 
 
+@register.filter('is_followed')
+def is_followed(topic):
+    return TopicFollowed.objects.is_followed(topic)
+
+
 @register.filter('humane_delta')
 def humane_delta(value):
     """
