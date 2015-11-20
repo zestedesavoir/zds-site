@@ -63,13 +63,15 @@ python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
 
 Cela va créer plusieurs entitées :
 
-* 6 utilisateurs (utilisateur/mot de passe) :
+* 7 utilisateurs (utilisateur/mot de passe) :
 	* user/user : Utilisateur normal
 	* staff/staff : Utilisateur avec les droits d'un staff
 	* admin/admin : Utilisateur avec les droits d'un staff et d'un admin
 	* anonymous/anonymous : Utilisateur qui permet l'anonymisation des messages sur les forums
 	* Auteur externe/external : Utilisateur qui permet de récupérer les tutoriels d'anciens membres et/ou de publier des tutoriels externes.
 	* ïtrema/ïtrema : Utilisateur de test supplémentaire sans droit
+	* decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
+
 * 3 catégories
 * 11 forums
 * 3 sujets avec une réponse
