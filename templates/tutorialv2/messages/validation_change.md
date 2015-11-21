@@ -17,9 +17,4 @@ obsolète.
 Pour constater les dégâts, euh... les modifications apportées, 
 je t'invite à consulter [l'historique]({{ url_history }}).
 
-Enfin, sache que si tu comptes valider cette dernière version, il te faudra 
-réserver derechef le contenu, en te rendant sur 
-[la page des validations]({{ url_list }}).
-
 {%  endblocktrans %}
-

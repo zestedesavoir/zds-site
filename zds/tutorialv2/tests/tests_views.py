@@ -1991,27 +1991,14 @@ class ContentTests(TestCase):
 
         # ... Therefore, a new Validation object is created
         validation = Validation.objects.filter(content=tuto).last()
-        self.assertEqual(validation.status, 'PENDING')
-        self.assertEqual(validation.validator, None)
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
         self.assertEqual(validation.version, self.tuto_draft.current_version)
 
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).sha_validation,
                          self.tuto_draft.current_version)
 
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
-
-        # re-re-reserve (!)
-        result = self.client.post(
-            reverse('validation:reserve', kwargs={'pk': validation.pk}),
-            {
-                'version': validation.version
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-
-        validation = Validation.objects.filter(pk=validation.pk).last()
-        self.assertEqual(validation.status, 'PENDING_V')
-        self.assertEqual(validation.validator, self.user_staff)
 
         # ensure that author cannot publish himself
         self.assertEqual(
