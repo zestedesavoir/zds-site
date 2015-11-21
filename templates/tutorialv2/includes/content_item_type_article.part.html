@@ -3,11 +3,14 @@
 {% load date %}
 {% load i18n %}
 {% load set %}
-
+{% load displayable_authors %}
 {% if public_article %}
     {% set public_article.content as article %}
     {% set True as online %}
+{% else %}
+    {% set False as online %}
 {% endif %}
+
 
 {% captureas link %}
     {% if online %}
@@ -37,7 +40,7 @@
 
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
-    {% for author in article.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
+    {% for author in article|displayable_authors:online %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
 {% endcaptureas %}
 
 <article class="content-item article-item has-reactions">

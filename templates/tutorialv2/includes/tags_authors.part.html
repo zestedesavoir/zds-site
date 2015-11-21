@@ -38,7 +38,7 @@
 
 <div class="authors">
     <span class="authors-label">{% trans "Auteur" %}
-        {{ publishablecontent|displayable_authors:online|pluralize }}
+        {{ publishablecontent|displayable_authors:online|pluralize }} :
     </span>
     <ul>
         {% for member in publishablecontent|displayable_authors:online %}

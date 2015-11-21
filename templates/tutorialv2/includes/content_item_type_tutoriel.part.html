@@ -3,6 +3,7 @@
 {% load date %}
 {% load i18n %}
 {% load set %}
+{% load displayable_authors %}
 
 {% if public_tutorial %}
     {% set public_tutorial.content as tutorial %}
@@ -37,7 +38,7 @@
 
 {# Authors (by X, Y and Z) ; can't have multiple whitespaces because of the title ! #}
 {% captureas authors_text %}
-    {% for author in tutorial.authors.all %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
+    {% for author in tutorial|displayable_authors:online %}{% if forloop.first %}{% trans "par" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} {% if author == user %}{% trans "vous" %}{% else %}{{ author.username }}{% endif %}{% endfor %}
 {% endcaptureas %}
 
 {# Categories (in X, Y and Z) #}
