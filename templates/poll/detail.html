@@ -1,0 +1,35 @@
+{% extends "poll/base.html" %}
+{% load crispy_forms_tags %}
+{% load profile %}
+{% load captureas %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {{ poll.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ poll.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ poll.title }}
+{% endblock %}
+
+
+
+{% block content %}
+    {{ poll.title }}
+
+    <ul>
+    {% for choice in poll.choices.all %}
+        <li>{{ choice }}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

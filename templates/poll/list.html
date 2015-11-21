@@ -1,0 +1,27 @@
+{% extends "poll/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+   {% trans "Liste des sondages" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Liste des sondages" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+   {% trans "Liste des sondages" %}
+{% endblock %}
+
+{% block content %}
+    <ul>
+    {% for poll in polls %}
+        <li><a href="{{ poll.get_absolute_url }}">{{ poll.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "poll/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Nouveau sondage" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Nouveau sondage" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Nouveau sondage" %}
+{% endblock %}
+
+
+
+{% block content %}
+
+    <form class="clearix" method="post" action="{% url 'poll-new' %}">
+        {% csrf_token %}
+        {% crispy form %}
+        {{ formset.management_form }}
+        {% crispy formset helper %}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Nouveau Sondage</button>
+        </div>
+    </form>
+
+{% endblock %}
