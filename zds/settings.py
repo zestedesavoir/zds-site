@@ -525,7 +525,10 @@ ZDS_APP = {
     'paginator': {
         'folding_limit': 4
     },
-    'visual_changes': []
+    'visual_changes': [],
+    'poll': {
+        'poll_per_page': 10
+    }
 }
 
 LOGIN_REDIRECT_URL = "/"

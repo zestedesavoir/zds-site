@@ -1,9 +1,10 @@
 {% extends "poll/base.html" %}
 {% load i18n %}
+{% load date %}
 
 
 {% block title %}
-   {% trans "Liste des sondages" %}
+    {% trans "Liste des sondages" %}
 {% endblock %}
 
 
@@ -15,13 +16,38 @@
 
 
 {% block headline %}
-   {% trans "Liste des sondages" %}
+    <h2>{% trans "Liste des sondages" %}</h2>
 {% endblock %}
 
 {% block content %}
-    <ul>
-    {% for poll in polls %}
-        <li><a href="{{ poll.get_absolute_url }}">{{ poll.title }}</a></li>
-    {% endfor %}
-    </ul>
+    {% include "misc/pagination.part.html" with position="top" %}
+    {% if polls %}
+        <meta itemprop="itemListOrder" content="Unordered">
+        {% for poll in polls %}
+            <article class="tutorial-help-item">
+                <div class="tutorial-infos no-illu">
+                    <h3 class="tutorial-title" itemprop="itemListElement" title="{{ poll.title }}">
+                        <a href="{{ poll.get_absolute_url }}">{{ poll.title }}</a>
+                    </h3>
+
+                    <p class="tutorial-authors">
+                        {% trans "Crée le " %}
+                        <time class="content-pubdate" pubdate="{{ poll.pubdate|date:"c" }}">
+                            {{ poll.pubdate|format_date|capfirst }}
+                        </time>
+                        {% trans "par" %}
+                        <strong>
+                            <a href="{{ poll.user.get_absolute_url }}" title="{% trans "Profil de" %} {{ poll.user.username }}">
+                                {{poll.user.username}}
+                            </a>
+                        </strong>
+                    </p>
+                </div>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>Aucun sondage.</p>
+    {% endif %}
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
 {% endblock %}
