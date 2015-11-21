@@ -3,14 +3,13 @@
 {% load times %}
 {% load target_tree %}
 
-{% if child.has_sub_containers %}
+{% if child.has_sub_containers or child.level == 2 %}
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
     <a href="{{ child.get_absolute_url_online }}">
         {{ child.title }}
     </a>
 </h2>
-
 {% else %}
     <li>
         <h3>
