@@ -4,6 +4,14 @@ var gulp = require("gulp"),
     path = require("path"),
     del = require("del");
 
+var autoprefixer = require("autoprefixer"),
+    cssnano = require("cssnano");
+
+var postcssProcessors = [
+  require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
+  require("cssnano")()
+];
+
 var sourceDir = "assets",
     destDir = "dist",
     errorsDir = "errors",
@@ -15,26 +23,25 @@ var sourceDir = "assets",
     stylesFiles = ["main.scss"],
     vendorsCSS = ["node_modules/normalize.css/normalize.css"],
     vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
-    autoprefixerConfig = ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"],
     imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
 
 /**
  * Cleans up the workspace, deletes the build
  */
-gulp.task("clean", function(cb) {
-  del([
+gulp.task("clean", function() {
+  return del([
     destDir,
     path.join(sourceDir, "{" + scriptsDir + "," + sassDir + "}", vendorsDir),
     path.join(sourceDir, "bower_components/"),
     path.join(sourceDir, sassDir, "_sprite.scss")
-   ], cb);
+   ]);
 });
 
 /**
  * Clean error-pages files
  */
-gulp.task("clean-errors", function(cb) {
-  del(["errors/css/*"], cb);
+gulp.task("clean-errors", function() {
+  return del(["errors/css/*"]);
 });
 
 /**
@@ -59,15 +66,14 @@ gulp.task("vendors-js", function() {
  */
 gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
   return gulp.src(path.join(sourceDir, scriptsDir, vendorsDir, "*.js"))
-    .pipe($.concat("vendors.js"))
+    .pipe($.sourcemaps.init())
+      .pipe($.concat("vendors.js"))
+      .pipe($.uglify().on('error', $.notify.onError({
+        title: "Javascript error",
+        message: "<%= error.message %>"
+      })))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", vendorsDir) }))
     .pipe($.size({ title: "Scripts (vendors)" }))
-    .pipe(gulp.dest(path.join(destDir, scriptsDir)))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.size({ title: "Scripts (vendors, minified)" }))
-    .pipe($.uglify().on('error', $.notify.onError({
-      title: "Javascript error",
-      message: "<%= error.message %>"
-    })))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
 
@@ -78,19 +84,18 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
   var files = stylesFiles.map(function(filename) {
     return path.join(sourceDir, sassDir, filename);
   });
+
   return gulp.src(files)
-    .pipe($.sass())
-    .on("error", $.notify.onError({
-      title: "SASS Error",
-      message: "<%= error.message %>"
-    }))
+    .pipe($.sourcemaps.init())
+      .pipe($.sass({ sourceMapContents: true }))
+      .on("error", $.notify.onError({
+        title: "SASS Error",
+        message: "<%= error.message %>"
+      }))
+      .pipe($.postcss(postcssProcessors))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, sassDir) }))
     .on("error", function() { this.emit("end"); })
-    .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
     .pipe($.size({ title: "Stylesheet" }))
-    .pipe(gulp.dest(path.join(destDir, "css/")))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.minifyCss())
-    .pipe($.size({ title: "Stylesheet (minified)" }))
     .pipe(gulp.dest(path.join(destDir, "css/")));
 });
 
@@ -99,13 +104,12 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
  */
 gulp.task("errors", ["clean-errors"], function() {
   return gulp.src(path.join(errorsDir, sassDir, "main.scss"))
-    .pipe($.sass({
-      includePaths: [path.join(sourceDir, sassDir)]
-    }))
-    .pipe($.autoprefixer(autoprefixerConfig, { cascade: true }))
-    .pipe(gulp.dest(path.join(errorsDir, "css/")))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.minifyCss())
+    .pipe($.sourcemaps.init())
+      .pipe($.sass({
+        includePaths: [path.join(sourceDir, sassDir)]
+      }))
+      .pipe($.postcss(postcssProcessors))
+    .pipe($.sourcemaps.write(".", { includeContent: true }))
     .pipe(gulp.dest(path.join(errorsDir, "css/")));
 });
 
@@ -141,15 +145,14 @@ gulp.task("images",  ["stylesheet"], function() {
  */
 gulp.task("scripts", function() {
   return gulp.src(path.join(sourceDir, scriptsDir, "*.js"))
-    .pipe($.concat("main.js", { newLine: "\r\n\r\n" }))
+    .pipe($.sourcemaps.init())
+      .pipe($.concat("main.js", { newLine: "\r\n\r\n" }))
+      .pipe($.uglify().on('error', $.notify.onError({
+        title: "Javascript error",
+        message: "<%= error.message %>"
+      })))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))
     .pipe($.size({ title: "Scripts" }))
-    .pipe(gulp.dest(path.join(destDir, scriptsDir)))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.uglify().on('error', $.notify.onError({
-      title: "Javascript error",
-      message: "<%= error.message %>"
-    })))
-    .pipe($.size({ title: "Scripts (minified)" }))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
 
@@ -167,15 +170,10 @@ gulp.task("jshint", function() {
  */
 gulp.task("merge-scripts", ["vendors", "scripts"], function() {
   return gulp.src(path.join(destDir, scriptsDir, "{vendors,main}.js"))
-    .pipe($.concat("all.js"))
+    .pipe($.sourcemaps.init({ loadMaps: true }))
+      .pipe($.concat("all.js"))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))
     .pipe($.size({ title: "Scripts (all)" }))
-    .pipe(gulp.dest(path.join(destDir, scriptsDir)))
-    .pipe($.rename({ suffix: ".min" }))
-    .pipe($.uglify().on('error', $.notify.onError({
-      title: "Javascript error",
-      message: "<%= error.message %>"
-    })))
-    .pipe($.size({ title: "Scripts (all, minified)" }))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
 
