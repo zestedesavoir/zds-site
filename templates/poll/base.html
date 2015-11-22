@@ -16,7 +16,7 @@
         <a href="{% url "poll-new" %}" class="new-btn ico-after more blue">
             {% trans "Créer un sondage" %}
         </a>
-
+        {% block sidebar_actions %}{% endblock %}
         {% block new_btn %}{% endblock %}
     </aside>
 {% endblock %}

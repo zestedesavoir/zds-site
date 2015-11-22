@@ -1,20 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from crispy_forms.bootstrap import StrictButton
 
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, RadioSelect
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Layout, Field, ButtonHolder
 
-from zds.poll.models import Poll, Choice
+from zds.poll.models import Poll, Choice, UniqueVote, MultipleVote
 
 
 class PollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ['title', 'anonymous_vote', 'enddate']
+        fields = ['title', 'anonymous_vote', 'unique_vote', 'enddate']
 
     def __init__(self, *args, **kwargs):
         super(PollForm, self).__init__(*args, **kwargs)
@@ -67,6 +68,7 @@ class ChoiceFormSetHelper(FormHelper):
         self.render_required_fields = False
         self.form_tag = False
 
+
 PollInlineFormSet = inlineformset_factory(Poll,
     Choice,
     form=ChoiceForm,
@@ -74,3 +76,41 @@ PollInlineFormSet = inlineformset_factory(Poll,
     can_delete=False,
     can_order=False
 )
+
+
+class VoteForm(forms.ModelForm):
+
+    def __init__(self, poll=None, *args, **kwargs):
+        super(VoteForm, self).__init__(*args, **kwargs)
+        self.fields['choice'].queryset = Choice.objects.filter(poll=poll)
+
+        self.helper = FormHelper()
+
+        self.helper.layout = Layout(
+            'choice',
+            ButtonHolder(
+                StrictButton('Voter', type='submit'),
+            ),
+        )
+
+
+class UniqueVoteForm(VoteForm):
+
+    class Meta:
+        model = UniqueVote
+        fields = ('choice',)
+        widgets = {
+            'choice': RadioSelect
+        }
+
+
+class MultipleVoteForm(VoteForm):
+    # TODO pas fonctionnel, à finir
+    class Meta:
+        model = MultipleVote
+        fields = ('choice',)
+
+    choice = forms.ModelMultipleChoiceField(
+        queryset=Choice.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )

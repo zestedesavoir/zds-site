@@ -25,6 +25,10 @@
 
 
 {% block content %}
-    {{ poll.title }}
-    supprimer !!
+    <form action="" class="clearfix" method="post">{% csrf_token %}
+        <p>Are you sure you want to delete "{{ poll }}"?</p>
+        <div class="buttonHolder"><button  type="submit" class="btn">Supprimer</button>
+            <a href="{% url "poll-details" poll.pk %}" class="btn">Annuler</a>
+        </div>
+    </form>
 {% endblock %}

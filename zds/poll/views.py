@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect, get_object_or_404
 from django.views.generic import CreateView, DeleteView
-from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from zds import settings
 
-from zds.poll.forms import PollForm, ChoiceForm, PollInlineFormSet, ChoiceFormSetHelper
-from zds.poll.models import Poll, Choice
+from zds import settings
+from zds.poll.forms import PollForm, PollInlineFormSet, ChoiceFormSetHelper, UniqueVoteForm, MultipleVoteForm
+from zds.poll.models import Poll
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
 
@@ -54,8 +54,37 @@ class DetailsPoll(DetailView):
     template_name = 'poll/detail.html'
     context_object_name = 'poll'
 
+    def get_context_data(self, **kwargs):
+        context = super(DetailsPoll, self).get_context_data(**kwargs)
+        poll = context['poll']
+        if poll.unique_vote:
+            context['form'] = UniqueVoteForm(poll)
+        else:
+            context['form'] = MultipleVoteForm(poll)
+        return context
+
+    def post(self, request, pk):
+        poll = get_object_or_404(Poll, pk=pk)
+
+        if poll.unique_vote:
+            form = UniqueVoteForm(poll, request.POST)
+            if form.is_valid():
+                vote = form.save(commit=False)
+                vote.poll = poll
+                vote.user = self.request.user
+                vote.save()
+                return redirect('poll-list')
+        else:
+            form = MultipleVoteForm(poll, request.POST)
+            # TODO validation formulaire et save
+
+        return redirect('poll-list')
+
 
 class DeletePoll(DeleteView):
     model = Poll
     template_name = 'poll/delete.html'
     context_object_name = 'poll'
+
+    def get_success_url(self):
+        return reverse('poll-list')

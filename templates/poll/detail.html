@@ -32,4 +32,19 @@
         <li>{{ choice }}</li>
     {% endfor %}
     </ul>
+
+    {% crispy form %}
+{% endblock %}
+
+{% block sidebar_actions %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+            <h3>{% trans "Actions" %}</h3>
+            <ul>
+                <li>
+                    <a href="{% url 'poll-delete' poll.pk %}" class="ico-after cross red">
+                        {% trans "Supprimer le sondage" %}
+                    </a>
+                </li>
+            </ul>
+        </div>
 {% endblock %}

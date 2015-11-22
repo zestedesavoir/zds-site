@@ -31,16 +31,16 @@
                     </h3>
 
                     <p class="tutorial-authors">
-                        {% trans "Crée le " %}
-                        <time class="content-pubdate" pubdate="{{ poll.pubdate|date:"c" }}">
-                            {{ poll.pubdate|format_date|capfirst }}
-                        </time>
-                        {% trans "par" %}
+                        {% trans "Par" %}
                         <strong>
                             <a href="{{ poll.user.get_absolute_url }}" title="{% trans "Profil de" %} {{ poll.user.username }}">
                                 {{poll.user.username}}
                             </a>
                         </strong>
+                         -
+                        <time class="content-pubdate" pubdate="{{ poll.pubdate|date:"c" }}">
+                            {{ poll.pubdate|format_date|capfirst }}
+                        </time>
                     </p>
                 </div>
             </article>

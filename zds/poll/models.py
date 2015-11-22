@@ -13,15 +13,17 @@ class Poll(models.Model):
     class Meta:
         verbose_name = 'Poll'
         verbose_name_plural = 'Polls'
-        ordering = ['pubdate']
+        ordering = ['-pubdate']
 
     title = models.CharField('Titre', max_length=80)
     slug = models.SlugField(max_length=80)
     user = models.ForeignKey(User, verbose_name=_(u'Membre'), db_index=True)
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
-    enddate = models.DateTimeField('Date de fin', null=True, blank=True)
+    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
+    enddate = models.DateTimeField(_(u'Date de fin'), null=True, blank=True)
+
     open = models.BooleanField(default=False)
-    anonymous_vote = models.BooleanField('Vote anonyme', default=True)
+    anonymous_vote = models.BooleanField(_(u'Vote anonyme'), default=True)
+    unique_vote = models.BooleanField(_(u'Choix unique'), default=True)
 
     def __unicode__(self):
         """Human-readable representation of the Poll model.
@@ -42,7 +44,7 @@ class Poll(models.Model):
 
 class Choice(models.Model):
 
-    class Mete:
+    class Meta:
         verbose_name = 'Choice'
         verbose_name_plural = 'Choices'
 
@@ -56,3 +58,26 @@ class Choice(models.Model):
         :rtype: unicode
         """
         return self.choice
+
+
+class Vote(models.Model):
+
+    class Meta:
+        verbose_name = 'Vote'
+        verbose_name_plural = 'Votes'
+        unique_together = ('user', 'choice')
+        abstract = True
+
+    poll = models.ForeignKey(Poll)
+    choice = models.ForeignKey(Choice, blank=False)
+    user = models.ForeignKey(User)
+
+
+class UniqueVote(Vote):
+
+    class Meta:
+        unique_together = (('user', 'choice'), ('user', 'poll'))
+
+
+class MultipleVote(Vote):
+    pass
