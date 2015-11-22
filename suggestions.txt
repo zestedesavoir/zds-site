@@ -3,7 +3,6 @@ Algorithmique
 Android
 Arduino
 Astronomie
-Astronomie
 C
 C#
 C++
@@ -34,6 +33,5 @@ Python
 Ruby
 Symfony
 UDK
-Windows
 Windows
 Word
