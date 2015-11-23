@@ -9,9 +9,9 @@ from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext_lazy as _
+from zds.notification import signals
 
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
-from zds.tutorialv2.utils import mark_read
 from zds.forum.models import Topic
 
 
@@ -370,7 +370,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
         self.current_content_type = obj.content_type
         if obj and obj.content.last_note:
-            mark_read(obj.content)
+            signals.content_read.send(sender=obj.content.__class__, instance=obj.content, user=self.request.user)
         return obj
 
     def get_object(self):

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.mail import EmailMultiAlternatives
+from django.db.models.signals import post_save
 from django.dispatch import Signal, receiver
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
@@ -9,6 +10,9 @@ from zds.forum.models import Topic, Post, TopicRead
 from zds.notification.models import TopicFollowed, follow
 
 # is sent whenever an answer is set as unread
+from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
+from zds.tutorialv2.utils import mark_read
+
 answer_unread = Signal(providing_args=["instance", "user"])
 
 # is sent when a content is read (topic, article or tutorial)
@@ -53,6 +57,21 @@ def mark_topic_notifications_read(sender, **kwargs):
     # introduction of new models, we'll use NewTopicSubscriptions and
     # TopicAnswerSubscription to mark an existing notification as read.
     pass
+
+
+@receiver(content_read, sender=PublishableContent)
+def mark_content_reactions_read(sender, **kwargs):
+    """
+    :param kwargs:  contains
+        - instance : the content marked as read
+        - user : the user reading the content
+    Marks as read the notifications of the AnswerSubscription of the user to the content (tutorial or article)/
+    (This documentation will be okay with the v2 of ZEP-24)
+    """
+
+    content = kwargs.get('instance')
+    user = kwargs.get('user')
+    mark_read(content, user)
 
 
 # When we'll have new models, new_content will be post_save.
@@ -105,3 +124,18 @@ def answer_topic_event(sender, **kwargs):
     # Follow topic on answering
     if not TopicFollowed.objects.is_followed(topic, user=author):
         follow(topic)
+
+
+@receiver(post_save, sender=ContentReaction)
+def answer_content_event(sender, **kwargs):
+    """
+    :param kwargs:  contains
+        - instance : the new reaction
+        Sends ArticleAnswerSubscription to the subscribers to the article
+        and subscribe the author to the following answers to the article
+        (This documentation will be okay with the v2 of ZEP-24)
+    """
+    if kwargs.get('created', True):
+        reaction = kwargs.get('instance')
+        content = reaction.related_content
+        mark_read(content, reaction.author)

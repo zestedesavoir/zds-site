@@ -16,11 +16,12 @@ from django.views.generic import RedirectView, FormView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
+from zds.notification import signals
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import search_container_or_404, mark_read, last_participation_is_old
+from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old
 from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
@@ -134,7 +135,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
-            mark_read(self.object)
+            signals.content_read.send(sender=self.object.__class__, instance=self.object, user=self.request.user)
 
         return context
 
@@ -454,7 +455,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if is_new:  # we first need to save the reaction
             self.object.last_note = self.reaction
             self.object.save()
-            mark_read(self.object)
 
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
