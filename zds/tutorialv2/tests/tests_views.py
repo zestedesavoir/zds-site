@@ -5086,6 +5086,47 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.context['previous_article'].pk, article1.public_version.pk)
         self.assertIsNone(result.context['next_article'])
 
+    def test_validation_list_has_good_title(self):
+        # aka fix 3172
+        tuto = PublishableContentFactory(author_list=[self.user_author], type="TUTORIAL")
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('validation:ask', args=[tuto.pk, tuto.slug]),
+            {
+                'text': "something good",
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        old_title = tuto.title
+        new_title = "a brand new title"
+        self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': new_title,
+                'description': tuto.description,
+                'introduction': "a",
+                'conclusion': "b",
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.sha_draft,
+            },
+            follow=False)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertIn(old_title, result.content)
+        self.assertNotIn(new_title, result.content)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

@@ -69,7 +69,7 @@
                             <tr>
                                 <td>
                                     <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}">
-                                        {{ validation.content.title }}
+                                        {{ validation.versioned_content.title }}
                                     </a>
                                     <br>
                                     {% if validation.content.subcategory.all %}

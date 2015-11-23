@@ -38,6 +38,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             .prefetch_related("validator")\
             .prefetch_related("content")\
             .prefetch_related("content__authors")\
+            .prefetch_related("content__subcategory")\
             .filter(Q(status="PENDING") | Q(status="PENDING_V"))
 
         # filtering by type
@@ -76,6 +77,9 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ValidationListView, self).get_context_data(**kwargs)
+        for validation in context["validations"]:
+            validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
+
         context['category'] = self.subcategory
         return context
 
