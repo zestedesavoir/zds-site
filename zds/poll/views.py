@@ -9,6 +9,7 @@ from django.views.generic.detail import DetailView
 from zds import settings
 from zds.poll.forms import PollForm, PollInlineFormSet, ChoiceFormSetHelper, UniqueVoteForm, MultipleVoteForm
 from zds.poll.models import Poll
+from zds.member.decorator import LoginRequiredMixin
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
 
@@ -20,7 +21,7 @@ class ListPoll(ZdSPagingListView):
     paginate_by = settings.ZDS_APP['poll']['poll_per_page']
 
 
-class NewPoll(CreateView):
+class NewPoll(LoginRequiredMixin, CreateView):
     model = Poll
     template_name = 'poll/new.html'
     form_class = PollForm
