@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from crispy_forms.bootstrap import StrictButton
 
 from django import forms
-from django.forms import inlineformset_factory, RadioSelect
 
+from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder
 
@@ -16,6 +15,9 @@ class PollForm(forms.ModelForm):
     class Meta:
         model = Poll
         fields = ['title', 'anonymous_vote', 'unique_vote', 'enddate']
+        widgets = {
+            'title': forms.TextInput(attrs={'required': 'required'})
+        }
 
     def __init__(self, *args, **kwargs):
         super(PollForm, self).__init__(*args, **kwargs)
@@ -24,6 +26,9 @@ class PollForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Field('title'),
+            Field('anonymous_vote'),
+            Field('unique_vote'),
+            Field('enddate')
         )
 
     def clean(self):
@@ -69,12 +74,14 @@ class ChoiceFormSetHelper(FormHelper):
         self.form_tag = False
 
 
-PollInlineFormSet = inlineformset_factory(Poll,
+PollInlineFormSet = forms.inlineformset_factory(
+    Poll,
     Choice,
     form=ChoiceForm,
     extra=3,
     can_delete=False,
-    can_order=False
+    can_order=False,
+    min_num=2
 )
 
 
@@ -100,7 +107,7 @@ class UniqueVoteForm(VoteForm):
         model = UniqueVote
         fields = ('choice',)
         widgets = {
-            'choice': RadioSelect
+            'choice': forms.RadioSelect
         }
 
 
