@@ -5,10 +5,10 @@ import time
 
 from django import template
 from django.db.models import F
+from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import TopicFollowed, never_read as never_read_topic, Post, TopicRead
 from zds.mp.models import PrivateTopic
-
 from zds.utils.models import Alert
 from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
 
@@ -25,8 +25,19 @@ def is_read(topic):
 
 @register.filter('humane_delta')
 def humane_delta(value):
-    # mapping between label day and key
-    const = {1: "Aujourd'hui", 2: "Hier", 3: "Cette semaine", 4: "Ce mois-ci", 5: "Cette année"}
+    """
+    Mapping between label day and key
+
+    :param int value:
+    :return: string
+    """
+    const = {
+        1: _("Aujourd'hui"),
+        2: _("Hier"),
+        3: _("Les 7 derniers jours"),
+        4: _("Les 30 derniers jours"),
+        5: _("Plus ancien")
+    }
 
     return const[value]
 
