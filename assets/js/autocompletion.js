@@ -193,7 +193,7 @@
 
         getFromCache: function(id) {
             for (var i in this.cache) {
-                if (parseInt(this.cache[i].pk) === parseInt(id))
+                if (parseInt(this.cache[i].id) === parseInt(id))
                     return this.cache[i];
             }
             return false;
@@ -225,8 +225,8 @@
                 if ($("#my-account .username").text() === list[i].username)
                     continue;
                 $el = $("<li>").text(list[i].username);
-                $el.attr("data-autocomplete-id", list[i].pk);
-                if (list[i].pk === this.selected) {
+                $el.attr("data-autocomplete-id", list[i].id);
+                if (list[i].id === this.selected) {
                     $el.addClass("active");
                     selected = true;
                 }
