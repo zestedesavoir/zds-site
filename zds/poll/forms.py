@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from django import forms
+from django.forms.extras.widgets import SelectDateWidget
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
@@ -16,7 +17,8 @@ class PollForm(forms.ModelForm):
         model = Poll
         fields = ['title', 'anonymous_vote', 'unique_vote', 'enddate']
         widgets = {
-            'title': forms.TextInput(attrs={'required': 'required'})
+            'title': forms.TextInput(attrs={'required': 'required'}),
+            'enddate': SelectDateWidget()
         }
 
     def __init__(self, *args, **kwargs):
