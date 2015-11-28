@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 
@@ -43,6 +45,14 @@ class PollForm(forms.ModelForm):
                 ['Le champ titre ne peut être vide'])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
+
+        enddate = cleaned_data.get('enddate')
+
+        if enddate < datetime.datetime.today():
+            self._errors['enddate'] = self.error_class(
+                ['La date ne peut pas être antérieure à aujourd\'hui'])
+            if 'enddate' in cleaned_data:
+                del cleaned_data['enddate']
 
         return cleaned_data
 
