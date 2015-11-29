@@ -98,10 +98,18 @@ PollInlineFormSet = forms.inlineformset_factory(
 )
 
 
-class VoteForm(forms.ModelForm):
+class UniqueVoteForm(forms.ModelForm):
+
+    class Meta:
+        model = UniqueVote
+        fields = ('choice',)
+        widgets = {
+            'choice': forms.RadioSelect()
+        }
 
     def __init__(self, poll=None, *args, **kwargs):
-        super(VoteForm, self).__init__(*args, **kwargs)
+        super(UniqueVoteForm, self).__init__(*args, **kwargs)
+        self.fields['choice'].empty_label = None
         self.fields['choice'].queryset = Choice.objects.filter(poll=poll)
 
         self.helper = FormHelper()
@@ -114,23 +122,27 @@ class VoteForm(forms.ModelForm):
         )
 
 
-class UniqueVoteForm(VoteForm):
+class MultipleVoteForm(forms.Form):
 
-    class Meta:
-        model = UniqueVote
-        fields = ('choice',)
-        widgets = {
-            'choice': forms.RadioSelect
-        }
+    choices = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple(),
+        queryset=None,
+        required=True
+    )
 
-
-class MultipleVoteForm(VoteForm):
-    # TODO pas fonctionnel, à finir
     class Meta:
         model = MultipleVote
-        fields = ('choice',)
+        fields = ('choices',)
 
-    choice = forms.ModelMultipleChoiceField(
-        queryset=Choice.objects.all(),
-        widget=forms.CheckboxSelectMultiple()
-    )
+    def __init__(self, poll=None, *args, **kwargs):
+        super(MultipleVoteForm, self).__init__(*args, **kwargs)
+        self.fields['choices'].empty_label = None
+        self.fields['choices'].queryset = Choice.objects.filter(poll=poll)
+        self.helper = FormHelper()
+
+        self.helper.layout = Layout(
+            'choices',
+            ButtonHolder(
+                StrictButton('Voter', type='submit'),
+            ),
+        )

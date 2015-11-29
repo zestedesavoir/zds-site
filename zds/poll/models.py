@@ -59,6 +59,13 @@ class Choice(models.Model):
         """
         return self.choice
 
+    def get_votes(self):
+        if self.poll.unique_vote:
+            count = UniqueVote.objects.filter(choice=self, poll=self.poll).count()
+        else:
+            count = MultipleVote.objects.filter(choice=self, poll=self.poll).count()
+        return count
+
 
 class Vote(models.Model):
 
@@ -76,8 +83,13 @@ class Vote(models.Model):
 class UniqueVote(Vote):
 
     class Meta:
+        verbose_name = 'Unique Vote'
+        verbose_name_plural = 'Unique Votes'
         unique_together = (('user', 'choice'), ('user', 'poll'))
 
 
 class MultipleVote(Vote):
-    pass
+
+    class Meta:
+        verbose_name = 'Multiple Vote'
+        verbose_name_plural = 'Multiple Votes'

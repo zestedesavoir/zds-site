@@ -8,7 +8,7 @@ from django.views.generic.detail import DetailView
 
 from zds import settings
 from zds.poll.forms import PollForm, PollInlineFormSet, ChoiceFormSetHelper, UniqueVoteForm, MultipleVoteForm
-from zds.poll.models import Poll
+from zds.poll.models import Poll, MultipleVote
 from zds.member.decorator import LoginRequiredMixin
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
@@ -72,14 +72,20 @@ class DetailsPoll(DetailView):
             if form.is_valid():
                 vote = form.save(commit=False)
                 vote.poll = poll
-                vote.user = self.request.user
+                vote.user = request.user
                 vote.save()
-                return redirect('poll-list')
         else:
             form = MultipleVoteForm(poll, request.POST)
-            # TODO validation formulaire et save
+            if form.is_valid():
+                for choice in form.cleaned_data['choices']:
+                    vote = MultipleVote(
+                        poll=poll,
+                        user=request.user,
+                        choice=choice
+                    )
+                    vote.save()
 
-        return redirect('poll-list')
+        return redirect('poll-details', pk=poll.pk)
 
 
 class DeletePoll(DeleteView):
