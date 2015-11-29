@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DeleteView
 from django.views.generic.detail import DetailView
 
@@ -64,6 +66,7 @@ class DetailsPoll(DetailView):
             context['form'] = MultipleVoteForm(poll)
         return context
 
+    @method_decorator(login_required)
     def post(self, request, pk):
         poll = get_object_or_404(Poll, pk=pk)
 
