@@ -48,7 +48,7 @@ class PollForm(forms.ModelForm):
 
         enddate = cleaned_data.get('enddate')
 
-        if enddate < datetime.datetime.today():
+        if enddate is not None and enddate < datetime.datetime.today():
             self._errors['enddate'] = self.error_class(
                 ['La date ne peut pas être antérieure à aujourd\'hui'])
             if 'enddate' in cleaned_data:
@@ -90,10 +90,11 @@ PollInlineFormSet = forms.inlineformset_factory(
     Poll,
     Choice,
     form=ChoiceForm,
-    extra=3,
     can_delete=False,
     can_order=False,
-    min_num=2
+    extra=0,
+    min_num=2,
+    max_num=20
 )
 
 
