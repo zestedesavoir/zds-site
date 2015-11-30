@@ -29,12 +29,12 @@ from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 from uuslug import slugify
 
-from zds.forum.models import Forum
+from zds.forum.models import Forum, mark_read
 from zds.forum.models import Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
-from zds.notification.models import mark_read, follow, TopicFollowed
+from zds.notification.models import follow, TopicFollowed
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm

@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
-from zds.forum.models import Topic
+from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
 from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
@@ -35,8 +35,9 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.notification.models import TopicRead, TopicFollowed, follow
-from zds.tutorialv2.models.models_database import PublishedContent, PublishableContent
+from zds.notification.models import TopicFollowed, follow
+from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.decorators import https_required
 from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.utils.mps import send_mp

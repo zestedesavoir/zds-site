@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from zds.mp.models import never_privateread, mark_read
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
@@ -37,13 +36,3 @@ class UpdatePrivatePost(object):
         instance.update = datetime.now()
         instance.save()
         return instance
-
-
-class MarkPrivateTopicAsRead(object):
-    """
-    Mark as read a private topic.
-    """
-
-    def perform_list(self, instance, user=None):
-        if never_privateread(instance, user):
-            mark_read(instance, user)

@@ -13,6 +13,7 @@ from django.db import models
 from django.utils.encoding import smart_text
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
+from zds.notification import signals
 from zds.settings import ZDS_APP
 from zds.utils import get_current_user
 from zds.utils import slugify
@@ -474,3 +475,39 @@ def get_last_topics(user):
         if cpt > 5:
             break
     return tops
+
+
+def never_read(topic, user=None):
+    """
+    Check if the user has read the **last post** of the topic.
+    Note if the user has already read the topic but not the last post, it will consider it has never read the topic...
+    Technically this is done by check if there is a `TopicRead` for the topic, its last post and the user.
+    :param topic: A topic
+    :param user: A user. If undefined, the current user is used.
+    :return:
+    """
+    # TODO: cette méthode est très mal nommée en plus d'avoir un nom "booléen négatif" !
+    if user is None:
+        user = get_current_user()
+
+    return not TopicRead.objects \
+        .filter(post=topic.last_message, topic=topic, user=user).exists()
+
+
+def mark_read(topic, user=None):
+    """
+    Mark the last message of a topic as read for the current user.
+    :param topic: A topic.
+    """
+    if not user:
+        user = get_current_user()
+
+    if user and user.is_authenticated():
+        # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
+        current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
+        if current_topic_read is None:
+            current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)
+        else:
+            current_topic_read.post = topic.last_message
+        current_topic_read.save()
+        signals.content_read.send(sender=topic.__class__, instance=topic, user=user)

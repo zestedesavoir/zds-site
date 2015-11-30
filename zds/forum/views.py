@@ -23,10 +23,8 @@ from haystack.query import SearchQuerySet
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import Category, Forum, Topic, Post
+from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
-from zds.notification import signals
-from zds.notification.models import TopicRead, never_read, mark_read
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -154,7 +152,6 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)
-            signals.content_read.send(sender=self.object.__class__, instance=self.object, user=self.request.user)
         return context
 
     def get_object(self, queryset=None):

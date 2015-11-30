@@ -7,10 +7,9 @@ from django import template
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.models import Post
+from zds.forum.models import Post, TopicRead, never_read as never_read_topic
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicRead, TopicFollowed
-from zds.notification.models import never_read as never_read_topic
+from zds.notification.models import TopicFollowed
 from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
 from zds.utils.models import Alert
 

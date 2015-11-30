@@ -20,12 +20,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile
 from zds.mp.decorator import is_participant
-from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead, UpdatePrivatePost
+from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.utils.forums import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivatePost
+from .models import PrivateTopic, PrivatePost, mark_read
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -242,7 +242,7 @@ class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView
         return self.request.user
 
 
-class PrivatePostList(MarkPrivateTopicAsRead, ZdSPagingListView, SingleObjectMixin):
+class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
     """
     Display a thread and its posts using a pager.
     """
@@ -266,7 +266,7 @@ class PrivatePostList(MarkPrivateTopicAsRead, ZdSPagingListView, SingleObjectMix
         context['last_post_pk'] = self.object.last_message.pk
         context['form'] = PrivatePostForm(self.object)
         context['posts'] = self.build_list_with_previous_item(context['object_list'])
-        self.perform_list(self.object)
+        mark_read(self.object, self.request.user)
         return context
 
     def get_queryset(self):

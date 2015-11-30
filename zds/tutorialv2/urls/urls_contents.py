@@ -11,6 +11,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
+
 urlpatterns = [
     url(r'^tutoriels/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),

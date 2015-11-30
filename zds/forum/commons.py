@@ -8,9 +8,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import SingleObjectMixin
 
-from zds.forum.models import Forum, Post
+from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
-from zds.notification.models import TopicRead, TopicFollowed, follow, follow_by_email
+from zds.notification.models import TopicFollowed, follow, follow_by_email
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, CommentLike, CommentDislike
 

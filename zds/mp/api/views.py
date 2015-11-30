@@ -19,8 +19,8 @@ from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, 
     IsAloneInPrivatePost, IsAuthor
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
     PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
-from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
-from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.commons import LeavePrivateTopic
+from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.utils.templatetags.interventions import interventions_privatetopics
 
 
@@ -297,7 +297,7 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
         return [permission() for permission in permission_classes]
 
 
-class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
+class PrivatePostListAPI(ListCreateAPIView):
     """
     Private post resource for an authenticated member.
     """
@@ -344,7 +344,8 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
               message: Not Found
         """
         response = self.list(request, *args, **kwargs)
-        self.perform_list(get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic'))), self.request.user)
+        topic = get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic')))
+        mark_read(topic, self.request.user)
         return response
 
     def post(self, request, *args, **kwargs):

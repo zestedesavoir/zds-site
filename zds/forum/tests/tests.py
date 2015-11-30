@@ -10,10 +10,10 @@ from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
-from zds.forum.models import Forum
+from zds.forum.models import Forum, TopicRead
 from zds.forum.models import Post, Topic
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.notification.models import TopicRead, TopicFollowed
+from zds.notification.models import TopicFollowed
 from zds.utils import slugify
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
