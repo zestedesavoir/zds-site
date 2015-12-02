@@ -4,7 +4,7 @@ pygments==2.0.2
 python-social-auth==0.2.9
 
 # Explicit dependencies (references in code)
-django==1.8.6
+Django==1.9
 coverage==4.0.1
 # full compatibility with django 1.8 and 1.9
 django-crispy-forms==1.5.2
