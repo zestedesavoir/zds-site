@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
+from django.template import Context, Template
 from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
@@ -31,6 +32,16 @@ class InterventionsTest(TestCase):
             privatetopic=self.topic,
             author=self.author.user,
             position_in_topic=1)
+
+        # humane_delta test
+        periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
+        cont = dict()
+        cont['date_today'] = periods[0][0]
+        cont['date_yesterday'] = periods[1][0]
+        cont['date_last_week'] = periods[2][0]
+        cont['date_last_month'] = periods[3][0]
+        cont['date_last_year'] = periods[4][0]
+        self.context = Context(cont)
 
     def test_interventions_privatetopics(self):
 
@@ -73,6 +84,32 @@ class InterventionsTest(TestCase):
         response = self.client.post(reverse('zds.pages.views.home'))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
+
+    def test_interventions_humane_delta(self):
+        tr = Template("{% load interventions %}"
+                      "{{ date_today|humane_delta }}"
+                      ).render(self.context)
+        self.assertEqual(u"Aujourd&#39;hui", tr)
+
+        tr = Template("{% load interventions %}"
+                      "{{ date_yesterday|humane_delta }}"
+                      ).render(self.context)
+        self.assertEqual(u"Hier", tr)
+
+        tr = Template("{% load interventions %}"
+                      "{{ date_last_week|humane_delta }}"
+                      ).render(self.context)
+        self.assertEqual(u"Les 7 derniers jours", tr)
+
+        tr = Template("{% load interventions %}"
+                      "{{ date_last_month|humane_delta }}"
+                      ).render(self.context)
+        self.assertEqual(u"Les 30 derniers jours", tr)
+
+        tr = Template("{% load interventions %}"
+                      "{{ date_last_year|humane_delta }}"
+                      ).render(self.context)
+        self.assertEqual(u"Plus ancien", tr)
 
 
 class AlertsTest(TestCase):
