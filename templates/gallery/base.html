@@ -24,55 +24,57 @@
         {% block new_btn %}{% endblock %}
 
         {% block sidebar_actions %}
-            <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
-            <h3>{% trans "Actions" %}</h3>
-                <ul>
-                    {%  if gallery_mode.can_write %}
-                        <li>
-                            <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
-                                {% trans "Ajouter une image" %}
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url "gallery-image-import" gallery.pk %}" class="ico-after import blue">
-                                {% trans "Importer une archive" %}
-                            </a>
-                        </li>
-                        {% if gallery and not content_linked %}
+            {% if gallery_mode.can_write or content_linked %}
+                <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+                <h3>{% trans "Actions" %}</h3>
+                    <ul>
+                        {% if gallery_mode.can_write %}
                             <li>
-                                <a href="#delete-galleries" class="open-modal ico-after cross red">
-                                    {% trans "Supprimer la galerie" %}
+                                <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
+                                    {% trans "Ajouter une image" %}
                                 </a>
-                                <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-small">
-                                        <input
-                                            name="items"
-                                            type="checkbox"
-                                            checked
-                                            value="{{ gallery.pk }}"
-                                            form="delete-galleries"
+                            </li>
+                            <li>
+                                <a href="{% url "gallery-image-import" gallery.pk %}" class="ico-after import blue">
+                                    {% trans "Importer une archive" %}
+                                </a>
+                            </li>
+                            {% if gallery and not content_linked %}
+                                <li>
+                                    <a href="#delete-galleries" class="open-modal ico-after cross red">
+                                        {% trans "Supprimer la galerie" %}
+                                    </a>
+                                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-small">
+                                            <input
+                                                name="items"
+                                                type="checkbox"
+                                                checked
+                                                value="{{ gallery.pk }}"
+                                                form="delete-galleries"
 
-                                        /> {% trans "Supprimer la galerie" %} ?
-                                            {% csrf_token %}
-                                    <button type="submit" name="delete_multi" class="btn">{% trans "Supprimer" %}</button>
-                                </form>
+                                            /> {% trans "Supprimer la galerie" %} ?
+                                                {% csrf_token %}
+                                        <button type="submit" name="delete_multi" class="btn">{% trans "Supprimer" %}</button>
+                                    </form>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        {% if content_linked %}
+                            <li>
+                                <a href="{{ content_linked.get_absolute_url }}" class="ico-after offline blue">
+                                    {% trans "Aller" %}
+                                    {% if content_linked.type == "ARTICLE" %}
+                                        {% trans "à l'article" %}
+                                    {% elif content_linked.type == "TUTORIAL" %}
+                                         {% trans "au tutoriel" %}
+                                    {% endif %}
+                                    {% trans "lié à cette galerie" %}
+                                </a>
                             </li>
                         {% endif %}
-                    {% endif %}
-                    {% if content_linked %}
-                        <li>
-                            <a href="{{ content_linked.get_absolute_url }}" class="ico-after offline blue">
-                                {% trans "Aller" %}
-                                {% if content_linked.type == "ARTICLE" %}
-                                    {% trans "à l'article" %}
-                                {% elif content_linked.type == "TUTORIAL" %}
-                                     {% trans "au tutoriel" %}
-                                {% endif %}
-                                {% trans "lié à cette galerie" %}
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
+                    </ul>
+                </div>
+            {% endif %}
         {% endblock %}
     </aside>
 {% endblock %}
