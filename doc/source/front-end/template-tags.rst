@@ -295,6 +295,18 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.pubdate`` donne la date à laquelle l'alerte à été faite ;
 - ``alert.topic`` donne le texte d'alerte.
 
+``humane_delta``
+----------------
+
+Permet d'afficher une période en lettres. Fait le lien entre le label d'un jour et sa clé.
+
+.. sourcecode:: html
+
+    {% load interventions %}
+    {% for period, topics in follwedtopics.items %}
+       <h4>{{ period|humane_delta }}</h4>
+    {% endfor %}
+
 Le module ``model_name``
 ========================
 
