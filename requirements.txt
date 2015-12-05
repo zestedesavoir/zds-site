@@ -4,11 +4,12 @@ pygments==2.0.2
 python-social-auth==0.2.9
 
 # Explicit dependencies (references in code)
-django==1.7.10
+django==1.8.6
 coverage==4.0.1
-django-crispy-forms==1.4.0
-django-haystack==2.3.1
-django-model-utils==2.2
+# full compatibility with django 1.8 and 1.9
+django-crispy-forms==1.5.2
+django-haystack==2.4.1
+django-model-utils==2.3.1
 django-munin==0.2.0
 python-memcached==1.54
 lxml==3.4.4
@@ -28,8 +29,9 @@ djangorestframework-xml==1.0.1
 django-filter==0.9.2
 django-oauth-toolkit==0.8.1
 drf-extensions==0.2.7
-django-rest-swagger==0.2.9
+django-rest-swagger==0.3.0
 django-cors-headers==1.0.0
 
-# Zep 12 dependency 
-django-uuslug==1.0.3
+# Zep 12 dependency
+# if 1.1 branch is not compatible, 1.0.4 is the least acceptable
+django-uuslug==1.1.6

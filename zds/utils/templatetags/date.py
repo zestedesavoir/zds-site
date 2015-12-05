@@ -6,7 +6,7 @@ from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
 from django.utils.datetime_safe import datetime
-from django.utils.tzinfo import LocalTimezone
+from django.utils.timezone import LocalTimezone
 
 register = template.Library()
 
