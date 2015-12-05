@@ -113,7 +113,16 @@
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "zds.search.views.opensearch" %}">
 </head>
-<body class="{% block body_class %}{% endblock %}"
+
+{% if user.is_authenticated %}
+    {% if user.profile.allow_temp_visual_changes %}
+        {% set app.visual_changes as visual_changes %}
+    {% endif %}
+{% else %}
+    {% set app.visual_changes as visual_changes %}
+{% endif %}
+
+<body class="{% block body_class %}{% endblock %} {{ visual_changes }}"
       itemscope
       itemtype="http://schema.org/WebPage"
 >

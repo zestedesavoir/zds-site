@@ -80,7 +80,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ('id', 'username', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
-                  'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit')
+                  'show_sign', 'hover_or_click', 'allow_temp_visual_changes', 'email_for_answer', 'last_visit')
 
     def __init__(self, *args, **kwargs):
         """

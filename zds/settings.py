@@ -500,7 +500,8 @@ ZDS_APP = {
     },
     'paginator': {
         'folding_limit': 4
-    }
+    },
+    'visual_changes': ''
 }
 
 LOGIN_REDIRECT_URL = "/"
