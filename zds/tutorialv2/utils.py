@@ -660,8 +660,11 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_pk = db_object.pk
     public_version.content = db_object
     public_version.must_reindex = True
-    public_version.save()
 
+    public_version.save()
+    for author in db_object.authors.all():
+        public_version.authors.add(author)
+    public_version.save()
     # move the stuffs into the good position
     shutil.move(tmp_path, public_version.get_prod_path())
 

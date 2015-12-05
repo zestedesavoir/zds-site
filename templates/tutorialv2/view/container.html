@@ -53,7 +53,7 @@
         {{ container.title }}
     </h1>
 
-    {% include 'tutorialv2/includes/tags_authors.part.html' %}
+    {% include 'tutorialv2/includes/tags_authors.part.html' with online=False %}
 
     {% if content.is_beta %}
         <div class="content-wrapper">

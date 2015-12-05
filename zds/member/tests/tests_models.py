@@ -15,7 +15,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import TopicFollowed
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
-from zds.tutorialv2.factories import PublishableContentFactory
+from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.utils.models import Alert
 from zds.settings import BASE_DIR
@@ -123,20 +123,19 @@ class MemberModelsTest(TestCase):
         publictuto = PublishableContentFactory(type='TUTORIAL')
         publictuto.authors.add(self.user1.user)
         publictuto.gallery = GalleryFactory()
-        publictuto.sha_public = 'whatever'
+        publictuto.sha_public = "whatever"
         publictuto.save()
-        # Should be 1
+        # Should be 0 because publication was not used
         publictutos = self.user1.get_public_tutos()
-        self.assertEqual(len(publictutos), 1)
-        self.assertEqual(publictuto, publictutos[0])
+        self.assertEqual(len(publictutos), 0)
+        PublishedContentFactory(author_list=[self.user1.user])
+        self.assertEqual(len(self.user1.get_public_tutos()), 1)
 
     def test_get_validate_tutos(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_validate_tutos()), 0)
         # Create Tuto !
-        validatetuto = PublishableContentFactory(type='TUTORIAL')
-        validatetuto.authors.add(self.user1.user)
-        validatetuto.gallery = GalleryFactory()
+        validatetuto = PublishableContentFactory(type='TUTORIAL', author_list=[self.user1.user])
         validatetuto.sha_validation = 'whatever'
         validatetuto.save()
         # Should be 1
@@ -189,10 +188,12 @@ class MemberModelsTest(TestCase):
         article.authors.add(self.user1.user)
         article.sha_public = 'whatever'
         article.save()
-        # Should be 1
+        # Should be 0
         articles = self.user1.get_public_articles()
-        self.assertEqual(len(articles), 1)
-        self.assertEqual(article, articles[0])
+        self.assertEqual(len(articles), 0)
+        # Should be 1
+        PublishedContentFactory(author_list=[self.user1.user], type="Article")
+        self.assertEqual(len(self.user1.get_public_tutos()), 1)
 
     def test_get_validate_articles(self):
         # Start with 0

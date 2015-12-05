@@ -32,9 +32,9 @@
     </h2>
 
     {% if user.user in content.authors.all %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True online=False %}
     {% else %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
     {% endif %}
 {% endblock %}
 

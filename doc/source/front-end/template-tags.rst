@@ -550,3 +550,21 @@ Exemple :
             {% endfor %}
         </ul>
     {% endif %}
+
+Le module ``displayable_authors``
+=================================
+
+Ce module permet d'avoir un "versionnage graphique" des auteurs. En effet lorsqu'un tutoriel est publié il se peut que les auteurs ayant participé à sa publication ne soient plus les mêmes dans le futur.
+Par exemple, l'auteur principal du tuto peut avoir demandé de l'aide pour écrire la suite du tuto. Il serait injuste de mettre cette seconde personne en tant qu'auteur de la version publiée puisqu'elle n'a pas participé à sa rédaction.
+
+Exemple :
+
+.. sourcecode:: html
+
+    {% load displayable_authors %}
+    {% for authors in content|displayable_authors:True %}
+       <!-- here display all author for public version -->
+    {% endfor %}
+    {% for authors in content|displayable_authors:False %}
+       <!-- here display all author for draft version -->
+    {% endfor %}

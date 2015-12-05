@@ -16,7 +16,7 @@ from django.dispatch import receiver
 import pygeoip
 from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
 from importlib import import_module
 
@@ -179,6 +179,18 @@ class Profile(models.Model):
 
         return queryset
 
+    def get_user_public_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents with this user as author.
+        """
+        queryset = PublishedContent.objects.filter(authors__in=[self.user])
+
+        if _type:
+            queryset = queryset.filter(content_type=_type)
+
+        return queryset
+
     def get_content_count(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
@@ -214,7 +226,7 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: All published contents with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_public__isnull=False).all()
+        return self.get_user_public_contents_queryset(_type).filter(must_redirect=False).all()
 
     def get_validate_contents(self, _type=None):
         """
