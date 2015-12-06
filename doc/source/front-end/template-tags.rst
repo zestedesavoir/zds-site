@@ -222,8 +222,8 @@ Ce filtre renvoit la liste des *topics* suivis par l'utilisateur, sous la forme 
 .. sourcecode:: html
 
     {% load interventions %}
-    {% with follwedtopics=user|followed_topics %}
-        {% for period, topics in follwedtopics.items %}
+    {% with followedtopics=user|followed_topics %}
+        {% for period, topics in followedtopics.items %}
         ...
         {% endfor %}
     {% endwith %}
@@ -303,7 +303,7 @@ Permet d'afficher une période en lettres. Fait le lien entre le label d'un jour
 .. sourcecode:: html
 
     {% load interventions %}
-    {% for period, topics in follwedtopics.items %}
+    {% for period, topics in followedtopics.items %}
        <h4>{{ period|humane_delta }}</h4>
     {% endfor %}
 
