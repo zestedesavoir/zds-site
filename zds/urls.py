@@ -4,6 +4,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
+from django.views.generic import RedirectView
 
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.forum.models import Category, Forum, Topic, Tag
@@ -70,6 +71,10 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
+                       # redirect default django /login/ and /logout/ URLs
+                       url(r'^login/$', RedirectView.as_view(url=settings.LOGIN_URL)),
+                       url(r'^logout/$', RedirectView.as_view(url=settings.LOGOUT_URL)),
+
                        url(r'^oldtutoriels/', include('zds.tutorial.urls')),
                        url(r'^oldarticles/', include('zds.article.urls')),
                        url(r'^', include('zds.tutorialv2.urls')),
