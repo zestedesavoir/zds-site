@@ -5,15 +5,35 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from django.db import models
+from django import forms
+from django.db.models import Count, Sum
 from django.utils.translation import ugettext_lazy as _
+
+UNIQUE_VOTE_KEY = 'u'
+MULTIPLE_VOTE_KEY = 'm'
+RANGE_VOTE_KEY = 'r'
+
+RANGES = (
+    (2, 'Très favorable'),
+    (1, 'Favorable'),
+    (0, 'Indifférent'),
+    (-1, 'Hostile'),
+    (-2, 'Très hostile')
+)
 
 
 class Poll(models.Model):
 
     class Meta:
-        verbose_name = 'Poll'
-        verbose_name_plural = 'Polls'
+        verbose_name = 'Sondage'
+        verbose_name_plural = 'Sondages'
         ordering = ['-pubdate']
+
+    TYPE_VOTE_CHOICES = (
+        (UNIQUE_VOTE_KEY, 'Vote unique'),
+        (MULTIPLE_VOTE_KEY, 'Vote multiple'),
+        (RANGE_VOTE_KEY, 'Vote par valeurs')
+    )
 
     title = models.CharField('Titre', max_length=80)
     slug = models.SlugField(max_length=80)
@@ -23,7 +43,8 @@ class Poll(models.Model):
 
     open = models.BooleanField(default=False)
     anonymous_vote = models.BooleanField(_(u'Vote anonyme'), default=True)
-    unique_vote = models.BooleanField(_(u'Choix unique'), default=True)
+
+    type_vote = models.CharField('Type de vote', max_length=1, choices=TYPE_VOTE_CHOICES, default=UNIQUE_VOTE_KEY)
 
     def __unicode__(self):
         """Human-readable representation of the Poll model.
@@ -41,12 +62,65 @@ class Poll(models.Model):
         """
         return reverse('poll-details', args=[self.pk])
 
+    def get_form_class(self):
+        from zds.poll.forms import (UniqueVoteForm, MultipleVoteForm,
+            RangeVoteModelForm, RangeVoteFormSet)
+
+        # Multiple vote
+        if self.type_vote == MULTIPLE_VOTE_KEY:
+            return MultipleVoteForm(self)
+        elif self.type_vote == UNIQUE_VOTE_KEY:
+            return UniqueVoteForm(self)
+        # Range vote
+        elif self.type_vote == RANGE_VOTE_KEY:
+            initial_data = []
+            choices = self.choices.all()
+            count_choices = len(choices)
+            for choice in choices:
+                initial_data.append(
+                    {
+                        'choice': choice,
+                        # Indifférent par défaut
+                        'range': 0,
+                    }
+                )
+            range_vote_formset = forms.modelformset_factory(
+                RangeVote,
+                form=RangeVoteModelForm,
+                formset=RangeVoteFormSet,
+                extra=count_choices,
+                max_num=count_choices,
+            )
+            return range_vote_formset(initial=initial_data, queryset=RangeVote.objects.none())
+        # Unique vote
+        return UniqueVoteForm(self)
+
+    def get_vote_class(self):
+        if self.type_vote == MULTIPLE_VOTE_KEY:
+            return MultipleVote
+        elif self.type_vote == UNIQUE_VOTE_KEY:
+            return UniqueVote
+        elif self.type_vote == RANGE_VOTE_KEY:
+            return RangeVote
+        return UniqueVote
+
+    def get_count_user(self):
+        """
+        :return: The number of user who has voted
+        :rtype int
+        """
+        count = self.get_vote_class().objects.filter(poll=self).values('poll').annotate(Count('user', distinct=True))
+        if count:
+            return count[0]['user__count']
+        else:
+            return 0
+
 
 class Choice(models.Model):
 
     class Meta:
-        verbose_name = 'Choice'
-        verbose_name_plural = 'Choices'
+        verbose_name = 'Choix'
+        verbose_name_plural = 'Choix'
 
     choice = models.CharField('Choix', max_length=200)
     poll = models.ForeignKey(Poll, related_name='choices', null=False, blank=False)
@@ -59,12 +133,19 @@ class Choice(models.Model):
         """
         return self.choice
 
-    def get_votes(self):
-        if self.poll.unique_vote:
-            count = UniqueVote.objects.filter(choice=self, poll=self.poll).count()
-        else:
-            count = MultipleVote.objects.filter(choice=self, poll=self.poll).count()
+    def get_votes_count(self):
+        count = self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll).count()
         return count
+
+    def get_votes_score(self):
+        score = 0
+        if self.poll.type_vote == UNIQUE_VOTE_KEY or self.poll.type_vote == MULTIPLE_VOTE_KEY:
+            score = self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll).count()
+        elif self.poll.type_vote == RANGE_VOTE_KEY:
+            result = RangeVote.objects.filter(choice=self, poll=self.poll).values('choice').annotate(Sum('range'))
+            if result:
+                score = result[0]['range__sum']
+        return score
 
 
 class Vote(models.Model):
@@ -81,15 +162,32 @@ class Vote(models.Model):
 
 
 class UniqueVote(Vote):
+    """
+    Unique vote allow member to vote only for one choice
+    """
 
     class Meta:
-        verbose_name = 'Unique Vote'
-        verbose_name_plural = 'Unique Votes'
+        verbose_name = 'Vote unique'
+        verbose_name_plural = 'Votes uniques'
         unique_together = (('user', 'choice'), ('user', 'poll'))
 
 
 class MultipleVote(Vote):
+    """
+    Multiple vote allow member to vote for one or more choices
+    """
 
     class Meta:
-        verbose_name = 'Multiple Vote'
+        verbose_name = 'Votes multiple'
         verbose_name_plural = 'Multiple Votes'
+        unique_together = ('user', 'choice', 'poll')
+
+
+class RangeVote(Vote):
+
+    class Meta:
+        verbose_name = 'Vote par valeurs'
+        verbose_name_plural = 'Votes par valeurs'
+        unique_together = ('user', 'choice', 'poll')
+
+    range = models.IntegerField(choices=RANGES, blank=False)

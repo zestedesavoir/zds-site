@@ -8,16 +8,17 @@ from django.forms.extras.widgets import SelectDateWidget
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder
+from crispy_forms.layout import Layout, Field, ButtonHolder, Submit
 
-from zds.poll.models import Poll, Choice, UniqueVote, MultipleVote
+from zds.poll.models import Poll, Choice, UniqueVote, \
+    MultipleVote, RangeVote, RANGES
 
 
 class PollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ['title', 'anonymous_vote', 'unique_vote', 'enddate']
+        fields = ['title', 'anonymous_vote', 'enddate', 'type_vote']
         widgets = {
             'title': forms.TextInput(attrs={'required': 'required'}),
             'enddate': SelectDateWidget()
@@ -55,6 +56,30 @@ class PollForm(forms.ModelForm):
                 del cleaned_data['enddate']
 
         return cleaned_data
+
+
+class UpdatePollForm(forms.ModelForm):
+
+    class Meta:
+        model = Poll
+        fields = ('title', 'open', 'enddate')
+        widgets = {
+            'enddate': SelectDateWidget()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(UpdatePollForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+
+        self.helper.layout = Layout(
+            Field('title'),
+            Field('enddate'),
+            Field('open'),
+            ButtonHolder(
+                StrictButton("Editer", type='submit'),
+            ),
+        )
 
 
 class ChoiceForm(forms.ModelForm):
@@ -115,9 +140,9 @@ class UniqueVoteForm(forms.ModelForm):
         self.helper = FormHelper()
 
         self.helper.layout = Layout(
-            'choice',
+            Field('choice'),
             ButtonHolder(
-                StrictButton('Voter', type='submit'),
+                StrictButton("Voter", type='submit'),
             ),
         )
 
@@ -143,6 +168,49 @@ class MultipleVoteForm(forms.Form):
         self.helper.layout = Layout(
             'choices',
             ButtonHolder(
-                StrictButton('Voter', type='submit'),
+                StrictButton("Voter", type='submit'),
             ),
         )
+
+
+class RangeVoteModelForm(forms.ModelForm):
+    range = forms.ChoiceField(
+        choices=RANGES,
+        required=True,
+        widget=forms.RadioSelect,
+    )
+
+    class Meta:
+        model = RangeVote
+        fields = ('choice', 'range')
+        widgets = {
+            'choice': forms.HiddenInput()
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(RangeVoteModelForm, self).__init__(*args, **kwargs)
+        choice = self.initial.get('choice', None)
+        if choice and type(choice) is not int:
+            self.fields['range'].label = self.initial['choice'].choice
+
+
+class RangeVoteFormSet(forms.BaseModelFormSet):
+
+    def __init__(self, poll=None, *args, **kwargs):
+        super(RangeVoteFormSet, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.poll = poll
+        self.helper.layout = Layout(
+            Field('choice'),
+            Field('range')
+        )
+        self.helper.add_input(Submit("submit", "Voter"))
+
+    def clean(self):
+        super(RangeVoteFormSet, self).clean()
+
+        for form in self.forms:
+            choice = form.cleaned_data['choice']
+
+            if choice and not choice.poll == self.poll:
+                raise forms.ValidationError("Ce choix n'appartient pas au sondage "+self.poll.title)
