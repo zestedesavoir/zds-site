@@ -5,9 +5,11 @@ from datetime import datetime
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
 from zds.forum.models import TopicFollowed, Topic, Post
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.utils.templatetags.interventions import interventions_topics
 
 
 class CategoriesForumsListViewTests(TestCase):
@@ -1257,6 +1259,47 @@ class PostEditTest(TestCase):
         self.assertEqual(1, len(post.alerts.all()))
         self.assertEqual(text_expected, post.alerts.all()[0].text)
 
+    def test_edit_post_notification(self):
+        """
+        Check if notification is deleted if last post is hide.
+        """
+        profile1 = ProfileFactory()
+        profile2 = ProfileFactory()
+        category, forum = create_category()
+
+        # create and follow a topic with P1
+        topic = add_topic_in_a_forum(forum, profile1)
+        self.assertTrue(self.client.login(username=profile1.user.username, password='hostel77'))
+        data = {
+            'follow': '',
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(1, Post.objects.filter(topic__pk=topic.pk).count())
+
+        # add a post with P2
+        self.assertTrue(self.client.login(username=profile2.user.username, password='hostel77'))
+        data = {
+            'text': 'A new post!',
+            'last_post': topic.last_message.pk
+        }
+        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        self.assertEqual(1, len(interventions_topics(profile1.user)))  # TODO : should be 1 but result is 0
+        self.assertEqual(0, len(interventions_topics(profile2.user)))
+
+        # hide last post
+        data = {
+            'delete_message': ''
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        self.assertEqual(0, len(interventions_topics(profile1.user)))
+        self.assertEqual(0, len(interventions_topics(profile2.user)))
 
 class PostUsefulTest(TestCase):
     def test_failure_post_useful_require_method_post(self):
