@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
+
 from datetime import datetime
+
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.views.generic.detail import SingleObjectMixin
-from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post, TopicRead
 from django.utils.translation import ugettext as _
+from django.views.generic.detail import SingleObjectMixin
+
+from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post, TopicRead
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, CommentLike, CommentDislike
 
@@ -93,6 +97,24 @@ class PostEditMixin(object):
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')
         if post.author == user or is_staff:
+
+            # delete notification
+            last_post_pk = Post.objects.filter(topic=post.topic).last().pk
+            # only if hided message is latest
+            if post.pk == last_post_pk:
+                previous_post = Post.objects.filter(topic=post.topic).exclude(pk=last_post_pk).last()
+                user_follow = TopicFollowed.objects.filter(topic=post.topic.pk).values('user').distinct().all()
+                # for each user who follow this topic
+                for user_f in user_follow:
+                    last_post_read = TopicRead.objects.filter(user=user_f['user']).filter(topic=post.topic).last().post
+                    # check if previous message exists and is unread
+                    if last_post_read == previous_post:
+                        topic_read = TopicRead.objects.last()
+                        topic_read.post = post
+                        topic_read.topic = post.topic
+                        topic_read.user = User.objects.get(pk=user_f['user'])
+                        topic_read.save()
+
             post.alerts.all().delete()
             post.is_visible = False
             post.editor = user
