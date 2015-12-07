@@ -27,9 +27,11 @@ django-recaptcha==1.0.4
 djangorestframework==3.3.1
 djangorestframework-xml==1.0.1
 django-filter==0.9.2
-django-oauth-toolkit==0.8.1
+# TODO : django-oauth-toolkit==0.8.1
+https://github.com/evonove/django-oauth-toolkit/archive/master.zip
 drf-extensions==0.2.7
-django-rest-swagger==0.3.0
+# TODO : django-rest-swagger==0.3.0
+https://github.com/marcgibbons/django-rest-swagger/archive/master.zip
 django-cors-headers==1.0.0
 
 # Zep 12 dependency
