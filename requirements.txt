@@ -37,3 +37,6 @@ django-cors-headers==1.0.0
 # Zep 12 dependency
 # if 1.1 branch is not compatible, 1.0.4 is the least acceptable
 django-uuslug==1.1.6
+
+# TODO : fix temp bug
+django_model_utils==2.4
