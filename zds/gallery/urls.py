@@ -3,13 +3,13 @@
 from django.conf.urls import url
 
 from zds.gallery.views import NewGallery, NewImage, DeleteImages, EditImage, ImportImages, GalleryDetails, \
-    EditGallery, ListGallery
+    EditGallery, ListGallery, modify_gallery
 
 
 urlpatterns = [
     # Add and edit a gallery
     url(r'^nouveau/$', NewGallery.as_view(), name='gallery-new'),
-    url(r'^modifier/$', 'zds.gallery.views.modify_gallery'),
+    url(r'^modifier/$', modify_gallery),
 
     # Image operations
     url(r'^image/ajouter/(?P<pk_gallery>\d+)/$', NewImage.as_view(), name='gallery-image-new'),
