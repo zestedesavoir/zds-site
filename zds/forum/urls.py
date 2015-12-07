@@ -2,10 +2,10 @@
 
 from django.conf.urls import url
 
-from . import feeds
+from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostUseful, PostUnread, PostLike, PostDisLike, FindPost
+    PostUseful, PostUnread, PostLike, PostDisLike, FindPost, followed_topics, solve_alert, complete_topic
 
 
 urlpatterns = [
@@ -21,10 +21,10 @@ urlpatterns = [
     # on Category slug field
 
     # Followed topics
-    url(r'^notifications/$', 'zds.forum.views.followed_topics'),
+    url(r'^notifications/$', followed_topics),
 
     # Moderation
-    url(r'^resolution_alerte/$', 'zds.forum.views.solve_alert'),
+    url(r'^resolution_alerte/$', solve_alert),
 
     # Viewing a thread
     url(r'^sujet/nouveau/$', TopicNew.as_view(), name='topic-new'),
@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$', TopicPostsListView.as_view(), name='topic-posts-list'),
     url(r'^sujets/membre/(?P<user_pk>\d+)/$', FindTopic.as_view(), name='topic-find'),
     url(r'^sujets/tag/(?P<tag_pk>\d+)/(?P<tag_slug>.+)/$', FindTopicByTag.as_view(), name='topic-tag-find'),
-    url(r'^sujets/recherche/$', 'zds.forum.views.complete_topic'),
+    url(r'^sujets/recherche/$', complete_topic),
 
     # Message-related
     url(r'^message/nouveau/$', PostNew.as_view(), name='post-new'),
