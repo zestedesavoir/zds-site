@@ -6,7 +6,7 @@ from zds.tutorialv2.views.views_validations import AskValidationForContent, Rese
     HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
     ValidationListView
 
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
                            name="ask"),
                        url(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$', HistoryOfValidationDisplay.as_view(),
@@ -24,4 +24,5 @@ urlpatterns = patterns('',
                        url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(),
                            name="revoke"),
 
-                       url(r'^$', ValidationListView.as_view(), name="list"))
+                       url(r'^$', ValidationListView.as_view(), name="list")
+                       ]
