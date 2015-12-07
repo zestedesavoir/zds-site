@@ -18,7 +18,7 @@ sys.setdefaultencoding('UTF8')
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+
 # INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 DATABASES = {
@@ -122,29 +122,32 @@ ROOT_URLCONF = 'zds.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'zds.wsgi.application'
 
-TEMPLATE_DIRS = [
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(BASE_DIR, 'templates')
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': os.path.join(BASE_DIR, 'templates'),
+        'OPTIONS': {
+            'context_processors': [
+                # Default context processors
+                'django.contrib.auth.context_processors.auth',
+                'django.core.context_processors.debug',
+                'django.core.context_processors.i18n',
+                'django.core.context_processors.media',
+                'django.core.context_processors.static',
+                'django.core.context_processors.request',
+                'django.core.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
+                # ZDS context processors
+                'zds.utils.context_processor.app_settings',
+                'zds.utils.context_processor.git_version',
+            ],
+            'debug': DEBUG,
+            }
+    },
 ]
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    # Default context processors
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-    'social.apps.django_app.context_processors.backends',
-    'social.apps.django_app.context_processors.login_redirect',
-    # ZDS context processors
-    'zds.utils.context_processor.app_settings',
-    'zds.utils.context_processor.git_version',
-)
 
 CRISPY_TEMPLATE_PACK = 'bootstrap'
 
