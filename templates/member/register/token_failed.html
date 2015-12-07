@@ -23,7 +23,7 @@
 
 {% block content %}
     <p>
-        {% url "zds.member.views.generate_token_account" as url_generate %}
+        {% url "member-generate-token-account" as url_generate %}
         {% blocktrans with jeton=token.token%}
             Désolé, votre de jeton de confirmation a expiré. Vous pouvez cependant le regénerer, pour cela, cliquer sur ce lien suivant: <a href="{{url_generate}}?token={{jeton}}">envoi de jeton</a>.
         {% endblocktrans %}

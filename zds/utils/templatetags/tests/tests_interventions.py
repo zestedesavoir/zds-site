@@ -51,7 +51,7 @@ class InterventionsTest(TestCase):
                 password='hostel77'
             )
         )
-        response = self.client.post(reverse('zds.pages.views.home'))
+        response = self.client.post(reverse('homepage'))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 
@@ -63,7 +63,7 @@ class InterventionsTest(TestCase):
                 password='hostel77'
             )
         )
-        response = self.client.post(reverse('zds.pages.views.home'))
+        response = self.client.post(reverse('homepage'))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 
@@ -81,7 +81,7 @@ class InterventionsTest(TestCase):
                 password='hostel77'
             )
         )
-        response = self.client.post(reverse('zds.pages.views.home'))
+        response = self.client.post(reverse('homepage'))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 

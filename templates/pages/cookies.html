@@ -90,7 +90,7 @@
     <p>{% blocktrans %}La CNIL <a href="http://www.cnil.fr/vos-droits/vos-traces/les-cookies/conseils-aux-internautes">indique quelles solutions sont disponibles avec votre navigateur</a>, dans son Conseil 2.{% endblocktrans %}</p>
 
     <h3>{% trans "Licence de cette page" %}</h3>
-    {% url "zds.pages.views.cookies" as cook_url %}
+    {% url "pages-cookies" as cook_url %}
     {% if app.site.licenses.cookies %}
         <p>
             {% blocktrans with url_license=app.site.licenses.cookies.url_license cook_descr=app.site.licenses.cookies.description cook_title=app.site.licenses.cookies.title cook_img=app.site.licenses.cookies.url_image %}

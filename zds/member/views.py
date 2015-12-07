@@ -429,7 +429,7 @@ def unregister(request):
 
     logout(request)
     User.objects.filter(pk=current.pk).delete()
-    return redirect(reverse("zds.pages.views.home"))
+    return redirect(reverse("homepage"))
 
 
 @require_POST
@@ -606,7 +606,7 @@ def settings_mini_profile(request, user_name):
                 profile.save()
             except:
                 messages.error(request, u"Une erreur est survenue.")
-                return redirect(reverse("zds.member.views.settings_mini_profile"))
+                return redirect(reverse("member-settings-mini-profile"))
 
             messages.success(request, _(u"Le profil a correctement été mis à jour."))
             return redirect(reverse("member-detail", args=[profile.user.username]))
@@ -656,7 +656,7 @@ def login_view(request):
                     try:
                         return redirect(next_page)
                     except:
-                        return redirect(reverse("zds.pages.views.home"))
+                        return redirect(reverse("homepage"))
                 else:
                     messages.error(request,
                                    _(u"Vous n'êtes pas autorisé à vous connecter "
@@ -693,7 +693,7 @@ def logout_view(request):
 
     logout(request)
     request.session.clear()
-    return redirect(reverse("zds.pages.views.home"))
+    return redirect(reverse("homepage"))
 
 
 @https_required
@@ -756,7 +756,7 @@ def new_password(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("zds.pages.views.home"))
+        return redirect(reverse("homepage"))
     token = get_object_or_404(TokenForgotPassword, token=token)
     if request.method == "POST":
         form = NewPasswordForm(token.user.username, request.POST)
@@ -784,7 +784,7 @@ def active_account(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("zds.pages.views.home"))
+        return redirect(reverse("homepage"))
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
 
@@ -836,7 +836,7 @@ def generate_token_account(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("zds.pages.views.home"))
+        return redirect(reverse("homepage"))
     token = get_object_or_404(TokenRegister, token=token)
 
     # push date

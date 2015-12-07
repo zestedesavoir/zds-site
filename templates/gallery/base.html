@@ -44,7 +44,7 @@
                                     <a href="#delete-galleries" class="open-modal ico-after cross red">
                                         {% trans "Supprimer la galerie" %}
                                     </a>
-                                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-flex">
+                                    <form action="{% url "gallery-modify" %}" method="post" id="delete-galleries" class="modal modal-flex">
                                         <label for="items" class="checkbox">
                                             <input
                                                 name="items"

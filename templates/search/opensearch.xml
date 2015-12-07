@@ -15,5 +15,5 @@
     <Url type="text/html" method="GET" template="{{ search_url }}">
         <Param name="q" value="{searchTerms}"/>
     </Url>
-    <Url type="application/opensearchdescription+xml" rel="self" template="{{ site_url }}{% url "zds.search.views.opensearch" %}" />
+    <Url type="application/opensearchdescription+xml" rel="self" template="{{ site_url }}{% url "search-opensearch" %}" />
 </OpenSearchDescription>
