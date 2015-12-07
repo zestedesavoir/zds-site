@@ -18,7 +18,7 @@ restera propre et lisible au cours du temps !
 
     #!/bin/sh
 
-    flake8 --exclude=migrations,urls.py,settings.py --max-line-length=120 zds
+    flake8 --exclude=migrations,settings.py --max-line-length=120 zds
 
     # Store tests result
     RESULT=$?
