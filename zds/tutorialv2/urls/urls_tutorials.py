@@ -7,7 +7,7 @@ from zds.tutorialv2.views.views_published import ListTutorials, DisplayOnlineTut
     DownloadOnlineTutorial, RedirectContentSEO
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
-urlpatterns = patterns('',
+urlpatterns = [
                        # flux
                        url(r'^flux/rss/$', LastTutorialsFeedRSS(), name='feed-rss'),
                        url(r'^flux/atom/$', LastTutorialsFeedATOM(), name='feed-atom'),
@@ -41,4 +41,5 @@ urlpatterns = patterns('',
                        url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name="old-beta-url"),
 
                        # Listing
-                       url(r'^$', ListTutorials.as_view(), name='list'))
+                       url(r'^$', ListTutorials.as_view(), name='list')
+                       ]

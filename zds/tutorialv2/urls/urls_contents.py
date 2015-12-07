@@ -11,7 +11,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
 
-urlpatterns = patterns('',
+urlpatterns = [
                        url(r'^tutoriels/(?P<pk>\d+)/$',
                            ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
                            name="find-tutorial"),
@@ -133,4 +133,4 @@ urlpatterns = patterns('',
                        # markdown import
                        url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
                        url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import")
-                       )
+                       ]
