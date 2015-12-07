@@ -38,3 +38,6 @@ dry-rest-permissions==0.1.6
 # Zep 12 dependency
 django-uuslug==1.1.6
 watchdog==0.8.3 # use last non-bc-breaking version
+
+# TODO : fix temp bug
+django_model_utils==2.4
