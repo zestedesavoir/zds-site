@@ -19,7 +19,7 @@
 
         <div class="content-meta inline" title="Publié le {{ result.object.pubdate }}">
             <p>
-                Sujet -
+                Sujet du forum : <a href="{{ result.object.forum.get_absolute_url }}" title="{{ result.object.forum.title }}">{{ result.object.forum.title }}</a>
 
                 <time class="content-pubdate" pubdate="{{ result.object.pubdate }}">
                     <span class="long">{{ result.object.pubdate|format_date|capfirst }}</span>
