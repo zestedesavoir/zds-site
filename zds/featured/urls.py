@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.conf.urls import  url
+from django.conf.urls import url
 
 from zds.featured.views import FeaturedResourceList, FeaturedResourceCreate, FeaturedResourceUpdate, \
     FeaturedResourceDeleteDetail, FeaturedResourceDeleteList, FeaturedMessageCreateUpdate

@@ -4,7 +4,7 @@ from django.conf.urls import url
 from haystack.views import search_view_factory
 
 from zds.search.form import CustomSearchForm
-from zds.search.views import CustomSearchView
+from zds.search.views import CustomSearchView, opensearch
 
 
 urlpatterns = [
@@ -13,5 +13,5 @@ urlpatterns = [
                                    form_class=CustomSearchForm),
         name='haystack_search'),
 
-    url(r'^opensearch\.xml$', 'zds.search.views.opensearch'),
+    url(r'^opensearch\.xml$', opensearch),
 ]
