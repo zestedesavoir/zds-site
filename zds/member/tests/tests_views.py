@@ -176,14 +176,14 @@ class MemberTests(TestCase):
 
         # an inexistant member return 404
         result = self.client.get(
-            reverse('zds.member.views.settings_mini_profile', args=["xkcd"]),
+            reverse('member-settings-mini-profile', args=["xkcd"]),
             follow=False
         )
         self.assertEqual(result.status_code, 404)
 
         # an existant member return 200
         result = self.client.get(
-            reverse('zds.member.views.settings_mini_profile', args=[self.mas.user.username]),
+            reverse('member-settings-mini-profile', args=[self.mas.user.username]),
             follow=False
         )
         self.assertEqual(result.status_code, 200)
@@ -196,17 +196,17 @@ class MemberTests(TestCase):
 
         # login a user. Good password then redirection to the homepage.
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member-login'),
             {'username': user.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        self.assertRedirects(result, reverse('zds.pages.views.home'))
+        self.assertRedirects(result, reverse('homepage'))
 
         # login failed with bad password then no redirection
         # (status_code equals 200 and not 302).
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member-login'),
             {'username': user.user.username,
              'password': 'hostel',
              'remember': 'remember'},
@@ -216,7 +216,7 @@ class MemberTests(TestCase):
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
         result = self.client.post(
-            reverse('zds.member.views.login_view') +
+            reverse('member-login') +
             '?next=' + reverse('gallery-list'),
             {'username': user.user.username,
              'password': 'hostel77',
@@ -228,10 +228,10 @@ class MemberTests(TestCase):
         # a next parameter.
         self.client.logout()
         result = self.client.get(
-            reverse('zds.member.views.login_view') +
+            reverse('member-login') +
             '?next=' + reverse('gallery-list'))
         self.assertContains(result,
-                            reverse('zds.member.views.login_view') +
+                            reverse('member-login') +
                             '?next=' + reverse('gallery-list'),
                             count=1)
 
@@ -280,7 +280,7 @@ class MemberTests(TestCase):
         # test not logged user can't unregister.
         self.client.logout()
         result = self.client.post(
-            reverse('zds.member.views.unregister'),
+            reverse('member-unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -291,7 +291,7 @@ class MemberTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
         result = self.client.post(
-            reverse('zds.member.views.unregister'),
+            reverse('member-unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
@@ -368,7 +368,7 @@ class MemberTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
         result = self.client.post(
-            reverse('zds.member.views.unregister'),
+            reverse('member-unregister'),
             follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -468,7 +468,7 @@ class MemberTests(TestCase):
         mail.outbox = []
 
         result = self.client.post(
-            reverse('zds.member.views.forgot_password'),
+            reverse('member-forgot-password'),
             {
                 'username': self.mas.user.username,
                 'email': '',
@@ -623,7 +623,7 @@ class MemberTests(TestCase):
         # Test: BAN temp
         user_ban_temp = ProfileFactory()
         result = self.client.post(
-            reverse('zds.member.views.modify_profile',
+            reverse('member-modify-profile',
                     kwargs={'user_pk': user_ban_temp.user.id}),
             {'ban-temp': '', 'ban-jrs': 10,
              'ban-text': u'Texte de test pour BAN TEMP'},
@@ -667,7 +667,7 @@ class MemberTests(TestCase):
 
     def test_nonascii(self):
         user = NonAsciiProfileFactory()
-        result = self.client.get(reverse('zds.member.views.login_view') + '?next=' +
+        result = self.client.get(reverse('member-login') + '?next=' +
                                  reverse('member-detail', args=[user.user.username]),
                                  follow=False)
         self.assertEqual(result.status_code, 200)
@@ -724,13 +724,13 @@ class MemberTests(TestCase):
 
         # check that we can go through the page
         result = self.client.get(
-            reverse('zds.member.views.settings_promote',
+            reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}), follow=False)
         self.assertEqual(result.status_code, 200)
 
         # give user rights and groups thanks to staff (but account still not activated)
         result = self.client.post(
-            reverse('zds.member.views.settings_promote',
+            reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}),
             {
                 'groups': [group.id, groupbis.id],
@@ -752,7 +752,7 @@ class MemberTests(TestCase):
 
         # retract all right, keep one group only and activate account
         result = self.client.post(
-            reverse('zds.member.views.settings_promote',
+            reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}),
             {
                 'groups': [group.id],
@@ -768,7 +768,7 @@ class MemberTests(TestCase):
 
         # no groups specified
         result = self.client.post(
-            reverse('zds.member.views.settings_promote',
+            reverse('member-settings-promote',
                     kwargs={'user_pk': tester.user.id}),
             {
                 'activation': "on"
@@ -779,7 +779,7 @@ class MemberTests(TestCase):
 
         # check that staff can't take away it's own super user rights
         result = self.client.post(
-            reverse('zds.member.views.settings_promote',
+            reverse('member-settings-promote',
                     kwargs={'user_pk': staff.user.id}),
             {
                 'activation': "on"
@@ -794,7 +794,7 @@ class MemberTests(TestCase):
             password='hostel77')
         self.assertEqual(login_check, True)
         result = self.client.post(
-            reverse('zds.member.views.settings_promote',
+            reverse('member-settings-promote',
                     kwargs={'user_pk': staff.user.id}),
             {
                 'activation': "on"
@@ -812,7 +812,7 @@ class MemberTests(TestCase):
 
         # test login normal user
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member-login'),
             {'username': tester.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
@@ -822,14 +822,14 @@ class MemberTests(TestCase):
 
         # Check that the filter can't be access from normal user
         result = self.client.post(
-            reverse('zds.member.views.member_from_ip',
+            reverse('member-from-ip',
                     kwargs={'ip_address': tester.last_ip_address}),
             {}, follow=False)
         self.assertEqual(result.status_code, 403)
 
         # log the staff user
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member-login'),
             {'username': staff.user.username,
              'password': 'hostel77',
              'remember': 'remember'},
@@ -839,7 +839,7 @@ class MemberTests(TestCase):
 
         # test that we retrieve correctly the 2 members (staff + user) from this ip
         result = self.client.post(
-            reverse('zds.member.views.member_from_ip',
+            reverse('member-from-ip',
                     kwargs={'ip_address': staff.last_ip_address}),
             {}, follow=False)
         self.assertEqual(result.status_code, 200)
@@ -854,19 +854,19 @@ class MemberTests(TestCase):
 
         # login as user
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member-login'),
             {'username': tester.user.username,
              'password': 'hostel77'},
             follow=False)
         self.assertEqual(result.status_code, 302)
 
         # check that user can't use this feature
-        result = self.client.post(reverse('zds.member.views.modify_karma'), follow=False)
+        result = self.client.post(reverse('member-modify-karma'), follow=False)
         self.assertEqual(result.status_code, 403)
 
         # login as staff
         result = self.client.post(
-            reverse('zds.member.views.login_view'),
+            reverse('member-login'),
             {'username': staff.user.username,
              'password': 'hostel77'},
             follow=False)
@@ -874,7 +874,7 @@ class MemberTests(TestCase):
 
         # try to give a few bad points to the tester
         result = self.client.post(
-            reverse('zds.member.views.modify_karma'),
+            reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
              'warning': 'Bad tester is bad !',
              'points': '-50'},
@@ -886,7 +886,7 @@ class MemberTests(TestCase):
 
         # Now give a few good points
         result = self.client.post(
-            reverse('zds.member.views.modify_karma'),
+            reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
              'warning': 'Good tester is good !',
              'points': '10'},
@@ -898,7 +898,7 @@ class MemberTests(TestCase):
 
         # Now access some unknow user
         result = self.client.post(
-            reverse('zds.member.views.modify_karma'),
+            reverse('member-modify-karma'),
             {'profile_pk': 9999,
              'warning': 'Good tester is good !',
              'points': '10'},
@@ -907,7 +907,7 @@ class MemberTests(TestCase):
 
         # Now give unknow point
         result = self.client.post(
-            reverse('zds.member.views.modify_karma'),
+            reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
              'warning': 'Good tester is good !',
              'points': ''},
@@ -919,7 +919,7 @@ class MemberTests(TestCase):
 
         # Now give no point at all
         result = self.client.post(
-            reverse('zds.member.views.modify_karma'),
+            reverse('member-modify-karma'),
             {'profile_pk': tester.pk,
              'warning': 'Good tester is good !'},
             follow=False)
@@ -929,7 +929,7 @@ class MemberTests(TestCase):
         self.assertEqual(KarmaNote.objects.filter(user=tester.user).count(), 4)
 
         # Now access without post
-        result = self.client.get(reverse('zds.member.views.modify_karma'), follow=False)
+        result = self.client.get(reverse('member-modify-karma'), follow=False)
         self.assertEqual(result.status_code, 405)
 
     def test_karma_and_pseudo_change(self):
