@@ -32,11 +32,13 @@ https://github.com/evonove/django-oauth-toolkit/archive/master.zip
 drf-extensions==0.2.7
 # TODO : django-rest-swagger==0.3.0
 https://github.com/marcgibbons/django-rest-swagger/archive/master.zip
-django-cors-headers==1.0.0
+# TODO : django-cors-headers==1.0.0
+https://github.com/gustavi/django-cors-headers/archive/master.zip
 
 # Zep 12 dependency
 # if 1.1 branch is not compatible, 1.0.4 is the least acceptable
 django-uuslug==1.1.6
 
 # TODO : fix temp bug
-django_model_utils==2.4
+# should run this after install :
+# pip install --upgrade django_model_utils==2.4
