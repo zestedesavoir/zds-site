@@ -21,31 +21,31 @@ urlpatterns = [
     url(r'^parametres/user/$', UpdateUsernameEmailMember.as_view(), name='update-username-email-member'),
 
     # old tuto
-    url(r'^profil/lier/$', add_oldtuto),
-    url(r'^profil/delier/$', remove_oldtuto),
+    url(r'^profil/lier/$', add_oldtuto, name='member-add-oldtuto'),
+    url(r'^profil/delier/$', remove_oldtuto, name='member-remove-oldtuto'),
 
     # moderation
-    url(r'^profil/karmatiser/$', modify_karma),
-    url(r'^profil/modifier/(?P<user_pk>\d+)/$', modify_profile),
-    url(r'^parametres/mini_profil/(?P<user_name>.+)/$', settings_mini_profile),
-    url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip),
+    url(r'^profil/karmatiser/$', modify_karma, name='member-modify-karma'),
+    url(r'^profil/modifier/(?P<user_pk>\d+)/$', modify_profile, name='member-modify-profile'),
+    url(r'^parametres/mini_profil/(?P<user_name>.+)/$', settings_mini_profile, name='member-settings-mini-profile'),
+    url(r'^profil/multi/(?P<ip_address>.+)/$', member_from_ip, name='member-from-ip'),
 
     # tutorials and articles
-    url(r'^tutoriels/$', tutorials),
-    url(r'^articles/$', articles),
+    url(r'^tutoriels/$', tutorials, name='member-tutorials'),
+    url(r'^articles/$', articles, name='member-articles'),
 
     # user rights
-    url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', settings_promote),
+    url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', settings_promote, name='member-settings_promote'),
 
     # membership
-    url(r'^connexion/$', login_view),
-    url(r'^deconnexion/$', logout_view),
+    url(r'^connexion/$', login_view, name='member-login'),
+    url(r'^deconnexion/$', logout_view, name='member-logout'),
     url(r'^inscription/$', RegisterView.as_view(), name='register-member'),
-    url(r'^reinitialisation/$', forgot_password),
+    url(r'^reinitialisation/$', forgot_password, name='member-forgot-password'),
     url(r'^validation/$', SendValidationEmailView.as_view(), name='send-validation-email'),
-    url(r'^new_password/$', new_password),
-    url(r'^activation/$', active_account),
-    url(r'^envoi_jeton/$', generate_token_account),
-    url(r'^desinscrire/valider/$', unregister),
-    url(r'^desinscrire/avertissement/$', warning_unregister)
+    url(r'^new_password/$', new_password, name='member-new-password'),
+    url(r'^activation/$', active_account, name='member-active-account'),
+    url(r'^envoi_jeton/$', generate_token_account, name='member-generate-token-account'),
+    url(r'^desinscrire/valider/$', unregister, name='member-unregister'),
+    url(r'^desinscrire/avertissement/$', warning_unregister, name='member-warning-unregister')
 ]

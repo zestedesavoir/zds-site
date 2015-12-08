@@ -69,12 +69,12 @@ class SubCategory(models.Model):
         return self.title
 
     def get_absolute_url_tutorial(self):
-        url = reverse('zds.tutorial.views.index')
+        url = reverse('tutorial-index')
         url = url + '?tag={}'.format(self.slug)
         return url
 
     def get_absolute_url_article(self):
-        url = reverse('zds.article.views.index')
+        url = reverse('article-index')
         url = url + '?tag={}'.format(self.slug)
         return url
 

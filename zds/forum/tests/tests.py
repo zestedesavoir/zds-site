@@ -490,7 +490,7 @@ class ForumMemberTests(TestCase):
         alert = Alert.objects.get(comment=post2.pk)
         # try as a normal user
         result = self.client.post(
-            reverse('zds.forum.views.solve_alert'),
+            reverse('forum-solve-alert'),
             {
                 'alert_pk': alert.pk,
             },
@@ -505,7 +505,7 @@ class ForumMemberTests(TestCase):
             True)
         # try again as staff
         result = self.client.post(
-            reverse('zds.forum.views.solve_alert'),
+            reverse('forum-solve-alert'),
             {
                 'alert_pk': alert.pk,
                 'text': u'Everything is Ok kid'
@@ -540,7 +540,7 @@ class ForumMemberTests(TestCase):
             True)
         # try again as staff
         result = self.client.post(
-            reverse('zds.forum.views.solve_alert'),
+            reverse('forum-solve-alert'),
             {
                 'alert_pk': alert.pk,
             },
