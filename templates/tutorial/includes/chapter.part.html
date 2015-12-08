@@ -41,7 +41,7 @@
         {% if user in authors or perms.tutorial.change_tutorial %}
             <div class="actions-title">
                 <a href="#delete-{{ extract.pk }}" class="open-modal ico-after cross btn btn-grey">{% trans "Supprimer" %}</a>
-                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal modal-small">
+                <form action="{% url "tutorial-modify-extract" %}" method="post" id="delete-{{ extract.pk }}" class="modal modal-small">
                     <p>
                         {% blocktrans with extract_title=extract.title %}
                         Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> l'extrait <em>{{ extract_title }}</em> ?
@@ -55,7 +55,7 @@
                 </form>
 
                 <a href="#move-extract-{{ extract.pk }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
-                <form action="{% url "zds.tutorial.views.modify_extract" %}" method="post" class="modal modal-small" id="move-extract-{{ extract.pk }}">
+                <form action="{% url "tutorial-modify-extract" %}" method="post" class="modal modal-small" id="move-extract-{{ extract.pk }}">
                     <select name="move_target">
                         <option disabled="disabled">{% trans "Déplacer" %}</option>
                         {% if extract.position_in_chapter > 1 %}
@@ -93,7 +93,7 @@
                     </button>
                 </form>
 
-                <a href="{% url "zds.tutorial.views.edit_extract" %}?extrait={{ extract.pk }}" class="ico-after edit btn btn-grey">
+                <a href="{% url "tutorial-edit-extract" %}?extrait={{ extract.pk }}" class="ico-after edit btn btn-grey">
                     {% trans "Éditer" %}
                 </a>
             </div>

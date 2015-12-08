@@ -22,6 +22,6 @@
 
 {% block content %}
     <p>
-        {% trans "Votre mot de passe a bien été modifié, vous pouvez dès maintenant" %} <a href="{% url "zds.member.views.login_view" %}">{% trans "vous connecter" %}</a>.
+        {% trans "Votre mot de passe a bien été modifié, vous pouvez dès maintenant" %} <a href="{% url "member-login" %}">{% trans "vous connecter" %}</a>.
     </p>
 {% endblock %}

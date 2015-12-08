@@ -16,9 +16,9 @@
 
 {% block breadcrumb_base %}
     {% if user in authors.all %}
-        <li><a href="{% url "zds.member.views.articles" %}">{% trans "Mes articles" %}</a></li>
+        <li><a href="{% url "member-articles" %}">{% trans "Mes articles" %}</a></li>
     {% else %}
-        <li><a href="{% url "zds.article.views.index" %}">{% trans "Articles" %}</a></li>
+        <li><a href="{% url "article-index" %}">{% trans "Articles" %}</a></li>
     {% endif %}
 {% endblock %}
 
@@ -65,7 +65,7 @@
     <ul class="taglist">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
+                <a href="{% url "article-index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>

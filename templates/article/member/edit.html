@@ -14,9 +14,9 @@
 
 {% block breadcrumb_base %}
     {% if user in article.authors.all %}
-        <li><a href="{% url "zds.member.views.articles" %}">{% trans "Mes articles" %}</a></li>
+        <li><a href="{% url "member-articles" %}">{% trans "Mes articles" %}</a></li>
     {% else %}
-        <li><a href="{% url "zds.article.views.index" %}">{% trans "Articles" %}</a></li>
+        <li><a href="{% url "article-index" %}">{% trans "Articles" %}</a></li>
     {% endif %}
 {% endblock %}
 

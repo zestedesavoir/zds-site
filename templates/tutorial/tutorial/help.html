@@ -126,7 +126,7 @@
         <ul>
             {% for help in helps %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type and request.GET.type = help.slug %}selected{% endif %}">
+                    <a href="{% url "tutorial-help-tutorial" %}?type={{ help.slug }}" class="{% if request.GET.type and request.GET.type = help.slug %}selected{% endif %}">
                         <img src="{{ help.image.help_mini_illu.url }}" alt="{{help.title}}" title="{{help.title}}" class="{% if request.GET.type and request.GET.type != help.slug %}light{% endif %}" />
                         <span>{{ help.title }}</span>
                     </a>
@@ -138,7 +138,7 @@
             {% endfor %}
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.help_tutorial" %}">
+                    <a href="{% url "tutorial-help-tutorial" %}">
                         <span class="icon ico-after cross red"> </span>
                         <span>{% trans "Annuler le filtre" %}</span>
                     </a>

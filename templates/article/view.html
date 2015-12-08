@@ -74,7 +74,7 @@
     <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
+                <a href="{% url "article-index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>
@@ -139,27 +139,27 @@
 
     {% for message in reactions %}
         {% captureas form_action %}
-            {% url "zds.article.views.answer" %}?article={{ article.pk }}
+            {% url "article-answer" %}?article={{ article.pk }}
         {% endcaptureas %}
 
         {% captureas edit_link %}
-            {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
+            {% url "article-edit-reaction" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+            {% url "article-answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas upvote_link %}
-            {% url "zds.article.views.like_reaction" %}?message={{ message.pk }}
+            {% url "article-like-reaction" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas downvote_link %}
-            {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
+            {% url "article-dislike-reaction" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
-            {% url "zds.article.views.solve_alert" %}
+            {% url "article-solve-alert" %}
         {% endcaptureas %}
 
         {% if forloop.first and nb > 1 %}
@@ -178,7 +178,7 @@
 
 
     {% captureas form_action %}
-        {% url 'zds.article.views.answer' %}?article={{ article.pk }}
+        {% url 'article-answer' %}?article={{ article.pk }}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user topic=article %}
@@ -198,7 +198,7 @@
                 </li>
                 <li>
                     <a href="#unpublish" class="open-modal ico-after cross blue">{% trans "Dépublier" %}</a>
-                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="unpublish">
+                    <form action="{% url "article-modify" %}" method="post" class="modal modal-small" id="unpublish">
                         <p>
                             {% blocktrans %}
                                 <strong>Attention !</strong> Vous allez dépublier un article actuellement <strong>en ligne</strong>.
@@ -213,7 +213,7 @@
                     </form>
                 </li>
                 <li>
-                    <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                    <a href="{% url "article-history-validation" article.pk %}" class="ico-after history blue">
                         {% trans "Historique de validation" %}
                     </a>
                 </li>
@@ -236,7 +236,7 @@
         <h3>{% trans "Télécharger" %}</h3>
         <ul>
             <li>
-                <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}&online"
+                <a href="{% url "article-download" %}?article={{ article.pk }}&online"
                    class="ico-after download blue"
                 >
                     {% trans "Archive" %}

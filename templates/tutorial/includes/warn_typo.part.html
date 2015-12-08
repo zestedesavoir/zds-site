@@ -8,7 +8,7 @@
         {%  elif obj_type == "chapter" %}
             {% trans "Signaler une faute dans ce chapitre" %}
         {% endif %}</a>
-    <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.tutorial.views.warn_typo" obj_type obj_pk %}" method="post" >
+    <form class="modal modal-big" id="warn-typo-modal" action="{% url "tutorial-warn-typo" obj_type obj_pk %}" method="post" >
         <p>
             {% if obj_type == "tutorial" %}
                 {% trans "J'ai trouvé une faute dans ce tutoriel" %}

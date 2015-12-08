@@ -111,7 +111,7 @@
     <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
-    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "zds.search.views.opensearch" %}">
+    <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search-opensearch" %}">
 </head>
 <body class="{% block body_class %}{% endblock %}"
       itemscope
@@ -159,7 +159,7 @@
 
                     {# Logo #}
                     <div class="header-logo">
-                        <a href="{% url "zds.pages.views.home" %}"
+                        <a href="{% url "homepage" %}"
                            class="header-logo-link"
                            data-title="{{ mobiletitle }}"
                         >
@@ -324,7 +324,7 @@
                                 {# NOTIFICATIONS #}
                                 <div>
                                     {% with unread_posts=user|interventions_topics %}
-                                        <a href="{% url "zds.forum.views.followed_topics" %}" class="ico-link">
+                                        <a href="{% url "forum-followed-topics" %}" class="ico-link">
                                             {% if unread_posts|length > 0 %}
                                                 <span class="notif-count">{{ unread_posts|length }}</span>
                                             {% endif %}
@@ -354,7 +354,7 @@
                                                     </li>
                                                 {% endif %}
                                             </ul>
-                                            <a href="{% url "zds.forum.views.followed_topics" %}" class="dropdown-link-all">
+                                            <a href="{% url "forum-followed-topics" %}" class="dropdown-link-all">
                                                 {% trans "Toutes les notifications" %}
                                             </a>
                                         </div>
@@ -365,7 +365,7 @@
                                 {% if perms.forum.change_post %}
                                     {% with alerts_list=user|alerts_list %}
                                         <div>
-                                            <a href="{% url "zds.pages.views.alerts" %}" class="ico-link">
+                                            <a href="{% url "pages-alerts" %}" class="ico-link">
                                                 <span class="notif-text ico ico-alerts">{% trans "Alertes" %}</span>
                                                 {% if alerts_list.nb_alerts > 0 %}
                                                     <span class="notif-count">{{ alerts_list.nb_alerts }}</span>
@@ -389,7 +389,7 @@
                                                         </li>
                                                     {% endfor %}
                                                 </ul>
-                                                <a href="{% url "zds.pages.views.alerts" %}" class="dropdown-link-all">
+                                                <a href="{% url "pages-alerts" %}" class="dropdown-link-all">
                                                     {% trans "Toutes les alertes" %}
                                                 </a>
                                             </div>
@@ -460,7 +460,7 @@
                                         <li>
                                             <form
                                                 method="post"
-                                                action="{% url "zds.member.views.logout_view" %}"
+                                                action="{% url "member-logout" %}"
                                             >
                                                 {% csrf_token %}
                                                 <button type="submit">{% trans "Déconnexion" %}</button>
@@ -472,7 +472,7 @@
                             </div>
 
                         {% else %} {# Not logged #}
-                            <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}">{% trans "Connexion" %}</a>
+                            <a href="{% url "member-login" %}?next={{ request.path }}">{% trans "Connexion" %}</a>
                             <a href="{% url "register-member" %}">{% trans "Inscription" %}</a>
                         {% endif %}
                     </div>
@@ -484,7 +484,7 @@
                     <div class="breadcrumb" itemprop="breadcrumb">
                         <ol>
                             <li>
-                                <a href="{% url "zds.pages.views.home" %}" rel="home" itemprop="url">
+                                <a href="{% url "homepage" %}" rel="home" itemprop="url">
                                     <span itemprop="title">{% trans "Accueil" %}</span>
                                 </a>
                             </li>
@@ -570,15 +570,15 @@
 
                 <ul class="links">
                     <li><a href="{% url "django.swagger.base.view" %}">{% trans "API" %}</a></li>
-                    <li><a href="{% url "zds.pages.views.eula" %}">{% trans "CGU" %}</a></li>
-                    <li><a href="{% url "zds.pages.views.about" %}">{% trans "À propos" %}</a></li>
+                    <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
+                    <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}
-                        <li><a href="{% url "zds.pages.views.association" %}">{% trans "L'association" %}</a></li>
+                        <li><a href="{% url "pages-association" %}">{% trans "L'association" %}</a></li>
                         {% if user.is_authenticated %}
-                            <li><a href="{% url "zds.pages.views.assoc_subscribe" %}">{% trans "Adhérer" %}</a></li>
+                            <li><a href="{% url "pages-assoc-subscribe" %}">{% trans "Adhérer" %}</a></li>
                         {% endif %}
                     {% endif %}
-                    <li><a href="{% url "zds.pages.views.contact" %}">{% trans "Contact" %}</a></li>
+                    <li><a href="{% url "pages-contact" %}">{% trans "Contact" %}</a></li>
                 </ul>
             </div>
         </footer>

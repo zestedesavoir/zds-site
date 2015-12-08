@@ -42,23 +42,23 @@
     <div class="content-wrapper">
         {% for message in reactions %}
             {% captureas edit_link %}
-                {% url "zds.article.views.edit_reaction" %}?message={{ message.pk }}
+                {% url "article-edit-reaction" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.article.views.answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
+                {% url "article-answer" %}?article={{ article.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas upvote_link %}
-                {% url "zds.article.views.like_reaction" %}?message={{ message.pk }}
+                {% url "article-like-reaction" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas downvote_link %}
-                {% url "zds.article.views.dislike_reaction" %}?message={{ message.pk }}
+                {% url "article-dislike-reaction" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas alert_solve_link %}
-                {% url "zds.article.views.solve_alert" %}
+                {% url "article-solve-alert" %}
             {% endcaptureas %}
 
             {% include "misc/message.part.html" %}

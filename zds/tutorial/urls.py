@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^flux/atom/$', feeds.LastTutorialsFeedATOM(), name='tutorial-feed-atom'),
 
     # Current URLs
-    url(r'^recherche/(?P<pk_user>\d+)/$', views.find_tuto),
+    url(r'^recherche/(?P<pk_user>\d+)/$', views.find_tuto, name='tutorial-find-tuto'),
 
     url(r'^off/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/(?P<part_pk>\d+)/(?P<part_slug>.+)/(?P<chapter_pk>\d+)/(?P<ch'
         r'apter_slug>.+)/$', views.view_chapter, name="view-chapter-url"),
@@ -57,14 +57,14 @@ urlpatterns = [
 
     url(r'^$', views.index, name='tutorial-index'),
     url(r'^importer/$', views.import_tuto, name='tutorial-import'),
-    url(r'^import_local/$', views.local_import),
+    url(r'^import_local/$', views.local_import, name='tutorial-local-import'),
     url(r'^telecharger/$', views.download, name='tutorial-download'),
-    url(r'^telecharger/pdf/$', views.download_pdf),
-    url(r'^telecharger/html/$', views.download_html),
-    url(r'^telecharger/epub/$', views.download_epub),
-    url(r'^telecharger/md/$', views.download_markdown),
-    url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history),
-    url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff),
+    url(r'^telecharger/pdf/$', views.download_pdf, name='tutorial-download-pdf'),
+    url(r'^telecharger/html/$', views.download_html, name='tutorial-download-html'),
+    url(r'^telecharger/epub/$', views.download_epub, name='tutorial-download-epub'),
+    url(r'^telecharger/md/$', views.download_markdown, name='tutorial-download-markdown'),
+    url(r'^historique/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.history, name='tutorial-history'),
+    url(r'^comparaison/(?P<tutorial_pk>\d+)/(?P<tutorial_slug>.+)/$', views.diff, name='tutorial-diff'),
 
     # user actions
     url(r'^suppression/(?P<tutorial_pk>\d+)/$', views.delete_tutorial, name='tutorial-delete'),
@@ -75,8 +75,8 @@ urlpatterns = [
     url(r'^validation/reserver/(?P<validation_pk>\d+)/$', views.reservation, name='tutorial-reservation'),
     url(r'^validation/reject/$', views.reject_tutorial, name='tutorial-reject'),
     url(r'^validation/valid/$', views.valid_tutorial, name='tutorial-valid-tutorial'),
-    url(r'^validation/invalid/(?P<tutorial_pk>\d+)/$', views.invalid_tutorial),
-    url(r'^validation/historique/(?P<tutorial_pk>\d+)/$', views.history_validation),
+    url(r'^validation/invalid/(?P<tutorial_pk>\d+)/$', views.invalid_tutorial, name='tutorial-invalid-tutorial'),
+    url(r'^validation/historique/(?P<tutorial_pk>\d+)/$', views.history_validation, name='tutorial-history-validation'),
     url(r'^activation_js/$', views.activ_js, name='tutorial-activ-js'),
     # Reactions
     url(r'^message/editer/$', views.edit_note, name='tutorial-edit-note'),

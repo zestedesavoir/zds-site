@@ -13,5 +13,5 @@ urlpatterns = [
                                    form_class=CustomSearchForm),
         name='haystack_search'),
 
-    url(r'^opensearch\.xml$', opensearch),
+    url(r'^opensearch\.xml$', opensearch, name='search-opensearch'),
 ]

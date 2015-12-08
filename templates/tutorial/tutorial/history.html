@@ -57,7 +57,7 @@
 
 
 {% block content %}
-    <form method="get" action="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}" class="commits-compare-form">
+    <form method="get" action="{% url "tutorial-diff" tutorial.pk tutorial.slug %}" class="commits-compare-form">
         <input type="hidden" name="from" value="">
         <input type="hidden" name="to" value="">
 
@@ -144,12 +144,12 @@
                         {{ commit.authored_date|humane_time }}
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.view_tutorial" tutorial.pk tutorial.slug %}?version={{ commit.hexsha }}" >
+                        <a href="{% url "tutorial-view" tutorial.pk tutorial.slug %}?version={{ commit.hexsha }}" >
                             {{ commit.message }}
                         </a>
                     </td>
                     <td>
-                        <a href="{% url "zds.tutorial.views.diff" tutorial.pk tutorial.slug %}?from={{ commit.parents.0.hexsha|default:empty_sha }}&amp;to={{ commit.hexsha }}">
+                        <a href="{% url "tutorial-diff" tutorial.pk tutorial.slug %}?from={{ commit.parents.0.hexsha|default:empty_sha }}&amp;to={{ commit.hexsha }}">
                             {{ commit.hexsha|truncatechars:8 }}
                         </a>
                     </td>
@@ -175,7 +175,7 @@
                                     {% trans "Mettre à jour" %}
                                 {% endif %}
                             </a>
-                            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta-{{ commit.hexsha }}">
+                            <form action="{% url "tutorial-modify-tutorial" %}" method="post" class="modal modal-small" id="activ-beta-{{ commit.hexsha }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                                 <input type="hidden" name="{% if not tutorial.sha_beta %}activ_beta{% else %}update_beta{% endif %}">

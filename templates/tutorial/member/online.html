@@ -15,7 +15,7 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}">{% trans "Tutoriels publiés" %}</a></li>
+    <li><a href="{% url "tutorial-find-tuto" usr.pk %}">{% trans "Tutoriels publiés" %}</a></li>
     <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
@@ -45,7 +45,7 @@
 {% endblock %}
 
 {% block sidebar_blocks %}
-    <a href="{% url "zds.tutorial.views.find_tuto" usr.pk %}?type=beta" class="new-btn ico-after view blue">
+    <a href="{% url "tutorial-find-tuto" usr.pk %}?type=beta" class="new-btn ico-after view blue">
         {% trans "Tutoriels en bêta par" %} {{ usr.username }}
     </a>
 {% endblock %}

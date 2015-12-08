@@ -69,7 +69,7 @@
                     <tr>
                         <td>{{ titre }}</td>
                         <td>
-                            <form name="form-import" method="post" action="{% url "zds.tutorial.views.local_import" %}">
+                            <form name="form-import" method="post" action="{% url "tutorial-local-import" %}">
                                 <input type="hidden" name="tuto" value="{{ tutorial }}">
                                 <input type="hidden" name="images" value="{{ image }}">
                                 <input type="hidden" name="logo" value="{{ logo }}">

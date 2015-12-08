@@ -13,9 +13,9 @@
 
 {% block breadcrumb_base %}
     {% if user in article.authors.all %}
-        <li><a href="{% url "zds.member.views.articles" %}">{% trans "Mes articles" %}</a></li>
+        <li><a href="{% url "member-articles" %}">{% trans "Mes articles" %}</a></li>
     {% else %}
-        <li><a href="{% url "zds.article.views.index" %}">{% trans "Articles" %}</a></li>
+        <li><a href="{% url "article-index" %}">{% trans "Articles" %}</a></li>
     {% endif %}
 {% endblock %}
 
@@ -57,7 +57,7 @@
     <ul class="taglist" itemprop="keywords">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
+                <a href="{% url "article-index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>
@@ -114,14 +114,12 @@
                         {{ log.time.0|humane_time }}
                     </td>
                     <td>
-                        <a href="{% url "zds.article.views.view" article.pk article.slug %}?version={{ log.newhexsha }}">
+                        <a href="{% url "article-view" article.pk article.slug %}?version={{ log.newhexsha }}">
                             {{ log.message }}
                         </a>
                     </td>
                     <td>
-                        {# <a href="{% url "zds.article.views.diff" article.pk article.slug %}?sha={{ log.newhexsha }}" > #}
-                            {{ log.newhexsha|truncatechars:8 }}
-                        {# </a> #}
+                        {{ log.newhexsha|truncatechars:8 }}
                     </td>
                     <td>
                         {% with u=log.actor.name|user %}

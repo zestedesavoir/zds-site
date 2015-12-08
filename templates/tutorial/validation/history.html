@@ -12,7 +12,7 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.tutorial.views.list_validation" %}">{% trans "Validation" %}</a></li>
+    <li><a href="{% url "tutorial-list-validation" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ tutorial.get_absolute_url }}">{{ tutorial.title }}</a></li>
     <li>{% trans "Historique" %}</li>
 {% endblock %}
@@ -60,7 +60,7 @@
                         </td>
                         <td>
                             {% captureas reservation_url %}
-                                {% url "zds.tutorial.views.reservation" validation.pk %}
+                                {% url "tutorial-reservation" validation.pk %}
                             {% endcaptureas %}
                             {% include "misc/validation.part.html" %}
                         </td>

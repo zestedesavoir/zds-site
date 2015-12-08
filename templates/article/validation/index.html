@@ -11,7 +11,7 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.article.views.list_validation" %}">{% trans "Validation" %}</a></li>
+    <li><a href="{% url "article-list-validation" %}">{% trans "Validation" %}</a></li>
     <li>{% trans "Liste des articles" %}</li>
 {% endblock %}
 
@@ -22,18 +22,18 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}selected{% endif %}">
+                <a href="{% url "tutorial-list-validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}selected{% endif %}">
                     {% trans "En cours de validation" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}selected{% endif %}">
+                <a href="{% url "tutorial-list-validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}selected{% endif %}">
                     {% trans "En attente de validateur" %}
                 </a>
             </li>
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
+                    <a href="{% url "tutorial-list-validation" %}" class="ico-after cross blue">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>
@@ -68,7 +68,7 @@
                         {% for validation in validations %}
                             <tr>
                                 <td>
-                                    <a href="{% url "zds.article.views.view" validation.article.pk validation.article.slug %}?version={{ validation.version }}" >
+                                    <a href="{% url "article-view" validation.article.pk validation.article.slug %}?version={{ validation.version }}" >
                                         {{ validation.article.title }}
                                     </a>
                                     <br>
@@ -78,7 +78,7 @@
                                             {% if not forloop.first %}
                                                 -
                                             {% endif %}
-                                            <a href="{% url "zds.article.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                            <a href="{% url "article-list-validation" %}?subcategory={{ subcategory.pk }}">
                                                 {{ subcategory.title }}</a>
                                         {% endfor %}
                                     {% else %}
@@ -95,7 +95,7 @@
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
-                                        {% url "zds.article.views.reservation" validation.pk %}
+                                        {% url "article-reservation" validation.pk %}
                                     {% endcaptureas %}
                                     {% include "misc/validation.part.html" %}
                                 </td>

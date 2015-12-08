@@ -48,23 +48,23 @@
     <div class="content-wrapper">
         {% for message in notes %}
             {% captureas edit_link %}
-                {% url "zds.tutorial.views.edit_note" %}?message={{ message.pk }}
+                {% url "tutorial-edit-note" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "zds.tutorial.views.answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ message.pk }}
+                {% url "tutorial-answer" %}?tutorial={{ tutorial.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas upvote_link %}
-                {% url "zds.tutorial.views.like_note" %}?message={{ message.pk }}
+                {% url "tutorial-like-note" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas downvote_link %}
-                {% url "zds.tutorial.views.dislike_note" %}?message={{ message.pk }}
+                {% url "tutorial-dislike-note" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas alert_solve_link %}
-                {% url "zds.tutorial.views.solve_alert" %}
+                {% url "tutorial-solve-alert" %}
             {% endcaptureas %}
 
             {% include "misc/message.part.html"%}

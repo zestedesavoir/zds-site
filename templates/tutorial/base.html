@@ -17,10 +17,10 @@
 
 {% block breadcrumb_base %}
     {% if user in tutorial.authors.all %}
-        <li><a href="{% url "zds.member.views.tutorials" %}">{% trans "Mes tutoriels" %}</a></li>
+        <li><a href="{% url "member-tutorials" %}">{% trans "Mes tutoriels" %}</a></li>
     {% else %}
         <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-            <a href="{% url "zds.tutorial.views.index" %}" itemprop="url">
+            <a href="{% url "tutorial-index" %}" itemprop="url">
                 <span itemprop="title">{% trans "Tutoriels" %}</span>
             </a>
         </li>
@@ -63,7 +63,7 @@
                             {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
                                 {% if tutorial.have_markdown %}
                                     <li>
-                                        <a href="{% url "zds.tutorial.views.download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                        <a href="{% url "tutorial-download_markdown" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                             {% trans "Markdown" %}
                                         </a>
                                     </li>
@@ -71,21 +71,21 @@
                             {% endif %}
                             {% if tutorial.have_html %}
                                 <li>
-                                    <a href="{% url "zds.tutorial.views.download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    <a href="{% url "tutorial-download_html" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                         {% trans "HTML" %}
                                     </a>
                                 </li>
                             {% endif %}
                             {% if tutorial.have_pdf %}
                                 <li>
-                                    <a href="{% url "zds.tutorial.views.download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    <a href="{% url "tutorial-download_pdf" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                         {% trans "PDF" %}
                                     </a>
                                 </li>
                             {% endif %}
                             {% if tutorial.have_epub %}
                                 <li>
-                                    <a href="{% url "zds.tutorial.views.download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
+                                    <a href="{% url "tutorial-download_epub" %}?tutoriel={{ tutorial.pk }}" class="ico-after download blue">
                                         {% trans "EPUB" %}
                                     </a>
                                 </li>
@@ -93,7 +93,7 @@
                         {% endif %}
     
                         <li>
-                            <a href="{% url "zds.tutorial.views.download" %}?tutoriel={{ tutorial.pk }}{% if tutorial.is_on_line %}&online{% endif %}" class="ico-after download blue">
+                            <a href="{% url "tutorial-download" %}?tutoriel={{ tutorial.pk }}{% if tutorial.is_on_line %}&online{% endif %}" class="ico-after download blue">
                                 {% trans "Archive" %}
                             </a>
                         </li>
