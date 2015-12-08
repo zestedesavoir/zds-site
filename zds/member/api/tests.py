@@ -12,13 +12,13 @@ from rest_framework.test import APIClient
 from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
 from zds.member.models import TokenRegister
 from rest_framework_extensions.settings import extensions_api_settings
-from django.core.cache import get_cache
+from django.core.cache import caches
 
 
 class MemberListAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_list_of_users_empty(self):
         """
@@ -327,7 +327,7 @@ class MemberListAPITest(APITestCase):
 
 class MemberMyDetailAPITest(APITestCase):
     def setUp(self):
-        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_detail_of_the_member(self):
         """
@@ -374,7 +374,7 @@ class MemberDetailAPITest(APITestCase):
         self.client_authenticated = APIClient()
         authenticate_client(self.client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_detail_of_a_member(self):
         """
@@ -666,7 +666,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         self.client_authenticated = APIClient()
         authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, 'hostel77')
 
-        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_apply_read_only_at_a_member(self):
         """
@@ -835,7 +835,7 @@ class MemberDetailBanAPITest(APITestCase):
         self.client_authenticated = APIClient()
         authenticate_client(self.client_authenticated, client_oauth2, self.staff.user.username, 'hostel77')
 
-        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def test_apply_ban_at_a_member(self):
         """
