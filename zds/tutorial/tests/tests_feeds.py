@@ -63,7 +63,7 @@ class LastTutorialsFeedRSSTest(TestCase):
 
         # ask public tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
@@ -77,13 +77,13 @@ class LastTutorialsFeedRSSTest(TestCase):
         validation = Validation.objects.get(
             tutorial__pk=self.minituto.pk)
         pub = self.client.post(
-            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            reverse('tutorial-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
         # publish tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.valid_tutorial'),
+            reverse('tutorial-valid-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',

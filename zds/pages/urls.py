@@ -7,14 +7,14 @@ from zds.pages.views import about, association, contact, eula, alerts, cookies, 
 
 urlpatterns = [
     # single pages
-    url(r'^apropos/$', about),
-    url(r'^association/$', association),
-    url(r'^contact/$', contact),
-    url(r'^cgu/$', eula),
-    url(r'^alertes/$', alerts),
-    url(r'^cookies/$', cookies),
-    url(r'^association/inscription/$', assoc_subscribe),
+    url(r'^apropos/$', about, name='pages-about'),
+    url(r'^association/$', association, name='pages-association'),
+    url(r'^contact/$', contact, name='pages-contact'),
+    url(r'^cgu/$', eula, name='pages-eula'),
+    url(r'^alertes/$', alerts, name='pages-alerts'),
+    url(r'^cookies/$', cookies, name='pages-cookies'),
+    url(r'^association/inscription/$', assoc_subscribe, name='pages-assoc-subscribe'),
 
     # index
-    url(r'^$', index),
+    url(r'^$', index, name='pages-index'),
 ]

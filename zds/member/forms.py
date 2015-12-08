@@ -40,7 +40,7 @@ class OldTutoForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self.helper.form_action = reverse('zds.member.views.add_oldtuto')
+        self.helper.form_action = reverse('member-add-oldtuto')
 
         self.helper.layout = Layout(
             Field('id'),
@@ -82,7 +82,7 @@ class LoginForm(forms.Form):
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.member.views.login_view')
+        self.helper.form_action = reverse('member-login')
         self.helper.form_method = 'post'
         self.helper.form_class = 'content-wrapper'
 
@@ -661,7 +661,7 @@ class KarmaForm(forms.Form):
     def __init__(self, profile, *args, **kwargs):
         super(KarmaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.member.views.modify_karma')
+        self.helper.form_action = reverse('member-modify-karma')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

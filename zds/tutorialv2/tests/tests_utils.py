@@ -654,7 +654,7 @@ class UtilsTests(TestCase):
             True)
 
         # go to whatever page, if not, `get_current_user()` does not work at all
-        result = self.client.get(reverse('zds.pages.views.index'))
+        result = self.client.get(reverse('pages-index'))
         self.assertEqual(result.status_code, 200)
 
         actor = get_commit_author()
@@ -667,7 +667,7 @@ class UtilsTests(TestCase):
         self.client.logout()
 
         # as above ...
-        result = self.client.get(reverse('zds.pages.views.index'))
+        result = self.client.get(reverse('pages-index'))
         self.assertEqual(result.status_code, 200)
 
         actor = get_commit_author()

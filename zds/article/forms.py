@@ -193,7 +193,7 @@ class ActivJsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ActivJsForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.article.views.activ_js')
+        self.helper.form_action = reverse('article-activ-js')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

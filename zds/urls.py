@@ -89,7 +89,7 @@ urlpatterns = [
 
     url(r'^munin/', include('munin.urls')),
 
-    url(r'^$', home_view),
+    url(r'^$', home_view, name='homepage'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

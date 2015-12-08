@@ -184,7 +184,7 @@ def reservation(request, validation_pk):
         validation.status = "PENDING"
         validation.save()
         messages.info(request, _(u"Le tutoriel n'est plus sous réserve."))
-        return redirect(reverse("zds.tutorial.views.list_validation"))
+        return redirect(reverse("tutorial-list-validation"))
     else:
         validation.validator = request.user
         validation.date_reserve = datetime.now()
@@ -570,7 +570,7 @@ def delete_tutorial(request, tutorial_pk):
         messages.success(request,
                          _(u'Vous ne faites plus partie des rédacteurs de ce '
                            u'tutoriel.'))
-    return redirect(reverse("zds.tutorial.views.index"))
+    return redirect(reverse("tutorial-index"))
 
 
 @can_write_and_read_now
@@ -582,7 +582,7 @@ def modify_tutorial(request):
 
     if request.user in tutorial.authors.all() or request.user.has_perm("tutorial.change_tutorial"):
         if "add_author" in request.POST:
-            redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
+            redirect_url = reverse("tutorial-view", args=[
                 tutorial.pk,
                 tutorial.slug,
             ])
@@ -620,7 +620,7 @@ def modify_tutorial(request):
                       author.username,
                       tutorial.title,
                       settings.ZDS_APP['site']['url'] + tutorial.get_absolute_url(),
-                      settings.ZDS_APP['site']['url'] + reverse("zds.member.views.tutorials"))
+                      settings.ZDS_APP['site']['url'] + reverse("member-tutorials"))
             )
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             send_mp(
@@ -635,7 +635,7 @@ def modify_tutorial(request):
 
             return redirect(redirect_url)
         elif "remove_author" in request.POST:
-            redirect_url = reverse("zds.tutorial.views.view_tutorial", args=[
+            redirect_url = reverse("tutorial-view", args=[
                 tutorial.pk,
                 tutorial.slug,
             ])
@@ -1358,7 +1358,7 @@ def view_part(
             part["conclu"] = get_blob(repo.commit(sha).tree, part["conclusion"])
             final_part = part
             if request.path.startswith("/tutoriels/off") and is_beta:
-                return redirect(reverse('zds.tutorial.views.view_part_beta', args=[
+                return redirect(reverse('view-part-url_beta', args=[
                     tutorial_pk,
                     tutorial_slug,
                     part_pk,
@@ -1738,7 +1738,7 @@ def view_chapter(
                 final_position = len(chapter_tab) - 1
 
                 if request.path.startswith("/tutoriels/off") and is_beta:
-                    return redirect(reverse('zds.tutorial.views.view_chapter_beta', args=[
+                    return redirect(reverse('view-chapter-url_beta', args=[
                         tutorial_pk,
                         tutorial_slug,
                         part_pk,
@@ -2681,7 +2681,7 @@ def import_content(
 def local_import(request):
     import_content(request, request.POST["tuto"], request.POST["images"],
                    request.POST["logo"])
-    return redirect(reverse("zds.member.views.tutorials"))
+    return redirect(reverse("member-tutorials"))
 
 
 @can_write_and_read_now
@@ -2693,7 +2693,7 @@ def import_tuto(request):
             form = ImportForm(request.POST, request.FILES)
             if form.is_valid():
                 import_content(request, request.FILES["file"], request.FILES["images"], "")
-                return redirect(reverse("zds.member.views.tutorials"))
+                return redirect(reverse("member-tutorials"))
             else:
                 form_archive = ImportArchiveForm(user=request.user)
 
@@ -2706,7 +2706,7 @@ def import_tuto(request):
                     messages.error(request, reason)
                 else:
                     messages.success(request, reason)
-                    return redirect(reverse("zds.member.views.tutorials"))
+                    return redirect(reverse("member-tutorials"))
             else:
                 form = ImportForm()
 
@@ -3647,7 +3647,7 @@ def edit_note(request):
         if "preview" in request.POST:
             form = NoteForm(g_tutorial, request.user,
                             initial={"text": request.POST["text"]})
-            form.helper.form_action = reverse("zds.tutorial.views.edit_note") + \
+            form.helper.form_action = reverse("tutorial-edit-note") + \
                 "?message=" + str(note_pk)
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
@@ -3670,7 +3670,7 @@ def edit_note(request):
         return redirect(note.get_absolute_url())
     else:
         form = NoteForm(g_tutorial, request.user, initial={"text": note.text})
-        form.helper.form_action = reverse("zds.tutorial.views.edit_note") + \
+        form.helper.form_action = reverse("tutorial-edit-note") + \
             "?message=" + str(note_pk)
         return render(request, "tutorial/comment/edit.html", {"note": note, "tutorial": g_tutorial, "form": form})
 

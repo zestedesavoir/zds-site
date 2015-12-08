@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^notifications/$', followed_topics),
 
     # Moderation
-    url(r'^resolution_alerte/$', solve_alert),
+    url(r'^resolution_alerte/$', solve_alert, name='forum-solve-alert'),
 
     # Viewing a thread
     url(r'^sujet/nouveau/$', TopicNew.as_view(), name='topic-new'),
