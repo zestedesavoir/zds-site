@@ -57,7 +57,7 @@
                         {% for validation in validations %}
                             <tr>
                                 <td>
-                                    <a href="{% url "zds.tutorial.views.view_tutorial" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
+                                    <a href="{% url "tutorial-view" validation.tutorial.pk validation.tutorial.slug %}?version={{ validation.version }}">
                                         {{ validation.tutorial.title }}
                                     </a>
                                     <br>
@@ -67,7 +67,7 @@
                                             {% if not forloop.first %}
                                                 -
                                             {% endif %}
-                                            <a href="{% url "zds.tutorial.views.list_validation" %}?subcategory={{ subcategory.pk }}">
+                                            <a href="{% url "tutorial-list-validation" %}?subcategory={{ subcategory.pk }}">
                                                 {{ subcategory.title }}</a>
                                         {% endfor %}
                                     {% else %}
@@ -84,7 +84,7 @@
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
-                                        {% url "zds.tutorial.views.reservation" validation.pk %}
+                                        {% url "tutorial-reservation" validation.pk %}
                                     {% endcaptureas %}
                                     {% include "misc/validation.part.html" %}
                                 </td>
@@ -109,18 +109,18 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "zds.tutorial.views.list_validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}selected{% endif %}">
+                <a href="{% url "tutorial-list-validation" %}?type=reserved" class="ico-after tick green {% if request.GET.type == "reserved" %}selected{% endif %}">
                     {% trans "En cours de validation" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "zds.tutorial.views.list_validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}selected{% endif %}">
+                <a href="{% url "tutorial-list-validation" %}?type=orphan" class="ico-after tick {% if request.GET.type == "orphan" %}selected{% endif %}">
                     {% trans "En attente de validateur" %}
                 </a>
             </li>
             {% if request.GET.type %}
                 <li>
-                    <a href="{% url "zds.tutorial.views.list_validation" %}" class="ico-after cross blue">
+                    <a href="{% url "tutorial-list-validation" %}" class="ico-after cross blue">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>

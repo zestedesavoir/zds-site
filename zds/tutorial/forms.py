@@ -519,7 +519,7 @@ class AskValidationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(AskValidationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.ask_validation')
+        self.helper.form_action = reverse('tutorial-ask-validation')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -562,7 +562,7 @@ class ValidForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ValidForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.valid_tutorial')
+        self.helper.form_action = reverse('tutorial-valid-tutorial')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -591,7 +591,7 @@ class RejectForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(RejectForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.reject_tutorial')
+        self.helper.form_action = reverse('tutorial-reject')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
@@ -615,7 +615,7 @@ class ActivJsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ActivJsForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.tutorial.views.activ_js')
+        self.helper.form_action = reverse('tutorial-activ-js')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

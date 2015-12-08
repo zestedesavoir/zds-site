@@ -3,7 +3,7 @@
 
 {% if user in authors.all or perms.article.change_article %}
     {% if article.sha_draft = version %}
-        <a href="{% url "zds.article.views.edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
+        <a href="{% url "article-edit" %}?article={{ article.pk }}" class="ico-after edit blue new-btn">
             {% trans "Éditer" %}
         </a>
     {% else %}
@@ -19,7 +19,7 @@
                 <a href="#add-author" class="open-modal ico-after more blue">
                     {% trans "Ajouter un auteur" %}
                 </a>
-                <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="add-author">
+                <form action="{% url "article-modify" %}" method="post" class="modal modal-small" id="add-author">
                     {% csrf_token %}
                     <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }" >
                     <input type="hidden" name="article" value="{{ article.pk }}" />
@@ -30,7 +30,7 @@
             </li>
             <li>
                 <a href="#manage-authors" class="open-modal ico-after gear blue">{% trans "Gérer les auteurs" %}</a>
-                <form action="{% url "zds.article.views.modify" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+                <form action="{% url "article-modify" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
                     <table class="fullwidth">
                         <thead>
                             <th>{% trans "Auteur" %}</th>
@@ -62,7 +62,7 @@
                 <li><a href="{{ article.get_absolute_url_online }}" class="ico-after view blue">{% blocktrans %}Voir <span class="wide">la version</span> en ligne</a>{% endblocktrans %}</li>
             {% endif %}
             <li>
-                <a href="{% url "zds.article.views.history" article.pk article.slug %}" class="ico-after history blue">
+                <a href="{% url "article-history" article.pk article.slug %}" class="ico-after history blue">
                     {% trans "Historique des versions" %}
                 </a>
             </li>
@@ -83,7 +83,7 @@
                     <span class="ico-after tick disabled">{% trans "En attente de validation" %}</span>
                 </li>
             {% endif %}
-            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="ask-validation">
+            <form action="{% url "article-modify" %}" method="post" class="modal modal-medium" id="ask-validation">
                 <textarea name="comment" rows="3" placeholder="Vos commentaires de validation"></textarea>
 
                 <input type="hidden" name="article" value="{{ article.pk }}">
@@ -104,7 +104,7 @@
         <h3>{% trans "Validation" %}</h3>
         <ul>
             <li>
-                <a href="{% url "zds.article.views.history_validation" article.pk %}" class="ico-after history blue">
+                <a href="{% url "article-history-validation" article.pk %}" class="ico-after history blue">
                     {% trans "Historique de validation" %}
                 </a>
             </li>
@@ -138,7 +138,7 @@
             {% if not article.sha_validation = None %}
                 {% if validation.is_pending %}
                     <li>
-                        <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
+                        <form action="{% url "article-reservation" validation.pk %}" method="post">
                             {% csrf_token %}
                             <button type="submit" class="ico-after lock blue">
                                 {% trans "Réserver" %}
@@ -148,7 +148,7 @@
                 {% elif validation.is_pending_valid %}
                     {% if validation.validator = user %}
                         <li>
-                            <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post">
+                            <form action="{% url "article-reservation" validation.pk %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="ico-after lock blue">
                                     {% trans "Annuler la réservation" %}
@@ -157,7 +157,7 @@
                         </li>
                         <li>
                             <a href="#publish" class="open-modal ico-after tick green">{% trans "Publier" %}</a>
-                            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="publish">
+                            <form action="{% url "article-modify" %}" method="post" class="modal modal-medium" id="publish">
                                 <textarea name="comment-v" rows="3" placeholder="Vos commentaires de publication"></textarea>
 
                                 <input type="hidden" name="article" value="{{ article.pk }}">
@@ -168,7 +168,7 @@
                         </li>
                         <li>
                             <a href="#reject" class="open-modal ico-after cross red">{% trans "Rejeter" %}</a>
-                            <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-medium" id="reject">
+                            <form action="{% url "article-modify" %}" method="post" class="modal modal-medium" id="reject">
                                 <textarea name="comment-r" rows="3" placeholder="Vos commentaires de rejet"></textarea>
 
                                 <input type="hidden" name="article" value="{{ article.pk }}">
@@ -184,7 +184,7 @@
                                     Réservé par <strong>{{ valido }}</strong>, le retirer
                                 {% endblocktrans %}
                             </a>
-                            <form action="{% url "zds.article.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                            <form action="{% url "article-reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
                                 {% csrf_token %}
                                 <p>
                                     {% trans "La validation de cet article est actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certains de vouloir le retirer" %} ?
@@ -201,7 +201,7 @@
             {% if article.sha_public %}
                 <li>
                     <a href="#unpublish" class="open-modal ico-after cross blue">{% trans "Dépublier" %}</a>
-                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="unpublish">
+                    <form action="{% url "article-modify" %}" method="post" class="modal modal-small" id="unpublish">
                         <p>
                             {% blocktrans %}
                                 <strong>Attention !</strong> Vous allez dépublier un article actuellement <strong>en ligne</strong>.
@@ -229,7 +229,7 @@
             {% if article.sha_public = None %}
                 <li>
                     <a href="#delete" class="open-modal ico-after cross red">{% trans "Supprimer" %}</a>
-                    <form action="{% url "zds.article.views.modify" %}" method="post" class="modal modal-small" id="delete">
+                    <form action="{% url "article-modify" %}" method="post" class="modal modal-small" id="delete">
                         <p>
                             {% blocktrans with article_title=article.title %}
                                 Vous vous apprêtez à supprimer <strong>définitivement</strong> l'article "<em>{{ article_title }}</em>".
@@ -259,7 +259,7 @@
     <h3>{% trans "Télécharger" %}</h3>
     <ul>
         <li>
-            <a href="{% url "zds.article.views.download" %}?article={{ article.pk }}" class="ico-after download blue">
+            <a href="{% url "article-download" %}?article={{ article.pk }}" class="ico-after download blue">
                 {% trans "Archive" %}
             </a>
         </li>

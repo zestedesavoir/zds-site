@@ -62,7 +62,7 @@ class Article(models.Model):
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True, db_index=True)
+                                         blank=True, db_index=True)
 
     image = ThumbnailerImageField(upload_to=image_path, blank=True, null=True)
 
@@ -105,7 +105,7 @@ class Article(models.Model):
         self.delete()
 
     def get_absolute_url(self):
-        return reverse('zds.article.views.view',
+        return reverse('article-view',
                        kwargs={'article_pk': self.pk,
                                'article_slug': slugify(self.title)})
 
@@ -113,12 +113,12 @@ class Article(models.Model):
         return str(self.pk) + "_" + self.slug
 
     def get_absolute_url_online(self):
-        return reverse('zds.article.views.view_online',
+        return reverse('article-view_online',
                        kwargs={'article_pk': self.pk,
                                'article_slug': slugify(self.title)})
 
     def get_edit_url(self):
-        return reverse('zds.article.views.edit') + \
+        return reverse('article-edit') + \
             '?article={0}'.format(self.pk)
 
     def on_line(self):
@@ -170,9 +170,9 @@ class Article(models.Model):
         article_version['sha_public'] = self.sha_public
         article_version['last_read_reaction'] = self.last_read_reaction
         article_version['get_reaction_count'] = Reaction.objects.count_reactions(self)
-        article_version['get_absolute_url'] = reverse('zds.article.views.view',
+        article_version['get_absolute_url'] = reverse('article-view',
                                                       args=[self.pk, self.slug])
-        article_version['get_absolute_url_online'] = reverse('zds.article.views.view_online',
+        article_version['get_absolute_url_online'] = reverse('article-view_online',
                                                              args=[self.pk, slugify(article_version['title'])])
         article_version['update'] = self.update
         article_version['authors'] = self.authors

@@ -7,7 +7,7 @@
         <a href="#warn-typo-modal" class="open-modal btn btn-grey ico-after edit blue">
             {% trans "Signaler une faute dans l'article" %}
         </a>
-        <form class="modal modal-big" id="warn-typo-modal" action="{% url "zds.article.views.warn_typo" article_pk=article.pk %}" method="post" >
+        <form class="modal modal-big" id="warn-typo-modal" action="{% url "article-warn-typo" article_pk=article.pk %}" method="post" >
             <p>
                 {% trans "J'ai trouvé une faute dans l'article" %}
             :

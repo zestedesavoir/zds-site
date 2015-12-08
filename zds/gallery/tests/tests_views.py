@@ -18,7 +18,7 @@ class GalleryListViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('gallery-list'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' + urllib.quote(reverse('gallery-list'), ''))
 
     def test_list_galeries_belong_to_member(self):
@@ -50,7 +50,7 @@ class GalleryDetailViewTest(TestCase):
         response = self.client.get(reverse('gallery-details',
                                            args=['89', 'test-gallery']), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' + urllib.quote(reverse('gallery-details',
                                                              args=['89', 'test-gallery']), ''))
 
@@ -95,13 +95,13 @@ class NewGalleryViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('gallery-new'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' +
                              urllib.quote(reverse('gallery-new'), ''))
 
         response = self.client.post(reverse('gallery-new'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' +
                              urllib.quote(reverse('gallery-new'), ''))
 
@@ -172,7 +172,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'delete_multi': '',
                 'items': [self.gallery1.pk]
@@ -194,7 +194,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'delete_multi': '',
                 'items': [self.gallery1.pk, self.gallery2.pk]
@@ -212,7 +212,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # gallery nonexistent
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'adduser': '',
                 'gallery': 89,
@@ -222,7 +222,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # try to add an user with write permission
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'adduser': '',
                 'gallery': self.gallery1.pk,
@@ -238,7 +238,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # Same permission : read
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'adduser': '',
                 'gallery': self.gallery1.pk,
@@ -255,7 +255,7 @@ class ModifyGalleryViewTest(TestCase):
         # try to add write permission to an user
         # who has already an read permission
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'adduser': '',
                 'gallery': self.gallery1.pk,
@@ -274,7 +274,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'adduser': '',
                 'gallery': self.gallery1.pk,
@@ -293,7 +293,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'adduser': '',
                 'gallery': self.gallery1.pk,
@@ -410,7 +410,7 @@ class EditImageViewTest(TestCase):
             follow=True
         )
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' + urllib.quote(reverse('gallery-image-edit', args=[15, 156]), ''))
 
     def test_fail_member_no_permission_can_edit_image(self):
@@ -502,7 +502,7 @@ class ModifyImageTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('gallery-image-delete'), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' + urllib.quote(reverse('gallery-image-delete'), ''))
 
     def test_fail_modify_image_with_no_permission(self):
@@ -608,7 +608,7 @@ class NewImageViewTest(TestCase):
     def test_denies_anonymous(self):
         response = self.client.get(reverse('gallery-image-new', args=[1]), follow=True)
         self.assertRedirects(response,
-                             reverse('zds.member.views.login_view') +
+                             reverse('member-login') +
                              '?next=' + urllib.quote(reverse('gallery-image-new', args=[1]), ''))
 
     def test_success_new_image_write_permission(self):

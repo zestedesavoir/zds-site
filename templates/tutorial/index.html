@@ -71,11 +71,11 @@
     <aside class="sidebar accordeon mobile-menu-bloc"
            data-title="Catégories de tutoriels"
     >
-        <a href="{% url "zds.tutorial.views.add_tutorial" %}" class="new-btn ico-after more blue">
+        <a href="{% url "tutorial-add-tutorial" %}" class="new-btn ico-after more blue">
             {% trans "Nouveau tutoriel" %}
         </a>
 
-        <a href="{% url "zds.tutorial.views.help_tutorial" %}" class="new-btn ico-after help blue">
+        <a href="{% url "tutorial-help-tutorial" %}" class="new-btn ico-after help blue">
             {% trans "Aider les auteurs" %}
         </a>
 
@@ -87,7 +87,7 @@
                 <ul>
                     {% for subcat,slug in subcats %}
                         <li>
-                            <a href="{% url "zds.tutorial.views.index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                            <a href="{% url "tutorial-index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
                                 {{  subcat }}
                             </a>
                         </li>

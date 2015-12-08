@@ -71,7 +71,7 @@
     <aside class="sidebar accordeon mobile-menu-bloc"
            data-title="Catégories des articles"
     >
-        <a href="{% url "zds.article.views.new" %}" class="new-btn ico-after more blue">
+        <a href="{% url "article-new" %}" class="new-btn ico-after more blue">
             {% trans "Nouvel article" %}
         </a>
 
@@ -83,7 +83,7 @@
                 <ul>
                     {% for subcat,slug in subcats %}
                         <li>
-                            <a href="{% url "zds.article.views.index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                            <a href="{% url "article-index" %}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
                                 {{  subcat }}
                             </a>
                         </li>

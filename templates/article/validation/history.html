@@ -12,7 +12,7 @@
 
 
 {% block breadcrumb %}
-    <li><a href="{% url "zds.article.views.list_validation" %}">{% trans "Validation" %}</a></li>
+    <li><a href="{% url "article-list-validation" %}">{% trans "Validation" %}</a></li>
     <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
     <li>{% trans "Historique" %}</li>
 {% endblock %}
@@ -35,7 +35,7 @@
     <ul class="taglist">
         {% for tag in tags.all %}
             <li>
-                <a href="{% url "zds.article.views.index" %}?tag={{ tag.slug }}">
+                <a href="{% url "article-index" %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                 </a>
             </li>
@@ -80,7 +80,7 @@
                         </td>
                         <td>
                             {% captureas reservation_url %}
-                                {% url "zds.article.views.reservation" validation.pk %}
+                                {% url "article-reservation" validation.pk %}
                             {% endcaptureas %}
                             {% include "misc/validation.part.html" %}
                         </td>

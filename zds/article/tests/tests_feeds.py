@@ -50,7 +50,7 @@ class LastArticlesFeedRSSTest(TestCase):
 
         # ask public article
         pub = self.client.post(
-            reverse('zds.article.views.modify'),
+            reverse('article-modify'),
             {
                 'article': self.article.pk,
                 'comment': u'Valides moi ce bébé',
@@ -71,13 +71,13 @@ class LastArticlesFeedRSSTest(TestCase):
         validation = Validation.objects.get(
             article__pk=self.article.pk)
         pub = self.client.post(
-            reverse('zds.article.views.reservation', args=[validation.pk]),
+            reverse('article-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
         # publish article
         pub = self.client.post(
-            reverse('zds.article.views.modify'),
+            reverse('article-modify'),
             {
                 'article': self.article.pk,
                 'comment-v': u'Cet article est excellent',

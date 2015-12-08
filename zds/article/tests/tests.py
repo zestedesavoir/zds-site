@@ -65,7 +65,7 @@ class ArticleTests(TestCase):
 
         # ask public article
         pub = self.client.post(
-            reverse('zds.article.views.modify'),
+            reverse('article-modify'),
             {
                 'article': self.article.pk,
                 'comment': u'Valides moi ce bébé',
@@ -86,13 +86,13 @@ class ArticleTests(TestCase):
         validation = Validation.objects.get(
             article__pk=self.article.pk)
         pub = self.client.post(
-            reverse('zds.article.views.reservation', args=[validation.pk]),
+            reverse('article-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
         # publish article
         pub = self.client.post(
-            reverse('zds.article.views.modify'),
+            reverse('article-modify'),
             {
                 'article': self.article.pk,
                 'comment-v': u'Cet article est excellent',
@@ -168,7 +168,7 @@ class ArticleTests(TestCase):
         self.assertEqual(login_check, True)
         # signal reaction
         result = self.client.post(
-            reverse('zds.article.views.edit_reaction') +
+            reverse('article-edit-reaction') +
             '?message={0}'.format(
                 reaction.pk),
             {
@@ -186,7 +186,7 @@ class ArticleTests(TestCase):
         self.assertEqual(login_check, True)
         # solve alert
         result = self.client.post(
-            reverse('zds.article.views.solve_alert'),
+            reverse('article-solve-alert'),
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
@@ -208,7 +208,7 @@ class ArticleTests(TestCase):
 
         # add empty reaction
         result = self.client.post(
-            reverse('zds.article.views.answer') +
+            reverse('article-answer') +
             '?article={0}'.format(
                 self.article.pk),
             {
@@ -221,7 +221,7 @@ class ArticleTests(TestCase):
 
         # add reaction
         result = self.client.post(
-            reverse('zds.article.views.answer') +
+            reverse('article-answer') +
             '?article={0}'.format(
                 self.article.pk),
             {
@@ -246,7 +246,7 @@ class ArticleTests(TestCase):
 
         # test antispam return 403
         result = self.client.post(
-            reverse('zds.article.views.answer') +
+            reverse('article-answer') +
             '?article={0}'.format(
                 self.article.pk),
             {
@@ -262,7 +262,7 @@ class ArticleTests(TestCase):
 
         # test more reaction
         result = self.client.post(
-            reverse('zds.article.views.answer') +
+            reverse('article-answer') +
             '?article={0}'.format(
                 self.article.pk),
             {
@@ -447,7 +447,7 @@ class ArticleTests(TestCase):
 
         # change licence (get 302) :
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
@@ -479,7 +479,7 @@ class ArticleTests(TestCase):
 
         # change licence back to old one (get 302, staff can change licence) :
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
@@ -505,7 +505,7 @@ class ArticleTests(TestCase):
 
         # change licence (get 302, redirection to login page) :
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
@@ -532,7 +532,7 @@ class ArticleTests(TestCase):
         # change licence (get 403, random user cannot edit article if not in
         # authors list) :
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article={}'.format(self.article.pk),
             {
                 'title': self.article.title,
@@ -567,7 +567,7 @@ class ArticleTests(TestCase):
         article_title = u'Le titre, mais pas pareil'
         article_content = u'Mais nous c\'est pas pareil ...'
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article={}'.format(self.article.pk),
             {
                 'title': article_title,
@@ -586,7 +586,7 @@ class ArticleTests(TestCase):
         # fetch archives :
         # 1. draft version
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}'.format(
                 self.article.pk),
             follow=False)
@@ -597,7 +597,7 @@ class ArticleTests(TestCase):
         f.close()
         # 2. online version :
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}&online'.format(
                 self.article.pk),
             follow=False)
@@ -629,14 +629,14 @@ class ArticleTests(TestCase):
 
         # public cannot access to draft version of article
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}'.format(
                 self.article.pk),
             follow=False)
         self.assertEqual(result.status_code, 403)
         # ... but can access to online version
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}&online'.format(
                 self.article.pk),
             follow=False)
@@ -651,14 +651,14 @@ class ArticleTests(TestCase):
 
         # cannot access to draft version of article (if not author or staff)
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}'.format(
                 self.article.pk),
             follow=False)
         self.assertEqual(result.status_code, 403)
         # but can access to online one
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}&online'.format(
                 self.article.pk),
             follow=False)
@@ -674,14 +674,14 @@ class ArticleTests(TestCase):
 
         # staff can access to draft version of article
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}'.format(
                 self.article.pk),
             follow=False)
         self.assertEqual(result.status_code, 200)
         # ... and also to online version
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={0}&online'.format(
                 self.article.pk),
             follow=False)
@@ -691,21 +691,21 @@ class ArticleTests(TestCase):
 
         # When the pk is missing for the edit
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?&online',
             follow=False)
         self.assertEqual(result.status_code, 404)
 
         # When the pk is weird
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={abc}&online',
             follow=False)
         self.assertEqual(result.status_code, 404)
 
         # When the pk is not yet existing
         result = self.client.get(
-            reverse('zds.article.views.download') +
+            reverse('article-download') +
             '?article={424242}&online',
             follow=False)
         self.assertEqual(result.status_code, 404)
@@ -736,7 +736,7 @@ class ArticleTests(TestCase):
         article_title = u'Le titre, mais pas pareil'
         article_content = u'Mais nous c\'est pas pareil ...'
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article={}'.format(self.article.pk),
             {
                 'title': article_title,
@@ -755,7 +755,7 @@ class ArticleTests(TestCase):
         article_title = u'Le titre, mais pas pareil encore'
         article_content = u'Mais nous c\'est pas pareil encore...'
         result = self.client.post(
-            reverse('zds.article.views.edit'),
+            reverse('article-edit'),
             {
                 'title': article_title,
                 'description': self.article.description,
@@ -768,7 +768,7 @@ class ArticleTests(TestCase):
 
         # When the pk is weird for the edit
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article=' + 'abc',
             {
                 'title': article_title,
@@ -782,7 +782,7 @@ class ArticleTests(TestCase):
 
         # When the pk is not yet existing for the edit
         result = self.client.post(
-            reverse('zds.article.views.edit') +
+            reverse('article-edit') +
             '?article=' + '424242',
             {
                 'title': article_title,
@@ -797,7 +797,7 @@ class ArticleTests(TestCase):
     def test_list_article(self):
         # Test if we can display an article
         result = self.client.get(
-            reverse('zds.article.views.index'),
+            reverse('article-index'),
             {},
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -822,7 +822,7 @@ class ArticleTests(TestCase):
 
         # Launch test with a subcategory in params url
         result = self.client.post(
-            reverse('zds.article.views.index') + '?tag=' + subcat.slug,
+            reverse('article-index') + '?tag=' + subcat.slug,
             {},
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -832,7 +832,7 @@ class ArticleTests(TestCase):
 
         # Launch test with no subcategory
         result = self.client.post(
-            reverse('zds.article.views.index') + '?tag=None',
+            reverse('article-index') + '?tag=None',
             {},
             follow=True)
         self.assertEqual(result.status_code, 200)
@@ -853,7 +853,7 @@ class ArticleTests(TestCase):
 
         # Try the preview button
         result = self.client.post(
-            reverse('zds.article.views.new'),
+            reverse('article-new'),
             {'text': 'A wonderful poetry by Victor Hugo',
              'preview': '',
 
@@ -870,7 +870,7 @@ class ArticleTests(TestCase):
 
         # Create an article
         result = self.client.post(
-            reverse('zds.article.views.new'),
+            reverse('article-new'),
             {'title': 'Create a new article test',
              'description': 'Describe the mew article',
              'text': 'A wonderful poetry by Victor Hugo',
@@ -899,7 +899,7 @@ class ArticleTests(TestCase):
 
         # check if author get error when warning typo on its own tutorial
         result = self.client.post(
-            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            reverse('article-warn-typo', args=[self.article.pk]),
             {
                 'explication': u'ceci est un test',
             },
@@ -923,7 +923,7 @@ class ArticleTests(TestCase):
 
         # check if user can warn typo in tutorial
         result = self.client.post(
-            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            reverse('article-warn-typo', args=[self.article.pk]),
             {
                 'explication': typo_text,
             },
@@ -944,7 +944,7 @@ class ArticleTests(TestCase):
 
         # Check if we send a wrong pk key
         result = self.client.post(
-            reverse('zds.article.views.warn_typo', args=["1111"]),
+            reverse('article-warn-typo', args=["1111"]),
             {
                 'explication': typo_text,
             },
@@ -953,7 +953,7 @@ class ArticleTests(TestCase):
 
         # Check if we send no explanation
         result = self.client.post(
-            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            reverse('article-warn-typo', args=[self.article.pk]),
             {
                 'explication': '',
             },
@@ -968,7 +968,7 @@ class ArticleTests(TestCase):
 
         # Check if we send an explanation with only space
         result = self.client.post(
-            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            reverse('article-warn-typo', args=[self.article.pk]),
             {
                 'explication': '  ',
             },
@@ -985,7 +985,7 @@ class ArticleTests(TestCase):
         self.client.logout()
 
         result = self.client.post(
-            reverse('zds.article.views.warn_typo', args=[self.article.pk]),
+            reverse('article-warn-typo', args=[self.article.pk]),
             {
                 'explication': typo_text,
             },

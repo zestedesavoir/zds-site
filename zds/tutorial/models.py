@@ -55,7 +55,7 @@ class Tutorial(models.Model):
 
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True, db_index=True)
+                                         blank=True, db_index=True)
 
     slug = models.SlugField(max_length=80)
 
@@ -124,18 +124,18 @@ class Tutorial(models.Model):
         return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
-        return reverse('zds.tutorial.views.view_tutorial', args=[
+        return reverse('tutorial-view', args=[
             self.pk, slugify(self.title)
         ])
 
     def get_absolute_url_online(self):
-        return reverse('zds.tutorial.views.view_tutorial_online', args=[
+        return reverse('tutorial-view-online', args=[
             self.pk, slugify(self.title)
         ])
 
     def get_absolute_url_beta(self):
         if self.sha_beta is not None:
-            return reverse('zds.tutorial.views.view_tutorial_beta', args=[
+            return reverse('tutorial-view-beta', args=[
                 self.pk, slugify(self.title)
             ])
         else:
@@ -151,7 +151,7 @@ class Tutorial(models.Model):
         return reverse('mp-new') + get
 
     def get_edit_url(self):
-        return reverse('zds.tutorial.views.modify_tutorial') + \
+        return reverse('tutorial-modify-tutorial') + \
             '?tutorial={0}'.format(self.pk)
 
     def get_parts(self):
@@ -591,7 +591,7 @@ class Part(models.Model):
         return str(self.pk) + "_" + self.slug
 
     def get_absolute_url(self):
-        return reverse('zds.tutorial.views.view_part', args=[
+        return reverse('view-part-url', args=[
             self.tutorial.pk,
             self.tutorial.slug,
             self.pk,
@@ -599,7 +599,7 @@ class Part(models.Model):
         ])
 
     def get_absolute_url_beta(self):
-        return reverse('zds.tutorial.views.view_part_beta', args=[
+        return reverse('view-part-url_beta', args=[
             self.tutorial.pk,
             self.tutorial.slug,
             self.pk,
@@ -607,7 +607,7 @@ class Part(models.Model):
         ])
 
     def get_absolute_url_online(self):
-        return reverse('zds.tutorial.views.view_part_online', args=[
+        return reverse('view-part-url_online', args=[
             self.tutorial.pk,
             self.tutorial.slug,
             self.pk,
@@ -771,7 +771,7 @@ class Chapter(models.Model):
             return self.part.get_absolute_url() + '{0}/{1}/'.format(self.pk, self.slug)
 
         else:
-            return reverse('zds.tutorial.views.index')
+            return reverse('tutorial-index')
 
     def get_absolute_url_beta(self):
         if self.tutorial:
@@ -788,7 +788,7 @@ class Chapter(models.Model):
             ) + '{0}/{1}/'.format(self.pk, self.slug)
 
         else:
-            return reverse('zds.tutorial.views.index')
+            return reverse('tutorial-index')
 
     def get_extract_count(self):
         return Extract.objects.all().filter(chapter__pk=self.pk).count()

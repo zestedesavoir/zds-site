@@ -92,7 +92,7 @@
                         {% trans "Supprimer les galeries sélectionnées" %}
                     </a>
                     
-                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-small">
+                    <form action="{% url "gallery-modify" %}" method="post" id="delete-galleries" class="modal modal-small">
                         <p>
                             {% trans "Attention, vous vous appretez à supprimer toutes les galeries sélectionnées" %}.
                         </p>

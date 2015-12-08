@@ -773,7 +773,7 @@ def modify(request):
             else:
                 article.authors.remove(request.user)
 
-            return redirect(reverse('zds.article.views.index'))
+            return redirect(reverse('article-index'))
 
         # User would like to validate his article. So we must save the
         # current sha (version) of the article to his sha_validation.
@@ -823,7 +823,7 @@ def modify(request):
 
             return redirect(article.get_absolute_url())
         elif 'add_author' in request.POST:
-            redirect_url = reverse('zds.article.views.view', args=[
+            redirect_url = reverse('article-view', args=[
                 article.pk,
                 article.slug
             ])
@@ -858,7 +858,7 @@ def modify(request):
                     author.username,
                     article.title,
                     settings.ZDS_APP['site']['url'] + article.get_absolute_url(),
-                    settings.ZDS_APP['site']['url'] + reverse("zds.member.views.articles"))
+                    settings.ZDS_APP['site']['url'] + reverse("member-articles"))
             )
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             send_mp(
@@ -874,7 +874,7 @@ def modify(request):
             return redirect(redirect_url)
 
         elif 'remove_author' in request.POST:
-            redirect_url = reverse('zds.article.views.view', args=[
+            redirect_url = reverse('article-view', args=[
                 article.pk,
                 article.slug
             ])
@@ -1028,7 +1028,7 @@ def reservation(request, validation_pk):
         validation.status = 'PENDING'
         validation.save()
 
-        return redirect(reverse('zds.article.views.list_validation'))
+        return redirect(reverse('article-list-validation'))
 
     else:
         validation.validator = request.user

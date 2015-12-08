@@ -61,12 +61,12 @@
 
 {% block sidebar_new %}
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
-        <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}"
+        <a href="{% url "tutorial-add-extract" %}?chapitre={{ chapter.pk }}"
            class="ico-after more blue new-btn"
         >
             {% trans "Ajouter un extrait" %}
         </a>
-        <a href="{% url "zds.tutorial.views.edit_chapter" %}?chapitre={{ chapter.pk }}&amp;version={{ version }}"
+        <a href="{% url "tutorial-edit-chapter" %}?chapitre={{ chapter.pk }}&amp;version={{ version }}"
            class="ico-after edit blue new-btn"
         >
             {% trans "Éditer le chapitre" %}
@@ -85,7 +85,7 @@
                         Déplacer <span class="wide">le chapitre</span>
                     {% endblocktrans %}
                 </a>
-                <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="POST" class="modal modal-small" id="move-chapter">
+                <form action="{% url "tutorial-modify-chapter" %}" method="POST" class="modal modal-small" id="move-chapter">
                     <select name="move_target" class="select-autosubmit">
                         <option disabled="disabled">
                             {% trans "Déplacer" %}
@@ -159,7 +159,7 @@
                         <a href="#delete-chapter" class="open-modal ico-after cross red">
                             {% trans "Supprimer le chapitre" %}
                         </a>
-                        <form action="{% url "zds.tutorial.views.modify_chapter" %}" method="post" id="delete-chapter" class="modal modal-medium">
+                        <form action="{% url "tutorial-modify-chapter" %}" method="post" id="delete-chapter" class="modal modal-medium">
                             <p>
                                 {% blocktrans with chapter_title=chapter.title %}
                                     Attention, vous vous apprêtez à supprimer définitivement le chapitre <em>{{ chapter_title }}</em>.

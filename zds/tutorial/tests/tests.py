@@ -116,7 +116,7 @@ class BigTutorialTests(TestCase):
 
         # ask public tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': self.bigtuto.pk,
                 'text': u'Ce tuto est excellent',
@@ -130,14 +130,14 @@ class BigTutorialTests(TestCase):
         validation = Validation.objects.get(
             tutorial__pk=self.bigtuto.pk)
         pub = self.client.post(
-            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            reverse('tutorial-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
         self.first_validator = self.staff
 
         # publish tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.valid_tutorial'),
+            reverse('tutorial-valid-tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
                 'text': u'Ce tuto est excellent',
@@ -198,7 +198,7 @@ class BigTutorialTests(TestCase):
 
         # ask public tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': future_tutorial.pk,
                 'text': u'Ce tuto est excellent',
@@ -212,13 +212,13 @@ class BigTutorialTests(TestCase):
         validation = Validation.objects.get(
             tutorial__pk=future_tutorial.pk)
         pub = self.client.post(
-            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            reverse('tutorial-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
         # publish tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.valid_tutorial'),
+            reverse('tutorial-valid-tutorial'),
             {
                 'tutorial': future_tutorial.pk,
                 'text': u'Ce tuto est excellent',
@@ -240,7 +240,7 @@ class BigTutorialTests(TestCase):
 
         # delete tutorial
         response = self.client.post(
-            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            reverse('tutorial-delete', args=[future_tutorial_pk]),
             {},
             follow=True
         )
@@ -260,7 +260,7 @@ class BigTutorialTests(TestCase):
         self.assertIsNone(Topic.objects.get_beta_topic_of(future_tutorial))
         sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
         self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': future_tutorial_pk,
                 'activ_beta': True,
@@ -273,7 +273,7 @@ class BigTutorialTests(TestCase):
         topic_pk = topic.pk
         # delete tutorial
         self.client.post(
-            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            reverse('tutorial-delete', args=[future_tutorial_pk]),
             {},
             follow=False
         )
@@ -293,7 +293,7 @@ class BigTutorialTests(TestCase):
         self.assertIsNone(Topic.objects.get_beta_topic_of(future_tutorial))
         sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
         self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': future_tutorial_pk,
                 'activ_beta': True,
@@ -308,7 +308,7 @@ class BigTutorialTests(TestCase):
         self.assertIsNone(Topic.objects.filter(pk=topic_pk, is_locked=True).first())
         sha_draft = Tutorial.objects.get(pk=future_tutorial_pk).sha_draft
         self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': future_tutorial_pk,
                 'desactiv_beta': True,
@@ -319,7 +319,7 @@ class BigTutorialTests(TestCase):
         self.assertIsNotNone(Topic.objects.filter(pk=topic_pk, is_locked=True).first())
         # delete tutorial
         self.client.post(
-            reverse('zds.tutorial.views.delete_tutorial', args=[future_tutorial_pk]),
+            reverse('tutorial-delete', args=[future_tutorial_pk]),
             {},
             follow=False
         )
@@ -396,7 +396,7 @@ class BigTutorialTests(TestCase):
 
         # import zip archive
         result = self.client.post(
-            reverse('zds.tutorial.views.import_tuto'),
+            reverse('tutorial-import'),
             {
                 'file': open(
                     os.path.join(
@@ -429,7 +429,7 @@ class BigTutorialTests(TestCase):
             f.write('something')
 
         result = self.client.post(
-            reverse('zds.tutorial.views.import_tuto'),
+            reverse('tutorial-import'),
             {
                 'file': open(
                     os.path.join(
@@ -452,7 +452,7 @@ class BigTutorialTests(TestCase):
 
         # add note with no text = try again !
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.bigtuto.pk),
             {
@@ -465,7 +465,7 @@ class BigTutorialTests(TestCase):
 
         # add note
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.bigtuto.pk),
             {
@@ -490,7 +490,7 @@ class BigTutorialTests(TestCase):
 
         # test antispam return 403
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.bigtuto.pk),
             {
@@ -506,7 +506,7 @@ class BigTutorialTests(TestCase):
 
         # test more note
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.bigtuto.pk),
             {
@@ -528,7 +528,7 @@ class BigTutorialTests(TestCase):
 
         # normal edit
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note2.pk),
             {
@@ -547,7 +547,7 @@ class BigTutorialTests(TestCase):
 
         # simple member want edit other note
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note1.pk),
             {
@@ -559,7 +559,7 @@ class BigTutorialTests(TestCase):
         # staff want edit other note
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note1.pk),
             {
@@ -585,7 +585,7 @@ class BigTutorialTests(TestCase):
 
         # normal quote => true
         result = self.client.get(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}&cite={1}'.format(
                 self.bigtuto.pk,
                 note3.pk),
@@ -595,7 +595,7 @@ class BigTutorialTests(TestCase):
         # quote on anstispamm => false
         NoteFactory(tutorial=self.bigtuto, position=4, author=user1)
         result = self.client.get(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}&cite={1}'.format(
                 self.bigtuto.pk,
                 note3.pk),
@@ -619,7 +619,7 @@ class BigTutorialTests(TestCase):
 
         # normal like
         result = self.client.get(
-            reverse('zds.tutorial.views.like_note') +
+            reverse('tutorial-like-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -631,7 +631,7 @@ class BigTutorialTests(TestCase):
 
         # like yourself
         result = self.client.get(
-            reverse('zds.tutorial.views.like_note') +
+            reverse('tutorial-like-note') +
             '?message={0}'.format(
                 note2.pk),
             follow=True)
@@ -643,7 +643,7 @@ class BigTutorialTests(TestCase):
 
         # re-like a post
         result = self.client.get(
-            reverse('zds.tutorial.views.like_note') +
+            reverse('tutorial-like-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -670,7 +670,7 @@ class BigTutorialTests(TestCase):
 
         # normal like
         result = self.client.get(
-            reverse('zds.tutorial.views.dislike_note') +
+            reverse('tutorial-dislike-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -682,7 +682,7 @@ class BigTutorialTests(TestCase):
 
         # like yourself
         result = self.client.get(
-            reverse('zds.tutorial.views.dislike_note') +
+            reverse('tutorial-dislike-note') +
             '?message={0}'.format(
                 note2.pk),
             follow=True)
@@ -694,7 +694,7 @@ class BigTutorialTests(TestCase):
 
         # re-like a post
         result = self.client.get(
-            reverse('zds.tutorial.views.dislike_note') +
+            reverse('tutorial-dislike-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -707,7 +707,7 @@ class BigTutorialTests(TestCase):
     def test_import_tuto(self):
         """Test import of big tuto."""
         result = self.client.post(
-            reverse('zds.tutorial.views.import_tuto'),
+            reverse('tutorial-import'),
             {
                 'file': open(
                     os.path.join(
@@ -759,7 +759,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter_online',
+            reverse('view-chapter-url_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -791,7 +791,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter',
+            reverse('view-chapter-url',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -819,7 +819,7 @@ class BigTutorialTests(TestCase):
 
         # add new big tuto
         result = self.client.post(
-            reverse('zds.tutorial.views.add_tutorial'),
+            reverse('tutorial-add-tutorial'),
             {
                 'title': u"Introduction à l'algèbre",
                 'description': "Perçer les mystère de boole",
@@ -836,7 +836,7 @@ class BigTutorialTests(TestCase):
         tuto = Tutorial.objects.last()
         # add part 1
         result = self.client.post(
-            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            reverse('tutorial-add-part') + '?tutoriel={}'.format(tuto.pk),
             {
                 'title': u"Partie 1",
                 'introduction': u"Présentation",
@@ -863,7 +863,7 @@ class BigTutorialTests(TestCase):
 
         # add part 2
         result = self.client.post(
-            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            reverse('tutorial-add-part') + '?tutoriel={}'.format(tuto.pk),
             {
                 'title': u"Partie 2",
                 'introduction': u"Analyse",
@@ -890,7 +890,7 @@ class BigTutorialTests(TestCase):
 
         # add part 3
         result = self.client.post(
-            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tuto.pk),
+            reverse('tutorial-add-part') + '?tutoriel={}'.format(tuto.pk),
             {
                 'title': u"Partie 2",
                 'introduction': "Expérimentation",
@@ -917,7 +917,7 @@ class BigTutorialTests(TestCase):
 
         # add chapter 1 for part 2
         result = self.client.post(
-            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
+            reverse('tutorial-add-chapter') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre",
@@ -948,7 +948,7 @@ class BigTutorialTests(TestCase):
 
         # add chapter 2 for part 2
         result = self.client.post(
-            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
+            reverse('tutorial-add-chapter') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Chapitre 2",
                 'introduction': u"Mon deuxième chapitre",
@@ -979,7 +979,7 @@ class BigTutorialTests(TestCase):
 
         # add chapter 3 for part 2
         result = self.client.post(
-            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p2.pk),
+            reverse('tutorial-add-chapter') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Chapitre 2",
                 'introduction': u"Mon troisième chapitre homonyme",
@@ -1010,7 +1010,7 @@ class BigTutorialTests(TestCase):
 
         # add chapter 4 for part 1
         result = self.client.post(
-            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p1.pk),
+            reverse('tutorial-add-chapter') + '?partie={}'.format(p1.pk),
             {
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre d'une autre partie",
@@ -1040,7 +1040,7 @@ class BigTutorialTests(TestCase):
 
         # add extract 1 of chapter 3
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(c3.pk),
+            reverse('tutorial-add-extract') + '?chapitre={}'.format(c3.pk),
             {
                 'title': u"Extrait 1",
                 'text': "Prune",
@@ -1053,7 +1053,7 @@ class BigTutorialTests(TestCase):
 
         # add extract 2 of chapter 3
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(c3.pk),
+            reverse('tutorial-add-extract') + '?chapitre={}'.format(c3.pk),
             {
                 'title': u"Extrait 2",
                 'text': "Citron",
@@ -1066,7 +1066,7 @@ class BigTutorialTests(TestCase):
 
         # add extract 3 of chapter 2
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(c2.pk),
+            reverse('tutorial-add-extract') + '?chapitre={}'.format(c2.pk),
             {
                 'title': u"Extrait 3",
                 'text': "Kiwi",
@@ -1079,73 +1079,73 @@ class BigTutorialTests(TestCase):
 
         # check content edit part
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_part') + "?partie={}".format(p1.pk),
+            reverse('tutorial-edit-part') + "?partie={}".format(p1.pk),
             follow=True)
         self.assertContains(response=result, text=u"Présentation")
         self.assertContains(response=result, text=u"Fin de la présentation")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_part') + "?partie={}".format(p2.pk),
+            reverse('tutorial-edit-part') + "?partie={}".format(p2.pk),
             follow=True)
         self.assertContains(response=result, text=u"Analyse")
         self.assertContains(response=result, text="Fin de l&#39;analyse")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_part') + "?partie={}".format(p3.pk),
+            reverse('tutorial-edit-part') + "?partie={}".format(p3.pk),
             follow=True)
         self.assertContains(response=result, text=u"Expérimentation")
         self.assertContains(response=result, text=u"est terminé")
 
         # check content edit chapter
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c1.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c1.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 1")
         self.assertContains(response=result, text=u"Mon premier chapitre")
         self.assertContains(response=result, text=u"Fin de mon premier chapitre")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c2.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c2.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 2")
         self.assertContains(response=result, text=u"Mon deuxième chapitre")
         self.assertContains(response=result, text=u"Fin de mon deuxième chapitre")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c3.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c3.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 2")
         self.assertContains(response=result, text=u"Mon troisième chapitre homonyme")
         self.assertContains(response=result, text=u"Fin de mon troisième chapitre")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c4.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c4.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 1")
         self.assertContains(response=result, text=u"Mon premier chapitre d&#39;une autre partie")
 
         # check content edit extract
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_extract') + "?extrait={}".format(e1.pk),
+            reverse('tutorial-edit-extract') + "?extrait={}".format(e1.pk),
             follow=True)
         self.assertContains(response=result, text=u"Extrait 1")
         self.assertContains(response=result, text=u"Prune")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_extract') + "?extrait={}".format(e2.pk),
+            reverse('tutorial-edit-extract') + "?extrait={}".format(e2.pk),
             follow=True)
         self.assertContains(response=result, text=u"Extrait 2")
         self.assertContains(response=result, text=u"Citron")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_extract') + "?extrait={}".format(e3.pk),
+            reverse('tutorial-edit-extract') + "?extrait={}".format(e3.pk),
             follow=True)
         self.assertContains(response=result, text=u"Extrait 3")
         self.assertContains(response=result, text=u"Kiwi")
 
         # edit part 2
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p2.pk),
+            reverse('tutorial-edit-part') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
@@ -1162,7 +1162,7 @@ class BigTutorialTests(TestCase):
 
         # edit chapter 3
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c3.pk),
+            reverse('tutorial-edit-chapter') + '?chapitre={}'.format(c3.pk),
             {
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction",
@@ -1181,7 +1181,7 @@ class BigTutorialTests(TestCase):
 
         # edit part 2
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p2.pk),
+            reverse('tutorial-edit-part') + '?partie={}'.format(p2.pk),
             {
                 'title': u"Partie 2 : seconde edition de titre",
                 'introduction': u"Expérimentation : seconde edition d'introduction",
@@ -1198,7 +1198,7 @@ class BigTutorialTests(TestCase):
 
         # edit chapter 2
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c2.pk),
+            reverse('tutorial-edit-chapter') + '?chapitre={}'.format(c2.pk),
             {
                 'title': u"Chapitre 2 : edition de titre",
                 'introduction': u"Edition d'introduction",
@@ -1216,7 +1216,7 @@ class BigTutorialTests(TestCase):
 
         # edit extract 2
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(e2.pk),
+            reverse('tutorial-edit-extract') + '?extrait={}'.format(e2.pk),
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Agrume",
@@ -1228,74 +1228,74 @@ class BigTutorialTests(TestCase):
 
         # check content edit part
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_part') + "?partie={}".format(p1.pk),
+            reverse('tutorial-edit-part') + "?partie={}".format(p1.pk),
             follow=True)
         self.assertContains(response=result, text=u"Présentation")
         self.assertContains(response=result, text=u"Fin de la présentation")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_part') + "?partie={}".format(p2.pk),
+            reverse('tutorial-edit-part') + "?partie={}".format(p2.pk),
             follow=True)
         self.assertContains(response=result, text=u"Partie 2 : seconde edition de titre")
         self.assertContains(response=result, text="Expérimentation : seconde edition d&#39;introduction")
         self.assertContains(response=result, text="C&#39;est terminé : seconde edition de conlusion")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_part') + "?partie={}".format(p3.pk),
+            reverse('tutorial-edit-part') + "?partie={}".format(p3.pk),
             follow=True)
         self.assertContains(response=result, text=u"Expérimentation")
         self.assertContains(response=result, text=u"est terminé")
 
         # check content edit chapter
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c1.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c1.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 1")
         self.assertContains(response=result, text=u"Mon premier chapitre")
         self.assertContains(response=result, text=u"Fin de mon premier chapitre")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c2.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c2.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 2 : edition de titre")
         self.assertContains(response=result, text=u"Edition d&#39;introduction")
         self.assertContains(response=result, text=u"Edition de conlusion")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c3.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c3.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 3 : edition de titre")
         self.assertContains(response=result, text=u"Edition d&#39;introduction")
         self.assertContains(response=result, text=u"Edition de conlusion")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_chapter') + "?chapitre={}".format(c4.pk),
+            reverse('tutorial-edit-chapter') + "?chapitre={}".format(c4.pk),
             follow=True)
         self.assertContains(response=result, text=u"Chapitre 1")
         self.assertContains(response=result, text=u"Mon premier chapitre d&#39;une autre partie")
 
         # check content edit extract
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_extract') + "?extrait={}".format(e1.pk),
+            reverse('tutorial-edit-extract') + "?extrait={}".format(e1.pk),
             follow=True)
         self.assertContains(response=result, text=u"Extrait 1")
         self.assertContains(response=result, text=u"Prune")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_extract') + "?extrait={}".format(e2.pk),
+            reverse('tutorial-edit-extract') + "?extrait={}".format(e2.pk),
             follow=True)
         self.assertContains(response=result, text=u"Extrait 2 : edition de titre")
         self.assertContains(response=result, text=u"Agrume")
 
         result = self.client.get(
-            reverse('zds.tutorial.views.edit_extract') + "?extrait={}".format(e3.pk),
+            reverse('tutorial-edit-extract') + "?extrait={}".format(e3.pk),
             follow=True)
         self.assertContains(response=result, text=u"Extrait 3")
         self.assertContains(response=result, text=u"Kiwi")
 
         # move chapter 1 against 2
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_chapter'),
+            reverse('tutorial-modify-chapter'),
             {
                 'chapter': c1.pk,
                 'move_target': c2.position_in_part,
@@ -1303,7 +1303,7 @@ class BigTutorialTests(TestCase):
             follow=True)
         # move part 1 against 2
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_part'),
+            reverse('tutorial-modify-part'),
             {
                 'part': p1.pk,
                 'move_target': p2.position_in_tutorial,
@@ -1315,7 +1315,7 @@ class BigTutorialTests(TestCase):
         tuto = Tutorial.objects.get(pk=tuto.pk)
 
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': tuto.pk,
                 'text': u'Ce tuto est excellent',
@@ -1338,7 +1338,7 @@ class BigTutorialTests(TestCase):
         validation = Validation.objects.filter(
             tutorial__pk=tuto.pk).last()
         pub = self.client.post(
-            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            reverse('tutorial-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
         old_validator = self.staff
@@ -1357,7 +1357,7 @@ class BigTutorialTests(TestCase):
 
         # ask public tutorial again
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': tuto.pk,
                 'text': u'Nouvelle demande de publication',
@@ -1387,7 +1387,7 @@ class BigTutorialTests(TestCase):
 
         # publish tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.valid_tutorial'),
+            reverse('tutorial-valid-tutorial'),
             {
                 'tutorial': tuto.pk,
                 'text': u'Ce tuto est excellent',
@@ -1399,7 +1399,7 @@ class BigTutorialTests(TestCase):
         # then active the beta on tutorial :
         sha_draft = Tutorial.objects.get(pk=tuto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': tuto.pk,
                 'activ_beta': True,
@@ -1413,7 +1413,7 @@ class BigTutorialTests(TestCase):
 
         # delete part 1
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_part'),
+            reverse('tutorial-modify-part'),
             {
                 'part': p1.pk,
                 'delete': "OK",
@@ -1421,7 +1421,7 @@ class BigTutorialTests(TestCase):
             follow=True)
         # delete chapter 3
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_chapter'),
+            reverse('tutorial-modify-chapter'),
             {
                 'chapter': c3.pk,
                 'delete': "OK",
@@ -1508,7 +1508,7 @@ class BigTutorialTests(TestCase):
         # ask public tutorial
         tuto = Tutorial.objects.get(pk=tuto.pk)
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': tuto.pk,
                 'text': u'Ce tuto est excellent',
@@ -1522,13 +1522,13 @@ class BigTutorialTests(TestCase):
         validation = Validation.objects.filter(
             tutorial__pk=tuto.pk).last()
         pub = self.client.post(
-            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            reverse('tutorial-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
         # publish tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.valid_tutorial'),
+            reverse('tutorial-valid-tutorial'),
             {
                 'tutorial': tuto.pk,
                 'text': u'Ce tuto est excellent',
@@ -1632,7 +1632,7 @@ class BigTutorialTests(TestCase):
                                           "conclusion.md"))
         hash = compute_hash([introduction_path, conclusion_path])
         self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') + '?tutoriel={0}'.format(self.bigtuto.pk),
+            reverse('tutorial-edit-tutorial') + '?tutoriel={0}'.format(self.bigtuto.pk),
             {
                 'title': self.bigtuto.title,
                 'description': "nouvelle description",
@@ -1643,7 +1643,7 @@ class BigTutorialTests(TestCase):
                 'last_hash': hash
             }, follow=True)
         conflict_result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') + '?tutoriel={0}'.format(self.bigtuto.pk),
+            reverse('tutorial-edit-tutorial') + '?tutoriel={0}'.format(self.bigtuto.pk),
             {
                 'title': self.bigtuto.title,
                 'description': "nouvelle description",
@@ -1659,7 +1659,7 @@ class BigTutorialTests(TestCase):
         # test parts
 
         self.client.post(
-            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(self.bigtuto.pk),
+            reverse('tutorial-add-part') + '?tutoriel={}'.format(self.bigtuto.pk),
             {
                 'title': u"Partie 2",
                 'introduction': u"Analyse",
@@ -1670,7 +1670,7 @@ class BigTutorialTests(TestCase):
         hash = compute_hash([os.path.join(p1.tutorial.get_path(), p1.introduction),
                              os.path.join(p1.tutorial.get_path(), p1.conclusion)])
         self.client.post(
-            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
+            reverse('tutorial-edit-part') + '?partie={}'.format(p1.pk),
             {
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction",
@@ -1679,7 +1679,7 @@ class BigTutorialTests(TestCase):
             },
             follow=False)
         conflict_result = self.client.post(
-            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(p1.pk),
+            reverse('tutorial-edit-part') + '?partie={}'.format(p1.pk),
             {
                 'title': u"Partie 2 : edition de titre",
                 'introduction': u"Expérimentation : edition d'introduction conflit",
@@ -1692,7 +1692,7 @@ class BigTutorialTests(TestCase):
 
         # test chapter
         self.client.post(
-            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(p1.pk),
+            reverse('tutorial-add-chapter') + '?partie={}'.format(p1.pk),
             {
                 'title': u"Chapitre 1",
                 'introduction': "Mon premier chapitre",
@@ -1703,7 +1703,7 @@ class BigTutorialTests(TestCase):
         hash = compute_hash([os.path.join(c1.get_path(), "introduction.md"),
                              os.path.join(c1.get_path(), "conclusion.md")])
         self.client.post(
-            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
+            reverse('tutorial-edit-chapter') + '?chapitre={}'.format(c1.pk),
             {
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction",
@@ -1712,7 +1712,7 @@ class BigTutorialTests(TestCase):
             },
             follow=True)
         conflict_result = self.client.post(
-            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(c1.pk),
+            reverse('tutorial-edit-chapter') + '?chapitre={}'.format(c1.pk),
             {
                 'title': u"Chapitre 3 : edition de titre",
                 'introduction': u"Edition d'introduction conflict",
@@ -1757,7 +1757,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter_online',
+            reverse('view-chapter-url_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -1789,7 +1789,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter',
+            reverse('view-chapter-url',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -1833,7 +1833,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter_online',
+            reverse('view-chapter-url_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -1865,7 +1865,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter',
+            reverse('view-chapter-url',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -1909,7 +1909,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter_online',
+            reverse('view-chapter-url_online',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -1941,7 +1941,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         result = self.client.get(
-            reverse('zds.tutorial.views.view_chapter',
+            reverse('view-chapter-url',
                     args=[self.bigtuto.pk,
                           self.bigtuto.slug,
                           self.part2.pk,
@@ -1960,7 +1960,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(login_check, True)
         # signal note
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note.pk),
             {
@@ -1978,7 +1978,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(login_check, True)
         # solve alert
         result = self.client.post(
-            reverse('zds.tutorial.views.solve_alert'),
+            reverse('tutorial-solve-alert'),
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
@@ -2003,7 +2003,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(login_check, True)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.username,
                 'tutorial': self.bigtuto.pk,
@@ -2013,7 +2013,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.pk,
                 'tutorial': self.bigtuto.pk,
@@ -2029,7 +2029,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(login_check, True)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.username,
                 'tutorial': self.bigtuto.pk,
@@ -2039,7 +2039,7 @@ class BigTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.pk,
                 'tutorial': self.bigtuto.pk,
@@ -2116,7 +2116,7 @@ class BigTutorialTests(TestCase):
         # then active the beta on tutorial :
         sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
                 'activ_beta': True,
@@ -2182,7 +2182,7 @@ class BigTutorialTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter2_1.pk),
 
@@ -2201,7 +2201,7 @@ class BigTutorialTests(TestCase):
         # update beta
         sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
                 'update_beta': True,
@@ -2232,7 +2232,7 @@ class BigTutorialTests(TestCase):
                 password='hostel77'),
             True)
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
                 'desactiv_beta': True,
@@ -2266,7 +2266,7 @@ class BigTutorialTests(TestCase):
                 password='hostel77'),
             True)
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
                 'activ_beta': True,
@@ -2298,7 +2298,7 @@ class BigTutorialTests(TestCase):
 
         newtitle = u"The New Title"
         self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') + '?tutoriel={}'.format(self.bigtuto.pk),
+            reverse('tutorial-edit-tutorial') + '?tutoriel={}'.format(self.bigtuto.pk),
             {
                 'title': newtitle,
                 'subcategory': self.subcat.pk,
@@ -2346,7 +2346,7 @@ class BigTutorialTests(TestCase):
 
         # change licence (get 302) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.bigtuto.pk),
             {
                 'title': self.bigtuto.title,
@@ -2380,7 +2380,7 @@ class BigTutorialTests(TestCase):
 
         # change licence back to old one (get 302, staff can change licence) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.bigtuto.pk),
             {
                 'title': self.bigtuto.title,
@@ -2408,7 +2408,7 @@ class BigTutorialTests(TestCase):
 
         # change licence (get 302, redirection to login page) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.bigtuto.pk),
             {
                 'title': self.bigtuto.title,
@@ -2437,7 +2437,7 @@ class BigTutorialTests(TestCase):
         # change licence (get 403, random user cannot edit bigtuto if not in
         # authors list) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.bigtuto.pk),
             {
                 'title': self.bigtuto.title,
@@ -2474,7 +2474,7 @@ class BigTutorialTests(TestCase):
         extract_content = u'Le contenu de l\'extrait'
         extract_title = u'Un titre d\'extrait'
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter2_1.pk),
             {
@@ -2492,7 +2492,7 @@ class BigTutorialTests(TestCase):
         # fetch archives :
         # 1. draft version
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.bigtuto.pk),
             follow=False)
@@ -2503,7 +2503,7 @@ class BigTutorialTests(TestCase):
         f.close()
         # 2. online version :
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.bigtuto.pk),
             follow=False)
@@ -2567,14 +2567,14 @@ class BigTutorialTests(TestCase):
 
         # public cannot access to draft version of tutorial
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.bigtuto.pk),
             follow=False)
         self.assertEqual(result.status_code, 403)
         # ... but can access to online version
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.bigtuto.pk),
             follow=False)
@@ -2589,14 +2589,14 @@ class BigTutorialTests(TestCase):
 
         # cannot access to draft version of tutorial (if not author or staff)
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.bigtuto.pk),
             follow=False)
         self.assertEqual(result.status_code, 403)
         # but can access to online one
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.bigtuto.pk),
             follow=False)
@@ -2612,14 +2612,14 @@ class BigTutorialTests(TestCase):
 
         # staff can access to draft version of tutorial
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.bigtuto.pk),
             follow=False)
         self.assertEqual(result.status_code, 200)
         # ... and also to online version
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.bigtuto.pk),
             follow=False)
@@ -2650,7 +2650,7 @@ class BigTutorialTests(TestCase):
 
         # add part (implicit call to `maj_repo_part()`)
         result = self.client.post(
-            reverse('zds.tutorial.views.add_part') + '?tutoriel={}'.format(tutorial.pk),
+            reverse('tutorial-add-part') + '?tutoriel={}'.format(tutorial.pk),
             {
                 'title': u"Une nouvelle partie",
                 'introduction': "Expérimentation",
@@ -2667,7 +2667,7 @@ class BigTutorialTests(TestCase):
         # edit part (implicit call to `maj_repo_part()`)
         part = Part.objects.filter(tutorial=tutorial).last()
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_part') + '?partie={}'.format(part.pk),
+            reverse('tutorial-edit-part') + '?partie={}'.format(part.pk),
             {
                 'title': u"Cette partie a changé de nom",
                 'introduction': u"Expérimentation : edition d'introduction",
@@ -2686,7 +2686,7 @@ class BigTutorialTests(TestCase):
 
         # add chapter  (implicit call to `maj_repo_chapter()`)
         result = self.client.post(
-            reverse('zds.tutorial.views.add_chapter') + '?partie={}'.format(part.pk),
+            reverse('tutorial-add-chapter') + '?partie={}'.format(part.pk),
             {
                 'title': u"Cuisine des agrumes sur ZdS",
                 'introduction': "Mon premier chapitre",
@@ -2704,7 +2704,7 @@ class BigTutorialTests(TestCase):
         # edit chapter (implicit call to `maj_repo_chapter()`)
         chapter = Chapter.objects.filter(part=part).last()
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_chapter') + '?chapitre={}'.format(chapter.pk),
+            reverse('tutorial-edit-chapter') + '?chapitre={}'.format(chapter.pk),
             {
                 'title': u"Le respect des agrumes sur ZdS",
                 'introduction': u"Edition d'introduction",
@@ -2724,7 +2724,7 @@ class BigTutorialTests(TestCase):
 
         # add another extract (implicit call to `maj_repo_extract()`)
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(chapter.pk),
+            reverse('tutorial-add-extract') + '?chapitre={0}'.format(chapter.pk),
             {
                 'title': u'Un second extrait',
                 'text': u'Comment extraire le jus des agrumes ? Est-ce torturer Clem ?'
@@ -2739,7 +2739,7 @@ class BigTutorialTests(TestCase):
         # edit extract (implicit call to `maj_repo_extract()`)
         extract = chapter.get_extracts()[0]
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
+            reverse('tutorial-edit-extract') + '?extrait={}'.format(extract.pk),
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"On ne torture pas les agrumes !",
@@ -2768,7 +2768,7 @@ class BigTutorialTests(TestCase):
 
         # check if author get error when warning typo on its own tutorial
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            reverse('tutorial-warn-typo', args=[u"tutorial", self.bigtuto.pk]),
             {
                 'explication': u'ceci est un test',
                 'version_tutorial': self.bigtuto.sha_public
@@ -2793,7 +2793,7 @@ class BigTutorialTests(TestCase):
 
         # check if user can warn typo in tutorial
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            reverse('tutorial-warn-typo', args=[u"tutorial", self.bigtuto.pk]),
             {
                 'explication': typo_text,
                 'version_tutorial': self.bigtuto.sha_public
@@ -2815,7 +2815,7 @@ class BigTutorialTests(TestCase):
 
         # check if user can warn typo in chapter of tutorial
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"chapter", self.chapter1_1.pk]),
+            reverse('tutorial-warn-typo', args=[u"chapter", self.chapter1_1.pk]),
             {
                 'explication': typo_text,
                 'version_tutorial': self.bigtuto.sha_public
@@ -2845,7 +2845,7 @@ class BigTutorialTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(self.chapter1_1.pk),
+            reverse('tutorial-add-extract') + '?chapitre={0}'.format(self.chapter1_1.pk),
             {
                 'title': u'Un nouveau titre d\'extrait',
                 'text': u'I do not fear computers. I fear the lack of them. (I. Asimov)'
@@ -2854,7 +2854,7 @@ class BigTutorialTests(TestCase):
 
         sha_draft = Tutorial.objects.get(pk=self.bigtuto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.bigtuto.pk,
                 'activ_beta': True,
@@ -2876,7 +2876,7 @@ class BigTutorialTests(TestCase):
         # check if user can warn typo in tutorial in beta version
         sha_beta = Tutorial.objects.get(pk=self.bigtuto.pk).sha_beta
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.bigtuto.pk]),
+            reverse('tutorial-warn-typo', args=[u"tutorial", self.bigtuto.pk]),
             {
                 'explication': typo_text,
                 'version_tutorial': sha_beta
@@ -2899,7 +2899,7 @@ class BigTutorialTests(TestCase):
 
         # check if user can warn typo in chapter of tutorial
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"chapter", self.chapter1_1.pk]),
+            reverse('tutorial-warn-typo', args=[u"chapter", self.chapter1_1.pk]),
             {
                 'explication': typo_text,
                 'version_tutorial': sha_beta
@@ -3075,7 +3075,7 @@ class MiniTutorialTests(TestCase):
 
         # ask public tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.ask_validation'),
+            reverse('tutorial-ask-validation'),
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
@@ -3089,13 +3089,13 @@ class MiniTutorialTests(TestCase):
         validation = Validation.objects.get(
             tutorial__pk=self.minituto.pk)
         pub = self.client.post(
-            reverse('zds.tutorial.views.reservation', args=[validation.pk]),
+            reverse('tutorial-reservation', args=[validation.pk]),
             follow=False)
         self.assertEqual(pub.status_code, 302)
 
         # publish tutorial
         pub = self.client.post(
-            reverse('zds.tutorial.views.valid_tutorial'),
+            reverse('tutorial-valid-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'text': u'Ce tuto est excellent',
@@ -3163,7 +3163,7 @@ class MiniTutorialTests(TestCase):
         self.assertTrue(os.path.isfile(os.path.join(temp, self.minituto.get_phy_slug() + ".zip")))
         # import zip archive
         result = self.client.post(
-            reverse('zds.tutorial.views.import_tuto'),
+            reverse('tutorial-import'),
             {
                 'file': open(
                     os.path.join(
@@ -3196,7 +3196,7 @@ class MiniTutorialTests(TestCase):
             f.write('something')
 
         result = self.client.post(
-            reverse('zds.tutorial.views.import_tuto'),
+            reverse('tutorial-import'),
             {
                 'file': open(
                     os.path.join(
@@ -3219,7 +3219,7 @@ class MiniTutorialTests(TestCase):
                           password='hostel77')
 
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
 
@@ -3243,7 +3243,7 @@ class MiniTutorialTests(TestCase):
                           password='hostel77')
 
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
 
@@ -3267,7 +3267,7 @@ class MiniTutorialTests(TestCase):
 
         # add note
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.minituto.pk),
             {
@@ -3292,7 +3292,7 @@ class MiniTutorialTests(TestCase):
 
         # test antispam return 403
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.minituto.pk),
             {
@@ -3308,7 +3308,7 @@ class MiniTutorialTests(TestCase):
 
         # test more note
         result = self.client.post(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}'.format(
                 self.minituto.pk),
             {
@@ -3330,7 +3330,7 @@ class MiniTutorialTests(TestCase):
 
         # normal edit
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note2.pk),
             {
@@ -3349,7 +3349,7 @@ class MiniTutorialTests(TestCase):
 
         # simple member want edit other note
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note1.pk),
             {
@@ -3361,7 +3361,7 @@ class MiniTutorialTests(TestCase):
         # staff want edit other note
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note1.pk),
             {
@@ -3387,7 +3387,7 @@ class MiniTutorialTests(TestCase):
 
         # normal quote => true
         result = self.client.get(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}&cite={1}'.format(
                 self.minituto.pk,
                 note3.pk),
@@ -3397,7 +3397,7 @@ class MiniTutorialTests(TestCase):
         # quote on anstispamm => false
         NoteFactory(tutorial=self.minituto, position=4, author=user1)
         result = self.client.get(
-            reverse('zds.tutorial.views.answer') +
+            reverse('tutorial-answer') +
             '?tutorial={0}&cite={1}'.format(
                 self.minituto.pk,
                 note3.pk),
@@ -3421,7 +3421,7 @@ class MiniTutorialTests(TestCase):
 
         # normal like
         result = self.client.get(
-            reverse('zds.tutorial.views.like_note') +
+            reverse('tutorial-like-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -3433,7 +3433,7 @@ class MiniTutorialTests(TestCase):
 
         # like yourself
         result = self.client.get(
-            reverse('zds.tutorial.views.like_note') +
+            reverse('tutorial-like-note') +
             '?message={0}'.format(
                 note2.pk),
             follow=True)
@@ -3445,7 +3445,7 @@ class MiniTutorialTests(TestCase):
 
         # re-like a post
         result = self.client.get(
-            reverse('zds.tutorial.views.like_note') +
+            reverse('tutorial-like-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -3472,7 +3472,7 @@ class MiniTutorialTests(TestCase):
 
         # normal like
         result = self.client.get(
-            reverse('zds.tutorial.views.dislike_note') +
+            reverse('tutorial-dislike-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -3484,7 +3484,7 @@ class MiniTutorialTests(TestCase):
 
         # like yourself
         result = self.client.get(
-            reverse('zds.tutorial.views.dislike_note') +
+            reverse('tutorial-dislike-note') +
             '?message={0}'.format(
                 note2.pk),
             follow=True)
@@ -3496,7 +3496,7 @@ class MiniTutorialTests(TestCase):
 
         # re-like a post
         result = self.client.get(
-            reverse('zds.tutorial.views.dislike_note') +
+            reverse('tutorial-dislike-note') +
             '?message={0}'.format(
                 note3.pk),
             follow=True)
@@ -3509,7 +3509,7 @@ class MiniTutorialTests(TestCase):
     def test_import_tuto(self):
         """Test import of mini tuto."""
         result = self.client.post(
-            reverse('zds.tutorial.views.import_tuto'),
+            reverse('tutorial-import'),
             {
                 'file': open(
                     os.path.join(
@@ -3664,7 +3664,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(login_check, True)
         # signal note
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_note') +
+            reverse('tutorial-edit-note') +
             '?message={0}'.format(
                 note.pk),
             {
@@ -3682,7 +3682,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(login_check, True)
         # solve alert
         result = self.client.post(
-            reverse('zds.tutorial.views.solve_alert'),
+            reverse('tutorial-solve-alert'),
             {
                 'alert_pk': Alert.objects.first().pk,
                 'text': 'Ok',
@@ -3707,7 +3707,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(login_check, True)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.username,
                 'tutorial': self.minituto.pk,
@@ -3717,7 +3717,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 403)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.pk,
                 'tutorial': self.minituto.pk,
@@ -3733,7 +3733,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(login_check, True)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.username,
                 'tutorial': self.minituto.pk,
@@ -3743,7 +3743,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'author': user1.pk,
                 'tutorial': self.minituto.pk,
@@ -3799,7 +3799,7 @@ class MiniTutorialTests(TestCase):
             True)
         # edit the tuto without slug change
         response = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') + "?tutoriel={0}".format(self.minituto.pk),
+            reverse('tutorial-edit-tutorial') + "?tutoriel={0}".format(self.minituto.pk),
             {
                 'title': self.minituto.title,
                 'description': "nouvelle description",
@@ -3819,7 +3819,7 @@ class MiniTutorialTests(TestCase):
         # edit tuto with a slug change
         (introduction, conclusion) = (self.minituto.get_introduction(), self.minituto.get_conclusion())
         self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') + "?tutoriel={0}".format(self.minituto.pk),
+            reverse('tutorial-edit-tutorial') + "?tutoriel={0}".format(self.minituto.pk),
             {
                 'title': "nouveau titre pour nouveau slug",
                 'description': "nouvelle description",
@@ -3850,7 +3850,7 @@ class MiniTutorialTests(TestCase):
         introduction = self.minituto.get_introduction()
         # prepare the extracts
         self.client.post(
-            reverse('zds.tutorial.views.add_extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
+            reverse('tutorial-add-extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
             {
 
                 'title': "extract 1",
@@ -3860,7 +3860,7 @@ class MiniTutorialTests(TestCase):
         )
         extract_pk = Tutorial.objects.get(pk=self.minituto.pk).get_chapter().get_extracts()[0].pk
         self.client.post(
-            reverse('zds.tutorial.views.add_extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
+            reverse('tutorial-add-extract') + "?chapitre={0}".format(self.minituto.get_chapter().pk),
             {
 
                 'title': "extract 2",
@@ -3871,7 +3871,7 @@ class MiniTutorialTests(TestCase):
         self.assertEqual(2, self.minituto.get_chapter().get_extracts().count())
         # reorder
         self.client.post(
-            reverse('zds.tutorial.views.modify_extract'),
+            reverse('tutorial-modify-extract'),
             {
                 'move': "",
                 'move_target': 2,
@@ -3911,7 +3911,7 @@ class MiniTutorialTests(TestCase):
         # then active the beta on tutorial :
         sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'activ_beta': True,
@@ -3970,7 +3970,7 @@ class MiniTutorialTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
 
@@ -3988,7 +3988,7 @@ class MiniTutorialTests(TestCase):
         # update beta
         sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'update_beta': True,
@@ -4019,7 +4019,7 @@ class MiniTutorialTests(TestCase):
                 password='hostel77'),
             True)
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'desactiv_beta': True,
@@ -4053,7 +4053,7 @@ class MiniTutorialTests(TestCase):
                 password='hostel77'),
             True)
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'activ_beta': True,
@@ -4095,7 +4095,7 @@ class MiniTutorialTests(TestCase):
 
         # add new mini tuto
         result = self.client.post(
-            reverse('zds.tutorial.views.add_tutorial'),
+            reverse('tutorial-add-tutorial'),
             {
                 'title': u"Introduction à l'algèbre",
                 'description': "Perçer les mystère de boole",
@@ -4114,7 +4114,7 @@ class MiniTutorialTests(TestCase):
 
         # add extract 1
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(chapter.pk),
+            reverse('tutorial-add-extract') + '?chapitre={}'.format(chapter.pk),
             {
                 'title': u"Extrait 1",
                 'text': u"Introduisons notre premier extrait",
@@ -4137,7 +4137,7 @@ class MiniTutorialTests(TestCase):
 
         # add extract 2
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(chapter.pk),
+            reverse('tutorial-add-extract') + '?chapitre={}'.format(chapter.pk),
             {
                 'title': u"Extrait 2",
                 'text': u"Introduisons notre deuxième extrait",
@@ -4160,7 +4160,7 @@ class MiniTutorialTests(TestCase):
 
         # add extract 3
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={}'.format(chapter.pk),
+            reverse('tutorial-add-extract') + '?chapitre={}'.format(chapter.pk),
             {
                 'title': u"Extrait 3",
                 'text': u"Introduisons notre troisième extrait",
@@ -4183,7 +4183,7 @@ class MiniTutorialTests(TestCase):
 
         # edit extract 2
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(e2.pk),
+            reverse('tutorial-edit-extract') + '?extrait={}'.format(e2.pk),
             {
                 'title': u"Extrait 2 : edition de titre",
                 'text': u"Edition d'introduction",
@@ -4197,7 +4197,7 @@ class MiniTutorialTests(TestCase):
 
         # move extract 1 against 2
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_extract'),
+            reverse('tutorial-modify-extract'),
             {
                 'extract': e1.pk,
                 'move_target': e2.position_in_chapter,
@@ -4206,7 +4206,7 @@ class MiniTutorialTests(TestCase):
 
         # delete extract 1
         result = self.client.post(
-            reverse('zds.tutorial.views.modify_extract'),
+            reverse('tutorial-modify-extract'),
             {
                 'extract': e1.pk,
                 'delete': "OK",
@@ -4245,7 +4245,7 @@ class MiniTutorialTests(TestCase):
 
         # change licence (get 302) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.minituto.pk),
             {
                 'title': self.minituto.title,
@@ -4279,7 +4279,7 @@ class MiniTutorialTests(TestCase):
 
         # change licence back to old one (get 302, staff can change licence) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.minituto.pk),
             {
                 'title': self.minituto.title,
@@ -4307,7 +4307,7 @@ class MiniTutorialTests(TestCase):
 
         # change licence (get 302, redirection to login page) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.minituto.pk),
             {
                 'title': self.minituto.title,
@@ -4336,7 +4336,7 @@ class MiniTutorialTests(TestCase):
         # change licence (get 403, random user cannot edit minituto if not in
         # authors list) :
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_tutorial') +
+            reverse('tutorial-edit-tutorial') +
             '?tutoriel={}'.format(self.minituto.pk),
             {
                 'title': self.minituto.title,
@@ -4373,7 +4373,7 @@ class MiniTutorialTests(TestCase):
         extract_title = u'Un titre d\'extrait'
         extract_content = u'To be or not to be, that\'s the question (extract of Hamlet)'
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
             {
@@ -4391,7 +4391,7 @@ class MiniTutorialTests(TestCase):
         # fetch archives :
         # 1. draft version
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.minituto.pk),
             follow=False)
@@ -4402,7 +4402,7 @@ class MiniTutorialTests(TestCase):
         f.close()
         # 2. online version :
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.minituto.pk),
             follow=False)
@@ -4457,14 +4457,14 @@ class MiniTutorialTests(TestCase):
 
         # public cannot access to draft version of tutorial
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.minituto.pk),
             follow=False)
         self.assertEqual(result.status_code, 403)
         # ... but can access to online version
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.minituto.pk),
             follow=False)
@@ -4479,14 +4479,14 @@ class MiniTutorialTests(TestCase):
 
         # cannot access to draft version of tutorial (if not author or staff)
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.minituto.pk),
             follow=False)
         self.assertEqual(result.status_code, 403)
         # but can access to online one
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.minituto.pk),
             follow=False)
@@ -4502,14 +4502,14 @@ class MiniTutorialTests(TestCase):
 
         # staff can access to draft version of tutorial
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}'.format(
                 self.minituto.pk),
             follow=False)
         self.assertEqual(result.status_code, 200)
         # ... and also to online version
         result = self.client.get(
-            reverse('zds.tutorial.views.download') +
+            reverse('tutorial-download') +
             '?tutoriel={0}&online'.format(
                 self.minituto.pk),
             follow=False)
@@ -4528,7 +4528,7 @@ class MiniTutorialTests(TestCase):
 
         # currently the tutorial is published with no beta, so back-end should return 0 tutorial
         response = self.client.post(
-            reverse('zds.tutorial.views.help_tutorial'),
+            reverse('tutorial-help-tutorial'),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -4547,7 +4547,7 @@ class MiniTutorialTests(TestCase):
             True)
         sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'activ_beta': True,
@@ -4559,7 +4559,7 @@ class MiniTutorialTests(TestCase):
         sha_beta = Tutorial.objects.get(pk=self.minituto.pk).sha_beta
         self.assertEqual(sha_draft, sha_beta)
         response = self.client.post(
-            reverse('zds.tutorial.views.help_tutorial'),
+            reverse('tutorial-help-tutorial'),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -4569,7 +4569,7 @@ class MiniTutorialTests(TestCase):
         # However if we ask with a filter we will still get 0
         for helping in helps:
             response = self.client.post(
-                reverse('zds.tutorial.views.help_tutorial') +
+                reverse('tutorial-help-tutorial') +
                 u'?type={}'.format(helping.slug),
                 follow=False
             )
@@ -4585,7 +4585,7 @@ class MiniTutorialTests(TestCase):
 
         for helping in helps:
             response = self.client.post(
-                reverse('zds.tutorial.views.help_tutorial') +
+                reverse('tutorial-help-tutorial') +
                 u'?type={}'.format(helping.slug),
                 follow=False
             )
@@ -4595,7 +4595,7 @@ class MiniTutorialTests(TestCase):
 
         # test pagination page doesn't exist
         response = self.client.post(
-            reverse('zds.tutorial.views.help_tutorial') +
+            reverse('tutorial-help-tutorial') +
             u'?page=1534',
             follow=False
         )
@@ -4603,7 +4603,7 @@ class MiniTutorialTests(TestCase):
 
         # test pagination page not an integer
         response = self.client.post(
-            reverse('zds.tutorial.views.help_tutorial') +
+            reverse('tutorial-help-tutorial') +
             u'?page=abcd',
             follow=False
         )
@@ -4629,7 +4629,7 @@ class MiniTutorialTests(TestCase):
 
         # test adding a new extract (implicit call to `maj_repo_extract()`)
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') +
+            reverse('tutorial-add-extract') +
             '?chapitre={0}'.format(
                 self.chapter.pk),
             {
@@ -4646,7 +4646,7 @@ class MiniTutorialTests(TestCase):
         # test the extract edition (also implicit call to `maj_repo_extract()`) :
         extract = self.chapter.get_extracts().last()
         result = self.client.post(
-            reverse('zds.tutorial.views.edit_extract') + '?extrait={}'.format(extract.pk),
+            reverse('tutorial-edit-extract') + '?extrait={}'.format(extract.pk),
             {
                 'title': u"Un autre titre",
                 'text': u"j'ai changé d'avis, je vais mettre un sapin synthétique",
@@ -4675,7 +4675,7 @@ class MiniTutorialTests(TestCase):
 
         # check if author get error when warning typo on its own tutorial
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            reverse('tutorial-warn-typo', args=[u"tutorial", self.minituto.pk]),
             {
                 'explication': u'ceci est un test',
                 'version_tutorial': self.minituto.sha_public
@@ -4700,7 +4700,7 @@ class MiniTutorialTests(TestCase):
 
         # check if user can warn typo in tutorial
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            reverse('tutorial-warn-typo', args=[u"tutorial", self.minituto.pk]),
             {
                 'explication': typo_text,
                 'version_tutorial': self.minituto.sha_public
@@ -4730,7 +4730,7 @@ class MiniTutorialTests(TestCase):
             True)
 
         result = self.client.post(
-            reverse('zds.tutorial.views.add_extract') + '?chapitre={0}'.format(self.chapter.pk),
+            reverse('tutorial-add-extract') + '?chapitre={0}'.format(self.chapter.pk),
             {
                 'title': u'Un nouveau titre d\'extrait',
                 'text': u'Linux is like sex, it\'s better when it\'s free (L. Torvald)'
@@ -4739,7 +4739,7 @@ class MiniTutorialTests(TestCase):
 
         sha_draft = Tutorial.objects.get(pk=self.minituto.pk).sha_draft
         response = self.client.post(
-            reverse('zds.tutorial.views.modify_tutorial'),
+            reverse('tutorial-modify-tutorial'),
             {
                 'tutorial': self.minituto.pk,
                 'activ_beta': True,
@@ -4760,7 +4760,7 @@ class MiniTutorialTests(TestCase):
 
         # check if user can warn typo in tutorial in beta version
         result = self.client.post(
-            reverse('zds.tutorial.views.warn_typo', args=[u"tutorial", self.minituto.pk]),
+            reverse('tutorial-warn-typo', args=[u"tutorial", self.minituto.pk]),
             {
                 'explication': typo_text,
                 'version_tutorial': Tutorial.objects.get(pk=self.minituto.pk).sha_beta

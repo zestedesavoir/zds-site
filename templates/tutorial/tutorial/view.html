@@ -154,16 +154,16 @@
     {% if user in tutorial.authors.all or perms.tutorial.change_tutorial %}
         {% if tutorial.sha_draft == version %}
             {% if not tutorial.is_mini %}
-                <a href="{% url "zds.tutorial.views.add_part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
+                <a href="{% url "tutorial-add-part" %}?tutoriel={{ tutorial.pk }}" class="ico-after more blue new-btn">
                     {% trans "Ajouter une partie" %}
                 </a>
             {% else %}
-                <a href="{% url "zds.tutorial.views.add_extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
+                <a href="{% url "tutorial-add-extract" %}?chapitre={{ chapter.pk }}" class="ico-after more blue new-btn">
                     {% trans "Ajouter un extrait" %}
                 </a>
             {% endif %}
 
-            <a href="{% url "zds.tutorial.views.edit_tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">
+            <a href="{% url "tutorial-edit-tutorial" %}?tutoriel={{ tutorial.pk }}" class="ico-after edit blue new-btn">
                 {% trans "Éditer" %}
             </a>
         {% else %}
@@ -182,7 +182,7 @@
             <a href="#add-author" class="open-modal ico-after more blue">
                 {% trans "Ajouter un auteur" %}
             </a>
-            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="add-author">
+            <form action="{% url "tutorial-modify-tutorial" %}" method="post" class="modal modal-small" id="add-author">
                 {% csrf_token %}
                 <input type="text" name="author" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
                 <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
@@ -195,7 +195,7 @@
             <a href="#manage-authors" class="open-modal ico-after gear blue">
                 {% trans "Gérer les auteurs" %}
             </a>
-            <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+            <form action="{% url "tutorial-modify-tutorial" %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
                 <table class="fullwidth">
                     <thead>
                         <th>{% trans "Auteur" %}</th>
@@ -239,7 +239,7 @@
                 <a href="#activ-beta" class="open-modal ico-after beta blue">
                     {% trans "Mettre cette version en bêta" %}
                 </a>
-                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
+                <form action="{% url "tutorial-modify-tutorial" %}" method="post" class="modal modal-small" id="activ-beta">
                     {% csrf_token %}
                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                     <input type="hidden" name="activ_beta">
@@ -268,7 +268,7 @@
                     <a href="#update-beta" class="open-modal ico-after beta blue">
                         {% trans "Mettre à jour la bêta avec cette version" %}
                     </a>
-                    <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="update-beta">
+                    <form action="{% url "tutorial-modify-tutorial" %}" method="post" class="modal modal-small" id="update-beta">
                         {% csrf_token %}
                         <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                         <input type="hidden" name="update_beta">
@@ -295,7 +295,7 @@
                 <a href="#desactiv-beta" class="open-modal ico-after cross blue">
                     {% trans "Désactiver la bêta" %}
                 </a>
-                <form action="{% url "zds.tutorial.views.modify_tutorial" %}" method="post" class="modal modal-small" id="desactiv-beta">
+                <form action="{% url "tutorial-modify-tutorial" %}" method="post" class="modal modal-small" id="desactiv-beta">
                     {% csrf_token %}
                     <input type="hidden" name="tutorial" value="{{ tutorial.pk }}">
                     <input type="hidden" name="desactiv_beta">
@@ -313,7 +313,7 @@
         {% endif %}
 
         <li>
-            <a href="{% url "zds.tutorial.views.history" tutorial.pk tutorial.slug %}" class="ico-after history blue">
+            <a href="{% url "tutorial-history" tutorial.pk tutorial.slug %}" class="ico-after history blue">
                 {% trans "Historique des versions" %}
             </a>
         </li>
@@ -350,7 +350,7 @@
             <h3>{% trans "Validation" %}</h3>
             <ul>
                 <li>
-                    <a href="{% url "zds.tutorial.views.history_validation" tutorial.pk %}" class="ico-after history blue">
+                    <a href="{% url "tutorial-history-validation" tutorial.pk %}" class="ico-after history blue">
                         {% trans "Historique validation" %}
                     </a>
                 </li>
@@ -384,7 +384,7 @@
                 {% if tutorial.on_line %}
                     <li>
                         <a href="#unpublish" class="ico-after open-modal cross blue">{% trans "Dépublier" %}</a>
-                        <form action="{% url "zds.tutorial.views.invalid_tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
+                        <form action="{% url "tutorial-invalid-tutorial" tutorial.pk %}" method="post" class="modal modal-small" id="unpublish">
                         	{% csrf_token %}
                             <p>
                                 {% blocktrans with tutorial_title=tutorial.title %}
@@ -401,7 +401,7 @@
                 {% if tutorial.in_validation %}
                     {% if validation.is_pending %}
                         <li>
-                            <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+                            <form action="{% url "tutorial-reservation" validation.pk %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="ico-after lock blue">
                                     {% trans "Réserver" %}
@@ -411,7 +411,7 @@
                     {% elif validation.is_pending_valid %}
                         {% if validation.validator == user %}
                             <li>
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post">
+                                <form action="{% url "tutorial-reservation" validation.pk %}" method="post">
                                     {% csrf_token %}
                                     <button type="submit" class="ico-after lock blue">
                                         {% trans "Annuler la réservation" %}
@@ -437,7 +437,7 @@
                                         Réservé par <strong>{{ validator_name }}</strong>, le retirer
                                     {% endblocktrans %}
                                 </a>
-                                <form action="{% url "zds.tutorial.views.reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                <form action="{% url "tutorial-reservation" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
                                     {% csrf_token %}
                                     <p>
                                         {% trans "La validation de ce tutoriel est actuellement réservée par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
@@ -465,7 +465,7 @@
                         <a href="#delete-tutorial" class="open-modal ico-after cross red">
                             {% trans "Supprimer le tutoriel" %}
                         </a>
-                        <form action="{% url "zds.tutorial.views.delete_tutorial" tutorial.pk %}" method="post" id="delete-tutorial" class="modal modal-medium">
+                        <form action="{% url "tutorial-delete" tutorial.pk %}" method="post" id="delete-tutorial" class="modal modal-medium">
                         	{% csrf_token %}
                             <p>
                                 {% blocktrans with tutorial_title=tutorial.title %}

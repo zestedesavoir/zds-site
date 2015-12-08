@@ -114,12 +114,12 @@ class SubCategory(models.Model):
             sha_public__isnull=True)
 
     def get_absolute_url_tutorial(self):
-        url = reverse('zds.tutorial.views.index')
+        url = reverse('tutorial-index')
         url = url + '?tag={}'.format(self.slug)
         return url
 
     def get_absolute_url_article(self):
-        url = reverse('zds.article.views.index')
+        url = reverse('article-index')
         url = url + '?tag={}'.format(self.slug)
         return url
 
@@ -176,7 +176,7 @@ class Comment(models.Model):
     author = models.ForeignKey(User, verbose_name='Auteur',
                                related_name='comments', db_index=True)
     editor = models.ForeignKey(User, verbose_name='Editeur',
-                               related_name='comments-editor',
+                               related_name='comments-editor+',
                                null=True, blank=True)
     ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
 

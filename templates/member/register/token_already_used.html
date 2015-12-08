@@ -23,7 +23,7 @@
 
 {% block content %}
     <p>
-        {% url "zds.member.views.forgot_password" as url_forgot %}
+        {% url "member-forgot-password" as url_forgot %}
         {% blocktrans %}
             Votre email a déjà été activé. Si vous avez oublié votre mot de passe, vous pouvez le retrouver <a href="{{url_forgot}}">ici</a>.
         {% endblocktrans %}
