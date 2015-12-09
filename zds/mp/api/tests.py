@@ -248,6 +248,9 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('subtitle'), private_topics[0].subtitle)
         self.assertEqual(response.data.get('participants')[0], private_topics[0].participants.all()[0].id)
         self.assertEqual(data.get('text'), private_topics[0].last_message.text)
+        self.assertEqual(response.data.get('author'), self.profile.user.id)
+        self.assertIsNotNone(response.data.get('last_message'))
+        self.assertIsNotNone(response.data.get('pubdate'))
 
     def test_create_of_private_topics_without_subtitle(self):
         """
@@ -267,6 +270,9 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('subtitle'), private_topics[0].subtitle)
         self.assertEqual(response.data.get('participants')[0], private_topics[0].participants.all()[0].id)
         self.assertEqual(data.get('text'), private_topics[0].last_message.text)
+        self.assertEqual(response.data.get('author'), self.profile.user.id)
+        self.assertIsNotNone(response.data.get('last_message'))
+        self.assertIsNotNone(response.data.get('pubdate'))
 
     def test_create_of_private_topics_without_title(self):
         """
@@ -741,6 +747,49 @@ class PrivatePostListAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(response.data.get('results')[0].get('text'))
         self.assertIsNone(response.data.get('results')[0].get('text_html'))
+
+    def test_ordering_list_of_private_posts_by_position_in_topic(self):
+        """
+        Gets list of private posts ordered by position_in_topic.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
+                                                      settings.REST_FRAMEWORK['PAGINATE_BY'])
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) +
+                                   '?ordering=position_in_topic')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_ordering_list_of_private_posts_by_pubdate(self):
+        """
+        Gets list of private posts ordered by pubdate.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
+                                                      settings.REST_FRAMEWORK['PAGINATE_BY'])
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?ordering=pubdate')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
+
+    def test_ordering_list_of_private_posts_by_update(self):
+        """
+        Gets list of private posts ordered by update.
+        """
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
+                                                      settings.REST_FRAMEWORK['PAGINATE_BY'])
+
+        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?ordering=update')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertIsNone(response.data.get('next'))
+        self.assertIsNone(response.data.get('previous'))
 
     def create_multiple_private_posts_for_member(self, user, private_topic,
                                                  number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):

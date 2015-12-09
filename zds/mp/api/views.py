@@ -41,6 +41,7 @@ class DetailKeyConstructor(DefaultKeyConstructor):
 
 class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
+    search = bits.QueryParamsKeyBit(['ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
 
@@ -279,6 +280,8 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
     """
 
     permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ('position_in_topic', 'pubdate', 'update')
     list_key_func = PagingPrivatePostListKeyConstructor()
 
     def dispatch(self, request, *args, **kwargs):
@@ -307,6 +310,9 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
             - name: page_size
               description: Sets size of the pagination.
               required: false
+              paramType: query
+            - name: ordering
+              description: Applies an order at the list. You can order by (-)position_in_topic, (-)pubdate or (-)update.
               paramType: query
             - name: expand
               description: Expand a field with an identifier.
