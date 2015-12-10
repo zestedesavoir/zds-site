@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='profile',
             name='allow_temp_visual_changes',
-            field=models.BooleanField(default=True, verbose_name=b'Activer les changements visuels temporaires ?'),
+            field=models.BooleanField(default=True, verbose_name=b'Activer les changements visuels temporaires'),
             preserve_default=True,
         ),
     ]

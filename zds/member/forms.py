@@ -293,7 +293,7 @@ class ProfileForm(MiniProfileForm):
             ('show_email', _(u"Afficher mon adresse courriel publiquement")),
             ('show_sign', _(u"Afficher les signatures")),
             ('hover_or_click', _(u"Cochez pour dérouler les menus au survol")),
-            ('allow_temp_visual_changes', _(u"Activer les changements visuels temporaires ?")),
+            ('allow_temp_visual_changes', _(u"Activer les changements visuels temporaires")),
             ('email_for_answer', _(u'Recevez un courriel lorsque vous '
                                    u'recevez une réponse à un message privé')),
         ),
