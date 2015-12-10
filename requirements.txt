@@ -7,7 +7,7 @@ python-social-auth==0.2.9
 Django==1.9
 coverage==4.0.1
 # full compatibility with django 1.8 and 1.9
- TODO : django-crispy-forms==1.5.2
+# TODO : django-crispy-forms==1.5.2
 https://github.com/gustavi/django-crispy-forms/archive/dev.zip
 django-haystack==2.4.1
 django-model-utils==2.3.1
