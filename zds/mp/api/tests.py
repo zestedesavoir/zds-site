@@ -18,7 +18,7 @@ from zds.settings import ZDS_APP
 
 
 overrided_drf = settings.REST_FRAMEWORK
-overrided_drf['MAX_PAGINATE_BY'] = 20
+overrided_drf['MAX_PAGE_SIZE'] = 20
 
 
 @override_settings(REST_FRAMEWORK=overrided_drf)
@@ -62,8 +62,8 @@ class PrivateTopicListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-mp-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
-        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -71,18 +71,18 @@ class PrivateTopicListAPITest(APITestCase):
         """
         Gets list of private topics of a member with several pages.
         """
-        self.create_multiple_private_topics_for_member(self.profile.user, settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.create_multiple_private_topics_for_member(self.profile.user, settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
 
         response = self.client.get(reverse('api-mp-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGE_SIZE'])
 
         response = self.client.get(reverse('api-mp-list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNotNone(response.data.get('previous'))
         self.assertEqual(len(response.data.get('results')), 1)
@@ -91,7 +91,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         Gets list of private topics with several pages and gets a page different that the first one.
         """
-        self.create_multiple_private_topics_for_member(self.profile.user, settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.create_multiple_private_topics_for_member(self.profile.user, settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
 
         response = self.client.get(reverse('api-mp-list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -112,7 +112,7 @@ class PrivateTopicListAPITest(APITestCase):
         Gets list of private topics with a custom page size. DRF allows to specify a custom
         size for the pagination.
         """
-        self.create_multiple_private_topics_for_member(self.profile.user, settings.REST_FRAMEWORK['PAGINATE_BY'] * 2)
+        self.create_multiple_private_topics_for_member(self.profile.user, settings.REST_FRAMEWORK['PAGE_SIZE'] * 2)
 
         page_size = 'page_size'
         response = self.client.get(reverse('api-mp-list') + '?{}=20'.format(page_size))
@@ -121,14 +121,14 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(len(response.data.get('results')), 20)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(settings.REST_FRAMEWORK['PAGINATE_BY_PARAM'], page_size)
+        self.assertEqual(settings.REST_FRAMEWORK['PAGE_SIZE_QUERY_PARAM'], page_size)
 
     def test_list_of_private_topics_with_a_wrong_custom_page_size(self):
         """
         Gets list of private topics with a custom page size but not good according to the
         value in settings.
         """
-        page_size_value = settings.REST_FRAMEWORK['MAX_PAGINATE_BY'] + 1
+        page_size_value = settings.REST_FRAMEWORK['MAX_PAGE_SIZE'] + 1
         self.create_multiple_private_topics_for_member(self.profile.user, page_size_value)
 
         response = self.client.get(reverse('api-mp-list') + '?page_size={}'.format(page_size_value))
@@ -136,7 +136,7 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGINATE_BY'], len(response.data.get('results')))
+        self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGE_SIZE'], len(response.data.get('results')))
 
     def test_search_in_list_of_private_topics(self):
         """
@@ -169,7 +169,7 @@ class PrivateTopicListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-mp-list') + '?ordering=pubdate')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -181,7 +181,7 @@ class PrivateTopicListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-mp-list') + '?ordering=last_message')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -193,7 +193,7 @@ class PrivateTopicListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-mp-list') + '?ordering=title')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -369,7 +369,7 @@ class PrivateTopicListAPITest(APITestCase):
         response = self.client.delete(reverse('api-mp-list'), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def create_multiple_private_topics_for_member(self, user, number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
+    def create_multiple_private_topics_for_member(self, user, number_of_users=settings.REST_FRAMEWORK['PAGE_SIZE']):
         return [PrivateTopicFactory(author=user) for private_topic in xrange(0, number_of_users)]
 
 
@@ -646,8 +646,8 @@ class PrivatePostListAPI(APITestCase):
 
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
-        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
+        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -657,11 +657,11 @@ class PrivatePostListAPI(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
-                                                      settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+                                                      settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
 
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -671,7 +671,7 @@ class PrivatePostListAPI(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
-                                                      settings.REST_FRAMEWORK['PAGINATE_BY'] + 1)
+                                                      settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
 
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -694,7 +694,7 @@ class PrivatePostListAPI(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
-                                                      settings.REST_FRAMEWORK['PAGINATE_BY'] * 2)
+                                                      settings.REST_FRAMEWORK['PAGE_SIZE'] * 2)
 
         page_size = 'page_size'
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?{}=20'.format(page_size))
@@ -703,14 +703,14 @@ class PrivatePostListAPI(APITestCase):
         self.assertEqual(len(response.data.get('results')), 20)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(settings.REST_FRAMEWORK['PAGINATE_BY_PARAM'], page_size)
+        self.assertEqual(settings.REST_FRAMEWORK['PAGE_SIZE_QUERY_PARAM'], page_size)
 
     def test_list_of_private_posts_with_a_wrong_custom_page_size(self):
         """
         Gets list of private posts with a custom page size but not good according to the
         value in settings.
         """
-        page_size_value = settings.REST_FRAMEWORK['MAX_PAGINATE_BY'] + 1
+        page_size_value = settings.REST_FRAMEWORK['MAX_PAGE_SIZE'] + 1
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic, page_size_value)
 
@@ -720,7 +720,7 @@ class PrivatePostListAPI(APITestCase):
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGINATE_BY'], len(response.data.get('results')))
+        self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGE_SIZE'], len(response.data.get('results')))
 
     def test_list_of_private_posts_with_x_data_format_html(self):
         """
@@ -792,7 +792,7 @@ class PrivatePostListAPI(APITestCase):
         self.assertIsNone(response.data.get('previous'))
 
     def create_multiple_private_posts_for_member(self, user, private_topic,
-                                                 number_of_users=settings.REST_FRAMEWORK['PAGINATE_BY']):
+                                                 number_of_users=settings.REST_FRAMEWORK['PAGE_SIZE']):
         list = []
         for i in xrange(0, number_of_users):
             private_post = PrivatePostFactory(author=user, privatetopic=private_topic, position_in_topic=i)
