@@ -209,11 +209,10 @@ THUMBNAIL_ALIASES = {
 }
 
 REST_FRAMEWORK = {
-    # If the pagination isn't specify in the API, its configuration is
-    # specified here.
-    'PAGINATE_BY': 10,                 # Default to 10
-    'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
-    'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
+    # If the pagination isn't specify in the API, its configuration is specified here.
+    'PAGE_SIZE': 10,                        # Default to 10
+    'PAGE_SIZE_QUERY_PARAM': 'page_size',   # Allow client to override, using `?page_size=xxx`.
+    'MAX_PAGE_SIZE': 100,                   # Maximum limit allowed when using `?page_size=xxx`.
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
@@ -239,7 +238,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '60/hour',
         'user': '2000/hour'
-    }
+    },
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
 REST_FRAMEWORK_EXTENSIONS = {
