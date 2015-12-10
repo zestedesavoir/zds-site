@@ -10,7 +10,7 @@ var LetItSnow = function(element) {
 
     this._canvas.style.background = window
         .getComputedStyle(this._parent)
-        .getPropertyValue('background-color');
+        .getPropertyValue("background-color");
     this._parent.style.background = "transparent";
 
     // Append the canvas...
@@ -111,7 +111,9 @@ LetItSnow.prototype = {
 };
 
 window.addEventListener("DOMContentLoaded", function() {
-    setTimeout(function() {
-        window.snow = new LetItSnow(document.querySelector(".header-container > header"));
-    }, 1000); // to be sure to have the DOM completely ready
+    if($("body").hasClass("vc-snow")) {
+        setTimeout(function() {
+            window.snow = new LetItSnow(document.querySelector(".header-container > header"));
+        }, 1000); // to be sure to have the DOM completely ready
+    }
 });
