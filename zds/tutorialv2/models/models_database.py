@@ -430,7 +430,7 @@ class PublishableContent(models.Model):
                 read = ContentRead.objects\
                     .select_related('note')\
                     .select_related('note__related_content')\
-                    .select_related('related_content__public_version')\
+                    .select_related('note__related_content__public_version')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
                 if read is not None and read.note:  # one case can show a read without note : the author has just
