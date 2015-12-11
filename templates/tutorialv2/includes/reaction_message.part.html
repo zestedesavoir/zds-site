@@ -181,7 +181,7 @@
                 </div>
             {% endif %}
 
-            {% if message.is_visible = False %}
+            {% if not message.is_visible %}
                 <p class="message-hidden">
                     {% trans "Masqué par" %} {{ message.editor }}
                     {% if message.text_hidden %}
@@ -244,7 +244,7 @@
                     <div class="message-karma">
                         {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
-                                {% if topic.author = user or perms_change %}
+                                {% if topic.author == user or perms_change %}
                                     <form action="{{ helpful_link }}" method="post">
                                         {% csrf_token %}
                                         <button
