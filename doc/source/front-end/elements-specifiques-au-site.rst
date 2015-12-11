@@ -235,7 +235,7 @@ Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles tr
 Ajouter un design temporaire
 ============================
 
-Il y a dans le fichier ``settings.py`` un tableau ``ZDS_APP.visual_changes``. Ce tableau de chaînes de caractère est injecté sous forme de classes au body, avec comme prefixe ``vc-`` (si l'utilisateur n'as pas bloqué les designs temporaires dans ses paramètres).
+Il y a dans le fichier ``settings.py`` un tableau ``ZDS_APP.visual_changes``. Ce tableau de chaînes de caractères est injecté sous forme de classes au body, avec comme prefixe ``vc-`` (si l'utilisateur n'as pas bloqué les designs temporaires dans ses paramètres).
 
 Il suffit donc, dans le style et dans les scripts si le ``body`` a la classe ``vc-{...}`` correspondante au changement visuel.
 
@@ -243,7 +243,7 @@ Il suffit donc, dans le style et dans les scripts si le ``body`` a la classe ``v
 
     .element {
         color: #FFF;
-        body.vc-noel & { // Donnera donc body.vc-noel .element
+        body.vc-clem-christmas & { // Donnera donc body.vc-clem-christmas .element
           color #F00;
         }
     }
@@ -255,9 +255,9 @@ Il suffit donc, dans le style et dans les scripts si le ``body`` a la classe ``v
     }
 
 
-Actuellement, le seul changement visuel disponible est ``snow``, qui rajoute de la neige dans le header pour la période de noël. Pour l'activer, il faut ajouter dans le fichier ``settings_prod.py``:
+Actuellement, les changements visuels disponibles sont ``snow`` et ``clem-christmas``, qui respectivement rajoutent de la neige dans le header pour la période de noël, et mettent un bonnet à la Clem de l'accueil. Pour les activer, il faut ajouter dans le fichier ``settings_prod.py``:
 
 .. sourcecode:: python
 
-    ZDS_APP['visual_changes'] = ['snow']
+    ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
 
