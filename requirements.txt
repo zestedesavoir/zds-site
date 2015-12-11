@@ -10,7 +10,7 @@ coverage==4.0.1
 # TODO : django-crispy-forms==1.5.2
 https://github.com/gustavi/django-crispy-forms/archive/dev.zip
 django-haystack==2.4.1
-django-model-utils==2.3.1
+django-model-utils==2.4
 django-munin==0.2.0
 python-memcached==1.54
 lxml==3.4.4

@@ -70,7 +70,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
     content = None
     created_content_type = "TUTORIAL"
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial["type"] = self.created_content_type
         form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
@@ -1030,7 +1030,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', None)
+        form = kwargs.pop('form', self.get_form())
         context['container'] = form.initial['container']
         context['gallery'] = self.object.gallery
 
@@ -1128,7 +1128,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
-        form = kwargs.pop('form', None)
+        form = kwargs.pop('form', self.get_form())
         context['extract'] = form.initial['extract']
         context['gallery'] = self.object.gallery
 
