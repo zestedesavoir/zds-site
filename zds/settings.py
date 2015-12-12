@@ -177,7 +177,7 @@ INSTALLED_APPS = (
     'zds.gallery',
     'zds.mp',
     'zds.article',
-    
+
     'zds.forum',
     'zds.tutorial',
     'zds.tutorialv2',
@@ -500,7 +500,8 @@ ZDS_APP = {
     },
     'paginator': {
         'folding_limit': 4
-    }
+    },
+    'visual_changes': []
 }
 
 LOGIN_REDIRECT_URL = "/"
