@@ -255,7 +255,15 @@ Il suffit donc, dans le style et dans les scripts si le ``body`` a la classe ``v
     }
 
 
-Actuellement, les changements visuels disponibles sont ``snow`` et ``clem-christmas``, qui respectivement rajoutent de la neige dans le header pour la période de noël, et mettent un bonnet à la Clem de l'accueil. Pour les activer, il faut ajouter dans le fichier ``settings_prod.py``:
+Changements visuels disponibles
+-------------------------------
+
+Les changements visuels disponibles sont:
+
+  - ``snow``: ajoute de la neige dans le header
+  - ``clem-christmas``: ajoute un bonnet à la Clem de la page d'accueil
+
+Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il faut ajouter au ``settings_prod.py``:
 
 .. sourcecode:: python
 
