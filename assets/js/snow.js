@@ -47,7 +47,6 @@ LetItSnow.prototype = {
 
     resize: function() {
         var rect = this._parent.getBoundingClientRect();
-        console.log(rect);
 
         this.H = rect.height;
         this.W = rect.width;
@@ -77,7 +76,7 @@ LetItSnow.prototype = {
         for(var i in this.particles) {
             p = this.particles[i];
             p.y += (delta / 1000) * (this.PARTICLES_SPEED * p.d * (1.5 + Math.sin(now * this.TURBULENCES_SPEED / 1000 + p.s) * this.TURBULENCES_Y));
-            p.x += (delta / 1000) * (this.PARTICLES_SPEED * p.d* (Math.cos(now * this.TURBULENCES_SPEED / 1000 + p.s) * this.TURBULENCES_X));
+            p.x += (delta / 1000) * (this.PARTICLES_SPEED * p.d * (Math.cos(now * this.TURBULENCES_SPEED / 1000 + p.s) * this.TURBULENCES_X));
 
             if(p.y - (p.d * 4) > this.H || p.x - (p.d * 4) > this.W || p.x + (p.d * 4) < 0) {
                 this.particles.splice(i, 1);
@@ -111,7 +110,7 @@ LetItSnow.prototype = {
 };
 
 window.addEventListener("DOMContentLoaded", function() {
-    if($("body").hasClass("vc-snow")) {
+    if(document.body.className.split(" ").indexOf("vc-snow") !== -1) { // No jQuery here
         setTimeout(function() {
             window.snow = new LetItSnow(document.querySelector(".header-container > header"));
         }, 1000); // to be sure to have the DOM completely ready
