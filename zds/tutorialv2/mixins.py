@@ -308,6 +308,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
     object = None
     public_content_object = None
     versioned_object = None
+    redirection_is_needed = True
 
     is_author = False
     is_staff = False
@@ -343,13 +344,16 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             queryset = queryset.filter(content_public_slug=self.kwargs['slug'])
 
         obj = queryset.order_by('publication_date').last()  # "last" version must be the most recent to be published
+
         if obj is None:
             raise Http404(_(u"Aucun contenu ne possède ce slug."))
 
         # Redirection ?
         if obj.must_redirect:
-            if obj.content.public_version:
+            if obj.content.public_version and self.redirection_is_needed:
                 raise MustRedirect(self.get_redirect_url(obj))
+            elif obj.content.public_version and not self.redirection_is_needed:
+                obj = obj.content.public_version
             else:  # should only happen if the content is unpublished
                 raise Http404(_(u"La redirection est activée mais le contenu n'est pas public."))
 

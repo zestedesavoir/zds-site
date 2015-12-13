@@ -44,8 +44,12 @@ urlpatterns = patterns('',
                        url(r'^beta/(?P<pk>\d+)/(?P<slug>.+)/$', DisplayBetaContent.as_view(), name='beta-view'),
 
                        # reactions:
-                       url(r'^reactions/ajouter/$', SendNoteFormView.as_view(), name="add-reaction"),
-                       url(r'^reactions/editer/$', UpdateNoteView.as_view(), name="update-reaction"),
+                       # for all those views, we do not need to redirect to the newest PublishedContent
+                       # because they just must depend on PublishableContent pk, not slug nor PublishedContent model
+                       url(r'^reactions/ajouter/$', SendNoteFormView.as_view(redirection_is_needed=False),
+                           name="add-reaction"),
+                       url(r'^reactions/editer/$', UpdateNoteView.as_view(redirection_is_needed=False),
+                           name="update-reaction"),
                        url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
                        url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
                        url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),
