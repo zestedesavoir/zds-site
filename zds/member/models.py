@@ -66,6 +66,8 @@ class Profile(models.Model):
     # TODO: Change this name. This is a boolean: "true" is "hover" or "click" ?!
     hover_or_click = models.BooleanField('Survol ou click ?', default=False)
 
+    allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
+
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
 
     # SdZ tutorial IDs separated by columns (:).

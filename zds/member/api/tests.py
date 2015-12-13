@@ -352,6 +352,7 @@ class MemberMyDetailAPITest(APITestCase):
         self.assertFalse(response.data.get('show_email'))
         self.assertEqual(profile.show_sign, response.data.get('show_sign'))
         self.assertEqual(profile.hover_or_click, response.data.get('hover_or_click'))
+        self.assertEqual(profile.allow_temp_visual_changes, response.data.get('allow_temp_visual_changes'))
         self.assertEqual(profile.email_for_answer, response.data.get('email_for_answer'))
 
     def test_detail_of_the_member_not_authenticated(self):

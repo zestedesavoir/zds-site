@@ -231,3 +231,41 @@ Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles tr
    Voici trois tutoriels sur deux colonnes sans le problème
 
 (Pour l'explication technique, c'est dû à l'utilisation de *flexbox*.)
+
+Ajouter un design temporaire
+============================
+
+Il y a dans le fichier ``settings.py`` un tableau ``ZDS_APP.visual_changes``. Ce tableau de chaînes de caractères est injecté sous forme de classes au body, avec comme prefixe ``vc-`` (si l'utilisateur n'as pas bloqué les designs temporaires dans ses paramètres).
+
+Il suffit donc, dans le style et dans les scripts si le ``body`` a la classe ``vc-{...}`` correspondante au changement visuel.
+
+.. sourcecode:: scss
+
+    .element {
+        color: #FFF;
+        body.vc-clem-christmas & { // Donnera donc body.vc-clem-christmas .element
+          color #F00;
+        }
+    }
+
+.. sourcecode:: javascript
+
+    if($("body").hasClass("vc-snow")) {
+        // ...
+    }
+
+
+Changements visuels disponibles
+-------------------------------
+
+Les changements visuels disponibles sont:
+
+  - ``snow``: ajoute de la neige dans le header
+  - ``clem-christmas``: ajoute un bonnet à la Clem de la page d'accueil
+
+Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il faut ajouter au ``settings_prod.py``:
+
+.. sourcecode:: python
+
+    ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
+
