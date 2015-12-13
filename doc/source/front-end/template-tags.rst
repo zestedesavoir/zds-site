@@ -222,8 +222,8 @@ Ce filtre renvoit la liste des *topics* suivis par l'utilisateur, sous la forme 
 .. sourcecode:: html
 
     {% load interventions %}
-    {% with follwedtopics=user|followed_topics %}
-        {% for period, topics in follwedtopics.items %}
+    {% with followedtopics=user|followed_topics %}
+        {% for period, topics in followedtopics.items %}
         ...
         {% endfor %}
     {% endwith %}
@@ -294,6 +294,18 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 - ``alert.username`` contient le nom de l'auteur de l'alerte ;
 - ``alert.pubdate`` donne la date à laquelle l'alerte à été faite ;
 - ``alert.topic`` donne le texte d'alerte.
+
+``humane_delta``
+----------------
+
+Permet d'afficher une période en lettres. Fait le lien entre le label d'un jour et sa clé.
+
+.. sourcecode:: html
+
+    {% load interventions %}
+    {% for period, topics in followedtopics.items %}
+       <h4>{{ period|humane_delta }}</h4>
+    {% endfor %}
 
 Le module ``model_name``
 ========================
