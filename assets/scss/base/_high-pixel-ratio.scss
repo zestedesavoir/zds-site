@@ -34,5 +34,11 @@
 
     .home .home-search-box::before {
         background-image: url('../images/home-clem@2x.png');
+
+        @at-root {
+            body.vc-clem-christmas.home .home-search-box::before {
+                background-image: url('../images/home-clem-christmas@2x.png');
+            }
+        }
     }
 }
