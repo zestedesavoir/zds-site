@@ -106,7 +106,7 @@
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% if forloop.first and page_obj.number = 1 %}
+        {% if forloop.first and page_obj.number == 1 %}
             {% set False as answer_schema %}
         {% else %}
             {% set True as answer_schema %}
