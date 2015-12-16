@@ -28,8 +28,7 @@ django-recaptcha==1.0.4
 djangorestframework==3.3.1
 djangorestframework-xml==1.0.1
 django-filter==0.9.2
-# TODO : django-oauth-toolkit
-https://github.com/evonove/django-oauth-toolkit/archive/master.zip
+django-oauth-toolkit==0.10.0
 drf-extensions==0.2.7
 # TODO : django-rest-swagger
 https://github.com/marcgibbons/django-rest-swagger/archive/master.zip
@@ -42,4 +41,4 @@ django-uuslug==1.1.6
 
 # TODO : fix temp bug
 # should run this after install :
-# pip install --upgrade django_model_utils==2.4
+# pip install --upgrade https://github.com/carljm/django-model-utils/archive/master.zip
