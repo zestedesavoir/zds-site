@@ -204,7 +204,7 @@ class TopicNew(CreateView, SingleObjectMixin):
             return self.form_valid(form)
         return render(request, self.template_name, {'forum': self.object, 'form': form})
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=TopicForm):
         return form_class(self.request.POST)
 
     def form_valid(self, form):
@@ -315,7 +315,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         form.helper.form_action = reverse('topic-edit') + '?topic={}'.format(self.object.pk)
         return form
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=TopicForm):
         form = form_class(self.request.POST)
         form.helper.form_action = reverse('topic-edit') + '?topic={}'.format(self.object.pk)
         return form
@@ -421,7 +421,7 @@ class PostNew(CreatePostView):
         form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
         return form
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PostForm):
         form = self.form_class(self.object, self.request.user, self.request.POST)
         form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
         return form
@@ -507,7 +507,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
         return form
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PostForm):
         form = self.form_class(self.object.topic, self.request.user, self.request.POST)
         form.helper.form_action = reverse('post-edit') + '?message=' + str(self.object.pk)
         return form

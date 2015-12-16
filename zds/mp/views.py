@@ -99,7 +99,7 @@ class PrivateTopicNew(CreateView):
 
         return render(request, self.template_name, {'form': form})
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PrivateTopicForm):
         return form_class(self.request.user.username, self.request.POST)
 
     def form_valid(self, form):
@@ -298,7 +298,7 @@ class PrivatePostAnswer(CreatePostView):
     def create_forum(self, form_class, **kwargs):
         return form_class(self.object, initial=kwargs)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PrivatePostForm):
         return form_class(self.object, self.request.POST)
 
     def form_valid(self, form):
@@ -363,7 +363,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
             'form': form,
         })
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PrivatePostForm):
         form = self.form_class(self.topic, self.request.POST)
         form.helper.form_action = reverse('private-posts-edit',
                                           args=[self.topic.pk, self.topic.slug(), self.current_post.pk])

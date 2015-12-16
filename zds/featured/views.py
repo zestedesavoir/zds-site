@@ -119,7 +119,7 @@ class FeaturedResourceUpdate(UpdateView):
         self.featured_resource.save()
         return redirect(reverse('homepage'))
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=FeaturedResourceForm):
         form = self.form_class(self.request.POST)
         form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
         return form
