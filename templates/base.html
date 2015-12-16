@@ -294,7 +294,7 @@
                                                 {% for topic in unread_topics %}
                                                     {% with last_answer=topic.get_last_answer %}
                                                     <li>
-                                                        {% if last_answer = None %}
+                                                        {% if last_answer == None %}
                                                             {% set topic.last_read_post as last_answer %}
                                                         {% endif %}
                                                         <a href="{{ topic.last_read_post.get_absolute_url }}">
@@ -309,7 +309,7 @@
                                                     {% endwith %}
                                                 {% endfor %}
 
-                                                {% if total_topics = 0 %}
+                                                {% if total_topics == 0 %}
                                                     <li class="dropdown-empty-message">
                                                         {% trans "Aucun nouveau message" %}
                                                     </li>
