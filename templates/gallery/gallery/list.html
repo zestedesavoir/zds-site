@@ -72,7 +72,7 @@
         {% endfor %}
     </div>
 
-    {% if galleries|length = 0 %}
+    {% if galleries|length == 0 %}
         <p>
             {% trans "Vous n'avez pas encore de galerie" %}. <br>
             <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
