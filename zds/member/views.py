@@ -105,7 +105,7 @@ class UpdateMember(UpdateView):
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ProfileForm):
         profile = self.get_object()
         form = form_class(initial={
             'biography': profile.biography,
@@ -177,7 +177,7 @@ class UpdateAvatarMember(UpdateMember):
 
         return reverse('member-detail', args=[profile.user.username])
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ImageAsAvatarForm):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
@@ -200,7 +200,7 @@ class UpdatePasswordMember(UpdateMember):
 
         return render(request, self.template_name, {'form': form})
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ChangePasswordForm):
         return form_class(self.request.user)
 
     def update_profile(self, profile, form):
@@ -218,7 +218,7 @@ class UpdateUsernameEmailMember(UpdateMember):
 
     form_class = ChangeUserForm
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ChangeUserForm):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
@@ -254,7 +254,7 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=RegisterForm):
         return form_class()
 
     def post(self, request, *args, **kwargs):
@@ -293,7 +293,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
         elif email:
             self.usr = get_object_or_404(User, email=email)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=UsernameAndEmailForm):
         return form_class()
 
     def post(self, request, *args, **kwargs):
