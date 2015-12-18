@@ -681,6 +681,15 @@ def publish_content(db_object, versioned, is_major_update=True):
     except IOError:
         pass
 
+    # store files sizes
+    from zds.tutorialv2.models.models_database import ALLOWED_TYPES
+    sizes = {}
+    for t in ALLOWED_TYPES:
+        if public_version.have_type(t):
+            sizes[t] = public_version.get_size_file_type(t)
+    public_version.sizes = sizes
+    public_version.save()
+
     return public_version
 
 

@@ -19,7 +19,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
-    ContentRead
+    ContentRead, ALLOWED_TYPES
 from zds.tutorialv2.utils import publish_content
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
@@ -5136,6 +5136,18 @@ class PublishedContentTests(TestCase):
         self.assertIn(self.user_author.username, response.content)
         self.assertNotIn(other_author.user.username, response.content)
         self.assertEqual(0, len(other_author.get_public_contents()))
+
+    def test_download_size(self):
+        """
+        Test the size of content to download.
+        """
+        sizes = self.published.sizes
+        for type_ in ALLOWED_TYPES:
+            if self.published.have_type(type_):
+                self.assertEqual(sizes[type_],
+                                 os.path.getsize(os.path.join(
+                                     self.published.get_extra_contents_directory(),
+                                     self.published.content_public_slug + '.' + type_)))
 
     def tearDown(self):
 
