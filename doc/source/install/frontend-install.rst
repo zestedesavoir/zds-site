@@ -47,7 +47,7 @@ L'installation peut se faire simplement via ``apt-get`` :
 
 .. sourcecode:: bash
 
-    sudo apt-get install nodejs npm
+    sudo apt-get install nodejs npm nodejs-legacy
 
 Mais il est possible d'avoir une version un peu plus récente avec :
 
@@ -126,6 +126,10 @@ Pour npm, il suffit de le mettre à jour avec cette commande :
     sudo npm install -g npm
 
 Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devrait fonctionner.
+
+.. note::
+   En cas de gros pépin avec l'installation de npm, il peut arriver que ce dernier soit complètement en vrac. Dans ce genre de situation, ce `lien StackOverflow <http://stackoverflow.com/questions/31025048/npm-doesnt-work-get-always-this-error-error-cannot-find-module-are-we-ther>`_ peut vous sauver ;) .
+
 
 Installation des dépendances npm
 --------------------------------
