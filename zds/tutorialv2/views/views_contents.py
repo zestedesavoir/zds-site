@@ -128,6 +128,9 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         for helpwriting in form.cleaned_data["helps"]:
             self.content.helps.add(helpwriting)
 
+        # Add tags
+        self.content.add_tags(form.cleaned_data["tags"].split(','))
+
         self.content.save()
 
         # create a new repo :

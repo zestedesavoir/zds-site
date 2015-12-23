@@ -149,6 +149,12 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
+    tags = forms.CharField(
+        label=_(u'Tag(s) séparés par une virgule (exemple: python,django,web)'),
+        max_length=64,
+        required=False,
+    )
+
     image = forms.ImageField(
         label=_(u'Sélectionnez le logo du contenu (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
@@ -202,6 +208,7 @@ class ContentForm(ContainerForm):
         self.helper.layout = Layout(
             Field('title'),
             Field('description'),
+            Field('tags'),
             Field('type'),
             Field('image'),
             Field('introduction', css_class='md-editor'),
