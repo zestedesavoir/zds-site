@@ -626,11 +626,7 @@ def publish_content(db_object, versioned, is_major_update=True, build_pdf=True):
 
     # 4. PDF
     if ZDS_APP['content']['build_pdf_when_published'] and build_pdf:
-        subprocess.call(
-            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
-            base_name + ".pdf" + pandoc_debug_str,
-            shell=True,
-            cwd=extra_contents_path)
+        build_pdf_from_md(md_file_path, base_name, extra_contents_path)
 
     # ok, now we can really publish the thing !
     is_update = False
@@ -694,6 +690,43 @@ def publish_content(db_object, versioned, is_major_update=True, build_pdf=True):
     public_version.save()
 
     return public_version
+
+
+def build_pdf_from_md(md_file_path, base_name, extra_content_directory):
+    """Build a pdf from a markdown file, using pandoc
+
+    :param md_file_path: path to the markdown file
+    :param base_name: name of the pdf file
+    :param extra_content_directory: directory where the pdf file will be stored
+    :return:
+    """
+
+    pandoc_debug_str = ""
+    if settings.PANDOC_LOG_STATE:
+        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
+
+    subprocess.call(
+        settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
+        base_name + ".pdf" + pandoc_debug_str,
+        shell=True,
+        cwd=extra_content_directory)
+
+
+def build_pdf_of_published(published_content):
+    """Build a PDF for a given published version of a content.
+
+    :param published_content: the published content
+    :type: zds.tutorialv2.models.models_database.PublishedContent
+    """
+
+    base_name = os.path.join(published_content.get_extra_contents_directory(), published_content.content_public_slug)
+    md_file_path = base_name + '.md'
+
+    # delete previous one (if any)
+    if os.path.exists(base_name + '.pdf'):
+        os.remove(base_name + '.pdf')
+
+    build_pdf_from_md(md_file_path, base_name, published_content.get_extra_contents_directory())
 
 
 def make_zip_file(published_content):

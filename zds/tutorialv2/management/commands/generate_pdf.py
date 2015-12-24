@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import os
-import subprocess
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext_lazy as _
 from zds import settings
 from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.utils import build_pdf_of_published
 
 
 class Command(BaseCommand):
@@ -24,10 +24,6 @@ class Command(BaseCommand):
                 if param[0] in ["id", "ids"]:
                     ids = param[1].split(",")
 
-        pandoc_debug_str = ""
-        if settings.PANDOC_LOG_STATE:
-            pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
-
         if len(ids) > 0:
             public_contents = PublishedContent.objects.filter(content_pk__in=ids, must_redirect=False).all()
         else:
@@ -44,25 +40,12 @@ class Command(BaseCommand):
 
         for content in public_contents:
             self.stdout.write(_(u"- {}").format(content.content_public_slug), ending='')
-            extra_content_dir = content.get_extra_contents_directory()
-
-            base_name = os.path.join(extra_content_dir, content.content_public_slug)
-
-            # delete previous one
-            if os.path.exists(base_name + '.pdf'):
-                os.remove(base_name + '.pdf')
-
-            # generate PDF (assume images)
-            subprocess.call(
-                settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " +
-                base_name + ".md -o " + base_name + ".pdf" + pandoc_debug_str,
-                shell=True,
-                cwd=extra_content_dir)
+            build_pdf_of_published(content)
 
             # check:
-            if os.path.exists(base_name + '.pdf'):
-                self.stdout.write(' [OK]')
+            if content.have_type('pdf'):
+                self.stdout.write(_(u' [OK]'))
             else:
-                self.stdout.write(' [ERREUR]')
+                self.stdout.write(_(u' [ERREUR]'))
 
         os.chdir(settings.BASE_DIR)

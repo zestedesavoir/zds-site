@@ -16,7 +16,7 @@ from django.views.generic import RedirectView, FormView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
-from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
+from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, BuildPdfForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
@@ -59,6 +59,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         if context['is_staff']:
             context['formRevokeValidation'] = RevokeValidationForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
+            context['formBuildPdf'] = BuildPdfForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object)

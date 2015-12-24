@@ -3245,7 +3245,8 @@ class ContentTests(TestCase):
             {
                 'text': u'Je valide !',
                 'is_major': True,
-                'source': u''
+                'source': u'',
+                'build_pdf': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)

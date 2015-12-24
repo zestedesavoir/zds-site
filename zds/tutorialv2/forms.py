@@ -1002,3 +1002,27 @@ class WarnTypoForm(forms.Form):
                 del cleaned_data['text']
 
         return cleaned_data
+
+
+class BuildPdfForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(BuildPdfForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:rebuild-pdf', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('version'),
+            HTML(_(u'<p><bold>Attention :</bold> cette action est très gourmande en ressources. '
+                   u'Usez en avec parcimonie.</p>')),
+            StrictButton(
+                _(u'Générer le PDF'),
+                type='submit')
+        )
