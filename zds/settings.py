@@ -328,7 +328,9 @@ FORCE_HTTPS_FOR_MEMBERS = False
 ENABLE_HTTPS_DECORATOR = False
 
 
-LOGIN_URL = '/membres/connexion'
+LOGIN_URL = '/membres/connexion/'
+LOGOUT_URL = '/membres/deconnexion/'
+
 
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: '/membres/voir/{0}/'.format(urlquote(u.username.encode('utf-8')))
