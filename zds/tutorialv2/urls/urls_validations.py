@@ -24,6 +24,6 @@ urlpatterns = patterns('',
                        url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(),
                            name="revoke"),
                        url(r'^generer-pdf/(?P<pk>\d+)/(?P<slug>.+)/$', BuildPdf.as_view(),
-                           name="rebuild-pdf"),
+                           name="build-pdf"),
 
                        url(r'^$', ValidationListView.as_view(), name="list"))

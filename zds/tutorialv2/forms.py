@@ -1015,7 +1015,7 @@ class BuildPdfForm(forms.Form):
         self.previous_page_url = content.get_absolute_url_online()
 
         self.helper = FormHelper()
-        self.helper.form_action = reverse('validation:rebuild-pdf', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_action = reverse('validation:build-pdf', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
