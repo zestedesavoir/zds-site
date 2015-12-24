@@ -303,7 +303,7 @@
                 $(data).insertAfter($form);
 
                 /* global MathJax */
-                if ($(data).find("$").length > 0)
+                if ($(data).find("mathjax").length > 0)
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
         });
