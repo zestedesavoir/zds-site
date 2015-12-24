@@ -311,6 +311,14 @@
             </li>
         {% endif %}
 
+        {% if beta_topic %}
+            <li>
+                <a href="{{ beta_topic.get_absolute_url }}" class="ico-after online blue">
+                    {% trans "Voir le sujet de bêta" %}
+                </a>
+            </li>
+        {% endif %}
+
         {% if public_content_object %}
             <li>
                 <a href="{{ public_content_object.get_absolute_url_online }}" class="ico-after online blue">
