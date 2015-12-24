@@ -8,7 +8,7 @@ Ton compte a été activé, et tu es donc officiellement membre de la communaut�
 
 {{site_name}} est une communauté dont le but est de diffuser des connaissances au plus grand nombre.
 
-Sur ce site, tu trouveras un ensemble de [tutoriels]({{tutorials_url}}) dans plusieurs domaines et plusparticulièrement autour de l'informatique et des sciences. 
+Sur ce site, tu trouveras un ensemble de [tutoriels]({{tutorials_url}}) dans plusieurs domaines et plus particulièrement autour de l'informatique et des sciences. 
 Tu y retrouveras aussi des [articles]({{articles_url}}) traitant de sujets d'actualité ou non, qui, tout comme les tutoriels,sont écrits par des [membres]({{members_url}}) de la communauté.
 Pendant tes lectures et ton apprentissage, si jamais tu as des questions à poser, tu retrouveras sur les [forums]({{forums_url}}) des personnes prêtes à te filer un coup de main et ainsi t'éviter de passer plusieurs heures sur un problème.
 
