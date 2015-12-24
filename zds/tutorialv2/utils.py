@@ -544,7 +544,7 @@ def publish_container(db_object, base_dir, container):
             publish_container(db_object, base_dir, child)
 
 
-def publish_content(db_object, versioned, is_major_update=True):
+def publish_content(db_object, versioned, is_major_update=True, build_pdf=True):
     """Publish a given content.
 
     Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
@@ -556,6 +556,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     :type versioned: VersionedContent
     :param is_major_update: if set to `True`, will update the publication date
     :type is_major_update: bool
+    :param build_pdf: If the publication generate the PDF. Note that this parameter have a lower priority than
+    ``settings.ZDS_APP['content']['build_pdf_when_published']``.
+    :type generate_pdf: bool
     :raise FailureDuringPublication: if something goes wrong
     :return: the published representation
     :rtype: zds.tutorialv2.models.models_database.PublishedContent
@@ -622,7 +625,7 @@ def publish_content(db_object, versioned, is_major_update=True):
         cwd=extra_contents_path)
 
     # 4. PDF
-    if ZDS_APP['content']['build_pdf_when_published']:
+    if ZDS_APP['content']['build_pdf_when_published'] and build_pdf:
         subprocess.call(
             settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
             base_name + ".pdf" + pandoc_debug_str,

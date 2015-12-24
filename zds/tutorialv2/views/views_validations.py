@@ -372,8 +372,14 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         versioned = db_object.load_version(sha=validation.version)
         self.success_url = versioned.get_absolute_url(version=validation.version)
 
+        # does we need pdf ?
+        build_pdf = settings.ZDS_APP['content']['build_pdf_when_published']
+        if 'build_pdf' in form.cleaned_data:
+            build_pdf = form.cleaned_data['build_pdf']
+
         try:
-            published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
+            published = publish_content(
+                db_object, versioned, is_major_update=form.cleaned_data['is_major'], build_pdf=build_pdf)
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:

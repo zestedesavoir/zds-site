@@ -601,7 +601,7 @@ class AcceptValidationForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Commentaire de publication.'),
-                'rows': '2'
+                'rows': '3'
             }
         )
     )
@@ -610,6 +610,13 @@ class AcceptValidationForm(forms.Form):
         label=_(u'Version majeure ?'),
         required=False,
         initial=True
+    )
+
+    build_pdf = forms.BooleanField(
+        label=_(u'Générer le PDF'),
+        required=False,
+        initial=settings.ZDS_APP['content']['build_pdf_when_published'],
+        widget=forms.CheckboxInput()
     )
 
     source = forms.CharField(
@@ -642,6 +649,10 @@ class AcceptValidationForm(forms.Form):
 
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
+        # disable pdf generation if not allowed
+        if not settings.ZDS_APP['content']['build_pdf_when_published']:
+            self.fields['build_pdf'].widget.attrs['disabled'] = True
+
         # if content is already published, it's probably a minor change, so do not check `is_major`
         self.fields['is_major'].initial = not validation.content.sha_public
 
@@ -653,6 +664,7 @@ class AcceptValidationForm(forms.Form):
             CommonLayoutModalText(),
             Field('source'),
             Field('is_major'),
+            Field('build_pdf'),
             StrictButton(_(u'Publier'), type='submit')
         )
 
