@@ -6,6 +6,8 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
+from django.utils.html import format_html
+
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
