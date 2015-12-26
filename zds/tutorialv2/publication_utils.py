@@ -8,6 +8,7 @@ from datetime import datetime
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+from os.path import isdir, join
 
 from zds import settings
 from zds.settings import ZDS_APP
@@ -79,8 +80,12 @@ def publish_content(db_object, versioned, is_major_update=True):
     pandoc_debug_str = ""
     if settings.PANDOC_LOG_STATE:
         pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
+    if settings.ZDS_APP['content']['extra_content_generation_policy'] == "SYNC":
+        # ok, now we can really publish the thing !
+        generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
+    elif settings.ZDS_APP['content']['extra_content_generation_policy'] == "WATCHDOG":
+        PublicatorRegistery.get("watchdog").publish(base_name, extra_contents_path, silently_pass=False)
 
-    generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)# ok, now we can really publish the thing !
     is_update = False
 
     if db_object.public_version:
@@ -160,7 +165,7 @@ class PublicatorRegistery:
     @classmethod
     def register(cls,  publicator_name, *args):
         def decorated(func):
-            cls.registry[publicator_name] = func(args)
+            cls.registry[publicator_name] = func(*args)
             return func
         return decorated
 
@@ -172,7 +177,15 @@ class PublicatorRegistery:
         for key, value in cls.registry.items():
             if key not in exclude:
                 yield key, value
-
+    @classmethod
+    def get(cls, name):
+        """
+        get publicator with required name
+        :param name:
+        :return:
+        :raise KeyError: if name is not registered
+        """
+        return cls.registry[name]
 
 class Publicator:
     def publish(self, md_file_path, base_name, **kwargs):
@@ -182,7 +195,7 @@ class Publicator:
 @PublicatorRegistery.register("pdf", settings.PANDOC_LOC, "pdf", settings.PANDOC_PDF_PARAM)
 @PublicatorRegistery.register("epub", settings.PANDOC_LOC, "epub")
 @PublicatorRegistery.register("html", settings.PANDOC_LOC, "html")
-class PandocPublicator:
+class PandocPublicator(Publicator):
     def __init__(self, pandoc_loc, _format, pandoc_pdf_param=None):
         self.pandoc_loc = pandoc_loc
         self.pandoc_pdf_param = pandoc_pdf_param
@@ -201,3 +214,18 @@ class PandocPublicator:
                 base_name + "." + self.format + " " + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
+
+
+@PublicatorRegistery.register("watchdog", settings.ZDS_APP['content']['extra_content_watchdog_dir'])
+class WatchdogFilePublicator(Publicator):
+    def __init__(self, watched_dir):
+        self.watched_directory = watched_dir
+        if not isdir(self.watched_directory):
+            os.mkdir(self.watched_directory)
+
+    def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
+        if silently_pass:
+            return
+
+        with open(join(self.watched_directory, base_name), "w") as w_file:
+            w_file.write(";".join([md_file_path, base_name]))
