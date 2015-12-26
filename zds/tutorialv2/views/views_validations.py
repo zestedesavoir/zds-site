@@ -16,8 +16,8 @@ from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, Accept
     CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
 from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
-from zds.tutorialv2.utils import FailureDuringPublication, unpublish_content
-from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content,\
+    FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
 

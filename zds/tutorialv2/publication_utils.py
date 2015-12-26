@@ -1,19 +1,23 @@
+# coding: utf-8
 import codecs
 import copy
 import os
 import shutil
 import subprocess
+import zipfile
 from datetime import datetime
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from os.path import isdir, join
 
 from zds import settings
+from zds.search.models import SearchIndexContent
 from zds.settings import ZDS_APP
-from zds.tutorialv2.utils import publish_container, retrieve_and_update_images_links, FailureDuringPublication, \
-    make_zip_file
+from zds.tutorialv2.utils import retrieve_and_update_images_links
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def publish_content(db_object, versioned, is_major_update=True):
@@ -234,3 +238,152 @@ class WatchdogFilePublicator(Publicator):
 
         with codecs.open(join(self.watched_directory, base_name), "w", encoding='utf-8') as w_file:
             w_file.write(";".join([base_name, md_file_path]))
+
+
+class FailureDuringPublication(Exception):
+    """Exception raised if something goes wrong during publication process
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(FailureDuringPublication, self).__init__(*args, **kwargs)
+
+
+def publish_container(db_object, base_dir, container):
+    """ "Publish" a given container, in a recursive way
+
+    :param db_object: database representation of the content
+    :type db_object: PublishableContent
+    :param base_dir: directory of the top container
+    :type base_dir: str
+    :param container: a given container
+    :type container: Container
+    :raise FailureDuringPublication: if anything goes wrong
+    """
+
+    from zds.tutorialv2.models.models_versioned import Container
+
+    if not isinstance(container, Container):
+        raise FailureDuringPublication(_(u'Le conteneur n\'en est pas un !'))
+
+    template = 'tutorialv2/export/chapter.html'
+
+    # jsFiddle support
+    if db_object.js_support:
+        is_js = "js"
+    else:
+        is_js = ""
+
+    current_dir = os.path.dirname(os.path.join(base_dir, container.get_prod_path(relative=True)))
+
+    if not os.path.isdir(current_dir):
+        os.makedirs(current_dir)
+
+    if container.has_extracts():  # the container can be rendered in one template
+        parsed = render_to_string(template, {'container': container, 'is_js': is_js})
+        f = codecs.open(os.path.join(base_dir, container.get_prod_path(relative=True)), 'w', encoding='utf-8')
+
+        try:
+            f.write(parsed)
+        except (UnicodeError, UnicodeEncodeError):
+            raise FailureDuringPublication(
+                _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
+                .format(container.title))
+
+        f.close()
+
+        for extract in container.children:
+            extract.text = None
+
+        container.introduction = None
+        container.conclusion = None
+
+    else:  # separate render of introduction and conclusion
+
+        current_dir = os.path.join(base_dir, container.get_prod_path(relative=True))  # create subdirectory
+
+        if not os.path.isdir(current_dir):
+            os.makedirs(current_dir)
+
+        if container.introduction:
+            path = os.path.join(container.get_prod_path(relative=True), 'introduction.html')
+            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
+
+            try:
+                f.write(emarkdown(container.get_introduction(), db_object.js_support))
+            except (UnicodeError, UnicodeEncodeError):
+                raise FailureDuringPublication(
+                    _(u'Une erreur est survenue durant la publication de l\'introduction de « {} »,'
+                      u' vérifiez le code markdown').format(container.title))
+
+            container.introduction = path
+
+        if container.conclusion:
+            path = os.path.join(container.get_prod_path(relative=True), 'conclusion.html')
+            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
+
+            try:
+                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
+            except (UnicodeError, UnicodeEncodeError):
+                raise FailureDuringPublication(
+                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
+                      u' vérifiez le code markdown').format(container.title))
+
+            container.conclusion = path
+
+        for child in container.children:
+            publish_container(db_object, base_dir, child)
+
+
+def make_zip_file(published_content):
+    """Create the zip archive extra content from the published content
+
+    :param published_content: a PublishedContent object
+    :return:
+    """
+
+    publishable = published_content.content
+    publishable.sha_public = publishable.sha_draft  # ensure sha update so that archive is updated to
+    path = os.path.join(published_content.get_extra_contents_directory(),
+                        published_content.content_public_slug + ".zip")
+    zip_file = zipfile.ZipFile(path, 'w')
+    versioned = publishable.load_version(None, True)
+    from zds.tutorialv2.views.views_contents import DownloadContent
+    DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
+    zip_file.close()
+
+
+def unpublish_content(db_object):
+    """Remove the given content from the public view
+
+    :param db_object: Database representation of the content
+    :type db_object: PublishableContent
+    :return: ``True`` if unpublished, ``False`` otherwise
+    :rtype: bool
+    """
+
+    from zds.tutorialv2.models.models_database import PublishedContent
+
+    try:
+        public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
+
+        # clean files
+        old_path = public_version.get_prod_path()
+
+        if os.path.exists(old_path):
+            shutil.rmtree(old_path)
+
+        # remove public_version:
+        public_version.delete()
+
+        db_object.public_version = None
+        db_object.save()
+
+        # We just delete all index that correspond to the content
+        SearchIndexContent.objects.filter(publishable_content=db_object).delete()
+
+        return True
+
+    except (ObjectDoesNotExist, IOError):
+        pass
+
+    return False

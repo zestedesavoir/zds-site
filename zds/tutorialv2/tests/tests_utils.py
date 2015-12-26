@@ -415,6 +415,127 @@ class UtilsTests(TestCase):
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))  # so no PDF is generated !
 
+    def test_last_participation_is_old(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        newUser = ProfileFactory().user
+        reac = ContentReaction(author=self.user_author, position=1, related_content=article)
+        reac.update_content("I will find you. And I Will Kill you.")
+        reac.save()
+        article.last_note = reac
+        article.save()
+
+        self.assertFalse(last_participation_is_old(article, newUser))
+        ContentRead(user=self.user_author, note=reac, content=article).save()
+        reac = ContentReaction(author=newUser, position=2, related_content=article)
+        reac.update_content("I will find you. And I Will Kill you.")
+        reac.save()
+        article.last_note = reac
+        article.save()
+        ContentRead(user=newUser, note=reac, content=article).save()
+        self.assertFalse(last_participation_is_old(article, newUser))
+        self.assertTrue(last_participation_is_old(article, self.user_author))
+
+    def testParseBadManifest(self):
+        base_content = PublishableContentFactory(author_list=[self.user_author])
+        versioned = base_content.load_version()
+        versioned.add_container(Container(u"un peu plus près de 42"))
+        versioned.dump_json()
+        manifest = os.path.join(versioned.get_path(), "manifest.json")
+        dictionary = json_reader.load(open(manifest))
+
+        old_title = dictionary['title']
+
+        # first bad title
+        dictionary['title'] = 81 * ['a']
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+        dictionary['title'] = "".join(dictionary['title'])
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+        dictionary['title'] = '...'
+        self.assertRaises(InvalidSlugError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+        dictionary['title'] = old_title
+        dictionary['children'][0]['title'] = 81 * ['a']
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+        dictionary['children'][0]['title'] = "bla"
+        dictionary['children'][0]['slug'] = "..."
+        self.assertRaises(InvalidSlugError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+    def test_get_commit_author(self):
+        """Ensure the behavior of `get_commit_author()` :
+          - `git.Actor` use the pk of the bot account when no one is connected
+          - `git.Actor` use the pk (and the email) of the connected account when available
+
+        (Implementation of `git.Actor` is there :
+        https://github.com/gitpython-developers/GitPython/blob/master/git/util.py#L312)
+        """
+
+        # 1. With user connected
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # go to whatever page, if not, `get_current_user()` does not work at all
+        result = self.client.get(reverse('zds.pages.views.index'))
+        self.assertEqual(result.status_code, 200)
+
+        actor = get_commit_author()
+        self.assertEqual(actor['committer'].name, str(self.user_author.pk))
+        self.assertEqual(actor['author'].name, str(self.user_author.pk))
+        self.assertEqual(actor['committer'].email, self.user_author.email)
+        self.assertEqual(actor['author'].email, self.user_author.email)
+
+        # 2. Without connected user
+        self.client.logout()
+
+        # as above ...
+        result = self.client.get(reverse('zds.pages.views.index'))
+        self.assertEqual(result.status_code, 200)
+
+        actor = get_commit_author()
+        self.assertEqual(actor['committer'].name, str(self.mas.pk))
+        self.assertEqual(actor['author'].name, str(self.mas.pk))
+
+    def invalid_slug_is_invalid(self):
+        """ensure that an exception is raised when it should"""
+
+        # exception are raised when title are invalid
+        invalid_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
+
+        for t in invalid_titles:
+            self.assertRaises(InvalidSlugError, slugify_raise_on_invalid, t)
+
+        # Those slugs are recognized as wrong slug
+        invalid_slugs = [
+            u'',  # empty
+            u'----',  # empty
+            u'___',  # empty
+            u'-_-',  # empty (!)
+            u'&;',  # invalid characters
+            u'!{',  # invalid characters
+            u'@',  # invalid character
+            u'a '  # space !
+        ]
+
+        for s in invalid_slugs:
+            self.assertFalse(check_slug(s))
+
+        # too long slugs are forbidden :
+        too_damn_long_slug = 'a' * (settings.ZDS_APP['content']['maximum_slug_size'] + 1)
+        self.assertFalse(check_slug(too_damn_long_slug))
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
