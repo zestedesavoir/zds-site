@@ -14,7 +14,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     PublishedContentFactory, SubCategoryFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.models_database import PublishableContent
-from zds.tutorialv2.utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')

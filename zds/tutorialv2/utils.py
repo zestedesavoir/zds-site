@@ -1,14 +1,10 @@
 # coding: utf-8
 import shutil
 import zipfile
-import os
+from collections import OrderedDict
 from datetime import datetime
-import copy
 from urllib import urlretrieve
 from urlparse import urlparse
-import codecs
-from collections import OrderedDict
-import subprocess
 
 from git import Repo, Actor
 import cairosvg
@@ -18,12 +14,12 @@ from django.http import Http404
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.utils import translation
+from git import Repo, Actor
+from lxml import etree
 
 from zds.search.models import SearchIndexContent
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
 from zds import settings
-from zds.settings import ZDS_APP
 from zds.utils import get_current_user
 from uuslug import slugify
 from zds.utils import slugify as old_slugify
@@ -542,155 +538,6 @@ def publish_container(db_object, base_dir, container):
 
         for child in container.children:
             publish_container(db_object, base_dir, child)
-
-
-def publish_content(db_object, versioned, is_major_update=True):
-    """Publish a given content.
-
-    Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
-    of extracts.
-
-    :param db_object: Database representation of the content
-    :type db_object: PublishableContent
-    :param versioned: version of the content to publish
-    :type versioned: VersionedContent
-    :param is_major_update: if set to `True`, will update the publication date
-    :type is_major_update: bool
-    :raise FailureDuringPublication: if something goes wrong
-    :return: the published representation
-    :rtype: zds.tutorialv2.models.models_database.PublishedContent
-    """
-
-    from zds.tutorialv2.models.models_database import PublishedContent
-
-    if is_major_update:
-        versioned.pubdate = datetime.now()
-
-    # First write the files in a temporary directory: if anything goes wrong,
-    # the last published version is not impacted !
-    tmp_path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
-
-    if os.path.exists(tmp_path):
-        shutil.rmtree(tmp_path)  # erase previous attempt, if any
-
-    # render HTML:
-    altered_version = copy.deepcopy(versioned)
-    publish_container(db_object, tmp_path, altered_version)
-    altered_version.dump_json(os.path.join(tmp_path, 'manifest.json'))
-
-    # make room for "extra contents"
-    extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
-    os.makedirs(extra_contents_path)
-
-    base_name = os.path.join(extra_contents_path, versioned.slug)
-
-    # 1. markdown file (base for the others) :
-    # If we come from a command line, we need to activate i18n, to have the date in the french language.
-    cur_language = translation.get_language()
-    versioned.pubdate = datetime.now()
-    try:
-        translation.activate(settings.LANGUAGE_CODE)
-        parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
-    finally:
-        translation.activate(cur_language)
-
-    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
-
-    md_file_path = base_name + '.md'
-    md_file = codecs.open(md_file_path, 'w', encoding='utf-8')
-    try:
-        md_file.write(parsed_with_local_images)
-    except (UnicodeError, UnicodeEncodeError):
-        raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
-                                         u'à télécharger, vérifiez le code markdown'))
-    md_file.close()
-
-    pandoc_debug_str = ""
-    if settings.PANDOC_LOG_STATE:
-        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
-
-    # 2. HTML
-    subprocess.call(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str,
-        shell=True,
-        cwd=extra_contents_path)
-
-    # 3. EPUB
-    subprocess.call(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str,
-        shell=True,
-        cwd=extra_contents_path)
-
-    # 4. PDF
-    if ZDS_APP['content']['build_pdf_when_published']:
-        subprocess.call(
-            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
-            base_name + ".pdf" + pandoc_debug_str,
-            shell=True,
-            cwd=extra_contents_path)
-
-    # ok, now we can really publish the thing !
-    is_update = False
-
-    if db_object.public_version:
-        public_version = db_object.public_version
-        is_update = True
-
-        # the content have been published in the past, so clean old files !
-        old_path = public_version.get_prod_path()
-        shutil.rmtree(old_path)
-
-        # if the slug change, instead of using the same object, a new one will be created
-        if versioned.slug != public_version.content_public_slug:
-            public_version.must_redirect = True  # set redirection
-            publication_date = public_version.publication_date
-            public_version.save()
-            db_object.public_version = PublishedContent()
-            public_version = db_object.public_version
-
-            # if content have already been published, keep publication date !
-            public_version.publication_date = publication_date
-
-    else:
-        public_version = PublishedContent()
-
-    # make the new public version
-    public_version.content_public_slug = versioned.slug
-    public_version.content_type = versioned.type
-    public_version.content_pk = db_object.pk
-    public_version.content = db_object
-    public_version.must_reindex = True
-
-    public_version.save()
-    for author in db_object.authors.all():
-        public_version.authors.add(author)
-    public_version.save()
-    # move the stuffs into the good position
-    shutil.move(tmp_path, public_version.get_prod_path())
-
-    # save public version
-    if is_major_update or not is_update:
-        public_version.publication_date = datetime.now()
-    elif is_update:
-        public_version.update_date = datetime.now()
-
-    public_version.sha_public = versioned.current_version
-    public_version.save()
-    try:
-        make_zip_file(public_version)
-    except IOError:
-        pass
-
-    # store files sizes
-    from zds.tutorialv2.models.models_database import ALLOWED_TYPES
-    sizes = {}
-    for t in ALLOWED_TYPES:
-        if public_version.have_type(t):
-            sizes[t] = public_version.get_size_file_type(t)
-    public_version.sizes = sizes
-    public_version.save()
-
-    return public_version
 
 
 def make_zip_file(published_content):
