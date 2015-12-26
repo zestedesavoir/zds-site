@@ -62,3 +62,8 @@ Les utilitaires (``utils.py``)
 .. automodule:: zds.tutorialv2.utils
     :members:
 
+Les utilitaires de publication (``publication_utils.py``)
+=========================================================
+
+.. automodule:: zds.tutorialv2.publication_utils.py
+    :members:

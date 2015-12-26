@@ -44,7 +44,6 @@ def search_container_or_404(base_content, kwargs_array):
 
     from zds.tutorialv2.models.models_versioned import Container
 
-    container = None
     if isinstance(kwargs_array, basestring):
         dic = {}
         dic["parent_container_slug"] = kwargs_array.split("/")[0]
@@ -147,6 +146,7 @@ def mark_read(content, user=None):
     """Mark the last tutorial note as read for the user.
 
     :param content: the content to mark
+    :param user: user that read the content, if ``None`` will use currrent user
     """
 
     from zds.tutorialv2.models.models_database import ContentRead
@@ -177,10 +177,8 @@ class TooDeepContainerError(ValueError):
 
 def try_adopt_new_child(adoptive_parent, child):
     """Try the adoptive parent to take the responsability of the child
-
-    :param parent_full_path:
-    :param child_slug:
-    :param root:
+    :param adoptive_parent: the new parent for child if all check pass
+    :param child: content child to be moved
     :raise Http404: if adoptive_parent_full_path is not found on root hierarchy
     :raise TypeError: if the adoptive parent is not allowed to adopt the child due to its type
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
@@ -452,6 +450,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     :param json: JSON data from a `manifest.json` file
     :param sha: version
+    :param slug_last_draft: the slug for draft marked version
+    :param max_title_len: max str length for title
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
     :return: a Public/VersionedContent with all the information retrieved from JSON
     :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent

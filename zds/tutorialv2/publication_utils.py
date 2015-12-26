@@ -165,6 +165,9 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
 
 
 class PublicatorRegistery:
+    """
+    Register all publicator as a "human-readable name/publicator" instance key/value list
+    """
     registry = {}
 
     @classmethod
@@ -174,7 +177,6 @@ class PublicatorRegistery:
             return func
         return decorated
 
-
     @classmethod
     def get_all_registered(cls, exclude=None):
         if exclude is None:
@@ -182,6 +184,7 @@ class PublicatorRegistery:
         for key, value in cls.registry.items():
             if key not in exclude:
                 yield key, value
+
     @classmethod
     def get(cls, name):
         """
@@ -198,6 +201,12 @@ class Publicator:
     Publicator base object, all methods must be overriden
     """
     def publish(self, md_file_path, base_name, **kwargs):
+        """called function to generate a content export
+
+        :param md_file_path: base markdown file path
+        :param base_name: file name without extension
+        :param kwargs: other publicator dependant options
+        """
         raise NotImplemented()
 
 
@@ -205,12 +214,24 @@ class Publicator:
 @PublicatorRegistery.register("epub", settings.PANDOC_LOC, "epub")
 @PublicatorRegistery.register("html", settings.PANDOC_LOC, "html")
 class PandocPublicator(Publicator):
+    """
+    Wrapper arround pandoc commands
+    """
     def __init__(self, pandoc_loc, _format, pandoc_pdf_param=None):
         self.pandoc_loc = pandoc_loc
         self.pandoc_pdf_param = pandoc_pdf_param
         self.format = _format
 
     def publish(self, md_file_path, base_name, change_dir=".", pandoc_debug_str="", **kwargs):
+        """
+
+        :param md_file_path: base markdown file path
+        :param base_name: file name without extension
+        :param change_dir: directory in wich pandoc commands will be executed
+        :param pandoc_debug_str: end of command to allow debugging
+        :param kwargs: othe publicator dependant options ignored by this one
+        :return:
+        """
         if self.pandoc_pdf_param:
             subprocess.call(
                 self.pandoc_loc + "pandoc " + self.pandoc_pdf_param + " " + md_file_path + " -o " +
@@ -227,6 +248,9 @@ class PandocPublicator(Publicator):
 
 @PublicatorRegistery.register("watchdog", settings.ZDS_APP['content']['extra_content_watchdog_dir'])
 class WatchdogFilePublicator(Publicator):
+    """
+    Just create a meta data file for watchdog
+    """
     def __init__(self, watched_dir):
         self.watched_directory = watched_dir
         if not isdir(self.watched_directory):
