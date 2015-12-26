@@ -75,7 +75,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     except (UnicodeError, UnicodeEncodeError):
         raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
                                          u'à télécharger, vérifiez le code markdown'))
-    md_file.close()
+    finally:
+        md_file.close()
 
     pandoc_debug_str = ""
     if settings.PANDOC_LOG_STATE:
@@ -84,7 +85,7 @@ def publish_content(db_object, versioned, is_major_update=True):
         # ok, now we can really publish the thing !
         generate_exernal_content(base_name, extra_contents_path, md_file_path, pandoc_debug_str)
     elif settings.ZDS_APP['content']['extra_content_generation_policy'] == "WATCHDOG":
-        PublicatorRegistery.get("watchdog").publish(base_name, extra_contents_path, silently_pass=False)
+        PublicatorRegistery.get("watchdog").publish(md_file_path, base_name, silently_pass=False)
 
     is_update = False
 
@@ -187,7 +188,11 @@ class PublicatorRegistery:
         """
         return cls.registry[name]
 
+
 class Publicator:
+    """
+    Publicator base object, all methods must be overriden
+    """
     def publish(self, md_file_path, base_name, **kwargs):
         raise NotImplemented()
 
@@ -227,5 +232,5 @@ class WatchdogFilePublicator(Publicator):
         if silently_pass:
             return
 
-        with open(join(self.watched_directory, base_name), "w") as w_file:
-            w_file.write(";".join([md_file_path, base_name]))
+        with codecs.open(join(self.watched_directory, base_name), "w", encoding='utf-8') as w_file:
+            w_file.write(";".join([base_name, md_file_path]))
