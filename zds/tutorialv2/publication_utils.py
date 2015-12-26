@@ -1,6 +1,7 @@
 # coding: utf-8
 import codecs
 import copy
+import logging
 import os
 import shutil
 import subprocess
@@ -11,8 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
-from os.path import isdir, join
-
+from os.path import isdir, dirname
 from zds import settings
 from zds.search.models import SearchIndexContent
 from zds.settings import ZDS_APP
@@ -127,8 +127,10 @@ def publish_content(db_object, versioned, is_major_update=True):
         public_version.authors.add(author)
     public_version.save()
     # move the stuffs into the good position
-    shutil.move(tmp_path, public_version.get_prod_path())
-
+    if settings.ZDS_APP['content']['extra_content_generation_policy'] != "WATCHDOG":
+        shutil.move(tmp_path, public_version.get_prod_path())
+    else:
+        shutil.copytree(tmp_path, public_version.get_prod_path())
     # save public version
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
@@ -157,9 +159,9 @@ def generate_exernal_content(base_name, extra_contents_path, md_file_path, pando
     :return:
     """
     excluded = []
-    if ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
+    if not ZDS_APP['content']['build_pdf_when_published'] and not overload_settings:
         excluded.append("pdf")
-    for _, publicator in PublicatorRegistery.get_all_registered(excluded):
+    for __, publicator in PublicatorRegistery.get_all_registered(excluded):
 
         publicator.publish(md_file_path, base_name, change_dir=extra_contents_path, pandoc_debug_str=pandoc_debug_str)
 
@@ -171,7 +173,7 @@ class PublicatorRegistery:
     registry = {}
 
     @classmethod
-    def register(cls,  publicator_name, *args):
+    def register(cls, publicator_name, *args):
         def decorated(func):
             cls.registry[publicator_name] = func(*args)
             return func
@@ -214,6 +216,7 @@ class Publicator:
 @PublicatorRegistery.register("epub", settings.PANDOC_LOC, "epub")
 @PublicatorRegistery.register("html", settings.PANDOC_LOC, "html")
 class PandocPublicator(Publicator):
+
     """
     Wrapper arround pandoc commands
     """
@@ -221,6 +224,7 @@ class PandocPublicator(Publicator):
         self.pandoc_loc = pandoc_loc
         self.pandoc_pdf_param = pandoc_pdf_param
         self.format = _format
+        self.__logger = logging.getLogger("zds.pandoc-publicator")
 
     def publish(self, md_file_path, base_name, change_dir=".", pandoc_debug_str="", **kwargs):
         """
@@ -233,17 +237,21 @@ class PandocPublicator(Publicator):
         :return:
         """
         if self.pandoc_pdf_param:
+            self.__logger.debug("Started {} generation".format(base_name + "." + self.format))
             subprocess.call(
                 self.pandoc_loc + "pandoc " + self.pandoc_pdf_param + " " + md_file_path + " -o " +
                 base_name + "." + self.format + " " + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
+            self.__logger.info("Finished {} generation".format(base_name + "." + self.format))
         else:
+            self.__logger.debug("Started {} generation".format(base_name + "." + self.format))
             subprocess.call(
                 self.pandoc_loc + "pandoc -s -S --toc " + md_file_path + " -o " +
                 base_name + "." + self.format + " " + pandoc_debug_str,
                 shell=True,
                 cwd=change_dir)
+            self.__logger.info("Finished {} generation".format(base_name + "." + self.format))
 
 
 @PublicatorRegistery.register("watchdog", settings.ZDS_APP['content']['extra_content_watchdog_dir'])
@@ -255,13 +263,15 @@ class WatchdogFilePublicator(Publicator):
         self.watched_directory = watched_dir
         if not isdir(self.watched_directory):
             os.mkdir(self.watched_directory)
+        self.__logger = logging.getLogger("zds.watchdog-publicator")
 
     def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
         if silently_pass:
             return
-
-        with codecs.open(join(self.watched_directory, base_name), "w", encoding='utf-8') as w_file:
+        fname = base_name.replace(dirname(base_name), self.watched_directory)
+        with codecs.open(fname, "w", encoding='utf-8') as w_file:
             w_file.write(";".join([base_name, md_file_path]))
+        self.__logger.debug("Registered {} for generation".format(md_file_path))
 
 
 class FailureDuringPublication(Exception):
