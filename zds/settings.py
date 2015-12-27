@@ -479,7 +479,7 @@ ZDS_APP = {
         # can also be 'extra_content_generation_policy': "WATCHDOG"
         # or 'extra_content_generation_policy': "NOTHING"
         'extra_content_generation_policy': "SYNC",
-        'extra_content_watchdog_dir': './build',
+        'extra_content_watchdog_dir': os.path.join(BASE_DIR, "watchdog-build"),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
         'content_per_page': 50,
