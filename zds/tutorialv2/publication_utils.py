@@ -230,6 +230,7 @@ class Publicator:
 @PublicatorRegistery.register("epub", settings.PANDOC_LOC, "epub")
 @PublicatorRegistery.register("html", settings.PANDOC_LOC, "html")
 class PandocPublicator(Publicator):
+
     """
     Wrapper arround pandoc commands
     """
