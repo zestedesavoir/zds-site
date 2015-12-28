@@ -9,7 +9,7 @@ Certaines des commandes d'installation (débutant par ``apt-get``) sont données
 
 **NB** : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.
 
-Assurez vous que les dépendances suivantes soient résolues :
+Assurez-vous que les dépendances suivantes soient résolues :
 
 - git : ``apt-get install git``
 - python2.7
@@ -19,7 +19,7 @@ Assurez vous que les dépendances suivantes soient résolues :
 - tox : ``pip install tox``
 - libxml2-dev : ``apt-get install libxml2-dev``
 - python-lxml : ``apt-get install python-lxml``
-- libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme ubuntu
+- libxlst-dev (peut être appelée libxlst1-dev sur certains OS comme Ubuntu)
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libffi : ``apt-get install libffi-dev``
@@ -31,30 +31,30 @@ Pour Ubuntu.
 
 .. sourcecode:: bash
 
-    sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox # Dépendances du projet
+    sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
 
 Pour Fedora.
 
 .. sourcecode:: bash
 
-    sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox # Dépendances du projet
+    sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox
 
 Installation et configuration de `virtualenv`
 =============================================
 
-(cette étape n'est pas obligatoire, mais fortement conseillée)
+(cette étape n'est pas obligatoire, mais fortement conseillée ; ne tapez PAS les commandes en étant sudo)
 
 .. sourcecode:: bash
 
-    pip install --user virtualenv # Ajout du module virtualenv - ne PAS être sudo
-    virtualenv zdsenv --python=python2 # Création du répertoire "zdsenv" - ne PAS être sudo
+    pip install --user virtualenv # Ajout du module virtualenv
+    virtualenv zdsenv --python=python2 # Création du répertoire "zdsenv"
 
 
-**À chaque fois** que vous souhaitez travailler dans votre environnement, activez le via la commande suivante :
+**À chaque fois** que vous souhaitez travailler dans votre environnement, activez-le via la commande suivante :
 
 .. sourcecode:: bash
 
-    source zdsenv/bin/activate # Ne PAS être sudo
+    source zdsenv/bin/activate # PAS sudo
 
 
 Pour sortir de votre environnement : ``deactivate``
@@ -69,14 +69,13 @@ Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la d
 Lancer ZdS
 ==========
 
-Une fois dans votre environnement python (``source ../bin/activate`` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète :
+Une fois dans votre environnement python (``source ../bin/activate`` si vous utilisez virtualenv, très fortement conseillé), lancez l'installation complète (commandes à taper sans être sudo dans le répertoire du clone de votre fork, l'environnement Python devant être activé) :
 
 .. sourcecode:: bash
 
-    pip install --upgrade -r requirements.txt -r requirements-dev.txt # Installe les dépendances Python (--upgrade = permet de mettre à jour les fichiers si et seulement si quelqu'un a mis à jour les fichiers "requirements") - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
-    python manage.py migrate # Cf. "migrate" de Django (le faire à l'installation et à la mise à jour) - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
-    python manage.py runserver # Démarre l'instance de ZdS - Ne PAS être sudo, à faire dans le répertoire du clone de votre fork, activation de l'environnement Python requise
-    deactivate
+    pip install --upgrade -r requirements.txt -r requirements-dev.txt # Dépendances Python
+    python manage.py migrate # Cf. "migrate" de Django
+    python manage.py runserver # Démarre l'instance de ZdS
 
 
 Aller plus loin
