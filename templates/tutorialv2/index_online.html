@@ -110,7 +110,7 @@
             {% endif %}
         {% endcaptureas %}
 
-        {% for title, subcats in top_categories.items %}
+        {% for title, subcats in top_categories.categories.items %}
             <h4 class="mobile-menu-link">{{ title }}</h4>
             <ul>
                 {% for subcat,slug in subcats %}
