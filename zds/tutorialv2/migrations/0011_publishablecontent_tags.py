@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('utils', '0001_initial'),
-        ('tutorialv2', '0008_publishedcontent_update_date'),
+        ('tutorialv2', '0010_publishedcontent_sizes'),
     ]
 
     operations = [
