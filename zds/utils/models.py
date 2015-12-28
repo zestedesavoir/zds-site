@@ -78,6 +78,15 @@ class SubCategory(models.Model):
         url = url + '?tag={}'.format(self.slug)
         return url
 
+    def get_parent_category(self):
+        """
+        Get the parent of the category.
+
+        :return: the parent category.
+        :rtype: Category
+        """
+        return CategorySubCategory.objects.filter(subcategory=self).last().category
+
 
 class CategorySubCategory(models.Model):
 
