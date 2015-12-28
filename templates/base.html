@@ -217,7 +217,7 @@
                                                             {% for tag in categories.tags %}
                                                                 <li><a href="#TODO">{{ tag }}</a></li>
                                                             {% endfor %}
-                                                            <li><a href="#TODO">Tous les tags</a></li>
+                                                            <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
                                                         </ul>
                                                     </li>
                                                 {% endif %}

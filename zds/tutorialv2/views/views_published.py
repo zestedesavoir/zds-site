@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, FormView
+from django.views.generic import RedirectView, FormView, ListView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
@@ -22,7 +22,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
+from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
@@ -733,3 +733,15 @@ class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, F
         if self.request.is_ajax():
             return HttpResponse(json_writer.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
+
+
+class TagsListView(ListView):
+
+    model = Tag
+    template_name = "tutorialv2/view/tags.html"
+    context_object_name = 'tags'
+
+    def get_queryset(self):
+        tags_pk = [tag['content__tags'] for tag in PublishedContent.objects.values('content__tags').distinct()]
+        queryset = Tag.objects.filter(pk__in=tags_pk).order_by('title')
+        return queryset
