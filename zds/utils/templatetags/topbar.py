@@ -87,7 +87,32 @@ def top_categories_content(_type):
             else:
                 categories[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
-        return categories
+        tgs = PublishedContent.objects\
+            .values('content__tags', 'pk')\
+            .select_related('content')\
+            .distinct()\
+            .filter(content__tags__isnull=False)
+
+        cts = {}
+        for key, group in itertools.groupby(tgs, lambda item: item["content__tags"]):
+            for thing in group:
+                if key in cts:
+                    cts[key] += 1
+                else:
+                    cts[key] = 1
+
+        cpt = 0
+        top_tag = []
+        sort_list = reversed(sorted(cts.iteritems(), key=lambda k_v: (k_v[1], k_v[0])))
+        for key, value in sort_list:
+            top_tag.append(key)
+            cpt += 1
+            if cpt >= settings.ZDS_APP['tutorial']['top_tag_max']:
+                break
+
+        tags = Tag.objects.filter(pk__in=top_tag)
+
+        return {"tags": tags, "categories": categories}
 
 
 @register.filter('auth_forum')
