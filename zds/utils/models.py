@@ -36,11 +36,11 @@ class Category(models.Model):
         verbose_name = 'Categorie'
         verbose_name_plural = 'Categories'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', unique=True, max_length=80)
     description = models.TextField('Description')
     position = models.IntegerField('Position', default=0)
 
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __unicode__(self):
         """Textual Category Form."""
@@ -54,7 +54,7 @@ class SubCategory(models.Model):
         verbose_name = 'Sous-categorie'
         verbose_name_plural = 'Sous-categories'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=80, unique=True)
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     image = models.ImageField(
@@ -62,7 +62,7 @@ class SubCategory(models.Model):
         blank=True,
         null=True)
 
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __unicode__(self):
         """Textual Category Form."""
