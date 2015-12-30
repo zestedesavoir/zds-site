@@ -16,7 +16,7 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import View, ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
@@ -558,6 +558,50 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return redirect(reverse("forum-topics-list", args=[
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
+
+class PostKarma(View, SinglePostObjectMixin, PostEditMixin):
+    def dispatch(self, request, *args, **kwargs):
+        self.object = get_object_or_404(Post, pk=self.kwargs.get('post_pk'))
+        if not self.object.topic.forum.can_read(request.user):
+            raise PermissionDenied
+        return super(PostKarma, self).dispatch(request, *args, **kwargs)
+
+    def get_response_object(self, user):
+        anon_likes_id_limit = settings.LIKES_ID_LIMIT
+        anon_dislikes_id_limit = settings.DISLIKES_ID_LIMIT
+
+        # fetch likers
+        likes = CommentLike.objects.filter(comments__id=self.object.pk) \
+                                   .filter(id__gt=anon_likes_id_limit).select_related('user')
+        dislikes = CommentDislike.objects.filter(comments__id=self.object.pk) \
+                                         .filter(id__gt=anon_dislikes_id_limit).select_related('user')
+
+        likers = [{'username': like.user.username,
+                   'avatarUrl': like.user.profile.get_avatar_url()} for like in likes]
+        dislikers = [{'username': dislike.user.username,
+                      'avatarUrl': dislike.user.profile.get_avatar_url()} for dislike in dislikes]
+
+        resp = {
+            'like': {
+                'list': likers,
+                'count': self.object.like,
+                'user': CommentLike.objects.filter(comments__pk=self.object.pk, user=user.pk).exists(),
+            },
+            'dislike': {
+                'list': dislikers,
+                'count': self.object.dislike,
+                'user': CommentDislike.objects.filter(comments__pk=self.object.pk, user=user.pk).exists(),
+            }
+        }
+
+        return resp
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            resp = self.get_response_object(request.user)
+            return HttpResponse(json.dumps(resp), content_type='application/json')
+
+        return redirect(self.object.get_absolute_url())
 
 class PostLike(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
