@@ -370,6 +370,23 @@
             }
         }
 
+        .likers {
+            text-align: right;
+            img {
+                width: 30px;
+                height: 30px;
+                margin: 0 2px;
+
+                &.thumbUp {
+                    border-bottom: solid 3px $color-success;
+                }
+
+                &.thumbDown {
+                    border-bottom: solid 3px $color-danger;
+                }
+            }
+        }
+
         .message-buttons {
             margin: 0 0 0 10px;
             padding: 0;
