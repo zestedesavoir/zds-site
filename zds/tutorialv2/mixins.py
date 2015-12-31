@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
+from zds.forum.models import Topic
 
 
 class SingleContentViewMixin(object):
@@ -223,6 +224,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         * context['content'] contains `self.versioned_object`
         * context['can_edit'] is set
         * context['version'] is set (if different from `self.object.sha_draft`)
+        * context['beta_topic'] is set (if any)
     """
 
     def get(self, request, *args, **kwargs):
@@ -248,6 +250,12 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context['is_staff'] = self.is_staff
         if self.sha != self.object.sha_draft:
             context["version"] = self.sha
+
+        if self.object.beta_topic:
+            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
+
+            if beta_topic:
+                context['beta_topic'] = beta_topic
 
         return context
 
