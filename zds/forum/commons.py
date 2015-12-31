@@ -10,7 +10,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
-from zds.notification.models import TopicFollowed, follow, follow_by_email
+from zds.notification.models import TopicAnswerSubscription, Notification
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, CommentLike, CommentDislike
 
@@ -18,11 +18,11 @@ from zds.utils.models import Alert, CommentLike, CommentDislike
 class TopicEditMixin(object):
     @staticmethod
     def perform_follow(topic, user):
-        return follow(topic, user)
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user)
 
     @staticmethod
     def perform_follow_by_email(topic, user):
-        return follow_by_email(topic, user)
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user, True)
 
     @staticmethod
     def perform_solve_or_unsolve(user, topic):
@@ -68,13 +68,11 @@ class TopicEditMixin(object):
 
             # If the topic is moved in a restricted forum, users that cannot read this topic any more un-follow it.
             # This avoids unreachable notifications.
-            followers = TopicFollowed.objects.filter(topic=topic)
-            for follower in followers:
-                if not forum.can_read(follower.user):
-                    follower.delete()
+            TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
 
             # Save topic to update update_index_date
             topic.save()
+
             messages.success(request,
                              _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
         else:
@@ -108,6 +106,8 @@ class PostEditMixin(object):
                 post.text_hidden = data.get('text_hidden', '')
 
             messages.success(request, _(u'Le message est désormais masqué.'))
+            for user in Notification.objects.get_users_for_unread_notification_on(post):
+                signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
         else:
             raise PermissionDenied
 

@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 from hashlib import md5
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.notification.models import TopicFollowed
+from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
@@ -276,11 +276,11 @@ class MemberModelsTest(TestCase):
 
     def test_get_followed_topics(self):
         # Start with 0
-        self.assertEqual(len(self.user1.get_followed_topics()), 0)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(self.user1)), 0)
         # Follow !
-        TopicFollowed.objects.create(topic=self.forumtopic, user=self.user1.user)
+        TopicAnswerSubscription.objects.toggle_follow(self.forumtopic, self.user1.user)
         # Should be 1
-        topicsfollowed = self.user1.get_followed_topics()
+        topicsfollowed = TopicAnswerSubscription.objects.get_objects_followed_by(self.user1)
         self.assertEqual(len(topicsfollowed), 1)
         self.assertEqual(self.forumtopic, topicsfollowed[0])
 

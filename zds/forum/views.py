@@ -25,6 +25,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
+from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -427,7 +428,7 @@ class PostNew(CreatePostView):
         return form
 
     def form_valid(self, form):
-        topic = send_post(self.request, self.object, self.request.user, form.data.get('text'), send_by_mail=True)
+        topic = send_post(self.request, self.object, self.request.user, form.data.get('text'))
         return redirect(topic.last_message.get_absolute_url())
 
     def get_object(self, queryset=None):
@@ -610,7 +611,7 @@ def followed_topics(request):
     Displays the followed topics for the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
     topics per page.
     """
-    topics_followed = request.user.profile.get_followed_topics()
+    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(request.user.profile)
 
     # Paginator
 

@@ -34,7 +34,7 @@ from zds.forum.models import Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
-from zds.notification.models import follow, TopicFollowed
+from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm
@@ -1303,8 +1303,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         topic.save()
         # make all authors follow the topic:
         for author in self.object.authors.all():
-            if not TopicFollowed.objects.is_followed(topic, author):
-                follow(topic, author)
+            TopicAnswerSubscription.objects.get_or_create_active(author.profile, topic)
             mark_read(topic, author)
 
         return topic
@@ -1405,9 +1404,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     # make sure that all authors follow the topic:
                     for author in self.object.authors.all():
-                        if not TopicFollowed.objects.is_followed(topic, author):
-                            follow(topic, author)
-                            mark_read(topic, author)
+                        TopicAnswerSubscription.objects.get_or_create_active(author.profile, topic)
+                        mark_read(topic, author)
 
             # finally set the tags on the topic
             if topic:

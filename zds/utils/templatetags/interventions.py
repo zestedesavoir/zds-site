@@ -7,10 +7,12 @@ from django import template
 from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.models import Post, TopicRead, never_read as never_read_topic
+from zds.forum.models import Post, never_read as never_read_topic
+from zds.member.models import Profile
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicFollowed
+from zds.notification.models import Notification, TopicAnswerSubscription
 from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
+from zds.utils import get_current_user
 from zds.utils.models import Alert
 
 register = template.Library()
@@ -26,7 +28,14 @@ def is_read(topic):
 
 @register.filter('is_followed')
 def is_followed(topic):
-    return TopicFollowed.objects.is_followed(topic)
+    user = get_current_user()
+    return TopicAnswerSubscription.objects.get_existing(user.profile, topic, is_active=True) is not None
+
+
+@register.filter('is_email_followed')
+def is_email_followed(topic):
+    user = get_current_user()
+    return TopicAnswerSubscription.objects.get_existing(user.profile, topic, is_active=True, by_email=True) is not None
 
 
 @register.filter('humane_delta')
@@ -50,8 +59,10 @@ def humane_delta(value):
 
 @register.filter('followed_topics')
 def followed_topics(user):
-    topicsfollowed = TopicFollowed.objects.select_related("topic").filter(user=user)\
-        .order_by('-topic__last_message__pubdate')[:10]
+    topics_followed = TopicAnswerSubscription.objects.filter(profile=user.profile,
+                                                             content_type__model='topic',
+                                                             is_active=True)\
+        .order_by('-last_notification__pubdate')[:10]
     # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
     # the number of days for which we can say we're still in the period
     # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
@@ -59,16 +70,14 @@ def followed_topics(user):
     # Number is use for index for sort map easily
     periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
     topics = {}
-    for tfollowed in topicsfollowed:
+    for topic_followed in topics_followed:
         for period in periods:
-            if tfollowed.topic.last_message.pubdate.date() >= (datetime.now() - timedelta(days=int(period[1]),
-                                                                                          hours=0,
-                                                                                          minutes=0,
-                                                                                          seconds=0)).date():
+            if topic_followed.content_object.last_message.pubdate.date() \
+                    >= (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
                 if period[0] in topics:
-                    topics[period[0]].append(tfollowed.topic)
+                    topics[period[0]].append(topic_followed.content_object)
                 else:
-                    topics[period[0]] = [tfollowed.topic]
+                    topics[period[0]] = [topic_followed.content_object]
                 break
     return topics
 
@@ -86,36 +95,16 @@ def comp(dated_element1, dated_element2):
 
 @register.filter('interventions_topics')
 def interventions_topics(user):
-    topicsfollowed = TopicFollowed.objects.filter(user=user).values("topic").distinct().all()
-
-    topics_never_read = TopicRead.objects\
-        .filter(user=user)\
-        .filter(topic__in=topicsfollowed)\
-        .select_related("topic")\
-        .exclude(post=F('topic__last_message')).all()
-
-    content_followed_pk = ContentReaction.objects\
-        .filter(author=user, related_content__public_version__isnull=False)\
-        .values_list('related_content__pk', flat=True)
-
-    content_to_read = ContentRead.objects\
-        .select_related('note')\
-        .select_related('note__author')\
-        .select_related('content')\
-        .select_related('note__related_content__public_version')\
-        .filter(user=user)\
-        .exclude(note__pk=F('content__last_note__pk')).all()
-
+    """
+    Gets all notifications related to all notifiable models excluding private topics.
+    """
     posts_unread = []
 
-    for top in topics_never_read:
-        content = top.topic.first_unread_post()
-        if content is None:
-            content = top.topic.last_message
-        posts_unread.append({'pubdate': content.pubdate,
-                             'author': content.author,
-                             'title': top.topic.title,
-                             'url': content.get_absolute_url()})
+    for notification in Notification.objects.get_unread_notifications_of(Profile.objects.get(user=user)):
+        posts_unread.append({'pubdate': notification.pubdate,
+                             'author': notification.sender.user,
+                             'title': notification.title,
+                             'url': notification.url})
 
     for content_read in content_to_read:
         content = content_read.content

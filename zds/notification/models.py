@@ -12,8 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from zds import settings
 from zds.forum.models import Topic
 from zds.member.models import Profile
-from zds.notification.managers import TopicFollowedManager, NotificationManager
-from zds.utils import get_current_user
+from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
+    TopicAnswerSubscriptionManager
 from zds.utils.misc import convert_camel_to_underscore
 
 
@@ -49,7 +49,7 @@ class Subscription(models.Model):
 
     def activate_email(self):
         """
-        Acitvates the notifications by email (and the subscription itself if needed)
+        Activates the notifications by email (and the subscription itself if needed)
         """
         if not self.is_active or not self.by_email:
             self.is_active = True
@@ -122,12 +122,14 @@ class SingleNotificationMixin(object):
         :param sender: the user whose action triggered the notification
         :param send_email : whether an email must be sent if the subscription by email is active
         """
-        assert hasattr(self, "get_notification_url")
-        assert hasattr(self, "get_notification_title")
-        assert hasattr(self, "send_email")
+        assert hasattr(self, 'last_notification')
+        assert hasattr(self, 'set_last_notification')
+        assert hasattr(self, 'get_notification_url')
+        assert hasattr(self, 'get_notification_title')
+        assert hasattr(self, 'send_email')
 
-        # If the last notification has not been read yet, no new notification is sent
         if self.last_notification is None or self.last_notification.is_read:
+            # If there isn't a notification yet or the last one is read, we generate a new one.
             notification = Notification(subscription=self, content_object=content, sender=sender)
             notification.url = self.get_notification_url(content)
             notification.title = self.get_notification_title(content)
@@ -138,7 +140,7 @@ class SingleNotificationMixin(object):
             if send_email and self.by_email:
                 self.send_email(notification)
         elif self.last_notification is not None:
-            # Update last notif if the new content is older (case of unreading answer)
+            # Update last notification if the new content is older (case of unreading answer)
             if not self.last_notification.is_read and self.last_notification.pubdate > content.pubdate:
                 self.last_notification.content_object = content
                 self.last_notification.save()
@@ -213,6 +215,18 @@ class AnswerSubscription(Subscription):
         return self.content_object.title
 
 
+class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
+    """
+    Subscription to new answer in a topic
+    """
+    module = _(u'Forum')
+    objects = TopicAnswerSubscriptionManager()
+
+    def __unicode__(self):
+        return _(u'<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
+            .format(self.profile, self.object_id)
+
+
 class Notification(models.Model):
     """
     A notification
@@ -256,53 +270,3 @@ class TopicFollowed(models.Model):
     def __unicode__(self):
         return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
                                                      self.user.username)
-
-
-def follow(topic, user=None):
-    """
-    Toggle following of a topic for an user.
-    :param topic: A topic.
-    :param user: A user. If undefined, the current user is used.
-    :return: `True` if the topic is now followed, `False` if is has been un-followed.
-    """
-    if user is None:
-        user = get_current_user()
-    try:
-        existing = TopicFollowed.objects.get(topic=topic, user=user)
-    except TopicFollowed.DoesNotExist:
-        existing = None
-
-    if not existing:
-        # Make the user follow the topic
-        topic_followed = TopicFollowed(topic=topic, user=user)
-        topic_followed.save()
-        return True
-
-    # If user is already following the topic, we make him don't anymore
-    existing.delete()
-    return False
-
-
-def follow_by_email(topic, user=None):
-    """
-    Toggle following by email of a topic for an user.
-    :param topic: A topic.
-    :param user: A user. If undefined, the current user is used.
-    :return: `True` if the topic is now followed, `False` if is has been un-followed.
-    """
-    if user is None:
-        user = get_current_user()
-    try:
-        existing = TopicFollowed.objects.get(topic=topic, user=user)
-    except TopicFollowed.DoesNotExist:
-        existing = None
-
-    if not existing:
-        # Make the user follow the topic
-        topic_followed = TopicFollowed(topic=topic, user=user, email=True)
-        topic_followed.save()
-        return True
-
-    existing.email = not existing.email
-    existing.save()
-    return existing.email

@@ -35,8 +35,9 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.notification.models import TopicFollowed, follow
+from zds.notification.models import TopicFollowed
 from zds.tutorialv2.models.models_database import PublishableContent
+from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.decorators import https_required
 from zds.utils.models import Comment, CommentLike, CommentDislike
@@ -408,7 +409,6 @@ def unregister(request):
     for topic in Topic.objects.filter(author=current):
         topic.author = anonymous
         topic.save()
-    TopicFollowed.objects.filter(user=current).delete()
     # Before deleting gallery let's summurize what we deleted
     # - unpublished tutorials with only the unregistering member as an author
     # - unpublished articles with only the unregistering member as an author
@@ -978,16 +978,16 @@ def settings_promote(request, user_pk):
                         user.groups.remove(group)
                         messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
-                        topics_followed = Topic.objects.filter(topicfollowed__user=user,
-                                                               forum__group=group)
+                        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user.profile)
                         for topic in topics_followed:
-                            follow(topic, user)
+                            if isinstance(topic, Topic) and group in topic.forum.group.all():
+                                TopicAnswerSubscription.objects.toggle_follow(topic, user)
         else:
             for group in usergroups:
-                topics_followed = Topic.objects.filter(topicfollowed__user=user,
-                                                       forum__group=group)
+                topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user.profile)
                 for topic in topics_followed:
-                    follow(topic, user)
+                    if isinstance(topic, Topic) and group in topic.forum.group.all():
+                        TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
             messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))

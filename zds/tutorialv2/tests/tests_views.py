@@ -20,7 +20,7 @@ from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicFollowed
+from zds.notification.models import TopicAnswerSubscription
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
@@ -598,13 +598,15 @@ class ContentTests(TestCase):
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
-        self.assertTrue(TopicFollowed.objects.is_followed(beta_topic, self.user_author))
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            self.user_author.profile, beta_topic, is_active=True))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
 
         # test if second author follow the topic
-        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=second_author.pk).count(), 1)
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            second_author.profile, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=second_author.pk).count(), 1)
 
         # test access for public
@@ -681,7 +683,8 @@ class ContentTests(TestCase):
         tuto.authors.add(third_author)
         tuto.save()
 
-        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 0)
+        self.assertIsNone(TopicAnswerSubscription.objects.get_existing(
+            third_author.profile, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 0)
 
         # change beta:
@@ -701,7 +704,8 @@ class ContentTests(TestCase):
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
 
         # test if third author follow the topic
-        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            third_author.profile, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
 
         # then test for guest

@@ -10,7 +10,6 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
-from zds.notification import signals
 from zds.utils.mixins import QuoteMixin
 
 
@@ -95,7 +94,7 @@ def create_topic(
     return n_topic
 
 
-def send_post(request, topic, author, text, send_by_mail=False,):
+def send_post(request, topic, author, text,):
     post = Post()
     post.topic = topic
     post.author = author
@@ -110,8 +109,6 @@ def send_post(request, topic, author, text, send_by_mail=False,):
 
     topic.last_message = post
     topic.save()
-
-    signals.new_content.send(sender=post.__class__, instance=post, by_mail=send_by_mail)
     return topic
 
 

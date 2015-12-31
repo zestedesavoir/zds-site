@@ -13,7 +13,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, \
 from zds.forum.models import Forum, TopicRead
 from zds.forum.models import Post, Topic
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.notification.models import TopicFollowed
+from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
@@ -181,9 +181,9 @@ class ForumMemberTests(TestCase):
         TopicRead(topic=topic1, user=user1, post=post3).save()
         TopicRead(topic=topic1, user=user2, post=post3).save()
         TopicRead(topic=topic1, user=self.user, post=post3).save()
-        TopicFollowed(topic=topic1, user=user1, email=True).save()
-        TopicFollowed(topic=topic1, user=user2, email=True).save()
-        TopicFollowed(topic=topic1, user=self.user, email=True).save()
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user1, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user2, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, self.user, True)
 
         # check if we send ane empty text
         result = self.client.post(
@@ -250,9 +250,9 @@ class ForumMemberTests(TestCase):
         TopicRead(topic=topic1, user=user1, post=post3).save()
         TopicRead(topic=topic1, user=user2, post=post3).save()
         TopicRead(topic=topic1, user=self.user, post=post3).save()
-        TopicFollowed(topic=topic1, user=user1, email=True).save()
-        TopicFollowed(topic=topic1, user=user2, email=True).save()
-        TopicFollowed(topic=topic1, user=self.user, email=True).save()
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user1, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user2, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, self.user, True)
 
         # missing parameter
         result = self.client.post(

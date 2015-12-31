@@ -1,7 +1,8 @@
 # coding: utf-8
 
 from django.contrib import admin
+from zds.notification.models import Notification, Subscription
 
-from .models import TopicFollowed
 
-admin.site.register(TopicFollowed)
+admin.site.register(Notification)
+admin.site.register(Subscription)
