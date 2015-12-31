@@ -188,6 +188,19 @@ class PublicatorRegistery:
                 yield key, value
 
     @classmethod
+    def unregister(cls, name):
+        """
+        Remove Publicator registered at name if exists, run silently otherwise
+        Args:
+            name:
+
+        Returns:
+
+        """
+        if name in cls.registry:
+            del cls.registry[name]
+
+    @classmethod
     def get(cls, name):
         """
         get publicator with required name
