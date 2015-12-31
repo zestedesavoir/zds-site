@@ -1441,51 +1441,37 @@ class PostUnreadTest(TestCase):
 
 
 class PostLikeDisLikeTest(TestCase):
-    def test_failure_post_like_and_dislike_require_method_post(self):
-        response = self.client.get(reverse('post-like'), follow=False)
-        self.assertEqual(405, response.status_code)
-
-        response = self.client.get(reverse('post-dislike'), follow=False)
-        self.assertEqual(405, response.status_code)
-
     def test_failure_post_like_and_dislike_with_client_unauthenticated(self):
-        response = self.client.post(reverse('post-like'), follow=False)
-        self.assertEqual(302, response.status_code)
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_profile = ProfileFactory()
+        post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
-        response = self.client.post(reverse('post-dislike'), follow=False)
+        response = self.client.post(reverse('post-karma', args=(post.pk,)), follow=False)
         self.assertEqual(302, response.status_code)
 
     def test_failure_post_like_and_dislike_with_sanctioned_user(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_profile = ProfileFactory()
+        post = PostFactory(topic=topic, author=another_profile.user, position=2)
+
         profile = ProfileFactory()
         profile.can_read = False
         profile.can_write = False
         profile.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like'))
+        response = self.client.post(reverse('post-karma', args=(post.pk,)))
         self.assertEqual(403, response.status_code)
-
-        response = self.client.post(reverse('post-dislike'))
-        self.assertEqual(403, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_wrong_message_pk(self):
-        profile = ProfileFactory()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message=abc', follow=False)
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message=abc', follow=False)
-        self.assertEqual(404, response.status_code)
 
     def test_failure_post_like_and_dislike_with_a_message_not_found(self):
         profile = ProfileFactory()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message=99999', follow=False)
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message=99999', follow=False)
+        response = self.client.post(reverse('post-karma', args=(99999,)), follow=False)
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_like_and_dislike_of_a_forum_we_cannot_read(self):
@@ -1496,10 +1482,7 @@ class PostLikeDisLikeTest(TestCase):
         topic = add_topic_in_a_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message={}'.format(topic.last_message.pk))
-        self.assertEqual(403, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message={}'.format(topic.last_message.pk))
+        response = self.client.post(reverse('post-karma', args=(topic.last_message.pk,)))
         self.assertEqual(403, response.status_code)
 
     def test_success_post_like_and_dislike(self):
@@ -1510,10 +1493,7 @@ class PostLikeDisLikeTest(TestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message={}'.format(post.pk), follow=False)
-        self.assertEqual(302, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message={}'.format(post.pk), follow=False)
+        response = self.client.post(reverse('post-karma', args=(post.pk,)), follow=False)
         self.assertEqual(302, response.status_code)
 
     def test_find_likers_and_dislikers(self):
@@ -1545,68 +1525,68 @@ class PostLikeDisLikeTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
 
         # on first message we should see 2 likes and 0 anonymous
-        response = self.client.post(reverse('post-find-likers', args=[upvoted_answer.pk]),
+        response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),
                                     {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
-        self.assertEqual(2, len(json['likes']))
-        self.assertEqual(0, len(json['dislikes']))
-        self.assertEqual(0, json['anonymous_likes'])
-        self.assertEqual(0, json['anonymous_dislikes'])
+        self.assertEqual(2, len(json['like']['list']))
+        self.assertEqual(0, len(json['dislike']['list']))
+        self.assertEqual(2, json['like']['count'])
+        self.assertEqual(0, json['dislike']['count'])
 
         # on second message we should see 2 dislikes and 0 anonymous
-        response = self.client.post(reverse('post-find-likers', args=[downvoted_answer.pk]),
+        response = self.client.get(reverse('post-karma', args=[downvoted_answer.pk]),
                                     {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
-        self.assertEqual(0, len(json['likes']))
-        self.assertEqual(2, len(json['dislikes']))
-        self.assertEqual(0, json['anonymous_likes'])
-        self.assertEqual(0, json['anonymous_dislikes'])
+        self.assertEqual(0, len(json['like']['list']))
+        self.assertEqual(2, len(json['dislike']['list']))
+        self.assertEqual(0, json['like']['count'])
+        self.assertEqual(2, json['dislike']['count'])
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
-        response = self.client.post(reverse('post-find-likers', args=[equal_answer.pk]),
+        response = self.client.get(reverse('post-karma', args=[equal_answer.pk]),
                                     {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
-        self.assertEqual(1, len(json['likes']))
-        self.assertEqual(1, len(json['dislikes']))
-        self.assertEqual(0, json['anonymous_likes'])
-        self.assertEqual(0, json['anonymous_dislikes'])
+        self.assertEqual(1, len(json['like']['list']))
+        self.assertEqual(1, len(json['dislike']['list']))
+        self.assertEqual(1, json['like']['count'])
+        self.assertEqual(1, json['dislike']['count'])
 
         # Now we change the settings to keep anonymous the first [dis]like
         settings.LIKES_ID_LIMIT = like1.pk
         settings.DISLIKES_ID_LIMIT = dislike1.pk
         # and we run the same tests
         # on first message we should see 1 like and 1 anonymous
-        response = self.client.post(reverse('post-find-likers', args=[upvoted_answer.pk]),
+        response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),
                                     {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
-        self.assertEqual(1, len(json['likes']))
-        self.assertEqual(0, len(json['dislikes']))
-        self.assertEqual(1, json['anonymous_likes'])
-        self.assertEqual(0, json['anonymous_dislikes'])
+        self.assertEqual(1, len(json['like']['list']))
+        self.assertEqual(0, len(json['dislike']['list']))
+        self.assertEqual(2, json['like']['count'])
+        self.assertEqual(0, json['dislike']['count'])
 
         # on second message we should see 1 dislikes and 1 anonymous
-        response = self.client.post(reverse('post-find-likers', args=[downvoted_answer.pk]),
+        response = self.client.get(reverse('post-karma', args=[downvoted_answer.pk]),
                                     {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
-        self.assertEqual(0, len(json['likes']))
-        self.assertEqual(1, len(json['dislikes']))
-        self.assertEqual(0, json['anonymous_likes'])
-        self.assertEqual(1, json['anonymous_dislikes'])
+        self.assertEqual(0, len(json['like']['list']))
+        self.assertEqual(1, len(json['dislike']['list']))
+        self.assertEqual(0, json['like']['count'])
+        self.assertEqual(2, json['dislike']['count'])
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
-        response = self.client.post(reverse('post-find-likers', args=[equal_answer.pk]),
+        response = self.client.get(reverse('post-karma', args=[equal_answer.pk]),
                                     {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
-        self.assertEqual(1, len(json['likes']))
-        self.assertEqual(1, len(json['dislikes']))
-        self.assertEqual(0, json['anonymous_likes'])
-        self.assertEqual(0, json['anonymous_dislikes'])
+        self.assertEqual(1, len(json['like']['list']))
+        self.assertEqual(1, len(json['dislike']['list']))
+        self.assertEqual(1, json['like']['count'])
+        self.assertEqual(1, json['dislike']['count'])
 
 
 class FindPostTest(TestCase):

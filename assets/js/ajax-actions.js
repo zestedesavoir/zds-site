@@ -29,7 +29,7 @@
 
     /**
      * Karma of the messages
-     */
+     * termporarily disabled
     $(".topic-message").on("click", "button.upvote, button.downvote", function(e){
         var $thumb = $(this),
             $form = $(this).parents("form:first"),
@@ -106,7 +106,7 @@
 
     /**
      * See who likes/dislikes a message
-     */
+     * termporarily disabled
     $(".topic-message").on("click", "button.likers", function(e){
         var $viewer = $(this),
             $form = $(this).parents("form:first"),

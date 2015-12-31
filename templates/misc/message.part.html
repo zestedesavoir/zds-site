@@ -240,7 +240,7 @@
                     {% endif %}
                 {% endwith %}
 
-                {% if upvote_link %}
+                {% if karma_link %}
                     <div class="message-karma">
                         {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
@@ -270,10 +270,12 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
-                            <form action="{{ upvote_link }}" method="post">
+                            <form action="{{ karma_link }}" method="post">
                                 {% csrf_token %}
                                 <button
                                     type="submit"
+                                    name="vote"
+                                    value="like"
                                     title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
                                     class="upvote
                                            ico-after
@@ -283,12 +285,11 @@
                                 >
                                     +{{ message.like }}
                                 </button>
-                            </form>
 
-                            <form action="{{ downvote_link }}" method="post">
-                                {% csrf_token %}
                                 <button
                                     type="submit"
+                                    name="vote"
+                                    value="dislike"
                                     title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
                                     class="downvote
                                            ico-after
@@ -328,7 +329,7 @@
                             </span>
                         {% endif %}
                         {% if user.is_authenticated %}
-                            <form action="{% url 'post-find-likers' message.pk %}" method="post" class="screen">
+                            <form action="{% url 'post-karma' message.pk %}" method="post" class="screen">
                                 {% csrf_token %}
                                 <button type="submit" title='{% trans "Voir les votants" %}' class="likers ico-after view blue"></button>
                             </form>

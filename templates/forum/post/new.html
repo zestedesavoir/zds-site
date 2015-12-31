@@ -58,12 +58,8 @@
                 {% url 'post-useful' %}?message={{ message.pk }}
             {% endcaptureas %}
 
-            {% captureas upvote_link %}
-                {% url 'post-like' %}?message={{ message.pk }}
-            {% endcaptureas %}
-
-            {% captureas downvote_link %}
-                {% url 'post-dislike' %}?message={{ message.pk }}
+            {% captureas karma_link %}
+                {% url 'post-karma' message.pk %}
             {% endcaptureas %}
 
             {% captureas alert_solve_link %}

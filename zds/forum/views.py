@@ -32,6 +32,7 @@ from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentDislike, CommentLike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
+from zds.utils.views import KarmaView
 
 
 class CategoriesForumsListView(ListView):
@@ -559,49 +560,15 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
-class PostKarma(View, SinglePostObjectMixin, PostEditMixin):
+class PostKarma(KarmaView):
+    message_class = Post
+    list_like = True
+
     def dispatch(self, request, *args, **kwargs):
-        self.object = get_object_or_404(Post, pk=self.kwargs.get('post_pk'))
+        self.object = get_object_or_404(self.message_class, pk=self.kwargs.get('pk'))
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        return super(PostKarma, self).dispatch(request, *args, **kwargs)
-
-    def get_response_object(self, user):
-        anon_likes_id_limit = settings.LIKES_ID_LIMIT
-        anon_dislikes_id_limit = settings.DISLIKES_ID_LIMIT
-
-        # fetch likers
-        likes = CommentLike.objects.filter(comments__id=self.object.pk) \
-                                   .filter(id__gt=anon_likes_id_limit).select_related('user')
-        dislikes = CommentDislike.objects.filter(comments__id=self.object.pk) \
-                                         .filter(id__gt=anon_dislikes_id_limit).select_related('user')
-
-        likers = [{'username': like.user.username,
-                   'avatarUrl': like.user.profile.get_avatar_url()} for like in likes]
-        dislikers = [{'username': dislike.user.username,
-                      'avatarUrl': dislike.user.profile.get_avatar_url()} for dislike in dislikes]
-
-        resp = {
-            'like': {
-                'list': likers,
-                'count': self.object.like,
-                'user': CommentLike.objects.filter(comments__pk=self.object.pk, user=user.pk).exists(),
-            },
-            'dislike': {
-                'list': dislikers,
-                'count': self.object.dislike,
-                'user': CommentDislike.objects.filter(comments__pk=self.object.pk, user=user.pk).exists(),
-            }
-        }
-
-        return resp
-
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            resp = self.get_response_object(request.user)
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-
-        return redirect(self.object.get_absolute_url())
+        return super(KarmaView, self).dispatch(request, *args, **kwargs)
 
 class PostLike(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
@@ -741,38 +708,3 @@ def complete_topic(request):
     the_data = json.dumps(suggestions)
 
     return HttpResponse(the_data, content_type='application/json')
-
-
-@login_required
-def post_find_likers(request, post_pk):
-    """" Find likers and dislikers of a message """
-    anon_likes_id_limit = settings.LIKES_ID_LIMIT
-    anon_dislikes_id_limit = settings.DISLIKES_ID_LIMIT
-
-    # fetch likers
-    likes = CommentLike.objects.filter(comments__id=post_pk) \
-                               .filter(id__gt=anon_likes_id_limit).select_related('user')
-    dislikes = CommentDislike.objects.filter(comments__id=post_pk) \
-                                     .filter(id__gt=anon_dislikes_id_limit).select_related('user')
-    # Count anonymous
-    anonymous_likes = CommentLike.objects.filter(comments__id=post_pk) \
-                                         .filter(id__lte=anon_likes_id_limit).count()
-    anonymous_dislikes = CommentDislike.objects.filter(comments__id=post_pk) \
-                                               .filter(id__lte=anon_dislikes_id_limit).count()
-
-    likers = [{'username': like.user.username,
-               'avatarUrl': like.user.profile.get_avatar_url()} for like in likes]
-    dislikers = [{'username': dislike.user.username,
-                  'avatarUrl': dislike.user.profile.get_avatar_url()} for dislike in dislikes]
-
-    if request.is_ajax():
-        resp = {
-            'likes': likers,
-            'dislikes': dislikers,
-            'anonymous_likes': anonymous_likes,
-            'anonymous_dislikes': anonymous_dislikes,
-        }
-        return HttpResponse(json.dumps(resp), content_type='application/json')
-
-    post = get_object_or_404(Post, pk=post_pk)
-    return redirect(post.get_absolute_url())

@@ -194,12 +194,8 @@
             {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
 
-        {% captureas upvote_link %}
-            {% url "content:up-vote" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas downvote_link %}
-            {% url "content:down-vote" %}?message={{ message.pk }}
+        {% captureas karma_link %}
+            {% url "content:reaction-karma" message.pk %}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
