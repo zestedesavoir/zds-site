@@ -50,13 +50,13 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {% if message.author == user or perms_change %}
+                        {% if message.pk in user_can_modify %}
                             {% if can_hide != False %}
                                 <li>
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         {% trans "Masquer" %}
                                     </a>
-                                    <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
+                                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
@@ -75,24 +75,21 @@
                                     </form>
                                 </li>
                             {% endif %}
+
+                            <li>
+                                <a href="{{ edit_link|safe }}" class="ico-after edit">
+                                    {% trans "Éditer" %}
+                                </a>
+                            </li>
                         {% endif %}
 
-                        {% if message.author == user or perms_change %}
-                            {% if can_edit != False %}
-                                <li>
-                                    <a href="{{ edit_link|safe }}" class="ico-after edit">
-                                        {% trans "Éditer" %}
-                                    </a>
-                                </li>
-                            {% endif %}
-                        {% endif %}
 
                         {% if can_hide != False %}
                             <li>
                                 <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     {% trans "Signaler" %}
                                 </a>
-                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
+                                <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
                                     {% csrf_token %}
                                     <label for="signal-message-{{ message.id }}-field">
                                         {% trans "Pour quelle raison signalez-vous ce message" %} ?
@@ -107,7 +104,7 @@
                         {% endif %}
                     {% endif %}
 
-                    {% if cite_link and not topic.is_locked and not topic.antispam %}
+                    {% if cite_link and not topic.is_locked and not isantispam and not topic.antispam  %}
                         <li>
                             <a href="{{ cite_link|safe }}" class="ico-after cite" data-ajax-input="cite-message">
                                 {% trans "Citer" %}
@@ -124,7 +121,7 @@
                         <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                             {% trans "Démasquer" %}
                         </a>
-                        <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
+                        <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
                                 {% blocktrans with editor=message.editor %}
@@ -281,7 +278,7 @@
                                            ico-after
                                            {% if message.like > message.dislike %}more-voted{% endif %}
                                            {% if message.like > 0 %}has-vote{% endif %}
-                                           {% if user|liked:message.pk %}voted{% endif %}"
+                                           {% if message.pk in user_like %}voted{% endif %}"
                                 >
                                     +{{ message.like }}
                                 </button>
@@ -295,7 +292,7 @@
                                            ico-after
                                            {% if message.like < message.dislike %}more-voted{% endif %}
                                            {% if message.dislike > 0 %}has-vote{% endif %}
-                                           {% if user|disliked:message.pk %}voted{% endif %}"
+                                           {% if message.pk in user_dislike %}voted{% endif %}"
                                 >
                                     -{{ message.dislike }}
                                 </button>
@@ -327,12 +324,6 @@
                                     {{ message.dislike }}
                                 </span>
                             </span>
-                        {% endif %}
-                        {% if user.is_authenticated %}
-                            <form action="{% url 'post-karma' message.pk %}" method="post" class="screen">
-                                {% csrf_token %}
-                                <button type="submit" title='{% trans "Voir les votants" %}' class="likers ico-after view blue"></button>
-                            </form>
                         {% endif %}
                     </div>
                 {% endif %}

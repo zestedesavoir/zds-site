@@ -53,13 +53,3 @@ def state(current_user):
     except Profile.DoesNotExist:
         user_state = None
     return user_state
-
-
-@register.filter('liked')
-def liked(current_user, comment_pk):
-    return CommentLike.objects.filter(comments__pk=comment_pk, user=current_user).exists()
-
-
-@register.filter('disliked')
-def disliked(current_user, comment_pk):
-    return CommentDislike.objects.filter(comments__pk=comment_pk, user=current_user).exists()

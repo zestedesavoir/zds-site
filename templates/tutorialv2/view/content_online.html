@@ -183,7 +183,6 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
-    {% set perms.tutorialv2.change_contentreaction as perms_change %}
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -218,13 +217,7 @@
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% if message.pk in user_can_modify %}
-            {% set True as can_edit %}
-        {% else %}
-            {% set False as can_edit %}
-        {% endif %}
-
-        {% include "tutorialv2/includes/reaction_message.part.html" with topic=object %}
+        {% include "misc/message.part.html" with perms_change=perms.tutorialv2.change_contentreaction topic=object %}
     {% endfor %}
 
 

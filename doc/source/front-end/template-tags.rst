@@ -373,22 +373,6 @@ où ``user_state`` peut alors valoir une des 4 chaines de caractères suivantes,
 
 Ce *templatetag* est employé pour l'affichage des badges. Vous trouverez plus d'informations `dans la documentation des membres <../back-end/member.html>`__ concernant les différents états dans lesquels peut se trouver un utilisateur et ce qu'ils signifient.
 
-``liked`` et ``disliked``
--------------------------
-
-Ces filtres récupèrent respectivement si le message a recu des "+1" (*liked*) ou des "-1" (*disliked*) de la part d'un utilisateur donné.
-
-Par exemple, le code suivant appliquera la classe "voted" si le message a reçu un "-1" de la part de l'utilisateur :
-
-.. sourcecode:: html
-
-    {% load profiles %}
-    <button class="{% if user|disliked:message.pk %}voted{% endif %}">
-        {{ message.dislike }}
-    </button>
-
-où ``user`` est l'utilisateur (objet ``User``) et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations diffèrent légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
-
 Le module ``roman``
 ===================
 

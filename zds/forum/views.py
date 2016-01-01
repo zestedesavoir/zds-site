@@ -141,6 +141,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
         })
+
         reaction_ids = [post.pk for post in context['posts']]
         context["user_dislike"] = CommentDislike.objects\
             .select_related('comment')\
@@ -151,6 +152,12 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
             .values_list('pk', flat=True)
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+
+        if self.request.user.has_perm('forum.change_topic'):
+            context["user_can_modify"] = reaction_ids
+        else:
+            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)

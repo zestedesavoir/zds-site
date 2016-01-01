@@ -246,6 +246,13 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
         context['form'] = PrivatePostForm(self.object)
         context['posts'] = self.build_list_with_previous_item(context['object_list'])
         mark_read(self.object, self.request.user)
+
+        if self.object.last_message.author == self.request.user:
+            context["user_can_modify"] = [self.object.last_message.pk]
+        else:
+            context["user_can_modify"] = []
+
+        self.perform_list(self.object)
         return context
 
     def get_queryset(self):

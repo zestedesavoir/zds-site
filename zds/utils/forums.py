@@ -11,6 +11,7 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
 from zds.utils.mixins import QuoteMixin
+from zds.utils.models import CommentDislike, CommentLike
 
 
 def get_tag_by_title(title):
@@ -138,12 +139,30 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
                 return HttpResponse(json.dumps({'text': text}), content_type='application/json')
 
         form = self.create_forum(self.form_class, **{'text': text})
-        return render(request, self.template_name, {
+        context = {
             'topic': self.object,
             'posts': self.posts,
             'last_post_pk': self.object.last_message.pk,
             'form': form,
-        })
+        }
+
+        reaction_ids = [post.pk for post in context['posts']]
+        context["user_dislike"] = CommentDislike.objects\
+            .select_related('comment')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .values_list('pk', flat=True)
+        context["user_like"] = CommentLike.objects\
+            .select_related('comment')\
+            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .values_list('pk', flat=True)
+        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+
+        if self.request.user.has_perm('forum.change_topic'):
+            context["user_can_modify"] = reaction_ids
+        else:
+            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)

@@ -74,18 +74,18 @@ class KarmaView(View):
 
         return redirect(self.object.get_absolute_url())
 
-    def process_like(message_class, message, user, add_like=1, add_dislike=0,
+    def process_like(self, message_class, message, user, add_like=1, add_dislike=0,
                      add_class=CommentLike, remove_class=CommentDislike):
         if message.author.pk != user.pk:
 
             # Making sure the user is allowed to do that
-            if add_class.objects.filter(user__pk=user.pk,
-                                        comments__pk=message.pk).exists():
-                like = self.add_class()
+            if not add_class.objects.filter(user__pk=user.pk,
+                                            comments__pk=message.pk).exists():
+                like = add_class()
                 like.user = user
                 like.comments = message
-                message.like += self.add_like
-                message.dislike += self.add_dislike
+                message.like += add_like
+                message.dislike += add_dislike
                 message.save()
                 like.save()
                 if remove_class.objects.filter(user__pk=user.pk,
@@ -93,12 +93,12 @@ class KarmaView(View):
                     remove_class.objects.filter(
                         user__pk=user.pk,
                         comments__pk=message.pk).all().delete()
-                    message.dislike = message.dislike - self.add_like
-                    message.like = message.like - self.add_dislike
+                    message.dislike = message.dislike - add_like
+                    message.like = message.like - add_dislike
                     message.save()
             else:
-                self.add_class.objects.filter(user__pk=user.pk,
-                                              comments__pk=message_pk).all().delete()
-                message.like = message.like - self.add_like
-                message.dislike = message.dislike - self.add_dislike
+                add_class.objects.filter(user__pk=user.pk,
+                                         comments__pk=message.pk).delete()
+                message.like = message.like - add_like
+                message.dislike = message.dislike - add_dislike
                 message.save()
