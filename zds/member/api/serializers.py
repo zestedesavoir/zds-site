@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-
+from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers
 
 from zds.member.commons import ProfileCreate
@@ -33,10 +33,11 @@ class ProfileListSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
     avatar_url = serializers.CharField(source='get_avatar_url')
+    permissions = DRYPermissionsField(additional_actions=['ban'])
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url')
+        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url', 'permissions')
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
@@ -49,10 +50,11 @@ class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, Profil
     username = serializers.CharField(source='user.username')
     email = serializers.EmailField(source='user.email')
     password = serializers.CharField(source='user.password')
+    permissions = DRYPermissionsField(additional_actions=['ban'])
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'email', 'password')
+        fields = ('id', 'username', 'email', 'password', 'permissions')
         write_only_fields = ('password')
 
     def create(self, validated_data):
@@ -75,12 +77,14 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
     avatar_url = serializers.CharField(source='get_avatar_url')
+    permissions = DRYPermissionsField(additional_actions=['ban'])
 
     class Meta:
         model = Profile
         fields = ('id', 'username', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
-                  'show_sign', 'hover_or_click', 'allow_temp_visual_changes', 'email_for_answer', 'last_visit')
+                  'show_sign', 'hover_or_click', 'allow_temp_visual_changes',
+                  'email_for_answer', 'last_visit', 'permissions')
 
     def __init__(self, *args, **kwargs):
         """
@@ -106,13 +110,15 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
     email = serializers.EmailField(source='user.email', required=False, allow_blank=True)
     is_active = serializers.BooleanField(source='user.is_active', required=False)
     date_joined = serializers.DateTimeField(source='user.date_joined', required=False)
+    permissions = DRYPermissionsField(additional_actions=['ban'])
 
     class Meta:
         model = Profile
         fields = ('id', 'username', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
-                  'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit')
-        read_only_fields = ('is_active', 'date_joined', 'last_visit',)
+                  'show_sign', 'hover_or_click', 'email_for_answer', 'last_visit',
+                  'permissions')
+        read_only_fields = ('is_active', 'date_joined', 'last_visit', 'permissions',)
 
     def update(self, instance, validated_data):
         """

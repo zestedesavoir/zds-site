@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, get_object_or_404
@@ -85,8 +85,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
             - code: 400
               message: Bad Request
         """
-        self.permission_classes = (AllowAny,)
-        serializer = self.get_serializer_class()(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
         profile = serializer.save()
         token = self.generate_token(profile.user)
@@ -100,13 +99,18 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         elif self.request.method == 'POST':
             return ProfileCreateSerializer
 
+    def get_permissions(self):
+        permission_classes = [AllowAny, ]
+        if self.request.method == 'GET' or self.request.method == 'POST':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
 
 class MemberMyDetailAPI(RetrieveAPIView):
     """
     Profile resource to display details of the member.
     """
     obj_key_func = MyDetailKeyConstructor()
-    permission_classes = (IsAuthenticated,)
     serializer_class = ProfileDetailSerializer
 
     @etag(obj_key_func)
@@ -133,6 +137,12 @@ class MemberMyDetailAPI(RetrieveAPIView):
 
     def get_object(self):
         return get_object_or_404(Profile, user=self.request.user)
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
 
 
 class MemberDetailAPI(RetrieveUpdateAPIView):
@@ -187,7 +197,6 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
             - code: 404
               message: Not found
         """
-        self.permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
         return self.update(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -195,6 +204,16 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
             return ProfileDetailSerializer
         elif self.request.method == 'PUT':
             return ProfileValidatorSerializer
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'PUT':
+            permission_classes.append(DRYPermissions)
+            permission_classes.append(IsAuthenticatedOrReadOnly)
+            permission_classes.append(IsOwnerOrReadOnly)
+        return [permission() for permission in permission_classes]
 
 
 class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
