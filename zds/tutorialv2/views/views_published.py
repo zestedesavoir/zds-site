@@ -267,11 +267,11 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
     template_name = 'tutorialv2/index_online.html'
-    tag = None
+    category = None
 
     def get_queryset(self):
         """Filter the contents to obtain the list of given type.
-        If tag parameter is provided, only contents which have this category will be listed.
+        If category parameter is provided, only contents which have this category will be listed.
 
         :return: list of contents with the good type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
@@ -296,9 +296,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__last_note__related_content__public_version')\
             .filter(pk=F('content__public_version__pk'))
 
-        if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
-            queryset = queryset.filter(content__subcategory__in=[self.tag])
+        if 'category' in self.request.GET:
+            self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
+            queryset = queryset.filter(content__subcategory__in=[self.category])
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
@@ -309,7 +309,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
-        context['tag'] = self.tag
+        context['category'] = self.category
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
