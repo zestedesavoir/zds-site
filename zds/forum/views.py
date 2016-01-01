@@ -16,7 +16,7 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
-from django.views.generic import View, ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
@@ -576,41 +576,6 @@ class PostKarma(KarmaView):
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
         return super(KarmaView, self).dispatch(request, *args, **kwargs)
-
-class PostLike(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
-    @method_decorator(require_POST)
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        return super(PostLike, self).dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.perform_like_post(self.object, self.request.user)
-
-        if request.is_ajax():
-            resp = {
-                'upvotes': self.object.like,
-                'downvotes': self.object.dislike
-            }
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
-
-
-class PostDisLike(PostLike):
-    def post(self, request, *args, **kwargs):
-        self.perform_dislike_post(self.object, self.request.user)
-
-        if request.is_ajax():
-            resp = {
-                'upvotes': self.object.like,
-                'downvotes': self.object.dislike
-            }
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
 
 
 class FindPost(FindTopic):

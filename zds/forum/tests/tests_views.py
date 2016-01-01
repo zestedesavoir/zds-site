@@ -1526,7 +1526,7 @@ class PostLikeDisLikeTest(TestCase):
 
         # on first message we should see 2 likes and 0 anonymous
         response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),
-                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
         self.assertEqual(2, len(json['like']['list']))
@@ -1536,7 +1536,7 @@ class PostLikeDisLikeTest(TestCase):
 
         # on second message we should see 2 dislikes and 0 anonymous
         response = self.client.get(reverse('post-karma', args=[downvoted_answer.pk]),
-                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
         self.assertEqual(0, len(json['like']['list']))
@@ -1546,7 +1546,7 @@ class PostLikeDisLikeTest(TestCase):
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
         response = self.client.get(reverse('post-karma', args=[equal_answer.pk]),
-                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
         self.assertEqual(1, len(json['like']['list']))
@@ -1560,7 +1560,7 @@ class PostLikeDisLikeTest(TestCase):
         # and we run the same tests
         # on first message we should see 1 like and 1 anonymous
         response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),
-                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
         self.assertEqual(1, len(json['like']['list']))
@@ -1570,7 +1570,7 @@ class PostLikeDisLikeTest(TestCase):
 
         # on second message we should see 1 dislikes and 1 anonymous
         response = self.client.get(reverse('post-karma', args=[downvoted_answer.pk]),
-                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
         self.assertEqual(0, len(json['like']['list']))
@@ -1580,7 +1580,7 @@ class PostLikeDisLikeTest(TestCase):
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
         response = self.client.get(reverse('post-karma', args=[equal_answer.pk]),
-                                    {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(200, response.status_code)
         json = json_reader.loads(response.content)
         self.assertEqual(1, len(json['like']['list']))

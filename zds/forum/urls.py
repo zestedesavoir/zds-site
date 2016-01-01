@@ -5,8 +5,7 @@ from django.conf.urls import url
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostUseful, PostUnread, PostLike, PostDisLike, FindPost, followed_topics, solve_alert, complete_topic, \
-    PostKarma
+    PostUseful, PostUnread, FindPost, followed_topics, solve_alert, complete_topic, PostKarma
 
 
 urlpatterns = [
@@ -40,8 +39,6 @@ urlpatterns = [
     url(r'^message/editer/$', PostEdit.as_view(), name='post-edit'),
     url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
-    url(r'^message/like/$', PostLike.as_view(), name='post-like'),
-    url(r'^message/dislike/$', PostDisLike.as_view(), name='post-dislike'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
     url(r'^message/karma/(?P<post_pk>\d+)/$', PostKarma.as_view(), name='post-karma'),
 

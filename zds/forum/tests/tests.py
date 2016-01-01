@@ -556,7 +556,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
+        result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'like'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 1)
@@ -579,7 +579,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
+        result = self.client.post(reverse('post-karma', args=(post1.pk,)), {'vote': 'like'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 1)
@@ -605,18 +605,8 @@ class ForumMemberTests(TestCase):
     def test_failing_like_post(self):
         """Test failing cases when a member like any post."""
 
-        # parameter is missing
-        result = self.client.post(reverse('post-like'), follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-        # parameter is weird
-        result = self.client.post(reverse('post-like') + '?message=' + 'abc', follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
         # pk doesn't (yet) exist
-        result = self.client.post(reverse('post-like') + '?message=' + '424242', follow=False)
+        result = self.client.post(reverse('post-karma', args=(424242,)), {'vote': 'like'}, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -628,7 +618,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
+        result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'dislike'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 1)
@@ -651,7 +641,7 @@ class ForumMemberTests(TestCase):
                 comments__pk=post3.pk).all().count(),
             0)
 
-        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
+        result = self.client.post(reverse('post-karma', args=(post1.pk,)), {'vote': 'dislike'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 1)
@@ -677,18 +667,8 @@ class ForumMemberTests(TestCase):
     def test_failing_dislike_post(self):
         """Test failing cases when a member dislike any post."""
 
-        # parameter is missing
-        result = self.client.post(reverse('post-dislike'), follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-        # parameter is weird
-        result = self.client.post(reverse('post-dislike') + '?message=' + 'abc', follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
         # pk doesn't (yet) exist
-        result = self.client.post(reverse('post-dislike') + '?message=' + '424242', follow=False)
+        result = self.client.post(reverse('post-karma', args=(424242,)), {'vote': 'dislike'}, follow=False)
 
         self.assertEqual(result.status_code, 404)
 
@@ -1210,16 +1190,16 @@ class ForumGuestTests(TestCase):
         self.assertEqual(Alert.objects.filter(author=self.user).count(), 0)
 
     def test_like_post(self):
-        """Test when a member like any post."""
+        """Test when a guest tries to like any post."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
+        result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'like'}, follow=False)
 
-        self.assertEqual(result.status_code, 405)
+        self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
@@ -1229,16 +1209,16 @@ class ForumGuestTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
 
     def test_dislike_post(self):
-        """Test when a member dislike any post."""
+        """Test when a guest tries to dislike any post."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
         post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.get(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
+        result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'dislike'}, follow=False)
 
-        self.assertEqual(result.status_code, 405)
+        self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentDislike.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)

@@ -12,6 +12,7 @@ from django.views.generic import View
 from zds.member.decorator import can_write_and_read_now
 from zds.utils.models import CommentLike, CommentDislike
 
+
 class KarmaView(View):
     message_class = None
     list_like = False
@@ -45,12 +46,11 @@ class KarmaView(View):
                                              .filter(id__gt=anon_dislikes_id_limit).select_related('user')
 
             resp['like']['list'] = [{'username': like.user.username,
-                'avatarUrl': like.user.profile.get_avatar_url()} for like in likes]
+                                     'avatarUrl': like.user.profile.get_avatar_url()} for like in likes]
             resp['dislike']['list'] = [{'username': dislike.user.username,
-                'avatarUrl': dislike.user.profile.get_avatar_url()} for dislike in dislikes]
+                                        'avatarUrl': dislike.user.profile.get_avatar_url()} for dislike in dislikes]
 
         return resp
-
 
     def get(self, request, *args, **kwargs):
         if request.is_ajax():

@@ -5,7 +5,6 @@ from django import template
 from django.contrib.auth.models import User
 
 from zds.member.models import Profile
-from zds.utils.models import CommentLike, CommentDislike
 
 
 register = template.Library()

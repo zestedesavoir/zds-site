@@ -4304,23 +4304,27 @@ class PublishedContentTests(TestCase):
             True)
         reac = ContentReaction.objects.last()
         result = self.client.post(
-            reverse("content:up-vote") + "?message=" + str(reac.pk),
+            reverse("content:reaction-karma", args=(reac.pk,)),
+            {'vote': 'like'},
             follow=False
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 1)
         result = self.client.post(
-            reverse("content:up-vote") + "?message=" + str(reac.pk),
+            reverse("content:reaction-karma", args=(reac.pk,)),
+            {'vote': 'like'},
             follow=False
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
         result = self.client.post(
-            reverse("content:up-vote") + "?message=" + str(reac.pk),
+            reverse("content:reaction-karma", args=(reac.pk,)),
+            {'vote': 'like'},
             follow=False
         )
         result = self.client.post(
-            reverse("content:down-vote") + "?message=" + str(reac.pk),
+            reverse("content:reaction-karma", args=(reac.pk,)),
+            {'vote': 'dislike'},
             follow=False
         )
         self.assertEqual(result.status_code, 302)

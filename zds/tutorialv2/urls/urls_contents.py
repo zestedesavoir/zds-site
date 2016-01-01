@@ -8,9 +8,8 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
-from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
+from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, FollowContent
-
 
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils.views import KarmaView
@@ -50,8 +49,6 @@ urlpatterns = [
     # reactions:
     url(r'^reactions/ajouter/$', SendNoteFormView.as_view(redirection_is_needed=False), name="add-reaction"),
     url(r'^reactions/editer/$', UpdateNoteView.as_view(redirection_is_needed=False), name="update-reaction"),
-    url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
-    url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
     url(r'^reactions/karma/(?P<pk>\d+)/$', KarmaView.as_view(message_class=ContentReaction), name='reaction-karma'),
     url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),
     url(r'^reactions/afficher/(?P<pk>\d+)/$', ShowReaction.as_view(), name="show-reaction"),
