@@ -208,19 +208,6 @@
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
-                                                {% if categories.tags %}
-                                                    <li>
-                                                        <ul>
-                                                            <li class="dropdown-title">
-                                                                {% trans "Tags les plus utilisés" %}
-                                                            </li>
-                                                            {% for tag in categories.tags %}
-                                                                <li><a href="#TODO">{{ tag }}</a></li>
-                                                            {% endfor %}
-                                                            <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
-                                                        </ul>
-                                                    </li>
-                                                {% endif %}
                                             {% empty %}
                                                 <ul>
                                                     <li class="dropdown-title">
@@ -228,6 +215,19 @@
                                                     </li>
                                                 </ul>
                                             {% endfor %}
+                                            {% if categories.tags %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Tags les plus utilisés" %}
+                                                        </li>
+                                                        {% for tag in categories.tags %}
+                                                            <li><a href="#TODO">{{ tag }}</a></li>
+                                                        {% endfor %}
+                                                        <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                    </ul>
+                                                </li>
+                                            {% endif %}
                                         {% endwith %}
                                     </ul>
                                 </div>
