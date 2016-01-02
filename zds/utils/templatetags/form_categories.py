@@ -14,10 +14,11 @@ def order_categories(choices):
     for choice in choices:
         subcat = SubCategory.objects.get(pk=choice[0])
         parent = subcat.get_parent_category()
-        ch = {
-            'choice': choice,
-            'parent': parent.title,
-            'order': parent.pk
-        }
-        new_choices.append(ch)
+        if parent:
+            ch = {
+                'choice': choice,
+                'parent': parent.title,
+                'order': parent.pk
+            }
+            new_choices.append(ch)
     return new_choices

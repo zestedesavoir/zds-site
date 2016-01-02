@@ -85,7 +85,10 @@ class SubCategory(models.Model):
         :return: the parent category.
         :rtype: Category
         """
-        return CategorySubCategory.objects.filter(subcategory=self).last().category
+        try:
+            return CategorySubCategory.objects.filter(subcategory=self).last().category
+        except AttributeError:  # no CategorySubCategory
+            return None
 
 
 class CategorySubCategory(models.Model):
