@@ -37,8 +37,9 @@
             iOS, MAC OS, Windows, Windows Phone', title: "Syst\xE8mes d'exploitation"}
     model: utils.subcategory
     pk: 5
--   fields: {image: '', slug: autres, subtitle: "API, Base de donn\xE9es, FTP, Jeux
-            vid\xE9os, MySQL, Oracle, Protocole, S\xE9curit\xE9, TCP/IP", title: Autres}
+-   fields: {image: '', slug: autres-informatique, subtitle: "API, Base de donn\xE9es,
+            FTP, Jeux vid\xE9os, MySQL, Oracle, Protocole, S\xE9curit\xE9, TCP/IP",
+        title: Autres (informatique)}
     model: utils.subcategory
     pk: 6
 -   fields: {image: '', slug: astronomie, subtitle: Astronomie, title: Astronomie}
@@ -60,7 +61,8 @@
 -   fields: {image: '', slug: mathematiques, subtitle: "Math\xE9matiques", title: "Math\xE9matiques"}
     model: utils.subcategory
     pk: 12
--   fields: {image: '', slug: autres, subtitle: Autres sciences de la nature, title: Autres}
+-   fields: {image: '', slug: autres-sciences-de-la-nature, subtitle: Autres sciences
+            de la nature, title: Autres (sciences de la nature)}
     model: utils.subcategory
     pk: 13
 -   fields: {image: '', slug: droit, subtitle: Droit, title: Droit}
@@ -79,8 +81,9 @@
 -   fields: {image: '', slug: economie, subtitle: "\xC9conomie", title: "\xC9conomie"}
     model: utils.subcategory
     pk: 18
--   fields: {image: '', slug: autres, subtitle: "Autres sciences humaines et sociales
-            comme la g\xE9ographie", title: Autres}
+-   fields: {image: '', slug: autres-sciences-humaines-et-sociales, subtitle: "Autres
+            sciences humaines et sociales comme la g\xE9ographie", title: Autres (sciences
+            humaines et sociales)}
     model: utils.subcategory
     pk: 19
 -   fields: {image: '', slug: arts-graphisme-et-multimedia, subtitle: 'Graphisme 2D,
