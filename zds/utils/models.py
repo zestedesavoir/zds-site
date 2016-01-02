@@ -46,43 +46,6 @@ class Category(models.Model):
         """Textual Category Form."""
         return self.title
 
-    def get_tutos(self):
-        from zds.tutorial.models import Tutorial
-        catsubcat = CategorySubCategory.objects.filter(
-            category__pk=self.pk,
-            is_main=True)
-        msct = []
-        for subcat in catsubcat:
-            msct.append(subcat.subcategory)
-        return Tutorial.objects.filter(
-            subcategory__in=msct).exclude(
-            sha_public=None).exclude(
-            sha_public__isnull=True).all()
-
-    def get_all_subcategories(self):
-        """Get all subcategories of a category (not main include)"""
-        csc = []
-        catsubcats = CategorySubCategory.objects \
-            .filter(category__in=[self]) \
-            .all()
-        for catsubcat in catsubcats:
-            if catsubcat.subcategory.get_tutos().count() > 0:
-                csc.append(catsubcat)
-        return csc
-
-    def get_subcategories(self):
-        """Get only main subcategories of a category."""
-        csc = []
-        catsubcats = CategorySubCategory.objects \
-            .filter(category__in=[self], is_main=True)\
-            .select_related('subcategory')\
-            .all()
-
-        for catsubcat in catsubcats:
-            if catsubcat.subcategory.get_tutos().count() > 0:
-                csc.append(catsubcat)
-        return csc
-
 
 class SubCategory(models.Model):
 
@@ -104,14 +67,6 @@ class SubCategory(models.Model):
     def __unicode__(self):
         """Textual Category Form."""
         return self.title
-
-    def get_tutos(self):
-        from zds.tutorial.models import Tutorial
-        return Tutorial.objects.filter(
-            subcategory__in=[self]).exclude(
-            sha_public=None).exclude(
-            sha_public='').exclude(
-            sha_public__isnull=True)
 
     def get_absolute_url_tutorial(self):
         url = reverse('zds.tutorial.views.index')

@@ -176,10 +176,7 @@ INSTALLED_APPS = (
     'zds.pages',
     'zds.gallery',
     'zds.mp',
-    'zds.article',
-
     'zds.forum',
-    'zds.tutorial',
     'zds.tutorialv2',
     'zds.member',
     'zds.featured',
