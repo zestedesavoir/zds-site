@@ -63,10 +63,9 @@ class KarmaView(View):
     @method_decorator(can_write_and_read_now)
     def post(self, request, *args, **kwargs):
         if request.POST.get('vote') == 'like':
-            self.process_like(self.message_class, self.object, request.user)
+            self.process_like(self.object, request.user)
         elif request.POST.get('vote') == 'dislike':
-            self.process_like(self.message_class, self.object, request.user,
-                              add_like=0, add_dislike=1, add_class=CommentDislike, remove_class=CommentLike)
+            self.process_like(self.object, request.user, add_class=CommentDislike, remove_class=CommentLike)
 
         if request.is_ajax():
             resp = self.get_response_object()
@@ -74,9 +73,13 @@ class KarmaView(View):
 
         return redirect(self.object.get_absolute_url())
 
-    def process_like(self, message_class, message, user, add_like=1, add_dislike=0,
+    def process_like(self, message, user,
                      add_class=CommentLike, remove_class=CommentDislike):
         if message.author.pk != user.pk:
+
+            # Remove (dis)like if there is one
+            remove_class.objects.filter(user__pk=user.pk,
+                                        comments__pk=message.pk).delete()
 
             # Making sure the user is allowed to do that
             if not add_class.objects.filter(user__pk=user.pk,
@@ -84,21 +87,12 @@ class KarmaView(View):
                 like = add_class()
                 like.user = user
                 like.comments = message
-                message.like += add_like
-                message.dislike += add_dislike
-                message.save()
                 like.save()
-                if remove_class.objects.filter(user__pk=user.pk,
-                                               comments__pk=message.pk).exists():
-                    remove_class.objects.filter(
-                        user__pk=user.pk,
-                        comments__pk=message.pk).all().delete()
-                    message.dislike = message.dislike - add_like
-                    message.like = message.like - add_dislike
-                    message.save()
             else:
                 add_class.objects.filter(user__pk=user.pk,
                                          comments__pk=message.pk).delete()
-                message.like = message.like - add_like
-                message.dislike = message.dislike - add_dislike
-                message.save()
+
+            # Recalculate (dis)like count
+            message.like = CommentLike.objects.filter(comments__pk=message.pk).count()
+            message.dislike = CommentDislike.objects.filter(comments__pk=message.pk).count()
+            message.save()
