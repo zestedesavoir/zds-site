@@ -1,6 +1,14 @@
 (function($, undefined) {
     "use strict";
 
+    /**
+     * Create a tooltip for a target
+     *
+     * @param {Object} options
+     * @param {DOMNode} options.target - Tooltip target
+     * @param {string} options.content - Tooltip content
+     * @class
+     */
     var Tooltip = function(options) {
         this.options = $.extend({ target: null, content: null }, options);
         if(!Tooltip._initialized) {
@@ -11,6 +19,11 @@
     };
 
     Tooltip.prototype = {
+        /**
+         * Creates the containers for the all the tooltips
+         *
+         * @access private
+         */
         firstRun: function() {
             Tooltip.container = $("<div>", { class: "tooltips-container" });
             Tooltip.list = [];
@@ -19,14 +32,41 @@
             Tooltip._initialized = true;
         },
 
+        /**
+         * Initialize a tooltip
+         *
+         * @access private
+         */
         init: function() {
+            /**
+             * @member {jQuery} - The tooltip wrapper
+             */
             this.wrapper = $("<div>", { class: "tooltip-wrapper" });
+
+            /**
+             * @member {jQuery} - The tooltip itself
+             */
             this.elem = $("<div>", { class: "tooltip" });
+
+            /**
+             * @member {jQuery} - The target element
+             */
             this.target = $(this.options.target);
+
             this.setOrientation("top");
             this.setContent(this.options.content);
             this.hide();
 
+            /**
+             * Builds a DOM like:
+             *  <div class="tooltips-container">
+             *    <div class="tooltip-wrapper {{ orientation }}">
+             *      <div class="tooltip">{{ content }}</div>
+             *    </div>
+             *    <div class="tooltip-wrapper">...</div>
+             *    ...
+             *  </div>
+             */
             this.wrapper.append(this.elem).appendTo(Tooltip.container);
 
             this.target.on("mouseover", this.mouseover.bind(this));
@@ -35,22 +75,38 @@
             this.wrapper.on("mouseout", this.mouseout.bind(this));
 
             this.hideTimeout = null;
+
             this.mouseon = false;
 
             Tooltip.list.push(this);
         },
 
+        /**
+         * Show the tooltip on mouseover
+         *
+         * @access private
+         */
         mouseover: function() {
             if(!this.mouseon) this.show();
             this.mouseon = true;
             clearTimeout(this.hideTimeout);
         },
 
+        /**
+         * Hide the tooltip on mouseout after a short delay
+         *
+         * @access private
+         */
         mouseout: function() {
             this.hideTimeout = setTimeout(this.hide.bind(this), 50);
             this.mouseon = false;
         },
 
+        /**
+         * Set the content of the tooltip
+         *
+         * @param {string} content - HTML content of the tooltip
+         */
         setContent: function(content) {
             this.content = $.trim(content);
             this.elem.html(this.content);
@@ -62,10 +118,16 @@
             }
         },
 
+        /**
+         * Hide the tooltip
+         */
         hide: function() {
             this.wrapper.hide();
         },
 
+        /**
+         * Show the tooltip if the content is not empty
+         */
         show: function() {
             if(this.content !== "") {
                 this.wrapper.show();
@@ -74,6 +136,11 @@
             }
         },
 
+        /**
+         * Guess the tooltip position depending on the tooltip's size and the viewport scroll
+         *
+         * @access private
+         */
         guessOrientation: function() {
             if(this.target.offset().top - $(window).scrollTop() < this.wrapper.height()) {
                 this.setOrientation("bottom");
@@ -82,6 +149,11 @@
             }
         },
 
+        /**
+         * Recalculate the position of the tooltip
+         *
+         * @access private
+         */
         recalc: function() {
             var css = {
                 top: null,
@@ -101,6 +173,11 @@
             this.wrapper.css(css);
         },
 
+        /**
+         * Set the orientation of the tooltip
+         *
+         * @access private
+         */
         setOrientation: function(orientation) {
             if (orientation !== "top" && orientation !== "bottom" || orientation === this.orientation) return;
 
@@ -110,6 +187,15 @@
         }
     };
 
+    /**
+     * Create a tooltip on a jQuery element
+     * Set the content of a tooltip if the tooltip already exists
+     *
+     * @example
+     * $(".topic-message .message-karma .upvote").tooltip("42 votes");
+     * @param {string} content
+     * @return {Tooltip}
+     */
     $.fn.tooltip = function(content) {
         var tooltip = $(this).data("tooltip");
         if(tooltip) {
