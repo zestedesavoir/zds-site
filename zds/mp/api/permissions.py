@@ -11,7 +11,7 @@ class IsParticipant(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        return obj.author == request.user or request.user in obj.participants.all()
+        return obj.is_participant(request.user)
 
 
 class IsParticipantFromPrivatePost(permissions.BasePermission):
@@ -21,7 +21,7 @@ class IsParticipantFromPrivatePost(permissions.BasePermission):
 
     def has_permission(self, request, view):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
-        return private_topic.author == request.user or request.user in private_topic.participants.all()
+        return private_topic.is_participant(request.user)
 
 
 class IsAloneInPrivatePost(permissions.BasePermission):
@@ -31,7 +31,7 @@ class IsAloneInPrivatePost(permissions.BasePermission):
 
     def has_permission(self, request, view):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
-        return private_topic.participants.count() > 0
+        return private_topic.participants.count() == 0
 
 
 class IsLastPrivatePostOfCurrentUser(permissions.BasePermission):
@@ -41,7 +41,7 @@ class IsLastPrivatePostOfCurrentUser(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
-        return private_topic.last_message == obj and obj.author == request.user
+        return obj.is_last_message(private_topic) and obj.is_author(request.user)
 
 
 class IsAuthor(permissions.BasePermission):
@@ -50,4 +50,4 @@ class IsAuthor(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        return obj.author == request.user
+        return obj.is_author(request.user)

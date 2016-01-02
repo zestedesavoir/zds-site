@@ -1,18 +1,15 @@
 # coding: utf-8
 
 from math import ceil
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
-
 from zds.utils import get_current_user, slugify
 
 
 class PrivateTopic(models.Model):
-
     """
     Topic private, containing private posts.
     """
@@ -73,9 +70,9 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object last answer (PrivatePost)
         :rtype: PrivatePost object or None
         """
-        last_post = PrivatePost.objects\
-            .filter(privatetopic__pk=self.pk)\
-            .order_by('-position_in_topic')\
+        last_post = PrivatePost.objects \
+            .filter(privatetopic__pk=self.pk) \
+            .order_by('-position_in_topic') \
             .first()
 
         # If the last post is the first post, there is no answer in the topic (only initial post)
@@ -91,9 +88,9 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object first answer (PrivatePost)
         :rtype: PrivatePost object or None
         """
-        return PrivatePost.objects\
-            .filter(privatetopic=self)\
-            .order_by('position_in_topic')\
+        return PrivatePost.objects \
+            .filter(privatetopic=self) \
+            .order_by('position_in_topic') \
             .first()
 
     def last_read_post(self, user=None):
@@ -110,8 +107,8 @@ class PrivateTopic(models.Model):
             user = get_current_user()
 
         try:
-            post = PrivateTopicRead.objects\
-                .select_related()\
+            post = PrivateTopicRead.objects \
+                .select_related() \
                 .filter(privatetopic=self, user=user)
             if len(post) == 0:
                 return self.first_post()
@@ -134,9 +131,9 @@ class PrivateTopic(models.Model):
             user = get_current_user()
 
         try:
-            last_post = PrivateTopicRead.objects\
-                .select_related()\
-                .filter(privatetopic=self, user=user)\
+            last_post = PrivateTopicRead.objects \
+                .select_related() \
+                .filter(privatetopic=self, user=user) \
                 .latest('privatepost__position_in_topic').privatepost
 
             next_post = PrivatePost.objects.filter(
@@ -171,9 +168,43 @@ class PrivateTopic(models.Model):
 
         return never_privateread(self, user)
 
+    def is_author(self, user):
+        """
+        Check if the user given is the author of the private topic.
+
+        :param user: User given.
+        :return: true if the user is the author.
+        """
+        return self.author == user
+
+    def is_participant(self, user):
+        """
+        Check if the user given is in participants or author of the private topic.
+
+        :param user: User given.
+        :return: true if the user is in participants
+        """
+        return self.author == user or user in self.participants.all()
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_read_permission(self, request):
+        return PrivateTopic.has_read_permission(request) and self.is_participant(request.user)
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return PrivateTopic.has_write_permission(request) and self.is_participant(request.user)
+
+    def has_object_update_permission(self, request):
+        return PrivateTopic.has_write_permission(request) and self.is_author(request.user)
+
 
 class PrivatePost(models.Model):
-
     """A private post written by an user."""
 
     class Meta:
@@ -209,9 +240,47 @@ class PrivatePost(models.Model):
 
         return '{0}?page={1}#p{2}'.format(self.privatetopic.get_absolute_url(), page, self.pk)
 
+    def is_author(self, user):
+        """
+        Check if the user given is the author of the message.
+
+        :param user: Potential author of the message.
+        :return: true if the user is the author.
+        """
+        return self.author == user
+
+    def is_last_message(self, private_topic=None):
+        """
+        Check if the current message is the last one of its private topic.
+
+        :param private_topic: Potential private topic of the message.
+        :return: true if the current message is the last.
+        """
+
+        is_same_private_topic = self.privatetopic is not None
+        if private_topic is not None:
+            is_same_private_topic = private_topic == self.privatetopic
+        return is_same_private_topic and self.privatetopic.last_message == self
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_read_permission(self, request):
+        return PrivateTopic.has_read_permission(request) and self.privatetopic.is_participant(request.user)
+
+    @staticmethod
+    def has_write_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_write_permission(self, request):
+        return PrivateTopic.has_write_permission(request) and self.privatetopic.is_participant(request.user)
+
+    def has_object_update_permission(self, request):
+        return PrivateTopic.has_write_permission(request) and self.is_last_message() and self.is_author(request.user)
+
 
 class PrivateTopicRead(models.Model):
-
     """
     Small model which keeps track of the user viewing private topics.
 
@@ -252,7 +321,7 @@ def never_privateread(privatetopic, user=None):
         user = get_current_user()
 
     return PrivateTopicRead.objects\
-        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)\
+        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user) \
         .count() == 0
 
 

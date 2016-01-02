@@ -1043,3 +1043,88 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         self.assertEqual(len(response.data.get('results')), 1)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
+
+
+class PermissionMemberAPITest(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.private_post = PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic,
+                                               position_in_topic=1)
+
+        authenticate_client(self.client, create_oauth2_client(self.profile.user),
+                            self.profile.user.username, 'hostel77')
+
+    def test_has_read_permission_for_authenticated_users(self):
+        """
+        Authenticated users have permission to read PM.
+        """
+        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('read'))
+
+    def test_has_write_permission_for_authenticated_users(self):
+        """
+        Authenticated users have permission to write PM.
+        """
+        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('write'))
+
+    def test_has_update_permission_for_authenticated_users_and_author(self):
+        """
+        Authenticated users have permission to update PM.
+        """
+        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('update'))
+
+    def test_has_not_update_permission_for_authenticated_users_and_but_not_author(self):
+        """
+        Authenticated users have permission to update PM.
+        """
+        another_profile = ProfileFactory()
+        self.private_topic.participants.add(another_profile.user)
+
+        authenticate_client(self.client, create_oauth2_client(another_profile.user),
+                            another_profile.user.username, 'hostel77')
+        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('update'))
+
+    def test_has_read_permission_for_authenticated_users_for_post(self):
+        """
+        Authenticated users have permission to read messages of PM.
+        """
+        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('read'))
+
+    def test_has_write_permission_for_authenticated_users_for_post(self):
+        """
+        Authenticated users have permission to write messages of PM.
+        """
+        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('write'))
+
+    def test_has_update_permission_for_authenticated_users_and_author_for_post(self):
+        """
+        Authenticated users have permission to update messages of PM.
+        """
+        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('update'))
+
+    def test_has_not_update_permission_for_authenticated_users_and_but_not_author_for_post(self):
+        """
+        Authenticated users have permission to update messages of PM.
+        """
+        another_profile = ProfileFactory()
+        self.private_topic.participants.add(another_profile.user)
+
+        authenticate_client(self.client, create_oauth2_client(another_profile.user),
+                            another_profile.user.username, 'hostel77')
+        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('update'))
