@@ -146,11 +146,11 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context["user_dislike"] = CommentDislike.objects\
             .select_related('comment')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
         context["user_like"] = CommentLike.objects\
             .select_related('comment')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+            .values_list('comments__pk', flat=True)
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
 
         if self.request.user.has_perm('forum.change_topic'):

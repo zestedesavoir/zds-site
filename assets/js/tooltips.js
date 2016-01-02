@@ -35,36 +35,43 @@
             this.wrapper.on("mouseout", this.mouseout.bind(this));
 
             this.hideTimeout = null;
+            this.mouseon = false;
 
             Tooltip.list.push(this);
         },
 
         mouseover: function() {
-            this.visible || this.show();
+            if(!this.mouseon) this.show();
+            this.mouseon = true;
             clearTimeout(this.hideTimeout);
         },
 
         mouseout: function() {
             this.hideTimeout = setTimeout(this.hide.bind(this), 50);
+            this.mouseon = false;
         },
 
         setContent: function(content) {
-            this.elem.html(content);
+            this.content = $.trim(content);
+            this.elem.html(this.content);
 
-            if(this.visible) {
-                this.recalc();
+            if(this.content === "") {
+                this.hide();
+            } else if(this.mouseon) {
+                this.show();
             }
         },
 
         hide: function() {
-            this.visible = false;
             this.wrapper.hide();
         },
 
         show: function() {
-            this.visible = true;
-            this.wrapper.show();
-            this.recalc();
+            if(this.content !== "") {
+                this.wrapper.show();
+                this.recalc(); // Need to recalc on this tick & on next
+                setTimeout(this.recalc.bind(this));
+            }
         },
 
         guessOrientation: function() {
@@ -95,9 +102,7 @@
         },
 
         setOrientation: function(orientation) {
-            if (orientation !== "top"
-             && orientation !== "bottom"
-             || orientation === this.orientation) return;
+            if (orientation !== "top" && orientation !== "bottom" || orientation === this.orientation) return;
 
             this.wrapper.addClass(orientation);
             this.wrapper.removeClass(this.orientation);

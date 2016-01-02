@@ -181,7 +181,7 @@ gulp.task("merge-scripts", ["vendors", "scripts"], function() {
  * Watch for files changes, then recompiles and livereloads
  */
 gulp.task("watch", function() {
-  gulp.watch(path.join(sourceDir, scriptsDir, "*.js"), ["jshint", "scripts"]);
+  gulp.watch(path.join(sourceDir, scriptsDir, "*.js"), ["jshint", "merge-scripts"]);
   gulp.watch([path.join(sourceDir, imagesDir, "*.png"), path.join(sourceDir, "smileys/*")], ["images"]);
   gulp.watch([path.join(sourceDir, sassDir, "**/*.scss"), "!" + path.join(sourceDir, sassDir, "_sprite.scss")], ["stylesheet"]);
 

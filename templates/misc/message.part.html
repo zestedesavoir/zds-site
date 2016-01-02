@@ -238,7 +238,7 @@
                 {% endwith %}
 
                 {% if karma_link %}
-                    <div class="message-karma">
+                    <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
                         {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
                                 {% if topic.author == user or perms_change %}
@@ -307,9 +307,7 @@
                                     title="{{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile"
                                 {% endif %}
                             >
-                                +<span itemprop="upvoteCount">
-                                    {{ message.like }}
-                                </span>
+                                +{{ message.like }}
                             </span>
                             <span
                                 class="downvote
@@ -320,9 +318,7 @@
                                     title="{{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile"
                                 {% endif %}
                             >
-                                -<span itemprop="downvoteCount">
-                                    {{ message.dislike }}
-                                </span>
+                                -{{ message.dislike }}
                             </span>
                         {% endif %}
                     </div>
