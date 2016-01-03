@@ -69,6 +69,7 @@ class UtilsTests(TestCase):
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+        self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title="part2")
@@ -544,21 +545,29 @@ class UtilsTests(TestCase):
         self.assertFalse(check_slug(too_damn_long_slug))
 
     def test_watchdog(self):
+
         PublicatorRegistery.unregister("pdf")
         PublicatorRegistery.unregister("epub")
         PublicatorRegistery.unregister("html")
 
+        with open("path", "w") as f:
+            f.write("my_content;/path/to/markdown.md")
 
         @PublicatorRegistery.register("test", "", "")
         class TestPublicator(Publicator):
-            pass
+            def __init__(self, *__):
+                pass
 
         PublicatorRegistery.get("test").publish = Mock()
         event = FileCreatedEvent("path")
         handler = TutorialIsPublished()
+        handler.prepare_generation = Mock()
+        handler.finish_generation = Mock()
         handler.on_created(event)
-        PublicatorRegistery.get("test").publish.assert_called_with("path")
 
+        self.assertTrue(PublicatorRegistery.get("test").publish.called)
+        handler.finish_generation.assert_called_with("/path/to", "path")
+        handler.prepare_generation.assert_called_with("/path/to")
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
@@ -571,3 +580,4 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
         # re-active PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        PublicatorRegistery.registry = self.old_registry

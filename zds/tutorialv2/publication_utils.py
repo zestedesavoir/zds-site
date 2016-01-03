@@ -182,6 +182,14 @@ class PublicatorRegistery:
 
     @classmethod
     def get_all_registered(cls, exclude=None):
+        """
+
+        Args:
+            exclude: A list of excluded publicator
+
+        Returns:
+
+        """
         if exclude is None:
             exclude = []
         for key, value in cls.registry.items():

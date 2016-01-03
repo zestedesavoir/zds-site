@@ -6,11 +6,6 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
 from django.core.urlresolvers import reverse
-from django.forms import Widget
-from django.forms.widgets import ChoiceInput, ChoiceFieldRenderer, CheckboxFieldRenderer, CheckboxChoiceInput
-from django.utils.html import format_html
-from django.utils.safestring import mark_safe
-from gitdb.utils.encoding import force_text
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence

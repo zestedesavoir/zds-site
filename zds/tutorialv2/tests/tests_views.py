@@ -43,6 +43,7 @@ except ImportError:
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['extra_content_generation_policy'] = "SYNC"
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -3262,7 +3263,7 @@ class ContentTests(TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.have_type(extra))
+            self.assertTrue(published.have_type(extra), "no extra content" + extra)
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
