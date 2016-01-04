@@ -73,9 +73,9 @@
         {% include "misc/pagination.part.html" with position="top" %}
 
 
-        {% if page.object_list %}
+        {% if object_list %}
             <div class="topic-list navigable-list">
-                {% for result in page.object_list %}
+                {% for result in object_list %}
                     {% if result and result.object %}
                         {% if result.content_type == "search.searchindexcontent" %}
                             {% include "search/includes/content/content.html" with result=result query=query %}

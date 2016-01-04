@@ -364,3 +364,11 @@ RECAPTCHA_PRIVATE_KEY = 'la-cle-ici'
 ```
 
 (les clés d'applications sont à créer auprès de l'association)
+
+Actions à faire pour mettre en prod la version 16
+=================================================
+
+Mise à jours de la version de Haystack à la 4.1 
+-----------------------------------------------
+
+Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
