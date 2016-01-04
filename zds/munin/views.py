@@ -1,7 +1,7 @@
 from munin.helpers import muninview
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
 
 @muninview(config="""graph_title Total Topics
@@ -13,9 +13,14 @@ def total_topics(request):
 
 
 @muninview(config="""graph_title Total Posts
-graph_vlabel posts""")
+graph_vlabel posts
+posts.label Forum posts
+posts.draw LINE1
+comments.label Article and Tutorial comments
+comments.draw STACK""")
 def total_posts(request):
-    return [("posts", Post.objects.all().count())]
+    return [tuple(["posts", Post.objects.all().count()]),
+            tuple(["comments", ContentReaction.objects.count()])]
 
 
 @muninview(config="""graph_title Total MPs
