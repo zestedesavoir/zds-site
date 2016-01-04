@@ -71,7 +71,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .prefetch_related('author__post_disliked')\
             .prefetch_related('alerts')\
             .prefetch_related('alerts__author')\
-            .filter(related_content=self.object)\
+            .filter(related_content__pk=self.object.pk)\
             .order_by("pubdate")
 
         # pagination of articles
@@ -114,7 +114,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-        reaction_ids = [reaction.pk for reaction in queryset_reactions]
+        reaction_ids = list(set([reaction.pk for reaction in context['reactions']]))
         context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
             .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
@@ -377,8 +377,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             .select_related('author')\
             .select_related('author__profile')\
             .select_related('editor')\
-            .prefetch_related('author__post_liked')\
-            .prefetch_related('author__post_disliked')\
             .prefetch_related('alerts')\
             .prefetch_related('alerts__author')\
             .filter(related_content=self.object)\
