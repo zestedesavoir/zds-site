@@ -1,41 +1,52 @@
 # coding: utf-8
 from django.db.models import Q
+from django.http import Http404
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from haystack.views import SearchView
+from haystack.generic_views import SearchView
 
 from zds import settings
+from zds.search.form import CustomSearchForm
 from zds.utils.paginator import paginator_range
 
 
 class CustomSearchView(SearchView):
+    template_name = 'search/search.html'
+    form_class = CustomSearchForm
 
-    def create_response(self):
-        (paginator, page) = self.build_page()
-
-        page_nbr = int(self.request.GET.get('page', 1))
-
-        context = {
-            'query': self.query,
-            'form': self.form,
-            'page': page,
-            'pages': paginator_range(page_nbr, paginator.num_pages),
-            'nb': page_nbr,
-            'paginator': paginator,
-            'suggestion': None,
-            'model_name': '',
+    def form_valid(self, form):
+        self.queryset = form.search()
+        context = self.get_context_data(**{
+            self.form_name: form,
+            'query': form.cleaned_data.get(self.search_field),
+            'object_list': self.queryset,
             'models': self.request.GET.getlist('models', ''),
-        }
+        })
 
-        if self.results and hasattr(self.results, 'query') and self.results.query.backend.include_spelling:
-            context['suggestion'] = self.form.get_suggestion()
+        # Retrieve page number
+        if "page" in self.request.GET and self.request.GET["page"].isdigit():
+            page_number = int(self.request.GET["page"])
+        elif "page" not in self.request.GET:
+            page_number = 1
+        else:
+            raise Http404
 
-        context.update(self.extra_context())
-        return render(self.request, self.template, context)
+        # Create pagination
+        paginator = self.get_paginator(self.queryset, self.paginate_by, 0, False)
 
-    def get_results(self):
-        queryset = super(CustomSearchView, self).get_results()
+        if paginator.num_pages == 0:
+            num_pages = 1
+        else:
+            num_pages = paginator.num_pages
+
+        context['nb'] = page_number
+        context['pages'] = paginator_range(page_number, num_pages)
+
+        return self.render_to_response(context)
+
+    def get_queryset(self):
+        queryset = super(CustomSearchView, self).queryset
 
         # We want to search only on authorized post and topic
         if self.request.user.is_authenticated():
