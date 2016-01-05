@@ -104,7 +104,7 @@
                         {% endif %}
                     {% endif %}
 
-                    {% if cite_link and not topic.is_locked and not isantispam and not topic.antispam  %}
+                    {% if cite_link and not topic.is_locked and not isantispam %}
                         <li>
                             <a href="{{ cite_link|safe }}" class="ico-after cite" data-ajax-input="cite-message">
                                 {% trans "Citer" %}

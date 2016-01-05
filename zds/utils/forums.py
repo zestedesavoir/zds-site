@@ -150,6 +150,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
         context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+        context['isantispam'] = self.object.antispam()
 
         if self.request.user.has_perm('forum.change_topic'):
             context["user_can_modify"] = [post.pk for post in context['posts']]
