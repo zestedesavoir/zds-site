@@ -754,12 +754,12 @@ class PrivatePostListAPI(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
-                                                      settings.REST_FRAMEWORK['PAGINATE_BY'])
+                                                      settings.REST_FRAMEWORK['PAGE_SIZE'])
 
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) +
                                    '?ordering=position_in_topic')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -769,11 +769,11 @@ class PrivatePostListAPI(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
-                                                      settings.REST_FRAMEWORK['PAGINATE_BY'])
+                                                      settings.REST_FRAMEWORK['PAGE_SIZE'])
 
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?ordering=pubdate')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -783,11 +783,11 @@ class PrivatePostListAPI(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
-                                                      settings.REST_FRAMEWORK['PAGINATE_BY'])
+                                                      settings.REST_FRAMEWORK['PAGE_SIZE'])
 
         response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?ordering=update')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGINATE_BY'])
+        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
