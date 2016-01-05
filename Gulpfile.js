@@ -21,8 +21,8 @@ var sourceDir = "assets",
     vendorsDir = "vendors",
     spriteDir = "sprite",
     stylesFiles = ["main.scss"],
-    vendorsCSS = ["node_modules/normalize.css/normalize.css"],
-    vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
+    vendorsCSS = ["node_modules/normalize.css/normalize.css", "node_modules/pikaday/css/pickaday.css", "node_modules/pikaday/css/theme.css"],
+    vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js", "node_modules/pikaday/pikaday.js"],
     imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
 
 /**
