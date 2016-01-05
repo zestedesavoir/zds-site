@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^articles/$', articles, name='member-articles'),
 
     # user rights
-    url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', settings_promote, name='member-settings_promote'),
+    url(r'^profil/promouvoir/(?P<user_pk>\d+)/$', settings_promote, name='member-settings-promote'),
 
     # membership
     url(r'^connexion/$', login_view, name='member-login'),

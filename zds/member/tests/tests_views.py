@@ -510,7 +510,7 @@ class MemberTests(TestCase):
         user_ls = ProfileFactory()
         result = self.client.post(
             reverse(
-                'zds.member.views.modify_profile', kwargs={
+                'member-modify-profile', kwargs={
                     'user_pk': user_ls.user.id}), {
                 'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
         user = Profile.objects.get(id=user_ls.id)    # Refresh profile from DB
@@ -531,7 +531,7 @@ class MemberTests(TestCase):
         # Test: Un-LS
         result = self.client.post(
             reverse(
-                'zds.member.views.modify_profile', kwargs={
+                'member-modify-profile', kwargs={
                     'user_pk': user_ls.user.id}), {
                 'un-ls': '', 'unls-text': 'Texte de test pour un-LS'},
             follow=False)
@@ -554,7 +554,7 @@ class MemberTests(TestCase):
         user_ls_temp = ProfileFactory()
         result = self.client.post(
             reverse(
-                'zds.member.views.modify_profile', kwargs={
+                'member-modify-profile', kwargs={
                     'user_pk': user_ls_temp.user.id}), {
                 'ls-temp': '', 'ls-jrs': 10,
                 'ls-text': u'Texte de test pour LS TEMP'},
@@ -579,7 +579,7 @@ class MemberTests(TestCase):
         user_ban = ProfileFactory()
         result = self.client.post(
             reverse(
-                'zds.member.views.modify_profile', kwargs={
+                'member-modify-profile', kwargs={
                     'user_pk': user_ban.user.id}), {
                 'ban': '', 'ban-text': u'Texte de test pour BAN'}, follow=False)
         user = Profile.objects.get(id=user_ban.id)    # Refresh profile from DB
@@ -600,7 +600,7 @@ class MemberTests(TestCase):
         # Test: un-BAN
         result = self.client.post(
             reverse(
-                'zds.member.views.modify_profile', kwargs={
+                'member-modify-profile', kwargs={
                     'user_pk': user_ban.user.id}),
             {'un-ban': '',
              'unban-text': u'Texte de test pour BAN'},
@@ -655,7 +655,7 @@ class MemberTests(TestCase):
         # Test: LS
         result = self.client.post(
             reverse(
-                'zds.member.views.modify_profile', kwargs={
+                'member-modify-profile', kwargs={
                     'user_pk': bot_profile.user.id}), {
                 'ls': '', 'ls-text': 'Texte de test pour LS'}, follow=False)
         user = Profile.objects.get(id=bot_profile.id)    # Refresh profile from DB
