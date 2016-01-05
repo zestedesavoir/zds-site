@@ -153,7 +153,6 @@
             {% if request.GET.type or request.GET.subcategory %}
                 <li>
                     <a href="{% url "validation:list" %}" class="ico-after cross red">
-                    <a href="{% url "tutorial-list-validation" %}" class="ico-after cross blue">
                         {% trans "Annuler le filtre" %}
                     </a>
                 </li>
