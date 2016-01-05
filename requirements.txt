@@ -34,4 +34,4 @@ dry-rest-permissions==0.1.6
 
 # Zep 12 dependency
 django-uuslug==1.0.3
-watchdog<0.9.0 # use last non-bc-breaking version
+watchdog==0.8.3 # use last non-bc-breaking version

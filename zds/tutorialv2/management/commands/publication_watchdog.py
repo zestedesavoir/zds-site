@@ -23,7 +23,7 @@ class TutorialIsPublished(FileSystemEventHandler):
                 os.makedirs(extra_contents_path)
 
     @staticmethod
-    def __cleanup_build_and_watchdog(self, extra_contents_path, watchdog_file_path):
+    def __cleanup_build_and_watchdog(extra_contents_path, watchdog_file_path):
         for listed in listdir(extra_contents_path, recursive=False):
             try:
                 shutil.copy(join(extra_contents_path, listed), extra_contents_path.replace("__building", ""))
