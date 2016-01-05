@@ -57,7 +57,7 @@ Mais il est possible d'avoir une version un peu plus récente avec :
     sudo apt-get update
     sudo apt-get install nodejs
 
-Certaines dépendances utilisent ``node`` au lieu de ``nodejs``, pour y remédier :
+Certaines dépendances utilisent ``node`` au lieu de ``nodejs``, pour y remédier (pas besoin sous Fedora !) :
 
 .. sourcecode:: bash
 
@@ -70,7 +70,7 @@ Une version récente de Node.js se trouve dans les dépôts *wheezy-backport*, *
 
 .. sourcecode:: bash
 
-    sudo apt-get install nodejs npm nodejs-legacy
+    sudo apt-get install nodejs
 
 Fedora / CentOS / RHEL
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -79,8 +79,7 @@ Il vous faut tout simplement faire :
 
 .. sourcecode:: bash
 
-    sudo curl -sL https://rpm.nodesource.com/setup | bash -
-    sudo yum install -y nodejs
+    sudo dnf install nodejs
 
 Arch Linux
 ~~~~~~~~~~
@@ -131,6 +130,7 @@ Pour ce qui est de Node.js, une mise à jour via le gestionnaire de paquets devr
 .. note::
    En cas de gros pépin avec l'installation de npm, il peut arriver que ce dernier soit complètement en vrac. Dans ce genre de situation, ce `lien StackOverflow <http://stackoverflow.com/questions/31025048/npm-doesnt-work-get-always-this-error-error-cannot-find-module-are-we-ther>`_ peut vous sauver ;) .
 
+
 Installation des dépendances npm
 --------------------------------
 
@@ -138,7 +138,7 @@ L'installation de Gulp, ainsi que des différentes dépendances et bibliothèque
 
 .. sourcecode:: bash
 
-    npm install
+    npm install # A faire dans le répertoire du clone de votre fork, installe Gulp et d'autres outils frontend - ne PAS être sudo
 
 
 Utilisation des outils
@@ -163,6 +163,12 @@ Gulp se lance avec ``npm run gulp -- [tâche]`` où ``[tâche]`` est la tâche �
 
 Générer les fichiers avec ``build``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Saisissez la commande suivante (elle vous permet de générer les fichiers Web du site pour vous permettre de consulter Zeste de Savoir sur votre navigateur, en local) :
+
+.. sourcecode:: bash
+
+    npm run gulp build # A faire dans le répertoire du clone de votre fork, crée le répertoire "dist" - Ne PAS être sudo, activation de l'environnement Python requise
 
 ``build`` permet de :
 
