@@ -29,7 +29,7 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag, CommentDislike, CommentLike
+from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
 from zds.utils.views import KarmaView
@@ -142,19 +142,13 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             'form_move': MoveTopicForm(topic=self.object),
         })
 
-        reaction_ids = [post.pk for post in context['posts']]
-        context["user_dislike"] = CommentDislike.objects\
-            .select_related('comment')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('comments__pk', flat=True)
-        context["user_like"] = CommentLike.objects\
-            .select_related('comment')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('comments__pk', flat=True)
+        votes = CommentVote.objects.filter(user=self.request.user, comment__in=context['posts'])
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
 
         if self.request.user.has_perm('forum.change_topic'):
-            context["user_can_modify"] = reaction_ids
+            context["user_can_modify"] = [post.pk for post in context['posts']]
         else:
             context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
 

@@ -23,7 +23,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert, Tag
+from zds.utils.models import CommentVote, SubCategory, Alert, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
@@ -114,23 +114,15 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-
-        context["user_dislike"] = CommentDislike.objects\
-            .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
-            .values_list('comments__pk', flat=True)
-        context["user_like"] = CommentLike.objects\
-            .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
-            .values_list('comments__pk', flat=True)
+        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions)
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
-            context["user_can_modify"] = [reaction.pk for reaction in context['reactions']]
+            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions]
         else:
-            queryset_reactions_user = ContentReaction.objects\
-                .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
-                .values_list('id', flat=True)
-            context["user_can_modify"] = queryset_reactions_user
+            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions
+                                          if reaction.author == self.request.user]
 
         context['isantispam'] = self.object.antispam()
 

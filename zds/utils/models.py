@@ -233,32 +233,17 @@ class Alert(models.Model):
         verbose_name_plural = 'Alertes'
 
 
-class CommentLike(models.Model):
+class CommentVote(models.Model):
 
-    """Set of like comments."""
+    """Set of comment votes."""
     class Meta:
-        verbose_name = 'Ce message est utile'
-        verbose_name_plural = 'Ces messages sont utiles'
+        verbose_name = 'Vote'
+        verbose_name_plural = 'Votes'
+        unique_together = ('user', 'comment')
 
-    comments = models.ForeignKey(Comment, db_index=True)
-    user = models.ForeignKey(User, related_name='post_liked', db_index=True)
-
-    def __unicode__(self):
-        return u'{0} like {1}'.format(self.user.username, self.comments.pk)
-
-
-class CommentDislike(models.Model):
-
-    """Set of dislike comments."""
-    class Meta:
-        verbose_name = 'Ce message est inutile'
-        verbose_name_plural = 'Ces messages sont inutiles'
-
-    comments = models.ForeignKey(Comment, db_index=True)
-    user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
-
-    def __unicode__(self):
-        return u'{0} dislike {1}'.format(self.user.username, self.comments.pk)
+    comment = models.ForeignKey(Comment, db_index=True)
+    user = models.ForeignKey(User, db_index=True)
+    positive = models.BooleanField("Est un vote positif", default=True)
 
 
 class Tag(models.Model):

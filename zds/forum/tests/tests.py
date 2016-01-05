@@ -16,7 +16,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import get_tag_by_title
-from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
+from zds.utils.models import CommentVote, Alert, Tag
 from zds import settings as zds_settings
 
 
@@ -559,7 +559,7 @@ class ForumMemberTests(TestCase):
         result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'like'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.all().count(), 1)
+        self.assertEqual(CommentVote.objects.filter(positive=True).count(), 1)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
         self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
@@ -567,22 +567,25 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
         self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
         self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post1.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=True,
+                comment__pk=post1.pk).all().count(),
             0)
         self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post2.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=True,
+                comment__pk=post2.pk).all().count(),
             1)
         self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post3.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=True,
+                comment__pk=post3.pk).all().count(),
             0)
 
         result = self.client.post(reverse('post-karma', args=(post1.pk,)), {'vote': 'like'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.all().count(), 1)
+        self.assertEqual(CommentVote.objects.filter(positive=True).count(), 1)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
         self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
@@ -590,16 +593,19 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
         self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
         self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post1.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=True,
+                comment__pk=post1.pk).all().count(),
             0)
         self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post2.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=True,
+                comment__pk=post2.pk).all().count(),
             1)
         self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post3.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=True,
+                comment__pk=post3.pk).all().count(),
             0)
 
     def test_failing_like_post(self):
@@ -621,7 +627,7 @@ class ForumMemberTests(TestCase):
         result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'dislike'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.all().count(), 1)
+        self.assertEqual(CommentVote.objects.filter(positive=False).count(), 1)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
@@ -629,22 +635,25 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 1)
         self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
         self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post1.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=False,
+                comment__pk=post1.pk).all().count(),
             0)
         self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post2.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=False,
+                comment__pk=post2.pk).all().count(),
             1)
         self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post3.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=False,
+                comment__pk=post3.pk).all().count(),
             0)
 
         result = self.client.post(reverse('post-karma', args=(post1.pk,)), {'vote': 'dislike'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.all().count(), 1)
+        self.assertEqual(CommentVote.objects.filter(positive=False).count(), 1)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
@@ -652,16 +661,19 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 1)
         self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
         self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post1.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=False,
+                comment__pk=post1.pk).all().count(),
             0)
         self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post2.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=False,
+                comment__pk=post2.pk).all().count(),
             1)
         self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post3.pk).all().count(),
+            CommentVote.objects.filter(
+                positive=False,
+                comment__pk=post3.pk).all().count(),
             0)
 
     def test_failing_dislike_post(self):
@@ -1200,7 +1212,7 @@ class ForumGuestTests(TestCase):
         result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'like'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.all().count(), 0)
+        self.assertEqual(CommentVote.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
@@ -1219,7 +1231,7 @@ class ForumGuestTests(TestCase):
         result = self.client.post(reverse('post-karma', args=(post2.pk,)), {'vote': 'dislike'}, follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.all().count(), 0)
+        self.assertEqual(CommentVote.objects.all().count(), 0)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)

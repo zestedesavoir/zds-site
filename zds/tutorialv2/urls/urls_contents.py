@@ -49,8 +49,7 @@ urlpatterns = [
     # reactions:
     url(r'^reactions/ajouter/$', SendNoteFormView.as_view(redirection_is_needed=False), name="add-reaction"),
     url(r'^reactions/editer/$', UpdateNoteView.as_view(redirection_is_needed=False), name="update-reaction"),
-    url(r'^reactions/karma/(?P<pk>\d+)/$', KarmaView.as_view(message_class=ContentReaction, list_like=True),
-        name='reaction-karma'),
+    url(r'^reactions/karma/(?P<pk>\d+)/$', KarmaView.as_view(message_class=ContentReaction), name='reaction-karma'),
     url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),
     url(r'^reactions/afficher/(?P<pk>\d+)/$', ShowReaction.as_view(), name="show-reaction"),
     url(r'^reactions/alerter/(?P<pk>\d+)/$', SendNoteAlert.as_view(), name="alert-reaction"),

@@ -27,7 +27,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
+from zds.utils.models import HelpWriting, CommentVote, Alert
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
@@ -4309,14 +4309,14 @@ class PublishedContentTests(TestCase):
             follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 1)
+        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 1)
         result = self.client.post(
             reverse("content:reaction-karma", args=(reac.pk,)),
-            {'vote': 'like'},
+            {'vote': 'neutral'},
             follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
+        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 0)
         result = self.client.post(
             reverse("content:reaction-karma", args=(reac.pk,)),
             {'vote': 'like'},
@@ -4328,9 +4328,9 @@ class PublishedContentTests(TestCase):
             follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
+        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 0)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
+        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=False).count(), 1)
 
     def test_hide_reaction(self):
         text_hidden = \

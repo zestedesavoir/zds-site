@@ -503,14 +503,13 @@ Le déploiement doit être autonome. Ce qui implique que :
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
 
-Identifier les pk des [dis]likes pour la limite de désanonymisation - #1851
+Identifier les pk des votes pour la limite de désanonymisation - #1851
 ---------------------------------------------------------------------------
 
-La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher la dernière PK de chacun des types de vote (Like ou Dislike) afin de les enregistrer dans le `settings_prod.py`. Voici les requètes à executer pour obtenir ces informations :
+La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher le PK du dernier vote afin de l'enregistrer dans le `settings_prod.py`. Voici la requète à executer pour obtenir ces informations (à faire après la migration) :
 
 ```sql
-Select max(id) from utils_commentlike;
-Select max(id) from utils_commentdislike;
+Select max(id) from utils_commentvote
 ```
 
-Le résultat de la première requète doit être placé dans le paramètre `LIKES_ID_LIMIT` et le second dans `DISLIKES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
+Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.

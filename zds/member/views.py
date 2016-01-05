@@ -40,7 +40,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.decorators import https_required
-from zds.utils.models import Comment, CommentLike, CommentDislike
+from zds.utils.models import Comment, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
@@ -379,14 +379,13 @@ def unregister(request):
             content.authors.remove(current)
             content.save()
     # comments likes / dislikes
-    for like in CommentLike.objects.filter(user=current):
-        like.comments.like -= 1
-        like.comments.save()
-        like.delete()
-    for dislike in CommentDislike.objects.filter(user=current):
-        dislike.comments.dislike -= 1
-        dislike.comments.save()
-        dislike.delete()
+    for vote in CommentVote.objects.filter(user=current):
+        if vote.positive:
+            vote.comment.like -= 1
+        else:
+            vote.comment.dislike -= 1
+        vote.comment.save()
+        vote.delete()
     # all messages anonymisation (forum, article and tutorial posts)
     for message in Comment.objects.filter(author=current):
         message.author = anonymous

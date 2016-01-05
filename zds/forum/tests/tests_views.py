@@ -10,7 +10,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, Topi
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentLike, CommentDislike
+from zds.utils.models import CommentVote
 
 try:
     import ujson as json_reader
@@ -1506,21 +1506,22 @@ class PostLikeDisLikeTest(TestCase):
         upvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=2)
         upvoted_answer.like += 2
         upvoted_answer.save()
-        like1 = CommentLike.objects.create(user=profile.user, comments=upvoted_answer)
-        CommentLike.objects.create(user=profile2.user, comments=upvoted_answer)
+        CommentVote.objects.create(user=profile.user, comment=upvoted_answer, positive=True)
 
         downvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=3)
         downvoted_answer.dislike += 2
         downvoted_answer.save()
-        dislike1 = CommentDislike.objects.create(user=profile.user, comments=downvoted_answer)
-        CommentDislike.objects.create(user=profile2.user, comments=downvoted_answer)
+        anon_limit = CommentVote.objects.create(user=profile.user, comment=downvoted_answer, positive=False)
+
+        CommentVote.objects.create(user=profile2.user, comment=upvoted_answer, positive=True)
+        CommentVote.objects.create(user=profile2.user, comment=downvoted_answer, positive=False)
 
         equal_answer = PostFactory(topic=topic, author=another_profile.user, position=4)
         equal_answer.like += 1
         equal_answer.dislike += 1
         equal_answer.save()
-        CommentLike.objects.create(user=profile.user, comments=equal_answer)
-        CommentDislike.objects.create(user=profile2.user, comments=equal_answer)
+        CommentVote.objects.create(user=profile.user, comment=equal_answer, positive=True)
+        CommentVote.objects.create(user=profile2.user, comment=equal_answer, positive=False)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
 
@@ -1555,8 +1556,7 @@ class PostLikeDisLikeTest(TestCase):
         self.assertEqual(1, json['dislike']['count'])
 
         # Now we change the settings to keep anonymous the first [dis]like
-        settings.LIKES_ID_LIMIT = like1.pk
-        settings.DISLIKES_ID_LIMIT = dislike1.pk
+        settings.VOTES_ID_LIMIT = anon_limit.pk
         # and we run the same tests
         # on first message we should see 1 like and 1 anonymous
         response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),

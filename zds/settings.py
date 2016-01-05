@@ -558,8 +558,7 @@ RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa
 RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
-LIKES_ID_LIMIT = 0
-DISLIKES_ID_LIMIT = 0
+VOTES_ID_LIMIT = 0
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/

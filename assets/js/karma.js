@@ -63,6 +63,14 @@
 
             this.upvoteButton.on("mouseover", this.regularUpdate.bind(this));
             this.downvoteButton.on("mouseover", this.regularUpdate.bind(this));
+
+            if(this.upvoteButton.hasClass("voted")) {
+                this.currentVote = "like";
+            } else if(this.downvoteButton.hasClass("voted")) {
+                this.currentVote = "dislike";
+            } else {
+                this.currentVote = "neutral";
+            }
         },
 
         /**
@@ -72,6 +80,7 @@
          * @param {jQuery.Event} [event] - Event that triggered the vote. Will be prevented
          */
         vote: function(vote, event) {
+            if(vote === this.currentVote) vote = "neutral";
             $.post(this.karmaURI, { "vote": vote, "csrfmiddlewaretoken": this.csrf }).done(this.update.bind(this));
 
             if(event) {
@@ -110,16 +119,16 @@
          * @param {Object} data.like.list - List of the non-anonymous likers
          * @param {string} data.like.list[].username - Username of a liker
          * @param {number} data.like.count - Like total count
-         * @param {boolean} data.like.user - User vote (like)
          * @param {Object} data.dislike - Data related to dislikes
          * @param {Object} data.dislike.list - List of the non-anonymous dislikers
          * @param {string} data.dislike.list[].username - Username of a disliker
          * @param {number} data.dislike.count - Dislike total count
-         * @param {boolean} data.dislike.user - User vote (dislike)
+         * @param {string} data.user - User vote, "like", "dislike" or "neutral"
          */
         update: function(data) {
             this.updateOne(data, "like", "dislike", this.upvoteButton);
             this.updateOne(data, "dislike", "like", this.downvoteButton);
+            this.currentVote = data.user;
         },
 
         /**
@@ -145,7 +154,7 @@
                 button.removeClass("more-voted");
             }
 
-            if(data[sign].user) {
+            if(data.user === sign) {
                 button.addClass("voted");
             } else {
                 button.removeClass("voted");
