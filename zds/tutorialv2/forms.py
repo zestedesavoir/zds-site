@@ -190,7 +190,7 @@ class ContentForm(ContainerForm):
         label=_(u"Pour m'aider, je cherche un..."),
         queryset=HelpWriting.objects.all(),
         required=False,
-        widget=forms.MultipleChoiceField()
+        widget=forms.SelectMultiple()
     )
 
     def __init__(self, *args, **kwargs):
