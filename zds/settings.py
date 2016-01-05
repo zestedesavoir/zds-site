@@ -555,6 +555,10 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # Just set to the default value
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
 
+OAUTH2_PROVIDER = {
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'
+}
+
 # tell django where to put the oauth2 migrations
 MIGRATION_MODULES = {
    # key: app name, value: a fully qualified package name, not the usual `app_label.something_else`
