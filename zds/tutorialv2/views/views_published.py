@@ -477,7 +477,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if not self.reaction:
-                raise Http404(_(u"Aucune réaction : " + self.request.GET["message"]))
+                raise Http404(_(u"Aucun commentaire : " + self.request.GET["message"]))
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
@@ -513,7 +513,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if self.reaction is None:
-                raise Http404(_(u"Il n'y a aucune réaction."))
+                raise Http404(_(u"Il n'y a aucun commentaire."))
             if self.reaction.author != self.request.user:
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
