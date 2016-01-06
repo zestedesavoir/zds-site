@@ -114,7 +114,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions)
+        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
         context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
         context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
 

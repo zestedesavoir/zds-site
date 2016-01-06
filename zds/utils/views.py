@@ -30,7 +30,7 @@ class KarmaView(View):
         except CommentVote.DoesNotExist:
             user_vote = 'neutral'
 
-        votes = CommentVote.objects.filter(comment=self.object, id__gt=anon_id_limit).select_related('user')
+        votes = CommentVote.objects.filter(comment=self.object, id__gt=anon_id_limit).select_related('user').all()
         resp = {
             'like': {
                 'count': self.object.like,
