@@ -22,7 +22,7 @@ class PublishedContentManager(models.Manager):
             .prefetch_related('content__authors')\
             .prefetch_related('content__subcategory')\
             .filter(content__authors__in=[author])\
-            .filter(must_redirect=False)
+            .filter(must_redirect=False, publication_date__lte=datetime.now())
 
         if _type:
             queryset = queryset.filter(content_type=_type)
@@ -98,3 +98,6 @@ class PublishableContentManager(models.Manager):
             content.public_version.content = content
             published.append(content.public_version)
         return published
+
+    def published(self):
+        return self.filter(publication_date__lte=datetime.now())
