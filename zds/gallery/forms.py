@@ -94,7 +94,7 @@ class UserGalleryForm(forms.Form):
         super(UserGalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = 'clearfix'
-        self.helper.form_action = reverse('zds.gallery.views.modify_gallery')
+        self.helper.form_action = reverse('gallery-modify')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

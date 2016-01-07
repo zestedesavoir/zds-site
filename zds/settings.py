@@ -16,7 +16,7 @@ sys.setdefaultencoding('UTF8')
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+
 # INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 
 DATABASES = {
@@ -91,8 +91,6 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'))
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z' # noqa
 
@@ -122,29 +120,34 @@ ROOT_URLCONF = 'zds.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'zds.wsgi.application'
 
-TEMPLATE_DIRS = [
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    os.path.join(BASE_DIR, 'templates')
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+        ],
+        'OPTIONS': {
+            'context_processors': [
+                # Default context processors
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.request',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
+                # ZDS context processors
+                'zds.utils.context_processor.app_settings',
+                'zds.utils.context_processor.git_version',
+            ],
+            'debug': DEBUG,
+            }
+    },
 ]
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    # Default context processors
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.core.context_processors.tz',
-    'django.contrib.messages.context_processors.messages',
-    'social.apps.django_app.context_processors.backends',
-    'social.apps.django_app.context_processors.login_redirect',
-    # ZDS context processors
-    'zds.utils.context_processor.app_settings',
-    'zds.utils.context_processor.git_version',
-)
 
 CRISPY_TEMPLATE_PACK = 'bootstrap'
 
@@ -152,7 +155,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
@@ -204,11 +206,10 @@ THUMBNAIL_ALIASES = {
 }
 
 REST_FRAMEWORK = {
-    # If the pagination isn't specify in the API, its configuration is
-    # specified here.
-    'PAGINATE_BY': 10,                 # Default to 10
-    'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
-    'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
+    # If the pagination isn't specify in the API, its configuration is specified here.
+    'PAGE_SIZE': 10,                        # Default to 10
+    'PAGE_SIZE_QUERY_PARAM': 'page_size',   # Allow client to override, using `?page_size=xxx`.
+    'MAX_PAGE_SIZE': 100,                   # Maximum limit allowed when using `?page_size=xxx`.
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
@@ -234,7 +235,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '60/hour',
         'user': '2000/hour'
-    }
+    },
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
 REST_FRAMEWORK_EXTENSIONS = {
@@ -360,6 +362,7 @@ GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
     message_constants.INFO: 'info',
@@ -548,10 +551,12 @@ RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
+OAUTH2_PROVIDER = {
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'
+}
+
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# /!\ WARNING : It will probably open security holes in your site if the proxy behing isn't well configured
-# Read the docs for further informations - https://docs.djangoproject.com/en/1.7/ref/settings/#secure-proxy-ssl-header
 
 # Load the production settings, overwrite the existing ones if needed
 try:

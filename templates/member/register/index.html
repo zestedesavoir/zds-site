@@ -27,7 +27,7 @@
             {% endif %}
 
             <p class="alert-box warning">
-                {% url "zds.member.views.login_view" as url_login %}
+                {% url "member-login" as url_login %}
                 {% blocktrans with app_name=app.site.litteral_name %}
                 <strong>Vous êtes sur le point de vous inscrire sur {{app_name}}</strong>. Si vous
                 possédez déjà un compte, veuillez <a href="{{url_login }}">vous connecter</a>.

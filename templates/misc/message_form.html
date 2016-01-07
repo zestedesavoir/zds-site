@@ -9,7 +9,7 @@
 {% elif not user.is_authenticated %}
     <div class="alert-box info alert-box-not-closable">
         {% trans "Vous devez être connecté pour pouvoir poster un message" %}. <br>
-        <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
+        <a href="{% url "member-login" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
     <div class="alert-box not-member alert-box-not-closable">
         <h4 class="alert-box-title">Pas encore inscrit ?</h4>

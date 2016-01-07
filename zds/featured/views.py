@@ -116,9 +116,9 @@ class FeaturedResourceUpdate(UpdateView):
             self.featured_resource.pubdate = datetime.now()
 
         self.featured_resource.save()
-        return redirect(reverse('zds.pages.views.home'))
+        return redirect(reverse('homepage'))
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=FeaturedResourceForm):
         form = self.form_class(self.request.POST)
         form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
         return form
@@ -129,6 +129,7 @@ class FeaturedResourceDeleteDetail(SingleObjectMixin, RedirectView):
     Deletes a featured resource.
     """
     queryset = FeaturedResource.objects.all()
+    permanent = False
 
     @method_decorator(login_required)
     @method_decorator(transaction.atomic)
@@ -149,6 +150,7 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
     """
     Deletes a list of featured resources.
     """
+    permanent = False
 
     @method_decorator(login_required)
     @method_decorator(permission_required('featured.change_featuredresource', raise_exception=True))
@@ -212,4 +214,4 @@ class FeaturedMessageCreateUpdate(CreateView):
         featured_message.message = form.data.get('message')
         featured_message.url = form.data.get('url')
         featured_message.save()
-        return redirect(reverse('zds.pages.views.home'))
+        return redirect(reverse('homepage'))

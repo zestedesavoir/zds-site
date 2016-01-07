@@ -23,7 +23,7 @@ class PagesMemberTests(TestCase):
         """Test: check that home page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.home'),
+            reverse('homepage'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -32,7 +32,7 @@ class PagesMemberTests(TestCase):
         """Test: check that eula page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.eula'),
+            reverse('pages-eula'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -41,7 +41,7 @@ class PagesMemberTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.about'),
+            reverse('pages-about'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -50,7 +50,7 @@ class PagesMemberTests(TestCase):
         """Test: check that contact page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.contact'),
+            reverse('pages-contact'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -59,7 +59,7 @@ class PagesMemberTests(TestCase):
         """Test: check that association page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.association'),
+            reverse('pages-association'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -72,7 +72,7 @@ class PagesMemberTests(TestCase):
             long_str += u"A"
 
         result = self.client.post(
-            reverse('zds.pages.views.assoc_subscribe'),
+            reverse('pages-assoc-subscribe'),
             {
                 'full_name': 'Anne Onyme',
                 'email': 'anneonyme@test.com',
@@ -91,7 +91,7 @@ class PagesMemberTests(TestCase):
         self.assertEquals(len(mail.outbox), 0)
 
         result = self.client.post(
-            reverse('zds.pages.views.assoc_subscribe'),
+            reverse('pages-assoc-subscribe'),
             {
                 'full_name': 'Anne Onyme',
                 'email': 'anneonyme@test.com',
@@ -113,7 +113,7 @@ class PagesMemberTests(TestCase):
         """Test: check that cookies page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.cookies'),
+            reverse('pages-cookies'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -132,7 +132,7 @@ class PagesStaffTests(TestCase):
         """Test: check that home page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.home'),
+            reverse('homepage'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -141,7 +141,7 @@ class PagesStaffTests(TestCase):
         """Test: check that eula page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.eula'),
+            reverse('pages-eula'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -150,7 +150,7 @@ class PagesStaffTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.about'),
+            reverse('pages-about'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -159,7 +159,7 @@ class PagesStaffTests(TestCase):
         """Test: check that contact page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.contact'),
+            reverse('pages-contact'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -168,7 +168,7 @@ class PagesStaffTests(TestCase):
         """Test: check that association page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.association'),
+            reverse('pages-association'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -177,7 +177,7 @@ class PagesStaffTests(TestCase):
         """Test: check that cookies page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.cookies'),
+            reverse('pages-cookies'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -189,7 +189,7 @@ class PagesGuestTests(TestCase):
         """Test: check that home page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.home'),
+            reverse('homepage'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -198,7 +198,7 @@ class PagesGuestTests(TestCase):
         """Test: check that eula page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.eula'),
+            reverse('pages-eula'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -207,7 +207,7 @@ class PagesGuestTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.about'),
+            reverse('pages-about'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -216,7 +216,7 @@ class PagesGuestTests(TestCase):
         """Test: check that contact page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.contact'),
+            reverse('pages-contact'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -225,7 +225,7 @@ class PagesGuestTests(TestCase):
         """Test: check that association page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.association'),
+            reverse('pages-association'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -234,7 +234,7 @@ class PagesGuestTests(TestCase):
         """Test: check that cookies page is alive."""
 
         result = self.client.get(
-            reverse('zds.pages.views.cookies'),
+            reverse('pages-cookies'),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -243,7 +243,7 @@ class PagesGuestTests(TestCase):
         """Test: render_template() works and git_version is in template."""
 
         result = self.client.get(
-            reverse('zds.pages.views.home'),
+            reverse('homepage'),
         )
 
         self.assertTrue('git_version' in result.context[-1])
