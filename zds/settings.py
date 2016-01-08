@@ -556,19 +556,10 @@ RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# makemigrations requires this for some reason or it errors
-# Just set to the default value
-OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
-
 OAUTH2_PROVIDER = {
     'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'
 }
 
-# tell django where to put the oauth2 migrations
-MIGRATION_MODULES = {
-   # key: app name, value: a fully qualified package name, not the usual `app_label.something_else`
-  'oauth2_provider': 'zds.migrations.oauth2_provider',
-}
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
