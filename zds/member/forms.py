@@ -113,6 +113,7 @@ class RegisterForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):
         label=_(u'Nom d\'utilisateur'),
         max_length=User._meta.get_field('username').max_length,
         required=True,
+        strip=False,  # used to get spaces before/after username (and pass tests)
     )
 
     password = forms.CharField(
@@ -356,7 +357,8 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
             attrs={
                 'placeholder': _(u'Ne mettez rien pour conserver l\'ancien')
             }
-        )
+        ),
+        strip=False,  # used to get spaces before/after username (and pass tests)
     )
 
     email = forms.EmailField(
