@@ -67,11 +67,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .select_related('author')\
             .select_related('author__profile')\
             .select_related('editor')\
-            .prefetch_related('author__post_liked')\
-            .prefetch_related('author__post_disliked')\
             .prefetch_related('alerts')\
             .prefetch_related('alerts__author')\
-            .filter(related_content=self.object)\
+            .filter(related_content__pk=self.object.pk)\
             .order_by("pubdate")
 
         # pagination of articles
@@ -114,18 +112,18 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-        reaction_ids = [reaction.pk for reaction in queryset_reactions]
+
         context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
             .values_list('comments__pk', flat=True)
         context["user_like"] = CommentLike.objects\
             .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
             .values_list('comments__pk', flat=True)
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
-            context["user_can_modify"] = reaction_ids
+            context["user_can_modify"] = [reaction.pk for reaction in context['reactions']]
         else:
             queryset_reactions_user = ContentReaction.objects\
                 .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
@@ -377,8 +375,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             .select_related('author')\
             .select_related('author__profile')\
             .select_related('editor')\
-            .prefetch_related('author__post_liked')\
-            .prefetch_related('author__post_disliked')\
             .prefetch_related('alerts')\
             .prefetch_related('alerts__author')\
             .filter(related_content=self.object)\
