@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
 
+from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
 from zds.member.models import TokenRegister
 from rest_framework_extensions.settings import extensions_api_settings
@@ -39,8 +40,8 @@ class MemberListAPITest(APITestCase):
 
         response = self.client.get(reverse('api-member-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'])
-        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGE_SIZE'])
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
+        self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
 
@@ -48,18 +49,18 @@ class MemberListAPITest(APITestCase):
         """
         Gets list of users with several pages in the database.
         """
-        self.create_multiple_users(settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
+        self.create_multiple_users(REST_PAGE_SIZE + 1)
 
         response = self.client.get(reverse('api-member-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(len(response.data.get('results')), settings.REST_FRAMEWORK['PAGE_SIZE'])
+        self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
 
         response = self.client.get(reverse('api-member-list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
+        self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNotNone(response.data.get('previous'))
         self.assertEqual(len(response.data.get('results')), 1)
@@ -68,7 +69,7 @@ class MemberListAPITest(APITestCase):
         """
         Gets list of users with several pages and gets a page different that the first one.
         """
-        self.create_multiple_users(settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
+        self.create_multiple_users(REST_PAGE_SIZE + 1)
 
         response = self.client.get(reverse('api-member-list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -89,7 +90,7 @@ class MemberListAPITest(APITestCase):
         Gets list of users with a custom page size. DRF allows to specify a custom
         size for the pagination.
         """
-        self.create_multiple_users(settings.REST_FRAMEWORK['PAGE_SIZE'] * 2)
+        self.create_multiple_users(REST_PAGE_SIZE * 2)
 
         page_size = 'page_size'
         response = self.client.get(reverse('api-member-list') + '?{}=20'.format(page_size))
@@ -98,14 +99,14 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(len(response.data.get('results')), 20)
         self.assertIsNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(settings.REST_FRAMEWORK['PAGE_SIZE_QUERY_PARAM'], page_size)
+        self.assertEqual(REST_PAGE_SIZE_QUERY_PARAM, page_size)
 
     def test_list_of_users_with_a_wrong_custom_page_size(self):
         """
         Gets list of users with a custom page size but not good according to the
         value in settings.
         """
-        page_size_value = settings.REST_FRAMEWORK['MAX_PAGE_SIZE'] + 1
+        page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_users(page_size_value)
 
         response = self.client.get(reverse('api-member-list') + '?page_size={}'.format(page_size_value))
@@ -113,7 +114,7 @@ class MemberListAPITest(APITestCase):
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
-        self.assertEqual(settings.REST_FRAMEWORK['MAX_PAGE_SIZE'], len(response.data.get('results')))
+        self.assertEqual(REST_MAX_PAGE_SIZE, len(response.data.get('results')))
 
     def test_search_in_list_of_users(self):
         """
@@ -320,7 +321,7 @@ class MemberListAPITest(APITestCase):
         response = self.client.delete(reverse('api-member-list'))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def create_multiple_users(self, number_of_users=settings.REST_FRAMEWORK['PAGE_SIZE']):
+    def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
         for user in xrange(0, number_of_users):
             ProfileFactory()
 
