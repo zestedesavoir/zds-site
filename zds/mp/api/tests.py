@@ -3,13 +3,11 @@ from collections import OrderedDict
 from django.contrib.auth.models import Group
 from django.core.cache import caches
 from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds import settings
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.factories import ProfileFactory, UserFactory
