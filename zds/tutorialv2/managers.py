@@ -100,4 +100,5 @@ class PublishableContentManager(models.Manager):
         return published
 
     def published(self):
-        return self.filter(publication_date__lte=datetime.now())
+        return self.filter(publication_date__lte=datetime.now(), must_redirect=False, sha_public__isnull=False)\
+            .exclude(sha_public__exact='')

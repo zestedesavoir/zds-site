@@ -5217,6 +5217,64 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse("validation:list") + "?type=tuto")
         self.assertNotIn('class="update_content"', result.content)
 
+    def test_publication_with_date(self):
+        tuto = PublishableContentFactory(author_list=[self.user_author], type="TUTORIAL")
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        self.client.post(
+            reverse('validation:ask', args=[tuto.pk, tuto.slug]),
+            {
+                'text': "something good",
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content__pk=tuto.pk).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': "one text",
+                'is_major': False,  # minor modification (just the title)
+                'source': u'',
+                'pubdate': tomorrow.strftime("%Y-%m-%d")
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        result = self.client.get(reverse("tutorial:list"))
+        self.assertNotIn(tuto.title, result.content)
+
+    def test_download_size(self):
+        """
+        Test the size of content to download.
+        """
+        sizes = self.published.sizes
+        for type_ in ALLOWED_TYPES:
+            if self.published.have_type(type_):
+                self.assertEqual(sizes[type_],
+                                 os.path.getsize(os.path.join(
+                                     self.published.get_extra_contents_directory(),
+                                     self.published.content_public_slug + '.' + type_)))
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

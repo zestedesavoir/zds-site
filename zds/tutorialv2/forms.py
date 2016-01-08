@@ -695,7 +695,8 @@ class AcceptValidationForm(forms.Form):
         if "pubdate" not in cleaned_data or not cleaned_data["pubdate"]:
             cleaned_data['pubdate'] = datetime.now()
         else:
-            cleaned_data['pubdate'] = max(datetime.now(), cleaned_data["pubdate"])
+            date = cleaned_data["pubdate"]
+            cleaned_data['pubdate'] = max(datetime.now(), datetime(date.year, date.month, date.day))
 
         text = cleaned_data.get('text')
 
