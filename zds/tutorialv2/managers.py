@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from datetime import datetime
 
 
 class PublishedContentManager(models.Manager):
@@ -42,6 +43,10 @@ class PublishedContentManager(models.Manager):
         """
         return self.filter(content_type="TUTORIAL", must_redirect=False)\
                    .count()
+
+    def published(self):
+        return self.filter(publication_date__lte=datetime.now(), must_redirect=False, sha_public__isnull=False)\
+            .exclude(sha_public__exact='')
 
 
 class PublishableContentManager(models.Manager):
@@ -98,7 +103,3 @@ class PublishableContentManager(models.Manager):
             content.public_version.content = content
             published.append(content.public_version)
         return published
-
-    def published(self):
-        return self.filter(publication_date__lte=datetime.now(), must_redirect=False, sha_public__isnull=False)\
-            .exclude(sha_public__exact='')

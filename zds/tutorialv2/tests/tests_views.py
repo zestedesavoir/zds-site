@@ -5256,24 +5256,12 @@ class PublishedContentTests(TestCase):
                 'text': "one text",
                 'is_major': False,  # minor modification (just the title)
                 'source': u'',
-                'pubdate': tomorrow.strftime("%Y-%m-%d")
+                'pubdate': tomorrow.strftime("%Y-%m-%d %h:%M:%s")
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         result = self.client.get(reverse("tutorial:list"))
         self.assertNotIn(tuto.title, result.content)
-
-    def test_download_size(self):
-        """
-        Test the size of content to download.
-        """
-        sizes = self.published.sizes
-        for type_ in ALLOWED_TYPES:
-            if self.published.have_type(type_):
-                self.assertEqual(sizes[type_],
-                                 os.path.getsize(os.path.join(
-                                     self.published.get_extra_contents_directory(),
-                                     self.published.content_public_slug + '.' + type_)))
 
     def tearDown(self):
 
