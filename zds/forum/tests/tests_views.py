@@ -1482,7 +1482,7 @@ class PostLikeDisLikeTest(TestCase):
         topic = add_topic_in_a_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-karma', args=(topic.last_message.pk,)))
+        response = self.client.post(reverse('post-karma', args=(topic.last_message.pk,)), {'vote': 'like'})
         self.assertEqual(403, response.status_code)
 
     def test_success_post_like_and_dislike(self):
@@ -1493,7 +1493,7 @@ class PostLikeDisLikeTest(TestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-karma', args=(post.pk,)), follow=False)
+        response = self.client.post(reverse('post-karma', args=(post.pk,)), {'vote': 'like'}, follow=False)
         self.assertEqual(302, response.status_code)
 
     def test_find_likers_and_dislikers(self):

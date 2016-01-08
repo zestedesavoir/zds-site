@@ -141,7 +141,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         form = self.create_forum(self.form_class, **{'text': text})
         context = {
             'topic': self.object,
-            'posts': self.posts,
+            'posts': list(self.posts),
             'last_post_pk': self.object.last_message.pk,
             'form': form,
         }
@@ -150,7 +150,9 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
         context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
-        context['isantispam'] = self.object.antispam()
+
+        if hasattr(self.object, 'antispam'):
+            context['isantispam'] = self.object.antispam()
 
         if self.request.user.has_perm('forum.change_topic'):
             context["user_can_modify"] = [post.pk for post in context['posts']]

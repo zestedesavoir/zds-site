@@ -584,7 +584,7 @@ class ForumMemberTests(TestCase):
 
         result = self.client.post(reverse('post-karma', args=(post1.pk,)), {'vote': 'like'}, follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 401)
         self.assertEqual(CommentVote.objects.filter(positive=True).count(), 1)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
@@ -652,7 +652,7 @@ class ForumMemberTests(TestCase):
 
         result = self.client.post(reverse('post-karma', args=(post1.pk,)), {'vote': 'dislike'}, follow=False)
 
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 401)
         self.assertEqual(CommentVote.objects.filter(positive=False).count(), 1)
         self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
         self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)

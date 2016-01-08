@@ -1,10 +1,8 @@
 # coding: utf-8
 
-import json
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -48,11 +46,8 @@ class KarmaView(View):
         return resp
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            resp = self.get_response_object()
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-
-        return redirect(self.object.get_absolute_url())
+        resp = self.get_response_object()
+        return JsonResponse(resp)
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
@@ -64,6 +59,10 @@ class KarmaView(View):
             elif vote in ['like', 'dislike']:
                 CommentVote.objects.update_or_create(user=request.user, comment=self.object,
                                                      defaults={'positive': (vote == 'like')})
+            else:
+                return JsonResponse({'error': 'parameter \'vote\' is not valid'}, status=400)
+        else:
+            return JsonResponse({'error': 'author can\'t vote his own post'}, status=401)
 
         self.object.like = CommentVote.objects.filter(positive=True, comment=self.object).count()
         self.object.dislike = CommentVote.objects.filter(positive=False, comment=self.object).count()
@@ -71,6 +70,6 @@ class KarmaView(View):
 
         if request.is_ajax():
             resp = self.get_response_object()
-            return HttpResponse(json.dumps(resp), content_type='application/json')
+            return JsonResponse(resp)
 
         return redirect(self.object.get_absolute_url())
