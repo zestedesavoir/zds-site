@@ -6,7 +6,7 @@ from django.conf import settings
 
 from zds.forum.models import Forum, Topic
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.utils.models import CategorySubCategory
+from zds.utils.models import CategorySubCategory, Tag
 from django.db.models import Count
 
 register = template.Library()
@@ -34,13 +34,13 @@ def top_categories(user):
             cats[key] = [forum]
 
     tags = Topic.objects\
-        .values_list('tags', flat=True)\
+        .values_list('tags__pk', flat=True)\
         .distinct()\
         .filter(forum__in=forums, tags__isnull=False)\
         .annotate(nb_tags=Count("tags"))\
         .order_by("-nb_tags")[:settings.ZDS_APP['forum']['top_tag_max']]
 
-    return {"tags": tags, "categories": cats}
+    return {"tags": Tag.objects.filter(pk__in=[pk for pk in tags]), "categories": cats}
 
 
 @register.filter('top_categories_content')
