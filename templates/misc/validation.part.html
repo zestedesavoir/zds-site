@@ -60,7 +60,7 @@
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 {% trans "Motif du rejet" %}
             </a>
-            <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
+            <div class="modal modal-flex" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
                     {{ validation.comment_validator|emarkdown }}
                 </p>

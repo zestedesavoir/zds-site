@@ -51,6 +51,11 @@
                 if(Modal.current && e.which === 27){
                     Modal.closeCurrent();
                     e.stopPropagation();
+                } else if(Modal.current && e.which === 13) {
+                    if(document.activeElement.tagName !== "TEXTAREA" || e.ctrlKey) {
+                        var elem = Modal.current.footer.find(".btn-submit").get(0);
+                        if(elem) elem.click();
+                    }
                 }
             });
         },
