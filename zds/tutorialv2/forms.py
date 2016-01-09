@@ -561,6 +561,8 @@ class AskValidationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:ask', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'ask-validation'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
@@ -648,6 +650,8 @@ class AcceptValidationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:accept', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'valid-publish'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
@@ -703,6 +707,8 @@ class CancelValidationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:cancel', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'cancel-validation'
 
         self.helper.layout = Layout(
             HTML("<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>"),
@@ -768,6 +774,8 @@ class RejectValidationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:reject', kwargs={'pk': validation.pk})
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'reject'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
@@ -821,6 +829,8 @@ class RevokeValidationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:revoke', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpublish'
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
@@ -863,6 +873,8 @@ class JsFiddleActivationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:activate-jsfiddle')
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'js-activation'
 
         self.helper.layout = Layout(
             Field('js_support'),
@@ -963,6 +975,8 @@ class WarnTypoForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_action = reverse('content:warn-typo') + '?pk={}'.format(content.pk)
         self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'warn-typo-modal'
         self.helper.layout = Layout(
             Field('target'),
             Field('text'),

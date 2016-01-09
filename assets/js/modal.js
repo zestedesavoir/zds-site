@@ -108,7 +108,7 @@
             var linkIco = $link.hasClass("ico-after") ? " light " + $link.attr("class").replace(/btn[a-z-]*/g, "") : "";
             new Modal({
                 title: $link.text(),
-                footer: $(this).find(".btn, [type=submit]").detach(),
+                footer: $(this).find(".btn, [type=submit]").filter(":not(.modal-inner)").detach(),
                 body: $(this).children(),
                 modal: $(this),
                 closeText: $(this).is("[data-modal-close]") ? $(this).attr("data-modal-close") : "Annuler",

@@ -98,9 +98,7 @@
                 {% endif %}
                 </ul>
                 <a href="#karmatiser-modal" class="open-modal">{% trans "Ajouter une remarque" %}</a>
-                <div id="karmatiser-modal" class="modal modal-big">
-                    {% crispy karmaform %}
-                </div>
+                {% crispy karmaform %}
             </div>
         {% endif %}
 
@@ -238,15 +236,10 @@
                     {% endif %}
                     {% if perms.member.change_profile %}
                         <li>
-                            <a href="#link-tuto-{{ profile.pk }}" class="open-modal ico-after tick green">
+                            <a href="#link-tuto-modal" class="open-modal ico-after tick green">
                                 {% trans "Attribuer un tuto SdZ" %}
                             </a>
-                            <div id="link-tuto-{{ profile.pk }}" class="modal modal-small">
-                                <p>
-                                    {% trans "Choisissez un tutoriel du SdZ à attribuer au membre" %}.
-                                </p>
-                                {% crispy form %}
-                            </div>
+                            {% crispy form %}
                         </li>
                     {% endif %}
                     {% if profile.is_private and not perms.member.change_profile %}

@@ -50,9 +50,7 @@
             {% if gallery_mode.can_write %}
                 <li>
                     <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
-                    <div id="add-user-modal" class="modal modal-big">
-                        {% crispy form %}
-                    </div>
+                    {% crispy form %}
                 </li>
             {% endif %}
         </ul>

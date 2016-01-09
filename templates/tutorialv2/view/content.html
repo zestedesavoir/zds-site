@@ -210,11 +210,11 @@
                 <a href="#manage-authors" class="open-modal ico-after gear blue">
                     {% trans "Gérer les auteurs" %}
                 </a>
-                <form action="{% url "content:remove-author" content.pk  %}" method="post" class="modal" id="manage-authors" data-modal-close="Fermer">
+                <form action="{% url "content:remove-author" content.pk  %}" method="post" class="modal modal-flex" id="manage-authors" data-modal-close="Fermer">
                     <table class="fullwidth">
                         <thead>
                             <th>{% trans "Auteur" %}</th>
-                            <th>{% trans "Actions" %}</th>
+                            <th width="100px">{% trans "Actions" %}</th>
                         </thead>
                         <tbody>
                             {% for member in content.authors.all %}
@@ -344,9 +344,7 @@
         {% else %}
             <li>
                 <a href="#cancel-validation" class="open-modal ico-after cross blue">{% trans "Annuler la validation" %}</a>
-                <div class="modal modal-big" id="cancel-validation">
-                    {% crispy formCancel %}
-                </div>
+                {% crispy formCancel %}
             </li>
             {% if not content.is_validation %}
                 <li>
@@ -359,9 +357,7 @@
                 <span class="ico-after tick disabled">{% trans "En attente de validation" %}</span>
             </li>
         {% endif %}
-        <div id="ask-validation" class="modal modal-big">
-            {% crispy formAskValidation %}
-        </div>
+        {% crispy formAskValidation %}
     {% endif %}
 
 
@@ -410,18 +406,14 @@
                         </a>
                     {% endif %}
                 </li>
-                <div id="js-activation" class="modal modal-small">
-                    {% crispy formJs %}
-                </div>
+                {% crispy formJs %}
 
                 {% if content.is_public %}
                     <li>
                         <a href="#unpublish" class="ico-after open-modal cross blue">
                             {% trans "Dépublier" %}
                         </a>
-                        <div class="modal modal-big" id="unpublish">
-                            {% crispy formRevokeValidation %}
-                        </div>
+                        {% crispy formRevokeValidation %}
                     </li>
                 {% endif %}
 
@@ -447,15 +439,11 @@
                             </li>
                             <li>
                                 <a href="#valid-publish" class="open-modal ico-after tick green">{% trans "Valider et publier" %}</a>
-                                <div class="modal modal-big" id="valid-publish">
-                                    {% crispy formValid %}
-                                </div>
+                                {% crispy formValid %}
                             </li>
                             <li>
                                 <a href="#reject" class="open-modal ico-after cross red">{% trans "Rejeter" %}</a>
-                                <div class="modal modal-big" id="reject">
-                                    {% crispy formReject %}
-                                </div>
+                                {% crispy formReject %}
                             </li>
                         {% else %}
                             <li>

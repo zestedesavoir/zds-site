@@ -76,8 +76,12 @@
             width: 370px;
         }
 
+        table {
+            margin-top: 0;
+        }
+
         p,
-        input,
+        input:not([type=checkbox]):not([type=radio]),
         select,
         textarea {
             margin: 0 0 15px;
