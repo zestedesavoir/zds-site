@@ -39,7 +39,7 @@
             {% else %}
                 <li>
                     <a href="#pagination-{{ position }}" class="open-modal">...</a>
-                    <form action="." method="get" class="modal modal-small" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page" %}...'>
+                    <form action="." method="get" class="modal modal-flex" id="pagination-{{ position }}" data-modal-title='{% trans "Aller à la page" %}...'>
                         {% for key,val in request.GET.iterlists %}
                             {% if key != "page" %}
                                 {% for v in val %}
@@ -58,7 +58,7 @@
                 </li>
             {% endif %}
         {% endfor %}
-        
+
         {% if pages|last > 0 and pages|last != nb %}
             <li class="next">
                 {% with next=nb|add:1 %}

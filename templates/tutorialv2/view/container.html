@@ -164,7 +164,7 @@
                         Déplacer <span class="wide">{{ prev }} {{ name }}</span>
                     {% endblocktrans %}
                 </a>
-                <form action="{% url "content:move-element" %}" method="POST" class="modal modal-small" id="move-chapter">
+                <form action="{% url "content:move-element" %}" method="POST" class="modal modal-flex" id="move-chapter">
                     <input type="hidden" name="pk" value="{{ content.pk }}"/>
 
                     <select name="moving_method" class="select-autosubmit">

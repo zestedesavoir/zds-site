@@ -27,7 +27,7 @@
                 {% trans "Éditer" %}
             </a>
             <a href="#move-{{ child.slug }}" class="open-modal ico-after move btn btn-grey">{% trans "Déplacer" %}</a>
-                <form action="{% url "content:move-element" %}" method="post" class="modal modal-small" id="move-{{ child.slug }}">
+                <form action="{% url "content:move-element" %}" method="post" class="modal modal-flex" id="move-{{ child.slug }}">
                     <select name="moving_method">
                         <option disabled="disabled">{% trans "Déplacer" %}</option>
                         {% if child.position_in_parent > 1 %}
@@ -39,14 +39,14 @@
                         {% endif %}
                         <option disabled="disabled">&mdash; {% trans "Déplacer avant" %}</option>
                         {% for element in child|target_tree %}
-                                <option value="before:{{element.0}}" 
+                                <option value="before:{{element.0}}"
                                 {% if not element.3 %} disabled {% endif %}>
                                      &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
                                 </option>
                         {% endfor %}
                         <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
                         {% for element in child|target_tree %}
-                                <option value="after:{{element.0}}" 
+                                <option value="after:{{element.0}}"
                                 {% if not element.3 %} disabled {% endif %}>
                                      &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
                                 </option>

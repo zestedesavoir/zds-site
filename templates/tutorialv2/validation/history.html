@@ -59,7 +59,7 @@
                                 <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
                                     {% trans "Message laissé à la validation" %}
                                 </a>
-                                <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
+                                <div class="modal modal-flex" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
                                         {{ validation.comment_authors|emarkdown }}
                                     </p>

@@ -242,7 +242,7 @@
                             {% trans "Fermer le sujet" %}
                         {% endif %}
                     </a>
-                    <form action="{% url 'topic-edit' %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-small">
+                    <form action="{% url 'topic-edit' %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-flex">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">

@@ -198,7 +198,7 @@
                 <a href="#add-author" class="open-modal ico-after more blue">
                     {% trans "Ajouter un auteur" %}
                 </a>
-                <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-small" id="add-author">
+                <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author">
                     {% csrf_token %}
                     <input type="text" name="username" placeholder="Pseudo de l'utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
                     <button type="submit" name="add_author">
@@ -244,7 +244,7 @@
                 <a href="#activ-beta" class="open-modal ico-after beta blue">
                     {% trans "Mettre cette version en bêta" %}
                 </a>
-                <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="activ-beta">
+                <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="activ-beta">
                     {% csrf_token %}
                     <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                     <p>
@@ -271,7 +271,7 @@
                     <a href="#update-beta" class="open-modal ico-after beta blue">
                         {% trans "Mettre à jour la bêta avec cette version" %}
                     </a>
-                    <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="update-beta">
+                    <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="update-beta">
                         {% csrf_token %}
                         <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                         <p>
@@ -296,7 +296,7 @@
                 <a href="#desactiv-beta" class="open-modal ico-after cross blue">
                     {% trans "Désactiver la bêta" %}
                 </a>
-                <form action="{% url "content:inactive-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="desactiv-beta">
+                <form action="{% url "content:inactive-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="desactiv-beta">
                     {% csrf_token %}
                     <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                     <p>
@@ -452,7 +452,7 @@
                                         Réservé par <strong>{{ validator_name }}</strong>, le retirer
                                     {% endblocktrans %}
                                 </a>
-                                <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-small" id="unreservation">
+                                <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-flex" id="unreservation">
                                     {% csrf_token %}
                                     <p>
                                         {% trans "La validation de ce tutoriel est actuellement réservée par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
