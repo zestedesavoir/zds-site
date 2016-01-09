@@ -69,9 +69,12 @@
     }
 
     .modal-body {
-        padding: 20px 15px 0;
-        min-height: 80px;
+        padding: 20px 15px 5px;
         flex: 1;
+
+        p {
+            width: 370px;
+        }
 
         p,
         input,

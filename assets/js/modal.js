@@ -8,10 +8,10 @@
     "use strict";
 
     var Modal = function(options) {
-        this.options = $.extend(options, {
+        this.options = $.extend({
             titleIcon: "",
             closeText: "Annuler"
-        });
+        }, options);
         if(!Modal._initialized) this.firstRun();
         this.init();
     };
@@ -101,15 +101,6 @@
             Modal.closeCurrent();
         }
     };
-
-    /*
-    var $overlay = $("<div/>", {
-        "id": "modals-overlay"
-    }).on("click", function(e){
-        closeModal();
-        e.preventDefault();
-        e.stopPropagation();
-    });*/
 
     function buildModals($elems){
         $elems.each(function(){
