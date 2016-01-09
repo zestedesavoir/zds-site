@@ -349,7 +349,7 @@ class Topic(models.Model):
             self.get_absolute_url(),
             pk['pk'])
 
-    def first_unread_post(self):
+    def first_unread_post(self, user=None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
         this topic.\
@@ -359,9 +359,12 @@ class Topic(models.Model):
         """
         # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
+            if user is None:
+                user = get_current_user()
+
             last_post = TopicRead.objects \
                                  .filter(topic__pk=self.pk,
-                                         user__pk=get_current_user().pk) \
+                                         user__pk=user.pk) \
                                  .latest('post__position').post
 
             next_post = Post.objects.filter(topic__pk=self.pk,
