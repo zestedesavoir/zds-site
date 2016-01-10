@@ -25,56 +25,114 @@
 
 {% block content %}
     {% set app.site.litteral_name as site_name %}
-    <h3>{% trans "L'équipe de communication" %}</h3>
+
     <p>
-        {% blocktrans with email_contact=app.site.email_contact|obfuscate_mailto_top_subject:"Contact communication" %}
-            Vous pouvez à tout moment joindre l'équipe de communication de {{ site_name }} par courriel via {{ email_contact }}.
+        {% blocktrans %}
+            Plusieurs personnes aident au fonctionnement, au développement et à la régulation de {{ site_name }}. Voici chaque groupe avec la liste de leurs membres et un moyen de les contacter. Veuillez noter que les groupes sont dissociés et ne sont pas hiérarchisés, c'est-à-dire qu'appartenir à l'un ne fait jamais appartenir automatiquement à un autre.
         {% endblocktrans %}
     </p>
-    {% if app.site.association %}
-        <h3>{% trans "L'association" %}</h3>
-        <p>
-            {% blocktrans with email_association=app.site.association.email|obfuscate_mailto_top_subject:"Contact association" %}
-                Vous pouvez joindre l'association par courriel via {{ email_association }}.
-            {% endblocktrans %}
-        </p>
-    {% endif %}
 
     <h3>{% trans "Le staff" %}</h3>
     <p>
         {% blocktrans %}
             Le staff est constitué de certains membres du site dont le but est de contrôler le contenu publié sur {{ site_name }}. Ils sont en charge de la modération des messages sur les forums et commentaires, ainsi que de la validation et publication d'articles et/ou de tutoriels de {{ site_name }}.
-            Les membres faisant partie du Staff sont les suivants :
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans %}
+            Pour contacter le staff, utilisez le bouton "Signaler" des messages du forum ou <a href="{{ staffs_contact_url }}">envoyez-leur un message privé</a> ! Dans les forums et les zones de commentaires, ils sont reconnaissables facilement grâce à l'étiquette verte "STAFF" en dessous de leur avatar.
         {% endblocktrans %}
     </p>
     <div class="authors">
-        <ul>
-            {% if staffs %}
+        {% if staffs %}
+            <ul>
                 {% for member in staffs %}
                     <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
                 {% endfor %}
-            {% else %}
+            </ul>
+        {% else %}
+            <p>
                 {% trans "Il n'y a pas de membre dans ce groupe." %}
-            {% endif %}
-        </ul>
+            </p>
+        {% endif %}
+    </div>
+
+    <h3>{% trans "L'équipe de communication" %}</h3>
+    <p>
+        {% blocktrans %}
+            L'équipe de communication gère la communication du site sur les réseaux sociaux et sur la page d'accueil (notamment la partie "A la Une"). Elle a pour but de mettre en avant le contenu et les créations des membres.
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans with email_contact=app.site.email_contact|obfuscate_mailto_top_subject:"Contact communication" %}
+            Vous pouvez à tout moment joindre cette équipe par courriel via {{ email_contact }} ou <a href="{{ communication_team_contact_url }}">en leur envoyant un message privé</a>.
+        {% endblocktrans %}
+    </p>
+    <div class="authors">
+        {% if communication_team %}
+            <ul>
+                {% for member in communication_team %}
+                    <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>
+                {% trans "Il n'y a pas de membre dans ce groupe." %}
+            </p>
+        {% endif %}
     </div>
 
     <h3>{% trans "L'équipe technique" %}</h3>
     <p>
         {% blocktrans with repository=app.site.repository %}
             L'équipe technique est constituée de certains membres du site dont le but est d'une part de s'assurer que le site reste toujours disponible en ligne, et d'autre part de corriger les bogues rencontrés sur le site ainsi que d'ajouter de nouvelles fonctionnalités.
-            Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du <a href="{{ repository }}">dépôt officiel du projet</a>. Les membres faisant partie de l'équipe technique sont les suivants :
+            Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du <a href="{{ repository }}">dépôt officiel du projet</a>. Pour rester cohérent et organisé, le projet est orchestré par un Directeur Technique Canidé [DTC] et un Chef de Projet [CdP] (chaque développeur reste néanmoins autonome).
+        {% endblocktrans %}
+    </p>
+    <p>
+        {% blocktrans with url_forum=app.site.forum_feedback_users %}
+            Vous pouvez à tout moment joindre cette équipe <a href="{{ devs_contact_url }}">en leur envoyant un message privé</a> sauf pour les bugs et suggestions, auquel cas il est préférable de créer un sujet dans <a href="{{ url_forum }}">ce forum</a>.
         {% endblocktrans %}
     </p>
     <div class="authors">
-        <ul>
-            {% if devs %}
+        {% if devs %}
+            <ul>
                 {% for member in devs %}
                     <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
                 {% endfor %}
-            {% else %}
+            </ul>
+        {% else %}
+            <p>
                 {% trans "Il n'y a pas de membre dans ce groupe." %}
-            {% endif %}
-        </ul>
+            </p>
+        {% endif %}
     </div>
+
+    {% if app.site.association %}
+        <h3>{% trans "L'association" %}</h3>
+        <p>
+            {% url "zds.pages.views.association" as assoc_page %}
+            {% blocktrans %}
+                L'association sert à assurer la pérénité du site au niveau financier et est gardienne des valeurs du site. Son conseil d'administration (dont les membres sont listés dessous) sert d'arbitre en cas de désaccord sur les nouvelles fonctionnalités du site. Pour plus d'informations, vous pouvez consulter <a href="{{ assoc_page }}">la page dédiée à l'association</a> !
+            {% endblocktrans %}
+        </p>
+        <p>
+            {% blocktrans with email_association=app.site.association.email|obfuscate_mailto_top_subject:"Contact association" %}
+                Vous pouvez joindre l'association par courriel via {{ email_association }} ou les membres du conseil d'administration <a href="{{ assoc_contact_url }}">en leur envoyant un message privé</a>.
+            {% endblocktrans %}
+        </p>
+        <div class="authors">
+            {% if assoc %}
+                <ul>
+                    {% for member in assoc %}
+                        <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>
+                    {% trans "Il n'y a pas de membre dans ce groupe." %}
+                </p>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endblock %}
