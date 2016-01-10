@@ -1,22 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Import from django
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.db import IntegrityError
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect, get_object_or_404
-
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DeleteView, UpdateView
 from django.views.generic.detail import DetailView
-from django.forms import modelformset_factory
 
+# Import from zds
 from zds import settings
-from zds.poll.forms import PollForm, PollInlineFormSet, ChoiceFormSetHelper,\
-    UniqueVoteForm, MultipleVoteForm, RangeVoteModelForm, RangeVoteFormSet, \
-    UpdatePollForm
-from zds.poll.models import Poll, MultipleVote, RangeVote,\
-    UNIQUE_VOTE_KEY, RANGE_VOTE_KEY, MULTIPLE_VOTE_KEY
+from zds.poll.forms import (PollForm, PollInlineFormSet,
+    ChoiceFormSetHelper, UpdatePollForm)
+from zds.poll.models import (Poll, MultipleVote, RangeVote,
+    UNIQUE_VOTE_KEY, RANGE_VOTE_KEY, MULTIPLE_VOTE_KEY)
 from zds.member.decorator import LoginRequiredMixin
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
@@ -67,7 +67,26 @@ class DetailsPoll(DetailView):
     def get_context_data(self, **kwargs):
         context = super(DetailsPoll, self).get_context_data(**kwargs)
         poll = context['poll']
-        context['form'] = poll.get_form_class()
+        # Initialize the form if the user is authenticated
+        # and has voted
+        initial_data = None
+        if self.request.user.is_authenticated():
+            # Get the user votes if is authenticated
+            user_vote = poll.get_user_vote(self.request.user)
+            if user_vote:
+                # Unique vote
+                if poll.type_vote == UNIQUE_VOTE_KEY:
+                    initial_data = {'choice': user_vote[0]['choice_id']}
+                # Multiple vote
+                elif poll.type_vote == MULTIPLE_VOTE_KEY:
+                    choices = [vote['choice_id'] for vote in user_vote]
+                    initial_data = {'choices': choices}
+                # Range vote
+                elif poll.type_vote == RANGE_VOTE_KEY:
+                    print user_vote
+                    initial_data = user_vote
+
+        context['form'] = poll.get_vote_form(initial=initial_data)
         return context
 
     @method_decorator(login_required)
@@ -77,23 +96,20 @@ class DetailsPoll(DetailView):
         if not poll.open:
             return HttpResponseForbidden()
 
+        form = poll.get_vote_form(data=request.POST)
+
         # Vote unique
         if poll.type_vote == UNIQUE_VOTE_KEY:
-            form = UniqueVoteForm(poll=poll, data=request.POST)
-            print request.POST
-            print form.data
             if form.is_valid():
-                print "unique is valid !!"
-                vote = form.save(commit=False)
-                vote.poll = poll
-                vote.user = request.user
-                vote.save()
-            else:
-                print "unique invalid"
-                print form.errors
+                try:
+                    vote = form.save(commit=False)
+                    vote.poll = poll
+                    vote.user = request.user
+                    vote.save()
+                except IntegrityError:
+                    return HttpResponseForbidden()
         # Vote multiple
         elif poll.type_vote == MULTIPLE_VOTE_KEY:
-            form = MultipleVoteForm(poll=poll, data=request.POST)
             if form.is_valid():
                 for choice in form.cleaned_data['choices']:
                     vote = MultipleVote(
@@ -104,12 +120,6 @@ class DetailsPoll(DetailView):
                     vote.save()
         # Range vote
         elif poll.type_vote == RANGE_VOTE_KEY:
-            range_vote_formset = modelformset_factory(
-                RangeVote,
-                form=RangeVoteModelForm,
-                formset=RangeVoteFormSet
-            )
-            form = range_vote_formset(poll=poll, data=request.POST)
             if form.is_valid():
                 for range_vote in form.cleaned_data:
                     vote = RangeVote(
@@ -119,21 +129,17 @@ class DetailsPoll(DetailView):
                         range=range_vote['range']
                     )
                     vote.save()
-            else:
-                # return self.render_to_response(self.get_context())
-                print "invalid !!"
-                print form.errors
         return redirect('poll-details', pk=poll.pk)
 
 
-class UpdatePoll(UpdateView):
+class UpdatePoll(LoginRequiredMixin, UpdateView):
     model = Poll
     template_name = 'poll/update.html'
     context_object_name = 'poll'
     form_class = UpdatePollForm
 
 
-class DeletePoll(DeleteView):
+class DeletePoll(LoginRequiredMixin, DeleteView):
     model = Poll
     template_name = 'poll/delete.html'
     context_object_name = 'poll'

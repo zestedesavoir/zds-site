@@ -55,54 +55,12 @@ class Poll(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        """URL of a single Poll.
-
+        """
+        URL of a single Poll.
         :return: Poll object URL
         :rtype: str
         """
         return reverse('poll-details', args=[self.pk])
-
-    def get_form_class(self):
-        from zds.poll.forms import (UniqueVoteForm, MultipleVoteForm,
-            RangeVoteModelForm, RangeVoteFormSet)
-
-        # Multiple vote
-        if self.type_vote == MULTIPLE_VOTE_KEY:
-            return MultipleVoteForm(self)
-        elif self.type_vote == UNIQUE_VOTE_KEY:
-            return UniqueVoteForm(self)
-        # Range vote
-        elif self.type_vote == RANGE_VOTE_KEY:
-            initial_data = []
-            choices = self.choices.all()
-            count_choices = len(choices)
-            for choice in choices:
-                initial_data.append(
-                    {
-                        'choice': choice,
-                        # Indifférent par défaut
-                        'range': 0,
-                    }
-                )
-            range_vote_formset = forms.modelformset_factory(
-                RangeVote,
-                form=RangeVoteModelForm,
-                formset=RangeVoteFormSet,
-                extra=count_choices,
-                max_num=count_choices,
-            )
-            return range_vote_formset(initial=initial_data, queryset=RangeVote.objects.none())
-        # Unique vote
-        return UniqueVoteForm(self)
-
-    def get_vote_class(self):
-        if self.type_vote == MULTIPLE_VOTE_KEY:
-            return MultipleVote
-        elif self.type_vote == UNIQUE_VOTE_KEY:
-            return UniqueVote
-        elif self.type_vote == RANGE_VOTE_KEY:
-            return RangeVote
-        return UniqueVote
 
     def get_count_user(self):
         """
@@ -114,6 +72,21 @@ class Poll(models.Model):
             return count[0]['user__count']
         else:
             return 0
+
+    def get_user_vote(self, user):
+        return self.get_vote_class().objects.filter(poll=self, user=user).values()
+
+    def get_vote_form(self, data=None, **kw):
+        return self.get_vote_class().get_form(self, data, **kw)
+
+    def get_vote_class(self):
+        if self.type_vote == MULTIPLE_VOTE_KEY:
+            return MultipleVote
+        elif self.type_vote == UNIQUE_VOTE_KEY:
+            return UniqueVote
+        elif self.type_vote == RANGE_VOTE_KEY:
+            return RangeVote
+        return UniqueVote
 
 
 class Choice(models.Model):
@@ -160,6 +133,10 @@ class Vote(models.Model):
     choice = models.ForeignKey(Choice, blank=False)
     user = models.ForeignKey(User)
 
+    @staticmethod
+    def get_form(poll, data=None, **kw):
+        raise NotImplementedError
+
 
 class UniqueVote(Vote):
     """
@@ -170,6 +147,11 @@ class UniqueVote(Vote):
         verbose_name = 'Vote unique'
         verbose_name_plural = 'Votes uniques'
         unique_together = (('user', 'choice'), ('user', 'poll'))
+
+    @staticmethod
+    def get_form(poll, data=None, **kw):
+        from zds.poll.forms import UniqueVoteForm
+        return UniqueVoteForm(poll, data=data, **kw)
 
 
 class MultipleVote(Vote):
@@ -182,6 +164,11 @@ class MultipleVote(Vote):
         verbose_name_plural = 'Multiple Votes'
         unique_together = ('user', 'choice', 'poll')
 
+    @staticmethod
+    def get_form(poll, data=None, **kw):
+        from zds.poll.forms import MultipleVoteForm
+        return MultipleVoteForm(poll, data=data, **kw)
+
 
 class RangeVote(Vote):
 
@@ -191,3 +178,47 @@ class RangeVote(Vote):
         unique_together = ('user', 'choice', 'poll')
 
     range = models.IntegerField(choices=RANGES, blank=False)
+
+    @staticmethod
+    def get_form(poll, data=None, **kw):
+        from zds.poll.forms import RangeVoteModelForm, RangeVoteFormSet
+        if data:
+            range_vote_formset = forms.modelformset_factory(
+                RangeVote,
+                form=RangeVoteModelForm,
+                formset=RangeVoteFormSet
+            )
+            return range_vote_formset(poll=poll, data=data)
+        else:
+            initial_data = []
+            choices = poll.choices.all()
+            count_choices = len(choices)
+
+            # Check if there is some initial data
+            kw_initial = kw.get('initial')
+            initial_range = {}
+            if kw_initial:
+                for initial_choice in kw_initial:
+                    initial_range[initial_choice['choice_id']] = initial_choice['range']
+
+            for choice in choices:
+                if kw_initial:
+                    range = initial_range[choice.pk]
+                else:
+                    # Par default : indifférent
+                    range = 0
+
+                initial_data.append(
+                    {
+                        'choice': choice,
+                        'range': range,
+                    }
+                )
+            range_vote_formset = forms.modelformset_factory(
+                RangeVote,
+                form=RangeVoteModelForm,
+                formset=RangeVoteFormSet,
+                extra=count_choices,
+                max_num=count_choices,
+            )
+            return range_vote_formset(initial=initial_data, queryset=RangeVote.objects.none())

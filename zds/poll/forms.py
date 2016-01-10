@@ -10,8 +10,14 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder, Submit
 
-from zds.poll.models import Poll, Choice, UniqueVote, \
-    MultipleVote, RangeVote, RANGES
+from zds.poll.models import (
+    Poll, Choice, UniqueVote,
+    MultipleVote, RangeVote, RANGES)
+
+
+#############################
+# Poll
+#############################
 
 
 class PollForm(forms.ModelForm):
@@ -81,6 +87,10 @@ class UpdatePollForm(forms.ModelForm):
             ),
         )
 
+#############################
+# Choices
+#############################
+
 
 class ChoiceForm(forms.ModelForm):
 
@@ -121,6 +131,10 @@ PollInlineFormSet = forms.inlineformset_factory(
     min_num=2,
     max_num=20
 )
+
+#############################
+# Votes
+#############################
 
 
 class UniqueVoteForm(forms.ModelForm):
