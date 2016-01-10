@@ -5,6 +5,18 @@
 (function(document, $, undefined) {
     "use strict";
 
+    /**
+     * Create a new Modal
+     *
+     * @constructor
+     * @param {Object} options
+     * @param {string} options.title
+     * @param {(Node|jQuery)} options.body
+     * @param {(Node|jQuery)} options.footer
+     * @param {string} [options.titleIcon=""] - Icon to add to the title
+     * @param {string} [options.closeText="Annuler"] - The text of the close button
+     * @param {(Node|jQuery)} [options.modal] - The modal element to wrap the content
+     */
     var Modal = function(options) {
         this.options = $.extend({
             titleIcon: "",
@@ -14,6 +26,11 @@
         this.init();
     };
 
+    /**
+     * Close the current modal
+     *
+     * @static
+     */
     Modal.closeCurrent = function() {
         Modal.current.modal.removeClass("open");
         Modal.container.removeClass("open");
@@ -21,6 +38,12 @@
         Modal.current = null;
     };
 
+    /**
+     * Open a modal
+     *
+     * @static
+     * @param {string} id - The id of the modal to open
+     */
     Modal.openModal = function(id) {
         if(Modal.list[id]) {
             Modal.list[id].open();
@@ -28,11 +51,32 @@
     };
 
     Modal.prototype = {
+        /**
+         * To be run on first modal creation
+         *
+         * @access private
+         */
         firstRun: function() {
+            /**
+             * The Node that contains all the modals and the overlay
+             * @type {jQuery}
+             */
             Modal.container = $("<div>", { class: "modals-container" });
+            /**
+             * The Node that wrap all the modals
+             * @type {jQuery}
+             */
             Modal.wrapper = $("<div>", { class: "modals-wrapper" });
+            /**
+             * The overlay
+             * @type {jQuery}
+             */
             Modal.overlay = $("<div>", { class: "modals-overlay" });
             Modal.container.append(Modal.wrapper).append(Modal.overlay).appendTo($("body"));
+            /**
+             * The list of all the modals
+             * @type {Modal[]}
+             */
             Modal.list = [];
             Modal._initialized = true;
             Modal.nextId = 0;
@@ -58,9 +102,26 @@
             });
         },
 
+        /**
+         * Initialize a Modal
+         *
+         * @access private
+         */
         init: function() {
+            /**
+             * The modal DOM Node
+             * @member {jQuery}
+             */
             this.modal = this.options.modal || $("<div>", { class: "modal modal-flex" });
+            /**
+             * The ID of the modal
+             * @member {string}
+             */
             this.id = this.modal.attr("id") || "noid-" + (Modal.nextId++);
+            /**
+             * The title of the modal
+             * @member {jQuery}
+             */
             this.title = $("<div>", {
                 class: "modal-title",
                 text: this.options.title
@@ -70,10 +131,18 @@
                 this.title.addClass(this.options.titleIcon + " ico-after");
             }
 
+            /**
+             * The body of the modal
+             * @member {jQuery}
+             */
             this.body = $("<div>", {
                 class: "modal-body"
             }).append(this.options.body);
 
+            /**
+             * The footer of the modal (contains the buttons)
+             * @member {jQuery}
+             */
             this.footer = $("<div>", {
                 class: "modal-footer"
             }).append(this.options.footer).append($("<a>", {
@@ -92,6 +161,9 @@
             Modal.list[this.id] = this;
         },
 
+        /**
+         * Open the Modal
+         */
         open: function() {
             if(Modal.current) Modal.closeCurrent();
             this.modal.addClass("open");
@@ -104,11 +176,19 @@
                 $("html").addClass("dropdown-active");
         },
 
+        /**
+         * Close the Modal
+         */
         close: function() {
             Modal.closeCurrent();
         }
     };
 
+    /**
+     * Build the modal from the given elements
+     *
+     * @param {jQuery} $elems
+     */
     function buildModals($elems){
         $elems.each(function(){
             var $link = $("[href=#"+$(this).attr("id")+"]:first");
