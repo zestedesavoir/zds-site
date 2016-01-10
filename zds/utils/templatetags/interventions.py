@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta
 
 from django import template
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, never_read as never_read_topic
@@ -99,7 +100,10 @@ def interventions_topics(user):
     """
     posts_unread = []
 
-    for notification in Notification.objects.get_unread_notifications_of(Profile.objects.get(user=user)):
+    private_topic = ContentType.objects.get_for_model(PrivateTopic)
+    for notification in Notification.objects \
+            .get_unread_notifications_of(Profile.objects.get(user=user)) \
+            .exclude(subscription__content_type=private_topic):
         posts_unread.append({'pubdate': notification.pubdate,
                              'author': notification.sender.user,
                              'title': notification.title,
@@ -112,23 +116,15 @@ def interventions_topics(user):
 
 @register.filter('interventions_privatetopics')
 def interventions_privatetopics(user):
-
-    # Raw query because ORM doesn't seems to allow this kind of "left outer join" clauses.
-    # Parameters = list with 3x the same ID because SQLite backend doesn't allow map parameters.
-    privatetopics_unread = PrivateTopic.objects.raw(
-        '''
-        select distinct t.*
-        from mp_privatetopic t
-        left outer join mp_privatetopic_participants p on p.privatetopic_id = t.id
-        left outer join mp_privatetopicread r on r.user_id = %s and r.privatepost_id = t.last_message_id
-        where (t.author_id = %s or p.user_id = %s)
-          and r.id is null
-        order by t.pubdate desc''',
-        [user.id, user.id, user.id])
-
-    # "total" re-do the query, but there is no other way to get the length as __len__ is not available on raw queries.
-    topics = list(privatetopics_unread)
-    return {'unread': topics, 'total': len(topics)}
+    """
+    Gets all unread messages in the user's inbox.
+    """
+    private_topic = ContentType.objects.get_for_model(PrivateTopic)
+    notifications = list(Notification.objects
+                         .get_unread_notifications_of(Profile.objects.get(user=user))
+                         .filter(subscription__content_type=private_topic)
+                         .order_by('-pubdate'))
+    return {'notifications': notifications, 'total': len(notifications)}
 
 
 @register.filter(name='alerts_list')

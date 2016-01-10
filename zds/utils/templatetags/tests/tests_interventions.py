@@ -8,8 +8,8 @@ from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffFactory
-from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.utils.models import Alert
+from zds.utils.mps import send_message_mp, send_mp
 from zds.utils.templatetags.interventions import alerts_list
 
 
@@ -26,12 +26,9 @@ class InterventionsTest(TestCase):
     def setUp(self):
         self.author = ProfileFactory()
         self.user = ProfileFactory()
-        self.topic = PrivateTopicFactory(author=self.author.user)
+        self.topic = send_mp(author=self.author.user, users=[], title="Title", text="Testing", subtitle="", leave=False)
         self.topic.participants.add(self.user.user)
-        self.post = PrivatePostFactory(
-            privatetopic=self.topic,
-            author=self.author.user,
-            position_in_topic=1)
+        send_message_mp(self.user.user, self.topic, "Testing")
 
         # humane_delta test
         periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))

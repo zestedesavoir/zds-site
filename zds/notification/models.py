@@ -227,6 +227,18 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
             .format(self.profile, self.object_id)
 
 
+class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
+    """
+    Subscription to new answer in a private topic.
+    """
+    module = _(u'Message privé')
+    objects = SubscriptionManager()
+
+    def __unicode__(self):
+        return _(u'<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
+            .format(self.profile, self.object_id)
+
+
 class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a publishable content.

@@ -1,18 +1,23 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from zds import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription
-from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
-    ContentReactionFactory
+from zds.mp.models import mark_read
+from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
+    PrivateTopicAnswerSubscription
+from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
+    SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
+from zds.utils.mps import send_mp, send_message_mp
 
 
 class NotificationForumTest(TestCase):
@@ -270,3 +275,169 @@ class NotificationPublishableContentTest(TestCase):
 
         notification = Notification.objects.get(subscription__profile=self.profile1)
         self.assertTrue(notification.is_read)
+
+
+class NotificationPrivateTopicTest(TestCase):
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+        self.profile2 = ProfileFactory()
+        self.profile3 = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=self.profile1.user.username, password='hostel77'))
+
+    def test_creation_private_topic(self):
+        """
+        When we create a topic, the author follow it.
+        """
+        topic = send_mp(author=self.profile1.user, users=[], title="Testing", subtitle="", text="", leave=False)
+
+        subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(topic)
+        self.assertEqual(1, len(subscriptions))
+        self.assertEqual(self.profile1, subscriptions[0].profile)
+        self.assertTrue(subscriptions[0].by_email)
+        self.assertIsNone(subscriptions[0].last_notification)
+
+    def test_generate_a_notification_for_all_participants(self):
+        """
+        When we create a topic, all participants have a notification to the last message.
+        """
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(profile=self.profile2)
+        self.assertEqual(0, len(subscriptions))
+
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(profile=self.profile3)
+        self.assertEqual(0, len(subscriptions))
+
+        topic = send_mp(author=self.profile1.user,
+                        users=[self.profile2.user, self.profile3.user],
+                        title="Testing", subtitle="", text="", leave=False)
+
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(profile=self.profile2)
+        self.assertEqual(1, len(subscriptions))
+        self.assertEqual(topic, subscriptions.first().content_object)
+
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(profile=self.profile3)
+        self.assertEqual(1, len(subscriptions))
+        self.assertEqual(topic, subscriptions.first().content_object)
+
+        notification = Notification.objects.get_unread_notifications_of(self.profile2).first()
+        self.assertIsNotNone(notification)
+        self.assertEqual(topic.last_message, notification.content_object)
+
+        notification = Notification.objects.get_unread_notifications_of(self.profile3).first()
+        self.assertIsNotNone(notification)
+        self.assertEqual(topic.last_message, notification.content_object)
+
+    def test_mark_read_a_notification(self):
+        """
+        When we mark as read a private topic, we mark as read its notification.
+        """
+        topic = send_mp(author=self.profile1.user,
+                        users=[self.profile2.user, self.profile3.user],
+                        title="Testing", subtitle="", text="", leave=False)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        mark_read(topic, self.profile2.user)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(0, len(notifications))
+
+    def test_generate_a_notification_after_new_post(self):
+        """
+        When a user post on a private topic, we generate a notification for all participants.
+        """
+        topic = send_mp(author=self.profile1.user,
+                        users=[self.profile2.user, self.profile3.user],
+                        title="Testing", subtitle="", text="", leave=False)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        mark_read(topic, self.profile2.user)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(0, len(notifications))
+
+        send_message_mp(self.profile3.user, topic, "")
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+    def test_generate_a_notification_when_add_a_participant(self):
+        """
+        When we add a user in a private topic, we generate a notification for this user at the last message.
+        """
+        topic = send_mp(author=self.profile1.user,
+                        users=[self.profile2.user],
+                        title="Testing", subtitle="", text="", leave=False)
+
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(profile=self.profile3)
+        self.assertEqual(0, len(subscriptions))
+
+        topic.participants.add(self.profile3.user)
+        topic.save()
+
+        subscriptions = PrivateTopicAnswerSubscription.objects.filter(profile=self.profile3)
+        self.assertEqual(1, len(subscriptions))
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile3)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.filter())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+    def test_remove_notifications_when_a_user_leave_private_topic(self):
+        """
+        When a user leave a private topic, we mark read the current notification if exist.
+        """
+        topic = send_mp(author=self.profile1.user,
+                        users=[self.profile2.user],
+                        title="Testing", subtitle="", text="", leave=False)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.profile2, topic, is_active=True))
+
+        topic.participants.remove(self.profile2.user)
+        topic.save()
+
+        notifications = Notification.objects.get_unread_notifications_of(self.profile2)
+        self.assertEqual(0, len(notifications))
+
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.profile2, topic, is_active=False))
+
+    def test_send_an_email_when_we_specify_it(self):
+        """
+        When we ask at the back-end than we want send an email at the creation of a topic, we send it.
+        """
+        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        self.assertEquals(0, len(mail.outbox))
+
+        topic = send_mp(author=self.profile1.user, users=[self.profile2.user],
+                        title="Testing", subtitle="", text="",
+                        send_by_mail=True, leave=False)
+
+        self.assertEquals(1, len(mail.outbox))
+
+        self.profile1.email_for_answer = True
+        self.profile1.save()
+
+        send_message_mp(self.profile2.user, topic, "", send_by_mail=True)
+
+        self.assertEquals(2, len(mail.outbox))
+
+        self.profile1.email_for_answer = False
+        self.profile1.save()
+
+        send_message_mp(self.profile2.user, topic, "", send_by_mail=True)
+
+        self.assertEquals(2, len(mail.outbox))

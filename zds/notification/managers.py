@@ -127,6 +127,31 @@ class SubscriptionManager(models.Manager):
 
         return [subscription.content_object for subscription in subscription_list]
 
+    def toggle_follow(self, content_object, user=None, by_email=None):
+        """
+        Toggle following of a resource notifiable for a user.
+        :param content_object: A resource notifiable.
+        :param user: A user. If undefined, the current user is used.
+        :param by_email: Get subscription by email or not.
+        :return: subscription of the user for the content.
+        """
+        if user is None:
+            user = get_current_user()
+        if by_email:
+            existing = self.get_existing(user.profile, content_object, is_active=True, by_email=True)
+        else:
+            existing = self.get_existing(user.profile, content_object, is_active=True)
+        if existing is None:
+            subscription = self.get_or_create_active(user.profile, content_object)
+            if by_email:
+                subscription.activate_email()
+            return subscription
+        if by_email:
+            existing.deactivate_email()
+        else:
+            existing.deactivate()
+        return existing
+
 
 class TopicAnswerSubscriptionManager(SubscriptionManager):
     """

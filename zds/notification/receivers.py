@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 
-from functools import wraps
+try:
+    from functools import wraps
+except ImportError:
+    from django.utils.functional import wraps
 
-from django.db.models.signals import post_save, pre_delete
+import inspect
+from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
-
 from zds.forum.models import Topic, Post
-from zds.mp.models import PrivateTopic
+from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    Subscription, Notification
-from zds.notification.signals import answer_unread, content_read
+    PrivateTopicAnswerSubscription, Subscription, Notification
+from zds.notification.signals import answer_unread, content_read, new_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
 
@@ -18,12 +21,13 @@ def disable_for_loaddata(signal_handler):
     """
     Decorator
     Avoid the signal to be treated when sent by fixtures
+    See https://code.djangoproject.com/ticket/8399#comment:7
     """
     @wraps(signal_handler)
     def wrapper(*args, **kwargs):
-        if "raw" in kwargs and kwargs['raw']:
-            print "Skipping signal for %s %s" % (args, kwargs)
-            return
+        for fr in inspect.stack():
+            if inspect.getmodulename(fr[1]) == 'loaddata':
+                return
         signal_handler(*args, **kwargs)
     return wrapper
 
@@ -73,7 +77,7 @@ def mark_content_reactions_read(sender, **kwargs):
     content_reaction = kwargs.get('instance')
     user = kwargs.get('user')
 
-    subscription = ContentReactionAnswerSubscription.objects\
+    subscription = ContentReactionAnswerSubscription.objects \
         .get_existing(user.profile, content_reaction, is_active=True)
     if subscription:
         subscription.mark_notification_read()
@@ -88,8 +92,12 @@ def mark_pm_reactions_read(sender, **kwargs):
     Marks as read the notifications of the AnswerSubscription of the user to the private message/
     (This documentation will be okay with the v2 of ZEP-24)
     """
+    private_topic = kwargs.get('instance')
+    user = kwargs.get('user')
 
-    pass
+    subscription = PrivateTopicAnswerSubscription.objects.get_existing(user.profile, private_topic, is_active=True)
+    if subscription:
+        subscription.mark_notification_read()
 
 
 @receiver(post_save, sender=Post)
@@ -135,6 +143,79 @@ def answer_content_reaction_event(sender, **kwargs):
 
         # Follow publishable content on answering
         ContentReactionAnswerSubscription.objects.get_or_create_active(author, publishable_content)
+
+
+@receiver(new_content, sender=PrivatePost)
+@disable_for_loaddata
+def answer_private_topic_event(sender, **kwargs):
+    """
+    :param kwargs:  contains
+        - instance: the new post.
+        - by_mail: Send or not an email.
+    Sends PrivateTopicAnswerSubscription to the subscribers to the topic and subscribe
+    the author to the following answers to the topic.
+    """
+    post = kwargs.get('instance')
+    by_email = kwargs.get('by_email')
+
+    if post.position_in_topic == 1:
+        # Subscribe at the new private topic all participants.
+        for participant in post.privatetopic.participants.all():
+            if by_email:
+                PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, participant, by_email=by_email)
+            else:
+                PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, participant)
+
+    subscription_list = PrivateTopicAnswerSubscription.objects.get_subscriptions(post.privatetopic)
+    for subscription in subscription_list:
+        if subscription.profile != post.author.profile:
+            send_email = by_email and (subscription.profile.email_for_answer or post.position_in_topic == 1)
+            subscription.send_notification(content=post, sender=post.author.profile, send_email=send_email)
+
+    # Follow private topic on answering
+    if by_email:
+        PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author, by_email=by_email)
+    else:
+        PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author)
+
+
+@receiver(m2m_changed, sender=PrivateTopic.participants.through)
+@disable_for_loaddata
+def add_participant_topic_event(sender, **kwargs):
+    """
+    :param kwargs:  contains
+        - sender : the technical class representing the many2many relationship
+        - instance : the technical class representing the many2many relationship
+        - action : "pre_add", "post_add", ... action having sent the signal
+        - reverse : indicates which side of the relation is updated
+            (from what I understand, forward is from topic to tags, so when the tag side is modified,
+            reverse is from tags to topics, so when the topics are modified)
+    Sends PrivateTopicAnswerSubscription to the subscribers to the private topic.
+    """
+
+    private_topic = kwargs.get('instance')
+    action = kwargs.get('action')
+    relation_reverse = kwargs.get('reverse')
+
+    # This condition is necessary because this receiver is called during the creation of the private topic.
+    if private_topic.last_message:
+        if action == 'post_add' and not relation_reverse:
+            for participant in private_topic.participants.all():
+                subscription = PrivateTopicAnswerSubscription.objects \
+                    .get_or_create_active(participant.profile, private_topic)
+                subscription.send_notification(
+                    content=private_topic.last_message,
+                    sender=private_topic.last_message.author.profile,
+                    send_email=participant.profile.email_for_answer)
+
+        elif action == 'post_remove' and not relation_reverse:
+            subscriptions = PrivateTopicAnswerSubscription.objects \
+                .get_subscriptions(content_object=private_topic, is_active=True)
+            for subscription in subscriptions:
+                if subscription.profile not in private_topic.participants.all() \
+                        and subscription.profile != private_topic.author.profile:
+                    subscription.mark_notification_read()
+                    subscription.deactivate()
 
 
 @receiver(pre_delete, sender=User)

@@ -3,6 +3,7 @@
 from dry_rest_permissions.generics import DRYPermissions
 
 from django.http import QueryDict
+from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
@@ -14,14 +15,14 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
-
+from zds.member.models import Profile
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAloneInPrivatePost, IsAuthor
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
     PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
 from zds.mp.commons import LeavePrivateTopic
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
-from zds.utils.templatetags.interventions import interventions_privatetopics
+from zds.notification.models import Notification
 
 
 class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
@@ -344,7 +345,7 @@ class PrivatePostListAPI(ListCreateAPIView):
               message: Not Found
         """
         response = self.list(request, *args, **kwargs)
-        topic = get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic')))
+        topic = get_object_or_404(PrivateTopic, pk=self.kwargs.get('pk_ptopic'))
         mark_read(topic, self.request.user)
         return response
 
@@ -524,4 +525,7 @@ class PrivateTopicReadAPI(ListAPIView):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return interventions_privatetopics(user=self.get_current_user())['unread']
+        notifications = Notification.objects \
+            .get_unread_notifications_of(Profile.objects.get(user=self.get_current_user())) \
+            .filter(subscription__content_type=ContentType.objects.get_for_model(PrivateTopic))
+        return [notification.content_object.privatetopic for notification in notifications]
