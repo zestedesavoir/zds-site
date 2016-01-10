@@ -68,6 +68,9 @@ class TopicEditMixin(object):
             for follower in followers:
                 if not forum.can_read(follower.user):
                     follower.delete()
+
+            # Save topic to update update_index_date
+            topic.save()
             messages.success(request,
                              _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
         else:

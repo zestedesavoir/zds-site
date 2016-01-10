@@ -193,6 +193,10 @@ class Topic(models.Model):
                                      related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    update_index_date = models.DateTimeField(
+        'Date de dernière modification pour la réindexation partielle',
+        auto_now=True,
+        db_index=True)
 
     is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
