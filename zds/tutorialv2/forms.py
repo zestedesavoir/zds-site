@@ -601,7 +601,7 @@ class AcceptValidationForm(forms.Form):
         widget=forms.Textarea(
             attrs={
                 'placeholder': _(u'Commentaire de publication.'),
-                'rows': '2'
+                'rows': '3'
             }
         )
     )
@@ -610,6 +610,13 @@ class AcceptValidationForm(forms.Form):
         label=_(u'Version majeure ?'),
         required=False,
         initial=True
+    )
+
+    build_pdf = forms.BooleanField(
+        label=_(u'Générer le PDF'),
+        required=False,
+        initial=settings.ZDS_APP['content']['build_pdf_when_published'],
+        widget=forms.CheckboxInput()
     )
 
     source = forms.CharField(
@@ -642,6 +649,10 @@ class AcceptValidationForm(forms.Form):
 
         super(AcceptValidationForm, self).__init__(*args, **kwargs)
 
+        # disable pdf generation if not allowed
+        if not settings.ZDS_APP['content']['build_pdf_when_published']:
+            self.fields['build_pdf'].widget.attrs['disabled'] = True
+
         # if content is already published, it's probably a minor change, so do not check `is_major`
         self.fields['is_major'].initial = not validation.content.sha_public
 
@@ -653,6 +664,7 @@ class AcceptValidationForm(forms.Form):
             CommonLayoutModalText(),
             Field('source'),
             Field('is_major'),
+            Field('build_pdf'),
             StrictButton(_(u'Publier'), type='submit')
         )
 
@@ -990,3 +1002,27 @@ class WarnTypoForm(forms.Form):
                 del cleaned_data['text']
 
         return cleaned_data
+
+
+class BuildPdfForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(BuildPdfForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:build-pdf', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('version'),
+            HTML(_(u'<p><bold>Attention :</bold> cette action est très gourmande en ressources. '
+                   u'Usez en avec parcimonie.</p>')),
+            StrictButton(
+                _(u'Générer le PDF'),
+                type='submit')
+        )

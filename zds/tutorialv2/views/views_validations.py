@@ -13,10 +13,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm
+    CancelValidationForm, BuildPdfForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
 from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
-from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
+from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content, build_pdf_of_published
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
 
@@ -372,8 +372,14 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         versioned = db_object.load_version(sha=validation.version)
         self.success_url = versioned.get_absolute_url(version=validation.version)
 
+        # does we need pdf ?
+        build_pdf = settings.ZDS_APP['content']['build_pdf_when_published']
+        if 'build_pdf' in form.cleaned_data:
+            build_pdf = form.cleaned_data['build_pdf']
+
         try:
-            published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
+            published = publish_content(
+                db_object, versioned, is_major_update=form.cleaned_data['is_major'], build_pdf=build_pdf)
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
@@ -503,3 +509,33 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleConten
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
+
+
+class BuildPdf(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
+    """Rebuild the PDF.
+    """
+
+    permissions = ["tutorialv2.change_validation"]
+    form_class = BuildPdfForm
+    is_public = True
+
+    modal_form = True
+
+    def get_form_kwargs(self):
+        kwargs = super(BuildPdf, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+
+        public = self.public_content_object
+
+        build_pdf_of_published(public)
+
+        if public.have_type('pdf'):
+            messages.success(self.request, _(u'Le PDF a bien été généré.'))
+        else:
+            messages.error(self.request, _(u'Le PDF n\'a pas été généré, pandoc a terminé sur une erreur.'))
+
+        self.success_url = public.get_absolute_url_online()
+        return super(BuildPdf, self).form_valid(form)

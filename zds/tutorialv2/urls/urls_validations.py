@@ -4,7 +4,7 @@ from django.conf.urls import patterns, url
 
 from zds.tutorialv2.views.views_validations import AskValidationForContent, ReserveValidation, \
     HistoryOfValidationDisplay, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
-    ValidationListView
+    ValidationListView, BuildPdf
 
 urlpatterns = patterns('',
                        url(r'^proposer/(?P<pk>\d+)/(?P<slug>.+)/$', AskValidationForContent.as_view(),
@@ -23,5 +23,7 @@ urlpatterns = patterns('',
 
                        url(r'^depublier/(?P<pk>\d+)/(?P<slug>.+)/$', RevokeValidation.as_view(),
                            name="revoke"),
+                       url(r'^generer-pdf/(?P<pk>\d+)/(?P<slug>.+)/$', BuildPdf.as_view(),
+                           name="build-pdf"),
 
                        url(r'^$', ValidationListView.as_view(), name="list"))

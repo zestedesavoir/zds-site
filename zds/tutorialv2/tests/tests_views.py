@@ -3245,7 +3245,8 @@ class ContentTests(TestCase):
             {
                 'text': u'Je valide !',
                 'is_major': True,
-                'source': u''
+                'source': u'',
+                'build_pdf': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5148,6 +5149,215 @@ class PublishedContentTests(TestCase):
                                  os.path.getsize(os.path.join(
                                      self.published.get_extra_contents_directory(),
                                      self.published.content_public_slug + '.' + type_)))
+
+    def test_choose_pdf_generation(self):
+        """Ensure that we are allowed to delay pdf generation"""
+
+        published = PublishedContent.objects.get(pk=self.published.pk)
+        self.assertFalse(published.have_pdf())
+
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+
+        # 1. No pdf generation
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # update
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        random = u'All I waaaaant for christmaaaass iiiiiiiis ... Yooooooou !'
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': self.tuto.title,
+                'description': random,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version().compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # ask validation
+        text_validation = u'Valide, ou je te tue.'
+        text_publication = u'Ah, oui, quand même ...'
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content__pk=tuto.pk).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': False,  # minor modification (just the title)
+                'source': u'',
+                'build_pdf': False
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.get(pk=self.published.pk)
+        self.assertFalse(published.have_pdf())
+
+        # 2. PDF generation
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # update
+        random = u'So, now, we will now change this text'
+
+        result = self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': self.tuto.title,
+                'description': random,
+                'introduction': random,
+                'conclusion': random,
+                'type': u'TUTORIAL',
+                'licence': self.tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.load_version().compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+
+        # ask validation
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff and publish
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        validation = Validation.objects.filter(content__pk=tuto.pk).last()
+
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # accept
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': False,  # minor modification (just the title)
+                'source': u'',
+                'build_pdf': True
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        published = PublishedContent.objects.get(pk=self.published.pk)
+        self.assertTrue(published.have_pdf())
+
+    def test_generate_pdf_when_published(self):
+
+        self.assertFalse(self.published.have_pdf())
+
+        settings.ZDS_APP['content']['build_pdf_when_published'] = True
+
+        self.client.logout()
+
+        # cannot do that if not connected
+        result = self.client.post(
+            reverse('validation:build-pdf', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'version': self.published.sha_public
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)  # redirect to login
+        self.assertFalse(self.published.have_pdf())
+
+        # cannot do that if author
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:build-pdf', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'version': self.published.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 403)
+        self.assertFalse(self.published.have_pdf())
+
+        self.client.logout()
+
+        # login with staff and generate PDF
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:build-pdf', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
+            {
+                'version': self.published.sha_public
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        self.assertTrue(self.published.have_pdf())
 
     def tearDown(self):
 

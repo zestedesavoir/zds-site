@@ -130,6 +130,14 @@
                         {% crispy formRevokeValidation %}
                     </div>
                 </li>
+                <li>
+                    <a href="#buildpdf" class="ico-after open-modal gear blue">
+                        {% trans "Générer le PDF" %}
+                    </a>
+                    <div class="modal modal-small" id="buildpdf">
+                        {% crispy formBuildPdf %}
+                    </div>
+                </li>
                 {% endif %}
             </ul>
         </div>
