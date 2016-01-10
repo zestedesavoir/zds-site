@@ -1,7 +1,5 @@
 /* ===== Zeste de Savoir ====================================================
    Manage modals boxes
-   ---------------------------------
-   Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
 (function(document, $, undefined) {
@@ -24,9 +22,9 @@
     };
 
     Modal.openModal = function(id) {
-       if(Modal.list[id]) {
-           Modal.list[id].open();
-       }
+        if(Modal.list[id]) {
+            Modal.list[id].open();
+        }
     };
 
     Modal.prototype = {
@@ -64,9 +62,13 @@
             this.modal = this.options.modal || $("<div>", { class: "modal modal-flex" });
             this.id = this.modal.attr("id") || "noid-" + (Modal.nextId++);
             this.title = $("<div>", {
-                class: "modal-title" + this.options.titleIcon,
+                class: "modal-title",
                 text: this.options.title
             });
+
+            if(this.options.titleIcon) {
+                this.title.addClass(this.options.titleIcon + " ico-after");
+            }
 
             this.body = $("<div>", {
                 class: "modal-body"
@@ -110,7 +112,14 @@
     function buildModals($elems){
         $elems.each(function(){
             var $link = $("[href=#"+$(this).attr("id")+"]:first");
-            var linkIco = $link.hasClass("ico-after") ? " light " + $link.attr("class").replace(/btn[a-z-]*/g, "") : "";
+
+            var linkIco = "";
+            if($link.hasClass("ico-after")) {
+                linkIco = $link.attr("class").split(" ").concat(["light"]).filter(function(c) {
+                    return ["", "ico-after", "open-modal", "blue"].indexOf(c) === -1 && c.indexOf("btn-") === -1;
+                }).join(" ");
+            }
+
             new Modal({
                 title: $link.text(),
                 footer: $(this).find(".btn, [type=submit]").filter(":not(.modal-inner)").detach(),

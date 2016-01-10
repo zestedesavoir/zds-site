@@ -122,32 +122,16 @@
         }
     }
 }
+
 .enable-mobile-menu .modals-container .modal {
     margin: $modal-margin;
     box-shadow: 0 0 5px #000;
     max-width: 100%;
 
-    &.modal-small,
-    &.modal-medium,
-    &.modal-big,
-    &.modal-flex{
+    &.modal-flex {
         min-width: 400px;
         width: auto;
     }
-
-/*    &.modal-small {
-        height: 220px;
-    }
-    &.modal-medium {
-        height: 250px;
-
-        textarea {
-            height: 80px;
-        }
-    }
-    &.modal-big {
-        height: 320px;
-    }*/
 }
 
 @media only screen and #{$media-wide} {
