@@ -13,10 +13,12 @@
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-        <a href="{% url "poll-new" %}" class="new-btn ico-after more blue">
-            {% trans "Créer un sondage" %}
-        </a>
-        {% block sidebar_actions %}{% endblock %}
-        {% block new_btn %}{% endblock %}
+        {% if user.is_authenticated %}
+            <a href="{% url "poll-new" %}" class="new-btn ico-after more blue">
+                {% trans "Créer un sondage" %}
+            </a>
+            {% block sidebar_actions %}{% endblock %}
+            {% block new_btn %}{% endblock %}
+        {% endif %}
     </aside>
 {% endblock %}

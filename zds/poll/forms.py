@@ -151,13 +151,18 @@ class UniqueVoteForm(forms.ModelForm):
         self.fields['choice'].empty_label = None
         self.fields['choice'].queryset = Choice.objects.filter(poll=poll)
 
+        if kwargs.get('initial'):
+            button_label = 'Modifier mon vote'
+        else:
+            button_label = 'Voter'
+
         self.helper = FormHelper()
 
         self.helper.layout = Layout(
             Field('choice'),
             ButtonHolder(
-                StrictButton("Voter", type='submit'),
-            ),
+                StrictButton(button_label, type='submit')
+            )
         )
 
 
@@ -179,10 +184,15 @@ class MultipleVoteForm(forms.Form):
         self.fields['choices'].queryset = Choice.objects.filter(poll=poll)
         self.helper = FormHelper()
 
+        if kwargs.get('initial'):
+            button_label = 'Modifier mon vote'
+        else:
+            button_label = 'Voter'
+
         self.helper.layout = Layout(
             'choices',
             ButtonHolder(
-                StrictButton("Voter", type='submit'),
+                StrictButton(button_label, type='submit'),
             ),
         )
 
@@ -218,7 +228,13 @@ class RangeVoteFormSet(forms.BaseModelFormSet):
             Field('choice'),
             Field('range')
         )
-        self.helper.add_input(Submit("submit", "Voter"))
+
+        if kwargs.get('initial'):
+            button_label = 'Modifier mon vote'
+        else:
+            button_label = 'Voter'
+
+        self.helper.add_input(Submit("submit", button_label))
 
     def clean(self):
         super(RangeVoteFormSet, self).clean()

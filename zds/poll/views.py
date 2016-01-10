@@ -5,7 +5,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
-from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DeleteView, UpdateView
@@ -83,7 +83,6 @@ class DetailsPoll(DetailView):
                     initial_data = {'choices': choices}
                 # Range vote
                 elif poll.type_vote == RANGE_VOTE_KEY:
-                    print user_vote
                     initial_data = user_vote
 
         context['form'] = poll.get_vote_form(initial=initial_data)
@@ -94,7 +93,7 @@ class DetailsPoll(DetailView):
         poll = get_object_or_404(Poll, pk=pk)
 
         if not poll.open:
-            return HttpResponseForbidden()
+            raise PermissionDenied
 
         form = poll.get_vote_form(data=request.POST)
 
@@ -107,7 +106,7 @@ class DetailsPoll(DetailView):
                     vote.user = request.user
                     vote.save()
                 except IntegrityError:
-                    return HttpResponseForbidden()
+                    raise PermissionDenied
         # Vote multiple
         elif poll.type_vote == MULTIPLE_VOTE_KEY:
             if form.is_valid():
@@ -138,6 +137,12 @@ class UpdatePoll(LoginRequiredMixin, UpdateView):
     context_object_name = 'poll'
     form_class = UpdatePollForm
 
+    def get_object(self, queryset=None):
+        obj = super(UpdatePoll, self).get_object()
+        if not obj.user == self.request.user:
+            raise PermissionDenied
+        return obj
+
 
 class DeletePoll(LoginRequiredMixin, DeleteView):
     model = Poll
@@ -146,3 +151,9 @@ class DeletePoll(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('poll-list')
+
+    def get_object(self, queryset=None):
+        obj = super(DeletePoll, self).get_object()
+        if not obj.user == self.request.user:
+            raise PermissionDenied
+        return obj

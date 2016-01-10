@@ -134,7 +134,7 @@ class Vote(models.Model):
     user = models.ForeignKey(User)
 
     @staticmethod
-    def get_form(poll, data=None, **kw):
+    def get_form(poll, data=None, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -149,9 +149,9 @@ class UniqueVote(Vote):
         unique_together = (('user', 'choice'), ('user', 'poll'))
 
     @staticmethod
-    def get_form(poll, data=None, **kw):
+    def get_form(poll, data=None, *args, **kwargs):
         from zds.poll.forms import UniqueVoteForm
-        return UniqueVoteForm(poll, data=data, **kw)
+        return UniqueVoteForm(poll, data=data, *args, **kwargs)
 
 
 class MultipleVote(Vote):
@@ -165,9 +165,9 @@ class MultipleVote(Vote):
         unique_together = ('user', 'choice', 'poll')
 
     @staticmethod
-    def get_form(poll, data=None, **kw):
+    def get_form(poll, data=None, *args, **kwargs):
         from zds.poll.forms import MultipleVoteForm
-        return MultipleVoteForm(poll, data=data, **kw)
+        return MultipleVoteForm(poll, data=data, *args, **kwargs)
 
 
 class RangeVote(Vote):
@@ -180,7 +180,7 @@ class RangeVote(Vote):
     range = models.IntegerField(choices=RANGES, blank=False)
 
     @staticmethod
-    def get_form(poll, data=None, **kw):
+    def get_form(poll, data=None, *args, **kwargs):
         from zds.poll.forms import RangeVoteModelForm, RangeVoteFormSet
         if data:
             range_vote_formset = forms.modelformset_factory(
@@ -195,7 +195,7 @@ class RangeVote(Vote):
             count_choices = len(choices)
 
             # Check if there is some initial data
-            kw_initial = kw.get('initial')
+            kw_initial = kwargs.get('initial')
             initial_range = {}
             if kw_initial:
                 for initial_choice in kw_initial:
@@ -203,17 +203,12 @@ class RangeVote(Vote):
 
             for choice in choices:
                 if kw_initial:
-                    range = initial_range[choice.pk]
+                    choice_range = initial_range[choice.pk]
                 else:
                     # Par default : indifférent
-                    range = 0
+                    choice_range = 0
+                initial_data.append({'choice': choice, 'range': choice_range})
 
-                initial_data.append(
-                    {
-                        'choice': choice,
-                        'range': range,
-                    }
-                )
             range_vote_formset = forms.modelformset_factory(
                 RangeVote,
                 form=RangeVoteModelForm,
