@@ -444,12 +444,13 @@ class PublishableContent(models.Model):
 
         return self.first_note()
 
-    def first_unread_note(self):
+    def first_unread_note(self, user=None):
         """
         :return: Return the first note the user has unread.
         :rtype: ContentReaction
         """
-        user = get_current_user()
+        if user is None:
+            user = get_current_user()
 
         if user and user.is_authenticated():
             try:
