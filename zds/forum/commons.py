@@ -206,6 +206,10 @@ class PostEditMixin(object):
         post.update = datetime.now()
         post.editor = user
         post.save()
+
+        if post.position == 1:
+            # Save topic to update update_index_date
+            post.topic.save()
         return post
 
 
