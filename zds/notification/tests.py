@@ -6,8 +6,12 @@ from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic
+from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.notification.models import Notification, TopicAnswerSubscription
+from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription
+from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
+    ContentReactionFactory
+from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
 
 
@@ -203,3 +207,66 @@ class NotificationForumTest(TestCase):
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
         self.assertEqual(1, len(notifications))
+
+
+class NotificationPublishableContentTest(TestCase):
+    def setUp(self):
+        self.profile1 = ProfileFactory()
+        self.profile2 = ProfileFactory()
+
+        # create a tutorial
+        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto.authors.add(self.profile1.user)
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.profile1.user, mode='W')
+        self.tuto.licence = LicenceFactory()
+        self.tuto.subcategory.add(SubCategoryFactory())
+        self.tuto.save()
+        tuto_draft = self.tuto.load_version()
+
+        # then, publish it !
+        version = tuto_draft.current_version
+        self.published = publish_content(self.tuto, tuto_draft, is_major_update=True)
+
+        self.tuto.sha_public = version
+        self.tuto.sha_draft = version
+        self.tuto.public_version = self.published
+        self.tuto.save()
+
+        self.assertTrue(self.client.login(username=self.profile1.user.username, password='hostel77'))
+
+    def test_answer_subscription(self):
+        """
+        When a user post on a publishable content, a subscription is created for this user.
+        """
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(
+            profile=self.profile1, content_object=self.tuto)
+        self.assertIsNone(subscription)
+
+        result = self.client.post(reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk), {
+            'text': u'message',
+            'last_note': '0'
+        }, follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(
+            profile=self.profile1, content_object=self.tuto)
+        self.assertTrue(subscription.is_active)
+
+    def test_notification_read(self):
+        """
+        When we have a notification a reaction, this notification is marked as read
+        when we display it at the user.
+        """
+        ContentReactionFactory(related_content=self.tuto, author=self.profile1.user, position=1)
+        last_note = ContentReactionFactory(related_content=self.tuto, author=self.profile2.user, position=2)
+        self.tuto.last_note = last_note
+        self.tuto.save()
+
+        notification = Notification.objects.get(subscription__profile=self.profile1)
+        self.assertFalse(notification.is_read)
+
+        result = self.client.get(reverse('tutorial:view', args=[self.tuto.pk, self.tuto.slug]), follow=False)
+        self.assertEqual(result.status_code, 200)
+
+        notification = Notification.objects.get(subscription__profile=self.profile1)
+        self.assertTrue(notification.is_read)

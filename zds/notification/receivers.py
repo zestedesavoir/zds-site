@@ -8,9 +8,10 @@ from django.dispatch import receiver
 
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicAnswerSubscription, Subscription, Notification
+from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
+    Subscription, Notification
 from zds.notification.signals import answer_unread, content_read
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
 
 def disable_for_loaddata(signal_handler):
@@ -67,11 +68,15 @@ def mark_content_reactions_read(sender, **kwargs):
     :param kwargs:  contains
         - instance : the content marked as read
         - user : the user reading the content
-    Marks as read the notifications of the AnswerSubscription of the user to the content (tutorial or article)/
-    (This documentation will be okay with the v2 of ZEP-24)
+    Marks as read the notifications of the AnswerSubscription of the user to the publishable content.
     """
+    content_reaction = kwargs.get('instance')
+    user = kwargs.get('user')
 
-    pass
+    subscription = ContentReactionAnswerSubscription.objects\
+        .get_existing(user.profile, content_reaction, is_active=True)
+    if subscription:
+        subscription.mark_notification_read()
 
 
 @receiver(content_read, sender=PrivateTopic)
@@ -107,6 +112,29 @@ def answer_topic_event(sender, **kwargs):
 
         # Follow topic on answering
         TopicAnswerSubscription.objects.get_or_create_active(post.author.profile, post.topic)
+
+
+@receiver(post_save, sender=ContentReaction)
+@disable_for_loaddata
+def answer_content_reaction_event(sender, **kwargs):
+    """
+    :param kwargs: contains
+        - instance: the new content reaction.
+    Sends ContentReactionAnswerSubscription to the subscribers to the content reaction and
+    subscribe the author to the following answers to the publishable content.
+    """
+    if kwargs.get('created', True):
+        content_reaction = kwargs.get('instance')
+        publishable_content = content_reaction.related_content
+        author = content_reaction.author.profile
+
+        subscription_list = ContentReactionAnswerSubscription.objects.get_subscriptions(publishable_content)
+        for subscription in subscription_list:
+            if subscription.profile != author:
+                subscription.send_notification(content=content_reaction, sender=author)
+
+        # Follow publishable content on answering
+        ContentReactionAnswerSubscription.objects.get_or_create_active(author, publishable_content)
 
 
 @receiver(pre_delete, sender=User)

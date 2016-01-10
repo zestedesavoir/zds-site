@@ -4,14 +4,13 @@ import time
 from datetime import datetime, timedelta
 
 from django import template
-from django.db.models import F
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, never_read as never_read_topic
 from zds.member.models import Profile
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification, TopicAnswerSubscription
-from zds.tutorialv2.models.models_database import ContentRead, ContentReaction
+from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
 
@@ -105,20 +104,6 @@ def interventions_topics(user):
                              'author': notification.sender.user,
                              'title': notification.title,
                              'url': notification.url})
-
-    for content_read in content_to_read:
-        content = content_read.content
-        if content.pk not in content_followed_pk and user not in content.authors.all():
-            continue
-        reaction = content.first_unread_note()
-        if reaction is None:
-            reaction = content.first_note()
-        if reaction is None:
-            continue
-        posts_unread.append({'pubdate': reaction.pubdate,
-                             'author': reaction.author,
-                             'title': content.title,
-                             'url': reaction.get_absolute_url()})
 
     posts_unread.sort(cmp=comp)
 

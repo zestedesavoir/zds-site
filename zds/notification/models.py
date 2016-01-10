@@ -227,6 +227,18 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
             .format(self.profile, self.object_id)
 
 
+class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
+    """
+    Subscription to new answer in a publishable content.
+    """
+    module = _(u'Contenu')
+    objects = SubscriptionManager()
+
+    def __unicode__(self):
+        return _(u'<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
+            .format(self.profile, self.object_id)
+
+
 class Notification(models.Model):
     """
     A notification
