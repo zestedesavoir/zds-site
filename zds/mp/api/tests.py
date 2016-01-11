@@ -231,7 +231,7 @@ class PrivateTopicListAPITest(APITestCase):
         data = {
             'title': 'I love ice cream!',
             'subtitle': 'Come eat one with me.',
-            'participants': [another_profile.user.id,],
+            'participants': [another_profile.user.id],
             'text': 'Welcome to this private topic!'
         }
         response = self.client.post(reverse('api-mp-list'), data)
@@ -253,7 +253,7 @@ class PrivateTopicListAPITest(APITestCase):
         another_profile = ProfileFactory()
         data = {
             'title': 'I love ice cream!',
-            'participants': [another_profile.user.id,],
+            'participants': [another_profile.user.id],
             'text': 'Welcome to this private topic!'
         }
         response = self.client.post(reverse('api-mp-list'), data)
@@ -275,7 +275,7 @@ class PrivateTopicListAPITest(APITestCase):
         another_profile = ProfileFactory()
         data = {
             'subtitle': 'Come eat one with me.',
-            'participants': [another_profile.user.id,],
+            'participants': [another_profile.user.id],
             'text': 'Welcome to this private topic!'
         }
         response = self.client.post(reverse('api-mp-list'), data)
@@ -305,7 +305,7 @@ class PrivateTopicListAPITest(APITestCase):
         data = {
             'title': 'I love ice cream!',
             'subtitle': 'Come eat one with me.',
-            'participants': [another_profile.user.id,],
+            'participants': [another_profile.user.id],
         }
         response = self.client.post(reverse('api-mp-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -322,7 +322,7 @@ class PrivateTopicListAPITest(APITestCase):
         data = {
             'title': 'I love ice cream!',
             'subtitle': 'Come eat one with me.',
-            'participants': [anonymous_user.id,],
+            'participants': [anonymous_user.id],
         }
         response = self.client.post(reverse('api-mp-list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -463,7 +463,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         """
         another_profile = ProfileFactory()
         data = {
-            'participants': [another_profile.user.id,]
+            'participants': [another_profile.user.id]
         }
         response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
 
@@ -503,7 +503,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         anonymous_user.groups.add(self.bot_group)
         anonymous_user.save()
         data = {
-            'participants': [anonymous_user.id,]
+            'participants': [anonymous_user.id]
         }
         response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -540,7 +540,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         authenticate_client(self.client, client_oauth2, another_profile.user.username, 'hostel77')
 
         data = {
-            'participants': [third_profile.user.id,]
+            'participants': [third_profile.user.id]
         }
         response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
