@@ -94,12 +94,12 @@
                 <a href="#delete-conversations" class="open-modal ico-after cross red">
                     {% trans "Supprimer les conversations sélectionnées" %}
                 </a>
-                
-                <form action="{% url "mp-list-delete" %}" method="post" id="delete-conversations" class="modal modal-small">
+
+                <form action="{% url "mp-list-delete" %}" method="post" id="delete-conversations" class="modal modal-flex">
                     <p>
                         {% trans "Attention, vous vous appretez à supprimer toutes les conversations sélectionnées" %}.
                     </p>
-                    
+
                     {% csrf_token %}
                     <button type="submit" name="delete" class="btn">{% trans "Confirmer" %}</button>
                 </form>

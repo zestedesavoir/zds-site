@@ -93,7 +93,8 @@ class UserGalleryForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(UserGalleryForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'clearfix'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'add-user-modal'
         self.helper.form_action = reverse('zds.gallery.views.modify_gallery')
         self.helper.form_method = 'post'
 

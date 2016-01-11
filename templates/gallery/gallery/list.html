@@ -91,12 +91,12 @@
                     <a href="#delete-galleries" class="open-modal ico-after cross red">
                         {% trans "Supprimer les galeries sélectionnées" %}
                     </a>
-                    
-                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-small">
+
+                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-flex">
                         <p>
                             {% trans "Attention, vous vous appretez à supprimer toutes les galeries sélectionnées" %}.
                         </p>
-                        
+
                         {% csrf_token %}
                         <button type="submit" name="delete_multi" class="btn">{% trans "Confirmer" %}</button>
                     </form>

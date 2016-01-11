@@ -169,7 +169,7 @@ gulp.task("jshint", function() {
  * Merge vendors and app scripts
  */
 gulp.task("merge-scripts", ["vendors", "scripts"], function() {
-  return gulp.src(path.join(destDir, scriptsDir, "{vendors,main}.js"))
+  return gulp.src([path.join(destDir, scriptsDir, "vendors.js"), path.join(destDir, scriptsDir, "main.js")])
     .pipe($.sourcemaps.init({ loadMaps: true }))
       .pipe($.concat("all.js"))
     .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))

@@ -55,7 +55,7 @@
 
     {% include "misc/paginator.html" with position="top" %}
 
-    
+
     <div>
         {% for message in posts %}
             {% captureas edit_link %}
@@ -71,7 +71,7 @@
             {% else %}
                 {% set False as can_edit %}
             {% endif %}
-    
+
             {% include "misc/message.part.html" with can_hide=False %}
         {% endfor %}
     </div>
@@ -80,7 +80,7 @@
     {% include "misc/paginator.html" with position="bottom" %}
 
 
-    
+
     {% captureas form_action %}
         {% url "private-posts-new" topic.pk topic.slug %}
     {% endcaptureas %}
@@ -99,7 +99,7 @@
                     <a href="#add-participant" class="open-modal ico-after more blue">
                         {% trans "Ajouter un membre" %}
                     </a>
-                    <form action="{% url "mp-edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-medium">
+                    <form action="{% url "mp-edit-participant" topic.pk topic.slug %}" method="post" id="add-participant" class="modal modal-flex">
                         <p>
                             {% trans "Vous allez rajouter un nouveau membre dans la conversation privée" %}.
                         </p>
@@ -125,7 +125,7 @@
                 <a href="#leave-conversation" class="open-modal ico-after cross blue">
                     {% trans "Quitter la conversation" %}
                 </a>
-                <form action="{% url "mp-delete" topic.pk topic.slug %}" method="post" id="leave-conversation" class="modal modal-small">
+                <form action="{% url "mp-delete" topic.pk topic.slug %}" method="post" id="leave-conversation" class="modal modal-flex">
                     <p>
                         {% trans "Attention, vous vous apprêtez à quitter définitivement cette conversation" %}.
                     </p>

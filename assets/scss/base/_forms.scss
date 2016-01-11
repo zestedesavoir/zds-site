@@ -1,5 +1,5 @@
 .content-container,
-#modals {
+.modals-container {
     form {
         width: 100%;
 
@@ -238,7 +238,9 @@
         margin: 0 auto;
         text-align: center;
     }
+}
 
+.content-container {
     .btn-holder,
     .buttonHolder /* specifix for crispy */ {
         margin-top: 25px;
@@ -248,7 +250,7 @@
 
 .wf-active {
     .content-container,
-    #modals {
+    .modals-container {
         textarea {
             font-family: $font-monospace-active;
         }
@@ -256,7 +258,7 @@
 }
 
 .main-container,
-#modals {
+.modals-container {
     input[type=radio],
     input[type=checkbox] {
         float: left;
@@ -299,7 +301,7 @@
 
 @media only screen and #{$media-wide} {
     .content-container,
-    #modals {
+    .modals-container {
         form.content-wrapper {
             margin: 0;
             width: 100%;
