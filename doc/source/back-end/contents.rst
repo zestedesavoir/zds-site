@@ -596,7 +596,7 @@ Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
 - ``notes_per_page``: Nombre de réaction nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
 - ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP03
 - ``feed_length``: Nombre de contenus affiché dans un flux RSS ou ATOM,
-- ``user_page_number``: 5,
+- ``user_page_number``:  Nombre de contenu de chaque type qu'on affiche sur le profil d'un utilisateur par défaut 5,
 - ``default_image``: chemin vers l'image utilisée par défaut dans les icônes de contenu,
 - ``import_image_prefix``: préfixe mnémonique permettant d'indiquer que l'image se trouve dans l'archive jointe lors de l'import de contenu
 - ``build_pdf_when_published``: indique que la publication génèrera un PDF (quelque soit la politique, si ``False`` les PDF ne seront pas générés, sauf à appeler la commande adéquate,
