@@ -45,9 +45,9 @@ def home(request):
 
     try:
         with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
-            suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + ', ...'
+            suggestions = ', '.join(random.sample(suggestions_file.readlines(), 5)) + '...'
     except IOError:
-        suggestions = 'Mathématiques, UDK, HTML, Java, Python'
+        suggestions = 'Mathématiques, Droit, UDK, Langues, Python...'
 
     return render(request, 'home.html', {
         'featured_message': FeaturedMessage.objects.get_last_message(),
