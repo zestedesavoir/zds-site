@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'rest_framework',
     'rest_framework_swagger',
+    'dry_rest_permissions',
     'corsheaders',
     'oauth2_provider',
     'captcha',

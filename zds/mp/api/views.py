@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
     get_object_or_404, RetrieveUpdateAPIView, ListAPIView
@@ -51,7 +51,6 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
     Private topic resource to list of a member.
     """
 
-    permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('title',)
     ordering_fields = ('pubdate', 'last_message', 'title')
@@ -166,6 +165,12 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
         elif self.request.method == 'POST':
             return PrivateTopicCreateSerializer
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, ]
+        if self.request.method == 'GET' or self.request.method == 'POST':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         if self.request.method == 'DELETE':
             list = self.request.data.getlist('pk')
@@ -178,7 +183,6 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
     Private topic resource to display details of a private topic.
     """
 
-    permission_classes = (IsAuthenticated, IsParticipant)
     queryset = PrivateTopic.objects.all()
     obj_key_func = DetailKeyConstructor()
 
@@ -241,7 +245,6 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
             - code: 404
               message: Not found
         """
-        self.permission_classes = (IsAuthenticated, IsAuthor,)
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
@@ -273,19 +276,25 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
         elif self.request.method == 'PUT':
             return PrivateTopicUpdateSerializer
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipant, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'PUT':
+            permission_classes.append(DRYPermissions)
+            permission_classes.remove(IsParticipant)
+            permission_classes.append(IsAuthor)
+        return [permission() for permission in permission_classes]
+
 
 class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
     """
     Private post resource to list of a member.
     """
 
-    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('position_in_topic', 'pubdate', 'update')
     list_key_func = PagingPrivatePostListKeyConstructor()
-
-    def dispatch(self, request, *args, **kwargs):
-        return super(PrivatePostListAPI, self).dispatch(request, *args, **kwargs)
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -351,7 +360,6 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
             - code: 404
               message: Not found
         """
-        self.permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, IsAloneInPrivatePost)
         return self.create(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -359,6 +367,15 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
             return PrivatePostSerializer
         elif self.request.method == 'POST':
             return PrivatePostCreateSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'POST':
+            permission_classes.append(IsAloneInPrivatePost)
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))
@@ -371,7 +388,6 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
 
     queryset = PrivatePost.objects.all()
     obj_key_func = DetailKeyConstructor()
-    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -425,7 +441,6 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
             - code: 404
               message: Not found
         """
-        self.permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser)
         return self.update(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -433,6 +448,15 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
             return PrivatePostSerializer
         elif self.request.method == 'PUT':
             return PrivatePostUpdateSerializer
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'PUT':
+            permission_classes.append(DRYPermissions)
+            permission_classes.append(IsLastPrivatePostOfCurrentUser)
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs['pk_ptopic'])
@@ -444,7 +468,6 @@ class PrivateTopicReadAPI(ListAPIView):
     """
 
     serializer_class = PrivateTopicSerializer
-    permission_classes = (IsAuthenticated,)
     list_key_func = PagingPrivateTopicUnreadListKeyConstructor()
 
     @etag(list_key_func)
@@ -481,6 +504,12 @@ class PrivateTopicReadAPI(ListAPIView):
 
     def get_current_user(self):
         return self.request.user
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return interventions_privatetopics(user=self.get_current_user())['unread']

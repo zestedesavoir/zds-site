@@ -360,6 +360,30 @@ class Profile(models.Model):
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return True
+
+    @staticmethod
+    def has_write_permission(request):
+        return True
+
+    def has_object_write_permission(self, request):
+        return self.has_object_update_permission(request) or request.user.has_perm("member.change_profile")
+
+    def has_object_update_permission(self, request):
+        return request.user.is_authenticated() and request.user == self.user
+
+    @staticmethod
+    def has_ban_permission(request):
+        return True
+
+    def has_object_ban_permission(self, request):
+        return request.user and request.user.has_perm("member.change_profile")
+
 
 @receiver(models.signals.post_delete, sender=User)
 def auto_delete_token_on_unregistering(sender, instance, **kwargs):

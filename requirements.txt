@@ -30,6 +30,7 @@ django-oauth-toolkit==0.9.0
 drf-extensions==0.2.7
 django-rest-swagger==0.2.9
 django-cors-headers==1.0.0
+dry-rest-permissions==0.1.6
 
 # Zep 12 dependency
 django-uuslug==1.0.3
