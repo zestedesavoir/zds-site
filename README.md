@@ -95,6 +95,10 @@ Pour générer la documentation en local, rendez-vous dans le répertoire `zds-s
 
 Vous trouverez tout sur [la page dédiée de la documentation](CONTRIBUTING.md)
 
+### Code de Conduite Contributeurs
+
+En contribuant, vous vous engagez à respecter le [Code de Conduite Contributeurs](CODE_OF_CONDUCT.md).
+
 
 ## En savoir plus
 
