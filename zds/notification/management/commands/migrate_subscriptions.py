@@ -1,10 +1,11 @@
 # coding: utf-8
 from django.core.management import BaseCommand
-from django.db.models import F
-
+from django.db.models import F, Q
 from zds.forum.models import TopicRead
 from zds.member.models import Profile
-from zds.notification.models import TopicFollowed, TopicAnswerSubscription, ContentReactionAnswerSubscription
+from zds.mp.models import PrivateTopicRead, PrivateTopic
+from zds.notification.models import TopicFollowed, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
+    PrivateTopicAnswerSubscription
 from zds.tutorialv2.models.models_database import ContentReaction, ContentRead
 
 
@@ -33,6 +34,42 @@ class Command(BaseCommand):
 
                 # Migrate notifications.
                 subscription.send_notification(content=content, sender=content.author.profile)
+                notification = TopicAnswerSubscription.objects\
+                    .get_existing(profile, content_object, is_active=True).last_notification
+                notification.pubdate = content.pubdate
+                notification.save()
+
+            # Private messages.
+            topics_never_read = list(PrivateTopicRead.objects
+                                     .filter(user=profile.user)
+                                     .filter(privatepost=F('privatetopic__last_message')).all())
+
+            tnrs = []
+            for tnr in topics_never_read:
+                tnrs.append(tnr.privatetopic.pk)
+
+            private_topics_unread = PrivateTopic.objects \
+                .filter(Q(author=profile.user) | Q(participants__in=[profile.user])) \
+                .exclude(pk__in=tnrs) \
+                .select_related("privatetopic") \
+                .order_by("-pubdate") \
+                .distinct()
+
+            for private_topic_unread in private_topics_unread:
+                answer = private_topic_unread.last_read_post(profile.user)
+                if answer is None:
+                    answer = private_topic_unread.get_last_answer()
+
+                # Migrate subscriptions.
+                subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(
+                    profile=profile, content_object=private_topic_unread)
+
+                # Migrate notifications.
+                subscription.send_notification(content=answer, sender=answer.author.profile, send_email=False)
+                notification = PrivateTopicAnswerSubscription.objects\
+                    .get_existing(profile, private_topic_unread, is_active=True).last_notification
+                notification.pubdate = answer.pubdate
+                notification.save()
 
             # Contents.
             content_followed_pk = ContentReaction.objects\
@@ -64,3 +101,7 @@ class Command(BaseCommand):
 
                 # Migrate notifications.
                 subscription.send_notification(content=reaction, sender=reaction.author.profile)
+                notification = ContentReactionAnswerSubscription.objects\
+                    .get_existing(profile, content_object, is_active=True).last_notification
+                notification.pubdate = reaction.pubdate
+                notification.save()
