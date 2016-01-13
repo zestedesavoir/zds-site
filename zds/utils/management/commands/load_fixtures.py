@@ -106,8 +106,8 @@ def load_gallery(cli, size, fake):
     """
     Load galleries
     """
-    nb_galleries = size * 3
-    nb_images = size * 5
+    nb_galleries = size * 1
+    nb_images = size * 3
     cli.stdout.write(u"Nombres de galéries à créer par utilisateur: {}".format(nb_galleries))
     cli.stdout.write(u"Nombres d'images à créer par gallerie: {}".format(nb_images))
     tps1 = time.time()
@@ -134,7 +134,7 @@ def load_categories_forum(cli, size, fake):
     """
     Load categories
     """
-    nb_categories = size * 2
+    nb_categories = size * 4
     cli.stdout.write(u"Nombres de catégories de forum à créer : {}".format(nb_categories))
     tps1 = time.time()
     for i in range(0, nb_categories):
@@ -176,7 +176,7 @@ def load_tags(cli, size, fake):
     """
     Load tags
     """
-    nb_tags = size * 50
+    nb_tags = size * 30
     cli.stdout.write(u"Nombres de Tags de forum à créer : {}".format(nb_tags))
     tps1 = time.time()
     for i in range(0, nb_tags):
@@ -193,7 +193,7 @@ def load_topics(cli, size, fake):
     """
     Load topics
     """
-    nb_topics = size * 20
+    nb_topics = size * 10
     cli.stdout.write(u"Nombres de Topics à créer : {}".format(nb_topics))
     tps1 = time.time()
     nb_forums = Forum.objects.count()
@@ -240,7 +240,7 @@ def load_posts(cli, size, fake):
     """
     Load posts
     """
-    nb_avg_posts_in_topic = size * 10
+    nb_avg_posts_in_topic = size * 20
     cli.stdout.write(u"Nombres de messages à poster en moyenne dans un sujet : {}".format(nb_avg_posts_in_topic))
     tps1 = time.time()
     nb_topics = Topic.objects.count()
@@ -326,7 +326,7 @@ def load_comment_content(cli, size, fake):
     """
     Load content's comments
     """
-    nb_avg_posts = size * 10
+    nb_avg_posts = size * 20
     cli.stdout.write(u"Nombres de messages à poster en moyenne : {}".format(nb_avg_posts))
     tps1 = time.time()
     contents = list(PublishableContent.objects.filter(sha_public__isnull=False))
@@ -354,9 +354,9 @@ def load_contents(cli, _type, size, fake):
     """Create v2 contents"""
 
     nb_contents = size * 10
-    percent_contents_in_validation = 0.4
-    percent_contents_with_validator = 0.2
-    percent_contents_public = 0.3
+    percent_contents_in_validation = 0.2
+    percent_contents_with_validator = 0.1
+    percent_contents_public = 0.6
     percent_mini = 0.5
     percent_medium = 0.3
     percent_big = 0.2
@@ -522,9 +522,37 @@ def load_contents(cli, _type, size, fake):
 
 @transaction.atomic
 class Command(BaseCommand):
-    args = 'size=[low|medium|high] type=member,staff,gallery,category_forum,category_content'
-    help = 'Load fixtures for ZdS'
-    # python manage.py load_fixtures size=low module=staff racine=user
+    args = 'size=[low|medium|high] type=member,staff,category_forum,category_content,forum,tag,topic,post,note,galler' \
+           'y,article,tutorial,comment,reaction racine=user'
+    help = '''Load fixtures for ZdS
+
+Usage: {}
+Options:
+    racine  The prefix for users. Default: user.
+    size    Size level: low (x1), medium (x2) or high (x3). Default: low.
+    type    Type of content you want to create. You could add many types separated by a comma. Default: all types.
+            Types available:
+                article
+                category_content
+                category_forum
+                comment
+                forum
+                gallery
+                member
+                note
+                post
+                reaction
+                staff
+                tag
+                topic
+                tutorial
+Examples:
+    All:
+        python manage.py load_fixtures
+    All with high size:
+        python manage.py load_fixtures size=high
+    Only users with medium size and a different racine:
+        python manage.py load_fixtures size=medium type=member,staff racine=john'''.format(args)
 
     def handle(self, *args, **options):
         default_size = "low"
@@ -537,14 +565,15 @@ class Command(BaseCommand):
                           "tag",
                           "topic",
                           "post",
-                          "article",
                           "note",
                           "gallery",
+                          "article",
                           "tutorial",
-                          "article2",
-                          "tutorial2",
                           "comment",
                           "reaction"]
+        if len(args) == 1 and args[0] == 'help':
+            self.stdout.write(self.help)
+            exit()
         for arg in args:
             options = arg.split("=")
             if len(options) < 2:
@@ -585,9 +614,9 @@ class Command(BaseCommand):
             load_posts(self, size, fake)
         if "category_content" in default_module:
             load_categories_content(self, size, fake)
-        if "tutorial2" in default_module:
+        if "tutorial" in default_module:
             load_contents(self, "TUTORIAL", size, fake)
-        if "article2" in default_module:
+        if "article" in default_module:
             load_contents(self, "ARTICLE", size, fake)
         if "comment" in default_module:
             load_comment_content(self, size, fake)
