@@ -371,14 +371,14 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         db_object = validation.content
         versioned = db_object.load_version(sha=validation.version)
         self.success_url = versioned.get_absolute_url(version=validation.version)
-
+        is_update = db_object.sha_public
         try:
             published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
             # save in database
-            is_update = db_object.sha_public and db_object.sha_public != ''
+
             db_object.sha_public = validation.version
             db_object.source = form.cleaned_data['source']
             db_object.sha_validation = None
