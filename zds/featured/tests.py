@@ -62,7 +62,8 @@ class FeaturedResourceCreateViewTest(TestCase):
                 'type': 'type',
                 'image_url': 'image_url',
                 'url': 'url',
-                'authors': staff.user.username
+                'authors': staff.user.username,
+                'pubdate': '2016-12-25 00:00:00'
             },
             follow=True
         )
