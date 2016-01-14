@@ -22,22 +22,25 @@ class KarmaView(View):
     def get_response_object(self):
         anon_id_limit = settings.VOTES_ID_LIMIT
 
-        try:
-            user_vote = 'like' if CommentVote.objects.get(user=self.request.user,
-                                                          comment=self.object).positive else 'dislike'
-        except CommentVote.DoesNotExist:
+        if(self.request.user.is_authenticated()):
+            try:
+                user_vote = 'like' if CommentVote.objects.get(user=self.request.user,
+                                                              comment=self.object).positive else 'dislike'
+            except CommentVote.DoesNotExist:
+                user_vote = 'neutral'
+        else:
             user_vote = 'neutral'
 
         votes = CommentVote.objects.filter(comment=self.object, id__gt=anon_id_limit).select_related('user').all()
         resp = {
             'like': {
                 'count': self.object.like,
-                'list': [{'username': vote.user.username,
+                'list': [{'username': vote.user.username, 'link': vote.user.get_absolute_url(),
                           'avatarUrl': vote.user.profile.get_avatar_url()} for vote in votes if vote.positive]
             },
             'dislike': {
                 'count': self.object.dislike,
-                'list': [{'username': vote.user.username,
+                'list': [{'username': vote.user.username, 'link': vote.user.get_absolute_url(),
                           'avatarUrl': vote.user.profile.get_avatar_url()} for vote in votes if not vote.positive]
             },
             'user': user_vote

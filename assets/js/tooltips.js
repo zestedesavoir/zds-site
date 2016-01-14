@@ -199,7 +199,7 @@
     $.fn.tooltip = function(content) {
         var tooltip = $(this).data("tooltip");
         if(tooltip) {
-            tooltip.setContent(content);
+            if(content) tooltip.setContent(content);
         } else {
             tooltip = new Tooltip({ target: this, content: content });
             $(this).data("tooltip", tooltip);

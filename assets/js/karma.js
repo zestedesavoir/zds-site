@@ -29,16 +29,6 @@
             this.karmaElem = this.message.find(".message-karma");
 
             /**
-             * @member {jQuery} - The like button
-             */
-            this.upvoteButton = this.karmaElem.find(".upvote");
-
-            /**
-             * @member {jQuery} - The dislike button
-             */
-            this.downvoteButton = this.karmaElem.find(".downvote");
-
-            /**
              * @member {string} - Endpoint to vote & fetch karma update
              */
             this.karmaURI = this.karmaElem.data("karma-uri");
@@ -48,8 +38,19 @@
              */
             this.csrf = $("input[name=csrfmiddlewaretoken]").val();
 
-            this.upvoteButton.tooltip(this.upvoteButton.hasClass("has-vote") ? "Chargement..." : "");
-            this.downvoteButton.tooltip(this.downvoteButton.hasClass("has-vote") ? "Chargement..." : "");
+            this.like = {};
+            this.dislike = {};
+
+            this.like.button = this.karmaElem.find(".upvote");
+            this.dislike.button = this.karmaElem.find(".downvote");
+
+            this.like.tooltip = this.like.button.tooltip(this.like.button.hasClass("has-vote") ? "Chargement..." : "");
+            this.dislike.tooltip = this.dislike.button.tooltip(this.dislike.button.hasClass("has-vote") ? "Chargement..." : "");
+
+            $(this.like.tooltip.elem).add(this.dislike.tooltip.elem).on("click", this.showDetails.bind(this));
+
+            this.like.listElem = $("<ul>", { class: "vote-list like" });
+            this.dislike.listElem = $("<ul>", { class: "vote-list dislike" });
 
             /**
              * @member {boolean} - True if the message can be voted
@@ -57,16 +58,16 @@
             this.canVote = this.karmaElem.hasClass("can-vote");
             this.updateInterval = 30 * 1000;
             if(this.canVote) {
-                this.upvoteButton.on("click", this.vote.bind(this, "like"));
-                this.downvoteButton.on("click", this.vote.bind(this, "dislike"));
+                this.like.button.on("click", this.vote.bind(this, "like"));
+                this.dislike.button.on("click", this.vote.bind(this, "dislike"));
             }
 
-            this.upvoteButton.on("mouseover", this.regularUpdate.bind(this));
-            this.downvoteButton.on("mouseover", this.regularUpdate.bind(this));
+            this.like.button.on("mouseover", this.regularUpdate.bind(this));
+            this.dislike.button.on("mouseover", this.regularUpdate.bind(this));
 
-            if(this.upvoteButton.hasClass("voted")) {
+            if(this.like.button.hasClass("voted")) {
                 this.currentVote = "like";
-            } else if(this.downvoteButton.hasClass("voted")) {
+            } else if(this.dislike.button.hasClass("voted")) {
                 this.currentVote = "dislike";
             } else {
                 this.currentVote = "neutral";
@@ -126,8 +127,8 @@
          * @param {string} data.user - User vote, "like", "dislike" or "neutral"
          */
         update: function(data) {
-            this.updateOne(data, "like", "dislike", this.upvoteButton);
-            this.updateOne(data, "dislike", "like", this.downvoteButton);
+            this.updateOne(data, "like", "dislike");
+            this.updateOne(data, "dislike", "like");
             this.currentVote = data.user;
         },
 
@@ -139,25 +140,24 @@
          * @param {Object} data - See Karma.update data parameter
          * @param {string} sign - The sign of the button ("like" or "dislike")
          * @param {string} otherSign - The sign of the other button ("like" or "dislike")
-         * @param {jQuery} button - The button to update
          */
-        updateOne: function(data, sign, otherSign, button) {
+        updateOne: function(data, sign, otherSign) {
             if(data[sign].count > 0) {
-                button.addClass("has-vote");
+                this[sign].button.addClass("has-vote");
             } else {
-                button.removeClass("has-vote");
+                this[sign].button.removeClass("has-vote");
             }
 
             if(data[sign].count > data[otherSign].count) {
-                button.addClass("more-voted");
+                this[sign].button.addClass("more-voted");
             } else {
-                button.removeClass("more-voted");
+                this[sign].button.removeClass("more-voted");
             }
 
             if(data.user === sign) {
-                button.addClass("voted");
+                this[sign].button.addClass("voted");
             } else {
-                button.removeClass("voted");
+                this[sign].button.removeClass("voted");
             }
 
             // Updating the title
@@ -183,9 +183,9 @@
                 likeTitle = likeTitleCount;
             }
 
-            button.attr("title", likeTitle);
+            this[sign].button.attr("title", likeTitle);
             // Updating the text
-            button.text((sign === "like" ? "+" : "-") + data[sign].count);
+            this[sign].button.text((sign === "like" ? "+" : "-") + data[sign].count);
 
             // Updating the tooltip
             if(data[sign].hasOwnProperty("list")) {
@@ -201,8 +201,42 @@
                     if(otherLikeCount !== 1) likeStr += "s";
                 }
 
-                button.tooltip(likeStr);
+                this[sign].tooltip.setContent(likeStr);
+
+                this[sign].listElem.empty();
+
+                if(data[sign].count === 0) {
+                    $("<li>", { class: "muted", text: "Pas de votes " + (sign === "like" ? "positifs" : "négatifs")}).appendTo(this[sign].listElem);
+                } else {
+                    this[sign].listElem.append(data[sign].list.map(function(user) {
+                        return $("<li>").append($("<a>", { href: user.link, text: user.username }).prepend($("<img />", { src: user.avatarUrl })));
+                    }));
+
+                    if(data[sign].list.length < data[sign].count) {
+                        $("<li>", { text: (data[sign].count - data[sign].list.length) + " anonymes", class: "muted" }).appendTo(this[sign].listElem);
+                    }
+                }
             }
+        },
+
+        /**
+         * Show the details of the votes in a modal
+         */
+        showDetails: function() {
+            if(!this.detailsModal) {
+                var body = $("<div>", { class: "vote-details" })
+                    .append($("<div>", { class: "vote-col" }).append($("<h3>", { text: "Votes positifs" })).append(this.like.listElem))
+                    .append($("<div>", { class: "vote-col" }).append($("<h3>", { text: "Votes négatifs" })).append(this.dislike.listElem));
+
+                this.detailsModal = new window.Modal({
+                    title: "Détail des votants",
+                    titleIcon: "hide light",
+                    body: body,
+                    closeText: "Fermer"
+                });
+            }
+
+            this.detailsModal.open();
         }
     };
 
@@ -214,7 +248,7 @@
      * @returns {Karma}
      */
     $.fn.karma = function() {
-        if(this.length > 1) {
+        if(this.length !== 1) {
             return $(this).map(function(index, elem) {
                 $(elem).karma();
             });
