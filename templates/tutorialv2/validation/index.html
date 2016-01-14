@@ -60,7 +60,8 @@
                             <th>{% trans "Titre" %}</th>
                             <th width="5%">{% trans "Type" %}</th>
                             <th width="15%">{% trans "Auteur(s)" %}</th>
-                            <th width="10%">{% trans "Propos" %}é</th>
+                            <th width="10%">{% trans "Proposé le" %}</th>
+                            <th width="10%">{% trans "Statut historique" %}</th>
                             <th width="24%">{% trans "Statut" %}</th>
                         </tr>
                     </thead>
@@ -100,6 +101,13 @@
                                 </td>
                                 <td>
                                     <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
+                                </td>
+                                <td class="{% if validation.content.is_public %}new_content{% else %}update_content{% endif %}">
+                                    {% if validation.content.is_public %}
+                                        {% trans "Nouveau" %}
+                                    {% else %}
+                                        {% trans "Mise à jour" %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}

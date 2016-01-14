@@ -19,7 +19,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
-    ContentRead
+    ContentRead, ALLOWED_TYPES
 from zds.tutorialv2.publication_utils import publish_content
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
@@ -5182,6 +5182,46 @@ class PublishedContentTests(TestCase):
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
         self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
+
+    def test_validation_history(self):
+        published = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:edit', args=[published.pk, published.slug]),
+            {
+                'title': published.title,
+                'description': published.description,
+                'introduction': "crappy crap",
+                'conclusion': "crappy crap",
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': published.load_version().compute_hash()  # good hash
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': published.pk, 'slug': published.slug}),
+            {
+                'text': "abcdefg",
+                'source': "",
+                'version': published.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertIn('class="update_content"', result.content)
 
     def tearDown(self):
 
