@@ -145,6 +145,10 @@ class Comment(models.Model):
 
     pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
     update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+    update_index_date = models.DateTimeField(
+        'Date de dernière modification pour la réindexation partielle',
+        auto_now=True,
+        db_index=True)
 
     is_visible = models.BooleanField('Est visible', default=True)
     text_hidden = models.CharField(

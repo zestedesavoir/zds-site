@@ -372,3 +372,19 @@ Mise à jours de la version de Haystack à la 4.1
 -----------------------------------------------
 
 Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
+
+Indexation delta des forums
+---------------------------
+
+Mettre à jour la commande d'indexation, dans `/etc/systemd/system/zds-index-solr.service` :
+
+```
+ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py update_index
+```
+
+devient :
+
+
+```
+ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py update_index --remove --age=1
+```
