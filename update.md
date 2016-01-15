@@ -388,3 +388,12 @@ devient :
 ```
 ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py update_index --remove --age=1
 ```
+
+Changer la politique de génération des documents #3080
+------------------------------------------------------
+
+Mettre à jour le paramètre ZDS_APP["content"]["extra_content_generation_policy"] à "WATCHDOG"
+Lancer en parallèle du site le watchdog `python manage.py publication_watchdog &`.
+
+Il est possible de configurer le logging de ce module en surchargeant les logger `logging.getLogger("zds.pandoc-publicator")`, `logging.getLogger("zds.watchdog-publicator")`.
+

@@ -31,7 +31,6 @@ class TutorialIsPublished(FileSystemEventHandler):
                                      pandoc_debug_str, overload_settings=True)
             for listed in listdir(extra_contents_path, recursive=False):
                 try:
-                    print(listed)
                     shutil.copy(join(extra_contents_path, listed), extra_contents_path.replace("__building", ""))
                 except Exception:
                     pass

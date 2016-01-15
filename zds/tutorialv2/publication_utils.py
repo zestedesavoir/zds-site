@@ -129,7 +129,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     # move the stuffs into the good position
     if settings.ZDS_APP['content']['extra_content_generation_policy'] != "WATCHDOG":
         shutil.move(tmp_path, public_version.get_prod_path())
-    else:
+    else:  # if we use watchdog, we use copy to get md and zip file in prod but everything else will be handled by
+        # watchdog
         shutil.copytree(tmp_path, public_version.get_prod_path())
     # save public version
     if is_major_update or not is_update:
@@ -229,7 +230,6 @@ class Publicator:
 @PublicatorRegistery.register("epub", settings.PANDOC_LOC, "epub")
 @PublicatorRegistery.register("html", settings.PANDOC_LOC, "html")
 class PandocPublicator(Publicator):
-
     """
     Wrapper arround pandoc commands
     """
