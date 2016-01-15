@@ -122,7 +122,7 @@
     clear: both;
 }
 
-@media only screen and $media-mega-wide {
+@media only screen and (--media-mega-wide) {
     .main .content-container {
         .content-wrapper {
             max-width: 960px;
@@ -131,7 +131,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     body.no-sidebar .main {
         .content-container {
             width: 100%;
@@ -253,7 +253,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .content-cols .main {
         .content-container {
             width: 79%;
@@ -270,7 +270,7 @@
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .main .content-container .new-btn-container {
         display: block;
         margin: 30px 0;

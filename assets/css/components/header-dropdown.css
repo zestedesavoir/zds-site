@@ -21,7 +21,7 @@
         @for $i from 1 through 4 {
             &:first-child:nth-last-child(#{$i}),
             &:first-child:nth-last-child(#{$i}) ~ li {
-                width: 100% / $i;
+                width: calc(100% / $i);
             }
         }
     }
@@ -95,7 +95,7 @@
     display: block;
 }
 
-@media only screen and $media-tablet {
+@media only screen and (--media-tablet) {
     .dropdown {
         box-shadow: 0 5px 7px rgba(0, 0, 0, .3);
     }
@@ -139,7 +139,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     html.dropdown-active {
         overflow: hidden;
 
@@ -179,7 +179,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .dropdown {
         top: 60px;
     }

@@ -3,7 +3,7 @@
     display: none;
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .js .page-container {
         position: absolute;
         z-index: 10;

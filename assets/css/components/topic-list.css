@@ -257,7 +257,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .topic-list {
         .topic-members-short-date {
             display: none;
@@ -285,7 +285,7 @@
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .topic-list {
         .topic {
             background: none !important;
@@ -327,7 +327,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .topic-list {
         .topic-infos .ico-after:after {
             margin: 4px 0 0 2px;

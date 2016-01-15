@@ -62,7 +62,7 @@ nav {
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     html,
     body,
     .page-container {
@@ -79,7 +79,7 @@ nav {
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     body {
         background: #222;
 
@@ -87,7 +87,7 @@ nav {
             .page-container,
             .mobile-menu {
                 transition-property: transform;
-                transition-duration: $transition-duration * 2;
+                transition-duration: calc($transition-duration * 2);
                 transition-timing-function: ease;
             }
         }

@@ -4,13 +4,17 @@ var gulp = require("gulp"),
     path = require("path"),
     del = require("del");
 
-var autoprefixer = require("autoprefixer"),
-    cssnano = require("cssnano");
-
 var postcssProcessors = [
-  require("precss"),
+  require("postcss-import"),
+  require("postcss-advanced-variables"),
+  require("postcss-custom-media"),
+  require("postcss-calc"),
+  require("postcss-mixins"),
+  require("postcss-nesting"),
+  require("postcss-nested"),
+  require("postcss-atroot"),
   require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
-  require("cssnano")({ discardComments: { removeAll: true }})
+  //require("cssnano")({ discardComments: { removeAll: true }})
 ];
 
 var sourceDir = "assets",
@@ -19,10 +23,8 @@ var sourceDir = "assets",
     cssDir = "css",
     imagesDir = "images",
     scriptsDir = "js",
-    vendorsDir = "vendors",
     spriteDir = "sprite",
     stylesFiles = ["main.css"],
-    vendorsCSS = ["node_modules/normalize.css/normalize.css"],
     vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
     imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
 
@@ -32,9 +34,10 @@ var sourceDir = "assets",
 gulp.task("clean", function() {
   return del([
     destDir,
-    path.join(sourceDir, "{" + scriptsDir + "," + cssDir + "}", vendorsDir),
+    path.join(sourceDir, "sass/"),
+    path.join(sourceDir, scriptsDir, "vendors/"),
     path.join(sourceDir, "bower_components/"),
-    path.join(sourceDir, cssDir, "_sprite.css")
+    path.join(sourceDir, cssDir, "sprite.css")
    ]);
 });
 
@@ -46,34 +49,17 @@ gulp.task("clean-errors", function() {
 });
 
 /**
- * Copy vendors style files (i.e. normalize.css)
- */
-gulp.task("vendors-css", function() {
-  return gulp.src(vendorsCSS)
-    .pipe($.rename({ prefix: "_" }))
-    .pipe(gulp.dest(path.join(sourceDir, cssDir, vendorsDir)));
-});
-
-/**
- * Copy vendors script fules (i.e. jquery.js)
- */
-gulp.task("vendors-js", function() {
-  return gulp.src(vendorsJS)
-    .pipe(gulp.dest(path.join(sourceDir, scriptsDir, vendorsDir)));
-});
-
-/**
  * Copy, concat and minify vendors files
  */
-gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
-  return gulp.src(path.join(sourceDir, scriptsDir, vendorsDir, "*.js"))
+gulp.task("vendors", function() {
+  return gulp.src(vendorsJS)
     .pipe($.sourcemaps.init())
       .pipe($.concat("vendors.js"))
       .pipe($.uglify().on('error', $.notify.onError({
         title: "Javascript error",
         message: "<%= error.message %>"
       })))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", vendorsDir) }))
+    .pipe($.sourcemaps.write(".", { includeContent: true }))
     .pipe($.size({ title: "Scripts (vendors)" }))
     .pipe(gulp.dest(path.join(destDir, scriptsDir)));
 });
@@ -81,7 +67,7 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
 /**
  * Compiles SASS files
  */
-gulp.task("stylesheet", ["sprite", "vendors"], function() {
+gulp.task("stylesheet", ["sprite"], function() {
   var files = stylesFiles.map(function(filename) {
     return path.join(sourceDir, cssDir, filename);
   });
@@ -101,9 +87,6 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
 gulp.task("errors", ["clean-errors"], function() {
   return gulp.src(path.join(errorsDir, cssDir, "main.css"))
     .pipe($.sourcemaps.init())
-      .pipe($.sass({
-        includePaths: [path.join(sourceDir, cssDir)]
-      }))
       .pipe($.postcss(postcssProcessors))
     .pipe($.sourcemaps.write(".", { includeContent: true }))
     .pipe(gulp.dest(path.join(errorsDir, "css/")));
@@ -119,7 +102,7 @@ gulp.task("sprite", function() {
                   { ratio: 2, dpi: 192 }],
       margin: 0,
       src: path.join(sourceDir, imagesDir, spriteDir, "*"),
-      style: "_sprite.css",
+      style: "sprite.css",
       template: path.join(sourceDir, cssDir, "sprite-template.hbs")
     })
     .pipe($.if("*.png", $.imagemin(imageminConfig)))

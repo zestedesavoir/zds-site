@@ -23,12 +23,12 @@
     }
 }
 
-@media only screen and (-webkit-min-device-pixel-ratio: 1.3) and $media-mobile-tablet,
-       only screen and (min--moz-device-pixel-ratio: 1.3) and $media-mobile-tablet,
-       only screen and (-o-min-device-pixel-ratio: 4/3) and $media-mobile-tablet,
-       only screen and (min-device-pixel-ratio: 1.3) and $media-mobile-tablet,
-       only screen and (min-resolution: 192dpi) and $media-mobile-tablet,
-       only screen and (min-resolution: 2dppx) and $media-mobile-tablet {
+@media only screen and (-webkit-min-device-pixel-ratio: 1.3) and (--media-mobile-tablet),
+       only screen and (min--moz-device-pixel-ratio: 1.3) and (--media-mobile-tablet),
+       only screen and (-o-min-device-pixel-ratio: 4/3) and (--media-mobile-tablet),
+       only screen and (min-device-pixel-ratio: 1.3) and (--media-mobile-tablet),
+       only screen and (min-resolution: 192dpi) and (--media-mobile-tablet),
+       only screen and (min-resolution: 2dppx) and (--media-mobile-tablet) {
 
     .js.enable-mobile-menu .mobile-menu-hide .page-container .mobile-menu-btn:after {
         @include sprite-2x();

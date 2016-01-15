@@ -117,7 +117,7 @@
     }
 }
 
-@media only screen and $media-tablet {
+@media only screen and (--media-tablet) {
     .alert-box .alert-box-text {
         display: inline;
     }
@@ -126,7 +126,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .alert-box {
         .alert-box-btn {
             &,

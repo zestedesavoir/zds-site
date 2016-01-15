@@ -133,7 +133,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .enable-mobile-menu .modals-container .modal {
         box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
 

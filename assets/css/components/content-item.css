@@ -116,7 +116,7 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
     }
 
     &.has-reactions .content-meta {
-        padding-left: 32px - 14px + $content-reaction-offset + 10px; /* bubble width - container padding + bubble offset + spacing */
+        padding-left: calc(32px - 14px + $content-reaction-offset + 10px); /* bubble width - container padding + bubble offset + spacing */
     }
 
     .content-title {
@@ -305,7 +305,7 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .content-item {
         &.mini {
             flex-basis: 200px;
@@ -337,7 +337,7 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .full-content-wrapper .content-item {
         .content-info {
             h3 {
@@ -350,7 +350,7 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .content-item {
         &.write-tutorial {
             display: none;

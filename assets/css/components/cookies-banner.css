@@ -54,7 +54,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     #cookies-eu-banner {
         position: absolute;
         top: 50px;

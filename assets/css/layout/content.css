@@ -370,7 +370,7 @@
     display: none;
 }
 
-@media only screen and $media-extra-wide {
+@media only screen and (--media-extra-wide) {
     .full-content-wrapper .tutorial-list article {
         width: 29.3%;
     }
@@ -385,7 +385,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .content-wrapper,
     .full-content-wrapper {
         margin: 0 0 0 4%;
@@ -401,7 +401,7 @@
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .main .content-container {
         .taglist,
         .pubdate {
@@ -460,7 +460,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .main .content-container .article-content .btn {
         float: none;
         text-align: center;

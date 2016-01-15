@@ -55,7 +55,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .markdown-help {
         .open-markdown-help {
             position: relative;

@@ -82,7 +82,7 @@
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .page-footer {
         text-align: center;
         height: auto;

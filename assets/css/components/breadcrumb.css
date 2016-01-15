@@ -2,7 +2,7 @@
     display: none;
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .breadcrumb {
         position: relative;
         display: block;

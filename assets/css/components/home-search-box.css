@@ -54,7 +54,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .search-box {
         form {
             label {

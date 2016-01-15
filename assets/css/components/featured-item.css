@@ -90,7 +90,7 @@
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .featured-resource-edit-form {
         flex-direction: column;
         align-items: unset;

@@ -272,7 +272,7 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .home {
         .home-description:not(.connected):not(.short) {
             display: none;
@@ -337,7 +337,7 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .home {
         .home-header {
             padding-top: 10px;
@@ -382,15 +382,15 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .home {
         $gap: 20px;
         .home-row {
-            margin-right: -($gap/2);
-            margin-left: -($gap/2);
+            margin-right: calc(-($gap/2));
+            margin-left: calc(-($gap/2));
 
             & > section {
-                margin: 0 $gap/2;
+                margin: 0 calc($gap/2);
                 flex: 1;
                 min-width: 300px; /* must be specified to have the elements correctely sized */
             }

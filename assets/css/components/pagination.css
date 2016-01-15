@@ -94,13 +94,13 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .pagination {
         border: 1px solid #d2d5d6;
     }
 }
 
-@media only screen and $media-mobile {
+@media only screen and (--media-mobile) {
     .pagination {
         li {
             &.prev a,

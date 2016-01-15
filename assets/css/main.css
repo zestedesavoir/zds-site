@@ -11,7 +11,7 @@
 /*------------------------
 1. Normalize
 ------------------------*/
-@import "vendors/normalize";
+@import "normalize.css";
 
 /*------------------------
 2. Base

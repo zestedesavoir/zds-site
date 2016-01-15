@@ -303,7 +303,7 @@
     background: #EEE;
 }
 
-@media only screen and $media-mobile-tablet {
+@media only screen and (--media-mobile-tablet) {
     .header-logo {
         width: 40px;
         height: 50px;
@@ -390,7 +390,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .header-container {
         z-index: 1;
         position: relative;
@@ -464,7 +464,7 @@
     }
 }
 
-@media only screen and $media-extra-wide {
+@media only screen and (--media-extra-wide) {
     .header-container header .header-menu {
         margin-left: 5%;
     }

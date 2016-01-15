@@ -111,7 +111,7 @@
     float: left !important;
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .gallery-col-image {
         float: left;
         width: 50%;

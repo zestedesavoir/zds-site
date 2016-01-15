@@ -74,12 +74,12 @@
             outline: none;
         }
         &:before {
-            content: "+";
+            content: calc("+");
         }
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .search {
         &:before {
             content: " ";

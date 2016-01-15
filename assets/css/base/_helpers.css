@@ -73,7 +73,7 @@ hr.clearfix {
     display: none;
 }
 
-@media only screen and $media-extra-wide {
+@media only screen and (--media-extra-wide) {
     .wide {
         display: inline;
     }
@@ -82,7 +82,7 @@ hr.clearfix {
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .screen {
         display: inline;
     }

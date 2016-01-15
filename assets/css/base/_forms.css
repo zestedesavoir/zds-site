@@ -312,7 +312,7 @@
     }
 }
 
-@media only screen and $media-wide {
+@media only screen and (--media-wide) {
     .content-container,
     .modals-container {
         form.content-wrapper {
