@@ -8,6 +8,7 @@ var autoprefixer = require("autoprefixer"),
     cssnano = require("cssnano");
 
 var postcssProcessors = [
+  require("precss"),
   require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
   require("cssnano")()
 ];
@@ -87,11 +88,6 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
 
   return gulp.src(files)
     .pipe($.sourcemaps.init())
-      .pipe($.sass({ sourceMapContents: true }))
-      .on("error", $.notify.onError({
-        title: "SASS Error",
-        message: "<%= error.message %>"
-      }))
       .pipe($.postcss(postcssProcessors))
     .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, sassDir) }))
     .on("error", function() { this.emit("end"); })
