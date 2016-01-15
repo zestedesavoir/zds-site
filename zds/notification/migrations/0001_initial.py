@@ -8,7 +8,7 @@ from django.conf import settings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0004_auto_20151119_2224'),
+        ('forum', '0005_auto_20151119_2224'),
     ]
 
     state_operations = [

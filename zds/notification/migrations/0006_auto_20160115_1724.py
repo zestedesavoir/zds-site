@@ -7,9 +7,12 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0004_auto_20151119_2224'),
-        ('forum', '0003_auto_20151110_1145'),
+        ('notification', '0005_auto_20160111_1936'),
     ]
 
     operations = [
+        migrations.AlterModelTable(
+            name='topicfollowed',
+            table=None,
+        ),
     ]

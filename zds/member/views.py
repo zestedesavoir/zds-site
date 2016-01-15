@@ -35,7 +35,6 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
     OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.notification.models import TopicFollowed
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
