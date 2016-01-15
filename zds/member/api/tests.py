@@ -1121,6 +1121,26 @@ class PermissionMemberAPITest(APITestCase):
         self.assertTrue(response.data.get('permissions').get('ban'))
 
 
+class CacheMemberAPITest(APITestCase):
+    def test_cache_of_user_authenticated_for_member_profile(self):
+        """
+        Cache must be invalidated when we specify a bearer token.
+        """
+        profile = ProfileFactory()
+        another_profile = ProfileFactory()
+
+        authenticate_client(self.client, create_oauth2_client(profile.user), profile.user.username, 'hostel77')
+        response = self.client.get(reverse('api-member-profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(profile.user.username, response.data.get('username'))
+
+        authenticate_client(self.client, create_oauth2_client(another_profile.user),
+                            another_profile.user.username, 'hostel77')
+        response = self.client.get(reverse('api-member-profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(another_profile.user.username, response.data.get('username'))
+
+
 def create_oauth2_client(user):
     client = Application.objects.create(user=user,
                                         client_type=Application.CLIENT_CONFIDENTIAL,
