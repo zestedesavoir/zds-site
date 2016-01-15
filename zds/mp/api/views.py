@@ -25,11 +25,13 @@ class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
     search = bits.QueryParamsKeyBit(['search', 'ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 
 class PagingPrivateTopicUnreadListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 
 class DetailKeyConstructor(DefaultKeyConstructor):
@@ -37,6 +39,7 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     language = bits.LanguageKeyBit()
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 
 class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
@@ -44,6 +47,7 @@ class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
     search = bits.QueryParamsKeyBit(['ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 
 class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):

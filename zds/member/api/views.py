@@ -26,6 +26,7 @@ class PagingSearchListKeyConstructor(DefaultKeyConstructor):
     search = bits.QueryParamsKeyBit(['search'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 
 class DetailKeyConstructor(DefaultKeyConstructor):
@@ -33,11 +34,13 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     language = bits.LanguageKeyBit()
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 
 class MyDetailKeyConstructor(DefaultKeyConstructor):
     format = bits.FormatKeyBit()
     language = bits.LanguageKeyBit()
+    user = bits.UserKeyBit()
 
 
 class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
