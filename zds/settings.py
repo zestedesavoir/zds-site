@@ -2,6 +2,8 @@
 
 import os
 import sys
+from os.path import dirname
+from os.path import join
 
 from django.contrib.messages import constants as message_constants
 from django.utils.http import urlquote
@@ -338,10 +340,11 @@ SERVE = False
 
 PANDOC_LOC = ''
 PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
-                    "--template=../../../assets/tex/template.tex -s -S -N "
+                    "--template={} -s -S -N "
                     "--toc -V documentclass=scrbook -V lang=francais "
                     "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
-                    "-V fontsize=12pt -V geometry:margin=1in ")
+                    "-V fontsize=12pt -V geometry:margin=1in ".format(join("..", "..", "..",
+                                                                           "assets", "tex", "template.tex")))
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -473,6 +476,10 @@ ZDS_APP = {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
+        # can also be 'extra_content_generation_policy': "WATCHDOG"
+        # or 'extra_content_generation_policy': "NOTHING"
+        'extra_content_generation_policy': "SYNC",
+        'extra_content_watchdog_dir': os.path.join(BASE_DIR, "watchdog-build"),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
         'content_per_page': 50,

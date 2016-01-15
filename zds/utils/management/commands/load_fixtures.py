@@ -23,7 +23,7 @@ from django.db import transaction
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
     Validation as CValidation, ContentReactionFactory
 from zds.tutorialv2.models.models_database import PublishableContent
-from zds.tutorialv2.utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content
 
 
 def load_member(cli, size, fake, root):

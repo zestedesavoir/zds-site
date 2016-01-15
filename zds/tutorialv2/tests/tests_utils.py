@@ -9,16 +9,23 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from zds.settings import BASE_DIR
+from django.core.urlresolvers import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
     PublishedContentFactory
 from zds.gallery.factories import UserGalleryFactory
-from zds.tutorialv2.utils import get_target_tagged_tree_for_container, publish_content, unpublish_content, \
-    get_target_tagged_tree_for_extract, retrieve_and_update_images_links
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.models_versioned import Container
+from zds.tutorialv2.utils import get_target_tagged_tree_for_container, \
+    get_target_tagged_tree_for_extract, retrieve_and_update_images_links, last_participation_is_old, \
+    InvalidSlugError, BadManifestError, get_content_from_json, get_commit_author, slugify_raise_on_invalid, check_slug
+from zds.tutorialv2.publication_utils import publish_content, unpublish_content
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
-
+from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistery
+from watchdog.events import FileCreatedEvent
+from zds.tutorialv2.management.commands.publication_watchdog import TutorialIsPublished
+from mock import Mock
 try:
     import ujson as json_reader
 except ImportError:
@@ -62,6 +69,7 @@ class UtilsTests(TestCase):
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
+        self.old_registry = {key: value for key, value in PublicatorRegistery.get_all_registered()}
 
     def test_get_target_tagged_tree_for_container(self):
         part2 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto, title="part2")
@@ -415,6 +423,152 @@ class UtilsTests(TestCase):
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))  # so no PDF is generated !
 
+    def test_last_participation_is_old(self):
+        article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
+        newUser = ProfileFactory().user
+        reac = ContentReaction(author=self.user_author, position=1, related_content=article)
+        reac.update_content("I will find you. And I Will Kill you.")
+        reac.save()
+        article.last_note = reac
+        article.save()
+
+        self.assertFalse(last_participation_is_old(article, newUser))
+        ContentRead(user=self.user_author, note=reac, content=article).save()
+        reac = ContentReaction(author=newUser, position=2, related_content=article)
+        reac.update_content("I will find you. And I Will Kill you.")
+        reac.save()
+        article.last_note = reac
+        article.save()
+        ContentRead(user=newUser, note=reac, content=article).save()
+        self.assertFalse(last_participation_is_old(article, newUser))
+        self.assertTrue(last_participation_is_old(article, self.user_author))
+
+    def testParseBadManifest(self):
+        base_content = PublishableContentFactory(author_list=[self.user_author])
+        versioned = base_content.load_version()
+        versioned.add_container(Container(u"un peu plus près de 42"))
+        versioned.dump_json()
+        manifest = os.path.join(versioned.get_path(), "manifest.json")
+        dictionary = json_reader.load(open(manifest))
+
+        old_title = dictionary['title']
+
+        # first bad title
+        dictionary['title'] = 81 * ['a']
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+        dictionary['title'] = "".join(dictionary['title'])
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+        dictionary['title'] = '...'
+        self.assertRaises(InvalidSlugError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+        dictionary['title'] = old_title
+        dictionary['children'][0]['title'] = 81 * ['a']
+        self.assertRaises(BadManifestError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+        dictionary['children'][0]['title'] = "bla"
+        dictionary['children'][0]['slug'] = "..."
+        self.assertRaises(InvalidSlugError,
+                          get_content_from_json, dictionary, None, '',
+                          max_title_len=PublishableContent._meta.get_field('title').max_length)
+
+    def test_get_commit_author(self):
+        """Ensure the behavior of `get_commit_author()` :
+          - `git.Actor` use the pk of the bot account when no one is connected
+          - `git.Actor` use the pk (and the email) of the connected account when available
+
+        (Implementation of `git.Actor` is there :
+        https://github.com/gitpython-developers/GitPython/blob/master/git/util.py#L312)
+        """
+
+        # 1. With user connected
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # go to whatever page, if not, `get_current_user()` does not work at all
+        result = self.client.get(reverse('zds.pages.views.index'))
+        self.assertEqual(result.status_code, 200)
+
+        actor = get_commit_author()
+        self.assertEqual(actor['committer'].name, str(self.user_author.pk))
+        self.assertEqual(actor['author'].name, str(self.user_author.pk))
+        self.assertEqual(actor['committer'].email, self.user_author.email)
+        self.assertEqual(actor['author'].email, self.user_author.email)
+
+        # 2. Without connected user
+        self.client.logout()
+
+        # as above ...
+        result = self.client.get(reverse('zds.pages.views.index'))
+        self.assertEqual(result.status_code, 200)
+
+        actor = get_commit_author()
+        self.assertEqual(actor['committer'].name, str(self.mas.pk))
+        self.assertEqual(actor['author'].name, str(self.mas.pk))
+
+    def invalid_slug_is_invalid(self):
+        """ensure that an exception is raised when it should"""
+
+        # exception are raised when title are invalid
+        invalid_titles = [u'-', u'_', u'__', u'-_-', u'$', u'@', u'&', u'{}', u'    ', u'...']
+
+        for t in invalid_titles:
+            self.assertRaises(InvalidSlugError, slugify_raise_on_invalid, t)
+
+        # Those slugs are recognized as wrong slug
+        invalid_slugs = [
+            u'',  # empty
+            u'----',  # empty
+            u'___',  # empty
+            u'-_-',  # empty (!)
+            u'&;',  # invalid characters
+            u'!{',  # invalid characters
+            u'@',  # invalid character
+            u'a '  # space !
+        ]
+
+        for s in invalid_slugs:
+            self.assertFalse(check_slug(s))
+
+        # too long slugs are forbidden :
+        too_damn_long_slug = 'a' * (settings.ZDS_APP['content']['maximum_slug_size'] + 1)
+        self.assertFalse(check_slug(too_damn_long_slug))
+
+    def test_watchdog(self):
+
+        PublicatorRegistery.unregister("pdf")
+        PublicatorRegistery.unregister("epub")
+        PublicatorRegistery.unregister("html")
+
+        with open("path", "w") as f:
+            f.write("my_content;/path/to/markdown.md")
+
+        @PublicatorRegistery.register("test", "", "")
+        class TestPublicator(Publicator):
+            def __init__(self, *__):
+                pass
+
+        PublicatorRegistery.get("test").publish = Mock()
+        event = FileCreatedEvent("path")
+        handler = TutorialIsPublished()
+        handler.prepare_generation = Mock()
+        handler.finish_generation = Mock()
+        handler.on_created(event)
+
+        self.assertTrue(PublicatorRegistery.get("test").publish.called)
+        handler.finish_generation.assert_called_with("/path/to", "path")
+        handler.prepare_generation.assert_called_with("/path/to")
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
@@ -422,12 +576,8 @@ class UtilsTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_path']):
-            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_path'])
-        if os.path.isdir(settings.ZDS_APP['tutorial']['repo_public_path']):
-            shutil.rmtree(settings.ZDS_APP['tutorial']['repo_public_path'])
-        if os.path.isdir(settings.ZDS_APP['article']['repo_path']):
-            shutil.rmtree(settings.ZDS_APP['article']['repo_path'])
-
+        if os.path.isdir(settings.ZDS_APP['content']['extra_content_watchdog_dir']):
+            shutil.rmtree(settings.ZDS_APP['content']['extra_content_watchdog_dir'])
         # re-active PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
+        PublicatorRegistery.registry = self.old_registry

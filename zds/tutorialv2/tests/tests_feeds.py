@@ -16,8 +16,7 @@ from zds.tutorialv2.models.models_database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
     ExtractFactory
-from zds.tutorialv2.utils import publish_content
-
+from zds.tutorialv2.publication_utils import publish_content
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')

@@ -19,8 +19,8 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
-    ContentRead, ALLOWED_TYPES
-from zds.tutorialv2.utils import publish_content
+    ContentRead
+from zds.tutorialv2.publication_utils import publish_content
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
 from zds.forum.factories import ForumFactory, CategoryFactory
@@ -43,6 +43,7 @@ except ImportError:
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['extra_content_generation_policy'] = "SYNC"
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -3262,7 +3263,7 @@ class ContentTests(TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.have_type(extra))
+            self.assertTrue(published.have_type(extra), "no extra content" + extra)
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
@@ -5136,18 +5137,6 @@ class PublishedContentTests(TestCase):
         self.assertIn(self.user_author.username, response.content)
         self.assertNotIn(other_author.user.username, response.content)
         self.assertEqual(0, len(other_author.get_public_contents()))
-
-    def test_download_size(self):
-        """
-        Test the size of content to download.
-        """
-        sizes = self.published.sizes
-        for type_ in ALLOWED_TYPES:
-            if self.published.have_type(type_):
-                self.assertEqual(sizes[type_],
-                                 os.path.getsize(os.path.join(
-                                     self.published.get_extra_contents_directory(),
-                                     self.published.content_public_slug + '.' + type_)))
 
     def tearDown(self):
 
