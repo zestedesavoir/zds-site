@@ -10,18 +10,18 @@ var autoprefixer = require("autoprefixer"),
 var postcssProcessors = [
   require("precss"),
   require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
-  require("cssnano")()
+  require("cssnano")({ discardComments: { removeAll: true }})
 ];
 
 var sourceDir = "assets",
     destDir = "dist",
     errorsDir = "errors",
-    sassDir = "scss",
+    cssDir = "css",
     imagesDir = "images",
     scriptsDir = "js",
     vendorsDir = "vendors",
     spriteDir = "sprite",
-    stylesFiles = ["main.scss"],
+    stylesFiles = ["main.css"],
     vendorsCSS = ["node_modules/normalize.css/normalize.css"],
     vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
     imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
@@ -32,9 +32,9 @@ var sourceDir = "assets",
 gulp.task("clean", function() {
   return del([
     destDir,
-    path.join(sourceDir, "{" + scriptsDir + "," + sassDir + "}", vendorsDir),
+    path.join(sourceDir, "{" + scriptsDir + "," + cssDir + "}", vendorsDir),
     path.join(sourceDir, "bower_components/"),
-    path.join(sourceDir, sassDir, "_sprite.scss")
+    path.join(sourceDir, cssDir, "_sprite.css")
    ]);
 });
 
@@ -50,8 +50,8 @@ gulp.task("clean-errors", function() {
  */
 gulp.task("vendors-css", function() {
   return gulp.src(vendorsCSS)
-    .pipe($.rename({ prefix: "_", extname: ".scss" }))
-    .pipe(gulp.dest(path.join(sourceDir, sassDir, vendorsDir)));
+    .pipe($.rename({ prefix: "_" }))
+    .pipe(gulp.dest(path.join(sourceDir, cssDir, vendorsDir)));
 });
 
 /**
@@ -83,13 +83,13 @@ gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
  */
 gulp.task("stylesheet", ["sprite", "vendors"], function() {
   var files = stylesFiles.map(function(filename) {
-    return path.join(sourceDir, sassDir, filename);
+    return path.join(sourceDir, cssDir, filename);
   });
 
   return gulp.src(files)
     .pipe($.sourcemaps.init())
       .pipe($.postcss(postcssProcessors))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, sassDir) }))
+    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, cssDir) }))
     .on("error", function() { this.emit("end"); })
     .pipe($.size({ title: "Stylesheet" }))
     .pipe(gulp.dest(path.join(destDir, "css/")));
@@ -99,10 +99,10 @@ gulp.task("stylesheet", ["sprite", "vendors"], function() {
  * Error-pages stylesheet
  */
 gulp.task("errors", ["clean-errors"], function() {
-  return gulp.src(path.join(errorsDir, sassDir, "main.scss"))
+  return gulp.src(path.join(errorsDir, cssDir, "main.css"))
     .pipe($.sourcemaps.init())
       .pipe($.sass({
-        includePaths: [path.join(sourceDir, sassDir)]
+        includePaths: [path.join(sourceDir, cssDir)]
       }))
       .pipe($.postcss(postcssProcessors))
     .pipe($.sourcemaps.write(".", { includeContent: true }))
@@ -119,11 +119,11 @@ gulp.task("sprite", function() {
                   { ratio: 2, dpi: 192 }],
       margin: 0,
       src: path.join(sourceDir, imagesDir, spriteDir, "*"),
-      style: "_sprite.scss",
-      template: path.join(sourceDir, sassDir, "sprite-template.hbs")
+      style: "_sprite.css",
+      template: path.join(sourceDir, cssDir, "sprite-template.hbs")
     })
     .pipe($.if("*.png", $.imagemin(imageminConfig)))
-    .pipe($.if("*.png", gulp.dest(path.join(destDir, imagesDir)), gulp.dest(path.join(sourceDir, sassDir))));
+    .pipe($.if("*.png", gulp.dest(path.join(destDir, imagesDir)), gulp.dest(path.join(sourceDir, cssDir))));
 });
 
 /**
@@ -179,7 +179,7 @@ gulp.task("merge-scripts", ["vendors", "scripts"], function() {
 gulp.task("watch", function() {
   gulp.watch(path.join(sourceDir, scriptsDir, "*.js"), ["jshint", "scripts"]);
   gulp.watch([path.join(sourceDir, imagesDir, "*.png"), path.join(sourceDir, "smileys/*")], ["images"]);
-  gulp.watch([path.join(sourceDir, sassDir, "**/*.scss"), "!" + path.join(sourceDir, sassDir, "_sprite.scss")], ["stylesheet"]);
+  gulp.watch([path.join(sourceDir, cssDir, "**/*.css"), "!" + path.join(sourceDir, cssDir, "_sprite.css")], ["stylesheet"]);
 
   gulp.watch("dist/*/**", function(file) {
     var filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...

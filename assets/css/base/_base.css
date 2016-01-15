@@ -1,0 +1,99 @@
+html {
+    height: 100%;
+    width: 100%;
+    font-size: 62.5%;
+    overflow-x: hidden;
+    word-wrap: break-word;
+}
+
+body {
+    background: $color-body-background;
+    font-size: 14px;
+    font-size: 1.4rem;
+    line-height: 1.7em;
+    min-height: 100%;
+    width: 100%;
+}
+.page-container,
+.main-container {
+    min-height: 100%;
+    background: $color-body-background;
+}
+.content-container {
+    margin-bottom: 50px;
+}
+
+img {
+    vertical-align: middle;
+}
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.chromeframe {
+    margin: 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+    text-align: center;
+    position: fixed;
+    z-index: 9999;
+    width: 100%;
+}
+
+.a11y {
+    display: block;
+    width: 0;
+    height: 0;
+    text-indent: -9999px;
+}
+
+nav {
+    ul,
+    ol {
+        list-style: none;
+    }
+}
+
+@media only screen and $media-wide {
+    html,
+    body,
+    .page-container {
+        height: 100%;
+    }
+
+    .main-container {
+        min-height: calc(100% - 136px);
+    }
+
+    .wrapper {
+        width: 95%;
+        margin: 0 2.5%;
+    }
+}
+
+@media only screen and $media-mobile-tablet {
+    body {
+        background: #222;
+
+        &:not(.swipping) {
+            .page-container,
+            .mobile-menu {
+                transition-property: transform;
+                transition-duration: $transition-duration * 2;
+                transition-timing-function: ease;
+            }
+        }
+        &.swipping * {
+            user-select: none;
+            pointer-events: none;
+        }
+    }
+}

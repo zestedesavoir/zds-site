@@ -1,0 +1,115 @@
+.pagination {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid #d2d5d6; /* @TODO: Color */
+    border-bottom: 1px solid #d2d5d6;
+    background: #FBFBFB;
+    height: 40px;
+    margin-bottom: 20px !important;
+
+    li {
+        float: left;
+
+        a {
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            color: $color-primary;
+            min-width: 45px;
+            height: 40px;
+            line-height: 40px;
+            transition: all $transition-duration ease;
+
+            &.current {
+                height: 38px;
+                color: #808080;
+                background: #F7F7F7;
+                margin-top: -1px;
+                border-left: 1px solid #d2d5d6;
+                border-bottom: 3px solid #d2d5d6;
+                border-right: 2px solid #d2d5d6;
+            }
+
+            &.ico-after:after {
+                margin-top: 12px;
+            }
+
+            &[href]:hover,
+            &[href]:focus {
+                background: #d2d5d6;
+            }
+        }
+
+        &.prev a,
+        &.next a {
+            padding: 0 15px;
+        }
+
+        &.prev {
+            .ico-after {
+                padding-left: 30px;
+
+                &:after {
+                    margin-left: 8px;
+                }
+            }
+        }
+        &.next {
+            float: right;
+            .ico-after {
+                padding-right: 30px;
+
+                &:after {
+                    right: 8px;
+                    left: auto;
+                }
+            }
+        }
+    }
+
+    &.pagination-top {
+        li a.current {
+            margin-top: 0;
+            border-top: 3px solid #d2d5d6;
+            border-bottom: none;
+            height: 35px;
+            line-height: 35px;
+            padding-bottom: 3px;
+        }
+    }
+
+    &.pagination-chapter {
+        margin-left: 0;
+
+        li {
+            max-width: 45%;
+        }
+
+        a {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+    }
+}
+
+@media only screen and $media-wide {
+    .pagination {
+        border: 1px solid #d2d5d6;
+    }
+}
+
+@media only screen and $media-mobile {
+    .pagination {
+        li {
+            &.prev a,
+            &.next a {
+                min-width: 0px;
+                span {
+                    display: none;
+                }
+            }
+        }
+    }
+}

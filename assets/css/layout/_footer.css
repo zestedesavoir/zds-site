@@ -1,0 +1,108 @@
+.footer-container footer {
+    color: #424242;
+    padding: 20px 0;
+}
+.page-footer {
+    background: $color-primary;
+    height: 40px;
+    line-height: 40px;
+    border-top: 3px solid $color-secondary;
+    font-size: 14px;
+    font-size: 1.4rem;
+
+    .wrapper {
+        display: flex;
+    }
+
+    .copyright {
+        color: #EEE;
+        margin: 0;
+    }
+
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        &.links li {
+            display: inline-block;
+            margin-left: 25px;
+
+            a {
+                text-decoration: none;
+                color: #EEE;
+                border-bottom: 1px solid transparent;
+
+                &:hover,
+                &:focus {
+                    border-bottom-color: $color-secondary;
+                }
+            }
+        }
+
+        &.social {
+            flex: 1;
+            text-align: center;
+
+            li {
+                margin: -2px 10px;
+                display: inline-block;
+
+                a {
+                    display: block;
+                    height: 16px;
+                    width: 16px;
+
+                    &:after {
+                        opacity: 0.6;
+                    }
+
+                    &:hover {
+                        border-bottom-color: transparent;
+
+                        &:after {
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .version {
+        &,
+        a {
+            color: rgba(255, 255, 255, .5);
+        }
+
+        a:hover,
+        a:focus {
+            color: #FFF;
+        }
+    }
+}
+
+@media only screen and $media-mobile-tablet {
+    .page-footer {
+        text-align: center;
+        height: auto;
+
+        .wrapper {
+            flex-direction: column;
+
+            .social {
+                -ms-flex: none; /* fix IE ≥ 10 */
+            }
+        }
+
+        .copyright, .social {
+            border-bottom: 2px solid lighten($color-primary, 4%);
+        }
+
+        ul {
+            li {
+                margin: 0 5px;
+            }
+        }
+    }
+}
