@@ -83,7 +83,7 @@ Suivre un sujet
 
 Nous permettons à nos membres de "suivre" un sujet directement sur le site. "Suivre un sujet", cela signifie que, lorsqu'un nouveau message est posté sur ce sujet, l'icône de notification nous en informe.
 
-Dès lors vous pourrez par un simple clic allé au dernier message non lu.
+Dès lors vous pourrez par un simple clic vous rendre au dernier message non lu.
 
 Pour repérer qu'un message est lu ou pas, nous utilisons côté backend la classe ``zds.forum.models.TopicRead`` qui retient la date de dernière lecture du topic.
 De la même manière nous utilisons la classe ``zds.forum.models.TopicFollowed`` pour retenir le fait que vous suivez ou non un sujet.
@@ -98,4 +98,4 @@ Pour cesser de suivre un sujet, et ne plus être notifier de son activité, vous
 - Vous rendre sur le topic et cliquer sur "Ne plus suivre" en haut de la sidebar.
 - Vous rendre sur n'importe quelle page du forum, survoler le titre du sujet et cliquer sur la croix qui apparaît alors.
 
-En effectuant ces actions vous cessez de suivre le sujet, l'instance de TopicFollowed qui était associée à votre suivi est supprimée définitivement. Cela a pour effet que vous pourrez à nouveau suivre le sujet dans le future si vous le désirez.
+En effectuant ces actions vous cessez de suivre le sujet, l'instance de TopicFollowed qui était associée à votre suivi est supprimée définitivement. Cela a pour effet que vous pourrez à nouveau suivre le sujet dans le futur si vous le désirez.
