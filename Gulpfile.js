@@ -14,8 +14,8 @@ var postcssProcessors = [
   require("postcss-mixins"),
   require("postcss-nested"),
   require("postcss-nesting"),
-  require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
-  //require("cssnano")({ discardComments: { removeAll: true }})
+  require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ie >= 10"] }),
+  require("cssnano")({ discardComments: { removeAll: true }})
 ];
 
 var sourceDir = "assets",
