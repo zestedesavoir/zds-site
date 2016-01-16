@@ -8,7 +8,8 @@ Django==1.9.1
 coverage==4.0.1
 # full compatibility with django 1.8 and 1.9
 django-crispy-forms==1.6.0
-django-haystack==2.4.1
+# TODO django-haystack
+https://github.com/gustavi/django-haystack/archive/django_19.zip
 django-model-utils==2.4
 django-munin==0.2.1
 python-memcached==1.54
