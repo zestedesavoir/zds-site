@@ -38,7 +38,7 @@
 
     .article-content .summary-part {
         font-size: 20px;
-        color: darken($color-secondary, 11%);
+        color: color($color-secondary lightness(-11%));
 
         h3,
         h4 {
@@ -83,7 +83,7 @@
 
             &,
             a {
-                color: darken($color-secondary, 11%);
+                color: color($color-secondary lightness(-11%));
                 margin-top: 40px;
                 text-decoration: none;
             }
@@ -302,10 +302,10 @@
             background-color: $color-keyboard;
             padding: 2px 6px;
             border-radius: 3px;
-            border: solid 1px desaturate(darken($color-keyboard, 15%), 10%);
+            border: solid 1px color($color-keyboard lightness(-15%) saturation(-10%));
             border-bottom-width: 3px;
             text-shadow: 0 1px 0 #FFF;
-            color: darken($color-keyboard, 70%);
+            color: color($color-keyboard lightness(-70%));
         }
 
         /* Code inline */

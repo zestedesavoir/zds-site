@@ -60,7 +60,7 @@
     button {
         &:hover,
         &:focus {
-            border-bottom-color: lighten($color-primary, 20%);
+            border-bottom-color: color($color-primary lightness(+20%));
             outline: none;
             background-color: #EEE;
         }

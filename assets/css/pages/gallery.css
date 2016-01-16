@@ -13,14 +13,14 @@
 
             &:hover,
             &.active {
-                border-color: lighten($color-primary, 20%) !important;
+                border-color: color($color-primary lightness(+20%)) !important;
 
                 &:before {
                     display: none;
                 }
 
                 .topic-title {
-                    background: lighten($color-primary, 20%) !important;
+                    background: color($color-primary lightness(+20%)) !important;
                     color: #FFF;
                     text-decoration: none;
                 }
@@ -70,10 +70,10 @@
             }
 
             &.selected {
-                border-color: lighten($color-primary, 75%);
+                border-color: color($color-primary lightness(+75%));
 
                 .topic-title {
-                    background: lighten($color-primary, 75%);
+                    background: color($color-primary lightness(+75%));
                 }
             }
 
@@ -88,7 +88,7 @@
                 &:hover,
                 &:focus {
                     background-color: #CCC;
-                    color: lighten($color-primary, 20%);
+                    color: color($color-primary lightness(+20%));
                 }
             }
         }

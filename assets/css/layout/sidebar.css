@@ -16,7 +16,7 @@
         font-size: 16px;
         font-size: 1.6rem;
         position: relative;
-        color: lighten($color-primary, 20%);
+        color: color($color-primary lightness(+20%));
         transition: all $transition-duration ease;
 
         &:first-child {

@@ -180,7 +180,7 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
         }
 
         & > a {
-            color: darken($color-secondary, 10%);
+            color: color($color-secondary lightness(-10%));
 
             &:hover, &:focus {
                 text-decoration: underline;

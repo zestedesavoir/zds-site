@@ -29,7 +29,7 @@
             a {
                 display: block;
                 text-decoration: none;
-                color: lighten($color-primary, 20%);
+                color: color($color-primary lightness(+20%));
                 height: 36px;
                 line-height: 36px;
                 padding: 0 8px;

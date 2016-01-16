@@ -24,11 +24,11 @@ hr {
 
 a,
 .link {
-    color: lighten($color-primary, 20%);
+    color: color($color-primary lightness(+20%));
     transition: all $transition-duration ease;
 
     &:hover {
-        color: darken($color-secondary, 15%);
+        color: color($color-secondary lightness(-15%));
         text-decoration: none;
     }
 }

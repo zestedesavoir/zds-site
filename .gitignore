@@ -28,7 +28,7 @@ base.db
 /node_modules
 /dist
 /npm-debug.log
-/assets/css/_sprite.css
+/assets/css/sprite.css
 /assets/css/vendors
 /assets/js/vendors
 

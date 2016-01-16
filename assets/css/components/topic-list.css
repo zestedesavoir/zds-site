@@ -32,7 +32,7 @@
             width: 2px;
         }
         &.unread:before {
-            background: lighten($color-primary, 20%);
+            background: color($color-primary lightness(+20%));
         }
 
         &:nth-child(2n){
@@ -50,21 +50,21 @@
         &.active {
             &:before {
                 width: 5px;
-                background: lighten($color-primary, 20%);
+                background: color($color-primary lightness(+20%));
             }
         }
 
         &.selected {
-            background-color: lighten($color-primary, 75%);
+            background-color: color($color-primary lightness(+75%));
         }
     }
     a {
         text-decoration: none;
-        color: lighten($color-primary, 15%);
+        color: color($color-primary lightness(+15%));
 
         &:hover,
         &:focus {
-            color: lighten($color-primary, 15%);
+            color: color($color-primary lightness(+15%));
             text-decoration: underline;
             outline: none;
         }

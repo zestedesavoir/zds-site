@@ -28,11 +28,11 @@
             .message {
                 &,
                 .is-author {
-                    background: desaturate($color-helpful, 50%);
+                    background: color($color-helpful saturation(*50%));
                 }
 
                 &:after {
-                    border-right-color: desaturate($color-helpful, 50%);
+                    border-right-color: color($color-helpful saturation(*50%));
                 }
             }
         }
@@ -153,8 +153,8 @@
 
                 &:hover,
                 &:focus {
-                    border-bottom: 1px solid lighten($color-primary, 15%);
-                    color: lighten($color-primary, 15%);
+                    border-bottom: 1px solid color($color-primary lightness(+15%));
+                    color: color($color-primary lightness(+15%));
                     outline: none;
                 }
             }
@@ -435,7 +435,7 @@
 
                 &:hover,
                 &:focus {
-                    border-bottom-color: lighten($color-primary, 15%);
+                    border-bottom-color: color($color-primary lightness(+15%));
                     outline: none;
                     background: none;
 

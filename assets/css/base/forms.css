@@ -148,7 +148,7 @@
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($color-success, 7%);
+            background: color($color-success lightness(+7%));
         }
 
         &.disabled.submitted {
@@ -166,7 +166,7 @@
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($color-danger, 7%);
+            background: color($color-danger lightness(+7%));
         }
 
         &.disabled.submitted {
@@ -212,7 +212,7 @@
 
         &:hover,
         &:focus {
-            background: darken(#3b5998, 10%);
+            background: color(#3b5998 lightness(-10%));
         }
     }
     .btn-twitter:not(.link) {
@@ -220,7 +220,7 @@
 
         &:hover,
         &:focus {
-            background: darken(#4099FF, 10%);
+            background: color(#4099FF lightness(-10%));
         }
     }
     .btn-google-plus:not(.link) {
@@ -228,7 +228,7 @@
 
         &:hover,
         &:focus {
-            background: darken(#d34836, 10%);
+            background: color(#d34836 lightness(-10%));
         }
     }
     .btn-facebook,

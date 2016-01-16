@@ -93,7 +93,7 @@
 
         &:hover,
         &:focus {
-            background: lighten($color-primary, 7%);
+            background: color($color-primary lightness(+7%));
         }
 
         &.alert-box-btn-right {
