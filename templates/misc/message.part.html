@@ -5,7 +5,7 @@
 {% load i18n %}
 
 
-{% if topic.author = message.author and helpful_link %}
+{% if topic.author == message.author and helpful_link %}
     {% set True as is_author %}
 {% else %}
     {% set False as is_author %}
@@ -50,7 +50,7 @@
                                 </a>
                             </li>
                         {% endif %}
-                        {% if message.author = user or perms_change %}
+                        {% if message.author == user or perms_change %}
                             {% if can_hide != False %}
                                 <li>
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
@@ -77,7 +77,7 @@
                             {% endif %}
                         {% endif %}
 
-                        {% if message.author = user or perms_change %}
+                        {% if message.author == user or perms_change %}
                             {% if can_edit != False %}
                                 <li>
                                     <a href="{{ edit_link|safe }}" class="ico-after edit">
@@ -181,7 +181,7 @@
                 </div>
             {% endif %}
 
-            {% if message.is_visible = False %}
+            {% if message.is_visible == False %}
                 <p class="message-hidden">
                     {% trans "Masqué par" %} {{ message.editor }}
                     {% if message.text_hidden %}
@@ -244,7 +244,7 @@
                     <div class="message-karma">
                         {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
-                                {% if topic.author = user or perms_change %}
+                                {% if topic.author == user or perms_change %}
                                     <form action="{{ helpful_link }}" method="post">
                                         {% csrf_token %}
                                         <button

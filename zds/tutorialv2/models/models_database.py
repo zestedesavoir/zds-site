@@ -62,7 +62,7 @@ class PublishableContent(models.Model):
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True, db_index=True)
+                                         blank=True, db_index=True)
 
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
@@ -430,7 +430,7 @@ class PublishableContent(models.Model):
                 read = ContentRead.objects\
                     .select_related('note')\
                     .select_related('note__related_content')\
-                    .select_related('related_content__public_version')\
+                    .select_related('note__related_content__public_version')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
                 if read is not None and read.note:  # one case can show a read without note : the author has just
