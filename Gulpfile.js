@@ -5,14 +5,15 @@ var gulp = require("gulp"),
     del = require("del");
 
 var postcssProcessors = [
-  require("postcss-import"),
+  require("postcss-import"), // Must be first
   require("postcss-advanced-variables"),
-  require("postcss-custom-media"),
-  require("postcss-calc"),
-  require("postcss-mixins"),
-  require("postcss-nesting"),
-  require("postcss-nested"),
   require("postcss-atroot"),
+  require("postcss-calc"),
+  require("postcss-color-function"),
+  require("postcss-custom-media"),
+  require("postcss-mixins"),
+  require("postcss-nested"),
+  require("postcss-nesting"),
   require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
   //require("cssnano")({ discardComments: { removeAll: true }})
 ];

@@ -30,16 +30,16 @@
             }
         }
         &.ico-articles:after {
-            @include sprite-position($articles);
+            background-position: $articles-x $articles-y;
         }
         &.ico-tutorials:after {
-            @include sprite-position($tutorials);
+            background-position: $tutorials-x $tutorials-y;
         }
         &.ico-news:after {
-            @include sprite-position($star-heading-white);
+            background-position: $star-heading-white-x $star-heading-white-y;
         }
         &.ico-forum:after {
-            @include sprite-position($forum-heading);
+            background-position: $forum-heading-x $forum-heading-y;
         }
 
         &.illu img {
@@ -142,8 +142,8 @@
     }
 
     .main {
-        @include display(flex);
-        @include flex-direction(row-reverse);
+        @mixin display flex;
+        @mixin flex-direction row-reverse;
         height: 100%;
         margin-left: 0;
         padding-left: 2.5%;
@@ -298,7 +298,7 @@
     .main .content-container {
         h1, h2 {
             &.ico-news:after {
-                @include sprite-position($star-heading);
+                background-position: $star-heading-x $star-heading-y;
             }
         }
     }

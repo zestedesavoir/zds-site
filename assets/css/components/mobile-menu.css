@@ -238,9 +238,9 @@
                     left: 13px;
                     height: 22px;
                     width: 22px;
-                    @include sprite();
+                    @mixin sprite;
                     background-repeat: no-repeat;
-                    @include sprite-position($menu);
+                    background-position: $menu-x $menu-y;
                 }
             }
         }

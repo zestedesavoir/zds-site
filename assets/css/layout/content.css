@@ -166,28 +166,28 @@
                 background: #daeaee;
 
                 &.ico-after:after {
-                    @include sprite-position($information);
+                    background-position: $information-x $information-y;
                 }
             }
             &.question {
                 background: #e2daee;
 
                 &.ico-after:after {
-                    @include sprite-position($question);
+                    background-position: $question-x $question-y;
                 }
             }
             &.error {
                 background: #eedada;
 
                 &.ico-after:after {
-                    @include sprite-position($error);
+                    background-position: $error-x $error-y;
                 }
             }
             &.warning {
                 background: #eee7da;
 
                 &.ico-after:after {
-                    @include sprite-position($warning);
+                    background-position: $warning-x $warning-y;
                 }
             }
         }

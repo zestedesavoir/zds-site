@@ -75,8 +75,8 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
         width: 32px;
         padding-left: 1px;
 
-        @include sprite();
-        @include sprite-position($chat-bubble);
+        @mixin sprite;
+        background-position: $chat-bubble-x $chat-bubble-y;
 
         color: $color-secondary;
         text-align: center;
@@ -100,8 +100,8 @@ $content-reaction-offset: -14px; /* -30px to not offset the meta */
             left: 0;
             z-index: 1;
 
-            @include sprite();
-            @include sprite-position($chat-bubble-orange);
+            @mixin sprite;
+            background-position: $chat-bubble-orange-x $chat-bubble-orange-y;
 
             opacity: 0;
             transition: opacity $transition-duration;

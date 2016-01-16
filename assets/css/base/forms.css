@@ -279,7 +279,7 @@
             bottom: 0;
             right: 0;
             opacity: 0;
-            @include sprite();
+            @mixin sprite;
         }
 
         &:checked:after {
@@ -290,10 +290,10 @@
         border-radius: 50%;
     }
     input[type=radio]:after {
-        @include sprite-position($radio);
+        background-position: $radio-x $radio-y;
     }
     input[type=checkbox]:after {
-        @include sprite-position($check);
+        background-position: $check-x $check-y;
     }
 
 

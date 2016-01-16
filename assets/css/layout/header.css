@@ -128,16 +128,16 @@
                 margin: -11px 0 0 -11px;
 
                 &.ico-messages {
-                    @include sprite-position($messages);
+                    background-position: $messages-x $messages-y;
                 }
                 &.ico-notifs {
-                    @include sprite-position($notifications);
+                    background-position: $notifications-x $notifications-y;
                 }
                 &.ico-alerts {
-                    @include sprite-position($alerts);
+                    background-position: $alerts-x $alerts-y;
                 }
                 &.ico-params {
-                    @include sprite-position($params);
+                    background-position: $params-x $params-y;
                 }
             }
 

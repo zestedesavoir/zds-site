@@ -1,6 +1,6 @@
 .ico {
     background-repeat: no-repeat;
-    @include sprite();
+    @mixin sprite;
 }
 .ico-after {
     position: relative;
@@ -14,380 +14,380 @@
         width: 16px;
         height: 16px;
         background-repeat: no-repeat;
-        @include sprite();
+        @mixin sprite;
     }
 
     &.alert {
         &:after {
-            @include sprite-position($alert);
+            background-position: $alert-x $alert-y;
         }
         &.blue:after {
-            @include sprite-position($alert-blue);
+            background-position: $alert-blue-x $alert-blue-y;
         }
         &.light:after {
-            @include sprite-position($alert-light);
+            background-position: $alert-light-x $alert-light-y;
         }
     }
 
     &.arrow-left {
         &:after {
-            @include sprite-position($arrow-left);
+            background-position: $arrow-left-x $arrow-left-y;
         }
         &.blue:after {
-            @include sprite-position($arrow-left-blue);
+            background-position: $arrow-left-blue-x $arrow-left-blue-y;
         }
         &.light:after {
-            @include sprite-position($arrow-left-light);
+            background-position: $arrow-left-light-x $arrow-left-light-y;
         }
     }
 
     &.offline,
     &.arrow-right {
         &:after {
-            @include sprite-position($arrow-right);
+            background-position: $arrow-right-x $arrow-right-y;
         }
         &.blue:after {
-            @include sprite-position($arrow-right-blue);
+            background-position: $arrow-right-blue-x $arrow-right-blue-y;
         }
         &.light:after {
-            @include sprite-position($arrow-right-light);
+            background-position: $arrow-right-light-x $arrow-right-light-y;
         }
     }
 
     &.beta {
         &:after {
-            @include sprite-position($beta);
+            background-position: $beta-x $beta-y;
         }
         &.blue:after {
-            @include sprite-position($beta-blue);
+            background-position: $beta-blue-x $beta-blue-y;
         }
         &.light:after {
-            @include sprite-position($beta-light);
+            background-position: $beta-light-x $beta-light-y;
         }
     }
 
     &.cite {
         &:after {
-            @include sprite-position($cite);
+            background-position: $cite-x $cite-y;
         }
         &.blue:after {
-            @include sprite-position($cite-blue);
+            background-position: $cite-blue-x $cite-blue-y;
         }
         &.light:after {
-            @include sprite-position($cite-light);
+            background-position: $cite-light-x $cite-light-y;
         }
     }
 
     &.cross {
         &:after {
-            @include sprite-position($cross);
+            background-position: $cross-x $cross-y;
         }
         &.blue:after {
-            @include sprite-position($cross-blue);
+            background-position: $cross-blue-x $cross-blue-y;
         }
         &.red:after {
-            @include sprite-position($cross-red);
+            background-position: $cross-red-x $cross-red-y;
         }
         &.light:after {
-            @include sprite-position($cross-light);
+            background-position: $cross-light-x $cross-light-y;
         }
         &.white:after {
-            @include sprite-position($cross-white);
+            background-position: $cross-white-x $cross-white-y;
         }
     }
 
     &.download {
         &:after {
-            @include sprite-position($download);
+            background-position: $download-x $download-y;
         }
         &.blue:after {
-            @include sprite-position($download-blue);
+            background-position: $download-blue-x $download-blue-y;
         }
         &.light:after {
-            @include sprite-position($download-light);
+            background-position: $download-light-x $download-light-y;
         }
     }
 
     &.downvote {
         &:after {
-            @include sprite-position($thumb-down);
+            background-position: $thumb-down-x $thumb-down-y;
         }
         &.voted:after {
-            @include sprite-position($thumb-down-voted);
+            background-position: $thumb-down-voted-x $thumb-down-voted-y;
         }
     }
 
     &.edit {
         &:after {
-            @include sprite-position($edit);
+            background-position: $edit-x $edit-y;
         }
         &.blue:after {
-            @include sprite-position($edit-blue);
+            background-position: $edit-blue-x $edit-blue-y;
         }
         &.light:after {
-            @include sprite-position($edit-light);
+            background-position: $edit-light-x $edit-light-y;
         }
     }
 
     &.email {
         &:after {
-            @include sprite-position($email);
+            background-position: $email-x $email-y;
         }
         &.blue:after {
-            @include sprite-position($email-blue);
+            background-position: $email-blue-x $email-blue-y;
         }
         &.light:after {
-            @include sprite-position($email-light);
+            background-position: $email-light-x $email-light-y;
         }
     }
 
     &.diaspora {
         &:after {
-            @include sprite-position($diaspora);
+            background-position: $diaspora-x $diaspora-y;
         }
         &.blue:after {
-            @include sprite-position($diaspora-blue);
+            background-position: $diaspora-blue-x $diaspora-blue-y;
         }
         &.light:after {
-            @include sprite-position($diaspora-light);
+            background-position: $diaspora-light-x $diaspora-light-y;
         }
     }
 
     &.facebook {
         &:after {
-            @include sprite-position($facebook);
+            background-position: $facebook-x $facebook-y;
         }
         &.blue:after {
-            @include sprite-position($facebook-blue);
+            background-position: $facebook-blue-x $facebook-blue-y;
         }
         &.light:after {
-            @include sprite-position($facebook-light);
+            background-position: $facebook-light-x $facebook-light-y;
         }
     }
 
     &.foursquare {
         &:after {
-            @include sprite-position($foursquare);
+            background-position: $foursquare-x $foursquare-y;
         }
         &.blue:after {
-            @include sprite-position($foursquare-blue);
+            background-position: $foursquare-blue-x $foursquare-blue-y;
         }
         &.light:after {
-            @include sprite-position($foursquare-light);
+            background-position: $foursquare-light-x $foursquare-light-y;
         }
     }
 
     &.gear {
         &:after {
-            @include sprite-position($gear);
+            background-position: $gear-x $gear-y;
         }
         &.blue:after {
-            @include sprite-position($gear-blue);
+            background-position: $gear-blue-x $gear-blue-y;
         }
         &.light:after {
-            @include sprite-position($gear-light);
+            background-position: $gear-light-x $gear-light-y;
         }
     }
 
     &.github {
         &:after {
-            @include sprite-position($github);
+            background-position: $github-x $github-y;
         }
         &.blue:after {
-            @include sprite-position($github-blue);
+            background-position: $github-blue-x $github-blue-y;
         }
         &.light:after {
-            @include sprite-position($github-light);
+            background-position: $github-light-x $github-light-y;
         }
     }
 
     &.google-plus {
         &:after {
-            @include sprite-position($google-plus);
+            background-position: $google-plus-x $google-plus-y;
         }
         &.blue:after {
-            @include sprite-position($google-plus-blue);
+            background-position: $google-plus-blue-x $google-plus-blue-y;
         }
         &.light:after {
-            @include sprite-position($google-plus-light);
+            background-position: $google-plus-light-x $google-plus-light-y;
         }
     }
 
     &.help {
         &:after {
-            @include sprite-position($help);
+            background-position: $help-x $help-y;
         }
         &.blue:after {
-            @include sprite-position($help-blue);
+            background-position: $help-blue-x $help-blue-y;
         }
         &.light:after {
-            @include sprite-position($help-light);
+            background-position: $help-light-x $help-light-y;
         }
     }
 
     &.hide {
         &:after {
-            @include sprite-position($hide);
+            background-position: $hide-x $hide-y;
         }
         &.blue:after {
-            @include sprite-position($hide-blue);
+            background-position: $hide-blue-x $hide-blue-y;
         }
         &.light:after {
-            @include sprite-position($hide-light);
+            background-position: $hide-light-x $hide-light-y;
         }
     }
 
     &.history {
         &:after {
-            @include sprite-position($history);
+            background-position: $history-x $history-y;
         }
         &.blue:after {
-            @include sprite-position($history-blue);
+            background-position: $history-blue-x $history-blue-y;
         }
         &.light:after {
-            @include sprite-position($history-light);
+            background-position: $history-light-x $history-light-y;
         }
     }
 
     &.import {
         &:after {
-            @include sprite-position($import);
+            background-position: $import-x $import-y;
         }
         &.blue:after {
-            @include sprite-position($import-blue);
+            background-position: $import-blue-x $import-blue-y;
         }
         &.light:after {
-            @include sprite-position($import-light);
+            background-position: $import-light-x $import-light-y;
         }
     }
 
     &.lock {
         &:after {
-            @include sprite-position($lock);
+            background-position: $lock-x $lock-y;
         }
         &.blue:after {
-            @include sprite-position($lock-blue);
+            background-position: $lock-blue-x $lock-blue-y;
         }
         &.light:after {
-            @include sprite-position($lock-light);
+            background-position: $lock-light-x $lock-light-y;
         }
     }
 
     &.more {
         &:after {
-            @include sprite-position($more);
+            background-position: $more-x $more-y;
         }
         &.blue:after {
-            @include sprite-position($more-blue);
+            background-position: $more-blue-x $more-blue-y;
         }
         &.light:after {
-            @include sprite-position($more-light);
+            background-position: $more-light-x $more-light-y;
         }
     }
 
     &.move {
         &:after {
-            @include sprite-position($move);
+            background-position: $move-x $move-y;
         }
         &.blue:after {
-            @include sprite-position($move-blue);
+            background-position: $move-blue-x $move-blue-y;
         }
         &.light:after {
-            @include sprite-position($move-light);
+            background-position: $move-light-x $move-light-y;
         }
     }
 
     &.pin {
         &:after {
-            @include sprite-position($pin);
+            background-position: $pin-x $pin-y;
         }
         &.blue:after {
-            @include sprite-position($pin-blue);
+            background-position: $pin-blue-x $pin-blue-y;
         }
         &.light:after {
-            @include sprite-position($pin-light);
+            background-position: $pin-light-x $pin-light-y;
         }
     }
 
     &.rss {
         &:after {
-            @include sprite-position($rss);
+            background-position: $rss-x $rss-y;
         }
         &.blue:after {
-            @include sprite-position($rss-blue);
+            background-position: $rss-blue-x $rss-blue-y;
         }
         &.orange:after {
-            @include sprite-position($rss-orange);
+            background-position: $rss-orange-x $rss-orange-y;
         }
         &.light:after {
-            @include sprite-position($rss-light);
+            background-position: $rss-light-x $rss-light-y;
         }
     }
 
     &.star {
         &:after {
-            @include sprite-position($star);
+            background-position: $star-x $star-y;
         }
         &.yellow:after {
-            @include sprite-position($star-yellow);
+            background-position: $star-yellow-x $star-yellow-y;
         }
         &.blue:after {
-            @include sprite-position($star-blue);
+            background-position: $star-blue-x $star-blue-y;
         }
         &.light:after {
-            @include sprite-position($star-light);
+            background-position: $star-light-x $star-light-y;
         }
     }
 
     &.tick {
         &:after {
-            @include sprite-position($tick);
+            background-position: $tick-x $tick-y;
         }
         &.green:after {
-            @include sprite-position($tick-green);
+            background-position: $tick-green-x $tick-green-y;
         }
         &.light:after {
-            @include sprite-position($tick-light);
+            background-position: $tick-light-x $tick-light-y;
         }
     }
 
     &.twitter {
         &:after {
-            @include sprite-position($twitter);
+            background-position: $twitter-x $twitter-y;
         }
         &.blue:after {
-            @include sprite-position($twitter-blue);
+            background-position: $twitter-blue-x $twitter-blue-y;
         }
         &.light:after {
-            @include sprite-position($twitter-light);
+            background-position: $twitter-light-x $twitter-light-y;
         }
     }
 
     &.unread {
         &:after {
-            @include sprite-position($unread);
+            background-position: $unread-x $unread-y;
         }
     }
 
     &.upvote {
         &:after {
-            @include sprite-position($thumb-up);
+            background-position: $thumb-up-x $thumb-up-y;
         }
         &.voted:after {
-            @include sprite-position($thumb-up-voted);
+            background-position: $thumb-up-voted-x $thumb-up-voted-y;
         }
     }
 
     &.online,
     &.view {
         &:after {
-            @include sprite-position($view);
+            background-position: $view-x $view-y;
         }
         &.blue:after {
-            @include sprite-position($view-blue);
+            background-position: $view-blue-x $view-blue-y;
         }
         &.light:after {
-            @include sprite-position($view-light);
+            background-position: $view-light-x $view-light-y;
         }
     }
 }

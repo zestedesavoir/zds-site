@@ -264,9 +264,9 @@ $content-width: 1145px;
 
             &:after {
                 margin: 16px;
-                @include sprite-position($search);
-                @include sprite-width($search);
-                @include sprite-height($search);
+                background-position: $search-x $search-y;
+                height: $search-height;
+                width: $search-width;
             }
         }
     }

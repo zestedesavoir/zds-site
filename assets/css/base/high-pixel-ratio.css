@@ -11,7 +11,7 @@
     .ico,
     .ico-after:after,
     .breadcrumb ol li:not(:last-child):after {
-        @include sprite-2x();
+        @mixin sprite-2x;
     }
 
     .main-container,
@@ -31,7 +31,7 @@
        only screen and (min-resolution: 2dppx) and (--media-mobile-tablet) {
 
     .js.enable-mobile-menu .mobile-menu-hide .page-container .mobile-menu-btn:after {
-        @include sprite-2x();
+        @mixin sprite-2x;
     }
 
     .page-container .header-logo-link {

@@ -13,7 +13,7 @@
    http://demo.agektmr.com/flexbox/
    http://the-echoplex.net/flexyboxes/ */
 
-@define-mixin display($prop) {
+@define-mixin display $prop {
   @if $prop == flex {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -25,7 +25,7 @@
   }
 }
 
-@define-mixin flex-direction($prop) {
+@define-mixin flex-direction $prop {
   @if $prop == row {
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
@@ -55,7 +55,7 @@
   flex-direction: $prop;
 }
 
-@define-mixin align-items($prop) {
+@define-mixin align-items $prop {
   $oldprop: $prop;
   @if $prop == flex-start { $oldprop: start; }
   @if $prop == flex-end   { $oldprop: end; }
@@ -66,7 +66,7 @@
   align-items: $prop;
 }
 
-@define-mixin justify-content($prop) {
+@define-mixin justify-content $prop {
   $oldprop: $prop;
   @if $prop == flex-start    { $oldprop: start; }
   @if $prop == flex-end      { $oldprop: end; }
@@ -78,7 +78,7 @@
   justify-content: $prop;
 }
 
-@define-mixin flex($prop) {
+@define-mixin flex $prop {
   -webkit-box-flex: $prop;
   -moz-box-flex: $prop;
   -ms-flex: $prop;
@@ -86,7 +86,7 @@
   flex: $prop;
 }
 
-@define-mixin order($prop) {
+@define-mixin order $prop {
   -webkit-box-ordinal-group: calc($prop + 1);
   -moz-box-ordinal-group: calc($prop + 1);
   -ms-flex-order: $prop;

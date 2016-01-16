@@ -1,32 +1,19 @@
-{{! Based on https://github.com/sprity/sprity-sass/blob/master/template/scss.hbs }}
-
 {{#each layouts}}
   {{#each layout.items}}
-    ${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}: -{{baseDim x}}px -{{baseDim y}}px {{baseDim width}}px {{baseDim height}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-x: -{{baseDim x}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-y: -{{baseDim y}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-height: {{baseDim width}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-width: {{baseDim height}}px;
   {{/each}}
 {{/each}}
 
-@define-mixin sprite-width($sprite) {
-  width: nth($sprite, 3);
-}
-
-@define-mixin sprite-height($sprite) {
-  height: nth($sprite, 4);
-}
-
-@define-mixin sprite-position($sprite) {
-  $sprite-offset-x: nth($sprite, 1);
-  $sprite-offset-y: nth($sprite, 2);
-  background-position: $sprite-offset-x  $sprite-offset-y;
-}
-
 {{#each layouts}}
   {{#each sprites}}
-    @define-mixin sprite{{#if dpi}}-{{ratio}}x{{/if}}() {
-      background-image: url('{{escimage url}}');
-      {{#if dpi}}
-      background-size: {{baseWidth}}px {{baseHeight}}px;
-      {{/if}}
-    }
+@define-mixin sprite{{#if dpi}}-{{ratio}}x{{/if}} {
+  background-image: url('{{escimage url}}');
+  {{#if dpi}}
+  background-size: {{baseWidth}}px {{baseHeight}}px;
+  {{/if}}
+}
   {{/each}}
 {{/each}}

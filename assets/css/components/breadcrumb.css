@@ -54,9 +54,9 @@
                     content: " ";
                     height: 30px;
                     width: 15px;
-                    @include sprite();
+                    @mixin sprite;
                     background-repeat: no-repeat;
-                    @include sprite-position($ariane);
+                    background-position: $ariane-x $ariane-y;
                     opacity: .2;
                 }
             }

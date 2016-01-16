@@ -48,7 +48,7 @@
             &:after {
                 top: 9px;
                 left: 12px;
-                @include sprite-position($search);
+                background-position: $search-x $search-y;
             }
         }
     }

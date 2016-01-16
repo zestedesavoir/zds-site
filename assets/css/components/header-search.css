@@ -48,7 +48,7 @@
                 margin-left: -8px;
                 height: 17px;
                 width: 17px;
-                @include sprite-position($search);
+                background-position: $search-x $search-y;
             }
         }
     }
@@ -74,7 +74,7 @@
             outline: none;
         }
         &:before {
-            content: calc("+");
+            content: "+";
         }
     }
 }
