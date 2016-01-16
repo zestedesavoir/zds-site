@@ -224,10 +224,8 @@ $content-width: 1145px;
             width: 68px;
             height: 134px;
 
-            @at-root {
-                body.vc-clem-christmas.home .home-search-box::before {
-                    background-image: url('../images/home-clem-christmas@2x.png');
-                }
+            body.vc-clem-christmas& {
+                background-image: url('../images/home-clem-christmas@2x.png');
             }
         }
 

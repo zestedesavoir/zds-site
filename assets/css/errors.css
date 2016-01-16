@@ -1,17 +1,8 @@
 /* ===== Zeste de Savoir ====================================================
-   Author: Alex-D / Alexandre Demode
-   ---------------------------------
    Maintenance and error pages style
    ========================================================================== */
 
-
-
-
-
-@import "vendors/normalize";
-
-
-
+@import "normalize.css";
 
 html,
 body {
