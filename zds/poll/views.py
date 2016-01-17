@@ -14,9 +14,9 @@ from django.views.generic.detail import DetailView
 # Import from zds
 from zds import settings
 from zds.poll.forms import (PollForm, PollInlineFormSet,
-    ChoiceFormSetHelper, UpdatePollForm)
-from zds.poll.models import (Poll, MultipleVote, RangeVote,
-    UNIQUE_VOTE_KEY, RANGE_VOTE_KEY, MULTIPLE_VOTE_KEY)
+    ChoiceFormSetHelper, UpdatePollForm, get_vote_form)
+from zds.poll.models import (Poll, MultipleVote,
+    UNIQUE_VOTE_KEY, MULTIPLE_VOTE_KEY)
 from zds.member.decorator import LoginRequiredMixin
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
@@ -45,7 +45,7 @@ class NewPoll(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         poll = form.save(commit=False)
-        poll.user = self.request.user
+        poll.author = self.request.user
         poll.slug = slugify(form.cleaned_data['title'])
 
         # Choices
@@ -81,21 +81,18 @@ class DetailsPoll(DetailView):
                 elif poll.type_vote == MULTIPLE_VOTE_KEY:
                     choices = [vote['choice_id'] for vote in user_vote]
                     initial_data = {'choices': choices}
-                # Range vote
-                elif poll.type_vote == RANGE_VOTE_KEY:
-                    initial_data = user_vote
 
-        context['form'] = poll.get_vote_form(initial=initial_data)
+        context['form'] = get_vote_form(poll, initial=initial_data)
         return context
 
     @method_decorator(login_required)
     def post(self, request, pk):
         poll = get_object_or_404(Poll, pk=pk)
 
-        if not poll.open:
+        if not poll.is_open():
             raise PermissionDenied
 
-        form = poll.get_vote_form(data=request.POST)
+        form = get_vote_form(poll, data=request.POST)
 
         # Vote unique
         if poll.type_vote == UNIQUE_VOTE_KEY:
@@ -117,17 +114,6 @@ class DetailsPoll(DetailView):
                         choice=choice
                     )
                     vote.save()
-        # Range vote
-        elif poll.type_vote == RANGE_VOTE_KEY:
-            if form.is_valid():
-                for range_vote in form.cleaned_data:
-                    vote = RangeVote(
-                        poll=poll,
-                        user=request.user,
-                        choice=range_vote['choice'],
-                        range=range_vote['range']
-                    )
-                    vote.save()
         return redirect('poll-details', pk=poll.pk)
 
 
@@ -138,10 +124,10 @@ class UpdatePoll(LoginRequiredMixin, UpdateView):
     form_class = UpdatePollForm
 
     def get_object(self, queryset=None):
-        obj = super(UpdatePoll, self).get_object()
-        if not obj.user == self.request.user:
+        poll = super(UpdatePoll, self).get_object()
+        if not poll.author == self.request.user:
             raise PermissionDenied
-        return obj
+        return poll
 
 
 class DeletePoll(LoginRequiredMixin, DeleteView):
@@ -153,7 +139,7 @@ class DeletePoll(LoginRequiredMixin, DeleteView):
         return reverse('poll-list')
 
     def get_object(self, queryset=None):
-        obj = super(DeletePoll, self).get_object()
-        if not obj.user == self.request.user:
+        poll = super(DeletePoll, self).get_object()
+        if not poll.author == self.request.user:
             raise PermissionDenied
-        return obj
+        return poll

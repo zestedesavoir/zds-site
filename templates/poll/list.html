@@ -33,14 +33,29 @@
                     <p class="tutorial-authors">
                         {% trans "Par" %}
                         <strong>
-                            <a href="{{ poll.user.get_absolute_url }}" title="{% trans "Profil de" %} {{ poll.user.username }}">
-                                {{poll.user.username}}
+                            <a href="{{ poll.author.get_absolute_url }}" title="{% trans "Profil de" %} {{ poll.author.username }}">
+                                {{poll.author.username}}
                             </a>
                         </strong>
-                         -
+                        -
                         <time class="content-pubdate" pubdate="{{ poll.pubdate|date:"c" }}">
                             {{ poll.pubdate|format_date|capfirst }}
                         </time>
+                        -
+                        {% trans "Statut" %}
+                        <strong>
+                            {% if poll.is_open %}
+                                {% trans "Ouvert" %}
+                            {% else %}
+                                {% trans "Fermé" %}
+                            {% endif %}
+                        </strong>
+                        {% if poll.enddate %}
+                            -
+                            {% trans "Date de cloture : " %}
+                            {{ poll.enddate }}
+                        {% endif %}
+
                     </p>
                 </div>
             </article>

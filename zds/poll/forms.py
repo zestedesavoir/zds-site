@@ -8,11 +8,9 @@ from django.forms.extras.widgets import SelectDateWidget
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder, Submit
+from crispy_forms.layout import Layout, Field, ButtonHolder
 
-from zds.poll.models import (
-    Poll, Choice, UniqueVote,
-    MultipleVote, RangeVote, RANGES)
+from zds.poll.models import Poll, Choice, UniqueVote, MultipleVote, MULTIPLE_VOTE_KEY, UNIQUE_VOTE_KEY
 
 
 #############################
@@ -68,7 +66,7 @@ class UpdatePollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ('title', 'open', 'enddate')
+        fields = ('title', 'activate', 'enddate')
         widgets = {
             'enddate': SelectDateWidget()
         }
@@ -81,7 +79,7 @@ class UpdatePollForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field('title'),
             Field('enddate'),
-            Field('open'),
+            Field('activate'),
             ButtonHolder(
                 StrictButton("Editer", type='submit'),
             ),
@@ -197,50 +195,8 @@ class MultipleVoteForm(forms.Form):
         )
 
 
-class RangeVoteModelForm(forms.ModelForm):
-    range = forms.ChoiceField(
-        choices=RANGES,
-        required=True,
-        widget=forms.RadioSelect,
-    )
-
-    class Meta:
-        model = RangeVote
-        fields = ('choice', 'range')
-        widgets = {
-            'choice': forms.HiddenInput()
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(RangeVoteModelForm, self).__init__(*args, **kwargs)
-        choice = self.initial.get('choice', None)
-        if choice and type(choice) is not int:
-            self.fields['range'].label = self.initial['choice'].choice
-
-
-class RangeVoteFormSet(forms.BaseModelFormSet):
-
-    def __init__(self, poll=None, *args, **kwargs):
-        super(RangeVoteFormSet, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.poll = poll
-        self.helper.layout = Layout(
-            Field('choice'),
-            Field('range')
-        )
-
-        if kwargs.get('initial'):
-            button_label = 'Modifier mon vote'
-        else:
-            button_label = 'Voter'
-
-        self.helper.add_input(Submit("submit", button_label))
-
-    def clean(self):
-        super(RangeVoteFormSet, self).clean()
-
-        for form in self.forms:
-            choice = form.cleaned_data['choice']
-
-            if choice and not choice.poll == self.poll:
-                raise forms.ValidationError("Ce choix n'appartient pas au sondage "+self.poll.title)
+def get_vote_form(poll, data=None, *args, **kwargs):
+    if poll.type_vote == MULTIPLE_VOTE_KEY:
+        return MultipleVoteForm(poll, data=data, *args, **kwargs)
+    elif poll.type_vote == UNIQUE_VOTE_KEY:
+        return UniqueVoteForm(poll, data=data, *args, **kwargs)

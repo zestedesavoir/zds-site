@@ -29,7 +29,7 @@
 
     <ul>
         {% for choice in poll.choices.all %}
-            <li>{{ choice }} ({{ choice.get_votes_count }} votes) - score : {{ choice.get_votes_score }}</li>
+            <li>{{ choice }} ({{ choice.get_count_votes }} votes)</li>
         {% endfor %}
     </ul>
 
@@ -46,7 +46,7 @@
             </p>
         </div>
     {% else %}
-        {% if poll.open %}
+        {% if poll.is_open %}
             {% crispy form %}
         {% else %}
             {% trans "Sondage fermé." %}
@@ -57,7 +57,7 @@
 
 
 {% block sidebar_actions %}
-    {% if user == poll.user %}
+    {% if user == poll.author %}
         <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
             <h3>{% trans "Actions" %}</h3>
             <ul>
