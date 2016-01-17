@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Import from django
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
@@ -10,8 +9,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DeleteView, UpdateView
 from django.views.generic.detail import DetailView
+from django.http import JsonResponse
 
-# Import from zds
 from zds import settings
 from zds.poll.forms import (PollForm, PollInlineFormSet,
     ChoiceFormSetHelper, UpdatePollForm, get_vote_form)
@@ -84,6 +83,16 @@ class DetailsPoll(DetailView):
 
         context['form'] = get_vote_form(poll, initial=initial_data)
         return context
+
+    def get(self, request, *args, **kwargs):
+        response = super(DetailsPoll, self).get(request, *args, **kwargs)
+        if request.is_ajax():
+            poll = self.get_object()
+            poll_dict ={
+                'title': poll.title
+            }
+            return JsonResponse(poll_dict)
+        return response
 
     @method_decorator(login_required)
     def post(self, request, pk):
