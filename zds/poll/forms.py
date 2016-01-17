@@ -169,7 +169,7 @@ class MultipleVoteForm(forms.Form):
     choices = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(),
         queryset=None,
-        required=True
+        required=False
     )
 
     class Meta:

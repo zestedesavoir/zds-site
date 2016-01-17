@@ -65,11 +65,19 @@ class Poll(models.Model):
         else:
             return 0
 
-    def get_user_vote(self, user):
+    def get_user_vote_objects(self, user):
         """
         Get all the vote for a given user
         :param user:
-        :return:
+        :return: A queryset of Vote
+        """
+        return self.get_vote_class().objects.filter(poll=self, user=user)
+
+    def get_user_vote_dict(self, user):
+        """
+        Get all the vote for a given user
+        :param user:
+        :return: A dict
         """
         return self.get_vote_class().objects.filter(poll=self, user=user).values()
 

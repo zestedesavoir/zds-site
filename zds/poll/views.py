@@ -3,7 +3,6 @@
 
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.decorators import method_decorator
@@ -15,7 +14,7 @@ from zds import settings
 from zds.poll.forms import (PollForm, PollInlineFormSet,
     ChoiceFormSetHelper, UpdatePollForm, get_vote_form)
 from zds.poll.models import (Poll, MultipleVote,
-    UNIQUE_VOTE_KEY, MULTIPLE_VOTE_KEY)
+    UNIQUE_VOTE_KEY, MULTIPLE_VOTE_KEY, UniqueVote)
 from zds.member.decorator import LoginRequiredMixin
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
@@ -71,7 +70,7 @@ class DetailsPoll(DetailView):
         initial_data = None
         if self.request.user.is_authenticated():
             # Get the user votes if is authenticated
-            user_vote = poll.get_user_vote(self.request.user)
+            user_vote = poll.get_user_vote_dict(self.request.user)
             if user_vote:
                 # Unique vote
                 if poll.type_vote == UNIQUE_VOTE_KEY:
@@ -107,22 +106,41 @@ class DetailsPoll(DetailView):
         if poll.type_vote == UNIQUE_VOTE_KEY:
             if form.is_valid():
                 try:
+                    vote = UniqueVote.objects.get(poll=poll, user=request.user)
+                    vote.choice = form.cleaned_data['choice']
+                    vote.save()
+                except UniqueVote.DoesNotExist:
                     vote = form.save(commit=False)
                     vote.poll = poll
                     vote.user = request.user
                     vote.save()
-                except IntegrityError:
-                    raise PermissionDenied
         # Vote multiple
         elif poll.type_vote == MULTIPLE_VOTE_KEY:
             if form.is_valid():
-                for choice in form.cleaned_data['choices']:
-                    vote = MultipleVote(
-                        poll=poll,
-                        user=request.user,
-                        choice=choice
-                    )
-                    vote.save()
+                # If the user has already voted, get the list of the choices
+                user_choices = [vote.choice for vote in poll.get_user_vote_objects(request.user)]
+                for choice in poll.choices.all():
+                    # Value form the database
+                    user_has_voted = choice in user_choices
+                    # Value form the form
+                    user_has_selected = choice in form.cleaned_data['choices']
+
+                    if user_has_voted and not user_has_selected:
+                        # Delete vote
+                        vote = MultipleVote.objects.get(
+                            poll=poll,
+                            user=request.user,
+                            choice=choice
+                        )
+                        vote.delete()
+                    elif not user_has_voted and user_has_selected:
+                        # Create vote
+                        vote = MultipleVote(
+                            poll=poll,
+                            user=request.user,
+                            choice=choice
+                        )
+                        vote.save()
         return redirect('poll-details', pk=poll.pk)
 
 
