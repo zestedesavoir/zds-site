@@ -5223,6 +5223,19 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse("validation:list") + "?type=tuto")
         self.assertIn('class="update_content"', result.content)
 
+    def test_download_size(self):
+        """
+        Test the size of content to download.
+        """
+
+        for type_ in ALLOWED_TYPES:
+            if self.published.have_type(type_):
+                self.assertEqual(self.published.get_size_file_type(type_),
+                                 os.path.getsize(os.path.join(
+                                     self.published.get_extra_contents_directory(),
+                                     self.published.content_public_slug + '.' + type_)),
+                                 "extra content of type {} has no size or incorrect size {}".format(type_, sizes))
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
