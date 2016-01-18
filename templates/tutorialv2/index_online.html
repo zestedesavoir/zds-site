@@ -58,11 +58,7 @@
         {% if public_contents %}
             <div class="content-item-list">
                 {% for public_content in public_contents %}
-                    {% if public_content.content_type == "TUTORIAL" %}
-                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with public_tutorial=public_content online=True show_description=True %}
-                    {% elif public_content.content_type == "ARTICLE" %}
-                        {% include "tutorialv2/includes/content_item_type_article.part.html" with public_article=public_content show_description=True %}
-                    {% endif %}
+                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>
