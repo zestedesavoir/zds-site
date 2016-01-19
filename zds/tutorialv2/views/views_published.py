@@ -268,6 +268,8 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     paginate_by = settings.ZDS_APP['content']['content_per_page']
     template_name = 'tutorialv2/index_online.html'
     category = None
+    tag = None
+    current_content_type = None
 
     def get_queryset(self):
         """Filter the contents to obtain the list of given type.
@@ -282,7 +284,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             "tutorialv2_contentreaction.related_content_id",
             r"`tutorialv2_publishablecontent`.`id`"
         )
-        queryset = PublishedContent.objects.filter(content_type=self.current_content_type, must_redirect=False)
+        queryset = PublishedContent.objects.filter(must_redirect=False)
+        if self.current_content_type:
+            queryset = queryset.filter(content_type=self.current_content_type)
 
         # prefetch:
         queryset = queryset\
@@ -299,6 +303,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         if 'category' in self.request.GET:
             self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
             queryset = queryset.filter(content__subcategory__in=[self.category])
+        if 'tag' in self.request.GET:
+            self.tag = get_object_or_404(Tag, slug=self.request.GET.get('tag'))
+            queryset = queryset.filter(content__tags__in=[self.tag])
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 

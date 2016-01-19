@@ -222,7 +222,7 @@
                                                             {% trans "Tags les plus utilisés" %}
                                                         </li>
                                                         {% for tag in categories.tags %}
-                                                            <li><a href="#TODO">{{ tag }}</a></li>
+                                                            <li><a href="{% url 'tutorial:list' %}?tag={{ tag.slug }}">{{ tag }}</a></li>
                                                         {% endfor %}
                                                         <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
                                                     </ul>

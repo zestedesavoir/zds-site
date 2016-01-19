@@ -45,7 +45,7 @@
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for category in content.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="#TODO">{{ category.title }}</a>{% endfor %}
+    {% for category in content.subcategory.all %}{% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'content:list' %}?category={{ category.slug }}">{{ category.title }}</a>{% endfor %}
 {% endcaptureas %}
 
 <article class="content-item has-reactions">
@@ -117,7 +117,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                  <a href="#TODO?tag={{ tag.slug }}">
+                  <a href="{% url 'content:list' %}?tag={{ tag.slug }}">
                     {{ tag.title }}
                   </a>
                 </li>

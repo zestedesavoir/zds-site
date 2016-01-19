@@ -9,7 +9,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, FollowContent, TagsListView
+HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, FollowContent
 
 
 urlpatterns = [
@@ -139,4 +139,6 @@ urlpatterns = [
 
     # tags
     url(r'^tags/$', TagsListView.as_view(), name='tags'),
+
+    url(r'^$', ListOnlineContents.as_view(), name='list'),
 ]

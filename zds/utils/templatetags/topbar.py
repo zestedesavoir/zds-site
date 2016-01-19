@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import itertools
+
 from collections import OrderedDict
 from django import template
 from django.conf import settings
@@ -64,10 +66,13 @@ def top_categories_content(_type):
         Each of these are stored in a tuple of the form ``title, slug``.
         :rtype: OrderedDict
         """
-
-        subcategories_contents = PublishedContent.objects\
-            .filter(content_type=_type)\
-            .values('content__subcategory').all()
+        if _type:
+            subcategories_contents = PublishedContent.objects\
+                .filter(content_type=_type)\
+                .values('content__subcategory').all()
+        else:
+            subcategories_contents = PublishedContent.objects\
+                .values('content__subcategory').all()
 
         categories_from_subcategories = CategorySubCategory.objects\
             .filter(is_main=True)\
