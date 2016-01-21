@@ -368,6 +368,17 @@ RECAPTCHA_PRIVATE_KEY = 'la-cle-ici'
 Actions à faire pour mettre en prod la version 16
 =================================================
 
+Réparer la table HS
+-------------------
+
+**Avant déploiement :** 
+
+1. Se connecter au serveur MySQL : `mysql -u root -p`
+2. Se mettre sur la base de ZdS : `use zdsdb;`
+3. Regarder le contenu de la table oauth2_provider_accesstoken : `describe oauth2_provider_accesstoken;`
+4. Si cette table contient une colonne nommée `skip_authorization`, la supprimer : `alter table oauth2_provider_accesstoken drop column skip_authorization;`
+5. Quitter MySQL
+
 Mise à jours de la version de Haystack à la 4.1 
 -----------------------------------------------
 
