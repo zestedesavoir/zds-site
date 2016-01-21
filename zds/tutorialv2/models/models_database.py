@@ -35,6 +35,9 @@ from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager
 
 
+ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
+
+
 class PublishableContent(models.Model):
     """A tutorial whatever its size or an article.
 
@@ -199,6 +202,7 @@ class PublishableContent(models.Model):
 
     def in_beta(self):
         """A tutorial is not in beta if sha_beta is ``None`` or empty
+
 
         :return: ``True`` if the tutorial is in beta, ``False`` otherwise
         :rtype: bool
@@ -545,8 +549,13 @@ class PublishedContent(models.Model):
     must_redirect = models.BooleanField(
         'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
 
+    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
+
     objects = PublishedContentManager()
     versioned_model = None
+
+    # sizes contain a python dict (as a string in database) with all information about file sizes
+    sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
 
     def __unicode__(self):
         return _('Version publique de "{}"').format(self.content.title)
@@ -626,9 +635,7 @@ class PublishedContent(models.Model):
         :rtype: bool
         """
 
-        allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
-
-        if type_ in allowed_types:
+        if type_ in ALLOWED_TYPES:
             return os.path.isfile(
                 os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_))
 
@@ -667,12 +674,74 @@ class PublishedContent(models.Model):
         return self.have_type('epub')
 
     def have_zip(self):
-        """Check if the standard epub version of the content is available
+        """Check if the standard zip version of the content is available
 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
         return self.have_type('zip')
+
+    def get_size_file_type(self, type_):
+        """
+        Get the size of a given extra content.
+        Is the size is not in database we get it and store it for next time.
+
+        :return: size of file
+        :rtype: int
+        """
+        if type_ in ALLOWED_TYPES:
+            sizes = eval(str(self.sizes))
+            try:
+                size = sizes[type_]
+            except KeyError:
+                # if size is not in database we store it
+                sizes[type_] = os.path.getsize(os.path.join(
+                    self.get_extra_contents_directory(), self.content_public_slug + '.' + type_))
+                self.sizes = sizes
+                self.save()
+                size = sizes[type_]
+            return size
+        return None
+
+    def get_size_md(self):
+        """Get the size of md
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('md')
+
+    def get_size_html(self):
+        """Get the size of html
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('html')
+
+    def get_size_pdf(self):
+        """Get the size of pdf
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('pdf')
+
+    def get_size_epub(self):
+        """Get the size of epub
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('epub')
+
+    def get_size_zip(self):
+        """Get the size of zip
+
+        :return: size of file
+        :rtype: int
+        """
+        return self.get_size_file_type('zip')
 
     def get_absolute_url_to_extra_content(self, type_):
         """Get the url that point to the extra content the user may want to download
@@ -683,9 +752,7 @@ class PublishedContent(models.Model):
         :rtype: str
         """
 
-        allowed_types = ['pdf', 'md', 'html', 'epub', 'zip']
-
-        if type_ in allowed_types:
+        if type_ in ALLOWED_TYPES:
             reversed_ = self.content_type.lower()
 
             return reverse(

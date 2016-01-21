@@ -13,7 +13,7 @@ from zds.search.utils import filter_keyword, filter_text, reindex_content
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
     ExtractFactory
-from zds.tutorialv2.utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')

@@ -34,7 +34,7 @@
             left: 12px;
             // TODO : remake icons
             display: none;
-        }        
+        }
     }
     button {
         padding: 0 15px;
@@ -42,7 +42,7 @@
         border-top: none;
         border-right: none;
         border-left: none;
-        
+
         &[type=submit] {
             background: #084561;
             border-bottom-color: #084561;
@@ -109,9 +109,9 @@
 div.zform-popup {
     top: 18px;
     z-index: 100;
-    background: transparent;    
+    background: transparent;
     background-color: #fff;
-    background-image: linear-gradient(center bottom , #EBEBE5 8%, #F9F9F6 75%);
+    background-image: linear-gradient(center to top, #EBEBE5 8%, #F9F9F6 75%);
     border: 1px solid #CCCCCC;
     border-radius: 3px;
     padding: 2px;
@@ -140,150 +140,5 @@ div.zform-popup {
         &:focus {
             color: #C87B02;
         }
-    }
-}
-
-
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Modal box
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
-
-/* Overlay gris clair */
-#zform-modal-overlay {
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    opacity: 0.5;
-    filter: alpha(opacity=50);
-    display: none;
-    z-index: 99;
-}
-
-/* HTML Structure
-====================================================================================
-<div id="zform-modal-wrapper">
-    <div>
-        <header id="zform-modal-header"></header>
-        
-        <section class="zform-modal" id="zform-modal-link">
-            <div>
-                <label for="zform-modal-link-href">Lien :</label>
-                <input type="text" id="zform-modal-link-href" />
-            </div>
-            
-            <div>
-                <label for="zform-modal-link-text">Texte :</label>
-                <input type="text" id="zform-modal-link-text" />
-            </div>
-        </section>
-        
-        <section class="zform-modal" id="zform-modal-image">...</section>
-        <section class="zform-modal" id="zform-modal-abbr">...</section>
-        <section class="zform-modal" id="zform-modal-footnote">...</section>
-        
-        <footer>
-            <a id="zform-modal-validate">Valider</a>
-            <a id="zform-modal-cancel">Annuler</a>
-        </footer>
-    </div>
-</div>
-==================================================================================== */
-
-/* Modal box container */
-#zform-modal-wrapper {
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    margin-top: 10%;
-    text-align: center; 
-    z-index: 100;
-
-    & > div {
-        position: relative;
-        display: inline-block;
-        text-align: left;
-        background: #f4f6f6;
-        border: 1px solid #555;
-        border-radius: 2px;
-        box-shadow: 0 2px 26px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
-        min-height: 220px;
-        min-width: 400px;
-
-        & > header {
-            color: #fff;
-            padding-left: 6px;
-            padding-right: 6px;
-            white-space: nowrap;
-            border-bottom: 3px solid #f8ad32;
-            line-height: 53px;
-            height: 50px;
-            text-indent: 15px;
-            margin-bottom: 20px;
-            background: #084561;
-            font-size: 1.6rem;
-            font-size: 16px;
-            text-shadow: rgba(0,0,0,.75)0 0 3px;
-        }
-    }
-
-    section {
-        display: block;
-        margin: 8px;
-        min-width: 200px;
-        min-height: 50px;
-        div {
-            input {
-                min-width: 260px;
-                margin: 7px 15px;
-            }
-        }
-    }
-
-    .btn,
-    [type=submit] {
-        position: absolute;
-        width: 50%;
-        height: 50px;
-        line-height: 50px;
-        bottom: 0;
-        right: 0;
-        margin: 0 !important;
-        padding: 0 !important;
-        text-align: center;
-        background: none !important;
-        border-top: 1px solid #CCC;
-        color: #333;
-        cursor: pointer;
-
-        &:hover,
-        &:focus {
-            background: #DDD !important;
-        }
-    }
-    .btn-submit,
-    [type=submit] {
-        color: $color-primary;
-        font-weight: bold;
-    }
-    .btn-cancel {
-        right: auto;
-        left: 0;
-        border-right: 1px solid #CCC;
-        color: #555;
-    }
-}
-
-.zform-modal {
-    label {
-        display: inline-block;
-        width: 70px;
-        text-align: left;
     }
 }

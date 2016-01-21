@@ -126,9 +126,7 @@
                     <a href="#unpublish" class="ico-after open-modal cross blue">
                         {% trans "Dépublier" %}
                     </a>
-                    <div class="modal modal-big" id="unpublish">
-                        {% crispy formRevokeValidation %}
-                    </div>
+                    {% crispy formRevokeValidation %}
                 </li>
                 {% endif %}
             </ul>

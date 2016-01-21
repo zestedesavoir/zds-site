@@ -12,12 +12,6 @@ Modèles (``models.py``)
 .. automodule:: zds.utils.models
     :members:
 
-Articles (``articles.py``)
-==========================
-
-.. automodule:: zds.utils.articles
-    :members:
-
 Forums (``forums.py``)
 ======================
 

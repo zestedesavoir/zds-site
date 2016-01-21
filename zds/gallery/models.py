@@ -103,6 +103,9 @@ class Image(models.Model):
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_(u'Date de modification'), null=True, blank=True)
 
+    def __init__(self, *args, **kwargs):
+        super(Image, self).__init__(*args, **kwargs)
+
     def __unicode__(self):
         """Human-readable representation of the Image model.
 

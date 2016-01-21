@@ -63,7 +63,7 @@ class FeaturedResourceCreate(CreateView):
         featured_resource.authors = form.data.get('authors')
         featured_resource.image_url = form.data.get('image_url')
         featured_resource.url = form.data.get('url')
-        featured_resource.pubdate = datetime.now()
+        featured_resource.pubdate = form.data.get('pubdate')
         featured_resource.save()
 
         return redirect(reverse('featured-resource-list'))
@@ -92,6 +92,7 @@ class FeaturedResourceUpdate(UpdateView):
             'authors': self.featured_resource.authors,
             'image_url': self.featured_resource.image_url,
             'url': self.featured_resource.url,
+            'pubdate': self.featured_resource.pubdate,
         })
         form.helper.form_action = reverse('featured-resource-update', args=[self.featured_resource.pk])
         return render(request, self.template_name, {'form': form, 'featured_resource': self.featured_resource})

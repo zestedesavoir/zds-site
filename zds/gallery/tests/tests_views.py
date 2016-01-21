@@ -721,6 +721,26 @@ class NewImageViewTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
 
+    def test_import_images_in_gallery_no_archive(self):
+        login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
+        self.assertTrue(login_check)
+
+        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'archive-gallery.zip'), 'r'):
+            response = self.client.post(
+                reverse(
+                    'gallery-image-import',
+                    args=[self.gallery.pk]
+                ),
+                {
+                    # normally we have
+                    # 'file': fp
+                    # but here we want to act as if we forgot it
+                },
+                follow=False
+            )
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 0)
+
     def test_denies_import_images_in_gallery(self):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)

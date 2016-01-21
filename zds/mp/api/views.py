@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
     get_object_or_404, RetrieveUpdateAPIView, ListAPIView
@@ -55,7 +55,6 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
     Private topic resource to list of a member.
     """
 
-    permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ('title',)
     ordering_fields = ('pubdate', 'last_message', 'title')
@@ -65,94 +64,93 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Lists all private topics of the member authenticated.
+        Lists an authenticated member's private topics.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: page
-              description: Displays users of the page given.
+              description: Restricts output to the given page number.
               required: false
               paramType: query
             - name: page_size
-              description: Sets size of the pagination.
+              description: Sets the number of private topics per page.
               required: false
               paramType: query
             - name: search
-              description: Makes a search on the username.
+              description: Filters by username.
               required: false
               paramType: query
             - name: ordering
-              description: Applies an order at the list. You can order by (-)pubdate, (-)last_message or (-)title.
+              description: Sorts the results. You can order by (-)pubdate, (-)last_message or (-)title.
               paramType: query
             - name: expand
-              description: Expand a field with an identifier.
+              description: Returns an object instead of an identifier representing the given field.
               required: false
               paramType: query
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """
-        Create a new private topic for the member authenticated.
+        Creates a new private topic owned by the authenticated member.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: title
-              description: New title of the MP.
+              description: Private topic title.
               required: true
               paramType: form
             - name: subtitle
-              description: New subtitle of the MP.
+              description: Private topic subtitle.
               required: false
               paramType: form
             - name: participants
-              description: If you would like to add a participant, you must specify its user identifier and if you
-                            would like to add more than one participant, you must specify this parameter several times.
+              description: To add a participant, specify its user identifier. Specify this parameter
+                           several times to add several participants.
               required: true
               paramType: form
             - name: text
-              description: Text of the first message of the private topic.
+              description: First message text.
               required: true
               paramType: form
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
         """
         return self.create(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Deletes a list of private topic of the member authenticated.
+        Deletes a private topic to which the authenticated member participates.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: pk
-              description: if you would like to remove more than one private topic,
-                            you must specify this parameter several times.
+              description: To remove several private topics, specify this parameter several times.
               required: true
               paramType: form
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
         """
         topics = self.get_queryset()
         if topics.count() == 0:
@@ -170,6 +168,12 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
         elif self.request.method == 'POST':
             return PrivateTopicCreateSerializer
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, ]
+        if self.request.method == 'GET' or self.request.method == 'POST':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         if self.request.method == 'DELETE':
             list = self.request.data.getlist('pk')
@@ -179,10 +183,9 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
 
 class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
     """
-    Private topic resource to display details of a private topic.
+    Private topic resource for private topic details.
     """
 
-    permission_classes = (IsAuthenticated, IsParticipant)
     queryset = PrivateTopic.objects.all()
     obj_key_func = DetailKeyConstructor()
 
@@ -190,81 +193,81 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
     @cache_response(key_func=obj_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Gets a private topic given by its identifier.
+        Gets a private topic by identifier.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: expand
-              description: Expand a field with an identifier.
+              description: Returns an object instead of an identifier representing the given field.
               required: false
               paramType: query
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Not permissions
+              message: Permission Denied
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
-        Updates a MP given by its identifier of the current user authenticated.
+        Updates a private topic by id. Said private topic must be owned by the authenticated
+        user.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: title
-              description: New title of the MP.
+              description: New private topic title.
               required: false
               paramType: form
             - name: subtitle
-              description: New subtitle of the MP.
+              description: New private topic subtitle.
               required: false
               paramType: form
             - name: participants
-              description: If you would like to add a participant, you must specify its user identifier and if you
-                            would like to add more than one participant, you must specify this parameter several times.
+              description: To add a participant, specify its user identifier. Specify this parameter
+                           several times to add several participants.
               required: false
               paramType: form
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Not permissions
+              message: Permission Denied
             - code: 404
-              message: Not found
+              message: Not Found
         """
-        self.permission_classes = (IsAuthenticated, IsAuthor,)
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Leaves a MP given by its identifier of the current user authenticated.
+        Deletes a private topic by identifier from authenticated user's inbox.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Not permissions
+              message: Permission Denied
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return self.destroy(request, *args, **kwargs)
 
@@ -277,56 +280,62 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
         elif self.request.method == 'PUT':
             return PrivateTopicUpdateSerializer
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipant, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'PUT':
+            permission_classes.append(DRYPermissions)
+            permission_classes.remove(IsParticipant)
+            permission_classes.append(IsAuthor)
+        return [permission() for permission in permission_classes]
+
 
 class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
     """
-    Private post resource to list of a member.
+    Private post resource for an authenticated member.
     """
 
-    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ('position_in_topic', 'pubdate', 'update')
     list_key_func = PagingPrivatePostListKeyConstructor()
-
-    def dispatch(self, request, *args, **kwargs):
-        return super(PrivatePostListAPI, self).dispatch(request, *args, **kwargs)
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Lists all private posts of a private topic given of the member authenticated.
+        Lists all private posts of a given private topic for an authenticated member.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: X-Data-Format
-              description: Specify "Html" or "Markdown" for the desired resource, "Markdown is the default value.
+              description: Specify "Html" or "Markdown" for the desired resource. Defaults to "Markdown".
               required: false
               paramType: header
             - name: page
-              description: Displays users of the page given.
+              description: Restricts output to the given page number.
               required: false
               paramType: query
             - name: page_size
-              description: Sets size of the pagination.
+              description: Sets the number of private posts per page.
               required: false
               paramType: query
             - name: ordering
-              description: Applies an order at the list. You can order by (-)position_in_topic, (-)pubdate or (-)update.
+              description: Sorts the results. You can order by (-)position_in_topic, (-)pubdate or (-)update.
               paramType: query
             - name: expand
-              description: Expand a field with an identifier.
+              description: Returns an object instead of an identifier representing the given field.
               required: false
               paramType: query
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 404
-              message: Not found
+              message: Not Found
         """
         response = self.list(request, *args, **kwargs)
         self.perform_list(get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic'))), self.request.user)
@@ -338,24 +347,23 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
         ---
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: text
-              description: Text of the first message of the private topic.
+              description: Message text.
               required: true
               paramType: form
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Not permissions
+              message: Permission Denied
             - code: 404
-              message: Not found
+              message: Not Found
         """
-        self.permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, IsAloneInPrivatePost)
         return self.create(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -364,18 +372,26 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
         elif self.request.method == 'POST':
             return PrivatePostCreateSerializer
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'POST':
+            permission_classes.append(IsAloneInPrivatePost)
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))
 
 
 class PrivatePostDetailAPI(RetrieveUpdateAPIView):
     """
-    Private post resource to display details of a private post.
+    Private post resource for a given private post details.
     """
 
     queryset = PrivatePost.objects.all()
     obj_key_func = DetailKeyConstructor()
-    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost)
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -386,7 +402,7 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: X-Data-Format
@@ -394,42 +410,42 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
               required: false
               paramType: header
             - name: expand
-              description: Expand a field with an identifier.
+              description: Returns an object instead of an identifier representing the given field.
               required: false
               paramType: query
         responseMessages:
             - code: 400
               message: Bad Request if you specify bad identifiers
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Not permissions
+              message: Permission Denied
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
-        Updates the last private post of a MP given by its identifier of the current user authenticated.
+        Updates the last private post of a given private topic. Said post must be owned by the
+        authenticated member.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
         responseMessages:
             - code: 400
-              message: Bad Request if you specify bad identifiers
+              message: Bad Request if you specify a bad identifier
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Not permissions
+              message: Permission Denied
             - code: 404
-              message: Not found
+              message: Not Found
         """
-        self.permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser)
         return self.update(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -438,53 +454,67 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
         elif self.request.method == 'PUT':
             return PrivatePostUpdateSerializer
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'PUT':
+            permission_classes.append(DRYPermissions)
+            permission_classes.append(IsLastPrivatePostOfCurrentUser)
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
         return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs['pk_ptopic'])
 
 
 class PrivateTopicReadAPI(ListAPIView):
     """
-    Private topic unread resource to list of the member authenticated.
+    Unread private topic resource for an authenticated member.
     """
 
     serializer_class = PrivateTopicSerializer
-    permission_classes = (IsAuthenticated,)
     list_key_func = PagingPrivateTopicUnreadListKeyConstructor()
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Displays all private topics unread.
+        Displays all unread private topics for an authenticated member.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: page
-              description: Displays users of the page given.
+              description: Restricts output to the given page number.
               required: false
               paramType: query
             - name: page_size
-              description: Sets size of the pagination.
+              description: Sets the number of unread private topics per page.
               required: false
               paramType: query
             - name: expand
-              description: Expand a field with an identifier.
+              description: Returns an object instead of an identifier representing the given field.
               required: false
               paramType: query
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return self.list(request, *args, **kwargs)
 
     def get_current_user(self):
         return self.request.user
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return interventions_privatetopics(user=self.get_current_user())['unread']

@@ -32,6 +32,9 @@ class TopicIndex(indexes.SearchIndex, indexes.Indexable):
     def prepare_tags(self, obj):
         return [tag.title for tag in obj.tags.all()] or None
 
+    def get_updated_field(self):
+        return "update_index_date"
+
 
 class PostIndex(indexes.SearchIndex, indexes.Indexable):
     """Indexes Post data"""
@@ -69,3 +72,6 @@ class PostIndex(indexes.SearchIndex, indexes.Indexable):
 
     def prepare_permissions(self, obj):
         return [group.name for group in obj.topic.forum.group.all()] or "public"
+
+    def get_updated_field(self):
+        return "update_index_date"

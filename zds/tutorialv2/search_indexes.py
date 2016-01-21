@@ -70,9 +70,6 @@ class ContainerIndex(indexes.SearchIndex, indexes.Indexable):
     def get_model(self):
         return SearchIndexContainer
 
-    def get_updated_field(self):
-        return "update_date"
-
     def index_queryset(self, using=None):
         return self.get_model().objects.select_related()
 
@@ -127,9 +124,6 @@ class ExtractIndex(indexes.SearchIndex, indexes.Indexable):
 
     def get_model(self):
         return SearchIndexExtract
-
-    def get_updated_field(self):
-        return "update_date"
 
     def index_queryset(self, using=None):
         return self.get_model().objects.select_related()

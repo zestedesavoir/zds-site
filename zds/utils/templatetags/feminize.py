@@ -12,7 +12,7 @@ articles = {
 }
 
 words = {
-    u"réaction": True,
+    u"commentaire": False,
     u"partie": True,
     u"chapitre": False,
     u"section": True

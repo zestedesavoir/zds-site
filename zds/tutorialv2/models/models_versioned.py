@@ -713,6 +713,13 @@ class Container:
             elif not only_container:
                 yield child
 
+    def is_part(self):
+        """determin if this container is a part (i.e a first level container or container with extract
+        when we are in midsize tutorial
+        :return:
+        """
+        return self.get_tree_depth() == 1
+
     def get_level_as_string(self):
         """Get a word (Part/Chapter/Section) for the container level
 

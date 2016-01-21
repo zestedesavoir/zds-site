@@ -16,7 +16,7 @@ from django.dispatch import receiver
 import pygeoip
 from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
-from zds.tutorialv2.models.models_database import PublishableContent
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
 from importlib import import_module
 
@@ -181,6 +181,18 @@ class Profile(models.Model):
 
         return queryset
 
+    def get_user_public_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents with this user as author.
+        """
+        queryset = PublishedContent.objects.filter(authors__in=[self.user])
+
+        if _type:
+            queryset = queryset.filter(content_type=_type)
+
+        return queryset
+
     def get_content_count(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
@@ -216,7 +228,7 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: All published contents with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_public__isnull=False).all()
+        return self.get_user_public_contents_queryset(_type).filter(must_redirect=False).all()
 
     def get_validate_contents(self, _type=None):
         """
@@ -347,6 +359,30 @@ class Profile(models.Model):
         """
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
+
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return True
+
+    @staticmethod
+    def has_write_permission(request):
+        return True
+
+    def has_object_write_permission(self, request):
+        return self.has_object_update_permission(request) or request.user.has_perm("member.change_profile")
+
+    def has_object_update_permission(self, request):
+        return request.user.is_authenticated() and request.user == self.user
+
+    @staticmethod
+    def has_ban_permission(request):
+        return True
+
+    def has_object_ban_permission(self, request):
+        return request.user and request.user.has_perm("member.change_profile")
 
 
 @receiver(models.signals.post_delete, sender=User)

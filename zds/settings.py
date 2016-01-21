@@ -2,6 +2,8 @@
 
 import os
 import sys
+from os.path import dirname
+from os.path import join
 
 from django.contrib.messages import constants as message_constants
 from django.utils.http import urlquote
@@ -166,6 +168,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'rest_framework',
     'rest_framework_swagger',
+    'dry_rest_permissions',
     'corsheaders',
     'oauth2_provider',
     'captcha',
@@ -176,10 +179,7 @@ INSTALLED_APPS = (
     'zds.pages',
     'zds.gallery',
     'zds.mp',
-    'zds.article',
-
     'zds.forum',
-    'zds.tutorial',
     'zds.tutorialv2',
     'zds.member',
     'zds.featured',
@@ -340,10 +340,11 @@ SERVE = False
 
 PANDOC_LOC = ''
 PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
-                    "--template=../../../assets/tex/template.tex -s -S -N "
+                    "--template={} -s -S -N "
                     "--toc -V documentclass=scrbook -V lang=francais "
                     "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
-                    "-V fontsize=12pt -V geometry:margin=1in ")
+                    "-V fontsize=12pt -V geometry:margin=1in ".format(join("..", "..", "..",
+                                                                           "assets", "tex", "template.tex")))
 # LOG PATH FOR PANDOC LOGGING
 PANDOC_LOG = './pandoc.log'
 PANDOC_LOG_STATE = False
@@ -376,6 +377,14 @@ SDZ_TUTO_DIR = ''
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'conf/locale/'),
 )
+
+# best quality, 100 is the same but documentation says
+# " values up to 100 are allowed, but this is not recommended"
+# so let's use 95
+THUMBNAIL_QUALITY = 95
+# Let's use the default value BUT if we want to let png in lossless format, we have tu use (png,) instead of None
+THUMBNAIL_PRESERVE_EXTENSIONS = None
+
 
 ZDS_APP = {
     'site': {
@@ -467,6 +476,10 @@ ZDS_APP = {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
+        # can also be 'extra_content_generation_policy': "WATCHDOG"
+        # or 'extra_content_generation_policy': "NOTHING"
+        'extra_content_generation_policy': "SYNC",
+        'extra_content_watchdog_dir': os.path.join(BASE_DIR, "watchdog-build"),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
         'content_per_page': 50,

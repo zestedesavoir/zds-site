@@ -26,7 +26,7 @@ Il arrive souvent d'avoir donc ceci :
 
 .. sourcecode:: html
 
-   <form action="{{ url }}" method="post" id="une-ancre" class="modal">
+   <form action="{{ url }}" method="post" id="une-ancre" class="modal modal-flex">
        Voici un formulaire !
 
        <textarea>Voici un champ de texte...</textarea>
@@ -46,7 +46,7 @@ On peut se dire qu'avec ce code tout va bien fonctionner :
 
 .. sourcecode:: html
 
-   <div id="une-ancre" class="modal">
+   <div id="une-ancre" class="modal modal-flex">
        Une super boîte modale !
    </div>
 
@@ -75,12 +75,31 @@ La création du lien affichant la boîte modale est tout aussi simple : il suffi
 
    Attention, le texte du lien sera le titre de la boîte modale.
 
-Changer la taille de la boîte
------------------------------
+Les tailles des modales
+-----------------------
 
-Par défaut, la boîte modale prend toute la place possible sur l'écran (avec quand même une petite marge). Pour
-spécifier la taille, il faut simplement ajouter une classe CSS (du plus petit au plus grand) : ``modal-small``,
-``modal-medium`` ou ``modal-big``.
+Par défaut, les modales vont prendre tout l'écran en largeur, mais en ajoutant une classe ``modal-flex``, la modale va prendre la taille du contenu, avec comme taille minimum 400px. La modale va automatiquement s'adapter en hauteur et en largeur. Si une modale prend quand même toute la taille en largeur, c'est sûrement que le contenu de votre modale a une taille à 100% !
+
+API Javascript pour manipuler les modales
+-----------------------------------------
+
+Il est possible de créer des modales en Javascript. Exemple:
+
+.. sourcecore:: javascript
+
+  var m = new Modal({
+      title: "Titre de la modale",
+      body: "<p>Contenu de la modale</p>", // Peut être un DOMNode ou un objet jQuery
+      footer: $("<a>", { href: "#", class: "btn btn-submit", text: "Valider" }), // Bouton dans le footer, en plus du bouton annuler
+      closeText: "Fermez-moi !", // Texte du bouton pour fermer. "Annuler" par défaut
+      titleIcon: "light alert", // Ajoute une icone au titre de la modale
+      modal: $("<form>", { action: "/submit", class: "modal modal-flex" }); // Node qui deviendra la modale. Peut-être un formulaire.
+  });
+
+  m.open(); // Ouvre la modale
+  m.close(); // Ferme la modale
+  Modal.current; // Contient la modale courante (utile pour savoir si une modale est ouverte)
+  Modal.closeCurrent(); // Ferme la modale courante
 
 
 La lecture zen

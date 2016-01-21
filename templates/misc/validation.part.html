@@ -28,7 +28,7 @@
         <a href="#unreservation-{{ validation.pk }}" class="open-modal">
             {% trans "Annuler la réservation" %}
         </a>
-        <form action="{{ reservation_url }}" method="post" class="modal modal-small" id="unreservation-{{ validation.pk }}">
+        <form action="{{ reservation_url }}" method="post" class="modal modal-flex" id="unreservation-{{ validation.pk }}">
         	{% csrf_token %}
             <p>
                 {% trans "Actuellement réservé par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. <br>
@@ -47,7 +47,7 @@
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 {% trans "Commentaire du validateur" %}
             </a>
-            <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
+            <div class="modal modal-flex" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
                     {{ validation.comment_validator }}
                 </p>
@@ -60,7 +60,7 @@
             <a href="#view-comment-validator-{{ validation.pk }}" class="open-modal">
                 {% trans "Motif du rejet" %}
             </a>
-            <div class="modal modal-big" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
+            <div class="modal modal-flex" id="view-comment-validator-{{ validation.pk }}" data-modal-close="Fermer">
                 <p>
                     {{ validation.comment_validator|emarkdown }}
                 </p>

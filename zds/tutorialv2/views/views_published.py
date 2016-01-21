@@ -33,8 +33,8 @@ class RedirectContentSEO(RedirectView):
 
     def get_redirect_url(self, **kwargs):
         """Redirects the user to the new url"""
-        obj = PublishableContent.objects.get(old_pk=int(kwargs["pk"]), type="TUTORIAL")
-        if obj is None or not obj.in_public():
+        obj = get_object_or_404(PublishableContent, old_pk=int(kwargs.get('pk')), type='TUTORIAL')
+        if not obj.in_public():
             raise Http404(_(u"Aucun contenu public n'est disponible avec cet identifiant."))
         kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
         kwargs["container_slug"] = str(kwargs["p3"]) + "_" + kwargs["container_slug"]
@@ -67,11 +67,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             .select_related('author')\
             .select_related('author__profile')\
             .select_related('editor')\
-            .prefetch_related('author__post_liked')\
-            .prefetch_related('author__post_disliked')\
             .prefetch_related('alerts')\
             .prefetch_related('alerts__author')\
-            .filter(related_content=self.object)\
+            .filter(related_content__pk=self.object.pk)\
             .order_by("pubdate")
 
         # pagination of articles
@@ -114,18 +112,18 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-        reaction_ids = [reaction.pk for reaction in queryset_reactions]
+
         context["user_dislike"] = CommentDislike.objects\
             .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
             .values_list('comments__pk', flat=True)
         context["user_like"] = CommentLike.objects\
             .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
+            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
             .values_list('comments__pk', flat=True)
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
-            context["user_can_modify"] = reaction_ids
+            context["user_can_modify"] = [reaction.pk for reaction in context['reactions']]
         else:
             queryset_reactions_user = ContentReaction.objects\
                 .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
@@ -377,8 +375,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             .select_related('author')\
             .select_related('author__profile')\
             .select_related('editor')\
-            .prefetch_related('author__post_liked')\
-            .prefetch_related('author__post_disliked')\
             .prefetch_related('alerts')\
             .prefetch_related('alerts__author')\
             .filter(related_content=self.object)\
@@ -477,7 +473,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if not self.reaction:
-                raise Http404(_(u"Aucune réaction : " + self.request.GET["message"]))
+                raise Http404(_(u"Aucun commentaire : " + self.request.GET["message"]))
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
@@ -513,7 +509,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if self.reaction is None:
-                raise Http404(_(u"Il n'y a aucune réaction."))
+                raise Http404(_(u"Il n'y a aucun commentaire."))
             if self.reaction.author != self.request.user:
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied

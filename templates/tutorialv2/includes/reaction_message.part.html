@@ -18,13 +18,13 @@
         topic-message
         {% if message.is_useful %}helpful{% endif %}
         {% if is_repeated_message %}repeated{% endif %}
-    " 
+    "
     {% if comment_schema %}
-        itemscope 
+        itemscope
         itemtype="http://schema.org/Comment"
         itemprop="comment"
     {% elif answer_schema %}
-        itemscope 
+        itemscope
         itemtype="http://schema.org/Answer"
         {% if message.is_useful or message.like > message.dislike %}
             itemprop="{% if message.is_useful %}acceptedAnswer{% endif %} {% if message.like > message.dislike %}suggestedAnswer{% endif %}"
@@ -56,7 +56,7 @@
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         {% trans "Masquer" %}
                                     </a>
-                                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-medium">
+                                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
@@ -92,7 +92,7 @@
                                 <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                     {% trans "Signaler" %}
                                 </a>
-                                <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-big">
+                                <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
                                     {% csrf_token %}
                                     <label for="signal-message-{{ message.id }}-field">
                                         {% trans "Pour quelle raison signalez-vous ce message" %} ?
@@ -124,7 +124,7 @@
                         <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                             {% trans "Démasquer" %}
                         </a>
-                        <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-small">
+                        <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
                                 {% blocktrans with editor=message.editor %}
@@ -204,12 +204,12 @@
         {% if perms_change %}
             {% for alert in message.alerts.all %}
                 <div class="alert-box error">
-                    {{ alert.pubdate|format_date|capfirst }} {% trans "par" %} 
-                    {% include "misc/member_item.part.html" with member=alert.author %} : 
+                    {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
+                    {% include "misc/member_item.part.html" with member=alert.author %} :
                     <em class="alert-box-text">{{ alert.text }}</em>
 
                     <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                    <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-medium">
+                    <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
                         <textarea name="text" class="input" placeholder="Message à envoyer au membre ayant signalé l'alerte"></textarea>
                         <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
@@ -315,10 +315,10 @@
                                     {{ message.like }}
                                 </span>
                             </span>
-                            <span 
+                            <span
                                 class="downvote
                                        ico-after
-                                       {% if message.like < message.dislike %}more-voted{% endif %} 
+                                       {% if message.like < message.dislike %}more-voted{% endif %}
                                        {% if message.dislike > 0 %}has-vote{% endif %}"
                                 {% if message.dislike > 0 %}
                                     title="{{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile"

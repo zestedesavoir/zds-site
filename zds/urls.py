@@ -70,8 +70,6 @@ admin.autodiscover()
 
 
 urlpatterns = patterns('',
-                       url(r'^oldtutoriels/', include('zds.tutorial.urls')),
-                       url(r'^oldarticles/', include('zds.article.urls')),
                        url(r'^', include('zds.tutorialv2.urls')),
                        url(r'^forums/', include('zds.forum.urls')),
                        url(r'^mp/', include('zds.mp.urls')),
