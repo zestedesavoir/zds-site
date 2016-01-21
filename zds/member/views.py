@@ -821,7 +821,7 @@ def active_account(request):
             _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
             _(u"Le manuel du nouveau membre"),
             msg,
-            True,
+            False,
             True,
             False)
     token.delete()
