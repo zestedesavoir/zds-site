@@ -977,13 +977,13 @@ def settings_promote(request, user_pk):
                         user.groups.remove(group)
                         messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
-                        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user.profile)
+                        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
                             if isinstance(topic, Topic) and group in topic.forum.group.all():
                                 TopicAnswerSubscription.objects.toggle_follow(topic, user)
         else:
             for group in usergroups:
-                topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user.profile)
+                topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                 for topic in topics_followed:
                     if isinstance(topic, Topic) and group in topic.forum.group.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)

@@ -1303,7 +1303,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         topic.save()
         # make all authors follow the topic:
         for author in self.object.authors.all():
-            TopicAnswerSubscription.objects.get_or_create_active(author.profile, topic)
+            TopicAnswerSubscription.objects.get_or_create_active(author, topic)
             mark_read(topic, author)
 
         return topic
@@ -1404,7 +1404,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     # make sure that all authors follow the topic:
                     for author in self.object.authors.all():
-                        TopicAnswerSubscription.objects.get_or_create_active(author.profile, topic)
+                        TopicAnswerSubscription.objects.get_or_create_active(author, topic)
                         mark_read(topic, author)
 
             # finally set the tags on the topic

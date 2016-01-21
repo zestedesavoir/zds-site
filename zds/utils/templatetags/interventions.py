@@ -8,7 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, never_read as never_read_topic
-from zds.member.models import Profile
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification, TopicAnswerSubscription
 from zds.tutorialv2.models.models_database import ContentReaction
@@ -29,13 +28,13 @@ def is_read(topic):
 @register.filter('is_followed')
 def is_followed(topic):
     user = get_current_user()
-    return TopicAnswerSubscription.objects.get_existing(user.profile, topic, is_active=True) is not None
+    return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True) is not None
 
 
 @register.filter('is_email_followed')
 def is_email_followed(topic):
     user = get_current_user()
-    return TopicAnswerSubscription.objects.get_existing(user.profile, topic, is_active=True, by_email=True) is not None
+    return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True, by_email=True) is not None
 
 
 @register.filter('humane_delta')
@@ -59,7 +58,7 @@ def humane_delta(value):
 
 @register.filter('followed_topics')
 def followed_topics(user):
-    topics_followed = TopicAnswerSubscription.objects.filter(profile=user.profile,
+    topics_followed = TopicAnswerSubscription.objects.filter(user=user,
                                                              content_type__model='topic',
                                                              is_active=True)\
         .order_by('-last_notification__pubdate')[:10]
@@ -102,10 +101,10 @@ def interventions_topics(user):
 
     private_topic = ContentType.objects.get_for_model(PrivateTopic)
     for notification in Notification.objects \
-            .get_unread_notifications_of(Profile.objects.get(user=user)) \
+            .get_unread_notifications_of(user) \
             .exclude(subscription__content_type=private_topic):
         posts_unread.append({'pubdate': notification.pubdate,
-                             'author': notification.sender.user,
+                             'author': notification.sender,
                              'title': notification.title,
                              'url': notification.url})
 
@@ -121,7 +120,7 @@ def interventions_privatetopics(user):
     """
     private_topic = ContentType.objects.get_for_model(PrivateTopic)
     notifications = list(Notification.objects
-                         .get_unread_notifications_of(Profile.objects.get(user=user))
+                         .get_unread_notifications_of(user)
                          .filter(subscription__content_type=private_topic)
                          .order_by('-pubdate'))
     return {'notifications': notifications, 'total': len(notifications)}

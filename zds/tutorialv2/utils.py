@@ -8,6 +8,7 @@ from urlparse import urlparse
 import cairosvg
 import os
 from PIL import Image as ImagePIL
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
@@ -15,7 +16,6 @@ from lxml import etree
 from uuslug import slugify
 
 from zds import settings
-from zds.member.models import User
 from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
 from zds.utils import get_current_user

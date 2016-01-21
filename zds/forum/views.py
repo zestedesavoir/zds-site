@@ -611,7 +611,7 @@ def followed_topics(request):
     Displays the followed topics for the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
     topics per page.
     """
-    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(request.user.profile)
+    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(request.user)
 
     # Paginator
 

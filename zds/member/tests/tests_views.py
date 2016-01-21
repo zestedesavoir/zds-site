@@ -748,7 +748,7 @@ class MemberTests(TestCase):
         TopicAnswerSubscription.objects.toggle_follow(topic2, tester.user)
         TopicAnswerSubscription.objects.toggle_follow(topic3, tester.user)
 
-        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester)), 3)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 3)
 
         # retract all right, keep one group only and activate account
         result = self.client.post(
@@ -764,7 +764,7 @@ class MemberTests(TestCase):
         self.assertEqual(len(tester.user.groups.all()), 1)
         self.assertTrue(tester.user.is_active)
         self.assertFalse(tester.user.is_superuser)
-        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester)), 2)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 2)
 
         # no groups specified
         result = self.client.post(
@@ -775,7 +775,7 @@ class MemberTests(TestCase):
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
-        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester)), 1)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 1)
 
         # check that staff can't take away it's own super user rights
         result = self.client.post(

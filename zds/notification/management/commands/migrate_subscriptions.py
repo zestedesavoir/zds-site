@@ -30,12 +30,12 @@ class Command(BaseCommand):
                 # Migrate subscriptions.
                 content_object = topic_never_read.topic
                 subscription = TopicAnswerSubscription.objects.get_or_create_active(
-                    profile=profile, content_object=content_object)
+                    user=profile.user, content_object=content_object)
 
                 # Migrate notifications.
-                subscription.send_notification(content=content, sender=content.author.profile)
+                subscription.send_notification(content=content, sender=content.author)
                 notification = TopicAnswerSubscription.objects\
-                    .get_existing(profile, content_object, is_active=True).last_notification
+                    .get_existing(profile.user, content_object, is_active=True).last_notification
                 notification.pubdate = content.pubdate
                 notification.save()
 
@@ -62,12 +62,12 @@ class Command(BaseCommand):
 
                 # Migrate subscriptions.
                 subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(
-                    profile=profile, content_object=private_topic_unread)
+                    user=profile.user, content_object=private_topic_unread)
 
                 # Migrate notifications.
-                subscription.send_notification(content=answer, sender=answer.author.profile, send_email=False)
+                subscription.send_notification(content=answer, sender=answer.author, send_email=False)
                 notification = PrivateTopicAnswerSubscription.objects\
-                    .get_existing(profile, private_topic_unread, is_active=True).last_notification
+                    .get_existing(profile.user, private_topic_unread, is_active=True).last_notification
                 notification.pubdate = answer.pubdate
                 notification.save()
 
@@ -97,11 +97,11 @@ class Command(BaseCommand):
                 # Migrate subscriptions.
                 content_object = reaction.related_content
                 subscription = ContentReactionAnswerSubscription.objects.get_or_create_active(
-                    profile=profile, content_object=content_object)
+                    user=profile.user, content_object=content_object)
 
                 # Migrate notifications.
-                subscription.send_notification(content=reaction, sender=reaction.author.profile)
+                subscription.send_notification(content=reaction, sender=reaction.author)
                 notification = ContentReactionAnswerSubscription.objects\
-                    .get_existing(profile, content_object, is_active=True).last_notification
+                    .get_existing(profile.user, content_object, is_active=True).last_notification
                 notification.pubdate = reaction.pubdate
                 notification.save()

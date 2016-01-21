@@ -15,7 +15,6 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
-from zds.member.models import Profile
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAloneInPrivatePost, IsAuthor
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
@@ -526,6 +525,6 @@ class PrivateTopicReadAPI(ListAPIView):
 
     def get_queryset(self):
         notifications = Notification.objects \
-            .get_unread_notifications_of(Profile.objects.get(user=self.get_current_user())) \
+            .get_unread_notifications_of(self.get_current_user()) \
             .filter(subscription__content_type=ContentType.objects.get_for_model(PrivateTopic))
         return [notification.content_object.privatetopic for notification in notifications]

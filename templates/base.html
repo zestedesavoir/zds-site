@@ -294,8 +294,8 @@
                                                 {% for notification in notifications %}
                                                 <li>
                                                     <a href="{{ notification.url }}">
-                                                        <img src="{{ notification.sender.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
-                                                        <span class="username">{{ notification.sender.user.username }}</span>
+                                                        <img src="{{ notification.sender.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                                        <span class="username">{{ notification.sender.username }}</span>
                                                         <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
                                                         <span class="topic">{{ notification.title }}</span>
                                                     </a>

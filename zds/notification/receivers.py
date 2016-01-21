@@ -43,9 +43,9 @@ def unread_topic_event(sender, **kwargs):
     answer = kwargs.get('instance')
     user = kwargs.get('user')
 
-    subscription = TopicAnswerSubscription.objects.get_existing(user.profile, answer.topic, is_active=True)
+    subscription = TopicAnswerSubscription.objects.get_existing(user, answer.topic, is_active=True)
     if subscription:
-        subscription.send_notification(content=answer, sender=answer.author.profile, send_email=False)
+        subscription.send_notification(content=answer, sender=answer.author, send_email=False)
 
 
 @receiver(content_read, sender=Topic)
@@ -61,7 +61,7 @@ def mark_topic_notifications_read(sender, **kwargs):
     topic = kwargs.get('instance')
     user = kwargs.get('user')
 
-    subscription = TopicAnswerSubscription.objects.get_existing(user.profile, topic, is_active=True)
+    subscription = TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True)
     if subscription:
         subscription.mark_notification_read()
 
@@ -77,8 +77,7 @@ def mark_content_reactions_read(sender, **kwargs):
     content_reaction = kwargs.get('instance')
     user = kwargs.get('user')
 
-    subscription = ContentReactionAnswerSubscription.objects \
-        .get_existing(user.profile, content_reaction, is_active=True)
+    subscription = ContentReactionAnswerSubscription.objects.get_existing(user, content_reaction, is_active=True)
     if subscription:
         subscription.mark_notification_read()
 
@@ -95,7 +94,7 @@ def mark_pm_reactions_read(sender, **kwargs):
     private_topic = kwargs.get('instance')
     user = kwargs.get('user')
 
-    subscription = PrivateTopicAnswerSubscription.objects.get_existing(user.profile, private_topic, is_active=True)
+    subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_topic, is_active=True)
     if subscription:
         subscription.mark_notification_read()
 
@@ -115,11 +114,11 @@ def answer_topic_event(sender, **kwargs):
 
         subscription_list = TopicAnswerSubscription.objects.get_subscriptions(post.topic)
         for subscription in subscription_list:
-            if subscription.profile != post.author.profile:
-                subscription.send_notification(content=post, sender=post.author.profile)
+            if subscription.user != post.author:
+                subscription.send_notification(content=post, sender=post.author)
 
         # Follow topic on answering
-        TopicAnswerSubscription.objects.get_or_create_active(post.author.profile, post.topic)
+        TopicAnswerSubscription.objects.get_or_create_active(post.author, post.topic)
 
 
 @receiver(post_save, sender=ContentReaction)
@@ -134,11 +133,11 @@ def answer_content_reaction_event(sender, **kwargs):
     if kwargs.get('created', True):
         content_reaction = kwargs.get('instance')
         publishable_content = content_reaction.related_content
-        author = content_reaction.author.profile
+        author = content_reaction.author
 
         subscription_list = ContentReactionAnswerSubscription.objects.get_subscriptions(publishable_content)
         for subscription in subscription_list:
-            if subscription.profile != author:
+            if subscription.user != author:
                 subscription.send_notification(content=content_reaction, sender=author)
 
         # Follow publishable content on answering
@@ -168,9 +167,9 @@ def answer_private_topic_event(sender, **kwargs):
 
     subscription_list = PrivateTopicAnswerSubscription.objects.get_subscriptions(post.privatetopic)
     for subscription in subscription_list:
-        if subscription.profile != post.author.profile:
-            send_email = by_email and (subscription.profile.email_for_answer or post.position_in_topic == 1)
-            subscription.send_notification(content=post, sender=post.author.profile, send_email=send_email)
+        if subscription.user != post.author:
+            send_email = by_email and (subscription.user.profile.email_for_answer or post.position_in_topic == 1)
+            subscription.send_notification(content=post, sender=post.author, send_email=send_email)
 
     # Follow private topic on answering
     if by_email:
@@ -201,19 +200,18 @@ def add_participant_topic_event(sender, **kwargs):
     if private_topic.last_message:
         if action == 'post_add' and not relation_reverse:
             for participant in private_topic.participants.all():
-                subscription = PrivateTopicAnswerSubscription.objects \
-                    .get_or_create_active(participant.profile, private_topic)
+                subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, private_topic)
                 subscription.send_notification(
                     content=private_topic.last_message,
-                    sender=private_topic.last_message.author.profile,
+                    sender=private_topic.last_message.author,
                     send_email=participant.profile.email_for_answer)
 
         elif action == 'post_remove' and not relation_reverse:
             subscriptions = PrivateTopicAnswerSubscription.objects \
                 .get_subscriptions(content_object=private_topic, is_active=True)
             for subscription in subscriptions:
-                if subscription.profile not in private_topic.participants.all() \
-                        and subscription.profile != private_topic.author.profile:
+                if subscription.user not in private_topic.participants.all() \
+                        and subscription.user != private_topic.author:
                     subscription.mark_notification_read()
                     subscription.deactivate()
 
@@ -224,5 +222,5 @@ def delete_notifications(sender, instance, **kwargs):
     Before suppression of a user, Django calls this receiver to
     delete all subscriptions and notifications linked at this member.
     """
-    Subscription.objects.filter(profile=instance.profile).delete()
-    Notification.objects.filter(sender=instance.profile).delete()
+    Subscription.objects.filter(user=instance).delete()
+    Notification.objects.filter(sender=instance).delete()

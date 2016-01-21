@@ -10,12 +10,12 @@ class SubscriptionManager(models.Manager):
     Custom subscription manager
     """
 
-    def get_existing(self, profile, content_object, is_active=None, by_email=None):
+    def get_existing(self, user, content_object, is_active=None, by_email=None):
         """
-        If exists, return the existing subscription for the profile and content object given.
+        If exists, return the existing subscription for the given user and content object.
 
-        :param profile: Profile concerned.
-        :type profile: zds.members.models.Profile
+        :param user: concerned user.
+        :type user: django.contrib.auth.models.User
         :param content_object: Generic content concerned.
         :type content_object: instance concerned by notifications
         :param is_active: Boolean to know if we want a subscription active or not.
@@ -30,33 +30,33 @@ class SubscriptionManager(models.Manager):
                 existing = self.get(
                     object_id=content_object.pk,
                     content_type__pk=content_type.pk,
-                    profile=profile)
+                    user=user)
             elif is_active is not None and by_email is None:
                 existing = self.get(
                     object_id=content_object.pk,
                     content_type__pk=content_type.pk,
-                    profile=profile, is_active=is_active)
+                    user=user, is_active=is_active)
             elif is_active is None and by_email is not None:
                 existing = self.get(
                     object_id=content_object.pk,
                     content_type__pk=content_type.pk,
-                    profile=profile, by_email=by_email)
+                    user=user, by_email=by_email)
             else:
                 existing = self.get(
                     object_id=content_object.pk,
                     content_type__pk=content_type.pk,
-                    profile=profile, is_active=is_active,
+                    user=user, is_active=is_active,
                     by_email=by_email)
         except ObjectDoesNotExist:
             existing = None
         return existing
 
-    def get_or_create_active(self, profile, content_object):
+    def get_or_create_active(self, user, content_object):
         """
         Gets (or create if it doesn't exist) the subscription for the content object given.
 
-        :param profile: Profile concerned.
-        :type profile: zds.members.models.Profile
+        :param user: concerned user.
+        :type user: django.contrib.auth.models.User
         :param content_object: Generic content concerned.
         :type content_object: instance concerned by notifications
         :return: subscription
@@ -66,11 +66,11 @@ class SubscriptionManager(models.Manager):
             subscription = self.get(
                 object_id=content_object.pk,
                 content_type__pk=content_type.pk,
-                profile=profile)
+                user=user)
             if not subscription.is_active:
                 subscription.activate()
         except ObjectDoesNotExist:
-            subscription = self.model(profile=profile, content_object=content_object)
+            subscription = self.model(user=user, content_object=content_object)
             subscription.save()
 
         return subscription
@@ -112,17 +112,17 @@ class SubscriptionManager(models.Manager):
                 object_id=content_object.pk,
                 content_type__pk=content_type.pk)
 
-        return [subscription.profile.user for subscription in subscription_list]
+        return [subscription.user for subscription in subscription_list]
 
-    def get_objects_followed_by(self, profile):
+    def get_objects_followed_by(self, user):
         """
-        Gets objects followed by the profile given.
+        Gets objects followed by the given user.
 
-        :param profile: Profile concerned.
-        :type profile: zds.members.models.Profile
+        :param user: concerned user.
+        :type user: django.contrib.auth.models.User
         :return: All objects followed by given user.
         """
-        subscription_list = self.filter(profile=profile, is_active=True) \
+        subscription_list = self.filter(user=user, is_active=True) \
             .order_by('last_notification__pubdate')
 
         return [subscription.content_object for subscription in subscription_list]
@@ -130,6 +130,7 @@ class SubscriptionManager(models.Manager):
     def toggle_follow(self, content_object, user=None, by_email=None):
         """
         Toggle following of a resource notifiable for a user.
+
         :param content_object: A resource notifiable.
         :param user: A user. If undefined, the current user is used.
         :param by_email: Get subscription by email or not.
@@ -138,11 +139,11 @@ class SubscriptionManager(models.Manager):
         if user is None:
             user = get_current_user()
         if by_email:
-            existing = self.get_existing(user.profile, content_object, is_active=True, by_email=True)
+            existing = self.get_existing(user, content_object, is_active=True, by_email=True)
         else:
-            existing = self.get_existing(user.profile, content_object, is_active=True)
+            existing = self.get_existing(user, content_object, is_active=True)
         if existing is None:
-            subscription = self.get_or_create_active(user.profile, content_object)
+            subscription = self.get_or_create_active(user, content_object)
             if by_email:
                 subscription.activate_email()
             return subscription
@@ -166,7 +167,7 @@ class TopicAnswerSubscriptionManager(SubscriptionManager):
         """
         subscriptions = self.get_subscriptions(topic)
         for subscription in subscriptions:
-            if not topic.forum.can_read(subscription.profile.user):
+            if not topic.forum.can_read(subscription.user):
                 subscription.deactivate()
                 subscription.mark_notification_read()
 
@@ -176,18 +177,17 @@ class NotificationManager(models.Manager):
     Custom notification manager.
     """
 
-    def get_unread_notifications_of(self, profile):
+    def get_unread_notifications_of(self, user):
         """
-        Gets all notifications for a user whose profile is passed as argument.
+        Gets all notifications for a user whose user is passed as argument.
 
-        :param profile: user's profile object
-        :type profile: zds.members.models.Profile
+        :param user: user object
+        :type user: django.contrib.auth.models.User
         :return: an iterable over notifications with user data already loaded
         :rtype: an iterable list of notifications
         """
-        return self.filter(subscription__profile=profile, is_read=False) \
-            .select_related("sender") \
-            .select_related("sender__user")
+        return self.filter(subscription__user=user, is_read=False) \
+            .select_related("sender")
 
     def filter_content_type_of(self, model):
         """
@@ -211,9 +211,8 @@ class NotificationManager(models.Manager):
         content_type = ContentType.objects.get_for_model(content_object)
         notifications = self.filter(object_id=content_object.pk, content_type__pk=content_type.pk) \
             .select_related("subscription") \
-            .select_related("subscription__profile") \
-            .select_related("subscription__profile__user")
-        return [notification.subscription.profile.user for notification in notifications]
+            .select_related("subscription__user")
+        return [notification.subscription.user for notification in notifications]
 
 
 class TopicFollowedManager(models.Manager):
