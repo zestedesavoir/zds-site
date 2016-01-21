@@ -266,8 +266,8 @@ class MemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
-        # check a new email has been sent at the new user.
-        self.assertEquals(len(mail.outbox), 2)
+        # check a new email hasn't been sent at the new user.
+        self.assertEquals(len(mail.outbox), 1)
 
         # check if the new user is active.
         self.assertTrue(User.objects.get(username='firm1').is_active)
