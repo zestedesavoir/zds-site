@@ -441,3 +441,31 @@ class NotificationPrivateTopicTest(TestCase):
         send_message_mp(self.user2, topic, "", send_by_mail=True)
 
         self.assertEquals(2, len(mail.outbox))
+
+
+class NotificationTest(TestCase):
+    def setUp(self):
+        self.user1 = ProfileFactory().user
+        self.user2 = ProfileFactory().user
+
+        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+
+    def test_reuse_old_notification(self):
+        """
+        When there is already a notification marked read for a given content, we reuse it.
+        """
+        topic = send_mp(author=self.user1, users=[self.user2], title="Testing", subtitle="", text="", leave=False)
+        send_message_mp(self.user2, topic, "", send_by_mail=True)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.user1)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        mark_read(topic, self.user1)
+
+        send_message_mp(self.user2, topic, "", send_by_mail=True)
+
+        notifications = Notification.objects.filter(subscription__user=self.user1)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())

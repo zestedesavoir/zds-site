@@ -129,9 +129,15 @@ class SingleNotificationMixin(object):
 
         if self.last_notification is None or self.last_notification.is_read:
             # If there isn't a notification yet or the last one is read, we generate a new one.
-            notification = Notification(subscription=self, content_object=content, sender=sender)
+            try:
+                notification = Notification.objects.get(subscription=self)
+            except Notification.DoesNotExist:
+                notification = Notification(subscription=self, content_object=content, sender=sender)
+            notification.content_object = content
+            notification.sender = sender
             notification.url = self.get_notification_url(content)
             notification.title = self.get_notification_title(content)
+            notification.is_read = False
             notification.save()
             self.set_last_notification(notification)
             self.save()
