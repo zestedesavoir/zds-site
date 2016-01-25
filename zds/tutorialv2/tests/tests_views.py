@@ -5138,6 +5138,51 @@ class PublishedContentTests(TestCase):
         self.assertNotIn(other_author.user.username, response.content)
         self.assertEqual(0, len(other_author.get_public_contents()))
 
+    def test_unpublish_with_title_change(self):
+        # aka 3329
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author], licence=self.licence)
+        registered_validation = Validation(
+            content=article,
+            version=article.sha_draft,
+            status="ACCEPT",
+            comment_authors="bla",
+            comment_validator="bla",
+            date_reserve=datetime.datetime.now(),
+            date_proposition=datetime.datetime.now(),
+            date_validation=datetime.datetime.now()
+        )
+        registered_validation.save()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        self.client.post(
+            reverse('content:edit', args=[article.pk, article.slug]),
+            {
+                'title': "new title so that everything explode",
+                'description': article.description,
+                'introduction': article.load_version().get_introduction(),
+                'conclusion': article.load_version().get_conclusion(),
+                'type': u'ARTICLE',
+                'licence': article.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': article.load_version(article.sha_draft).compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+        public_count = PublishedContent.objects.count()
+        result = self.client.post(
+            reverse('validation:revoke', kwargs={'pk': article.pk, 'slug': article.public_version.content_public_slug}),
+            {
+                'text': 'This content was bad',
+                'version': article.public_version.sha_public
+            },
+            follow=False)
+        self.assertEqual(302, result.status_code)
+        self.assertEqual(public_count - 1, PublishedContent.objects.count())
+        self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
