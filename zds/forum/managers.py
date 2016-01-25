@@ -60,12 +60,17 @@ class TopicManager(models.Manager):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
 
     def get_last_topics(self):
+        """
+        Get last posted topics and prefetch some related properties.
+        Depends on settings.ZDS_APP['topic']['home_number']
+        :return:
+        :rtype: django.models.Queryset
+        """
         return self.order_by('-pubdate') \
                    .exclude(Q(forum__group__isnull=False)) \
                    .exclude(is_locked=True) \
-                   .all() \
                    .select_related('forum', 'author', 'last_message') \
-                   .prefetch_related('tags')[:settings.ZDS_APP['topic']['home_number']]
+                   .prefetch_related('tags').all()[:settings.ZDS_APP['topic']['home_number']]
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
