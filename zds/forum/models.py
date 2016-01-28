@@ -314,9 +314,11 @@ class Topic(models.Model):
         else:
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
+                page_nb = 1
+                if pos > ZDS_APP["forum"]["posts_per_page"]:
+                    page_nb += (pos - 1) // ZDS_APP["forum"]["posts_per_page"]
                 return '{}?page={}#p{}'.format(
-                    self.get_absolute_url(),
-                    (pos - 1) / ZDS_APP["forum"]["posts_per_page"] + 1, pk)
+                    self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
                 return self.resolve_first_post_url()
 
