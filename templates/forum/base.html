@@ -87,7 +87,7 @@
                                                 {% if first_unread %}
                                                     {{ first_unread.get_absolute_url }}
                                                 {% else %}
-                                                    {{ topic.last_read_post.resolve_last_read_post_absolute_url }}
+                                                    {{ topic.resolve_last_read_post_absolute_url }}
                                                 {% endif %}
                                             {% endwith %}
                                             {% endspaceless %}"
