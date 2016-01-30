@@ -10,10 +10,16 @@
     }
     .ico,
     .ico-after:after,
-    .breadcrumb ol li:not(:last-child):after,
-    input[type=radio]:checked,
-    input[type=checkbox]:checked {
+    .breadcrumb ol li:not(:last-child):after {
         @include sprite-2x();
+    }
+
+    .main-container,
+    .modals-container {
+        input[type=radio]:after,
+        input[type=checkbox]:after {
+            @include sprite-2x();
+        }
     }
 }
 
