@@ -45,6 +45,7 @@
                                         {% trans "Supprimer la galerie" %}
                                     </a>
                                     <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-flex">
+                                        <label for="items" class="checkbox">
                                             <input
                                                 name="items"
                                                 type="checkbox"
@@ -53,7 +54,8 @@
                                                 form="delete-galleries"
 
                                             /> {% trans "Supprimer la galerie" %} ?
-                                                {% csrf_token %}
+                                        </label>
+                                        {% csrf_token %}
                                         <button type="submit" name="delete_multi" class="btn">{% trans "Supprimer" %}</button>
                                     </form>
                                 </li>
