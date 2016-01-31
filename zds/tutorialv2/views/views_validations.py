@@ -14,7 +14,8 @@ from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm
-from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
+from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
+    SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
@@ -437,7 +438,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         return super(AcceptValidation, self).form_valid(form)
 
 
-class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
+class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
     """Unpublish a content and reverse the situation back to a pending validation"""
 
     permissions = ["tutorialv2.change_validation"]
