@@ -268,18 +268,31 @@
         border: 1px solid #BBB;
         background: #FCFCFC;
         transition: none;
+        position: relative;
 
-        &:checked {
+        &:after {
+            display: block;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            opacity: 0;
             @include sprite();
+        }
+
+        &:checked:after {
+            opacity: 1;
         }
     }
     input[type=radio] {
         border-radius: 50%;
     }
-    input[type=radio]:checked {
+    input[type=radio]:after {
         @include sprite-position($radio);
     }
-    input[type=checkbox]:checked {
+    input[type=checkbox]:after {
         @include sprite-position($check);
     }
 
