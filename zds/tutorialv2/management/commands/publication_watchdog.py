@@ -30,7 +30,7 @@ class TutorialIsPublished(FileSystemEventHandler):
             except Exception:
                 pass
         shutil.rmtree(extra_contents_path)
-        os.remove()
+        os.remove(watchdog_file_path)
 
     def __init__(self):
         self.prepare_callbacks = [TutorialIsPublished.__create_dir]
