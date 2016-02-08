@@ -20,11 +20,16 @@ from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
 
 
-class ListPoll(ZdSPagingListView):
+class ListPoll(LoginRequiredMixin, ZdSPagingListView):
+    """Display the poll list of a user"""
+
     model = Poll
     template_name = 'poll/list.html'
     context_object_name = 'polls'
     paginate_by = settings.ZDS_APP['poll']['poll_per_page']
+
+    def get_queryset(self):
+        return Poll.objects.filter(author=self.request.user)
 
 
 class NewPoll(LoginRequiredMixin, CreateView):
