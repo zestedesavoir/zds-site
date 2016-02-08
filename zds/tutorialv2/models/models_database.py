@@ -1,6 +1,9 @@
 # coding: utf-8
 
 from datetime import datetime
+from genericpath import isdir
+from os.path import join
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -292,6 +295,23 @@ class PublishableContent(models.Model):
                 u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}".format(
                     str(error))))
 
+    def repare_commit(self):
+        """When sha_draft is bad, try to fix it up by guessing the last modificatin
+
+        :raise OSError: if the path is not correct
+        :raise IOError: if upgrading did not succeed
+        :return: sha_draft hexdigest
+        :rtype: str
+        """
+        if not isdir(self.get_repo_path()) or not isdir(join(self.get_repo_path(), ".git")):
+            raise OSError("Repo {} did not exist or was not a git repository".format(self.get_repo_path()))
+        repo = Repo(self.get_repo_path())
+        self.sha_draft = repo.head.commit.hexsha
+        self.save()
+        if not self.sha_draft:
+            raise IOError("Head commit did not exist or was in a dirty state.")
+        return self.sha_draft
+
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
         the draft/public version is used (if ``public`` is ``True``).
@@ -316,6 +336,8 @@ class PublishableContent(models.Model):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
+        if not sha and not self.sha_draft:
+            sha = self.repare_commit()
         max_title_length = PublishableContent._meta.get_field("title").max_length
         if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
             path = public.get_prod_path()
