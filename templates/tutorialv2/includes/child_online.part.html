@@ -3,17 +3,19 @@
 {% load times %}
 {% load target_tree %}
 
-<h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
-    <a
-        {%  if child.text %}
-            href="{{ child.container.get_absolute_url_online }}#{{ child.position_in_parent }}-{{ child.slug }}"
-        {% else %}
-            href="{{ child.get_absolute_url_online }}"
-        {% endif %}
-    >
-        {{ child.title }}
-    </a>
-</h2>
+{% if not hide_title %}
+    <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+        <a
+            {%  if child.text %}
+                href="{{ child.container.get_absolute_url_online }}#{{ child.position_in_parent }}-{{ child.slug }}"
+            {% else %}
+                href="{{ child.get_absolute_url_online }}"
+            {% endif %}
+        >
+            {{ child.title }}
+        </a>
+    </h2>
+{% endif %}
 {% if child.text %}
     {# child is an extract #}
     {% if child.get_text.strip|length == 0 %}
