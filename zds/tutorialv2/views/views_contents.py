@@ -1,4 +1,5 @@
 # coding: utf-8
+import logging
 from datetime import datetime
 import json as json_reader
 import zipfile
@@ -59,7 +60,7 @@ class RedirectOldBetaTuto(RedirectView):
     def get_redirect_url(self, **kwargs):
         tutorial = PublishableContent.objects.filter(type="TUTORIAL", old_pk=kwargs["pk"]).first()
         if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == "":
-            raise Http404(_(u"Aucun contenu en bêta trouvé avec cet ancien identifiant."))
+            raise Http404(u"Aucun contenu en bêta trouvé avec cet ancien identifiant.")
         return tutorial.get_absolute_url_beta()
 
 
@@ -202,7 +203,7 @@ class DisplayBetaContent(DisplayContent):
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
         if not obj.sha_beta or obj.sha_beta == '':
-            raise Http404(_(u"Aucune bêta n'existe pour ce contenu."))
+            raise Http404(u"Aucune bêta n'existe pour ce contenu.")
 
         else:
             self.sha = obj.sha_beta
@@ -989,7 +990,7 @@ class DisplayBetaContainer(DisplayContainer):
         obj = super(DisplayBetaContainer, self).get_object(queryset)
 
         if not obj.sha_beta or obj.sha_beta == '':
-            raise Http404(_(u"Aucune bêta n'existe pour ce contenu."))
+            raise Http404(u"Aucune bêta n'existe pour ce contenu.")
 
         else:
             self.sha = obj.sha_beta
@@ -1174,7 +1175,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
             try:
                 to_delete = parent.children_dict[self.kwargs['object_slug']]
             except KeyError:
-                raise Http404(_(u"Impossible de récupérer le contenu pour le supprimer."))
+                raise Http404(u"Impossible de récupérer le contenu pour le supprimer.")
 
         sha = to_delete.repo_delete()
 
@@ -1223,7 +1224,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         context = super(DisplayDiff, self).get_context_data(**kwargs)
 
         if 'from' not in self.request.GET:
-            raise Http404(_(u"Paramètre GET 'from' manquant."))
+            raise Http404(u"Paramètre GET 'from' manquant.")
         if 'to' not in self.request.GET:
             raise Http404(u"Paramètre GET 'to' manquant.")
 
@@ -1235,8 +1236,13 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             commit_to = repo.commit(self.request.GET['to'])
             # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
             tdiff = commit_to.diff(commit_from, R=True)
-        except (GitCommandError, BadName, BadObject):
-            raise Http404
+        except (GitCommandError, BadName, BadObject) as git_error:
+            logging.getLogger("zds.tutorialv2").warn(git_error)
+            raise Http404(u'En traitant le contenu {} git a lancé une erreur de type {}:{}'.format(
+                self.object.title,
+                type(git_error),
+                str(git_error)
+            ))
 
         context['commit_from'] = commit_from
         context['commit_to'] = commit_to
@@ -1463,7 +1469,7 @@ class WarnTypo(SingleContentFormViewMixin):
         if form.content.is_public:
             is_public = True
         elif not form.content.is_beta:
-            raise Http404(_(u"Le contenu n'est ni public, ni en bêta."))
+            raise Http404(u"Le contenu n'est ni public, ni en bêta.")
 
         if len(authors) == 0:
             if self.object.authors.count() > 1:
@@ -1577,10 +1583,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         child_slug = form.data['child_slug']
 
         if base_container_slug == '':
-            raise Http404(_(u"Le slug du container de base est vide."))
+            raise Http404(u"Le slug du container de base est vide.")
 
         if child_slug == '':
-            raise Http404(_(u"Le slug du container enfant est vide."))
+            raise Http404(u"Le slug du container enfant est vide.")
 
         if base_container_slug == versioned.slug:
             parent = versioned
@@ -1598,8 +1604,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
+                logging.getLogger("zds.tutorialv2").debug("{} was moved up in tutorial id:{}".format(child_slug,
+                                                                                                     content.pk))
             elif form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
+                logging.getLogger("zds.tutorialv2").debug("{} was moved down in tutorial id:{}".format(child_slug,
+                                                                                                       content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
                 if not parent.has_child_with_path(target):
@@ -1609,7 +1619,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
                         if target.split("/")[-1] not in target_parent.children_dict:
-                            raise Http404(_(u"La cible n'est pas un enfant du parent."))
+                            raise Http404(u"La cible n'est pas un enfant du parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
@@ -1618,6 +1628,9 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_after(child_slug, target.split("/")[-1])
+                logging.getLogger("zds.tutorialv2").debug("{} was moved after {} in tutorial id:{}".format(child_slug,
+                                                                                                           target,
+                                                                                                           content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
@@ -1627,7 +1640,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
                         if target.split("/")[-1] not in target_parent.children_dict:
-                            raise Http404(_(u"La cible n'est pas un enfant du parent."))
+                            raise Http404(u"La cible n'est pas un enfant du parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
@@ -1635,9 +1648,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
+                logging.getLogger("zds.tutorialv2").debug("{} was moved before {} in tutorial id:{}".format(child_slug,
+                                                                                                            target,
+                                                                                                            content.pk))
+ 
             versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
-
             parent.repo_update(parent.title,
                                parent.get_introduction(),
                                parent.get_conclusion(),
@@ -1653,9 +1669,11 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire,"
                                              u"ou bien il est impossible de déplacer cet élément."))
         except ValueError as e:
-            raise Http404(_(u"L'arbre spécifié n'est pas valide." + str(e)))
+            raise Http404(u"L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
             messages.warning(self.request, _(u"L'élément se situe déjà à la place souhaitée."))
+            logging.getLogger("zds.tutorialv2").debug(u"L'élément {} se situe déjà à la place souhaitée."
+                                                      .format(child_slug))
         except TypeError:
             messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:
@@ -1814,14 +1832,14 @@ class ContentOfAuthor(ZdSPagingListView):
                 if not self.authorized_filters[filter_][2]:
                     raise PermissionDenied
             else:
-                raise Http404(_(u"Le filtre n'est pas autorisé."))
+                raise Http404(u"Le filtre n'est pas autorisé.")
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         if self.type in TYPE_CHOICES_DICT.keys():
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
-            raise Http404(_(u"Ce type de contenu est inconnu dans le système."))
+            raise Http404(u"Ce type de contenu est inconnu dans le système.")
 
         # prefetch:
         queryset = queryset\
@@ -1834,7 +1852,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if 'filter' in self.request.GET:
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
-                raise Http404(_(u"Le filtre n'est pas autorisé."))
+                raise Http404(u"Le filtre n'est pas autorisé.")
         elif self.user != self.request.user:
             self.filter = 'public'
         if self.filter != '':
