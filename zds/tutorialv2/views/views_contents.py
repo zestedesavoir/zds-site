@@ -1649,8 +1649,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
                 logging.getLogger("zds.tutorialv2").debug("{} was moved before {} in tutorial id:{}".format(child_slug,
-                                                                                                           target,
-                                                                                                           content.pk))
+                                                                                                            target,
+                                                                                                            content.pk))
             versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
             parent.repo_update(parent.title,
