@@ -8,6 +8,8 @@ Vous voulez nous aider au développement du frontend ? Installez Node.js et npm 
 Installation de Node.js et npm
 ==============================
 
+Zeste de Savoir utilise actuellement la v4 de Node.JS.
+
 Windows
 -------
 
@@ -15,7 +17,7 @@ Windows
 
     Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
 
-Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <http://nodejs.org/download/>`_. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
 
 Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour mettre à jour npm, vous avez `trois possibilités <https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows)>`_, l'une d'elle est de faire ``npm install npm`` dans le dossier ``C:\Program Files (x86)\nodejs``.
 
@@ -35,86 +37,62 @@ Veillez à respecter `ces conditions <https://github.com/TooTallNate/node-gyp#in
 Mac OS X
 --------
 
-Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à `cette adresse <http://nodejs.org/download/>`_. Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
 
 Linux
 -----
 
-Ubuntu
-~~~~~~
+Pour être sûr d'avoir la dernière version de Node.JS, il faut passer par les dépôts de la Fondation Node.JS. Pour cela, elle met à disposition un script (en fonction de votre *package manager*) qu'il suffit de lancer. S'il n'y a pas d'instructions pour votre distribution sur cette page, il y en a sûrement dans `la documentation officielle (en anglais) <https://nodejs.org/en/download/package-manager/>`_.
 
-L'installation peut se faire simplement via ``apt-get`` :
+Si vous ne voulez pas utiliser cette méthode, `des fichiers binaires ainsi que le code source sont disponibles <https://nodejs.org/en/download/>`_.
 
-.. sourcecode:: bash
+Debian et ses dérivés (tels que Ubuntu, Linux Mint)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    sudo apt-get install nodejs npm nodejs-legacy
-
-Mais il est possible d'avoir une version un peu plus récente avec :
+Comme indiqué `ici <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_, il faut lancer ces commandes :
 
 .. sourcecode:: bash
 
-    sudo add-apt-repository ppa:chris-lea/node.js
-    sudo apt-get update
-    sudo apt-get install nodejs
-
-Certaines dépendances utilisent ``node`` au lieu de ``nodejs``, pour y remédier (pas besoin sous Fedora !) :
-
-.. sourcecode:: bash
-
-    sudo ln -s /usr/bin/nodejs /usr/bin/node
-
-Debian
-~~~~~~
-
-Une version récente de Node.js se trouve dans les dépôts *wheezy-backport*, *jessie* et *sid*. Sur ces versions de Debian, l'installation peut se faire de cette manière :
-
-.. sourcecode:: bash
-
-    sudo apt-get install nodejs
+    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
+    sudo apt-get install -y nodejs
 
 Fedora / CentOS / RHEL
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Il vous faut tout simplement faire :
+Comme indiqué `ici <https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora>`_, il faut lancer ces commandes :
 
 .. sourcecode:: bash
 
-    sudo dnf install nodejs
+    curl --silent --location https://rpm.nodesource.com/setup_4.x | bash -
+    # Puis, en root
+    yum -y install nodejs
 
 Arch Linux
 ~~~~~~~~~~
 
-Il faut simplement lancer cette commande : 
+Comme indiqué `ici <https://nodejs.org/en/download/package-manager/#arch-linux>`_, il faut lancer cette commande :
 
 .. sourcecode:: bash
 
-    pacman -S nodejs
+    pacman -S nodejs npm
 
-FreeBSD / OpenBSD
------------------
-
-Une installation via ``pkg`` devrait suffire :
-
-.. sourcecode:: bash
-
-    pkg install node
+Il existe aussi `une documentation relative à Node.JS spécialement pour Arch Linux <https://wiki.archlinux.org/index.php/Node.js>`_.
 
 -----
 
-*Les instructions pour installer Node.js sur les distributions CentOS, RHEL, FreeBSD et OpenBSD sont issues du lien juste en dessous et n'ont pas été testées.*
-
-Les **instructions détaillées** pour toutes les distributions se trouvent dans la `documentation officielle (en anglais) <https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager>`_.
+Vérifier que les bonnes versions sont installées
+------------------------------------------------
 
 Pour vérifier que Node.js et npm sont installés (et que vous avez les bonnes versions) :
 
 .. sourcecode:: bash
 
     node -v
-    v0.10.26
+    v4.2.6
     npm -v
-    2.1.7
+    2.14.12
 
-**Vous devez avoir une version de Node.js > 0.10.x et de npm > 2.x.x.** Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
+**Vous devez avoir une version de Node.js v4.x et de npm 2.x.x.** Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
 
 Mise à jour de Node.js et npm
 -----------------------------
