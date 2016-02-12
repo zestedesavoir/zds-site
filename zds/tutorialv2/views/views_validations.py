@@ -20,6 +20,7 @@ from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
+from zds.utils.templatetags.quote_for_mp import quote_for_mp
 
 
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -410,7 +411,8 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                     {
                         'content': versioned,
                         'url': published.get_absolute_url_online(),
-                        'validator': validation.validator
+                        'validator': validation.validator,
+                        'message_validation': quote_for_mp(validation.comment_validator)
                     })
             else:
                 msg = render_to_string(
@@ -418,7 +420,8 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                     {
                         'content': versioned,
                         'url': published.get_absolute_url_online(),
-                        'validator': validation.validator
+                        'validator': validation.validator,
+                        'message_validation': quote_for_mp(validation.comment_validator)
                     })
 
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
