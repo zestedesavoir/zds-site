@@ -466,6 +466,16 @@ class ContentTests(TestCase):
         self.assertEqual(old_date, article.public_version.publication_date)
         self.assertNotEqual(old_date, article.public_version.update_date)
 
+    def test_fix_sha(self):
+        fake_tuto = PublishableContent(title="un-deux-trois", slug="un-deux-trois")
+        self.assertRaises(OSError, fake_tuto.repare_commit)
+        real_tuto = PublishableContentFactory()
+        old_sha = real_tuto.sha_draft
+        real_tuto.sha_draft = ""
+        real_tuto.save()
+        real_tuto.repare_commit()
+        self.assertEqual(old_sha, real_tuto.sha_draft)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
