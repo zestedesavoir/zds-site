@@ -403,8 +403,32 @@ ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py update_inde
 Changer la politique de génération des documents #3080
 ------------------------------------------------------
 
-Mettre à jour le paramètre ZDS_APP["content"]["extra_content_generation_policy"] à "WATCHDOG"
-Lancer en parallèle du site le watchdog `python manage.py publication_watchdog &`.
+Mettre à jour le paramètre ZDS_APP["content"]["extra_content_generation_policy"] à "WATCHDOG".
+
+Créer un service `systemd` dans `/etc/systemd/system/zds-watchdog.service` avec:
+
+```
+[Unit]
+Description=Zeste de Savoir - Watchdog
+After=network.target
+
+[Service]
+User=zds
+Group=zds
+WorkingDirectory=/opt/zdsenv/ZesteDeSavoir
+ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py publication_watchdog
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Activer puis lancer le service (en root):
+
+```sh
+systemctl enable zds-watchdog.service
+systemctl start zds-watchdog.service
+```
 
 Il est possible de configurer le logging de ce module en surchargeant les logger `logging.getLogger("zds.pandoc-publicator")`, `logging.getLogger("zds.watchdog-publicator")`.
 
