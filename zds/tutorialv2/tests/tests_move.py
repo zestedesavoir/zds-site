@@ -557,7 +557,7 @@ class ContentMoveTests(TestCase):
             },
             follow=True)
         self.assertEqual(200, result.status_code)
-        self.assertTrue(isdir(tuto.load_version().get_repo_path()))
+        self.assertTrue(isdir(tuto.get_repo_path()))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
