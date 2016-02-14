@@ -523,6 +523,7 @@ class ContentMoveTests(TestCase):
         telling it is tricky is kind of euphemism.
         :return:
         """
+        LicenceFactory(code="CC BY")
         self.assertEqual(
             self.client.login(
                 username=self.user_author.username,
