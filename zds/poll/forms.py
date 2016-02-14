@@ -66,7 +66,7 @@ class UpdatePollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ('title', 'activate', 'enddate')
+        fields = ('activate', 'enddate')
         widgets = {
             'enddate': SelectDateWidget()
         }
@@ -77,7 +77,6 @@ class UpdatePollForm(forms.ModelForm):
         self.helper = FormHelper()
 
         self.helper.layout = Layout(
-            Field('title'),
             Field('enddate'),
             Field('activate'),
             ButtonHolder(
