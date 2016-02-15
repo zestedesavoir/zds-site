@@ -720,6 +720,7 @@ class NewImageViewTest(TestCase):
             )
         self.assertEqual(302, response.status_code)
         self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+        self.assertEqual("jpg", self.gallery.get_images()[0].get_extension())
 
     def test_import_images_in_gallery_no_archive(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
