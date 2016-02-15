@@ -239,6 +239,19 @@ class NotificationPublishableContentTest(TestCase):
 
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
 
+    def test_follow_content_from_view(self):
+        """
+        Allows a user to follow (or not), a content from the view.
+        """
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
+        self.assertIsNone(subscription)
+
+        result = self.client.post(reverse('content:follow', args=[self.tuto.pk]), {'follow': 1})
+        self.assertEqual(result.status_code, 302)
+
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
+        self.assertTrue(subscription.is_active)
+
     def test_answer_subscription(self):
         """
         When a user post on a publishable content, a subscription is created for this user.

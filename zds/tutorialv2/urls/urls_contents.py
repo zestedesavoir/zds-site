@@ -9,7 +9,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
+    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, FollowContent
 
 
 urlpatterns = [
@@ -53,6 +53,9 @@ urlpatterns = [
     url(r'^reactions/afficher/(?P<pk>\d+)/$', ShowReaction.as_view(), name="show-reaction"),
     url(r'^reactions/alerter/(?P<pk>\d+)/$', SendNoteAlert.as_view(), name="alert-reaction"),
     url(r'^reactions/resoudre/$', SolveNoteAlert.as_view(), name="resolve-reaction"),
+
+    # follow:
+    url(r'^follow/(?P<pk>\d+)/$', FollowContent.as_view(), name="follow"),
 
     # typo:
     url(r'^reactions/typo/$', WarnTypo.as_view(), name="warn-typo"),

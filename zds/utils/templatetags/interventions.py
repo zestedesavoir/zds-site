@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, never_read as never_read_topic
 from zds.mp.models import PrivateTopic
-from zds.notification.models import Notification, TopicAnswerSubscription
+from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
@@ -35,6 +35,13 @@ def is_followed(topic):
 def is_email_followed(topic):
     user = get_current_user()
     return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True, by_email=True) is not None
+
+
+@register.filter('is_content_followed')
+def is_content_followed(content):
+    user = get_current_user()
+    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.get_existing(
+        user, content, is_active=True) is not None
 
 
 @register.filter('humane_delta')
