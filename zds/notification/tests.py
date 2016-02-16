@@ -11,6 +11,7 @@ from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import mark_read
+from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
@@ -238,6 +239,19 @@ class NotificationPublishableContentTest(TestCase):
         self.tuto.save()
 
         self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+
+    def test_follow_content_at_publication(self):
+        """
+        When a content is published, authors follow it.
+        """
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
+        self.assertIsNone(subscription)
+
+        # Signal call by the view at the publication.
+        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
+        self.assertTrue(subscription.is_active)
 
     def test_follow_content_from_view(self):
         """

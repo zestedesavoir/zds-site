@@ -144,6 +144,22 @@ def answer_content_reaction_event(sender, **kwargs):
         ContentReactionAnswerSubscription.objects.get_or_create_active(author, publishable_content)
 
 
+@receiver(new_content, sender=PublishableContent)
+@disable_for_loaddata
+def content_published_event(sender, **kwargs):
+    """
+    :param kwargs:  contains
+        - instance: the new content.
+        - by_mail: Send or not an email.
+    All authors of the content follow their new content published.
+    """
+    content = kwargs.get('instance')
+    by_email = kwargs.get('by_email')
+
+    for user in content.authors.all():
+        ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
+
+
 @receiver(new_content, sender=PrivatePost)
 @disable_for_loaddata
 def answer_private_topic_event(sender, **kwargs):

@@ -20,7 +20,7 @@ from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
@@ -2123,7 +2123,8 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
         published = PublishedContent.objects.filter(content=tuto).first()
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # author will receive notif's
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
 
         self.assertEqual(published.content.source, different_source)
         self.assertEqual(published.content_public_slug, self.tuto_draft.slug)
@@ -4788,7 +4789,8 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 0)
+        self.assertIsNone(ContentReactionAnswerSubscription.objects
+                          .get_existing(user=self.user_author, content_object=tuto))
 
         self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
         self.assertEqual(tuto.first_unread_note(), reactions[0])
@@ -4807,7 +4809,8 @@ class PublishedContentTests(TestCase):
         reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
         self.assertEqual(len(reactions), 2)
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
 
         self.assertEqual(tuto.first_note(), reactions[0])  # first note is still first note
         self.assertEqual(tuto.last_read_note(), reactions[1])
