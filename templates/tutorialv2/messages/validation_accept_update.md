@@ -5,8 +5,8 @@
 Ouaiiiiis !
 
 La mise à jour de « [{{ title }}]({{ url }}) » a été publiée.
-Tout le monde peut désormais  découvrir la toute dernière version de votre contenu !
-Son validateur, [{{ validator_name }}]({{ validator_url }}), vous as laissé le message suivant :
+Tout le monde peut désormais découvrir la toute dernière version de votre contenu !
+Son validateur, [{{ validator_name }}]({{ validator_url }}), vous laisse le message suivant :
 
 {{ message }}
 
