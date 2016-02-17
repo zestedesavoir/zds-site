@@ -20,7 +20,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
-from zds.tutorialv2.utils import publish_content
+from zds.tutorialv2.publication_utils import publish_content
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import Image
 from zds.forum.factories import ForumFactory, CategoryFactory
@@ -43,6 +43,7 @@ except ImportError:
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
 overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overrided_zds_app['content']['extra_content_generation_policy'] = "SYNC"
 
 
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
@@ -1991,27 +1992,14 @@ class ContentTests(TestCase):
 
         # ... Therefore, a new Validation object is created
         validation = Validation.objects.filter(content=tuto).last()
-        self.assertEqual(validation.status, 'PENDING')
-        self.assertEqual(validation.validator, None)
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
         self.assertEqual(validation.version, self.tuto_draft.current_version)
 
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).sha_validation,
                          self.tuto_draft.current_version)
 
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
-
-        # re-re-reserve (!)
-        result = self.client.post(
-            reverse('validation:reserve', kwargs={'pk': validation.pk}),
-            {
-                'version': validation.version
-            },
-            follow=False)
-        self.assertEqual(result.status_code, 302)
-
-        validation = Validation.objects.filter(pk=validation.pk).last()
-        self.assertEqual(validation.status, 'PENDING_V')
-        self.assertEqual(validation.validator, self.user_staff)
 
         # ensure that author cannot publish himself
         self.assertEqual(
@@ -3275,7 +3263,7 @@ class ContentTests(TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.have_type(extra))
+            self.assertTrue(published.have_type(extra), "no extra content" + extra)
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
@@ -5098,6 +5086,102 @@ class PublishedContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.context['previous_article'].pk, article1.public_version.pk)
         self.assertIsNone(result.context['next_article'])
+
+    def test_validation_list_has_good_title(self):
+        # aka fix 3172
+        tuto = PublishableContentFactory(author_list=[self.user_author], type="TUTORIAL")
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('validation:ask', args=[tuto.pk, tuto.slug]),
+            {
+                'text': "something good",
+                'source': '',
+                'version': tuto.sha_draft
+            },
+            follow=False)
+        old_title = tuto.title
+        new_title = "a brand new title"
+        self.client.post(
+            reverse('content:edit', args=[tuto.pk, tuto.slug]),
+            {
+                'title': new_title,
+                'description': tuto.description,
+                'introduction': "a",
+                'conclusion': "b",
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': tuto.sha_draft,
+            },
+            follow=False)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertIn(old_title, result.content)
+        self.assertNotIn(new_title, result.content)
+
+    def test_public_authors_versioned(self):
+        published = PublishedContentFactory(author_list=[self.user_author])
+        other_author = ProfileFactory()
+        published.authors.add(other_author.user)
+        published.save()
+        response = self.client.get(published.get_absolute_url_online())
+        self.assertIn(self.user_author.username, response.content)
+        self.assertNotIn(other_author.user.username, response.content)
+        self.assertEqual(0, len(other_author.get_public_contents()))
+
+    def test_unpublish_with_title_change(self):
+        # aka 3329
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author], licence=self.licence)
+        registered_validation = Validation(
+            content=article,
+            version=article.sha_draft,
+            status="ACCEPT",
+            comment_authors="bla",
+            comment_validator="bla",
+            date_reserve=datetime.datetime.now(),
+            date_proposition=datetime.datetime.now(),
+            date_validation=datetime.datetime.now()
+        )
+        registered_validation.save()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        self.client.post(
+            reverse('content:edit', args=[article.pk, article.slug]),
+            {
+                'title': "new title so that everything explode",
+                'description': article.description,
+                'introduction': article.load_version().get_introduction(),
+                'conclusion': article.load_version().get_conclusion(),
+                'type': u'ARTICLE',
+                'licence': article.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': article.load_version(article.sha_draft).compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+            },
+            follow=False)
+        public_count = PublishedContent.objects.count()
+        result = self.client.post(
+            reverse('validation:revoke', kwargs={'pk': article.pk, 'slug': article.public_version.content_public_slug}),
+            {
+                'text': 'This content was bad',
+                'version': article.public_version.sha_public
+            },
+            follow=False)
+        self.assertEqual(302, result.status_code)
+        self.assertEqual(public_count - 1, PublishedContent.objects.count())
+        self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
 
     def tearDown(self):
 

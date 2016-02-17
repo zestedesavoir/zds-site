@@ -38,11 +38,13 @@ class OldTutoForm(forms.Form):
     def __init__(self, profile, *args, **kwargs):
         super(OldTutoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'content-wrapper'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'link-tuto-modal'
         self.helper.form_method = 'post'
         self.helper.form_action = reverse('zds.member.views.add_oldtuto')
 
         self.helper.layout = Layout(
+            HTML(_(u'<p>Choisissez un tutoriel du SdZ à attribuer au membre</p>')),
             Field('id'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
@@ -666,6 +668,8 @@ class KarmaForm(forms.Form):
         super(KarmaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse('zds.member.views.modify_karma')
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'karmatiser-modal'
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

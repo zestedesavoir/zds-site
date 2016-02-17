@@ -43,7 +43,7 @@
         </h2>
     {% endif %}
 
-    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
 {% endblock %}
 
 
@@ -145,7 +145,7 @@
                                     {% trans "Mettre à jour" %}
                                 {% endif %}
                             </a>
-                            <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-small" id="activ-beta-{{ commit.hexsha }}">
+                            <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="activ-beta-{{ commit.hexsha }}">
                                 {% csrf_token %}
                                 <input type="hidden" name="version" value="{{ commit.hexsha }}"/>
                                 <p>

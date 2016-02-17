@@ -193,6 +193,10 @@ class Topic(models.Model):
                                      related_name='last_message',
                                      verbose_name='Dernier message')
     pubdate = models.DateTimeField('Date de création', auto_now_add=True)
+    update_index_date = models.DateTimeField(
+        'Date de dernière modification pour la réindexation partielle',
+        auto_now=True,
+        db_index=True)
 
     is_solved = models.BooleanField('Est résolu', default=False, db_index=True)
     is_locked = models.BooleanField('Est verrouillé', default=False, db_index=True)
@@ -310,9 +314,11 @@ class Topic(models.Model):
         else:
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
+                page_nb = 1
+                if pos > ZDS_APP["forum"]["posts_per_page"]:
+                    page_nb += (pos - 1) // ZDS_APP["forum"]["posts_per_page"]
                 return '{}?page={}#p{}'.format(
-                    self.get_absolute_url(),
-                    (pos - 1) / ZDS_APP["forum"]["posts_per_page"] + 1, pk)
+                    self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
                 return self.resolve_first_post_url()
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, get_object_or_404
@@ -62,34 +62,33 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
 
         parameters:
             - name: page
-              description: Displays users of the page given.
+              description: Restricts output to the given page number.
               required: false
               paramType: query
             - name: page_size
-              description: Sets size of the pagination.
+              description: Sets the number of profiles per page.
               required: false
               paramType: query
             - name: search
-              description: Makes a search on the username.
+              description: Filters by username.
               required: false
               paramType: query
         responseMessages:
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """
-        Registers a new user in the system. The user must confirm its registration.
+        Registers a new user. User will need to act on confirmation email.
         ---
 
         responseMessages:
             - code: 400
               message: Bad Request
         """
-        self.permission_classes = (AllowAny,)
-        serializer = self.get_serializer_class()(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
         serializer.is_valid(raise_exception=True)
         profile = serializer.save()
         token = self.generate_token(profile.user)
@@ -103,30 +102,35 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         elif self.request.method == 'POST':
             return ProfileCreateSerializer
 
+    def get_permissions(self):
+        permission_classes = [AllowAny, ]
+        if self.request.method == 'GET' or self.request.method == 'POST':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
 
 class MemberMyDetailAPI(RetrieveAPIView):
     """
-    Profile resource to display details of the member.
+    Profile resource for member details.
     """
     obj_key_func = MyDetailKeyConstructor()
-    permission_classes = (IsAuthenticated,)
     serializer_class = ProfileDetailSerializer
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Gets information of his account.
+        Gets information for a user account.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
         """
         profile = self.get_object()
         serializer = self.get_serializer(profile,
@@ -136,6 +140,12 @@ class MemberMyDetailAPI(RetrieveAPIView):
 
     def get_object(self):
         return get_object_or_404(Profile, user=self.request.user)
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
 
 
 class MemberDetailAPI(RetrieveUpdateAPIView):
@@ -156,12 +166,12 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: false
               paramType: header
         responseMessages:
             - code: 404
-              message: Not found
+              message: Not Found
         """
         profile = self.get_object()
         serializer = self.get_serializer(profile,
@@ -177,20 +187,19 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
         responseMessages:
             - code: 400
               message: Bad Request
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Insufficient rights to call this procedure. Source and target user must to be equals.
+              message: Insufficient rights to call this procedure. Source and target users must be equal.
             - code: 404
-              message: Not found
+              message: Not Found
         """
-        self.permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
         return self.update(request, *args, **kwargs)
 
     def get_serializer_class(self):
@@ -198,6 +207,16 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
             return ProfileDetailSerializer
         elif self.request.method == 'PUT':
             return ProfileValidatorSerializer
+
+    def get_permissions(self):
+        permission_classes = []
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        elif self.request.method == 'PUT':
+            permission_classes.append(DRYPermissions)
+            permission_classes.append(IsAuthenticatedOrReadOnly)
+            permission_classes.append(IsOwnerOrReadOnly)
+        return [permission() for permission in permission_classes]
 
 
 class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
@@ -209,16 +228,16 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        Applies a read only sanction at a user given.
+        Applies a read only sanction to the given user.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: ls-jrs
-              description: Number of days for the sanction.
+              description: Sanction duration in days.
               required: false
               paramType: form
             - name: ls-text
@@ -229,31 +248,31 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
             - body
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Insufficient rights to call this procedure. Must to be a staff user.
+              message: Insufficient rights to call this procedure. Needs staff status.
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return super(MemberDetailReadingOnly, self).post(request, args, kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Removes a read only sanction at a user given.
+        Removes a read only sanction from the given user.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Insufficient rights to call this procedure. Must to be a staff user.
+              message: Insufficient rights to call this procedure. Needs staff status.
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return super(MemberDetailReadingOnly, self).delete(request, args, kwargs)
 
@@ -265,7 +284,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
                 return ReadingOnlySanction(request.POST)
         elif request.method == 'DELETE':
             return DeleteReadingOnlySanction(request.POST)
-        raise ValueError('Method {0} is not supported in this route of the API.'.format(request.method))
+        raise ValueError('Method {0} is not supported in this API route.'.format(request.method))
 
 
 class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
@@ -277,16 +296,16 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        Applies a ban sanction at a user given.
+        Applies a ban sanction to a given user.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
             - name: ban-jrs
-              description: Number of days for the sanction.
+              description: Sanction duration in days.
               required: false
               paramType: form
             - name: ban-text
@@ -297,31 +316,31 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
             - body
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Insufficient rights to call this procedure. Must to be a staff user.
+              message: Insufficient rights to call this procedure. Needs staff status.
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return super(MemberDetailBan, self).post(request, args, kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Removes a ban sanction at a user given.
+        Removes a ban sanction from a given user.
         ---
 
         parameters:
             - name: Authorization
-              description: Bearer token to make a authenticated request.
+              description: Bearer token to make an authenticated request.
               required: true
               paramType: header
         responseMessages:
             - code: 401
-              message: Not authenticated
+              message: Not Authenticated
             - code: 403
-              message: Insufficient rights to call this procedure. Must to be a staff user.
+              message: Insufficient rights to call this procedure. Needs staff status.
             - code: 404
-              message: Not found
+              message: Not Found
         """
         return super(MemberDetailBan, self).delete(request, args, kwargs)
 
@@ -333,4 +352,4 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
                 return BanSanction(request.POST)
         elif request.method == 'DELETE':
             return DeleteBanSanction(request.POST)
-        raise ValueError('Method {0} is not supported in this route of the API.'.format(request.method))
+        raise ValueError('Method {0} is not supported in this API route.'.format(request.method))

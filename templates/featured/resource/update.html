@@ -38,7 +38,7 @@
                 <a href="#delete-featured-resource" class="open-modal ico-after cross blue">
                     {% trans "Supprimer la une" %}
                 </a>
-                <form action="{% url "featured-resource-delete" featured_resource.pk %}" method="post" id="delete-featured-resource" class="modal modal-small">
+                <form action="{% url "featured-resource-delete" featured_resource.pk %}" method="post" id="delete-featured-resource" class="modal modal-flex">
                     <p>
                         {% trans "Attention, vous vous apprêtez à supprimer définitivement cette une." %}
                     </p>

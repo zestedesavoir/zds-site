@@ -76,10 +76,8 @@
 
 
     {# Stylesheets #}
-    {% if debug %}
-        <link rel="stylesheet" href="{% static "css/main.css" %}">
-    {% else %}
-        <link rel="stylesheet" href="{% static "css/main.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+    {% if not debug %}
         {% block canonical %}{% endblock %}
     {% endif %}
 
@@ -499,7 +497,7 @@
                     </div>
                     <div class="search header-right" id="search">
                         <form action="{% url "haystack_search" %}">
-                            <input type="text" name="q" placeholder="{% trans "Rechercher" %}">
+                            <input type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
                             <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                         </form>
                         <a href="{% url "haystack_search" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
@@ -595,12 +593,7 @@
 
 
     {# Javascript stuff start #}
-    {% if debug %}
-        <script src="{% static "js/vendors.js" %}"></script>
-        <script src="{% static "js/main.js" %}"></script>
-    {% else %}
-        <script src="{% static "js/all.min.js" %}"></script>
-    {% endif %}
+    <script src="{% static "js/all.js" %}"></script>
 
     {% block extra_js %}
     {% endblock %}

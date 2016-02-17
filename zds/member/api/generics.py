@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -18,7 +19,6 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
 
     queryset = Profile.objects.all()
     serializer_class = ProfileSanctionSerializer
-    permission_classes = (IsAuthenticated, IsStaffUser)
 
     def post(self, request, *args, **kwargs):
         return self.process_request(request)
@@ -54,6 +54,12 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
                     settings.ZDS_APP['site']['litteral_name'])
         state.notify_member(ban, msg)
         return Response(serializer.data)
+
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsStaffUser, ]
+        if self.request.method == 'POST' or self.request.method == 'DELETE':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
 
     def get_state_instance(self, request):
         raise NotImplementedError('`get_state_instance()` must be implemented.')

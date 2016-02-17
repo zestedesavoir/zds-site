@@ -4,10 +4,10 @@
 
 Bonjour les agrumes !
 
-La bêta de votre {{ type }} « {{ title }} » a été mise à jour et coule sa pulpe 
+La bêta a été mise à jour et décante sa pulpe 
 à l'adresse suivante :
 
--> [Oh ça va, personne n'est pressé.]({{ url }}) <-
+-> [{{ title}}]({{ url }}) <-
 
 Merci d'avance pour vos commentaires.
 

@@ -1,35 +1,25 @@
 # coding: utf-8
-import shutil
-import zipfile
 import os
+import shutil
+from collections import OrderedDict
 from datetime import datetime
-import copy
 from urllib import urlretrieve
 from urlparse import urlparse
-import codecs
-from collections import OrderedDict
-import subprocess
 
-from git import Repo, Actor
 import cairosvg
-from lxml import etree
 from PIL import Image as ImagePIL
 from django.http import Http404
-from django.core.exceptions import ObjectDoesNotExist
-from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from django.utils import translation
-
-from zds.search.models import SearchIndexContent
-from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
-from zds import settings
-from zds.settings import ZDS_APP
-from zds.utils import get_current_user
+from git import Repo, Actor
+from lxml import etree
 from uuslug import slugify
+
+from zds import settings
+from zds.member.models import User
+from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
-from zds.utils.templatetags.emarkdown import emarkdown
-from zds.member.models import User
 
 
 def all_is_string_appart_from_children(dict_representation):
@@ -54,7 +44,6 @@ def search_container_or_404(base_content, kwargs_array):
 
     from zds.tutorialv2.models.models_versioned import Container
 
-    container = None
     if isinstance(kwargs_array, basestring):
         dic = {}
         dic["parent_container_slug"] = kwargs_array.split("/")[0]
@@ -157,6 +146,7 @@ def mark_read(content, user=None):
     """Mark the last tutorial note as read for the user.
 
     :param content: the content to mark
+    :param user: user that read the content, if ``None`` will use currrent user
     """
 
     from zds.tutorialv2.models.models_database import ContentRead
@@ -187,10 +177,8 @@ class TooDeepContainerError(ValueError):
 
 def try_adopt_new_child(adoptive_parent, child):
     """Try the adoptive parent to take the responsability of the child
-
-    :param parent_full_path:
-    :param child_slug:
-    :param root:
+    :param adoptive_parent: the new parent for child if all check pass
+    :param child: content child to be moved
     :raise Http404: if adoptive_parent_full_path is not found on root hierarchy
     :raise TypeError: if the adoptive parent is not allowed to adopt the child due to its type
     :raise TooDeepContainerError: if the child is a container that is too deep to be adopted by the proposed parent
@@ -450,292 +438,6 @@ def retrieve_and_update_images_links(md_text, directory='.'):
     return new_text
 
 
-class FailureDuringPublication(Exception):
-    """Exception raised if something goes wrong during publication process
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(FailureDuringPublication, self).__init__(*args, **kwargs)
-
-
-def publish_container(db_object, base_dir, container):
-    """ "Publish" a given container, in a recursive way
-
-    :param db_object: database representation of the content
-    :type db_object: PublishableContent
-    :param base_dir: directory of the top container
-    :type base_dir: str
-    :param container: a given container
-    :type container: Container
-    :raise FailureDuringPublication: if anything goes wrong
-    """
-
-    from zds.tutorialv2.models.models_versioned import Container
-
-    if not isinstance(container, Container):
-        raise FailureDuringPublication(_(u'Le conteneur n\'en est pas un !'))
-
-    template = 'tutorialv2/export/chapter.html'
-
-    # jsFiddle support
-    if db_object.js_support:
-        is_js = "js"
-    else:
-        is_js = ""
-
-    current_dir = os.path.dirname(os.path.join(base_dir, container.get_prod_path(relative=True)))
-
-    if not os.path.isdir(current_dir):
-        os.makedirs(current_dir)
-
-    if container.has_extracts():  # the container can be rendered in one template
-        parsed = render_to_string(template, {'container': container, 'is_js': is_js})
-        f = codecs.open(os.path.join(base_dir, container.get_prod_path(relative=True)), 'w', encoding='utf-8')
-
-        try:
-            f.write(parsed)
-        except (UnicodeError, UnicodeEncodeError):
-            raise FailureDuringPublication(
-                _(u'Une erreur est survenue durant la publication de « {} », vérifiez le code markdown')
-                .format(container.title))
-
-        f.close()
-
-        for extract in container.children:
-            extract.text = None
-
-        container.introduction = None
-        container.conclusion = None
-
-    else:  # separate render of introduction and conclusion
-
-        current_dir = os.path.join(base_dir, container.get_prod_path(relative=True))  # create subdirectory
-
-        if not os.path.isdir(current_dir):
-            os.makedirs(current_dir)
-
-        if container.introduction:
-            path = os.path.join(container.get_prod_path(relative=True), 'introduction.html')
-            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_introduction(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de l\'introduction de « {} »,'
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.introduction = path
-
-        if container.conclusion:
-            path = os.path.join(container.get_prod_path(relative=True), 'conclusion.html')
-            f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
-
-            try:
-                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
-            except (UnicodeError, UnicodeEncodeError):
-                raise FailureDuringPublication(
-                    _(u'Une erreur est survenue durant la publication de la conclusion de « {} »,'
-                      u' vérifiez le code markdown').format(container.title))
-
-            container.conclusion = path
-
-        for child in container.children:
-            publish_container(db_object, base_dir, child)
-
-
-def publish_content(db_object, versioned, is_major_update=True):
-    """Publish a given content.
-
-    Note: create a manifest.json without the introduction and conclusion if not needed. Also remove the "text" field
-    of extracts.
-
-    :param db_object: Database representation of the content
-    :type db_object: PublishableContent
-    :param versioned: version of the content to publish
-    :type versioned: VersionedContent
-    :param is_major_update: if set to `True`, will update the publication date
-    :type is_major_update: bool
-    :raise FailureDuringPublication: if something goes wrong
-    :return: the published representation
-    :rtype: zds.tutorialv2.models.models_database.PublishedContent
-    """
-
-    from zds.tutorialv2.models.models_database import PublishedContent
-
-    if is_major_update:
-        versioned.pubdate = datetime.now()
-
-    # First write the files in a temporary directory: if anything goes wrong,
-    # the last published version is not impacted !
-    tmp_path = os.path.join(settings.ZDS_APP['content']['repo_public_path'], versioned.slug + '__building')
-
-    if os.path.exists(tmp_path):
-        shutil.rmtree(tmp_path)  # erase previous attempt, if any
-
-    # render HTML:
-    altered_version = copy.deepcopy(versioned)
-    publish_container(db_object, tmp_path, altered_version)
-    altered_version.dump_json(os.path.join(tmp_path, 'manifest.json'))
-
-    # make room for "extra contents"
-    extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP['content']['extra_contents_dirname'])
-    os.makedirs(extra_contents_path)
-
-    base_name = os.path.join(extra_contents_path, versioned.slug)
-
-    # 1. markdown file (base for the others) :
-    # If we come from a command line, we need to activate i18n, to have the date in the french language.
-    cur_language = translation.get_language()
-    versioned.pubdate = datetime.now()
-    try:
-        translation.activate(settings.LANGUAGE_CODE)
-        parsed = render_to_string('tutorialv2/export/content.md', {'content': versioned})
-    finally:
-        translation.activate(cur_language)
-
-    parsed_with_local_images = retrieve_and_update_images_links(parsed, directory=extra_contents_path)
-
-    md_file_path = base_name + '.md'
-    md_file = codecs.open(md_file_path, 'w', encoding='utf-8')
-    try:
-        md_file.write(parsed_with_local_images)
-    except (UnicodeError, UnicodeEncodeError):
-        raise FailureDuringPublication(_(u'Une erreur est survenue durant la génération du fichier markdown '
-                                         u'à télécharger, vérifiez le code markdown'))
-    md_file.close()
-
-    pandoc_debug_str = ""
-    if settings.PANDOC_LOG_STATE:
-        pandoc_debug_str = " 2>&1 | tee -a " + settings.PANDOC_LOG
-
-    # 2. HTML
-    subprocess.call(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".html" + pandoc_debug_str,
-        shell=True,
-        cwd=extra_contents_path)
-
-    # 3. EPUB
-    subprocess.call(
-        settings.PANDOC_LOC + "pandoc -s -S --toc " + md_file_path + " -o " + base_name + ".epub" + pandoc_debug_str,
-        shell=True,
-        cwd=extra_contents_path)
-
-    # 4. PDF
-    if ZDS_APP['content']['build_pdf_when_published']:
-        subprocess.call(
-            settings.PANDOC_LOC + "pandoc " + settings.PANDOC_PDF_PARAM + " " + md_file_path + " -o " +
-            base_name + ".pdf" + pandoc_debug_str,
-            shell=True,
-            cwd=extra_contents_path)
-
-    # ok, now we can really publish the thing !
-    is_update = False
-
-    if db_object.public_version:
-        public_version = db_object.public_version
-        is_update = True
-
-        # the content have been published in the past, so clean old files !
-        old_path = public_version.get_prod_path()
-        shutil.rmtree(old_path)
-
-        # if the slug change, instead of using the same object, a new one will be created
-        if versioned.slug != public_version.content_public_slug:
-            public_version.must_redirect = True  # set redirection
-            publication_date = public_version.publication_date
-            public_version.save()
-            db_object.public_version = PublishedContent()
-            public_version = db_object.public_version
-
-            # if content have already been published, keep publication date !
-            public_version.publication_date = publication_date
-
-    else:
-        public_version = PublishedContent()
-
-    # make the new public version
-    public_version.content_public_slug = versioned.slug
-    public_version.content_type = versioned.type
-    public_version.content_pk = db_object.pk
-    public_version.content = db_object
-    public_version.must_reindex = True
-    public_version.save()
-
-    # move the stuffs into the good position
-    shutil.move(tmp_path, public_version.get_prod_path())
-
-    # save public version
-    if is_major_update or not is_update:
-        public_version.publication_date = datetime.now()
-    elif is_update:
-        public_version.update_date = datetime.now()
-
-    public_version.sha_public = versioned.current_version
-    public_version.save()
-    try:
-        make_zip_file(public_version)
-    except IOError:
-        pass
-
-    return public_version
-
-
-def make_zip_file(published_content):
-    """Create the zip archive extra content from the published content
-
-    :param published_content: a PublishedContent object
-    :return:
-    """
-
-    publishable = published_content.content
-    publishable.sha_public = publishable.sha_draft  # ensure sha update so that archive is updated to
-    path = os.path.join(published_content.get_extra_contents_directory(),
-                        published_content.content_public_slug + ".zip")
-    zip_file = zipfile.ZipFile(path, 'w')
-    versioned = publishable.load_version(None, True)
-    from zds.tutorialv2.views.views_contents import DownloadContent
-    DownloadContent.insert_into_zip(zip_file, versioned.repository.commit(versioned.current_version).tree)
-    zip_file.close()
-
-
-def unpublish_content(db_object):
-    """Remove the given content from the public view
-
-    :param db_object: Database representation of the content
-    :type db_object: PublishableContent
-    :return: ``True`` if unpublished, ``False`` otherwise
-    :rtype: bool
-    """
-
-    from zds.tutorialv2.models.models_database import PublishedContent
-
-    try:
-        public_version = PublishedContent.objects.get(pk=db_object.public_version.pk)
-
-        # clean files
-        old_path = public_version.get_prod_path()
-
-        if os.path.exists(old_path):
-            shutil.rmtree(old_path)
-
-        # remove public_version:
-        public_version.delete()
-
-        db_object.public_version = None
-        db_object.save()
-
-        # We just delete all index that correspond to the content
-        SearchIndexContent.objects.filter(publishable_content=db_object).delete()
-
-        return True
-
-    except (ObjectDoesNotExist, IOError):
-        pass
-
-    return False
-
-
 class BadManifestError(Exception):
     """ The exception that is raised when the manifest.json contains errors """
 
@@ -748,6 +450,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     :param json: JSON data from a `manifest.json` file
     :param sha: version
+    :param slug_last_draft: the slug for draft marked version
+    :param max_title_len: max str length for title
     :param public: the function will fill a PublicContent instead of a VersionedContent if `True`
     :return: a Public/VersionedContent with all the information retrieved from JSON
     :rtype: models.models_versioned.VersionedContent|models.models_database.PublishedContent

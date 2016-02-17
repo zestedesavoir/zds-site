@@ -213,17 +213,6 @@ class DisplayBetaContent(DisplayContent):
 
         return obj
 
-    def get_context_data(self, **kwargs):
-        context = super(DisplayBetaContent, self).get_context_data(**kwargs)
-
-        if self.object.beta_topic:
-            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
-
-            if beta_topic:
-                context['beta_topic'] = beta_topic
-
-        return context
-
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/content.html'
@@ -1011,17 +1000,6 @@ class DisplayBetaContainer(DisplayContainer):
 
         return obj
 
-    def get_context_data(self, **kwargs):
-        context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
-
-        if self.object.beta_topic:
-            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
-
-            if beta_topic:
-                context['beta_topic'] = beta_topic
-
-        return context
-
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     template_name = 'tutorialv2/edit/container.html'
@@ -1620,9 +1598,9 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
-            if form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
+            elif form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
-            if form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
+            elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
                 if not parent.has_child_with_path(target):
                     if "/" not in target:
@@ -1639,9 +1617,8 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     # and makes me think copy/past are killing kitty cat.
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
-                    parent = target_parent
                 parent.move_child_after(child_slug, target.split("/")[-1])
-            if form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
+            elif form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
                     if "/" not in target:
@@ -1658,14 +1635,16 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
-
+            versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
+
             parent.repo_update(parent.title,
                                parent.get_introduction(),
                                parent.get_conclusion(),
-                               _(u"Déplacement de ") + child_slug)
+                               _(u"Déplacement de ") + child_slug, update_slug=False)
             content.sha_draft = versioned.sha_draft
-            content.save()
+            content.save(force_slug_update=False)  # we do not want the save routine to update the slug in case
+            # of slug algorithm conflict (for pre-zep-12 or imported content)
             messages.info(self.request, _(u"L'élément a bien été déplacé."))
         except TooDeepContainerError:
             messages.error(self.request, _(u"Ce conteneur contient déjà trop d'enfants pour être"

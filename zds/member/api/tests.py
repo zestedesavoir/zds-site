@@ -993,6 +993,134 @@ class MemberDetailBanAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+class PermissionMemberAPITest(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.staff = StaffProfileFactory()
+
+        get_cache(extensions_api_settings.DEFAULT_USE_CACHE).clear()
+
+    def test_has_read_permission_for_anonymous_users(self):
+        """
+        Anonymous users have the permission to read any member.
+        """
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('read'))
+
+    def test_has_read_permission_for_authenticated_users(self):
+        """
+        Authenticated users have the permission to read any member.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.profile.user),
+                            self.profile.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('read'))
+
+    def test_has_read_permission_for_staff_users(self):
+        """
+        Staff users have the permission to read any member.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.staff.user),
+                            self.staff.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('read'))
+
+    def test_has_not_write_permission_for_anonymous_user(self):
+        """
+        An anonymous user haven't write permissions.
+        """
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('write'))
+
+    def test_has_write_permission_for_authenticated_user(self):
+        """
+        A user authenticated have write permissions.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.profile.user),
+                            self.profile.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('write'))
+
+    def test_has_write_permission_for_staff(self):
+        """
+        A staff user have write permissions.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.staff.user),
+                            self.staff.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('write'))
+
+    def test_has_not_update_permission_for_anonymous_user(self):
+        """
+        Only the user authenticated have update permissions.
+        """
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('update'))
+
+    def test_has_update_permission_for_authenticated_user(self):
+        """
+        Only the user authenticated have update permissions.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.profile.user),
+                            self.profile.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('update'))
+
+    def test_has_not_update_permission_for_staff(self):
+        """
+        Only the user authenticated have update permissions.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.staff.user),
+                            self.staff.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('update'))
+
+    def test_has_not_ban_permission_for_anonymous_user(self):
+        """
+        Only staff have ban permission.
+        """
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('ban'))
+
+    def test_has_not_ban_permission_for_authenticated_user(self):
+        """
+        Only staff have ban permission.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.profile.user),
+                            self.profile.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data.get('permissions').get('ban'))
+
+    def test_has_ban_permission_for_staff(self):
+        """
+        Only staff have ban permission.
+        """
+        authenticate_client(self.client, create_oauth2_client(self.staff.user),
+                            self.staff.user.username, 'hostel77')
+
+        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data.get('permissions').get('ban'))
+
+
 class CacheMemberAPITest(APITestCase):
     def test_cache_of_user_authenticated_for_member_profile(self):
         """

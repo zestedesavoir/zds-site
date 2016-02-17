@@ -13,7 +13,7 @@ class FeaturedResourceForm(forms.ModelForm):
     class Meta:
         model = FeaturedResource
 
-        fields = ['title', 'type', 'authors', 'image_url', 'url']
+        fields = ['title', 'type', 'authors', 'image_url', 'url', 'pubdate']
 
         widgets = {
             'title': forms.TextInput(
@@ -44,6 +44,12 @@ class FeaturedResourceForm(forms.ModelForm):
                 attrs={
                     'placeholder': _(u'Lien vers la ressource.')
                 }
+            ),
+
+            'pubdate': forms.DateTimeInput(
+                attrs={
+                    'placeholder': _(u'Exemple : 2016-12-25 00:00:00')
+                }
             )
         }
 
@@ -67,6 +73,7 @@ class FeaturedResourceForm(forms.ModelForm):
             Field('image_url'),
             Field('url'),
             Field('major_update'),
+            Field('pubdate'),
             ButtonHolder(
                 StrictButton(_(u'Enregistrer'), type='submit'),
             ),

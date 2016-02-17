@@ -364,3 +364,71 @@ RECAPTCHA_PRIVATE_KEY = 'la-cle-ici'
 ```
 
 (les clés d'applications sont à créer auprès de l'association)
+
+Actions à faire pour mettre en prod la version 16
+=================================================
+
+Réparer la table HS
+-------------------
+
+**Avant déploiement :** 
+
+1. Se connecter au serveur MySQL : `mysql -u root -p`
+2. Se mettre sur la base de ZdS : `use zdsdb;`
+3. Regarder le contenu de la table oauth2_provider_accesstoken : `describe oauth2_provider_accesstoken;`
+4. Si cette table contient une colonne nommée `skip_authorization`, la supprimer : `alter table oauth2_provider_accesstoken drop column skip_authorization;`
+5. Quitter MySQL
+
+Mise à jours de la version de Haystack à la 4.1 
+-----------------------------------------------
+
+Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
+
+Indexation delta des forums
+---------------------------
+
+Mettre à jour la commande d'indexation, dans `/etc/systemd/system/zds-index-solr.service` :
+
+```
+ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py update_index
+```
+
+devient :
+
+
+```
+ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py update_index --remove --age=1
+```
+
+Changer la politique de génération des documents #3080
+------------------------------------------------------
+
+Mettre à jour le paramètre ZDS_APP["content"]["extra_content_generation_policy"] à "WATCHDOG".
+
+Créer un service `systemd` dans `/etc/systemd/system/zds-watchdog.service` avec:
+
+```
+[Unit]
+Description=Zeste de Savoir - Watchdog
+After=network.target
+
+[Service]
+User=zds
+Group=zds
+WorkingDirectory=/opt/zdsenv/ZesteDeSavoir
+ExecStart=/opt/zdsenv/bin/python /opt/zdsenv/ZesteDeSavoir/manage.py publication_watchdog
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Activer puis lancer le service (en root):
+
+```sh
+systemctl enable zds-watchdog.service
+systemctl start zds-watchdog.service
+```
+
+Il est possible de configurer le logging de ce module en surchargeant les logger `logging.getLogger("zds.pandoc-publicator")`, `logging.getLogger("zds.watchdog-publicator")`.
+

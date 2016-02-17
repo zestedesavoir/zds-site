@@ -32,9 +32,9 @@
     </h2>
 
     {% if user.user in content.authors.all %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True online=False %}
     {% else %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content %}
+        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
     {% endif %}
 {% endblock %}
 
@@ -59,7 +59,7 @@
                                 <a href="#view-comment-authors-{{ validation.pk }}" class="open-modal">
                                     {% trans "Message laissé à la validation" %}
                                 </a>
-                                <div class="modal modal-big" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
+                                <div class="modal modal-flex" id="view-comment-authors-{{ validation.pk }}" data-modal-close="Fermer">
                                     <p>
                                         {{ validation.comment_authors|emarkdown }}
                                     </p>

@@ -29,7 +29,7 @@ class FeaturedResource(models.Model):
     url = models.CharField(
         _(u'URL de la une'), max_length=2000, null=False, blank=False
     )
-    pubdate = models.DateTimeField(_(u'Date de publication'), blank=True, null=False, db_index=True)
+    pubdate = models.DateTimeField(_(u'Date de publication'), blank=False, null=False, db_index=True)
 
     objects = FeaturedResourceManager()
 

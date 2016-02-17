@@ -17,8 +17,16 @@
         @include sprite();
     }
 
-    &.alert:after {
-        @include sprite-position($alert);
+    &.alert {
+        &:after {
+            @include sprite-position($alert);
+        }
+        &.blue:after {
+            @include sprite-position($alert-blue);
+        }
+        &.light:after {
+            @include sprite-position($alert-light);
+        }
     }
 
     &.arrow-left {

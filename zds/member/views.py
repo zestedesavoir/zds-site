@@ -30,7 +30,6 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
 
 from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
-from zds.article.models import Article
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.gallery.models import UserGallery
 from zds.forum.models import Topic, follow, TopicFollowed, TopicRead
@@ -42,7 +41,7 @@ from zds.utils.decorators import https_required
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
-from zds.tutorialv2.models.models_database import PublishedContent
+from zds.tutorialv2.models.models_database import PublishedContent, PublishableContent
 
 
 class MemberList(ZdSPagingListView):
@@ -561,8 +560,8 @@ def articles(request):
     elif state == 'public':
         user_articles = profile.get_public_articles()
     else:
-        user_articles = Article.objects\
-            .filter(authors__pk__in=[request.user.pk])\
+        user_articles = PublishableContent.objects\
+            .filter(authors__pk__in=[request.user.pk], type="ARTICLE")\
             .prefetch_related("authors", "authors__profile")
 
     # Order articles (abc by default)
@@ -805,49 +804,26 @@ def active_account(request):
     # send register message
 
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-    msg = _(
-        u'Bonjour **{username}**,'
-        u'\n\n'
-        u'Ton compte a été activé, et tu es donc officiellement '
-        u'membre de la communauté de {site_name}.'
-        u'\n\n'
-        u'{site_name} est une communauté dont le but est de diffuser des '
-        u'connaissances au plus grand nombre.'
-        u'\n\n'
-        u'Sur ce site, tu trouveras un ensemble de [tutoriels]({tutorials_url}) dans '
-        u'plusieurs domaines et plus particulièrement autour de l\'informatique '
-        u'et des sciences. Tu y retrouveras aussi des [articles]({articles_url}) '
-        u'traitant de sujets d\'actualité ou non, qui, tout comme les tutoriels, '
-        u'sont écrits par des [membres]({members_url}) de la communauté. '
-        u'Pendant tes lectures et ton apprentissage, si jamais tu as des '
-        u'questions à poser, tu retrouveras sur les [forums]({forums_url}) des personnes '
-        u'prêtes à te filer un coup de main et ainsi t\'éviter de passer '
-        u'plusieurs heures sur un problème.'
-        u'\n\n'
-        u'L\'ensemble du contenu disponible sur le site est et sera toujours gratuit, '
-        u'car la communauté de {site_name} est attachée aux valeurs du libre '
-        u'partage et désire apporter le savoir à tout le monde quels que soient ses moyens.'
-        u'\n\n'
-        u'En espérant que tu te plairas ici, '
-        u'je te laisse maintenant faire un petit tour.'
-        u'\n\n'
-        u'Clem\'') \
-        .format(username=usr.username,
-                tutorials_url=settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
-                articles_url=settings.ZDS_APP['site']['url'] + reverse("article:list"),
-                members_url=settings.ZDS_APP['site']['url'] + reverse("member-list"),
-                forums_url=settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
-                site_name=settings.ZDS_APP['site']['litteral_name'])
-    send_mp(
-        bot,
-        [usr],
-        _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
-        _(u"Le manuel du nouveau membre"),
-        msg,
-        True,
-        True,
-        False,
+    msg = render_to_string(
+        'member/messages/active_account.md',
+        {
+            'username': usr.username,
+            'tutorials_url': settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
+            'articles_url': settings.ZDS_APP['site']['url'] + reverse("article:list"),
+            'members_url': settings.ZDS_APP['site']['url'] + reverse("member-list"),
+            'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
+            'site_name': settings.ZDS_APP['site']['litteral_name']
+        }
     )
+
+    send_mp(bot,
+            [usr],
+            _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
+            _(u"Le manuel du nouveau membre"),
+            msg,
+            True,
+            True,
+            False)
     token.delete()
     form = LoginForm(initial={'username': usr.username})
     return render(request, "member/register/token_success.html", {"usr": usr, "form": form})

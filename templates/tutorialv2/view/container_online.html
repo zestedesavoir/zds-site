@@ -66,17 +66,7 @@
             <hr />
         {% endif %}
 
-        {%  if not container.has_extracts %}
-            <ol class="summary-part">
-        {% endif %}
-
-        {% for child in container.children %}
-            {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
-        {% endfor %}
-
-        {%  if not container.has_extracts %}
-            </ol>
-        {% endif %}
+        {%  include "tutorialv2/includes/child_online.part.html" with child=container hide_title=True %}
 
         <hr class="clearfix" />
         <hr />

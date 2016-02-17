@@ -64,8 +64,8 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title="Sujets suivis">
                 <h3>{% trans "Sujets suivis" %}</h3>
 
-                {% with follwedtopics=user|followed_topics %}
-                    {% for period, topics in follwedtopics.items %}
+                {% with followedtopics=user|followed_topics %}
+                    {% for period, topics in followedtopics.items %}
                         <h4>{{ period|humane_delta }}</h4>
                         <ul>
                             {% for topic in topics %}
@@ -87,7 +87,7 @@
                                                 {% if first_unread %}
                                                     {{ first_unread.get_absolute_url }}
                                                 {% else %}
-                                                    {{ topic.last_read_post.get_absolute_url }}
+                                                    {{ topic.resolve_last_read_post_absolute_url }}
                                                 {% endif %}
                                             {% endwith %}
                                             {% endspaceless %}"
@@ -143,7 +143,7 @@
                         </ul>
                     {% endfor %}
 
-                    {% if follwedtopics.items|length <= 0 %}
+                    {% if followedtopics.items|length <= 0 %}
                         <ul>
                             <li class="inactive">
                                 <span class="disabled">{% trans "Aucun sujet suivi" %}</span>

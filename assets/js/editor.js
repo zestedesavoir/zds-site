@@ -93,11 +93,12 @@
         titles: {
             "link" :    "Lien hypertexte",
             "abbr" :    "Abréviation",
-            "image":    "Image"
+            "image":    "Image",
         },
 
         init: function() {
-            var listTexta = document.getElementsByTagName("textarea");
+            var self = this,
+                listTexta = document.getElementsByTagName("textarea");
 
             for (var i=0, c=listTexta.length; i<c; i++) {
                 if (/md.editor/.test(listTexta[i].className)) {
@@ -116,81 +117,53 @@
                 };
             }) (this));
 
-            var overlay = document.body.appendChild(document.createElement("div"));
-                overlay.id = "zform-modal-overlay";
+            var validateButton = document.createElement("a");
+            validateButton.className = "btn btn-submit";
+            validateButton.innerHTML = "Valider";
+            validateButton.href = "#";
 
-            var wrapper = document.body.appendChild(document.createElement("div"));
-                wrapper.id = "zform-modal-wrapper";
+            function buildButton(type) {
+                var btn = validateButton.cloneNode(true);
+                btn.addEventListener("click", self.validatePopup.bind(self, type));
+                return btn;
+            }
 
-            wrapper.innerHTML =
-            "<div>" +
-                "<header id=\"zform-modal-header\"></header>" +
+            this.modals = {};
+            this.modals.link = new window.Modal({
+                "title": this.titles.link,
+                "body": "<div>" +
+                            "<label for=zform-modal-link-href>Lien :</label>" +
+                            "<input type=text id=zform-modal-link-href />" +
+                        "</div><div>" +
+                            "<label for=zform-modal-link-text>Texte :</label>" +
+                            "<input type=text id=zform-modal-link-text />" +
+                        "</div>",
+                "footer": buildButton("link")
+            });
 
-                "<section class=\"zform-modal\" id=\"zform-modal-link\">" +
-                    "<div>" +
-                        "<label for=\"zform-modal-link-href\">Lien :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-link-href\" />" +
-                    "</div>" +
+            this.modals.image = new window.Modal({
+                "title": this.titles.image,
+                "body": "<div>" +
+                            "<label for=zform-modal-image-src>URL :</label>" +
+                            "<input type=text id=zform-modal-image-src />" +
+                        "</div><div>" +
+                            "<label for=zform-modal-image-text>Texte :</label>" +
+                            "<input type=text id=zform-modal-image-text />" +
+                        "</div>",
+                "footer": buildButton("image")
+            });
 
-                    "<div>" +
-                        "<label for=\"zform-modal-link-text\">Texte :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-link-text\" />" +
-                    "</div>" +
-                "</section>" +
-
-                "<section class=\"zform-modal\" id=\"zform-modal-image\">" +
-                    "<div>" +
-                        "<label for=\"zform-modal-image-src\">URL :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-image-src\" />" +
-                    "</div>" +
-
-                    "<div>" +
-                        "<label for=\"zform-modal-image-text\">Texte :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-image-text\" />" +
-                    "</div>" +
-                "</section>" +
-
-                "<section class=\"zform-modal\" id=\"zform-modal-abbr\">" +
-                    "<div>" +
-                        "<label for=\"zform-modal-abbr-abbr\">Abréviation :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-abbr-abbr\" />" +
-                    "</div>" +
-
-                    "<div>" +
-                        "<label for=\"zform-modal-abbr-text\">Texte :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-abbr-text\" />" +
-                    "</div>" +
-                "</section>" +
-
-                "<section class=\"zform-modal\" id=\"zform-modal-footnote\">" +
-                    "<div>" +
-                        "<label for=\"zform-modal-footnote-guid\">Identifiant :</label>" +
-                        "<input type=\"text\" id=\"zform-modal-footnote-guid\" />" +
-                    "</div>" +
-
-                    "<div>" +
-                        "<label for=\"zform-modal-footnote-text\">Texte :</label>" +
-                    "</div>" +
-
-                    "<div>" +
-                        "<textarea id=\"zform-modal-footnote-text\"></textarea>" +
-                    "</div>" +
-                "</section>" +
-
-                "<footer><a id=\"zform-modal-validate\" class=\"btn btn-submit\">Valider</a> <a id=\"zform-modal-cancel\" class=\"btn btn-cancel secondary tiny\">Annuler</a></footer>" +
-            "</div>";
-
-            this.addEvent(document.getElementById("zform-modal-validate"), "click", (function(_this) {
-                return function() {
-                    _this.validatePopup();
-                };
-            }) (this));
-
-            this.addEvent(document.getElementById("zform-modal-cancel"), "click", (function(_this) {
-                return function() {
-                    _this.closePopup();
-                };
-            }) (this));
+            this.modals.abbr = new window.Modal({
+                "title": this.titles.abbr,
+                "body": "<div>" +
+                            "<label for=zform-modal-abbr-abbr>Abbréviation :</label>" +
+                            "<input type=text id=zform-modal-abbr-abbr />" +
+                        "</div><div>" +
+                            "<label for=zform-modal-abbr-text>Texte :</label>" +
+                            "<input type=text id=zform-modal-abbr-text />" +
+                        "</div>",
+                "footer": buildButton("abbr")
+            });
         },
 
         setup: function(textareaId) {
@@ -278,36 +251,21 @@
         },
 
         openPopup: function(popupGuid) {
-            this.closePopup();
-
-            document.getElementById("zform-modal-overlay").style.display = "block";
-            document.getElementById("zform-modal-wrapper").style.display = "block";
-
-            document.getElementById("zform-modal-header").innerHTML = this.titles[popupGuid] || "Markdown";
-
-            document.getElementById("zform-modal-" + popupGuid).style.display = "block";
+            this.modals[popupGuid].open();
 
             return false;
         },
 
         closePopup: function() {
-            var modals = document.getElementsByTagName("section");
-
-            for (var i=0, c=modals.length; i<c; i++) {
-                if (modals[i].className === "zform-modal") {
-                    modals[i].style.display = "none";
-                }
-            }
-
-            document.getElementById("zform-modal-overlay").style.display = "none";
-            document.getElementById("zform-modal-wrapper").style.display = "none";
+            window.Modal.closeCurrent();
         },
 
-        validatePopup: function() {
+        validatePopup: function(type) {
             //var wrapper = document.getElementById("zform-modal-wrapper");
+            type = type || this.selection.type;
 
             if (this.selection && this.selection.type) {
-                this.wrap("___", "+++", this.selection.textareaId, this.selection.type, null, true);
+                this.wrap("___", "+++", this.selection.textareaId, type, null, true);
             }
 
             this.closePopup();

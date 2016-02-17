@@ -239,6 +239,8 @@ peuvent donc continuer à travailler chacun de leur côté.
 La publication
 --------------
 
+**Le cas général**
+
 Une fois que le contenu est passé en validation et a satisfait les critères 
 éditoriaux, il est publié. Il faut bien préciser que le processus de 
 validation peut être assez long. De plus, un historique de validation est 
@@ -263,6 +265,29 @@ qui devraient être réglés plus tard avec la
 Enfin, signalons qu'il est possible à tout moment pour un membre de l'équipe 
 de dépublier un contenu. Le cas échéant, un message sera envoyé aux auteurs, 
 indiquant les raisons de la dépublication.
+
+**Les politiques de génération**
+
+La manière dont l'application réagira à une publication dans le but de générer -- ou non -- des documents téléchargeables
+est configurable selon trois niveaux à affecter au paramètre ``ZDS_APP['content']['extra_content_generation_policy']``:
+
+- NOTHING : ne génère aucun document téléchargeable autre que le fichier markdown et l'archive zip des sources
+- SYNC : génère tous les documents téléchargeables que le système peut générer de manière synchrone à la publication. C'est à dire que la génération est élevée au rang de tâche bloquante
+- WATCHDOG : seul un "marqueur de publication" est généré lors de la publication, c'est un observateur externe qui viendra publier le nouveau contenu. Le site fourni un observateur externe : ``python mangage.py publication_watchdog``.
+
+.. attention::
+
+    Le mode ``WATCHDOG`` est soumis à l'utilisation d'un autre paramètre : ``ZDS_APP['content']['extra_content_watchdog_dir']`` qui, par défaut, créera un dossier watchdog-build à la racine de l'application
+
+
+**Ajouter un nouveau format d'export**
+
+Les fichiers téléchargeables générés le sont à partir d'un registre de créateur.
+Par défaut le registre contient les 3 formats pandoc HTML, PDF et EPUB.
+
+Vous pouvez définir votre propre formatteur qui devra alors hériter de la classe ``zds.tutorialv2.publication_utils.Publicator`` et implémenter la méthode ``publish``.
+Si vous désirez vous passer de pandoc, il vous suffira d'appeler ``map(PublicatorRegistry.unregister, ["pdf", "epub", "html"])``.
+Vous pouvez aussi simplement surcharger chacun des ``Publicator`` par défaut en en enregistrant un nouveau sous le même nom.
 
 L'entraide
 ----------
@@ -554,3 +579,25 @@ Migrer la base de données
 
 Si vous faites tourner une instance du code de Zeste de Savoir sous la version 1.X et que vous passez à la v2.X, vous allez
 devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécuter la commande ``python manage.py migrate_to_zep12.py``.
+
+Récapitulatif des paramètres du module
+======================================
+
+Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
+
+- ``repo_private_path`` : chemin vers le dossier qui contiend les contenus durant leur rédaction, par défaut le dossier sera contents-private à la racine de l'application
+- ``repo_public_path``: chemin vers le dossier qui contient les fichiers permettant l'affichage des contenus publiés ainsi que les fichiers téléchargeables, par défaut contents-public
+- ``extra_contents_dirname``: nom du sous-dosssier qui contient les fichiers téléchargeables (pdf, epub...), par défaut extra_contents
+- ``extra_content_generation_policy``: Contient la politique de génération des fichiers téléchargeable, 'SYNC', 'WATCHDOG' ou 'NOTHING'
+- ``extra_content_watchdog_dir``: dossier qui permet à l'observateur (si ``extra_content_generation_policy`` vaut ``"WATCHDOG"``) de savoir qu'un contenu a été publié
+- ``max_tree_depth``: Profondeur maximal de la hiérarchie des tutoriels : par défaut ``3`` pour partie/chapitre/extrait
+- ``default_licence_pk``: Clef primaire de la licence par défaut (TOUS DROITS RESERVES en français), 7 si vous utilisez les fixtures
+- ``content_per_page``: Nombre de contenus dans les listing (article, tutoriels)
+- ``notes_per_page``: Nombre de réaction nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
+- ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP03
+- ``feed_length``: Nombre de contenus affiché dans un flux RSS ou ATOM,
+- ``user_page_number``:  Nombre de contenu de chaque type qu'on affiche sur le profil d'un utilisateur par défaut 5,
+- ``default_image``: chemin vers l'image utilisée par défaut dans les icônes de contenu,
+- ``import_image_prefix``: préfixe mnémonique permettant d'indiquer que l'image se trouve dans l'archive jointe lors de l'import de contenu
+- ``build_pdf_when_published``: indique que la publication génèrera un PDF (quelque soit la politique, si ``False`` les PDF ne seront pas générés, sauf à appeler la commande adéquate,
+- ``maximum_slug_size``: taille maximale du slug d'un contenu

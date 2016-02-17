@@ -82,6 +82,11 @@
                                     <li>
                                         <a href="{{ public_object.get_absolute_url_md }}" class="ico-after download blue">
                                             {% trans "Markdown" %}
+                                            {% with size=public_object.get_size_md %}
+                                                {% if size %}
+                                                    ({{ size|filesizeformat }})
+                                                {% endif %}
+                                            {% endwith %}
                                         </a>
                                     </li>
                                 {% endif %}
@@ -90,6 +95,11 @@
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_html }}" class="ico-after download blue">
                                         {% trans "HTML" %}
+                                        {% with size=public_object.get_size_html %}
+                                            {% if size %}
+                                                ({{ size|filesizeformat }})
+                                            {% endif %}
+                                        {% endwith %}
                                     </a>
                                 </li>
                             {% endif %}
@@ -97,6 +107,11 @@
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_pdf }}" class="ico-after download blue">
                                         {% trans "PDF" %}
+                                        {% with size=public_object.get_size_pdf %}
+                                            {% if size %}
+                                                ({{ size|filesizeformat }})
+                                            {% endif %}
+                                        {% endwith %}
                                     </a>
                                 </li>
                             {% endif %}
@@ -104,6 +119,11 @@
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_epub }}" class="ico-after download blue">
                                         {% trans "EPUB" %}
+                                        {% with size=public_object.get_size_epub %}
+                                            {% if size %}
+                                                ({{ size|filesizeformat }})
+                                            {% endif %}
+                                        {% endwith %}
                                     </a>
                                 </li>
                             {% endif %}
@@ -111,6 +131,11 @@
                                 <li>
                                     <a href="{{ public_object.get_absolute_url_zip }}" class="ico-after download blue">
                                         {% trans "Archive" %}
+                                        {% with size=public_object.get_size_zip %}
+                                            {% if size %}
+                                                ({{ size|filesizeformat }})
+                                            {% endif %}
+                                        {% endwith %}
                                     </a>
                                 </li>
                             {% endif %}

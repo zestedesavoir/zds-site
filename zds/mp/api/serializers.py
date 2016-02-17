@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
+from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers
 from zds.api.serializers import ZdSModelSerializer
 
@@ -15,21 +16,25 @@ class PrivatePostSerializer(ZdSModelSerializer):
     """
     Serializers of a private post object.
     """
+    permissions = DRYPermissionsField()
 
     class Meta:
         model = PrivatePost
         serializers = (UserListSerializer,)
         formats = {'Html': 'text_html', 'Markdown': 'text'}
+        read_only_fields = ('permissions',)
 
 
 class PrivateTopicSerializer(ZdSModelSerializer):
     """
     Serializers of a private topic object.
     """
+    permissions = DRYPermissionsField()
 
     class Meta:
         model = PrivateTopic
         serializers = (PrivatePostSerializer, UserListSerializer,)
+        read_only_fields = ('permissions',)
 
 
 class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextValidator,
@@ -39,12 +44,14 @@ class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, 
     """
     participants = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True, )
     text = serializers.CharField()
+    permissions = DRYPermissionsField()
 
     class Meta:
         model = PrivateTopic
         fields = ('id', 'title', 'subtitle', 'participants', 'text',
-                  'author', 'participants', 'last_message', 'pubdate')
-        read_only_fields = ('id', 'author', 'last_message', 'pubdate')
+                  'author', 'participants', 'last_message', 'pubdate',
+                  'permissions')
+        read_only_fields = ('id', 'author', 'last_message', 'pubdate', 'permissions')
 
     def create(self, validated_data):
         # This hack is necessary because `text` isn't a field of PrivateTopic.
@@ -73,11 +80,12 @@ class PrivateTopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, 
     title = serializers.CharField(required=False, allow_blank=True)
     subtitle = serializers.CharField(required=False, allow_blank=True)
     participants = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False, )
+    permissions = DRYPermissionsField()
 
     class Meta:
         model = PrivateTopic
-        fields = ('id', 'title', 'subtitle', 'participants',)
-        read_only_fields = ('id',)
+        fields = ('id', 'title', 'subtitle', 'participants', 'permissions',)
+        read_only_fields = ('id', 'permissions',)
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -99,11 +107,14 @@ class PrivatePostUpdateSerializer(serializers.ModelSerializer, TextValidator, Up
     """
     Serializer to update the last private post of a private topic.
     """
+    permissions = DRYPermissionsField()
 
     class Meta:
         model = PrivatePost
-        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
-        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic',
+                  'permissions')
+        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic',
+                            'permissions')
 
     def update(self, instance, validated_data):
         return self.perform_update(instance, validated_data)
@@ -116,11 +127,14 @@ class PrivatePostCreateSerializer(serializers.ModelSerializer, TextValidator):
     """
     Serializer to update the last private post of a private topic.
     """
+    permissions = DRYPermissionsField()
 
     class Meta:
         model = PrivatePost
-        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic')
-        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic')
+        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic',
+                  'permissions')
+        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic',
+                            'permissions')
 
     def create(self, validated_data):
         # Get topic

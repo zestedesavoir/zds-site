@@ -14,11 +14,13 @@ from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm
-from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView
+from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
+    SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
-from zds.tutorialv2.utils import publish_content, FailureDuringPublication, unpublish_content
+from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
+import logging
 
 
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -38,6 +40,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
             .prefetch_related("validator")\
             .prefetch_related("content")\
             .prefetch_related("content__authors")\
+            .prefetch_related("content__subcategory")\
             .filter(Q(status="PENDING") | Q(status="PENDING_V"))
 
         # filtering by type
@@ -76,6 +79,16 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ValidationListView, self).get_context_data(**kwargs)
+        removed_ids = []
+        for validation in context["validations"]:
+            try:
+                validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
+            except IOError:  # remember that load_version can raise IOError when path is not correct
+                logging.getLogger("zds.tutorialv2.validation")\
+                       .warn("A validation {} for content {} failed to load".format(validation.pk,
+                                                                                    validation.content.title))
+                removed_ids.append(validation.pk)
+        context["validations"] = [_valid for _valid in context["validations"] if _valid.pk not in removed_ids]
         context['category'] = self.subcategory
         return context
 
@@ -114,12 +127,13 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         validation.date_proposition = datetime.now()
         validation.comment_authors = form.cleaned_data['text']
         validation.version = form.cleaned_data['version']
+        if old_validator:
+            validation.validator = old_validator
+            validation.status = 'PENDING_V'
         validation.save()
 
         # warn the former validator that an update has been made, if any
         if old_validator:
-            validation.validator = old_validator
-
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
                 'tutorialv2/messages/validation_change.md',
@@ -366,14 +380,14 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         db_object = validation.content
         versioned = db_object.load_version(sha=validation.version)
         self.success_url = versioned.get_absolute_url(version=validation.version)
-
+        is_update = db_object.sha_public
         try:
             published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
             # save in database
-            is_update = db_object.sha_public and db_object.sha_public != ''
+
             db_object.sha_public = validation.version
             db_object.source = form.cleaned_data['source']
             db_object.sha_validation = None
@@ -432,7 +446,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         return super(AcceptValidation, self).form_valid(form)
 
 
-class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
+class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
     """Unpublish a content and reverse the situation back to a pending validation"""
 
     permissions = ["tutorialv2.change_validation"]

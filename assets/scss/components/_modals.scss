@@ -1,16 +1,51 @@
 .modal {
     display: none;
 }
-#modals .modal {
+
+.modals-container {
+    display: none;
     position: fixed;
-    z-index: 50;
-    width: auto !important;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow-y: auto;
+    z-index: 50;
+
+    &.open {
+        display: block;
+    }
+
+    .modals-wrapper {
+        display: flex;
+        width: 100vw;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: space-around;
+        flex-direction: column;
+    }
+
+    .modals-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+}
+
+.modals-container .modal {
+    position: relative;
+    z-index: 2;
     background: #EEE;
-    min-height: 220px;
+    flex: 0;
+    flex-direction: column;
+
+    &.open {
+        display: flex;
+    }
 
     .modal-title {
         display: block;
@@ -18,7 +53,6 @@
         line-height: 53px;
         height: 50px;
         text-indent: 15px;
-        margin-bottom: 20px;
         background: $color-primary;
         color: #FFF;
         font-size: 16px;
@@ -34,102 +68,73 @@
         }
     }
 
-    p,
-    input,
-    select,
-    textarea {
-        margin: 10px 15px;
-        resize: none;
+    .modal-body {
+        padding: 20px 15px 5px;
+        flex: 1;
 
-        &:not([type=checkbox]):not([type=radio]) {
-            width: calc(98% - 32px) !important;
+        p {
+            width: 370px;
         }
-    }
-    label {
-        margin: 0 15px;
-    }
-    textarea {
-        margin-top: 0;
-    }
 
-    .btn:not(.modal-inner),
-    [type=submit]:not(.modal-inner) {
-        position: absolute;
-        width: 50%;
-        height: 50px;
-        line-height: 50px;
-        bottom: 0;
-        right: 0;
-        margin: 0 !important;
-        padding: 0 !important;
-        text-align: center;
-        background: none !important;
-        border-top: 1px solid #CCC;
-        color: #333;
-    }
-    .btn-submit:not(.modal-inner),
-    [type=submit]:not(.modal-inner) {
-        height: 51px;
-        color: $color-primary;
-        font-weight: bold;
-    }
-    .btn-cancel {
-        right: auto;
-        left: 0;
-        border-right: 1px solid #CCC;
-        color: #555;
-    }
-    .btn.btn-modal-fullwidth {
-        width: 100%;
-        border-right: none;
-        font-weight: bold;
-    }
-}
-.enable-mobile-menu #modals .modal {
-    top: $modal-margin;
-    right: $modal-margin;
-    bottom: $modal-margin;
-    left: $modal-margin;
-    box-shadow: 0 0 5px #000;
+        table {
+            margin-top: 0;
+        }
 
-    &.modal-small,
-    &.modal-medium,
-    &.modal-big {
-        top: 50%;
-        bottom: auto;
-        max-width: 400px;
-    }
-
-    &.modal-small {
-        height: 220px;
-        margin: -110px auto 0;
-    }
-    &.modal-medium {
-        height: 250px;
-        margin: -125px auto 0;
-
+        p,
+        input:not([type=checkbox]):not([type=radio]),
+        select,
         textarea {
-            height: 80px;
+            margin: 0 0 15px;
         }
     }
-    &.modal-big {
-        height: 320px;
-        margin: -160px auto 0;
+
+    .modal-footer {
+        display: flex;
+        border-top: 1px solid #CCC;
+        flex-direction: row-reverse;
+
+        & > * {
+            flex: 1;
+            height: 50px;
+            line-height: 50px;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background: none!important;
+            color: #333;
+
+            &:not(:first-child) {
+                border-right: 1px solid #CCC;
+            }
+
+            &:only-child {
+                font-weight: bold;
+            }
+        }
+
+        .btn-submit, [type=submit] {
+            color: $color-primary;
+            font-weight: bold;
+        }
+
+        .btn-cancel {
+            color: #555;
+        }
     }
 }
-.enable-mobile-menu #modals-overlay {
-    position: fixed;
-    display: none;
-    z-index: 49;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, .7);
+
+.enable-mobile-menu .modals-container .modal {
+    margin: $modal-margin;
+    box-shadow: 0 0 5px #000;
+    max-width: 100%;
+
+    &.modal-flex {
+        width: 400px;
+    }
 }
 
 @media only screen and #{$media-wide} {
-    .enable-mobile-menu #modals .modal {
+    .enable-mobile-menu .modals-container .modal {
         box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
 
         .modal-title {

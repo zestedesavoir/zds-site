@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <a href="#delete-{{ object.slug }}" class="open-modal{% if additional_classes %} {{ additional_classes }}{% endif %}">{% trans "Supprimer" %}</a>
-<form action="{{ object.get_delete_url }}" method="post" id="delete-{{ object.slug }}" class="modal modal-small">
+<form action="{{ object.get_delete_url }}" method="post" id="delete-{{ object.slug }}" class="modal modal-flex">
     <p>
         {% blocktrans with object_title=object.title %}
         Êtes-vous certain de vouloir supprimer <strong>définitivement</strong> « {{ object_title }} » ?
