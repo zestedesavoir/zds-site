@@ -3,8 +3,7 @@ from django.contrib.auth.models import Group
 
 import os
 import shutil
-from os.path import isdir, isfile
-
+from os.path import isdir, isfile, join, dirname
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -17,7 +16,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, CategoryFactory
-
+from zds.tutorialv2.publication_utils import publish_content
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -517,6 +516,48 @@ class ContentMoveTests(TestCase):
         self.assertEqual(self.chapter3.slug, chapter.slug)
         chapter = versioned.children_dict[self.part2.slug].children[0]
         self.assertEqual(self.chapter4.slug, chapter.slug)
+
+    def test_move_no_slug_update(self):
+        """
+        this test comes from issue #3328 (https://github.com/zestedesavoir/zds-site/issues/3328)
+        telling it is tricky is kind of euphemism.
+        :return:
+        """
+        LicenceFactory(code="CC BY")
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        draft_zip_path = join(dirname(__file__), "fake_lasynchrone-et-le-multithread-en-net.zip")
+        result = self.client.post(
+            reverse('content:import-new'),
+            {
+                'archive': open(draft_zip_path),
+                'subcategory': self.subcategory.pk
+            },
+            follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+        tuto = PublishableContent.objects.last()
+        published = publish_content(tuto, tuto.load_version(), True)
+        tuto.sha_public = tuto.sha_draft
+        tuto.public_version = published
+        tuto.save()
+        extract1 = tuto.load_version().children[0]
+        # test moving up smoothly
+        result = self.client.post(
+            reverse('content:move-element'),
+            {
+                'child_slug': extract1.slug,
+                'first_level_slug': "",
+                'container_slug': tuto.slug,
+                'moving_method': 'down',
+                'pk': tuto.pk
+            },
+            follow=True)
+        self.assertEqual(200, result.status_code)
+        self.assertTrue(isdir(tuto.get_repo_path()))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
