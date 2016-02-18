@@ -8,7 +8,7 @@ django==1.8.0
 coverage==4.0.1
 django-crispy-forms==1.4.0
 django-haystack==2.4.1
-django-model-utils==2.2
+django-model-utils==2.4
 django-munin==0.2.0
 python-memcached==1.54
 lxml==3.4.4
@@ -37,3 +37,7 @@ dry-rest-permissions==0.1.6
 django-uuslug==1.0.3
 python-slugify==1.1.4 # next versions of this library break previous behavior for slug generation from string with single quotes
 watchdog==0.8.3 # use last non-bc-breaking version
+
+# TODO : fix temp bug
+# should run this after install :
+# pip install --upgrade https://github.com/carljm/django-model-utils/archive/master.zip
