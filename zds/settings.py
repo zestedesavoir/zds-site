@@ -209,11 +209,7 @@ THUMBNAIL_ALIASES = {
 }
 
 REST_FRAMEWORK = {
-    # If the pagination isn't specify in the API, its configuration is
-    # specified here.
-    'PAGINATE_BY': 10,                 # Default to 10
-    'PAGINATE_BY_PARAM': 'page_size',  # Allow client to override, using `?page_size=xxx`.
-    'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
+    'DEFAULT_PAGINATION_CLASS': 'zds.api.pagination.DefaultPagination',
     # Active OAuth2 authentication.
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.ext.rest_framework.OAuth2Authentication',
@@ -239,7 +235,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '60/hour',
         'user': '2000/hour'
-    }
+    },
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 
 REST_FRAMEWORK_EXTENSIONS = {
@@ -562,6 +559,10 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # makemigrations requires this for some reason or it errors
 # Just set to the default value
 OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
+
+OAUTH2_PROVIDER = {
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'
+}
 
 # tell django where to put the oauth2 migrations
 MIGRATION_MODULES = {
