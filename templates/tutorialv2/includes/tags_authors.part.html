@@ -37,8 +37,8 @@
 {% include "misc/zen_button.part.html" %}
 
 <div class="authors">
-    <span class="authors-label">{% trans "Auteur" %}
-        {{ publishablecontent|displayable_authors:online|pluralize }} :
+    <span class="authors-label">
+        {% trans "Auteur" %}{{ publishablecontent|displayable_authors:online|pluralize }} :
     </span>
     <ul>
         {% for member in publishablecontent|displayable_authors:online %}

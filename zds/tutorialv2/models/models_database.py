@@ -137,7 +137,8 @@ class PublishableContent(models.Model):
         """
         Rewrite the `save()` function to handle slug uniqueness
         """
-        self.slug = uuslug(self.title, instance=self, max_length=80)
+        if kwargs.pop('force_slug_update', True):
+            self.slug = uuslug(self.title, instance=self, max_length=80)
         update_date = kwargs.pop("update_date", True)
         if update_date:
             self.update_date = datetime.now()

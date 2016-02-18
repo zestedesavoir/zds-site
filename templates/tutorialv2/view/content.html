@@ -487,7 +487,7 @@
                                 {% trans "Supprimer le contenu" %}
                             </a>
                             {% captureas need_reason %}{%  if validation and validation.status == 'PENDING_V' %}True{% endif %}{% endcaptureas %}
-                            <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-{% if need_reason %}big{% else %}medium{% endif %}">
+                            <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-flex">
                                 {% csrf_token %}
                                 <p>
                                     {% blocktrans with content_title=content.title %}

@@ -20,6 +20,7 @@ from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
+import logging
 
 
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -78,9 +79,16 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ValidationListView, self).get_context_data(**kwargs)
+        removed_ids = []
         for validation in context["validations"]:
-            validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
-
+            try:
+                validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
+            except IOError:  # remember that load_version can raise IOError when path is not correct
+                logging.getLogger("zds.tutorialv2.validation")\
+                       .warn("A validation {} for content {} failed to load".format(validation.pk,
+                                                                                    validation.content.title))
+                removed_ids.append(validation.pk)
+        context["validations"] = [_valid for _valid in context["validations"] if _valid.pk not in removed_ids]
         context['category'] = self.subcategory
         return context
 
