@@ -1,6 +1,7 @@
 {% extends "member/base.html" %}
 {% load date %}
 {% load i18n %}
+{% load remove_url_protocole %}
 
 {% block title %}
     {% trans "Membres par IP" %}
@@ -32,7 +33,7 @@
                     itemscope
                     itemtype="http://schema.org/Person"
                 >{% spaceless %}
-                <img src="{{ member.get_avatar_url }}" alt="" class="avatar" itemprop="image">
+                <img src="{{ member.get_avatar_url|remove_url_protocole }}" alt="" class="avatar" itemprop="image">
                 <span itemprop="name">{{ member.user.username }}</span>
             {% endspaceless %}</a> <span class="info">{% blocktrans with last_visit=member.last_visit|format_date:True %} "le" {{last_visit}} {% endblocktrans %}</span>
             </li>
