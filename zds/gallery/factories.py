@@ -7,7 +7,8 @@ from zds.utils import slugify
 # Don't try to directly use UserFactory, this didn't create Profile then
 # don't work!
 class ImageFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Image
+    class Meta:
+        model = Image
 
     title = factory.Sequence(u"titre de l\'image {0}".format)
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
@@ -25,7 +26,8 @@ class ImageFactory(factory.DjangoModelFactory):
 
 
 class GalleryFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Gallery
+    class Meta:
+        model = Gallery
 
     title = factory.Sequence(u"titre de la gallerie {0}".format)
     subtitle = factory.Sequence(u"Sous-titre de la gallerie {0}".format)
@@ -33,7 +35,8 @@ class GalleryFactory(factory.DjangoModelFactory):
 
 
 class UserGalleryFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = UserGallery
+    class Meta:
+        model = UserGallery
 
     mode = "W"
 

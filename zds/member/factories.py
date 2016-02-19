@@ -12,7 +12,8 @@ class UserFactory(factory.DjangoModelFactory):
     WARNING: Don't try to directly use `UserFactory`, this didn't create associated Profile then don't work!
     Use `ProfileFactory` instead.
     """
-    FACTORY_FOR = User
+    class Meta:
+        model = User
 
     username = factory.Sequence('firm{0}'.format)
     email = factory.Sequence('firm{0}@zestedesavoir.com'.format)
@@ -37,7 +38,8 @@ class StaffFactory(factory.DjangoModelFactory):
     WARNING: Don't try to directly use `StaffFactory`, this didn't create associated Profile then don't work!
     Use `StaffProfileFactory` instead.
     """
-    FACTORY_FOR = User
+    class Meta:
+        model = User
 
     username = factory.Sequence('firmstaff{0}'.format)
     email = factory.Sequence('firmstaff{0}@zestedesavoir.com'.format)
@@ -70,7 +72,8 @@ class ProfileFactory(factory.DjangoModelFactory):
     """
     Use this factory when you need a complete Profile for a standard user.
     """
-    FACTORY_FOR = Profile
+    class Meta:
+        model = Profile
 
     user = factory.SubFactory(UserFactory)
 
@@ -95,7 +98,8 @@ class StaffProfileFactory(factory.DjangoModelFactory):
     """
     Use this factory when you need a complete Profile for a staff user.
     """
-    FACTORY_FOR = Profile
+    class Meta:
+        model = Profile
 
     user = factory.SubFactory(StaffFactory)
 
@@ -115,7 +119,8 @@ class NonAsciiUserFactory(UserFactory):
     WARNING: Don't try to directly use `NonAsciiUserFactory`, this didn't create associated Profile then don't work!
     Use `NonAsciiProfileFactory` instead.
     """
-    FACTORY_FOR = User
+    class Meta:
+        model = User
 
     username = factory.Sequence(u'ïéàçÊÀ{0}'.format)
 
@@ -124,6 +129,7 @@ class NonAsciiProfileFactory(ProfileFactory):
     """
     Use this factory to create a standard user with non-ASCII characters in its username.
     """
-    FACTORY_FOR = Profile
+    class Meta:
+        model = Profile
 
     user = factory.SubFactory(NonAsciiUserFactory)
