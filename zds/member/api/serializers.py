@@ -111,6 +111,9 @@ class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameVal
     is_active = serializers.BooleanField(source='user.is_active', required=False)
     date_joined = serializers.DateTimeField(source='user.date_joined', required=False)
     permissions = DRYPermissionsField(additional_actions=['ban'])
+    show_sign = serializers.NullBooleanField(required=False)
+    hover_or_click = serializers.NullBooleanField(required=False)
+    email_for_answer = serializers.NullBooleanField(required=False)
 
     class Meta:
         model = Profile

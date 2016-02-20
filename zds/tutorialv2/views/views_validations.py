@@ -257,6 +257,27 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = datetime.now()
             validation.status = "PENDING_V"
             validation.save()
+
+            # send PM
+            versioned = validation.content.load_version(sha=validation.version)
+            msg = render_to_string(
+                'tutorialv2/messages/validation_reserve.md',
+                {
+                    'content': versioned,
+                    'url': versioned.get_absolute_url() + '?version=' + validation.version,
+                })
+
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                validation.validator,
+                validation.content.authors.all(),
+                _(u"Contenu réservé").format(),
+                validation.content.title,
+                msg,
+                True,
+                direct=False
+            )
+
             messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
 
             return redirect(

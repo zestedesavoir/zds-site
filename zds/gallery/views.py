@@ -460,7 +460,7 @@ class ImportImages(GalleryMixin, FormView):
 
             # create picture in database:
             f_im = File(open(ph_temp, "rb"))
-            f_im.name = title
+            f_im.name = title + ext
 
             pic = Image()
             pic.gallery = gallery

@@ -38,7 +38,7 @@ class SearchIndexContent(models.Model):
     licence = models.CharField('Licence du contenu', max_length=200)
     url_image = models.CharField('L\'adresse vers l\'image du contenu', max_length=200, null=True, blank=True)
 
-    tags = models.ManyToManyField(SearchIndexTag, verbose_name='Tags', null=True, blank=True, db_index=True)
+    tags = models.ManyToManyField(SearchIndexTag, verbose_name='Tags', blank=True, db_index=True)
     authors = models.ManyToManyField(SearchIndexAuthors, verbose_name='Authors', db_index=True)
 
     url_to_redirect = models.CharField('Adresse pour rediriger', max_length=400)

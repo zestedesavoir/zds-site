@@ -9,7 +9,8 @@ import factory
 
 
 class HelpWritingFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = HelpWriting
+    class Meta:
+        model = HelpWriting
 
     title = factory.Sequence(u"titre de l\'image {0}".format)
     slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))

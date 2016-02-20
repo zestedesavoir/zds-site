@@ -1941,6 +1941,7 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
@@ -2117,7 +2118,8 @@ class ContentTests(TestCase):
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
+        # Note : a PM is sent when the content is reserved by a validator
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
@@ -2185,7 +2187,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 3)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 6)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         # so, reserve it
@@ -3505,7 +3507,7 @@ class ContentTests(TestCase):
 
         # try to delete gallery
         result = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'delete_multi': '',
                 'items': [gallery.pk]
@@ -4744,7 +4746,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 0)
@@ -4785,7 +4787,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 0)
@@ -4816,7 +4818,7 @@ class PublishedContentTests(TestCase):
         # test if not connected
         self.client.logout()
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -4839,7 +4841,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 1)  # already read first reaction
@@ -4862,7 +4864,7 @@ class PublishedContentTests(TestCase):
 
         self.client.logout()
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
     def test_note_with_bad_param(self):
