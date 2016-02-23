@@ -5,7 +5,6 @@ from uuslug import slugify
 from django.core.management.base import BaseCommand
 from zds.settings import ZDS_APP
 from zds.tutorialv2.models.models_database import PublishableContent
-from django.utils.translation import ugettext_lazy as _
 
 
 class Command(BaseCommand):
@@ -40,7 +39,7 @@ class Command(BaseCommand):
                                 good_slug,
                                 versioned.get_introduction(),
                                 versioned.get_conclusion(),
-                                commit_message=_(u'[hotfix] Corrige le slug pour éviter un bug'))
+                                commit_message='[hotfix] Corrige le slug')
 
                             c.save()
 
