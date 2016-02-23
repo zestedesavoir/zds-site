@@ -35,6 +35,12 @@
     <meta http-equiv="content-language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
+    {# Color the browser elements. See https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color?hl=en #}
+    <meta name="theme-color" content="#084561">
+    <meta name="msapplication-navbutton-color" content="#084561">
+    {# Fullsceen on iOS and enable bar customisation #}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     {# Description #}
     {% captureas description %}
@@ -96,10 +102,6 @@
     <link rel="apple-touch-icon" sizes="57x57" href="{% static "images/apple-touch-icon-57x57-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
-
-
-    {# Fullsceen on iOS #}
-    <meta name="apple-mobile-web-app-capable" content="yes">
 
 
     {# RSS links #}
