@@ -3505,7 +3505,7 @@ class ContentTests(TestCase):
 
         # try to delete gallery
         result = self.client.post(
-            reverse('zds.gallery.views.modify_gallery'),
+            reverse('gallery-modify'),
             {
                 'delete_multi': '',
                 'items': [gallery.pk]
@@ -4744,7 +4744,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 0)
@@ -4785,7 +4785,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 0)
@@ -4816,7 +4816,7 @@ class PublishedContentTests(TestCase):
         # test if not connected
         self.client.logout()
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -4839,7 +4839,7 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(ContentRead.objects.filter(user=self.user_guest).count(), 1)  # already read first reaction
@@ -4862,7 +4862,7 @@ class PublishedContentTests(TestCase):
 
         self.client.logout()
 
-        result = self.client.get(reverse('zds.pages.views.index'))  # go to whatever page
+        result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
     def test_note_with_bad_param(self):

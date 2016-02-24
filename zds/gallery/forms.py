@@ -95,7 +95,7 @@ class UserGalleryForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'add-user-modal'
-        self.helper.form_action = reverse('zds.gallery.views.modify_gallery')
+        self.helper.form_action = reverse('gallery-modify')
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(

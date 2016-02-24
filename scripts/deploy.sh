@@ -31,7 +31,7 @@ cd /opt/zdsenv/ZesteDeSavoir/
 # Maintenance mode
 sudo rm /etc/nginx/sites-enabled/zestedesavoir
 sudo ln -s /etc/nginx/sites-available/zds-maintenance /etc/nginx/sites-enabled/zds-maintenance
-sudo systemctl reload nginx.service
+sudo service nginx reload
 
 # Delete old branch if exists
 git checkout prod

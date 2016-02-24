@@ -384,6 +384,7 @@ Mise à jours de la version de Haystack à la 4.1
 
 Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
 
+
 Indexation delta des forums
 ---------------------------
 
@@ -451,3 +452,21 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+Actions à faire pour mettre en prod la version 17
+=================================================
+
+CORS
+----
+
+Supprimer les informations CORS de nginx.
+
+TEMPLATE
+--------
+
+Vérifier qu'il n'y ait pas de variables `TEMPLATE_*` dans le `settings_prod.py`. Si c'est le cas les adapter en fonction du `settings.py` ou de [https://docs.djangoproject.com/en/1.9/ref/settings/#templates](https://docs.djangoproject.com/en/1.9/ref/settings/#templates).
+
+REST_FRAMEWORK
+--------------
+
+Vérifier qu'on ne surcharge pas la variable `REST_FRAMEWORK` dans le `settings_prod.py`. Si c'est le cas l'adapter en fonction du `settings.py`.

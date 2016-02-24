@@ -114,7 +114,7 @@ class PrivateTopic(models.Model):
                 return self.first_post()
             return post.latest('privatepost__position_in_topic').privatepost
 
-        except PrivatePost.DoesNotExist:
+        except (PrivatePost.DoesNotExist, TypeError):
             return self.first_post()
 
     def first_unread_post(self, user=None):

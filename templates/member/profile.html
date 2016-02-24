@@ -58,7 +58,7 @@
                 {% endif %}
                 {% if perms.member.show_ip %}
                     <li>
-                        {% trans "Dernière IP" %} : <a href="{% url "zds.member.views.member_from_ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
+                        {% trans "Dernière IP" %} : <a href="{% url "member-from-ip" profile.last_ip_address %}">{{ profile.last_ip_address }}</a>
                     </li>
                     <li>
                         {{ profile.get_city }}
@@ -190,7 +190,7 @@
                                             Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ tutotitle }}</em>".
                                         {% endblocktrans %}
                                     </p>
-                                    <a href="{% url "zds.member.views.remove_oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">{% trans "Confirmer" %}</a>
+                                    <a href="{% url "member-remove-oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">{% trans "Confirmer" %}</a>
                                 </div>
                             </td>
                         </tr>
@@ -212,12 +212,12 @@
                         {% trans "Paramètres" %} <span class="wide">{% trans "de mon compte" %}</span>
                     </a>
                 {% else %}
-                    <a href="{% url "zds.member.views.settings_mini_profile" profile.user.username %}" class="new-btn ico-after edit blue">
+                    <a href="{% url "member-settings-mini-profile" profile.user.username %}" class="new-btn ico-after edit blue">
                         {% trans "Modifier le profil" %}
                     </a>
                 {% endif %}
                 {% if perms.member.super_user %}
-                    <a href="{% url "zds.member.views.settings_promote" profile.user.pk %}" class="new-btn ico-after edit gear blue">
+                    <a href="{% url "member-settings-promote" profile.user.pk %}" class="new-btn ico-after edit gear blue">
                         {% trans "Promouvoir" %}
                     </a>
                 {% endif %}
@@ -507,7 +507,7 @@
                         <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
                             {% trans "Lecture seule temporaire" %}
                         </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-flex">
+                        <form action="{% url "member-modify-profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
                                     Pour quelle raison souhaitez-vous mettre ce membre en lecture seule <em>temporairement</em> ?
@@ -525,7 +525,7 @@
                         <a href="#ls-{{ profile.pk }}" class="open-modal">
                             {% trans "Lecture seule" %}
                         </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-flex">
+                        <form action="{% url "member-modify-profile" profile.user.pk %}" method="post" id="ls-{{ profile.pk }}" class="modal modal-flex">
                             <p>
                                 {% trans "Pour quelle raison souhaitez-vous mettre ce membre en lecture seule" %} ?
                             </p>
@@ -541,7 +541,7 @@
                         <a href="#ls-temp-{{ profile.pk }}" class="open-modal">
                             {% trans "Ôter la lecture seule" %}
                         </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-flex">
+                        <form action="{% url "member-modify-profile" profile.user.pk %}" method="post" id="ls-temp-{{ profile.pk }}" class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
                                 Pour quelle raison souhaitez-vous <strong>lever la sanction</strong> de ce membre ?
@@ -561,7 +561,7 @@
                         <a href="#ban-temp-{{ profile.pk }}" class="open-modal">
                             {% trans "Bannir temporairement" %}
                         </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ban-temp-{{ profile.pk }}" class="modal modal-flex">
+                        <form action="{% url "member-modify-profile" profile.user.pk %}" method="post" id="ban-temp-{{ profile.pk }}" class="modal modal-flex">
                             <p>
                                 {% blocktrans %}
                                     Pour quelle raison souhaitez-vous bannir ce membre <em>temporairement</em> ?
@@ -579,7 +579,7 @@
                         <a href="#ban-{{ profile.pk }}" class="open-modal">
                             {% trans "Bannir définitivement" %}
                         </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="ban-{{ profile.pk }}" class="modal modal-flex">
+                        <form action="{% url "member-modify-profile" profile.user.pk %}" method="post" id="ban-{{ profile.pk }}" class="modal modal-flex">
                             <p>
                                 {% trans "Pour quelle raison souhaitez-vous bannir ce membre" %} ?
                             </p>
@@ -595,7 +595,7 @@
                         <a href="#unban-{{ profile.pk }}" class="open-modal">
                             {% trans "Ôter le bannissement" %}
                         </a>
-                        <form action="{% url "zds.member.views.modify_profile" profile.user.pk %}" method="post" id="unban-{{ profile.pk }}" class="modal modal-flex">
+                        <form action="{% url "member-modify-profile" profile.user.pk %}" method="post" id="unban-{{ profile.pk }}" class="modal modal-flex">
                             <p>
                                 {% trans "Pour quelle raison souhaitez vous lever la sanction de ce membre" %} ?
                             </p>
