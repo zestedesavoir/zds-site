@@ -440,3 +440,14 @@ Repasser à l'ancienne version de `python-slugify` et sauver les contenus (#3383
 3. Exécuter la commande suivante : `python manage.py adjust_slugs`. Noter les éventuels contenus pour lesquels cela ne fonctionnerai pas ;
 4. Si pour certains contenus la commande échoue, il faut retrouver le dossier correspondant dans `/contents-private/` et donner à ce contenu le même slug ;
 5. Quitter la maintenance.
+
+
+--------------------------------
+
+**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
+
+Le déploiement doit être autonome. Ce qui implique que :
+
+1. La mise à jour de dépendances est automatique et systématique,
+2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
+3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
