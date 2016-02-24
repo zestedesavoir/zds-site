@@ -432,3 +432,11 @@ systemctl start zds-watchdog.service
 
 Il est possible de configurer le logging de ce module en surchargeant les logger `logging.getLogger("zds.pandoc-publicator")`, `logging.getLogger("zds.watchdog-publicator")`.
 
+Repasser à l'ancienne version de `python-slugify` et sauver les contenus (#3383)
+--------------------------------------------------------------------------------
+
+1. Passer en maintenance ;
+2. Mettre à jour les dépendances de zds afin de *downgrader* `python-slugify` : `pip install --upgrade -r requirements.txt` ;
+3. Exécuter la commande suivante : `python manage.py adjust_slugs`. Noter les éventuels contenus pour lesquels cela ne fonctionnerai pas ;
+4. Si pour certains contenus la commande échoue, il faut retrouver le dossier correspondant dans `/contents-private/` et donner à ce contenu le même slug ;
+5. Quitter la maintenance.

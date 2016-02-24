@@ -34,4 +34,5 @@ dry-rest-permissions==0.1.6
 
 # Zep 12 dependency
 django-uuslug==1.0.3
+python-slugify==1.1.4 # next versions of this library break previous behavior for slug generation from string with single quotes
 watchdog==0.8.3 # use last non-bc-breaking version
