@@ -177,6 +177,16 @@ une contrainte sur la taille maximum d'un nom de fichier sur les différents sys
     *slug*, pour des raisons de stockage (voir plus bas). Il ne faut pas 
     oublier la contrainte d'unicité à l'intérieur d'un conteneur.
 
+.. attention::
+
+    Suite à un changement majeur dans la librairie ``python-slugify``, une différence peu apparaitre dans le *slug*
+    généré à partir de titres contenant des espaces. Dès lors, pour des raisons de rétro-compatibilités, c'est la version
+    1.1.4 de cette librairie qui est utilisée par ZdS. Par ailleurs, la commande ``python manage.py adjust_slugs`` a été
+    créée pour réparer les éventuels dommages, en détectant les titres posant potentielement des problèmes et en tentant
+    de les faire correspondre à nouveau à leur contrepartie dans le système de fichier.
+
+    `Plus d'information ici <https://github.com/zestedesavoir/zds-site/issues/3383#issuecomment-187282828>`_.
+
 Cycle de vie des contenus
 =========================
 
