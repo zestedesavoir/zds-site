@@ -22,20 +22,20 @@ class Subscription(models.Model):
     """
 
     class Meta:
-        verbose_name = _(u'Abonnement')
-        verbose_name_plural = _(u'Abonnements')
+        verbose_name = _('Abonnement')
+        verbose_name_plural = _('Abonnements')
 
     user = models.ForeignKey(User, related_name='subscriber', db_index=True)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    is_active = models.BooleanField(_(u'Actif'), default=True, db_index=True)
-    by_email = models.BooleanField(_(u'Recevoir un email'), default=False)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    is_active = models.BooleanField(_('Actif'), default=True, db_index=True)
+    by_email = models.BooleanField(_('Recevoir un email'), default=False)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    last_notification = models.ForeignKey(u'Notification', related_name="last_notification", null=True, default=None)
+    last_notification = models.ForeignKey('Notification', related_name="last_notification", null=True, default=None)
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
+        return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
     def activate(self):
@@ -85,8 +85,8 @@ class Subscription(models.Model):
 
         assert hasattr(self, "module")
 
-        subject = _(u"{} - {} : {}").format(settings.ZDS_APP['site']['litteral_name'], self.module, notification.title)
-        from_email = _(u"{} <{}>").format(settings.ZDS_APP['site']['litteral_name'],
+        subject = _("{} - {} : {}").format(settings.ZDS_APP['site']['litteral_name'], self.module, notification.title)
+        from_email = _("{} <{}>").format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
 
         receiver = self.user
@@ -210,7 +210,7 @@ class AnswerSubscription(Subscription):
     NOT used directly, use one of its subtype
     """
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses au {1} #{2}>')\
+        return _('<Abonnement du membre "{0}" aux réponses au {1} #{2}>')\
             .format(self.user.username, self.content_type, self.object_id)
 
     def get_notification_url(self, answer):
@@ -224,11 +224,11 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a topic
     """
-    module = _(u'Forum')
+    module = _('Forum')
     objects = TopicAnswerSubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
+        return _('<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
             .format(self.user.username, self.object_id)
 
 
@@ -236,11 +236,11 @@ class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin
     """
     Subscription to new answer in a private topic.
     """
-    module = _(u'Message privé')
+    module = _('Message privé')
     objects = SubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
+        return _('<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
             .format(self.user.username, self.object_id)
 
 
@@ -248,11 +248,11 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
     """
     Subscription to new answer in a publishable content.
     """
-    module = _(u'Contenu')
+    module = _('Contenu')
     objects = SubscriptionManager()
 
     def __unicode__(self):
-        return _(u'<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
+        return _('<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
             .format(self.user.username, self.object_id)
 
 
@@ -261,22 +261,22 @@ class Notification(models.Model):
     A notification
     """
     class Meta:
-        verbose_name = _(u'Notification')
-        verbose_name_plural = _(u'Notifications')
+        verbose_name = _('Notification')
+        verbose_name_plural = _('Notifications')
 
     subscription = models.ForeignKey(Subscription, related_name='subscription', db_index=True)
-    pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
+    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    is_read = models.BooleanField(_(u'Lue'), default=False, db_index=True)
+    is_read = models.BooleanField(_('Lue'), default=False, db_index=True)
     url = models.CharField('URL', max_length=255)
     sender = models.ForeignKey(User, related_name='sender', db_index=True)
     title = models.CharField('Titre', max_length=200)
     objects = NotificationManager()
 
     def __unicode__(self):
-        return _(u'Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
+        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
             .format(self.subscription.user, self.content_type, self.content_object.pk, self.subscription)
 
 
@@ -297,5 +297,5 @@ class TopicFollowed(models.Model):
     objects = TopicFollowedManager()
 
     def __unicode__(self):
-        return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
+        return '<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
                                                      self.user.username)

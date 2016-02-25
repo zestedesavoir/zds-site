@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import os
 
 from django.test import TestCase
@@ -19,7 +19,7 @@ class GalleryListViewTest(TestCase):
         response = self.client.get(reverse('gallery-list'), follow=True)
         self.assertRedirects(response,
                              reverse('member-login') +
-                             '?next=' + urllib.quote(reverse('gallery-list'), ''))
+                             '?next=' + urllib.parse.quote(reverse('gallery-list'), ''))
 
     def test_list_galeries_belong_to_member(self):
         profile = ProfileFactory()
@@ -51,7 +51,7 @@ class GalleryDetailViewTest(TestCase):
                                            args=['89', 'test-gallery']), follow=True)
         self.assertRedirects(response,
                              reverse('member-login') +
-                             '?next=' + urllib.quote(reverse('gallery-details',
+                             '?next=' + urllib.parse.quote(reverse('gallery-details',
                                                              args=['89', 'test-gallery']), ''))
 
     def test_fail_gallery_no_exist(self):
@@ -97,13 +97,13 @@ class NewGalleryViewTest(TestCase):
         self.assertRedirects(response,
                              reverse('member-login') +
                              '?next=' +
-                             urllib.quote(reverse('gallery-new'), ''))
+                             urllib.parse.quote(reverse('gallery-new'), ''))
 
         response = self.client.post(reverse('gallery-new'), follow=True)
         self.assertRedirects(response,
                              reverse('member-login') +
                              '?next=' +
-                             urllib.quote(reverse('gallery-new'), ''))
+                             urllib.parse.quote(reverse('gallery-new'), ''))
 
     def test_access_member(self):
         """ just verify with get request that everythings is ok """
@@ -411,7 +411,7 @@ class EditImageViewTest(TestCase):
         )
         self.assertRedirects(response,
                              reverse('member-login') +
-                             '?next=' + urllib.quote(reverse('gallery-image-edit', args=[15, 156]), ''))
+                             '?next=' + urllib.parse.quote(reverse('gallery-image-edit', args=[15, 156]), ''))
 
     def test_fail_member_no_permission_can_edit_image(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
@@ -503,7 +503,7 @@ class ModifyImageTest(TestCase):
         response = self.client.get(reverse('gallery-image-delete'), follow=True)
         self.assertRedirects(response,
                              reverse('member-login') +
-                             '?next=' + urllib.quote(reverse('gallery-image-delete'), ''))
+                             '?next=' + urllib.parse.quote(reverse('gallery-image-delete'), ''))
 
     def test_fail_modify_image_with_no_permission(self):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
@@ -609,7 +609,7 @@ class NewImageViewTest(TestCase):
         response = self.client.get(reverse('gallery-image-new', args=[1]), follow=True)
         self.assertRedirects(response,
                              reverse('member-login') +
-                             '?next=' + urllib.quote(reverse('gallery-image-new', args=[1]), ''))
+                             '?next=' + urllib.parse.quote(reverse('gallery-image-new', args=[1]), ''))
 
     def test_success_new_image_write_permission(self):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')

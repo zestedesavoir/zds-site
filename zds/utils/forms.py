@@ -13,11 +13,11 @@ class CommonLayoutEditor(Layout):
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
             StrictButton(
-                _(u'Envoyer'),
+                _('Envoyer'),
                 type='submit',
                 name='answer'),
             StrictButton(
-                _(u'Aperçu'),
+                _('Aperçu'),
                 type='submit',
                 name='preview',
                 css_class='btn-grey',
@@ -37,11 +37,11 @@ class CommonLayoutVersionEditor(Layout):
                 Field('msg_commit'),
                 ButtonHolder(
                     StrictButton(
-                        _(u'Envoyer'),
+                        _('Envoyer'),
                         type='submit',
                         name='answer'),
                     StrictButton(
-                        _(u'Aperçu'),
+                        _('Aperçu'),
                         type='submit',
                         name='preview',
                         css_class='btn-grey'),

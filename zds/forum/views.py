@@ -249,14 +249,14 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         is_staff = request.user.has_perm("forum.change_topic")
         if self.object.author != request.user and is_staff:
             messages.warning(request, _(
-                u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
-                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+                'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
+                'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
         prefix = ''
         for tag in self.object.tags.all():
-            prefix += u'[{0}]'.format(tag.title)
+            prefix += '[{0}]'.format(tag.title)
 
         form = self.create_form(self.form_class, **{
-            'title': u'{0} {1}'.format(prefix, self.object.title).strip(),
+            'title': '{0} {1}'.format(prefix, self.object.title).strip(),
             'subtitle': self.object.subtitle,
             'text': self.object.first_post().text
         })
@@ -299,7 +299,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type='application/json')
-        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect("{}?page={}".format(self.object.get_absolute_url(), self.page))
 
     def get_object(self, queryset=None):
         try:
@@ -459,8 +459,8 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def get(self, request, *args, **kwargs):
         if self.object.author != request.user and request.user.has_perm('forum.change_post'):
             messages.warning(request, _(
-                u'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
-                u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
+                'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
+                'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
 
         form = self.create_form(self.form_class, **{
             'text': self.object.text
@@ -665,14 +665,14 @@ def solve_alert(request):
         send_mp(
             bot,
             [alert.author],
-            u"Résolution d'alerte : {0}".format(post.topic.title),
+            "Résolution d'alerte : {0}".format(post.topic.title),
             "",
             msg,
             False,
         )
 
     alert.delete()
-    messages.success(request, u"L'alerte a bien été résolue.")
+    messages.success(request, "L'alerte a bien été résolue.")
     return redirect(post.get_absolute_url())
 
 

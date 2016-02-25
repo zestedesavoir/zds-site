@@ -18,43 +18,43 @@ class FeaturedResourceForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Titre de la Une')
+                    'placeholder': _('Titre de la Une')
                 }
             ),
 
             'type': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'ex: Un projet, Un article, Un tutoriel...')
+                    'placeholder': _('ex: Un projet, Un article, Un tutoriel...')
                 }
             ),
 
             'authors': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Des auteurs (ou pas) ?')
+                    'placeholder': _('Des auteurs (ou pas) ?')
                 }
             ),
 
             'image_url': forms.URLInput(
                 attrs={
-                    'placeholder': _(u'Lien vers l\'image de la Une (dimensions: 228x228px).')
+                    'placeholder': _('Lien vers l\'image de la Une (dimensions: 228x228px).')
                 }
             ),
 
             'url': forms.URLInput(
                 attrs={
-                    'placeholder': _(u'Lien vers la ressource.')
+                    'placeholder': _('Lien vers la ressource.')
                 }
             ),
 
             'pubdate': forms.DateTimeInput(
                 attrs={
-                    'placeholder': _(u'Exemple : 2016-12-25 00:00:00')
+                    'placeholder': _('Exemple : 2016-12-25 00:00:00')
                 }
             )
         }
 
     major_update = forms.BooleanField(
-        label=_(u'Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
+        label=_('Mise à jour majeure (fera passer la Une en première position lors d\'un changement)'),
         initial=False,
         required=False
     )
@@ -75,7 +75,7 @@ class FeaturedResourceForm(forms.ModelForm):
             Field('major_update'),
             Field('pubdate'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             ),
         )
 
@@ -89,19 +89,19 @@ class FeaturedMessageForm(forms.ModelForm):
         widgets = {
             'hook': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Mot d\'accroche court ("Nouveau !")')
+                    'placeholder': _('Mot d\'accroche court ("Nouveau !")')
                 }
             ),
 
             'message': forms.TextInput(
                 attrs={
-                    'placeholder': _(u'Message à afficher')
+                    'placeholder': _('Message à afficher')
                 }
             ),
 
             'url': forms.URLInput(
                 attrs={
-                    'placeholder': _(u'Lien vers la description de la ressource')
+                    'placeholder': _('Lien vers la description de la ressource')
                 }
             )
         }
@@ -118,6 +118,6 @@ class FeaturedMessageForm(forms.ModelForm):
             Field('message'),
             Field('url'),
             ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
+                StrictButton(_('Enregistrer'), type='submit'),
             ),
         )

@@ -27,28 +27,28 @@ def get_tag_by_title(title):
     :return: A tuple: (the tag list, the title without the tags).
     """
     nb_bracket = 0
-    current_tag = u""
-    current_title = u""
+    current_tag = ""
+    current_title = ""
     tags = []
     continue_parsing_tags = True
     original_title = title
     for char in title:
 
-        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
+        if char == "[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
-        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
+        elif nb_bracket > 0 and char != "]" and continue_parsing_tags:
             current_tag = current_tag + char
-            if char == u"[":
+            if char == "[":
                 nb_bracket += 1
-        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
+        elif char == "]" and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
-            if nb_bracket == 0 and current_tag.strip() != u"":
+            if nb_bracket == 0 and current_tag.strip() != "":
                 tags.append(current_tag.strip())
-                current_tag = u""
-            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = ""
+            elif current_tag.strip() != "" and nb_bracket > 0:
                 current_tag = current_tag + char
 
-        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
+        elif (char != "[" and char.strip() != "") or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
     title = current_title

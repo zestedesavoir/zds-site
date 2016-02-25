@@ -142,7 +142,7 @@ class FeaturedResourceDeleteDetail(SingleObjectMixin, RedirectView):
         featured_resource = self.get_object()
         featured_resource.delete()
 
-        messages.success(request, _(u'La une a été supprimée avec succès.'))
+        messages.success(request, _('La une a été supprimée avec succès.'))
 
         return redirect(reverse('featured-resource-list'))
 
@@ -166,7 +166,7 @@ class FeaturedResourceDeleteList(MultipleObjectMixin, RedirectView):
         for featured_resource in self.get_queryset():
             featured_resource.delete()
 
-        messages.success(request, _(u'Les unes ont été supprimées avec succès.'))
+        messages.success(request, _('Les unes ont été supprimées avec succès.'))
 
         return redirect(reverse('featured-resource-list'))
 

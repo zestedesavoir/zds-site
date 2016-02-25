@@ -61,7 +61,7 @@ class QuoteMixin(object):
         for line in post_cite.text.splitlines():
             text = text + "> " + line + "\n"
 
-        return _(u'{0}Source:[{1}]({2}{3})').format(
+        return _('{0}Source:[{1}]({2}{3})').format(
             text,
             post_cite.author.username,
             settings.ZDS_APP['site']['url'],

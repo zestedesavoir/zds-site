@@ -9,43 +9,43 @@ from django.utils.translation import ugettext_lazy as _
 
 class AssocSubscribeForm(forms.Form):
     full_name = forms.CharField(
-        label=_(u'Qui êtes-vous ?'),
+        label=_('Qui êtes-vous ?'),
         max_length=50,
         required=True,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'M/Mme Prénom Nom')
+                'placeholder': _('M/Mme Prénom Nom')
             }
         )
     )
 
     email = forms.EmailField(
-        label=_(u'Adresse courriel'),
+        label=_('Adresse courriel'),
         required=True,
     )
 
     naissance = forms.CharField(
-        label=_(u'Date de naissance'),
+        label=_('Date de naissance'),
         required=True,
     )
 
     adresse = forms.CharField(
-        label=_(u'Adresse'),
+        label=_('Adresse'),
         required=True,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Votre adresse complète (rue, code postal, ville, pays...)')
+                'placeholder': _('Votre adresse complète (rue, code postal, ville, pays...)')
             }
         )
     )
 
     justification = forms.CharField(
-        label=_(u'Pourquoi voulez-vous adhérer à l\'association ?'),
+        label=_('Pourquoi voulez-vous adhérer à l\'association ?'),
         required=False,
         max_length=3000,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Décrivez ici la raison de votre demande d\'adhésion à l\'association.')
+                'placeholder': _('Décrivez ici la raison de votre demande d\'adhésion à l\'association.')
             }
         )
     )
@@ -73,4 +73,4 @@ class AssocSubscribeForm(forms.Form):
 
         if justification is not None and len(justification) > 3000:
             self._errors['justification'] = self.error_class(
-                [_(u'Ce message est trop long, il ne doit pas dépasser 3000 caractères')])
+                [_('Ce message est trop long, il ne doit pas dépasser 3000 caractères')])

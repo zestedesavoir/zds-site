@@ -8,11 +8,11 @@ from zds.member.forms import LoginForm, RegisterForm, \
     KarmaForm, UsernameAndEmailForm
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
-stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
-                   u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
+stringof251chars = 'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
+                   'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy0'
 stringof501chars = ['1' for n in range(501)]
 stringof2001chars = 'http://url.com/'
 for i in range(198):

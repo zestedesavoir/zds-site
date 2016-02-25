@@ -67,9 +67,9 @@ class PagesMemberTests(TestCase):
     def test_subscribe_association(self):
         """To test the "subscription to the association" form."""
 
-        long_str = u""
+        long_str = ""
         for i in range(3100):
-            long_str += u"A"
+            long_str += "A"
 
         result = self.client.post(
             reverse('pages-assoc-subscribe'),
@@ -88,7 +88,7 @@ class PagesMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
         result = self.client.post(
             reverse('pages-assoc-subscribe'),
@@ -107,7 +107,7 @@ class PagesMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # check email has been sent
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_url_cookies(self):
         """Test: check that cookies page is alive."""

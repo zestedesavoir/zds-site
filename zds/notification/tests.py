@@ -39,14 +39,14 @@ class NotificationForumTest(TestCase):
         result = self.client.post(
             reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
             {
-                'title': u'Super sujet',
-                'subtitle': u'Pour tester les notifs',
-                'text': u'En tout cas l\'un abonnement'
+                'title': 'Super sujet',
+                'subtitle': 'Pour tester les notifs',
+                'text': 'En tout cas l\'un abonnement'
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        topic = Topic.objects.filter(title=u'Super sujet').first()
+        topic = Topic.objects.filter(title='Super sujet').first()
         content_type = ContentType.objects.get_for_model(topic)
 
         subscription = TopicAnswerSubscription.objects.get(object_id=topic.pk,
@@ -96,7 +96,7 @@ class NotificationForumTest(TestCase):
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -128,7 +128,7 @@ class NotificationForumTest(TestCase):
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
             },
             follow=False)
 
@@ -273,8 +273,8 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk), {
-            'text': u'message',
+        result = self.client.post(reverse("content:add-reaction") + '?pk={}'.format(self.tuto.pk), {
+            'text': 'message',
             'last_note': '0'
         }, follow=True)
         self.assertEqual(result.status_code, 200)
@@ -447,27 +447,27 @@ class NotificationPrivateTopicTest(TestCase):
         When we ask at the back-end than we want send an email at the creation of a topic, we send it.
         """
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-        self.assertEquals(0, len(mail.outbox))
+        self.assertEqual(0, len(mail.outbox))
 
         topic = send_mp(author=self.user1, users=[self.user2],
                         title="Testing", subtitle="", text="",
                         send_by_mail=True, leave=False)
 
-        self.assertEquals(1, len(mail.outbox))
+        self.assertEqual(1, len(mail.outbox))
 
         self.user1.profile.email_for_answer = True
         self.user1.profile.save()
 
         send_message_mp(self.user2, topic, "", send_by_mail=True)
 
-        self.assertEquals(2, len(mail.outbox))
+        self.assertEqual(2, len(mail.outbox))
 
         self.user1.profile.email_for_answer = False
         self.user1.profile.save()
 
         send_message_mp(self.user2, topic, "", send_by_mail=True)
 
-        self.assertEquals(2, len(mail.outbox))
+        self.assertEqual(2, len(mail.outbox))
 
 
 class NotificationTest(TestCase):

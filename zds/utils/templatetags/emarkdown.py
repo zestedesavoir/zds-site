@@ -18,7 +18,7 @@ Markdown related filters.
 """
 
 # Constant strings
-__MD_ERROR_PARSING = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
+__MD_ERROR_PARSING = _('Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
 def get_markdown_instance(inline=False, js_support=False):
@@ -71,7 +71,7 @@ def emarkdown(text, use_jsfiddle=''):
     try:
         return mark_safe(render_markdown(text, inline=False, js_support=is_js))
     except:
-        return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
+        return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)
@@ -87,7 +87,7 @@ def emarkdown_inline(text):
     try:
         return mark_safe(render_markdown(text, inline=True))
     except:
-        return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+        return mark_safe('<p>{}</p>'.format(__MD_ERROR_PARSING))
 
 
 def sub_hd(match, count):

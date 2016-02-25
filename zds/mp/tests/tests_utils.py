@@ -62,7 +62,7 @@ class MpUtilTest(TestCase):
                                    self.user4.email]
 
         # Check everyone receive a MP, except op
-        self.assertEquals(len(mail.outbox), len(should_receive_response))
+        self.assertEqual(len(mail.outbox), len(should_receive_response))
 
         for response in mail.outbox:
             self.assertTrue(self.user1.username in response.body)
@@ -109,7 +109,7 @@ class MpUtilTest(TestCase):
         # Check user1 receive mails
         should_receive_response = [self.user1.email]
 
-        self.assertEquals(len(mail.outbox), len(should_receive_response))
+        self.assertEqual(len(mail.outbox), len(should_receive_response))
 
         for response in mail.outbox:
             self.assertTrue(self.user2.username in response.body)

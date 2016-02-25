@@ -154,7 +154,7 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
         self.perform_destroy(topic)
-        messages.success(request, _(u'Vous avez quitté la conversation avec succès.'))
+        messages.success(request, _('Vous avez quitté la conversation avec succès.'))
         return redirect(reverse('mp-list'))
 
     def get_current_user(self):
@@ -185,15 +185,15 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
             if participant.is_private():
                 raise ObjectDoesNotExist
             if participant.user.pk == self.object.author.pk or participant.user in self.object.participants.all():
-                messages.warning(request, _(u'Le membre que vous essayez d\'ajouter à la conversation y est déjà.'))
+                messages.warning(request, _('Le membre que vous essayez d\'ajouter à la conversation y est déjà.'))
             else:
                 self.object.participants.add(participant.user)
                 self.object.save()
-                messages.success(request, _(u'Le membre a bien été ajouté à la conversation.'))
+                messages.success(request, _('Le membre a bien été ajouté à la conversation.'))
         except Http404:
-            messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
+            messages.warning(request, _('Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
         except ObjectDoesNotExist:
-            messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
+            messages.warning(request, _('Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
 
         return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
 

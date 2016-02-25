@@ -85,9 +85,9 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.tutofeed.link, '/tutoriels/')
-        reftitle = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = "Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.tutofeed.title, reftitle)
-        refdescription = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+        refdescription = "Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.tutofeed.description, refdescription)
 
         atom = LastTutorialsFeedATOM()
@@ -96,14 +96,14 @@ class LastTutorialsFeedRSSTest(TestCase):
     def test_get_items(self):
         """ basic test sending back the tutorial """
 
-        ret = self.tutofeed.items()
+        ret = list(self.tutofeed.items())
         self.assertEqual(ret[0].content, self.tuto)
 
     def test_get_pubdate(self):
         """ test the return value of pubdate """
 
         ref = PublishedContent.objects.get(content__pk=self.tuto.pk).publication_date
-        tuto = self.tutofeed.items()[0]
+        tuto = list(self.tutofeed.items())[0]
         ret = self.tutofeed.item_pubdate(item=tuto)
         self.assertEqual(ret.date(), ref.date())
 
@@ -111,7 +111,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ test the return value of title """
 
         ref = self.tuto.title
-        tuto = self.tutofeed.items()[0]
+        tuto = list(self.tutofeed.items())[0]
         ret = self.tutofeed.item_title(item=tuto)
         self.assertEqual(ret, ref)
 
@@ -119,7 +119,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ test the return value of description """
 
         ref = self.tuto.description
-        tuto = self.tutofeed.items()[0]
+        tuto = list(self.tutofeed.items())[0]
         ret = self.tutofeed.item_description(item=tuto)
         self.assertEqual(ret, ref)
 
@@ -127,7 +127,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ test the return value of author name """
 
         ref = self.user_author.username
-        tuto = self.tutofeed.items()[0]
+        tuto = list(self.tutofeed.items())[0]
         ret = self.tutofeed.item_author_name(item=tuto)
         self.assertEqual(ret, ref)
 
@@ -135,7 +135,7 @@ class LastTutorialsFeedRSSTest(TestCase):
         """ test the return value of item link """
 
         ref = self.tuto.get_absolute_url_online()
-        tuto = self.tutofeed.items()[0]
+        tuto = list(self.tutofeed.items())[0]
         ret = self.tutofeed.item_link(item=tuto)
         self.assertEqual(ret, ref)
 
@@ -209,9 +209,9 @@ class LastArticlesFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.articlefeed.link, '/articles/')
-        reftitle = u"Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = "Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.articlefeed.title, reftitle)
-        refdescription = u"Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+        refdescription = "Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.articlefeed.description, refdescription)
 
         atom = LastArticlesFeedATOM()
@@ -220,14 +220,14 @@ class LastArticlesFeedRSSTest(TestCase):
     def test_get_items(self):
         """ basic test sending back the article """
 
-        ret = self.articlefeed.items()
+        ret = list(self.articlefeed.items())
         self.assertEqual(ret[0].content, self.article)
 
     def test_get_pubdate(self):
         """ test the return value of pubdate """
 
         ref = PublishedContent.objects.get(content__pk=self.article.pk).publication_date
-        article = self.articlefeed.items()[0]
+        article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_pubdate(item=article)
         self.assertEqual(ret.date(), ref.date())
 
@@ -235,7 +235,7 @@ class LastArticlesFeedRSSTest(TestCase):
         """ test the return value of title """
 
         ref = self.article.title
-        article = self.articlefeed.items()[0]
+        article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_title(item=article)
         self.assertEqual(ret, ref)
 
@@ -243,7 +243,7 @@ class LastArticlesFeedRSSTest(TestCase):
         """ test the return value of description """
 
         ref = self.article.description
-        article = self.articlefeed.items()[0]
+        article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_description(item=article)
         self.assertEqual(ret, ref)
 
@@ -251,7 +251,7 @@ class LastArticlesFeedRSSTest(TestCase):
         """ test the return value of author name """
 
         ref = self.user_author.username
-        article = self.articlefeed.items()[0]
+        article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_author_name(item=article)
         self.assertEqual(ret, ref)
 
@@ -259,7 +259,7 @@ class LastArticlesFeedRSSTest(TestCase):
         """ test the return value of item link """
 
         ref = self.article.get_absolute_url_online()
-        article = self.articlefeed.items()[0]
+        article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_link(item=article)
         self.assertEqual(ret, ref)
 

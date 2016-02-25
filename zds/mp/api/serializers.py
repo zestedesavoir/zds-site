@@ -88,7 +88,7 @@ class PrivateTopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, 
         read_only_fields = ('id', 'permissions',)
 
     def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
+        for attr, value in list(validated_data.items()):
             if attr == 'participants':
                 [instance.participants.add(participant) for participant in value]
             elif value:

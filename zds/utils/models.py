@@ -18,14 +18,14 @@ from model_utils.managers import InheritanceManager
 def image_path_category(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('categorie/normal', str(instance.pk), filename)
 
 
 def image_path_help(instance, filename):
     """Return path to an image."""
     ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('helps/normal', str(instance.pk), filename)
 
 
@@ -94,11 +94,11 @@ class CategorySubCategory(models.Model):
     def __unicode__(self):
         """Textual Link Form."""
         if self.is_main:
-            return u'[{0}][main]: {1}'.format(
+            return '[{0}][main]: {1}'.format(
                 self.category.title,
                 self.subcategory.title)
         else:
-            return u'[{0}]: {1}'.format(
+            return '[{0}]: {1}'.format(
                 self.category.title,
                 self.subcategory.title)
 
@@ -173,7 +173,7 @@ class Comment(models.Model):
         self.save()
 
     def __unicode__(self):
-        return u'{0}'.format(self.text)
+        return '{0}'.format(self.text)
 
 
 class Alert(models.Model):
@@ -214,7 +214,7 @@ class Alert(models.Model):
         return Comment.objects.get_subclass(id=self.comment.id)
 
     def __unicode__(self):
-        return u'{0}'.format(self.text)
+        return '{0}'.format(self.text)
 
     class Meta:
         verbose_name = 'Alerte'
@@ -232,7 +232,7 @@ class CommentLike(models.Model):
     user = models.ForeignKey(User, related_name='post_liked', db_index=True)
 
     def __unicode__(self):
-        return u'{0} like {1}'.format(self.user.username, self.comments.pk)
+        return '{0} like {1}'.format(self.user.username, self.comments.pk)
 
 
 class CommentDislike(models.Model):
@@ -246,7 +246,7 @@ class CommentDislike(models.Model):
     user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
 
     def __unicode__(self):
-        return u'{0} dislike {1}'.format(self.user.username, self.comments.pk)
+        return '{0} dislike {1}'.format(self.user.username, self.comments.pk)
 
 
 class Tag(models.Model):
@@ -261,7 +261,7 @@ class Tag(models.Model):
 
     def __unicode__(self):
         """Textual Link Form."""
-        return u"{0}".format(self.title)
+        return "{0}".format(self.title)
 
     def get_absolute_url(self):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
@@ -276,8 +276,8 @@ class HelpWriting(models.Model):
 
     """Tutorial Help"""
     class Meta:
-        verbose_name = u'Aide à la rédaction'
-        verbose_name_plural = u'Aides à la rédaction'
+        verbose_name = 'Aide à la rédaction'
+        verbose_name_plural = 'Aides à la rédaction'
 
     # A name for this help
     title = models.CharField('Name', max_length=20, null=False)

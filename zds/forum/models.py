@@ -23,7 +23,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u"{0}".format(start + end)
+    return "{0}".format(start + end)
 
 
 def image_path_forum(instance, filename):
@@ -35,7 +35,7 @@ def image_path_forum(instance, filename):
     :return:
     """
     ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('forum/normal', str(instance.pk), filename)
 
 
@@ -330,10 +330,10 @@ class Topic(models.Model):
                           .latest('post__position')
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return Post.objects\
+        return list(Post.objects\
             .filter(topic__pk=self.pk)\
             .order_by('position')\
-            .values('pk', "position").first().values()
+            .values('pk', "position").first().values())
 
     def resolve_first_post_url(self):
         """resolve the url that leads to this topic first post
@@ -429,7 +429,7 @@ class Post(Comment):
     objects = PostManager()
 
     def __unicode__(self):
-        return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
+        return '<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -459,7 +459,7 @@ class TopicRead(models.Model):
     objects = TopicReadManager()
 
     def __unicode__(self):
-        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
+        return '<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
 

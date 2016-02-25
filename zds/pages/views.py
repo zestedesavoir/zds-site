@@ -72,7 +72,7 @@ def assoc_subscribe(request):
             data = form.data
 
             # Send email
-            subject = _(u"Demande d'adhésion de {}").format(user.username)
+            subject = _("Demande d'adhésion de {}").format(user.username)
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
@@ -98,10 +98,10 @@ def assoc_subscribe(request):
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
-                messages.success(request, _(u"Votre demande d'adhésion a bien été envoyée et va être étudiée."))
+                messages.success(request, _("Votre demande d'adhésion a bien été envoyée et va être étudiée."))
             except:
                 msg = None
-                messages.error(request, _(u"Une erreur est survenue."))
+                messages.error(request, _("Une erreur est survenue."))
 
             # reset the form after successfull validation
             form = AssocSubscribeForm()

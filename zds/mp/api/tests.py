@@ -364,7 +364,7 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def create_multiple_private_topics_for_member(self, user, number_of_users=REST_PAGE_SIZE):
-        return [PrivateTopicFactory(author=user) for private_topic in xrange(0, number_of_users)]
+        return [PrivateTopicFactory(author=user) for private_topic in range(0, number_of_users)]
 
 
 class PrivateTopicDetailAPITest(APITestCase):
@@ -788,7 +788,7 @@ class PrivatePostListAPI(APITestCase):
     def create_multiple_private_posts_for_member(self, user, private_topic,
                                                  number_of_users=REST_PAGE_SIZE):
         list = []
-        for i in xrange(0, number_of_users):
+        for i in range(0, number_of_users):
             private_post = PrivatePostFactory(author=user, privatetopic=private_topic, position_in_topic=i)
             private_topic.last_message = private_post
             list.append(private_post)

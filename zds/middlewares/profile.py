@@ -8,7 +8,7 @@ import re
 import hotshot
 import hotshot.stats
 import tempfile
-import StringIO
+import io
 
 from django.conf import settings
 
@@ -55,7 +55,7 @@ class ProfileMiddleware(object):
                 return name[0]
 
     def get_summary(self, results_dict, sum):
-        list = [(item[1], item[0]) for item in results_dict.items()]
+        list = [(item[1], item[0]) for item in list(results_dict.items())]
         list.sort(reverse=True)
         list = list[:40]
 
@@ -99,7 +99,7 @@ class ProfileMiddleware(object):
             if can_profile(request):
                 self.prof.close()
 
-                out = StringIO.StringIO()
+                out = io.StringIO()
                 old_stdout = sys.stdout
                 sys.stdout = out
 
