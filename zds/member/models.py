@@ -412,7 +412,7 @@ class TokenForgotPassword(models.Model):
         """
         :return: The absolute URL of the "New password" page, including the correct token.
         """
-        return reverse('zds.member.views.new_password') + '?token={0}'.format(self.token)
+        return reverse('member-new-password') + '?token={0}'.format(self.token)
 
     def __unicode__(self):
         return u"{0} - {1}".format(self.user.username, self.date_end)
@@ -436,7 +436,7 @@ class TokenRegister(models.Model):
         """
         :return: the absolute URL of the account validation page, including the token.
         """
-        return reverse('zds.member.views.active_account') + '?token={0}'.format(self.token)
+        return reverse('member-active-account') + '?token={0}'.format(self.token)
 
     def __unicode__(self):
         return u"{0} - {1}".format(self.user.username, self.date_end)

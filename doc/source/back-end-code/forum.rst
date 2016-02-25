@@ -13,6 +13,12 @@ Modèles (``models.py``)
 .. automodule:: zds.forum.models
     :members:
 
+Les managers (``managers.py``)
+==============================
+
+.. automodule:: zds.forum.managers
+    :members:
+
 Vues (``views.py``)
 ===================
 

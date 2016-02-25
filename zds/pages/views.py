@@ -18,7 +18,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.pages.forms import AssocSubscribeForm
 from zds.settings import BASE_DIR
-from utils import get_last_tutorials, get_tutorials_count, get_last_articles
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
 from django.utils.translation import ugettext_lazy as _
 
@@ -26,16 +26,8 @@ from django.utils.translation import ugettext_lazy as _
 def home(request):
     """Display the home page with last topics added."""
 
-    tutos = []
-    for tuto in get_last_tutorials():
-        data = tuto
-
-        tutos.append(data)
-
-    articles = []
-    for article in get_last_articles():
-        data = article
-        articles.append(data)
+    tutos = PublishableContent.objects.get_last_tutorials()
+    articles = PublishableContent.objects.get_last_articles()
 
     try:
         with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
@@ -55,7 +47,7 @@ def home(request):
         'last_articles': articles,
         'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
-        'tutorials_count': get_tutorials_count(),
+        'tutorials_count': PublishedContent.objects.get_tutorials_count(),
         'quote': quote.replace('\n', ''),
         'suggestions': suggestions,
     })

@@ -73,7 +73,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         except KeyError:
             pass
         except ValueError:
-            raise Http404(_(u"Format invalide pour le paramètre de la sous-catégorie."))
+            raise Http404(u"Format invalide pour le paramètre de la sous-catégorie.")
 
         return queryset.order_by("date_proposition").all()
 
@@ -334,7 +334,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Rejet de la demande publication").format(),
+            _(u"Rejet de la demande de publication").format(),
             validation.content.title,
             msg,
             True,
@@ -355,7 +355,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
     modal_form = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Publier un contenu depuis la validation n'est pas disponible en GET."))
+        raise Http404(u"Publier un contenu depuis la validation n'est pas disponible en GET.")
 
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()

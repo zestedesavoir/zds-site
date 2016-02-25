@@ -278,12 +278,12 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
 
     def get_state_instance(self, request):
         if request.method == 'POST':
-            if 'ls-jrs' in request.POST:
-                return TemporaryReadingOnlySanction(request.POST)
+            if 'ls-jrs' in request.data:
+                return TemporaryReadingOnlySanction(request.data)
             else:
-                return ReadingOnlySanction(request.POST)
+                return ReadingOnlySanction(request.data)
         elif request.method == 'DELETE':
-            return DeleteReadingOnlySanction(request.POST)
+            return DeleteReadingOnlySanction(request.data)
         raise ValueError('Method {0} is not supported in this API route.'.format(request.method))
 
 
@@ -346,10 +346,10 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
 
     def get_state_instance(self, request):
         if request.method == 'POST':
-            if 'ban-jrs' in request.POST:
-                return TemporaryBanSanction(request.POST)
+            if 'ban-jrs' in request.data:
+                return TemporaryBanSanction(request.data)
             else:
                 return BanSanction(request.POST)
         elif request.method == 'DELETE':
-            return DeleteBanSanction(request.POST)
+            return DeleteBanSanction(request.data)
         raise ValueError('Method {0} is not supported in this API route.'.format(request.method))

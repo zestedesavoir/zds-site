@@ -85,7 +85,7 @@ API Javascript pour manipuler les modales
 
 Il est possible de créer des modales en Javascript. Exemple:
 
-.. sourcecore:: javascript
+.. sourcecode:: javascript
 
   var m = new Modal({
       title: "Titre de la modale",

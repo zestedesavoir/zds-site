@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+
 from dry_rest_permissions.generics import DRYPermissions
+
+from django.http import QueryDict
+
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
     get_object_or_404, RetrieveUpdateAPIView, ListAPIView
@@ -176,8 +180,10 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
 
     def get_queryset(self):
         if self.request.method == 'DELETE':
-            list = self.request.data.getlist('pk')
-            return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list)
+            qdict = QueryDict('', mutable=True)
+            qdict.update(self.request.data)
+            list_ = qdict.getlist('pk')
+            return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list_)
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 

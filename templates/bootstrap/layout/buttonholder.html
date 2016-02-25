@@ -1,0 +1,9 @@
+{% comment %}
+    THIS IS A TEMP FIX FOR DJANGO-CRISPY-FORM, please remove it when
+    https://github.com/maraujop/django-crispy-forms/pull/551 will be merged and include in a release
+{% endcomment %}
+
+<div {% if buttonholder.css_id %}id="{{ buttonholder.css_id }}"{% endif %}
+    class="buttonHolder{% if buttonholder.css_class %} {{ buttonholder.css_class }}{% endif %}">
+    {{ fields_output|safe }}
+</div>

@@ -35,7 +35,7 @@ class RedirectContentSEO(RedirectView):
         """Redirects the user to the new url"""
         obj = get_object_or_404(PublishableContent, old_pk=int(kwargs.get('pk')), type='TUTORIAL')
         if not obj.in_public():
-            raise Http404(_(u"Aucun contenu public n'est disponible avec cet identifiant."))
+            raise Http404(u"Aucun contenu public n'est disponible avec cet identifiant.")
         kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
         kwargs["container_slug"] = str(kwargs["p3"]) + "_" + kwargs["container_slug"]
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
@@ -184,15 +184,15 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
         # check that type is ok
         if self.requested_file not in self.allowed_types:
-            raise Http404(_(u"Le type du fichier n'est pas permis."))
+            raise Http404(u"Le type du fichier n'est pas permis.")
 
         # check existence
         if not self.public_content_object.have_type(self.requested_file):
-            raise Http404(_(u"Le type n'existe pas."))
+            raise Http404(u"Le type n'existe pas.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:
             # download markdown is only for staff and author
-            raise Http404(_(u"Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu."))
+            raise Http404(u"Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu.")
 
         # set mimetype accordingly
         self.mimetype = self.mimetypes[self.requested_file]
@@ -211,7 +211,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         try:
             response = open(path, 'rb').read()
         except IOError:
-            raise Http404(_(u"Le fichier n'existe pas."))
+            raise Http404(u"Le fichier n'existe pas.")
 
         return response
 
@@ -389,7 +389,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             try:
                 cited_pk = int(self.request.GET["cite"])
             except ValueError:
-                raise Http404(_(u'L\'argument `cite` doit être un entier.'))
+                raise Http404(u'L\'argument `cite` doit être un entier.')
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
@@ -408,7 +408,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             return super(SendNoteFormView, self).get(request, *args, **kwargs)
         except MustRedirect:  # if someone changed the pk arguments, and reached a "must redirect" public
             # object
-            raise Http404(_(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get("pk", 0))))
+            raise Http404(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get("pk", 0)))
 
     def post(self, request, *args, **kwargs):
 
@@ -473,14 +473,13 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if not self.reaction:
-                raise Http404(_(u"Aucun commentaire : " + self.request.GET["message"]))
+                raise Http404(u"Aucun commentaire : " + self.request.GET["message"])
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
             kwargs['reaction'] = self.reaction
         else:
-            raise Http404(_(u"Le paramètre 'message' doit être un digit."))
-
+            raise Http404(u"Le paramètre 'message' doit être un digit.")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -509,7 +508,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if self.reaction is None:
-                raise Http404(_(u"Il n'y a aucun commentaire."))
+                raise Http404(u"Il n'y a aucun commentaire.")
             if self.reaction.author != self.request.user:
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
@@ -544,7 +543,7 @@ class UpvoteReaction(LoginRequiredMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         if "message" not in self.request.GET or not self.request.GET["message"].isdigit():
-            raise Http404(_(u"Le paramètre 'message' doit être un digit."))
+            raise Http404(u"Le paramètre 'message' doit être un digit.")
         note_pk = int(self.request.GET["message"])
         note = get_object_or_404(ContentReaction, pk=note_pk)
         resp = {}
@@ -611,7 +610,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(_(u"Vous ne pouvez pas cacher cette réaction."))
+            raise Http404(u"Vous ne pouvez pas cacher cette réaction.")
 
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
@@ -633,7 +632,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             return redirect(reaction.get_absolute_url())
 
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(_(u"Aucune réaction trouvée."))
+            raise Http404(u"Aucune réaction trouvée.")
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
@@ -647,7 +646,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         try:
             note_pk = int(self.kwargs["pk"])
         except (KeyError, ValueError):
-            raise Http404(_(u"Impossible de convertir l'identifiant en entier."))
+            raise Http404(u"Impossible de convertir l'identifiant en entier.")
         note = get_object_or_404(ContentReaction, pk=note_pk)
         alert = Alert()
         alert.author = request.user
@@ -711,7 +710,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
             alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
             note = ContentReaction.objects.get(pk=alert.comment.id)
         except (KeyError, ValueError):
-            raise Http404(_(u"L'alerte n'existe pas."))
+            raise Http404(u"L'alerte n'existe pas.")
 
         text = ''
         if "text" in request.POST and request.POST["text"] != "":

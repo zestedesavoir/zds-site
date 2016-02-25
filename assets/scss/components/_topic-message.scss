@@ -75,14 +75,9 @@
                 color: #424242;
                 height: 25px;
                 line-height: 26px;
-                width: 28px;
+                width: 58px;
                 color: #777;
                 transition: all $transition-duration ease;
-
-                &:first-child {
-                    border-right: 0;
-                    width: 29px;
-                }
 
                 &:hover,
                 &:focus {
@@ -96,6 +91,7 @@
                 }
                 &.negative {
                     color: #c0392b;
+                    font-weight: bold;
                 }
             }
         }

@@ -34,7 +34,8 @@ tricky_text_content = \
 
 
 class PublishableContentFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = PublishableContent
+    class Meta:
+        model = PublishableContent
 
     title = factory.Sequence(lambda n: 'Mon contenu No{0}'.format(n))
     description = factory.Sequence(lambda n: 'Description du contenu No{0}'.format(n))
@@ -69,7 +70,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 
 
 class ContainerFactory(factory.Factory):
-    FACTORY_FOR = Container
+    class Meta:
+        model = Container
 
     title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n + 1))
 
@@ -96,7 +98,8 @@ class ContainerFactory(factory.Factory):
 
 
 class ExtractFactory(factory.Factory):
-    FACTORY_FOR = Extract
+    class Meta:
+        model = Extract
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n + 1))
 
     @classmethod
@@ -122,7 +125,8 @@ class ExtractFactory(factory.Factory):
 
 
 class ContentReactionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = ContentReaction
+    class Meta:
+        model = ContentReaction
 
     ip_address = '192.168.3.1'
     text = 'Bonjour, je me présente, je m\'appelle l\'homme au texte bidonné'
@@ -173,7 +177,8 @@ class PublishedContentFactory(PublishableContentFactory):
 
 
 class SubCategoryFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = SubCategory
+    class Meta:
+        model = SubCategory
 
     title = factory.Sequence(lambda n: 'Sous-Categorie {0} pour Tuto'.format(n))
     subtitle = factory.Sequence(lambda n: 'Sous titre de Sous-Categorie {0} pour Tuto'.format(n))
@@ -181,11 +186,13 @@ class SubCategoryFactory(factory.DjangoModelFactory):
 
 
 class ValidationFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Validation
+    class Meta:
+        model = Validation
 
 
 class LicenceFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Licence
+    class Meta:
+        model = Licence
 
     code = factory.Sequence(lambda n: 'bidon-no{0}'.format(n + 1))
     title = factory.Sequence(lambda n: 'Licence bidon no{0}'.format(n + 1))
