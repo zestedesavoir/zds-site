@@ -33,14 +33,24 @@ def top_categories(user):
         else:
             cats[key] = [forum]
 
-    tags = Topic.objects\
-        .values_list('tags__pk', flat=True)\
-        .distinct()\
-        .filter(forum__in=forums, tags__isnull=False)\
-        .annotate(nb_tags=Count("tags"))\
-        .order_by("-nb_tags")[:settings.ZDS_APP['forum']['top_tag_max']]
+    tmp_tags = (Topic.objects
+                .values_list('tags__pk', flat=True)
+                .distinct()
+                .filter(forum__in=forums, tags__isnull=False)
+                .annotate(nb_tags=Count("tags"))
+                .order_by("-nb_tags")
+                [:settings.ZDS_APP['forum']['top_tag_max'] + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
 
-    return {"tags": Tag.objects.filter(pk__in=[pk for pk in tags]), "categories": cats}
+    tags_not_filtered = Tag.objects.filter(pk__in=[pk for pk in tmp_tags])
+
+    # Select tags that are not in the excluded list
+    tags = []
+    for tag in tags_not_filtered:
+        if tag.title not in settings.ZDS_APP['forum']['top_tag_exclu'] \
+                and len(tags) <= settings.ZDS_APP['forum']['top_tag_max']:
+            tags.append(tag)
+
+    return {"tags": tags, "categories": cats}
 
 
 @register.filter('top_categories_content')
