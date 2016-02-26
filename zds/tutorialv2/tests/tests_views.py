@@ -5223,6 +5223,33 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse("validation:list") + "?type=tuto")
         self.assertIn('class="update_content"', result.content)
 
+    def test_validation_history_for_new_content(self):
+        publishable = PublishableContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': publishable.pk, 'slug': publishable.slug}),
+            {
+                'text': "abcdefg",
+                'source': "",
+                'version': publishable.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertNotIn('class="update_content"', result.content)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

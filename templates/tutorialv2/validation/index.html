@@ -102,8 +102,8 @@
                                 <td>
                                     <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
                                 </td>
-                                <td class="{% if validation.content.is_public %}new_content{% else %}update_content{% endif %}">
-                                    {% if validation.content.is_public %}
+                                <td class="{% if not validation.content.in_public %}new_content{% else %}update_content{% endif %}">
+                                    {% if not validation.content.in_public %}
                                         {% trans "Nouveau" %}
                                     {% else %}
                                         {% trans "Mise à jour" %}
