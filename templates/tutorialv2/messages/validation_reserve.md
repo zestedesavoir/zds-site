@@ -6,6 +6,6 @@ Salut !
 
 Je viens de prendre en charge la validation de ton contenu, « [{{ title }}]({{ url }}) ».
 
-A bientôt !
+À bientôt !
 
 {% endblocktrans %}
