@@ -267,7 +267,6 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     'url': versioned.get_absolute_url() + '?version=' + validation.version,
                 })
 
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             send_mp(
                 validation.validator,
                 validation.content.authors.all(),
