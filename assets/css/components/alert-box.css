@@ -5,6 +5,7 @@
     color: #FFF;
     text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
     background: #777;
+    border: solid 10px white;
 
     &.alert-box-not-closable {
         padding-right: 15px;
@@ -45,14 +46,16 @@
         font-weight: normal;
     }
 
-    &.info, /* TEMP PATCH WITH DJANGO ALERTS */
+    /* TEMP PATCH WITH DJANGO ALERTS */
+    &.info,
     &.success {
         background: #48A200;
     }
     &.error {
         background: #C0392B;
     }
-    &.alert, /* TEMP PATCH WITH DJANGO ALERTS */
+    /* TEMP PATCH WITH DJANGO ALERTS */
+    &.alert,
     &.warning {
         background: #e67e22;
     }

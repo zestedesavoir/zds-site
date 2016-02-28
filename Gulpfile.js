@@ -77,7 +77,6 @@ gulp.task("vendors", function() {
  */
 gulp.task("stylesheet", ["sprite"], function() {
   return gulp.src(path.join(sourceDir, cssDir, "main.css"))
-    .pipe(newer(path.join(destDir, cssDir)))
     .pipe(sourcemaps.init())
       .pipe(postcss(postcssProcessors))
     .pipe(sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, cssDir) }))
