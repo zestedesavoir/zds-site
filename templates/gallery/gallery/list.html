@@ -78,6 +78,8 @@
             <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
         </p>
     {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
 
 
