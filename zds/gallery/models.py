@@ -1,7 +1,4 @@
-# coding: utf-8
-
 import os
-from string import lower
 from uuid import uuid4
 from shutil import rmtree
 
@@ -34,7 +31,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split('.')[-1]
-    filename = '{0}.{1}'.format(str(uuid4()), lower(ext))
+    filename = '{0}.{1}'.format(str(uuid4()), ext.lower())
 
     return os.path.join('galleries', str(instance.gallery.pk), filename)
 
@@ -55,7 +52,7 @@ class UserGallery(models.Model):
     gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the UserGallery model.
 
         :return: UserGalley description
@@ -106,7 +103,7 @@ class Image(models.Model):
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the Image model.
 
         :return: Image slug
@@ -155,7 +152,7 @@ class Gallery(models.Model):
     pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Human-readable representation of the Gallery model.
 
         :return: Gallery title

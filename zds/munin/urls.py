@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-:
-
 from django.conf.urls import url
 
 from zds.munin.views import total_topics, total_posts, total_mps, total_tutorials, total_articles

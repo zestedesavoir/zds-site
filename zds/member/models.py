@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 from django.conf import settings
 from django.db import models
@@ -97,7 +95,7 @@ class Profile(models.Model):
     objects = ProfileManager()
     _permissions = {}
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def is_private(self):
@@ -414,7 +412,7 @@ class TokenForgotPassword(models.Model):
         """
         return reverse('member-new-password') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} - {1}".format(self.user.username, self.date_end)
 
 
@@ -438,7 +436,7 @@ class TokenRegister(models.Model):
         """
         return reverse('member-active-account') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} - {1}".format(self.user.username, self.date_end)
 
 
@@ -476,7 +474,7 @@ class Ban(models.Model):
         blank=True,
         null=True, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
 
 
@@ -502,7 +500,7 @@ class KarmaNote(models.Model):
     # TODO: coherence, "create_at" is called "pubdate" in Ban model.
     create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
 
 

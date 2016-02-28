@@ -1,4 +1,3 @@
-# coding: utf-8
 import shutil
 from django.test import override_settings, TestCase
 from django.contrib.auth.models import Group

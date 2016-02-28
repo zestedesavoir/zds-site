@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 try:
     import ujson as json_reader
@@ -119,7 +117,7 @@ class PublishableContent(models.Model):
 
     objects = PublishableContentManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def textual_type(self):
@@ -560,7 +558,7 @@ class PublishedContent(models.Model):
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
     def title(self):
@@ -823,7 +821,7 @@ class ContentReaction(Comment):
     related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
                                         related_name="related_content_note", db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '<Tutorial pour "{0}", #{1}>'.format(self.related_content, self.pk)
 
     def get_absolute_url(self):
@@ -859,7 +857,7 @@ class ContentRead(models.Model):
 
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 
-    def __unicode__(self):
+    def __str__(self):
         return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
@@ -892,7 +890,7 @@ class Validation(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING')
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Validation de « {} »').format(self.content.title)
 
     def is_pending(self):

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import sys
 from os.path import dirname
@@ -10,10 +8,6 @@ from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 import imp
 
-# Changes the default encoding of python to UTF-8.
-# Theses instructions don't change encoding python outside Zeste de Savoir.
-imp.reload(sys)
-sys.setdefaultencoding('UTF8')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -114,7 +108,6 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
-    'zds.middlewares.profile.ProfileMiddleware',
     'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
 )
 

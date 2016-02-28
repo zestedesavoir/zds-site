@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _

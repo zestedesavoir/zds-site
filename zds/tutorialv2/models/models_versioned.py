@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import json as json_writer
 from git import Repo
 import os
@@ -58,7 +56,7 @@ class Container:
 
         self.slug_pool = default_slug_pool()
 
-    def __unicode__(self):
+    def __str__(self):
         return '<Conteneur \'{}\'>'.format(self.title)
 
     def has_extracts(self):
@@ -771,7 +769,7 @@ class Extract:
         self.container = container
         self.position_in_parent = position_in_parent
 
-    def __unicode__(self):
+    def __str__(self):
         return '<Extrait \'{}\'>'.format(self.title)
 
     def get_absolute_url(self):
@@ -1066,7 +1064,7 @@ class VersionedContent(Container):
         if self.slug != '' and os.path.exists(self.get_path()):
             self.repository = Repo(self.get_path())
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def textual_type(self):

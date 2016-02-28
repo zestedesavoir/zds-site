@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime
 import shutil
 import tempfile
@@ -266,7 +265,7 @@ class ContentTests(TestCase):
                 'type': 'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
-                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -300,7 +299,7 @@ class ContentTests(TestCase):
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1243,9 +1242,9 @@ class ContentTests(TestCase):
             reverse('content:download-zip', args=[tuto_pk, tuto_slug]),
             follow=False)
         self.assertEqual(result.status_code, 200)
-        draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
+        draft_zip_path = os.path.join(tempfile.gettempdir(), 'draft1.zip')
         f = open(draft_zip_path, 'w')
-        f.write(result.content)
+        f.write(str(result.content))
         f.close()
 
         versioned = PublishableContent.objects.get(pk=tuto_pk).load_version()
@@ -1420,7 +1419,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
         f = open(draft_zip_path, 'w')
-        f.write(result.content)
+        f.write(str(result.content))
         f.close()
 
         first_version = PublishableContent.objects.get(pk=tuto_pk).load_version()
@@ -1541,7 +1540,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
         f = open(draft_zip_path, 'w')
-        f.write(result.content)
+        f.write(str(result.content))
         f.close()
 
         first_version = PublishableContent.objects.get(pk=tuto_pk).load_version()
@@ -1655,14 +1654,14 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 200)
         draft_zip_path = os.path.join(tempfile.gettempdir(), '__draft1.zip')
         f = open(draft_zip_path, 'w')
-        f.write(result.content)
+        f.write(str(result.content))
         f.close()
 
         # create the archive with images:
         image_zip_path = os.path.join(tempfile.gettempdir(), '__images.zip')
         zfile = zipfile.ZipFile(image_zip_path, 'a')
 
-        bytes = open('fixtures/noir_black.png').read()
+        bytes = open('fixtures/noir_black.png', 'rb').read()
         zfile.writestr('image1.png', bytes)
         zfile.writestr('dossier/image2.png', bytes)
         zfile.close()
@@ -1672,7 +1671,7 @@ class ContentTests(TestCase):
             reverse('content:import-new'),
             {
                 'archive': open(draft_zip_path),
-                'image_archive': open(image_zip_path),
+                'image_archive': open(image_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -1701,7 +1700,7 @@ class ContentTests(TestCase):
             reverse('content:import', args=[article.pk, article.slug]),
             {
                 'archive': open(draft_zip_path),
-                'image_archive': open(image_zip_path),
+                'image_archive': open(image_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -3133,7 +3132,7 @@ class ContentTests(TestCase):
             result = self.client.post(
                 reverse('content:import-new'),
                 {
-                    'archive': open(draft_zip_path),
+                    'archive': open(draft_zip_path, 'rb'),
                     'subcategory': self.subcategory.pk
                 },
                 follow=False
@@ -3159,7 +3158,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + ".zip"),
+                'archive': open(old_path + ".zip", 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -3177,7 +3176,7 @@ class ContentTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + ".zip"),
+                'archive': open(old_path + ".zip", 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -4235,7 +4234,7 @@ class PublishedContentTests(TestCase):
             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(result.status_code, 200)
 
-        result_string = ''.join(result.streaming_content)
+        result_string = ''.join(str(result.streaming_content))
         self.assertTrue(message_to_post in result_string)
 
         # test quoting (without JS)
@@ -5006,7 +5005,7 @@ class PublishedContentTests(TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5137,8 +5136,8 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         result = self.client.get(reverse("validation:list") + "?type=tuto")
-        self.assertIn(old_title, result.content)
-        self.assertNotIn(new_title, result.content)
+        self.assertIn(old_title, str(result.content))
+        self.assertNotIn(new_title, str(result.content))
 
     def test_public_authors_versioned(self):
         published = PublishedContentFactory(author_list=[self.user_author])
@@ -5146,8 +5145,8 @@ class PublishedContentTests(TestCase):
         published.authors.add(other_author.user)
         published.save()
         response = self.client.get(published.get_absolute_url_online())
-        self.assertIn(self.user_author.username, response.content)
-        self.assertNotIn(other_author.user.username, response.content)
+        self.assertIn(self.user_author.username, str(response.content))
+        self.assertNotIn(other_author.user.username, str(response.content))
         self.assertEqual(0, len(other_author.get_public_contents()))
 
     def test_unpublish_with_title_change(self):
@@ -5180,7 +5179,7 @@ class PublishedContentTests(TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR))
+                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
             },
             follow=False)
         public_count = PublishedContent.objects.count()

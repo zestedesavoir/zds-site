@@ -1,6 +1,6 @@
-# coding: utf-8
-
-import urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.parse
+import urllib.error
 
 from django.conf import settings
 from django.test import TestCase

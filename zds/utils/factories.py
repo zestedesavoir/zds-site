@@ -1,4 +1,3 @@
-# coding: utf-8
 from zds.utils.models import HelpWriting
 from zds.utils import slugify
 from zds.settings import BASE_DIR, MEDIA_ROOT

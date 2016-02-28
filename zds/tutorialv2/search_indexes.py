@@ -1,4 +1,3 @@
-# coding: utf-8
 from haystack import indexes
 
 from zds.search.models import SearchIndexContainer, SearchIndexContent, SearchIndexExtract

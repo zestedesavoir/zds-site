@@ -1,4 +1,3 @@
-# coding: utf-8
 from django import forms
 from django.conf import settings
 
@@ -41,9 +40,9 @@ class FormWithTitle(forms.Form):
 
         try:
             slugify_raise_on_invalid(title)
-        except InvalidSlugError as e:
+        except InvalidSlugError:
             self._errors['title'] = self.error_class(
-                [_('Ce titre n\'est pas autorisé, son slug est invalide {}!').format(e if e.message != '' else '')])
+                [_('Ce titre n\'est pas autorisé, son slug est invalide.')])
 
         return cleaned_data
 

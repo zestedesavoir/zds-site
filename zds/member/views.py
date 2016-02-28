@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import uuid
 from datetime import datetime, timedelta
 
@@ -966,7 +964,7 @@ def settings_promote(request, user_pk):
 
     if request.method == "POST":
         form = PromoteMemberForm(request.POST)
-        data = dict(form.data.iterlists())
+        data = dict(form.data.items())
 
         groups = Group.objects.all()
         usergroups = user.groups.all()

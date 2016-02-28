@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin
 from django.core.paginator import Paginator, EmptyPage

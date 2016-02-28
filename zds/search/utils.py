@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import zipfile
 import json as json_reader

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder
 from crispy_forms.bootstrap import StrictButton

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import re
 
 from django import template
@@ -111,7 +109,7 @@ def decale_header(text, count):
     :return: Filtered text.
     :rtype: str
     """
-    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text.encode('utf-8'))
+    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text)
 
 
 @register.filter('decale_header_1')

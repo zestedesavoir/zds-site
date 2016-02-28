@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import factory
 
 from zds.mp.models import PrivateTopic, PrivatePost

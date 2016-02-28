@@ -1,4 +1,3 @@
-# coding: utf-8
 import codecs
 import copy
 import logging
@@ -365,7 +364,7 @@ def publish_container(db_object, base_dir, container):
             f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
 
             try:
-                f.write(emarkdown(container.get_introduction(), db_object.js_support))
+                f.write(str(emarkdown(container.get_introduction(), db_object.js_support)))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
                     _('Une erreur est survenue durant la publication de l\'introduction de « {} »,'
@@ -378,7 +377,7 @@ def publish_container(db_object, base_dir, container):
             f = codecs.open(os.path.join(base_dir, path), 'w', encoding='utf-8')
 
             try:
-                f.write(emarkdown(container.get_conclusion(), db_object.js_support))
+                f.write(str(emarkdown(container.get_conclusion(), db_object.js_support)))
             except (UnicodeError, UnicodeEncodeError):
                 raise FailureDuringPublication(
                     _('Une erreur est survenue durant la publication de la conclusion de « {} »,'

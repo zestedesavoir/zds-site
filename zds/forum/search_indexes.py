@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 This package contains classes and methods to allow forums to be indexed
 """

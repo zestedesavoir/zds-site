@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 from django import forms
 from haystack import connections
 from haystack.constants import DEFAULT_ALIAS

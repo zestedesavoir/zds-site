@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import string
 import uuid
@@ -42,7 +40,7 @@ class Category(models.Model):
 
     slug = models.SlugField(max_length=80)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
@@ -64,7 +62,7 @@ class SubCategory(models.Model):
 
     slug = models.SlugField(max_length=80)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Category Form."""
         return self.title
 
@@ -91,7 +89,7 @@ class CategorySubCategory(models.Model):
     subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
     is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
         if self.is_main:
             return '[{0}][main]: {1}'.format(
@@ -114,7 +112,7 @@ class Licence(models.Model):
     title = models.CharField('Titre', max_length=80)
     description = models.TextField('Description')
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Licence Form."""
         return self.title
 
@@ -172,7 +170,7 @@ class Comment(models.Model):
         self.editor = user
         self.save()
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.text)
 
 
@@ -213,7 +211,7 @@ class Alert(models.Model):
         utils."""
         return Comment.objects.get_subclass(id=self.comment.id)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}'.format(self.text)
 
     class Meta:
@@ -231,7 +229,7 @@ class CommentLike(models.Model):
     comments = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, related_name='post_liked', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} like {1}'.format(self.user.username, self.comments.pk)
 
 
@@ -245,7 +243,7 @@ class CommentDislike(models.Model):
     comments = models.ForeignKey(Comment, db_index=True)
     user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0} dislike {1}'.format(self.user.username, self.comments.pk)
 
 
@@ -259,7 +257,7 @@ class Tag(models.Model):
     title = models.CharField(max_length=20, verbose_name='Titre')
     slug = models.SlugField(max_length=20)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Link Form."""
         return "{0}".format(self.title)
 
@@ -289,7 +287,7 @@ class HelpWriting(models.Model):
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual Help Form."""
         return self.title
 

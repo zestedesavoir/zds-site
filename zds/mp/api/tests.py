@@ -1,4 +1,3 @@
-# coding: utf-8
 from collections import OrderedDict
 from django.contrib.auth.models import Group
 from django.core.cache import caches

@@ -1,4 +1,3 @@
-# coding: utf-8
 from django.contrib.auth.models import Group
 
 import os
@@ -533,7 +532,7 @@ class ContentMoveTests(TestCase):
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(draft_zip_path),
+                'archive': open(draft_zip_path, 'rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False

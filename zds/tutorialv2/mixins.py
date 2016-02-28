@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -175,7 +173,7 @@ class ModalFormView(FormView):
         else:
             errors = form.errors.as_data()
             if len(errors) > 0:
-                messages.error(self.request, errors[list(errors.keys())[0]][0][0])  # only the first error is provided
+                messages.error(self.request, list(errors.items())[0][1][0])  # only the first error is provided
             else:
                 messages.error(
                     self.request, _('Une erreur inconnue est survenue durant le traitement des données.'))

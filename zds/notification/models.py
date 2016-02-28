@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-s
 from smtplib import SMTPException
 
 from django.contrib.auth.models import User

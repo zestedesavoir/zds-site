@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -33,7 +31,7 @@ class FeaturedResource(models.Model):
 
     objects = FeaturedResourceManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a featured resource."""
         return self.title
 
@@ -58,6 +56,6 @@ class FeaturedMessage(models.Model):
 
     objects = FeaturedMessageManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a featured message."""
         return self.message
