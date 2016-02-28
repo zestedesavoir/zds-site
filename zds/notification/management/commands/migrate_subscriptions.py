@@ -10,11 +10,13 @@ from zds.tutorialv2.models.models_database import ContentReaction, ContentRead
 
 
 class Command(BaseCommand):
-    help = 'Migrate old topic subscriptions and notifications for new models.'
+    help = 'Migrate old subscriptions and notifications for new models.'
 
     def handle(self, *args, **options):
         for profile in Profile.objects.all():
+            self.stdout.write(u'Migrate all notifications of {}...'.format(profile.user.username))
             # Forums.
+            self.stdout.write(u'Starting migration with topics...')
             topics_followed = TopicFollowed.objects.filter(user=profile.user).values("topic").distinct().all()
             topics_never_read = TopicRead.objects\
                 .filter(user=profile.user)\
@@ -39,7 +41,10 @@ class Command(BaseCommand):
                 notification.pubdate = content.pubdate
                 notification.save()
 
+                self.stdout.write(u'Migration about « {} » [OK]'.format(topic_never_read.topic.title))
+
             # Private messages.
+            self.stdout.write(u'Starting migration with private topics...')
             topics_never_read = list(PrivateTopicRead.objects
                                      .filter(user=profile.user)
                                      .filter(privatepost=F('privatetopic__last_message')).all())
@@ -51,7 +56,6 @@ class Command(BaseCommand):
             private_topics_unread = PrivateTopic.objects \
                 .filter(Q(author=profile.user) | Q(participants__in=[profile.user])) \
                 .exclude(pk__in=tnrs) \
-                .select_related("privatetopic") \
                 .order_by("-pubdate") \
                 .distinct()
 
@@ -71,7 +75,10 @@ class Command(BaseCommand):
                 notification.pubdate = answer.pubdate
                 notification.save()
 
+                self.stdout.write(u'Migration about « {} » [OK]'.format(private_topic_unread.title))
+
             # Contents.
+            self.stdout.write(u'Starting migration with contents...')
             content_followed_pk = ContentReaction.objects\
                 .filter(author=profile.user, related_content__public_version__isnull=False)\
                 .values_list('related_content__pk', flat=True)
@@ -105,3 +112,5 @@ class Command(BaseCommand):
                     .get_existing(profile.user, content_object, is_active=True).last_notification
                 notification.pubdate = reaction.pubdate
                 notification.save()
+
+                self.stdout.write(u'Migration about « {} » [OK]'.format(content.title))
