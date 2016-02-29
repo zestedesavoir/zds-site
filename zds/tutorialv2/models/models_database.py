@@ -290,9 +290,9 @@ class PublishableContent(models.Model):
         try:
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
-            raise Http404(_(
-                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}".format(
-                    str(error))))
+            raise Http404(
+                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}".format(
+                    type(error), str(error)))
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
