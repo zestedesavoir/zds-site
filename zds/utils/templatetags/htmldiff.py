@@ -8,8 +8,8 @@ register = template.Library()
 
 @register.simple_tag
 def htmldiff(string1, string2):
-    txt1 = string1.splitlines()
-    txt2 = string2.splitlines()
+    txt1 = string1.splitlines().encode("utf-8")
+    txt2 = string2.splitlines().encode("utf-8")
 
     diff = HtmlDiff(tabsize=4, wrapcolumn=80)
     result = diff.make_table(txt1, txt2, context=True, numlines=2)

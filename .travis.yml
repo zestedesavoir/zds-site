@@ -33,6 +33,7 @@ addons:
       - libmysqlclient-dev
       - ttf-mscorefonts-installer
       - language-pack-fr
+      - python3-dev
       - unzip
 
 

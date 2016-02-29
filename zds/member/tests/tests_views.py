@@ -249,7 +249,7 @@ class MemberTests(TestCase):
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        self.assertRedirects(result, reverse('homepage'))
+        self.assertRedirects(result, reverse('homepage'), fetch_redirect_response=False)
 
         # login failed with bad password then no redirection
         # (status_code equals 200 and not 302).
@@ -270,7 +270,7 @@ class MemberTests(TestCase):
              'password': 'hostel77',
              'remember': 'remember'},
             follow=False)
-        self.assertRedirects(result, reverse('gallery-list'))
+        self.assertRedirects(result, reverse('gallery-list'), fetch_redirect_response=False)
 
         # check if the login form will redirect if there is
         # a next parameter.

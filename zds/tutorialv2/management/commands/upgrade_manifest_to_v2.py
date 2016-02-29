@@ -1,3 +1,5 @@
+import codecs
+
 from zds.tutorialv2.models.models_versioned import Extract, VersionedContent, Container
 from django.core.management.base import BaseCommand
 from zds.utils.models import Licence
@@ -22,7 +24,7 @@ class Command(BaseCommand):
             exit()
         _file = args[0]
         if os.path.isfile(_file) and _file[-5:] == ".json":
-            with open(_file, "r") as json_file:
+            with codecs.open(_file, "r", encoding="utf-8") as json_file:
                 data = json_reader.load(json_file)
             _type = "TUTORIAL"
             if data["type"].lower() == "article":

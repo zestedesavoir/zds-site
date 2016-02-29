@@ -1,3 +1,5 @@
+import codecs
+
 from datetime import datetime
 try:
     import ujson as json_reader
@@ -327,10 +329,10 @@ class PublishableContent(models.Model):
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            manifest = open(os.path.join(path, 'manifest.json'), 'r')
-            json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(json, public.sha_public,
-                                              slug, public=True, max_title_len=max_title_length)
+            with codecs.open(os.path.join(path, 'manifest.json'), 'r', encoding="utf-8") as manifest:
+                json = json_reader.loads(manifest.read())
+                versioned = get_content_from_json(json, public.sha_public,
+                                                  slug, public=True, max_title_len=max_title_length)
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()

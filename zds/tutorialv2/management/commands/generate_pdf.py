@@ -38,7 +38,7 @@ class Command(BaseCommand):
             return
 
         self.stdout.write(_('Génération de PDF pour {} contenu{}').format(
-            num_of_contents, 's' if num_of_contents > 1 else ''))
+            num_of_contents, 's' if num_of_contents > 1 else '').encode("utf-8"))
 
         for content in public_contents:
             self.stdout.write(_("- {}").format(content.content_public_slug), ending='')

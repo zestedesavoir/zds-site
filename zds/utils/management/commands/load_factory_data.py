@@ -1,3 +1,4 @@
+import codecs
 import glob
 import os
 import yaml
@@ -20,7 +21,7 @@ class Command(BaseCommand):
             os.mkdir(MEDIA_ROOT)
 
         for filename in glob.glob(" ".join(args)):
-            stream = open(filename, 'r')
+            stream = codecs.open(filename, 'r', encoding="utf-8")
             fixture_list = yaml.load(stream)
             for fixture in fixture_list:
                 splitted = str(fixture["factory"]).split(".")
