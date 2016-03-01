@@ -17,7 +17,7 @@ pillow==3.1.1
 gitpython==1.0.1
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.7.zip
 easy-thumbnails==2.2
-CairoSVG==1.0.19
+CairoSVG==1.0.20
 beautifulsoup4==4.4.1
 django-recaptcha==1.0.4
 
