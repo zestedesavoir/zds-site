@@ -1,7 +1,7 @@
 # Implicit dependencies (optional dependencies of dependencies)
-pysolr==3.3.1
-pygments==2.0.2
-python-social-auth==0.2.9
+pysolr==3.4.0
+pygments==2.1.2
+python-social-auth==0.2.14
 
 # Explicit dependencies (references in code)
 Django==1.8.10
@@ -10,16 +10,16 @@ django-haystack==2.4.1
 django-model-utils==2.4
 django-munin==0.2.1
 python-memcached==1.54
-lxml==3.4.4
+lxml==3.5.0
 factory-boy==2.6.1
 pygeoip==0.3.2
 pillow==3.1.1
 gitpython==1.0.1
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.7.zip
-easy-thumbnails==2.2
-CairoSVG==1.0.19
+easy-thumbnails==2.3
+CairoSVG==1.0.20
 beautifulsoup4==4.4.1
-django-recaptcha==1.0.4
+django-recaptcha==1.0.5
 
 # Api dependencies
 djangorestframework==3.3.2
@@ -27,7 +27,7 @@ djangorestframework-xml==1.3.0
 django-filter==0.12
 django-oauth-toolkit==0.10.0
 drf-extensions==0.2.8
-django-rest-swagger==0.3.4
+django-rest-swagger==0.3.5
 django-cors-middleware==1.2.0
 dry-rest-permissions==0.1.6
 
