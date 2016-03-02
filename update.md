@@ -459,7 +459,9 @@ Actions à faire pour mettre en prod la version 17
 CORS
 ----
 
-Supprimer les informations CORS de nginx.
+Observer le fichier `/etc/nginx/conf.d/zds_headers.conf` et si une ligne au moins portant la mension `add_header Access-Control-Allow-Origin *;` existe (via, par exemple un `grep "add_header Access-Control-Allow-Origin" /etc/nginx/conf.d/zds_headers.conf`) supprimer toutes les lignes de cette forme.
+
+Un redémarrage de nginx sera nécessaire en fin de procédure (`service nginx restart`).
 
 TEMPLATE
 --------
