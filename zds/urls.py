@@ -22,7 +22,7 @@ class TutoSitemap(Sitemap):
         return PublishedContent.objects.filter(must_redirect=False, content_type="TUTORIAL").prefetch_related('content')
 
     def lastmod(self, tuto):
-        return tuto.content.update_date or tuto.publication_date
+        return tuto.update_date or tuto.publication_date
 
     def location(self, tuto):
         return tuto.get_absolute_url_online()
@@ -36,7 +36,7 @@ class ArticleSitemap(Sitemap):
         return PublishedContent.objects.filter(must_redirect=False, content_type="ARTICLE").prefetch_related('content')
 
     def lastmod(self, article):
-        return article.content.update_date or article.publication_date
+        return article.update_date or article.publication_date
 
     def location(self, article):
         return article.get_absolute_url_online()
