@@ -13,7 +13,7 @@ class FeaturedResourceForm(forms.ModelForm):
     class Meta:
         model = FeaturedResource
 
-        fields = ['title', 'type', 'authors', 'image_url', 'url', 'pubdate']
+        fields = ['title', 'publishable_content_type', 'authors', 'image_url', 'url', 'pubdate']
 
         widgets = {
             'title': forms.TextInput(
@@ -22,7 +22,7 @@ class FeaturedResourceForm(forms.ModelForm):
                 }
             ),
 
-            'type': forms.TextInput(
+            'publishable_content_type': forms.TextInput(
                 attrs={
                     'placeholder': _(u'ex: Un projet, Un article, Un tutoriel...')
                 }
@@ -68,7 +68,7 @@ class FeaturedResourceForm(forms.ModelForm):
 
         self.helper.layout = Layout(
             Field('title'),
-            Field('type'),
+            Field('publishable_content_type'),
             Field('authors'),
             Field('image_url'),
             Field('url'),

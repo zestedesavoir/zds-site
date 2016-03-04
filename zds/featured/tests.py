@@ -59,7 +59,7 @@ class FeaturedResourceCreateViewTest(TestCase):
             reverse('featured-resource-create'),
             {
                 'title': 'title',
-                'type': 'type',
+                'publishable_content_type': 'type',
                 'image_url': 'image_url',
                 'url': 'url',
                 'authors': staff.user.username,
@@ -101,7 +101,7 @@ class FeaturedResourceCreateViewTest(TestCase):
             reverse('featured-resource-create'),
             {
                 'title': 'title',
-                'type': 'type',
+                'publishable_content_type': 'type',
                 'image_url': stringof2001chars,
                 'url': 'url',
                 'authors': staff.user.username
@@ -116,7 +116,7 @@ class FeaturedResourceCreateViewTest(TestCase):
             reverse('featured-resource-create'),
             {
                 'title': 'title',
-                'type': 'type',
+                'publishable_content_type': 'type',
                 'image_url': 'url',
                 'url': stringof2001chars,
                 'authors': staff.user.username
@@ -143,7 +143,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
             reverse('featured-resource-update', args=[news.pk]),
             {
                 'title': 'title',
-                'type': 'type',
+                'publishable_content_type': 'type',
                 'image_url': 'image_url',
                 'url': 'url',
                 'authors': staff.user.username

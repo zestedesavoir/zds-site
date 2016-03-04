@@ -59,7 +59,7 @@ class FeaturedResourceCreate(CreateView):
 
         featured_resource = FeaturedResource()
         featured_resource.title = form.data.get('title')
-        featured_resource.type = form.data.get('type')
+        featured_resource.publishable_content_type = form.data.get('publishable_content_type')
         featured_resource.authors = form.data.get('authors')
         featured_resource.image_url = form.data.get('image_url')
         featured_resource.url = form.data.get('url')
@@ -88,7 +88,7 @@ class FeaturedResourceUpdate(UpdateView):
         self.featured_resource = self.get_object()
         form = self.form_class(initial={
             'title': self.featured_resource.title,
-            'type': self.featured_resource.type,
+            'publishable_content_type': self.featured_resource.publishable_content_type,
             'authors': self.featured_resource.authors,
             'image_url': self.featured_resource.image_url,
             'url': self.featured_resource.url,
@@ -109,7 +109,7 @@ class FeaturedResourceUpdate(UpdateView):
     def form_valid(self, form):
 
         self.featured_resource.title = form.data.get('title')
-        self.featured_resource.type = form.data.get('type')
+        self.featured_resource.publishable_content_type = form.data.get('publishable_content_type')
         self.featured_resource.authors = form.data.get('authors')
         self.featured_resource.image_url = form.data.get('image_url')
         self.featured_resource.url = form.data.get('url')
