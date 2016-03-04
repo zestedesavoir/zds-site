@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=80, verbose_name='Titre')),
-                ('publishable_content_type', models.CharField(max_length=80, verbose_name='Type')),
+                ('type', models.CharField(max_length=80, verbose_name='Type')),
                 ('image_url', models.CharField(max_length=2000, verbose_name="URL de l'image \xe0 la une")),
                 ('url', models.CharField(max_length=2000, verbose_name='URL de la une')),
                 ('pubdate', models.DateTimeField(db_index=True, verbose_name='Date de publication', blank=True)),
