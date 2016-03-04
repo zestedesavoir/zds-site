@@ -672,11 +672,9 @@ def login_view(request):
             messages.error(request,
                            _(u"Les identifiants fournis ne sont pas valides."))
 
+    form = LoginForm()
     if next_page is not None:
-        form = LoginForm()
         form.helper.form_action += "?next=" + next_page
-    else:
-        form = LoginForm()
 
     csrf_tk["error"] = error
     csrf_tk["form"] = form
