@@ -1,0 +1,393 @@
+.ico {
+    background-repeat: no-repeat;
+    @mixin sprite;
+}
+.ico-after {
+    position: relative;
+
+    &:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 16px;
+        height: 16px;
+        background-repeat: no-repeat;
+        @mixin sprite;
+    }
+
+    &.alert {
+        &:after {
+            background-position: $alert-x $alert-y;
+        }
+        &.blue:after {
+            background-position: $alert-blue-x $alert-blue-y;
+        }
+        &.light:after {
+            background-position: $alert-light-x $alert-light-y;
+        }
+    }
+
+    &.arrow-left {
+        &:after {
+            background-position: $arrow-left-x $arrow-left-y;
+        }
+        &.blue:after {
+            background-position: $arrow-left-blue-x $arrow-left-blue-y;
+        }
+        &.light:after {
+            background-position: $arrow-left-light-x $arrow-left-light-y;
+        }
+    }
+
+    &.offline,
+    &.arrow-right {
+        &:after {
+            background-position: $arrow-right-x $arrow-right-y;
+        }
+        &.blue:after {
+            background-position: $arrow-right-blue-x $arrow-right-blue-y;
+        }
+        &.light:after {
+            background-position: $arrow-right-light-x $arrow-right-light-y;
+        }
+    }
+
+    &.beta {
+        &:after {
+            background-position: $beta-x $beta-y;
+        }
+        &.blue:after {
+            background-position: $beta-blue-x $beta-blue-y;
+        }
+        &.light:after {
+            background-position: $beta-light-x $beta-light-y;
+        }
+    }
+
+    &.cite {
+        &:after {
+            background-position: $cite-x $cite-y;
+        }
+        &.blue:after {
+            background-position: $cite-blue-x $cite-blue-y;
+        }
+        &.light:after {
+            background-position: $cite-light-x $cite-light-y;
+        }
+    }
+
+    &.cross {
+        &:after {
+            background-position: $cross-x $cross-y;
+        }
+        &.blue:after {
+            background-position: $cross-blue-x $cross-blue-y;
+        }
+        &.red:after {
+            background-position: $cross-red-x $cross-red-y;
+        }
+        &.light:after {
+            background-position: $cross-light-x $cross-light-y;
+        }
+        &.white:after {
+            background-position: $cross-white-x $cross-white-y;
+        }
+    }
+
+    &.download {
+        &:after {
+            background-position: $download-x $download-y;
+        }
+        &.blue:after {
+            background-position: $download-blue-x $download-blue-y;
+        }
+        &.light:after {
+            background-position: $download-light-x $download-light-y;
+        }
+    }
+
+    &.downvote {
+        &:after {
+            background-position: $thumb-down-x $thumb-down-y;
+        }
+        &.voted:after {
+            background-position: $thumb-down-voted-x $thumb-down-voted-y;
+        }
+    }
+
+    &.edit {
+        &:after {
+            background-position: $edit-x $edit-y;
+        }
+        &.blue:after {
+            background-position: $edit-blue-x $edit-blue-y;
+        }
+        &.light:after {
+            background-position: $edit-light-x $edit-light-y;
+        }
+    }
+
+    &.email {
+        &:after {
+            background-position: $email-x $email-y;
+        }
+        &.blue:after {
+            background-position: $email-blue-x $email-blue-y;
+        }
+        &.light:after {
+            background-position: $email-light-x $email-light-y;
+        }
+    }
+
+    &.diaspora {
+        &:after {
+            background-position: $diaspora-x $diaspora-y;
+        }
+        &.blue:after {
+            background-position: $diaspora-blue-x $diaspora-blue-y;
+        }
+        &.light:after {
+            background-position: $diaspora-light-x $diaspora-light-y;
+        }
+    }
+
+    &.facebook {
+        &:after {
+            background-position: $facebook-x $facebook-y;
+        }
+        &.blue:after {
+            background-position: $facebook-blue-x $facebook-blue-y;
+        }
+        &.light:after {
+            background-position: $facebook-light-x $facebook-light-y;
+        }
+    }
+
+    &.foursquare {
+        &:after {
+            background-position: $foursquare-x $foursquare-y;
+        }
+        &.blue:after {
+            background-position: $foursquare-blue-x $foursquare-blue-y;
+        }
+        &.light:after {
+            background-position: $foursquare-light-x $foursquare-light-y;
+        }
+    }
+
+    &.gear {
+        &:after {
+            background-position: $gear-x $gear-y;
+        }
+        &.blue:after {
+            background-position: $gear-blue-x $gear-blue-y;
+        }
+        &.light:after {
+            background-position: $gear-light-x $gear-light-y;
+        }
+    }
+
+    &.github {
+        &:after {
+            background-position: $github-x $github-y;
+        }
+        &.blue:after {
+            background-position: $github-blue-x $github-blue-y;
+        }
+        &.light:after {
+            background-position: $github-light-x $github-light-y;
+        }
+    }
+
+    &.google-plus {
+        &:after {
+            background-position: $google-plus-x $google-plus-y;
+        }
+        &.blue:after {
+            background-position: $google-plus-blue-x $google-plus-blue-y;
+        }
+        &.light:after {
+            background-position: $google-plus-light-x $google-plus-light-y;
+        }
+    }
+
+    &.help {
+        &:after {
+            background-position: $help-x $help-y;
+        }
+        &.blue:after {
+            background-position: $help-blue-x $help-blue-y;
+        }
+        &.light:after {
+            background-position: $help-light-x $help-light-y;
+        }
+    }
+
+    &.hide {
+        &:after {
+            background-position: $hide-x $hide-y;
+        }
+        &.blue:after {
+            background-position: $hide-blue-x $hide-blue-y;
+        }
+        &.light:after {
+            background-position: $hide-light-x $hide-light-y;
+        }
+    }
+
+    &.history {
+        &:after {
+            background-position: $history-x $history-y;
+        }
+        &.blue:after {
+            background-position: $history-blue-x $history-blue-y;
+        }
+        &.light:after {
+            background-position: $history-light-x $history-light-y;
+        }
+    }
+
+    &.import {
+        &:after {
+            background-position: $import-x $import-y;
+        }
+        &.blue:after {
+            background-position: $import-blue-x $import-blue-y;
+        }
+        &.light:after {
+            background-position: $import-light-x $import-light-y;
+        }
+    }
+
+    &.lock {
+        &:after {
+            background-position: $lock-x $lock-y;
+        }
+        &.blue:after {
+            background-position: $lock-blue-x $lock-blue-y;
+        }
+        &.light:after {
+            background-position: $lock-light-x $lock-light-y;
+        }
+    }
+
+    &.more {
+        &:after {
+            background-position: $more-x $more-y;
+        }
+        &.blue:after {
+            background-position: $more-blue-x $more-blue-y;
+        }
+        &.light:after {
+            background-position: $more-light-x $more-light-y;
+        }
+    }
+
+    &.move {
+        &:after {
+            background-position: $move-x $move-y;
+        }
+        &.blue:after {
+            background-position: $move-blue-x $move-blue-y;
+        }
+        &.light:after {
+            background-position: $move-light-x $move-light-y;
+        }
+    }
+
+    &.pin {
+        &:after {
+            background-position: $pin-x $pin-y;
+        }
+        &.blue:after {
+            background-position: $pin-blue-x $pin-blue-y;
+        }
+        &.light:after {
+            background-position: $pin-light-x $pin-light-y;
+        }
+    }
+
+    &.rss {
+        &:after {
+            background-position: $rss-x $rss-y;
+        }
+        &.blue:after {
+            background-position: $rss-blue-x $rss-blue-y;
+        }
+        &.orange:after {
+            background-position: $rss-orange-x $rss-orange-y;
+        }
+        &.light:after {
+            background-position: $rss-light-x $rss-light-y;
+        }
+    }
+
+    &.star {
+        &:after {
+            background-position: $star-x $star-y;
+        }
+        &.yellow:after {
+            background-position: $star-yellow-x $star-yellow-y;
+        }
+        &.blue:after {
+            background-position: $star-blue-x $star-blue-y;
+        }
+        &.light:after {
+            background-position: $star-light-x $star-light-y;
+        }
+    }
+
+    &.tick {
+        &:after {
+            background-position: $tick-x $tick-y;
+        }
+        &.green:after {
+            background-position: $tick-green-x $tick-green-y;
+        }
+        &.light:after {
+            background-position: $tick-light-x $tick-light-y;
+        }
+    }
+
+    &.twitter {
+        &:after {
+            background-position: $twitter-x $twitter-y;
+        }
+        &.blue:after {
+            background-position: $twitter-blue-x $twitter-blue-y;
+        }
+        &.light:after {
+            background-position: $twitter-light-x $twitter-light-y;
+        }
+    }
+
+    &.unread {
+        &:after {
+            background-position: $unread-x $unread-y;
+        }
+    }
+
+    &.upvote {
+        &:after {
+            background-position: $thumb-up-x $thumb-up-y;
+        }
+        &.voted:after {
+            background-position: $thumb-up-voted-x $thumb-up-voted-y;
+        }
+    }
+
+    &.online,
+    &.view {
+        &:after {
+            background-position: $view-x $view-y;
+        }
+        &.blue:after {
+            background-position: $view-blue-x $view-blue-y;
+        }
+        &.light:after {
+            background-position: $view-light-x $view-light-y;
+        }
+    }
+}

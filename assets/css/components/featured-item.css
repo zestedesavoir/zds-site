@@ -1,0 +1,98 @@
+.featured-resource-item {
+    flex: 1;
+    margin-right: 1px;
+    background-color: #CCC;
+    position: relative;
+    overflow: hidden;
+    max-width: 228px;
+    min-width: 170px;
+    z-index: 0;
+    background-color: $color-primary;
+
+    &::before {
+        content: "";
+        display: block;
+        padding-top: 100%;
+    }
+
+    .featured-resource-illu {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: auto;
+        transition: $transition-duration ease;
+        transition-property: filter, opacity, transform;
+    }
+
+    .featured-resource-meta {
+        position: absolute;
+        z-index: 3;
+        color: white;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        padding: 40px 14px 12px;
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+        background-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, .2) 30px, rgba(0, 0, 0, .4));
+
+        h3 {
+             font-size: 16px;
+             line-height: 20px;
+             font-weight: normal;
+             margin: 0;
+             display: table-cell;
+             vertical-align: middle;
+             height: 0;
+             transition: height $transition-duration ease;
+         }
+
+         p {
+            font-size: 12px;
+            margin: 0;
+            line-height: 22px;
+         }
+    }
+
+    a:focus,
+    a:hover {
+        .featured-resource-illu {
+            opacity: 0.4;
+            filter: blur(5px);
+            transform: scale(1.05);
+        }
+        .featured-resource-meta {
+            h3 {
+                height: 190px;
+                font-size: 20px;
+            }
+        }
+    }
+
+    & > a {
+        display: block;
+    }
+}
+
+.featured-resource-edit-form {
+    display: flex;
+    align-items: flex-start;
+
+    .featured-resource-item {
+        margin-right: 20px;
+        flex-basis: 228px;
+    }
+
+    form {
+        width: auto;
+        flex: 1;
+    }
+}
+
+@media only screen and (--media-mobile) {
+    .featured-resource-edit-form {
+        flex-direction: column;
+        align-items: unset;
+    }
+}

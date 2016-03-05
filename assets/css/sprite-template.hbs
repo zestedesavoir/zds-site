@@ -1,0 +1,19 @@
+{{#each layouts}}
+  {{#each layout.items}}
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-x: -{{baseDim x}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-y: -{{baseDim y}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-height: {{baseDim width}}px;
+${{#if ../../opt.split}}{{cssesc ../../name}}-{{/if}}{{cssesc meta.name}}-width: {{baseDim height}}px;
+  {{/each}}
+{{/each}}
+
+{{#each layouts}}
+  {{#each sprites}}
+@define-mixin sprite{{#if dpi}}-{{ratio}}x{{/if}} {
+  background-image: url('{{escimage url}}');
+  {{#if dpi}}
+  background-size: {{baseWidth}}px {{baseHeight}}px;
+  {{/if}}
+}
+  {{/each}}
+{{/each}}

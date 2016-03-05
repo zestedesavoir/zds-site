@@ -1,0 +1,102 @@
+/* ===== Zeste de Savoir ====================================================
+   Maintenance and error pages style
+   ========================================================================== */
+
+@import "normalize.css";
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    background: #19516b;
+    background-image: radial-gradient(top center, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0));
+    background-repeat: no-repeat;
+    color: #FFF;
+    text-align: center;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, .5);
+}
+
+#page {
+    margin-top: 20px;
+}
+
+h1 {
+    position: relative;
+    margin: 0 auto;
+    max-width: 781px;
+
+    img {
+        width: 90%;
+        margin: 0 5%;
+    }
+}
+h2 {
+    position: relative;
+    font-weight: normal;
+    font-size: 18px;
+    margin: 0 0 80px;
+}
+
+.clem {
+    max-width: 90%;
+    margin: 0 5%;
+}
+.clem-blasee, {
+    margin-top: -150px;
+}
+.clem-dodo {
+    margin-top: -50px;
+}
+
+p {
+    margin: 15px 5% 50px;
+    font-size: 14px;
+}
+
+
+@media only screen and (min-height: 700px) {
+    #page {
+        position: absolute;
+        top: 50%;
+        height: 650px;
+        width: 100%;
+        margin-top: -325px;
+    }
+}
+
+
+@media only screen and (min-width: 400px) {
+    h2 {
+        font-size: 28px;
+    }
+
+    p {
+        font-size: 18px;
+    }
+}
+@media only screen and (min-width: 550px) {
+    h2 {
+        font-size: 30px;
+    }
+
+    p {
+        font-size: 24px;
+    }
+}
+@media only screen and (min-width: 800px) {
+    h2 {
+        font-size: 36px;
+    }
+
+    .clem-dodo {
+        margin-top: 0;
+    }
+
+    p {
+        margin-top: 80px;
+        font-size: 28px;
+    }
+}

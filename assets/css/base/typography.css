@@ -1,0 +1,41 @@
+html,
+body,
+button,
+input,
+select,
+textarea {
+    font-family: $font-sans-serif;
+    color: #222;
+
+    .wf-active &,
+    .no-js & {
+        font-family: $font-sans-serif-active;
+    }
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+a,
+.link {
+    color: color($color-primary lightness(+20%));
+    transition: all $transition-duration ease;
+
+    &:hover {
+        color: color($color-secondary lightness(-15%));
+        text-decoration: none;
+    }
+}
+
+button.link {
+    display: inline-block;
+    background: none;
+    border: none;
+    text-decoration: underline;
+}

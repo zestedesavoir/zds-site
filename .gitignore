@@ -28,8 +28,8 @@ base.db
 /node_modules
 /dist
 /npm-debug.log
-/assets/scss/_sprite.scss
-/assets/scss/vendors
+/assets/css/sprite.css
+/assets/css/vendors
 /assets/js/vendors
 
 #############
