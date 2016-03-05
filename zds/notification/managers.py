@@ -127,7 +127,7 @@ class SubscriptionManager(models.Manager):
 
         return [subscription.content_object for subscription in subscription_list]
 
-    def toggle_follow(self, content_object, user=None, by_email=None):
+    def toggle_follow(self, content_object, user=None, by_email=False):
         """
         Toggle following of a resource notifiable for a user.
 
@@ -136,13 +136,13 @@ class SubscriptionManager(models.Manager):
         :param by_email: Get subscription by email or not.
         :return: subscription of the user for the content.
         """
-        if user is None:
+        if not user:
             user = get_current_user()
         if by_email:
             existing = self.get_existing(user, content_object, is_active=True, by_email=True)
         else:
             existing = self.get_existing(user, content_object, is_active=True)
-        if existing is None:
+        if not existing:
             subscription = self.get_or_create_active(user, content_object)
             if by_email:
                 subscription.activate_email()
@@ -202,7 +202,7 @@ class NotificationManager(models.Manager):
 
     def get_users_for_unread_notification_on(self, content_object):
         """
-        Gets all users which have an notification unread on the given content object.
+        Gets all users who have an notification unread on the given content object.
 
         :param content_object: generic content object.
         :type content_object: instance concerned by notifications
@@ -218,14 +218,14 @@ class NotificationManager(models.Manager):
 class TopicFollowedManager(models.Manager):
     def get_followers_by_email(self, topic):
         """
-        :return: the set of users that follows this topic by email.
+        :return: the set of users who follow this topic by email.
         """
         return self.filter(topic=topic, email=True).select_related("user")
 
     def is_followed(self, topic, user=None):
         """
         Checks if the user follows this topic.
-        :param user: An user. If undefined, the current user is used.
+        :param user: A user. If undefined, the current user is used.
         :return: `True` if the user follows this topic, `False` otherwise.
         """
         if user is None:
