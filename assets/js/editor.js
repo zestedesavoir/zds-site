@@ -1,24 +1,18 @@
+// by Thunderseb
+// update 28 sept 2015
 
 (function(window, document, undefined){
     "use strict";
 
     var zForm = {
-        buttons: "bold,italic,strike,abbr,key#sup,sub#center,right#ul,ol#titles,blockcode,image,quote,link#infoblocks",
-        isExecuted: false,
-        selection: null,
-
-        addEvent: function(elem, evt, listener) {
-            if (elem.addEventListener) {
-                elem.addEventListener(evt, listener, false);
-            } else {
-                elem.attachEvent("on" + evt, listener);
-            }
-        },
+        // Params
+        // ~~~~~~
+        buttons: "bold,italic,strike,abbr,key,monospace#sup,sub#center,right#ul,ol#titles,blockcode,image,quote,link#infoblocks,chars,smilies",
 
         tags: {
-            bold:       { title: "Gras",                        start: "**",                end: "**"   },
-            italic:     { title: "Italique",                    start: "*",                 end: "*"    },
-            strike:     { title: "Barré",                       start: "~~",                end: "~~"   },
+            bold:       { title: "Gras",                        start: "**",                end: "**",  useless: true },
+            italic:     { title: "Italique",                    start: "*",                 end: "*",   useless: true },
+            strike:     { title: "Barré",                       start: "~~",                end: "~~",  useless: true },
             sup:        { title: "Exposant",                    start: "^",                 end: "^"    },
             sub:        { title: "Indice",                      start: "~",                 end: "~"    },
             abbr:       { title: "Abréviation" },
@@ -30,7 +24,7 @@
             ol:         { title: "Liste ordonnée"                                                       },
 
             center:     { title: "Aligner au centre",           start: "-> ",               end: " <-"  },
-            right:      { title: "Aligner à droite",            start: "-> ",               end: " ->"  },
+            right:      { title: "Aligner à droite",            start: "-> ",               end: " ->", useless: true  },
 
             quote:      { title: "Citation"                                                             },
             image:      { title: "Image"                                                                },
@@ -49,51 +43,121 @@
             blockcode:  { title: "Bloc de code coloré",         action: "buildCode"                     },
 
             math:       { title: "Formule mathématique",        start: "$",                 end: "$"    },
-            hr:         { title: "Ligne horizontalle",          start: "\n\n------\n\n",    end: ""     },
+            hr:         { title: "Ligne horizontalle",          start: "\n\n------\n\n",    end: "",    useless: true },
+
+            chars:      { title: "Caractères spéciaux",         action: "buildChars"                    },
+            smilies:    { title: "Smileys",                     action: "buildSmilies",                 useless: true },
 
             footnote:   { title: "Note en bas de page"                                                  }
         },
 
         codes: {
-            Web: [
-                ["html",    "HTML"],
-                ["css",     "CSS"],
-                ["js",      "Javascript"],
-                ["php",     "PHP"],
-                ["jfx",     "JavaFX"],
-                ["cf",      "ColdFusion"],
-                ["as3",     "Actionscript 3"],
-                ["pl",      "Perl"],
-                ["sql",     "SQL"],
-                ["xml",     "XML"]
-            ],
-            Prog: [
-                ["c",       "C"],
-                ["cpp",     "C++"],
-                ["csharp",  "C#"],
-                ["java",    "Java"],
-                ["delphi",  "Delphi"],
-                ["py",      "Python"],
-                ["ruby",    "Ruby"],
-                ["pascal",  "Pascal"],
-                ["vb",      "Visual Basic"],
-                ["vbnet",   "VB.NET"],
-            ],
-            Autres: [
-                ["bash",    "Bash"],
-                ["diff",    "Diff"],
-                ["erl",     "Erlang"],
-                ["scala",   "Scala"],
-                ["groovy",  "Groovy"],
-                ["ps",      "PowerShell"],
-                ["text",    "Autre"]
-            ]
+            Web: {
+                html:   { title: "HTML" },
+                css:    { title: "CSS" },
+                js:     { title: "Javascript" },
+                php:    { title: "PHP" },
+                jfx:    { title: "JavaFX" },
+                cf:     { title: "ColdFusion" },
+                as3:    { title: "Actionscript 3" },
+                pl:     { title: "Perl" },
+                sql:    { title: "SQL" },
+                xml:    { title: "XML" }
+            },
+            Prog: {
+                c:      { title: "C" },
+                cpp:    { title: "C++" },
+                csharp: { title: "C#" },
+                java:   { title: "Java" },
+                delphi: { title: "Delphi" },
+                py:     { title: "Python" },
+                ruby:   { title: "Ruby" },
+                pascal: { title: "Pascal" },
+                vb:     { title: "Visual Basic" },
+                vbnet:  { title: "VB.NET" }
+            },
+            Autres: {
+                bash:   { title: "Bash" },
+                diff:   { title: "Diff" },
+                erl:    { title: "Erlang" },
+                scala:  { title: "Scala" },
+                groovy: { title: "Groovy" },
+                ps:     { title: "PowerShell" },
+                text:   { title: "Autre" }
+            }
+        },
+
+        chars: {
+            Typo: {
+                char_g0: { title: "« »", start: "« ", end: " »" },
+                char_gl: { title: "«", start: "« ", end: "" },
+                char_gr: { title: "»", start: " »", end: "" },
+                char_h0: { title: "“ ”", start: "“", end: "”" },
+                char_hl: { title: "“", start: "“", end: "" },
+                char_hr: { title: "”", start: "”", end: "" },
+                char_su: { title: "…", start: "…", end: "" },
+                char_ti: { title: "−", start: "−", end: "" },
+                char_ca: { title: "—", start: "—", end: "" }
+            },
+            "Caractères": {
+                char_in: { title: "Insécable", start: " ", end: "" },
+                char_ag: { title: "À", start: "À", end: "" },
+                char_cc: { title: "Ç", start: "Ç", end: "" },
+                char_ea: { title: "É", start: "É", end: "" },
+                char_eg: { title: "È", start: "È", end: "" },
+                char_oe: { title: "œ", start: "œ", end: "" },
+                char_eo: { title: "Œ", start: "Œ", end: "" }
+            }
+        },
+
+        smilies: {
+            0: {
+                smiley_sm: { title: ":)",         start: ":)",         end: "", image: "https://zestedesavoir.com/static/smileys/smile.png" },
+                smiley_he: { title: ":D",         start: ":D",         end: "", image: "https://zestedesavoir.com/static/smileys/heureux.png" },
+                smiley_cl: { title: ";)",         start: ";)",         end: "", image: "https://zestedesavoir.com/static/smileys/clin.png" },
+                smiley_la: { title: ":p",         start: ":p",         end: "", image: "https://zestedesavoir.com/static/smileys/langue.png" },
+                smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "https://zestedesavoir.com/static/smileys/rire.gif" },
+                smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "https://zestedesavoir.com/static/smileys/unsure.gif" },
+                smiley_tr: { title: ":(",         start: ":(",         end: "", image: "https://zestedesavoir.com/static/smileys/triste.png" },
+                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "https://zestedesavoir.com/static/smileys/huh.png" }
+            },
+            1: {
+                smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "https://zestedesavoir.com/static/smileys/mechant.png" },
+                smiley_oo: { title: "o_O",        start: "o_O",        end: "", image: "https://zestedesavoir.com/static/smileys/blink.gif" },
+                smiley_uu: { title: "^^",         start: "^^",         end: "", image: "https://zestedesavoir.com/static/smileys/hihi.png" },
+                smiley_si: { title: ":-°",        start: ":-°",        end: "", image: "https://zestedesavoir.com/static/smileys/siffle.png" },
+                smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "https://zestedesavoir.com/static/smileys/ange.png" },
+                smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "https://zestedesavoir.com/static/smileys/angry.gif" },
+                smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "https://zestedesavoir.com/static/smileys/diable.png" },
+                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "https://zestedesavoir.com/static/smileys/magicien.png" }
+            },
+            2: {
+                smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "https://zestedesavoir.com/static/smileys/ninja.png" },
+                smiley_gd: { title: "&gt;_&lt;",  start: "&gt;_&lt;",  end: "", image: "https://zestedesavoir.com/static/smileys/pinch.png" },
+                smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "https://zestedesavoir.com/static/smileys/pirate.png" },
+                smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "https://zestedesavoir.com/static/smileys/pleure.png" },
+                smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "https://zestedesavoir.com/static/smileys/rouge.png" },
+                smiley_so: { title: ":soleil:",   start: ":soleil:",   end: "", image: "https://zestedesavoir.com/static/smileys/soleil.png" },
+                smiley_ww: { title: ":waw:",      start: ":waw:",      end: "", image: "https://zestedesavoir.com/static/smileys/waw.png" },
+                smiley_zz: { title: ":zorro:",    start: ":zorro:",    end: "", image: "https://zestedesavoir.com/static/smileys/zorro.png" }
+            }
         },
 
         titles: {
             "link" :    "Lien hypertexte",
             "abbr" :    "Abréviation",
             "image":    "Image",
+        },
+
+        isExecuted: false,
+        selection: null,
+
+        addEvent: function(elem, evt, listener) {
+            if (elem.addEventListener) {
+                elem.addEventListener(evt, listener, false);
+            } else {
+                elem.attachEvent("on" + evt, listener);
+            }
         },
 
         init: function() {
@@ -108,11 +172,8 @@
 
             this.addEvent(document.getElementById("content"), "DOMNodeInserted", (function(_this){
                 return function(e) {
-                    var element = e.target;
-                    if (/md.editor/.test(element.className)) {
-                        if(element.previousElementSibling.indexOf("zform-toolbar") > -1) {
-                            _this.setup(element.id);
-                        }
+                    if (/md.editor/.test(e.target.className)) {
+                        _this.setup(e.target.id);
                     }
                 };
             }) (this));
@@ -175,7 +236,9 @@
 
             if (!this.isExecuted) {
                 this.addEvent(document, "click", function(event) {
+                    // If it's a root button and not a subbutton
                     if (~event.target.className.indexOf("zform-button") && !(~event.target.className.indexOf("zform-subbutton"))) {
+
                         return event.stopPropagation();
                     }
 
@@ -192,11 +255,8 @@
                 this.isExecuted = true;
             }
 
-            var groups = this.buttons.split("#");
-            var buttons;
-
-            var elemButtonLi, elemButton, currentButton;
-            var elemPopup;
+            var groups = this.buttons.split("#"), buttons;
+            var elemPopup, elemButtonLi, elemButton, currentButton;
 
             for (var g=0, cg=groups.length; g<cg; g++) {
                 buttons = groups[g].split(",");
@@ -208,46 +268,56 @@
                     }
 
                     elemButtonLi = elemTools.appendChild(document.createElement("li"));
-                    elemButton = elemButtonLi.appendChild(document.createElement("a"));
-                    elemButton.style.position = "relative";
-
-                    elemButton.className = "ico-after zform-button zform-button-" + buttons[b];
-                    elemButton.setAttribute("data-zform-textarea", textareaId);
-                    elemButton.title = currentButton.title;
-                    elemButton.innerText = currentButton.title;
-
-                    if (currentButton.action) {
-                        elemButton.href = "#";
-                        this.addEvent(elemButton, "click", function(event, elemPopup) {
-                            event.preventDefault();
-
-                            if (elemPopup = this.getElementsByTagName("div")[0]) {
-                                elemPopup.style.display = "block";
-                            }
-                        });
-
-                        elemPopup = elemButton.appendChild(document.createElement("div"));
-                        elemPopup.className = "zform-popup";
-                        elemPopup.style.position = "absolute";
-                        elemPopup.style.display = "none";
-                        elemPopup.style.left = "0";
-                        elemPopup.style.width = "auto";
-                        elemPopup.style.whiteSpace = "nowrap";
-                        elemPopup.style.textAlign = "left";
-
-                            elemPopup = this[currentButton.action](elemPopup, currentButton, textareaId);
-                    } else {
-                        elemButton.addEventListener("click", (function(_button, _textareaId, _this, _tagtype) {
-                            return function() {
-                                _this.wrap(_button.start, _button.end, _textareaId, _tagtype);
-                            };
-                        }) (currentButton, textareaId, this, buttons[b]), false);
-
-                    }
+                    elemButton   = elemButtonLi.appendChild(this.createButton(currentButton, { display: "button", type: buttons[b], textarea: textareaId }));
                 }
 
                 elemButton.style.marginRight = "20px";
             }
+        },
+
+        createButton: function(currentButton, opts) {
+            var elemButton = document.createElement((opts.display === "button") ? "a" : "span"), elemPopup;
+
+            elemButton.className = (opts.display === "button") ? "ico-after zform-button zform-button-" + opts.type : "zform-subbutton-span-" + opts.type;
+            if (currentButton.useless) { elemButton.className += " zform-button-useless" }
+            elemButton.setAttribute("data-zform-textarea", opts.textarea);
+            elemButton.title = currentButton.title;
+            elemButton.innerHTML = currentButton.title;
+
+            if (opts.display === "span") { elemButton.style.display = "block"; }
+            if (currentButton.hasOwnProperty("image")) elemButton.innerHTML = '<img src="' + currentButton.image +  '" alt="' + currentButton.title + '" />';
+
+            if (currentButton.action) { // Button with a submenu
+                elemButton.style.position = "relative";
+
+                this.addEvent(elemButton, "click", function(event, elemPopup) {
+                    event.preventDefault();
+
+                    if (elemPopup = this.getElementsByTagName("div")[0]) {
+                        elemPopup.style.display = "block";
+                    }
+                });
+
+                elemPopup = elemButton.appendChild(document.createElement("div"));
+                elemPopup.className = "zform-popup";
+                elemPopup.style.position = "absolute";
+                elemPopup.style.display = "none";
+                elemPopup.style.left = "0";
+                elemPopup.style.width = "auto";
+                elemPopup.style.whiteSpace = "nowrap";
+                elemPopup.style.textAlign = "left";
+                elemPopup = this[currentButton.action](elemPopup, currentButton, opts.textarea);
+            } else {
+                this.addEvent(elemButton, "click", (function(_button, _textareaId, _this, _tagtype, _extraoption) {
+                    return function(event) {
+                        //event.preventDefault();
+                        _this.wrap(_button.start, _button.end, _textareaId, _tagtype, _extraoption);
+                        this.style.fontWeight = "bold";
+                    };
+                }) (currentButton, opts.textarea, this, opts.type, opts.extra), false);
+            }
+
+            return elemButton;
         },
 
         openPopup: function(popupGuid) {
@@ -307,31 +377,54 @@
             return elemPopup;
         },
 
-        buildCode: function(elemPopup, currentButton, textareaId) {
-            var elemCol, elemItem, elemStg, i, c;
+        buildColumnous: function(elemPopup, currentButton, opts) {
+            var elemCol, elemItem, elemStg, i, c, name;
 
-            for (var category in this.codes) {
+            for (var category in opts.src) {
                 elemCol = elemPopup.appendChild(document.createElement("div"));
                 elemCol.className = "zform-code-col";
-                elemStg = elemCol.appendChild(document.createElement("b"));
-                elemStg.style.display = "block";
-                elemStg.style.fontWeight = "bold";
-                elemStg.innerHTML = category;
 
-                for (i=0, c=this.codes[category].length; i<c; i++) {
-                    elemItem = elemCol.appendChild(document.createElement("span"));
-                    elemItem.innerHTML = this.codes[category][i][1];
+                if (isNaN(category)) { // We put the title only if it's a string
+                    elemStg = elemCol.appendChild(document.createElement("b"));
+                       elemStg.style.display = "block";
+                    elemStg.style.fontWeight = "bold";
+                    elemStg.innerHTML = category;
+                }
 
-                    this.addEvent(elemItem, "mousedown", (function(_this, _textareaId, _options) {
-                        return function(event) {
-                            event.preventDefault();
-                            _this.wrap("", "", _textareaId, "blockcode", _options);
-                        };
-                    }) (this, textareaId, this.codes[category][i][0]));
+                for (name in opts.src[category]) {
+                    opts.extra = name;
+                    elemCol.appendChild(this.createButton(opts.src[category][name], opts));
                 }
             }
 
             return elemPopup;
+        },
+
+        buildCode: function(elemPopup, currentButton, textareaId) {
+            return this.buildColumnous(elemPopup, currentButton, {
+                textarea: textareaId,
+                src: this.codes,
+                type: "blockcode",
+                display: "span"
+            });
+        },
+
+        buildChars: function(elemPopup, currentButton, textareaId) {
+            return this.buildColumnous(elemPopup, currentButton, {
+                textarea: textareaId,
+                src: this.chars,
+                type: "chars",
+                display: "span"
+            });
+        },
+
+        buildSmilies: function(elemPopup, currentButton, textareaId) {
+            return this.buildColumnous(elemPopup, currentButton, {
+                textarea: textareaId,
+                src: this.smilies,
+                type: "smiley",
+                display: "span"
+            });
         },
 
         wrap: function(startTag, endTag, textareaId, type, options, isFromPopup) {
@@ -411,8 +504,9 @@
                     } else {
                         regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
 
-                        if (regex.test(selection.current)){
+                        this.openPopup(type);
 
+                        if (regex.test(selection.current)){
                             document.getElementById("zform-modal-link-href").value = selection.current;
                             document.getElementById("zform-modal-link-text").value = "";
                             document.getElementById("zform-modal-link-text").focus();
@@ -422,7 +516,7 @@
                             document.getElementById("zform-modal-link-href").focus();
                         }
 
-                        return this.openPopup(type);
+                        return false;
                     }
                     break;
 
@@ -435,15 +529,19 @@
                     } else {
                         regex = new RegExp("^(http[s]?:\\/\\/(www\\.)?|ftp:\\/\\/(www\\.)?|www\\.){1}([0-9A-Za-z-\\.@:%_+~#=]+)+((\\.[a-zA-Z]{2,3})+)(/(.)*)?(\\?(.)*)?");
 
+                        this.openPopup(type);
+
                         if (regex.test(selection.current)){
                             document.getElementById("zform-modal-image-src").value = selection.current;
                             document.getElementById("zform-modal-image-text").value = "";
+                            document.getElementById("zform-modal-image-text").focus();
                         } else {
                             document.getElementById("zform-modal-image-text").value = selection.current;
                             document.getElementById("zform-modal-image-src").value = "";
+                            document.getElementById("zform-modal-image-src").focus();
                         }
 
-                        return this.openPopup(type);
+                        return false;
                     }
                     break;
 
@@ -490,6 +588,8 @@
                     break;
 
                 case "abbr":
+                    this.openPopup(type);
+
                     if (isFromPopup) {
                         var valtext = document.getElementById("zform-modal-abbr-text").value;
                         if (valtext.trim() === "") {
@@ -500,12 +600,14 @@
                         if (selection.current.length < 10) {
                             document.getElementById("zform-modal-abbr-abbr").value = selection.current;
                             document.getElementById("zform-modal-abbr-text").value = "";
+                            document.getElementById("zform-modal-abbr-text").focus();
                         } else {
                             document.getElementById("zform-modal-abbr-text").value = selection.current;
                             document.getElementById("zform-modal-abbr-abbr").value = "";
+                            document.getElementById("zform-modal-abbr-abbr").focus();
                         }
 
-                        return this.openPopup(type);
+                        return true;
                     }
                     break;
 
