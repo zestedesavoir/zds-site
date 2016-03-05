@@ -4,7 +4,7 @@ pygments==2.1.2
 python-social-auth==0.2.14
 
 # Explicit dependencies (references in code)
-Django==1.8.10
+Django==1.8.11
 django-crispy-forms==1.6.0
 django-haystack==2.4.1
 django-model-utils==2.4
