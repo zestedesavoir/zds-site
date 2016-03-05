@@ -1,12 +1,13 @@
 # coding: utf-8
 
 from datetime import datetime
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
 
-from zds.mp.models import PrivateTopic, PrivatePost, PrivateTopicRead
+from zds.mp.models import PrivateTopic, PrivatePost
+from zds.notification import signals
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
@@ -82,61 +83,22 @@ def send_message_mp(
     n_topic.last_message = post
     n_topic.save()
 
-    # send email
-    if send_by_mail:
-        if direct:
-            subject = u"{} : {}".format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
-            from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                           settings.ZDS_APP['site']['email_noreply'])
-            for part in n_topic.participants.all():
-                message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
-                message_txt = render_to_string('email/direct.txt', {'msg': text})
+    if not direct:
+        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail)
 
-                msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
-                msg.attach_alternative(message_html, "text/html")
-                try:
-                    msg.send()
-                except:
-                    msg = None
-        else:
-            for part in n_topic.participants.all():
-                send_email(author, n_topic, part, pos)
+    if send_by_mail and direct:
+        subject = u"{} : {}".format(settings.ZDS_APP['site']['litteral_name'], n_topic.title)
+        from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
+                                       settings.ZDS_APP['site']['email_noreply'])
+        for part in n_topic.participants.all():
+            message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
+            message_txt = render_to_string('email/direct.txt', {'msg': text})
 
-            send_email(author, n_topic, n_topic.author, pos)
-
-    return n_topic
-
-
-def send_email(author, n_topic, to, pos):
-    profile = to.profile
-
-    if profile.email_for_answer or pos == 1:
-        # Don't send the e-mail if the user is already notified.
-        last_read = PrivateTopicRead.objects.filter(
-            privatetopic=n_topic,
-            privatepost__position_in_topic=pos - 1,
-            user=to).count()
-
-        if (last_read > 0 or pos == 1) and author.username != to.username:
-            context = {
-                'username': to.username,
-                'url': settings.ZDS_APP['site']['url'] + n_topic.get_absolute_url(),
-                'author': author,
-                'site_name': settings.ZDS_APP['site']['litteral_name']
-            }
-            message_html = render_to_string('email/mp/new.html', context)
-            message_txt = render_to_string('email/mp/new.txt', context)
-
-            subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
-                                             _(u'Message Privé'),
-                                             n_topic.title)
-
-            from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                           settings.ZDS_APP['site']['email_noreply'])
-
-            msg = EmailMultiAlternatives(subject, message_txt, from_email, [to.email])
+            msg = EmailMultiAlternatives(subject, message_txt, from_email, [part.email])
             msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
             except:
                 msg = None
+
+    return n_topic

@@ -1,5 +1,6 @@
 # coding: utf-8
 import hashlib
+import re
 
 THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
@@ -36,3 +37,11 @@ def has_changed(instance, field, manager='objects'):
     manager = getattr(instance.__class__, manager)
     old = getattr(manager.get(pk=instance.pk), field)
     return not getattr(instance, field) == old
+
+
+def convert_camel_to_underscore(camel_case):
+    """
+    Converts a name in camel case to underscore.
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()

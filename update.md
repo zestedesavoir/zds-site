@@ -470,3 +470,12 @@ REST_FRAMEWORK
 --------------
 
 Vérifier qu'on ne surcharge pas la variable `REST_FRAMEWORK` dans le `settings_prod.py`. Si c'est le cas l'adapter en fonction du `settings.py`.
+
+Actions à faire pour mettre en prod la version 18
+=================================================
+
+Notifications
+-------------
+
+1. Lors de l'application des migrations `python manage.py migrate`, Django va vous demander s'il doit supprimer la table topicfollowed. Renseignez oui.
+2. Exécuter la commande `python manage.py migrate_subscriptions` pour migrer les anciennes notifications vers les nouvelles.

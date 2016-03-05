@@ -233,7 +233,7 @@ où ``period`` est un nombre au format attendu par ``humane_delta`` (entre 1 et 
 ``interventions_topics``
 ------------------------
 
-Ce filtre récupère la liste des messages du forum ainsi que des commentaires de tutoriels et articles qui sont non-lus:
+Ce filtre récupère la liste des notifications non lues sur des modèles notifiables excluant les messages privés:
 
 .. sourcecode:: html
 

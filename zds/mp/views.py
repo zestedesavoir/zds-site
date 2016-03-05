@@ -4,28 +4,26 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render, render_to_response
-from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
-from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile
+from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.mp.decorator import is_participant
-from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead, UpdatePrivatePost
 from zds.utils.forums import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivatePost
+from .models import PrivateTopic, PrivatePost, mark_read
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -191,25 +189,6 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
             else:
                 self.object.participants.add(participant.user)
                 self.object.save()
-                # send email
-                if participant.email_for_answer:
-                    subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'],
-                                                     _(u'Message Privé'),
-                                                     self.object.title)
-                    from_email = u"{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                                   settings.ZDS_APP['site']['email_noreply'])
-                    context = {
-                        'username': participant.user.username,
-                        'url': settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
-                        'author': request.user.username,
-                        'site_name': settings.ZDS_APP['site']['litteral_name']
-                    }
-                    message_html = render_to_string('email/mp/new_participant.html', context)
-                    message_txt = render_to_string('email/mp/new_participant.txt', context)
-
-                    msg = EmailMultiAlternatives(subject, message_txt, from_email, [participant.user.email])
-                    msg.attach_alternative(message_html, "text/html")
-                    msg.send()
                 messages.success(request, _(u'Le membre a bien été ajouté à la conversation.'))
         except Http404:
             messages.warning(request, _(u'Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
@@ -242,7 +221,7 @@ class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView
         return self.request.user
 
 
-class PrivatePostList(MarkPrivateTopicAsRead, ZdSPagingListView, SingleObjectMixin):
+class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
     """
     Display a thread and its posts using a pager.
     """
@@ -266,7 +245,7 @@ class PrivatePostList(MarkPrivateTopicAsRead, ZdSPagingListView, SingleObjectMix
         context['last_post_pk'] = self.object.last_message.pk
         context['form'] = PrivatePostForm(self.object)
         context['posts'] = self.build_list_with_previous_item(context['object_list'])
-        self.perform_list(self.object)
+        mark_read(self.object, self.request.user)
         return context
 
     def get_queryset(self):

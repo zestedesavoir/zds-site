@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from django.core.exceptions import PermissionDenied
+
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.views.generic.detail import SingleObjectMixin
-from zds.forum.models import Forum, TopicFollowed, follow, follow_by_email, Post, TopicRead
 from django.utils.translation import ugettext as _
+from django.views.generic.detail import SingleObjectMixin
+
+from zds.forum.models import Forum, Post, TopicRead
+from zds.notification import signals
+from zds.notification.models import TopicAnswerSubscription, Notification
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, CommentLike, CommentDislike
 
@@ -14,11 +18,11 @@ from zds.utils.models import Alert, CommentLike, CommentDislike
 class TopicEditMixin(object):
     @staticmethod
     def perform_follow(topic, user):
-        return follow(topic, user)
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user)
 
     @staticmethod
     def perform_follow_by_email(topic, user):
-        return follow_by_email(topic, user)
+        return TopicAnswerSubscription.objects.toggle_follow(topic, user, True)
 
     @staticmethod
     def perform_solve_or_unsolve(user, topic):
@@ -64,13 +68,11 @@ class TopicEditMixin(object):
 
             # If the topic is moved in a restricted forum, users that cannot read this topic any more un-follow it.
             # This avoids unreachable notifications.
-            followers = TopicFollowed.objects.filter(topic=topic)
-            for follower in followers:
-                if not forum.can_read(follower.user):
-                    follower.delete()
+            TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
 
             # Save topic to update update_index_date
             topic.save()
+
             messages.success(request,
                              _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
         else:
@@ -104,6 +106,8 @@ class PostEditMixin(object):
                 post.text_hidden = data.get('text_hidden', '')
 
             messages.success(request, _(u'Le message est désormais masqué.'))
+            for user in Notification.objects.get_users_for_unread_notification_on(post):
+                signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
         else:
             raise PermissionDenied
 
@@ -138,9 +142,6 @@ class PostEditMixin(object):
         Marks a post unread so we create a notification between the user and the topic host of the post.
         But, if there is only one post in the topic, we mark the topic unread but we don't create a notification.
         """
-        if TopicFollowed.objects.filter(user=user, topic=post.topic).count() == 0:
-            TopicFollowed(user=user, topic=post.topic).save()
-
         topic_read = TopicRead.objects.filter(topic=post.topic, user=user).first()
         if topic_read is None and post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
@@ -153,6 +154,8 @@ class PostEditMixin(object):
                 topic_read.save()
             else:
                 topic_read.delete()
+
+        signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
 
     @staticmethod
     def perform_like_post(post, user):
