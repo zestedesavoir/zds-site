@@ -258,6 +258,25 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = datetime.now()
             validation.status = "PENDING_V"
             validation.save()
+
+            versioned = validation.content.load_version(sha=validation.version)
+            msg = render_to_string(
+                'tutorialv2/messages/validation_reserve.md',
+                {
+                    'content': versioned,
+                    'url': versioned.get_absolute_url() + '?version=' + validation.version,
+                })
+
+            send_mp(
+                validation.validator,
+                validation.content.authors.all(),
+                _(u"Contenu réservé - {0}").format(validation.content.title),
+                validation.content.title,
+                msg,
+                True,
+                direct=False
+            )
+
             messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
 
             return redirect(
