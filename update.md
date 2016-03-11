@@ -472,3 +472,12 @@ REST_FRAMEWORK
 --------------
 
 Vérifier qu'on ne surcharge pas la variable `REST_FRAMEWORK` dans le `settings_prod.py`. Si c'est le cas l'adapter en fonction du `settings.py`.
+
+MIGRATION
+_________
+
+1. Rendez-vous dans les migrations de l'app `django_app` de la dépendance `python-social-auth`:
+
+~/.virtualenvs/zdsenv/lib/python2.7/site-packages/lib/python2.7/site-packages/social/apps/django_app/default/migrations/
+
+2. Vérifiez qu'il n'y a que 3 fichiers de migration. S'il y en a plus, supprimez les migrations générées automatiquement (dispose du mot clé "auto" dans le nom).
