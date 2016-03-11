@@ -43,7 +43,7 @@
                     {% include 'misc/member_item.part.html' with avatar=True %}
                 </li>
             {% endfor %}
-            {% if user = topic.author %}
+            {% if user == topic.author %}
                 <li>
                     <a href="#add-participant" class="open-modal ico-after more blue">
                         {% trans "Ajouter un membre" %}
@@ -66,7 +66,7 @@
                 {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
-            {% if topic.last_message.pk = message.pk %}
+            {% if topic.last_message.pk == message.pk %}
                 {% set True as can_edit %}
             {% else %}
                 {% set False as can_edit %}

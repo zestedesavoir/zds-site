@@ -72,7 +72,7 @@
         {% endfor %}
     </div>
 
-    {% if galleries|length = 0 %}
+    {% if galleries|length == 0 %}
         <p>
             {% trans "Vous n'avez pas encore de galerie" %}. <br>
             <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
@@ -92,7 +92,7 @@
                         {% trans "Supprimer les galeries sélectionnées" %}
                     </a>
 
-                    <form action="{% url "zds.gallery.views.modify_gallery" %}" method="post" id="delete-galleries" class="modal modal-flex">
+                    <form action="{% url "gallery-modify" %}" method="post" id="delete-galleries" class="modal modal-flex">
                         <p>
                             {% trans "Attention, vous vous appretez à supprimer toutes les galeries sélectionnées" %}.
                         </p>

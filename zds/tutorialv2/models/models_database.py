@@ -32,8 +32,7 @@ from zds.utils.models import SubCategory, Licence, HelpWriting, Comment
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
-from zds.tutorialv2.managers import PublishedContentManager
-
+from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
@@ -62,7 +61,7 @@ class PublishableContent(models.Model):
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
                                          verbose_name='Sous-Catégorie',
-                                         blank=True, null=True, db_index=True)
+                                         blank=True, db_index=True)
 
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
@@ -117,6 +116,8 @@ class PublishableContent(models.Model):
 
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+
+    objects = PublishableContentManager()
 
     def __unicode__(self):
         return self.title
@@ -431,7 +432,7 @@ class PublishableContent(models.Model):
                 read = ContentRead.objects\
                     .select_related('note')\
                     .select_related('note__related_content')\
-                    .select_related('related_content__public_version')\
+                    .select_related('note__related_content__public_version')\
                     .filter(content=self, user__pk=user.pk)\
                     .latest('note__pubdate')
                 if read is not None and read.note:  # one case can show a read without note : the author has just

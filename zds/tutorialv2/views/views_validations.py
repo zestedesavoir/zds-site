@@ -334,7 +334,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Rejet de la demande publication").format(),
+            _(u"Rejet de la demande de publication").format(),
             validation.content.title,
             msg,
             True,

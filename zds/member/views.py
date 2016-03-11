@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
@@ -105,7 +105,7 @@ class UpdateMember(UpdateView):
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ProfileForm):
         profile = self.get_object()
         form = form_class(initial={
             'biography': profile.biography,
@@ -177,7 +177,7 @@ class UpdateAvatarMember(UpdateMember):
 
         return reverse('member-detail', args=[profile.user.username])
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ImageAsAvatarForm):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
@@ -200,7 +200,7 @@ class UpdatePasswordMember(UpdateMember):
 
         return render(request, self.template_name, {'form': form})
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ChangePasswordForm):
         return form_class(self.request.user)
 
     def update_profile(self, profile, form):
@@ -218,7 +218,7 @@ class UpdateUsernameEmailMember(UpdateMember):
 
     form_class = ChangeUserForm
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=ChangeUserForm):
         return form_class(self.request.POST)
 
     def update_profile(self, profile, form):
@@ -254,7 +254,7 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=RegisterForm):
         return form_class()
 
     def post(self, request, *args, **kwargs):
@@ -293,7 +293,7 @@ class SendValidationEmailView(FormView, TokenGenerator):
         elif email:
             self.usr = get_object_or_404(User, email=email)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=UsernameAndEmailForm):
         return form_class()
 
     def post(self, request, *args, **kwargs):
@@ -429,7 +429,7 @@ def unregister(request):
 
     logout(request)
     User.objects.filter(pk=current.pk).delete()
-    return redirect(reverse("zds.pages.views.home"))
+    return redirect(reverse("homepage"))
 
 
 @require_POST
@@ -606,7 +606,7 @@ def settings_mini_profile(request, user_name):
                 profile.save()
             except:
                 messages.error(request, u"Une erreur est survenue.")
-                return redirect(reverse("zds.member.views.settings_mini_profile"))
+                return redirect(reverse("member-settings-mini-profile"))
 
             messages.success(request, _(u"Le profil a correctement été mis à jour."))
             return redirect(reverse("member-detail", args=[profile.user.username]))
@@ -656,7 +656,7 @@ def login_view(request):
                     try:
                         return redirect(next_page)
                     except:
-                        return redirect(reverse("zds.pages.views.home"))
+                        return redirect(reverse("homepage"))
                 else:
                     messages.error(request,
                                    _(u"Vous n'êtes pas autorisé à vous connecter "
@@ -693,7 +693,7 @@ def logout_view(request):
 
     logout(request)
     request.session.clear()
-    return redirect(reverse("zds.pages.views.home"))
+    return redirect(reverse("homepage"))
 
 
 @https_required
@@ -756,7 +756,7 @@ def new_password(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("zds.pages.views.home"))
+        return redirect(reverse("homepage"))
     token = get_object_or_404(TokenForgotPassword, token=token)
     if request.method == "POST":
         form = NewPasswordForm(token.user.username, request.POST)
@@ -784,7 +784,7 @@ def active_account(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("zds.pages.views.home"))
+        return redirect(reverse("homepage"))
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
 
@@ -836,7 +836,7 @@ def generate_token_account(request):
     try:
         token = request.GET["token"]
     except KeyError:
-        return redirect(reverse("zds.pages.views.home"))
+        return redirect(reverse("homepage"))
     token = get_object_or_404(TokenRegister, token=token)
 
     # push date

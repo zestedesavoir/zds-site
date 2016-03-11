@@ -99,7 +99,7 @@ class PrivateTopicNew(CreateView):
 
         return render(request, self.template_name, {'form': form})
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PrivateTopicForm):
         return form_class(self.request.user.username, self.request.POST)
 
     def form_valid(self, form):
@@ -145,6 +145,7 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
     """
     Leaves a MP.
     """
+    permanent = True
     queryset = PrivateTopic.objects.all()
 
     @method_decorator(login_required)
@@ -163,6 +164,7 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
 
 
 class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
+    permanent = True
     object = None
     queryset = PrivateTopic.objects.all()
 
@@ -221,6 +223,7 @@ class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView
     """
     Leaves a list of MP.
     """
+    permanent = True
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -295,7 +298,7 @@ class PrivatePostAnswer(CreatePostView):
     def create_forum(self, form_class, **kwargs):
         return form_class(self.object, initial=kwargs)
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PrivatePostForm):
         return form_class(self.object, self.request.POST)
 
     def form_valid(self, form):
@@ -360,7 +363,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
             'form': form,
         })
 
-    def get_form(self, form_class):
+    def get_form(self, form_class=PrivatePostForm):
         form = self.form_class(self.topic, self.request.POST)
         form.helper.form_action = reverse('private-posts-edit',
                                           args=[self.topic.pk, self.topic.slug(), self.current_post.pk])

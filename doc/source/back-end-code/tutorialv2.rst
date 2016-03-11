@@ -22,6 +22,12 @@ Modèles "versionnés" (``models_versioned.py``)
 .. automodule:: zds.tutorialv2.models.models_versioned
     :members:
 
+Les managers (``managers.py``)
+==============================
+
+.. automodule:: zds.tutorialv2.managers
+    :members:
+
 Vues (``views/``)
 =================
 
@@ -58,6 +64,7 @@ Les forumulaires (``forms.py``)
 
 Les utilitaires (``utils.py``)
 ==============================
+
 
 .. automodule:: zds.tutorialv2.utils
     :members:

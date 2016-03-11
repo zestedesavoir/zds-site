@@ -41,7 +41,7 @@ class OldTutoForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'link-tuto-modal'
         self.helper.form_method = 'post'
-        self.helper.form_action = reverse('zds.member.views.add_oldtuto')
+        self.helper.form_action = reverse('member-add-oldtuto')
 
         self.helper.layout = Layout(
             HTML(_(u'<p>Choisissez un tutoriel du SdZ à attribuer au membre</p>')),
@@ -84,7 +84,7 @@ class LoginForm(forms.Form):
     def __init__(self, next=None, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.member.views.login_view')
+        self.helper.form_action = reverse('member-login')
         self.helper.form_method = 'post'
         self.helper.form_class = 'content-wrapper'
 
@@ -356,7 +356,7 @@ class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator
             attrs={
                 'placeholder': _(u'Ne mettez rien pour conserver l\'ancien')
             }
-        )
+        ),
     )
 
     email = forms.EmailField(
@@ -667,7 +667,7 @@ class KarmaForm(forms.Form):
     def __init__(self, profile, *args, **kwargs):
         super(KarmaForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('zds.member.views.modify_karma')
+        self.helper.form_action = reverse('member-modify-karma')
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'karmatiser-modal'
         self.helper.form_method = 'post'

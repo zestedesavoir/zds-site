@@ -1,6 +1,6 @@
 from django import template
 
-from zds.search import MODEL_NAMES
+from zds.search.constant import MODEL_NAMES
 
 register = template.Library()
 

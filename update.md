@@ -384,6 +384,7 @@ Mise à jours de la version de Haystack à la 4.1
 
 Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
 
+
 Indexation delta des forums
 ---------------------------
 
@@ -440,3 +441,43 @@ Repasser à l'ancienne version de `python-slugify` et sauver les contenus (#3383
 3. Exécuter la commande suivante : `python manage.py adjust_slugs`. Noter les éventuels contenus pour lesquels cela ne fonctionnerai pas ;
 4. Si pour certains contenus la commande échoue, il faut retrouver le dossier correspondant dans `/contents-private/` et donner à ce contenu le même slug ;
 5. Quitter la maintenance.
+
+
+--------------------------------
+
+**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
+
+Le déploiement doit être autonome. Ce qui implique que :
+
+1. La mise à jour de dépendances est automatique et systématique,
+2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
+3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+Actions à faire pour mettre en prod la version 17
+=================================================
+
+CORS
+----
+
+Observer le fichier `/etc/nginx/conf.d/zds_headers.conf` et si une ligne au moins portant la mension `add_header Access-Control-Allow-Origin *;` existe (via, par exemple un `grep "add_header Access-Control-Allow-Origin" /etc/nginx/conf.d/zds_headers.conf`) supprimer toutes les lignes de cette forme.
+
+Un redémarrage de nginx sera nécessaire en fin de procédure (`service nginx restart`).
+
+TEMPLATE
+--------
+
+Vérifier qu'il n'y ait pas de variables `TEMPLATE_*` dans le `settings_prod.py`. Si c'est le cas les adapter en fonction du `settings.py` ou de [https://docs.djangoproject.com/en/1.9/ref/settings/#templates](https://docs.djangoproject.com/en/1.9/ref/settings/#templates).
+
+REST_FRAMEWORK
+--------------
+
+Vérifier qu'on ne surcharge pas la variable `REST_FRAMEWORK` dans le `settings_prod.py`. Si c'est le cas l'adapter en fonction du `settings.py`.
+
+MIGRATION
+_________
+
+1. Rendez-vous dans les migrations de l'app `django_app` de la dépendance `python-social-auth`:
+
+~/.virtualenvs/zdsenv/lib/python2.7/site-packages/lib/python2.7/site-packages/social/apps/django_app/default/migrations/
+
+2. Vérifiez qu'il n'y a que 3 fichiers de migration. S'il y en a plus, supprimez les migrations générées automatiquement (dispose du mot clé "auto" dans le nom).
