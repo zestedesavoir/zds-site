@@ -91,6 +91,7 @@ class MemberDetail(DetailView):
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         return context
 
+
 class UpdateMember(UpdateView):
     """Updates a profile."""
 
@@ -190,7 +191,7 @@ class UpdatePasswordMember(UpdateMember):
     """User's settings about his password."""
 
     form_class = ChangePasswordForm
-    
+
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.user, request.POST)
 
@@ -198,10 +199,10 @@ class UpdatePasswordMember(UpdateMember):
             return self.form_valid(form)
 
         return render(request, self.template_name, {'form': form})
-    
+
     def get_form(self, form_class=ChangePasswordForm):
         return form_class(self.request.user)
-    
+
     def update_profile(self, profile, form):
         profile.user.set_password(form.data['password_new'])
 
@@ -1089,12 +1090,12 @@ def modify_karma(request):
     note.user = profile.user
     note.staff = request.user
     note.comment = request.POST["warning"]
-    
+
     try:
         note.value = int(request.POST["points"])
     except (KeyError, ValueError):
         note.value = 0
-    
+
     try:
         if note.comment == "" or (note.value > 100 or note.value < -100):
              raise ValueError
