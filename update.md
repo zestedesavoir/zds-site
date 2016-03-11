@@ -442,24 +442,15 @@ Repasser à l'ancienne version de `python-slugify` et sauver les contenus (#3383
 4. Si pour certains contenus la commande échoue, il faut retrouver le dossier correspondant dans `/contents-private/` et donner à ce contenu le même slug ;
 5. Quitter la maintenance.
 
-
---------------------------------
-
-**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
-
-Le déploiement doit être autonome. Ce qui implique que :
-
-1. La mise à jour de dépendances est automatique et systématique,
-2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
-3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
-
 Actions à faire pour mettre en prod la version 17
 =================================================
 
 CORS
 ----
 
-Supprimer les informations CORS de nginx.
+Observer le fichier `/etc/nginx/conf.d/zds_headers.conf` et si une ligne au moins portant la mension `add_header Access-Control-Allow-Origin *;` existe (via, par exemple un `grep "add_header Access-Control-Allow-Origin" /etc/nginx/conf.d/zds_headers.conf`) supprimer toutes les lignes de cette forme.
+
+Un redémarrage de nginx sera nécessaire en fin de procédure (`service nginx restart`).
 
 TEMPLATE
 --------
@@ -471,6 +462,16 @@ REST_FRAMEWORK
 
 Vérifier qu'on ne surcharge pas la variable `REST_FRAMEWORK` dans le `settings_prod.py`. Si c'est le cas l'adapter en fonction du `settings.py`.
 
+MIGRATION
+_________
+
+1. Rendez-vous dans les migrations de l'app `django_app` de la dépendance `python-social-auth`:
+
+~/.virtualenvs/zdsenv/lib/python2.7/site-packages/lib/python2.7/site-packages/social/apps/django_app/default/migrations/
+
+2. Vérifiez qu'il n'y a que 3 fichiers de migration. S'il y en a plus, supprimez les migrations générées automatiquement (dispose du mot clé "auto" dans le nom).
+
+
 Actions à faire pour mettre en prod la version 18
 =================================================
 
@@ -479,3 +480,14 @@ Notifications
 
 1. Lors de l'application des migrations `python manage.py migrate`, Django va vous demander s'il doit supprimer la table topicfollowed. Renseignez oui.
 2. Exécuter la commande `python manage.py migrate_subscriptions` pour migrer les anciennes notifications vers les nouvelles.
+
+
+--------------------------------
+
+**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
+
+Le déploiement doit être autonome. Ce qui implique que :
+
+1. La mise à jour de dépendances est automatique et systématique,
+2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
+3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
