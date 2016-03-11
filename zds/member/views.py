@@ -1098,7 +1098,7 @@ def modify_karma(request):
 
     try:
         if note.comment == "" or (note.value > 100 or note.value < -100):
-             raise ValueError
+            raise ValueError
         else:
             note.save()
             profile.karma += note.value
