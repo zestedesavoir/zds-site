@@ -672,9 +672,11 @@ def login_view(request):
             messages.error(request,
                            _(u"Les identifiants fournis ne sont pas valides."))
 
-    form = LoginForm()
     if next_page is not None:
+        form = LoginForm()
         form.helper.form_action += "?next=" + next_page
+    else:
+        form = LoginForm()
 
     csrf_tk["error"] = error
     csrf_tk["form"] = form
@@ -1088,14 +1090,20 @@ def modify_karma(request):
     note.user = profile.user
     note.staff = request.user
     note.comment = request.POST["warning"]
+
     try:
         note.value = int(request.POST["points"])
     except (KeyError, ValueError):
         note.value = 0
 
-    note.save()
-
-    profile.karma += note.value
-    profile.save()
+    try:
+        if note.comment == "" or (note.value > 100 or note.value < -100):
+            raise ValueError
+        else:
+            note.save()
+            profile.karma += note.value
+            profile.save()
+    except (ValueError):
+        """ Nothing """
 
     return redirect(reverse("member-detail", args=[profile.user.username]))

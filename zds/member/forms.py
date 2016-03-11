@@ -652,7 +652,8 @@ class KarmaForm(forms.Form):
         max_length=KarmaNote._meta.get_field('comment').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Commentaire sur le comportement de ce membre'
+                'placeholder': u'Commentaire sur le comportement de ce membre',
+                'required': u'required'
             }),
         required=True,
     )
