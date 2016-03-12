@@ -5188,6 +5188,73 @@ class PublishedContentTests(TestCase):
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
         self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
 
+    def test_validation_history(self):
+        published = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:edit', args=[published.pk, published.slug]),
+            {
+                'title': published.title,
+                'description': published.description,
+                'introduction': "crappy crap",
+                'conclusion': "crappy crap",
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': published.load_version().compute_hash()  # good hash
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': published.pk, 'slug': published.slug}),
+            {
+                'text': "abcdefg",
+                'source': "",
+                'version': published.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertIn('class="update_content"', result.content)
+
+    def test_validation_history_for_new_content(self):
+        publishable = PublishableContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': publishable.pk, 'slug': publishable.slug}),
+            {
+                'text': "abcdefg",
+                'source': "",
+                'version': publishable.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertNotIn('class="update_content"', result.content)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
