@@ -30,12 +30,12 @@
         <p>
             {% trans "Image" %} :
         </p>
-        <a href="{{ image.physical.url }}"><img src="{{ image.physical.url }}" alt="{{ image.legend }}"></a>
+        <a href="{{ image.physical.url }}"><img src="{{ image.physical.url }}" alt="{{ image.legend or image.title }}"></a>
         
         <p>
             {% trans "Miniature" %} :
         </p>
-        <a href="{{ image.physical.gallery.url }}"><img src="{{ image.physical.gallery.url }}" alt="{{ image.legend }}"></a>
+        <a href="{{ image.physical.gallery.url }}"><img src="{{ image.physical.gallery.url }}" alt="{{ image.legend or image.title }}"></a>
     </div>
     <div class="gallery-col-edit">
         {% if gallery_mode.can_write %}
@@ -47,13 +47,13 @@
             {% trans "Code markdown pour insérer cette image" %} : <br>
 
             {% trans "Taille normale" %} :
-            <input type="text" value="![{{ image.legend }}]({{app.site.url}}{{ image.physical.url }})" readonly onclick="this.select()"> <br>
+            <input type="text" value="![{{ image.legend or image.title }}]({{ image.physical.url }})" readonly onclick="this.select()"> <br>
 
             {% trans "Miniature" %} :
-            <input type="text" value="![{{ image.legend }}]({{app.site.url}}{{ image.physical.gallery.url }})" readonly onclick="this.select()"> <br>
+            <input type="text" value="![{{ image.legend or image.title }}]({{ image.physical.gallery.url }})" readonly onclick="this.select()"> <br>
 
             {% trans "Miniature + lien vers taille normale" %} :
-            <input type="text" value="[![{{ image.legend }}]({{app.site.url}}{{ image.physical.gallery.url }})]({{app.site.url}}{{ image.physical.url }})" readonly onclick="this.select()">
+            <input type="text" value="[![{{ image.legend or image.title }}]({{ image.physical.gallery.url }})]({{ image.physical.url }})" readonly onclick="this.select()">
         </p>
         
         {% crispy as_avatar_form %}
