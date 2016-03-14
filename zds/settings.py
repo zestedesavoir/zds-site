@@ -205,6 +205,8 @@ THUMBNAIL_ALIASES = {
         'help_illu': {'size': (48, 48), 'crop': True},
         'help_mini_illu': {'size': (26, 26), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
+        'featured': {'size': (228, 228), 'crop': True},
+        'gallery_illu': {'size': (480, 270), 'crop': True},
         'content': {'size': (960, 960), 'crop': False},
     },
 }
@@ -569,4 +571,3 @@ try:
     from settings_prod import *
 except ImportError:
     pass
-
