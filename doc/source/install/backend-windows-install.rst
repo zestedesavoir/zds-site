@@ -20,12 +20,20 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 
     cd C:\dev\zestedesavoir
 
+-----------
+
+.. Attention::
+
+    Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installés le soit en 32 bits.
+
+-----------
+
 Prérequis
 =========
 
 
 - Téléchargez et installez les outils suivants :
-    - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_.
+    - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_. Uniquement pour les PC tournant sous windows 7 ou antérieur (installé par défaut avec Windows depuis)
     - `Git <http://git-scm.com/download/win>`_ (Git pour Eclipse ne suffit pas ; associez les .sh).
     - `gettext <https://www.gnu.org/software/gettext/>`_.
 - `Téléchargez et installez Python 2.7 <https://www.python.org/download/releases/2.7/>`_.
@@ -41,6 +49,7 @@ Prérequis
     - ``pip install virtualenvwrapper-powershell``
 - Désactivez la sécurité sur les script powershell (mode administrateur obligatoire) : ``Set-ExecutionPolicy RemoteSigned``, pour autoriser ``Import-Module``.
 - Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
+    - créez le dossier ``.virtualenvs`` avec la commande ``mkdir .virtualenvs`` dans dans le dossier ou vous souhaitez voir installé votre environnement virtuel.
     - ``set $env:WORKON_HOME``
     - ``Import-Module virtualenvwrapper``, *la console PowerShell pourrait hurler à cette commande, mais normalement ça passe, en cas de deuxième essai vous ne devriez plus avoir d'erreur*.
     - ``New-VirtualEnvironment zdsenv --no-site-packages``
@@ -56,22 +65,16 @@ Pour redémarrer virtualenv les fois suivantes : ``workon zdsenv``.
 
 Lancez par la suite ``pip install -r requirements.txt -r requirements-dev.txt``.
 
-Si l'erreur suivante appairait :
+Si l'erreur suivante apparait :
 
 .. error::
     Unable to find vcvarsall.bat
 
-Cliquez sur : Ordinateur -> Click-droit + "Propriétés" -> Paramètres système avancées.
-Dans la fenêtes modale qui s'ouvre "Variables d'environnement".
-
-Vous devez y trouver dans le bas de la liste des paramètres telles que VSXXXCMNTOOLS où XXX vaut le plus souvent 100, 120 ou 140.
-Si vous ne voyez pas la variable VS90CMNTOOLS dans la liste, appuyez sur "nouvelle" puis entrez VS90CMNTOOLS comme nom et la même valeur que la variable VSXXXCMNTOOLS la plus récente. (100, 120 et 140 étant des versions du compilateur VS)
-
-Si vous n'avez aucune variable, téléchargez l'exécutable `Suivant <http://www.microsoft.com/en-us/download/details.aspx?id=41151>`_. Puis liez la variable ainsi créée à VS90CMNTOOLS.
+Installez le compilateur Visual C++ pour python disponible à l'adresse suivante :  <https://www.microsoft.com/en-us/download/confirmation.aspx?id=44266>.
 
 Pour que la modification soit effective, relancer une nouvelle fenêtre powershell.
 
-Les virtualenvs et pycharm
+Les virtualenvs et pycharm 
 --------------------------
 
 Avec PyCharm (Pour avoir une license Pro contactez le directeur technique (DTC)) vous pouvez gérer les virtualenv de manière bien plus performante qu'avec la commande powershell de base.
@@ -96,6 +99,8 @@ Suite de l'installation
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - ``easy_install lxml``
     - ``pip install -r requirements.txt -r requirements-dev.txt``
+    - Cairo, disponible à l'adresse suivante : <http://www.salsabeatmachine.org/python/pycairo-1.8.10.win32-py2.7.exe>
+    - GTK+ (qui contient les Dlls de Cairo) disponible à l'adresse suivante : <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>
     - ``python manage.py migrate``
     - ``python manage.py runserver``
 
