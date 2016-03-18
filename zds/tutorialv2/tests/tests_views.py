@@ -1,34 +1,34 @@
 # coding: utf-8
-from django.contrib.auth.models import Group
-
-import os
+import datetime
 import shutil
 import tempfile
 import zipfile
 
+import os
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import Group
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
-from django.contrib import messages
-import datetime
+from django.utils.encoding import smart_text
 
+from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.models import Topic, Post, TopicRead
+from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
-from zds.settings import BASE_DIR
+from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.mp.models import PrivateTopic
+from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription
+from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content
-from zds.gallery.factories import UserGalleryFactory
-from zds.gallery.models import Image
-from zds.forum.factories import ForumFactory, CategoryFactory
-from zds.forum.models import Topic, Post, TopicFollowed, TopicRead
-from zds.mp.models import PrivateTopic
-from django.utils.encoding import smart_text
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
+from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.templatetags.interventions import interventions_topics
 
 try:
@@ -598,13 +598,13 @@ class ContentTests(TestCase):
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
-        self.assertTrue(beta_topic.is_followed(self.user_author))
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user_author, beta_topic, is_active=True))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
 
         # test if second author follow the topic
-        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=second_author.pk).count(), 1)
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(second_author, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=second_author.pk).count(), 1)
 
         # test access for public
@@ -681,7 +681,7 @@ class ContentTests(TestCase):
         tuto.authors.add(third_author)
         tuto.save()
 
-        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 0)
+        self.assertIsNone(TopicAnswerSubscription.objects.get_existing(third_author, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 0)
 
         # change beta:
@@ -701,7 +701,7 @@ class ContentTests(TestCase):
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
 
         # test if third author follow the topic
-        self.assertEqual(TopicFollowed.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(third_author, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
 
         # then test for guest
@@ -1941,6 +1941,7 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
@@ -2117,13 +2118,15 @@ class ContentTests(TestCase):
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
+        # Note : a PM is sent when the content is reserved by a validator
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
         published = PublishedContent.objects.filter(content=tuto).first()
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # author will receive notif's
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
 
         self.assertEqual(published.content.source, different_source)
         self.assertEqual(published.content_public_slug, self.tuto_draft.slug)
@@ -2185,7 +2188,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 3)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 6)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         # so, reserve it
@@ -4788,7 +4791,8 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('pages-index'))  # go to whatever page
         self.assertEqual(result.status_code, 200)
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 0)
+        self.assertIsNone(ContentReactionAnswerSubscription.objects
+                          .get_existing(user=self.user_author, content_object=tuto))
 
         self.assertEqual(tuto.last_read_note(), reactions[0])  # if never read, last note=first note
         self.assertEqual(tuto.first_unread_note(), reactions[0])
@@ -4807,7 +4811,8 @@ class PublishedContentTests(TestCase):
         reactions = list(ContentReaction.objects.filter(related_content=self.tuto).all())
         self.assertEqual(len(reactions), 2)
 
-        self.assertEqual(ContentRead.objects.filter(user=self.user_author).count(), 1)  # reaction read
+        self.assertTrue(ContentReactionAnswerSubscription.objects
+                        .get_existing(user=self.user_author, content_object=tuto).is_active)
 
         self.assertEqual(tuto.first_note(), reactions[0])  # first note is still first note
         self.assertEqual(tuto.last_read_note(), reactions[1])
@@ -5182,6 +5187,73 @@ class PublishedContentTests(TestCase):
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
         self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
+
+    def test_validation_history(self):
+        published = PublishedContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        result = self.client.post(
+            reverse('content:edit', args=[published.pk, published.slug]),
+            {
+                'title': published.title,
+                'description': published.description,
+                'introduction': "crappy crap",
+                'conclusion': "crappy crap",
+                'type': u'TUTORIAL',
+                'licence': self.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': published.load_version().compute_hash()  # good hash
+            },
+            follow=True)
+        self.assertEqual(result.status_code, 200)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': published.pk, 'slug': published.slug}),
+            {
+                'text': "abcdefg",
+                'source': "",
+                'version': published.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertIn('class="update_content"', result.content)
+
+    def test_validation_history_for_new_content(self):
+        publishable = PublishableContentFactory(author_list=[self.user_author])
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': publishable.pk, 'slug': publishable.slug}),
+            {
+                'text': "abcdefg",
+                'source': "",
+                'version': publishable.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+        self.client.logout()
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+        result = self.client.get(reverse("validation:list") + "?type=tuto")
+        self.assertNotIn('class="update_content"', result.content)
 
     def tearDown(self):
 

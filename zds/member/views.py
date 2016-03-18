@@ -1,7 +1,7 @@
 # coding: utf-8
 
-from datetime import datetime, timedelta
 import uuid
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -14,34 +14,35 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.utils.http import urlunquote
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.http import urlunquote
 from django.utils.translation import string_concat
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
+
+from zds.forum.models import Topic, TopicRead
+from zds.gallery.forms import ImageAsAvatarForm
+from zds.gallery.models import UserGallery
+from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
+    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
+from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
     OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
-
-from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
-from zds.gallery.forms import ImageAsAvatarForm
-from zds.gallery.models import UserGallery
-from zds.forum.models import Topic, follow, TopicFollowed, TopicRead
-from zds.member.decorator import can_write_and_read_now
-from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, ReadingOnlySanction, \
-    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, TokenGenerator
 from zds.mp.models import PrivatePost, PrivateTopic
+from zds.tutorialv2.models.models_database import PublishableContent
+from zds.notification.models import TopicAnswerSubscription
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.decorators import https_required
+from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
-from zds.tutorialv2.models.models_database import PublishedContent, PublishableContent
 
 
 class MemberList(ZdSPagingListView):
@@ -407,7 +408,6 @@ def unregister(request):
     for topic in Topic.objects.filter(author=current):
         topic.author = anonymous
         topic.save()
-    TopicFollowed.objects.filter(user=current).delete()
     # Before deleting gallery let's summurize what we deleted
     # - unpublished tutorials with only the unregistering member as an author
     # - unpublished articles with only the unregistering member as an author
@@ -975,16 +975,16 @@ def settings_promote(request, user_pk):
                         user.groups.remove(group)
                         messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
-                        topics_followed = Topic.objects.filter(topicfollowed__user=user,
-                                                               forum__group=group)
+                        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
-                            follow(topic, user)
+                            if isinstance(topic, Topic) and group in topic.forum.group.all():
+                                TopicAnswerSubscription.objects.toggle_follow(topic, user)
         else:
             for group in usergroups:
-                topics_followed = Topic.objects.filter(topicfollowed__user=user,
-                                                       forum__group=group)
+                topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                 for topic in topics_followed:
-                    follow(topic, user)
+                    if isinstance(topic, Topic) and group in topic.forum.group.all():
+                        TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
             messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))

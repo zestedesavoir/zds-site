@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse
+from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
@@ -16,11 +16,12 @@ from django.views.generic import RedirectView, FormView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
+from zds.notification.models import ContentReactionAnswerSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import search_container_or_404, mark_read, last_participation_is_old
+from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
 from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
@@ -134,7 +135,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
-            mark_read(self.object)
+            mark_read(self.object, self.request.user)
 
         return context
 
@@ -454,7 +455,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if is_new:  # we first need to save the reaction
             self.object.last_note = self.reaction
             self.object.save()
-            mark_read(self.object)
 
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
@@ -720,3 +720,16 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
 
         messages.success(self.request, _(u"L'alerte a bien été résolue."))
         return redirect(note.get_absolute_url())
+
+
+class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        self.public_content_object = self.get_public_object()
+        if 'follow' in request.POST:
+            response['follow'] = ContentReactionAnswerSubscription.objects. \
+                toggle_follow(self.get_object(), self.request.user).is_active
+        if self.request.is_ajax():
+            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+        return redirect(self.get_object().get_absolute_url())

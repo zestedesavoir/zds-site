@@ -28,7 +28,7 @@
     <p>
         {% blocktrans with site_url=app.site.url %}
             {{ asso_name }} est une association loi 1901 (association à but non lucratif) et joue le rôle de structure
-            légale du site {{ site_url }}, dont le but est de promouvoir le partage de connaissances à travers des
+            légale du site <a href="{{ site_url }}">{{ site_url }}</a>, dont le but est de promouvoir le partage de connaissances à travers des
             ressources pédagogiques gratuites et de préférence sous licence libre.
             <a href="http://www.journal-officiel.gouv.fr/publications/assoc/pdf/2014/0016/JOAFE_PDF_Unitaire_20140016_01712.pdf">
                 Parue au Journal officiel le 19 avril 2014</a>, l'association a tenu sa première assemblée générale le 15 mars
@@ -57,5 +57,13 @@
     </p>
     <p>
         {% trans "Notez que vous devez être inscrit pour pouvoir adhérer." %}
+    </p>
+    <p>
+        {% blocktrans %}
+        Les documents officiels et publics de l'association (statuts, règlement intérieur, …) sont disponibles
+        <a href="https://github.com/zestedesavoir/documents-association">sur le dépôt Git dédié</a>. Vous pouvez même
+        en proposer l'amélioration en soumettant des <em>pull request</em> (l'acceptation ou le refus définitif se fera
+        lors de l'Assemblée Générale).
+        {% endblocktrans %}
     </p>
 {% endblock %}

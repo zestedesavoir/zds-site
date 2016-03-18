@@ -1,18 +1,17 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from django.views.generic import View
-
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
-from django.views.generic import DetailView, FormView
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import DetailView, FormView
+from django.views.generic import View
 
+from zds.forum.models import Topic
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
-from zds.forum.models import Topic
 
 
 class SingleContentViewMixin(object):
@@ -370,7 +369,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
 
         self.current_content_type = obj.content_type
         if obj and obj.content.last_note:
-            mark_read(obj.content)
+            mark_read(obj.content, self.request.user)
         return obj
 
     def get_object(self):

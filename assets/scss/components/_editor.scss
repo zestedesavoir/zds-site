@@ -35,6 +35,13 @@
             // TODO : remake icons
             //display: none;
         }
+
+        &:hover,
+        &:focus {
+            border-bottom-color: lighten($color-primary, 20%);
+            outline: none;
+            background-color: #EEE;
+        }
     }
     button {
         padding: 0 15px;
@@ -54,15 +61,6 @@
                 background: #396A81;
                 border-bottom-color: #396A81;
             }
-        }
-    }
-    a,
-    button {
-        &:hover,
-        &:focus {
-            border-bottom-color: lighten($color-primary, 20%);
-            outline: none;
-            background-color: #EEE;
         }
     }
 }
@@ -102,12 +100,13 @@
 .zform-button-table:after { @include sprite-position($zform-table); }
 .zform-button-math:after { @include sprite-position($zform-math); }
 .zform-button-footnote:after { @include sprite-position($zform-footnote); }
-
+.zform-button-chars:after { @include sprite-position($zform-chars); }
+.zform-button-smilies:after { @include sprite-position($zform-smilies); }
 
 
 /* Simple dropdown */
 div.zform-popup {
-    top: 18px;
+    top: 32px;
     z-index: 100;
     background: transparent;
     background-color: #fff;

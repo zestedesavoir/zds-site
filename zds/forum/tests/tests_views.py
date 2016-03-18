@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
-from zds.forum.models import TopicFollowed, Topic, Post
+from zds.forum.models import Topic, Post
+from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 
 
@@ -436,16 +437,12 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertIsNotNone(TopicFollowed.objects.get(topic=topic, user=profile.user))
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        try:
-            TopicFollowed.objects.get(topic=topic, user=profile.user)
-            self.fail()
-        except TopicFollowed.DoesNotExist:
-            pass
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
 
     def test_success_edit_topic_follow_email(self):
         profile = ProfileFactory()
@@ -460,16 +457,14 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertIsNotNone(TopicFollowed.objects.get(topic=topic, user=profile.user, email=True))
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            profile.user, topic, is_active=True, by_email=True))
 
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        try:
-            TopicFollowed.objects.get(topic=topic, user=profile.user, email=True)
-            self.fail()
-        except TopicFollowed.DoesNotExist:
-            pass
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            profile.user, topic, is_active=True, by_email=False))
 
     def test_failure_edit_topic_solved_not_author(self):
         profile = ProfileFactory()

@@ -1028,6 +1028,7 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         Gets list of private topics unread of a member.
         """
         private_topic = PrivateTopicFactory(author=self.another_profile.user)
+        PrivatePostFactory(author=self.another_profile.user, privatetopic=private_topic, position_in_topic=1)
         private_topic.participants.add(self.profile.user)
         private_topic.save()
 

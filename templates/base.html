@@ -279,11 +279,11 @@
                                 {# MESSAGERIE PRIVEE #}
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
-                                    {% with unread_topics=topics.unread %}
-                                    {% with total_topics=topics.total %}
+                                    {% with notifications=topics.notifications %}
+                                    {% with total_notifications=topics.total %}
                                         <a href="{% url "mp-list" %}" class="ico-link">
-                                            {% if total_topics > 0 %}
-                                                <span class="notif-count">{{ total_topics }}</span>
+                                            {% if total_notifications > 0 %}
+                                                <span class="notif-count">{{ total_notifications }}</span>
                                             {% endif %}
                                             <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
                                         </a>
@@ -291,34 +291,27 @@
                                         <div class="dropdown">
                                             <span class="dropdown-title">{% trans "Messagerie privée" %}</span>
                                             <ul class="dropdown-list">
-                                                {% for topic in unread_topics %}
-                                                    {% with last_answer=topic.get_last_answer %}
-                                                    <li>
-                                                        {% if last_answer == None %}
-                                                            {% set topic.last_read_post as last_answer %}
-                                                        {% endif %}
-                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                            {% with p=last_answer.author.profile %}
-                                                                <img src="{{ p.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
-                                                            {% endwith %}
-                                                            <span class="username">{{ last_answer.author.username }}</span>
-                                                            <span class="date">{{ last_answer.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
-                                                        </a>
-                                                    </li>
-                                                    {% endwith %}
+                                                {% for notification in notifications %}
+                                                <li>
+                                                    <a href="{{ notification.url }}">
+                                                        <img src="{{ notification.sender.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                                        <span class="username">{{ notification.sender.username }}</span>
+                                                        <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                                        <span class="topic">{{ notification.title }}</span>
+                                                    </a>
+                                                </li>
                                                 {% endfor %}
 
-                                                {% if total_topics == 0 %}
-                                                    <li class="dropdown-empty-message">
-                                                        {% trans "Aucun nouveau message" %}
-                                                    </li>
-                                                    {% endif %}
-                                                </ul>
-                                                <a href="{% url "mp-list" %}" class="dropdown-link-all">
-                                                    {% trans "Tous les messages" %}
-                                                </a>
-                                            </div>
+                                                {% if total_notifications == 0 %}
+                                                <li class="dropdown-empty-message">
+                                                    {% trans "Aucune nouvelle notification" %}
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                            <a href="{% url "mp-list" %}" class="dropdown-link-all">
+                                                {% trans "Toutes les notifications" %}
+                                            </a>
+                                        </div>
                                         {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
@@ -341,9 +334,7 @@
                                                 {% for first_unread in unread_posts %}
                                                     <li>
                                                         <a href="{{ first_unread.url }}">
-                                                            {% with p=first_unread.author.profile %}
-                                                                <img src="{{ p.get_avatar_url|remove_url_protocole  }}" alt="" class="avatar">
-                                                            {% endwith %}
+                                                            <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
                                                             <span class="topic">{{ first_unread.title }}</span>
