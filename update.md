@@ -481,8 +481,11 @@ Notifications
 1. Lors de l'application des migrations `python manage.py migrate`, Django va vous demander s'il doit supprimer la table topicfollowed. Renseignez oui.
 2. Exécuter la commande `python manage.py migrate_subscriptions` pour migrer les anciennes notifications vers les nouvelles.
 
+Liste des tags exclus
+---------------------
 
---------------------------------
+Dans le fichier settings.py, une nouvelle clé s'appelle top_tag_exclu (dans ZDS_APP -> forum -> top_tag_exclu), elle représente la liste des tags exclus des top tags. Vous pouvez ajouter des tags supplémentaire si la liste ne vous parait pas pertinente en surchargant 
+la clé dans le fichier de configuration de production.
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
 

@@ -505,7 +505,10 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
         'home_number': 5,
-        'old_post_limit_days': 90
+        'old_post_limit_days': 90,
+        # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
+        # Be warned exclude too much tags can restrict performance
+        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
     },
     'topic': {
         'home_number': 6,
