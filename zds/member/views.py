@@ -43,6 +43,7 @@ from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
+import logging
 
 
 class MemberList(ZdSPagingListView):
@@ -672,11 +673,9 @@ def login_view(request):
             messages.error(request,
                            _(u"Les identifiants fournis ne sont pas valides."))
 
+    form = LoginForm()
     if next_page is not None:
-        form = LoginForm()
         form.helper.form_action += "?next=" + next_page
-    else:
-        form = LoginForm()
 
     csrf_tk["error"] = error
     csrf_tk["form"] = form
@@ -1078,7 +1077,7 @@ def modify_karma(request):
         raise PermissionDenied
 
     try:
-        profile_pk = request.POST["profile_pk"]
+        profile_pk = int(request.POST["profile_pk"])
     except (KeyError, ValueError):
         raise Http404
 
@@ -1089,7 +1088,7 @@ def modify_karma(request):
     note = KarmaNote()
     note.user = profile.user
     note.staff = request.user
-    note.comment = request.POST["warning"]
+    note.comment = request.POST.get("warning", "")
 
     try:
         note.value = int(request.POST["points"])
@@ -1097,13 +1096,15 @@ def modify_karma(request):
         note.value = 0
 
     try:
-        if note.comment == "" or (note.value > 100 or note.value < -100):
-            raise ValueError
+        if note.comment == "":
+            raise ValueError("note.comment must not be empty")
+        elif note.value > 100 or note.value < -100:
+            raise ValueError("note.value must be between -100 and 100 {} given".format(note.value))
         else:
             note.save()
             profile.karma += note.value
             profile.save()
-    except (ValueError):
-        """ Nothing """
+    except ValueError as e:
+        logging.getLogger("zds.member").warn("ValueError: modifying karma failed because {}".format(e))
 
     return redirect(reverse("member-detail", args=[profile.user.username]))

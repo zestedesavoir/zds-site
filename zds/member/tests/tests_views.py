@@ -54,6 +54,56 @@ class MemberTests(TestCase):
         self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         self.bot.save()
 
+    def test_karma(self):
+        to_be_karmated = ProfileFactory()
+        rand_member = ProfileFactory()
+        self.client.login(
+            username=rand_member.user.username,
+            password="hostel77"
+        )
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 42,
+            "warning": "warn"
+        })
+        self.assertEqual(403, r.status_code)
+        self.client.logout()
+        self.client.login(
+            username=self.staff.username,
+            password="hostel77"
+        )
+        # bad id
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": "poo",
+            "points": 42,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(404, r.status_code)
+        # good karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 42,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertIn("<strong>42</strong>", r.content.decode("utf-8"))
+        # more than 100 karma must unvalidate the karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 420,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertNotIn("<strong>420</strong>", r.content.decode("utf-8"))
+        # empty warning must unvalidate the karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 41,
+            "warning": ""
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertNotIn("<strong>41</strong>", r.content.decode("utf-8"))
+
     def test_list_members(self):
         """
         To test the listing of the members with and without page parameter.
