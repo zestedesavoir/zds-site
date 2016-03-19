@@ -524,7 +524,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             direct=False
         )
 
-        messages.success(self.request, _(u"Le tutoriel a bien été dépublié."))
+        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
