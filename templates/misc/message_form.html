@@ -37,6 +37,12 @@
         </div>
     {% endif %}
 
+    {% if page_obj.has_next %}
+        <div class="alert-box warning ico-after alert">
+            {% trans "<strong>Attention</strong>, vous n'êtes pas sur la dernière page de ce sujet, assurez-vous de l'avoir lu dans son intégralité avant d'y répondre." %}
+        </div>
+    {% endif %}
+
     <section class="topic-message">
         <form action="{{ form_action }}" method="post">
             {% include "misc/message_user.html" with hide_metadata=True %}
