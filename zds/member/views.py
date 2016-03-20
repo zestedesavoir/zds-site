@@ -193,6 +193,7 @@ class UpdatePasswordMember(UpdateMember):
     """User's settings about his password."""
 
     form_class = ChangePasswordForm
+    template_name = 'member/settings/account.html'
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.user, request.POST)
@@ -219,6 +220,7 @@ class UpdateUsernameEmailMember(UpdateMember):
     """User's settings about his username and email."""
 
     form_class = ChangeUserForm
+    template_name = 'member/settings/user.html'
 
     def get_form(self, form_class=ChangeUserForm):
         return form_class(self.request.POST)
