@@ -21,6 +21,7 @@ from zds.gallery.forms import ArchiveImageForm, ImageForm, UpdateImageForm, \
 from zds.gallery.models import UserGallery, Image, Gallery
 from zds.member.decorator import can_write_and_read_now
 from zds.utils import slugify
+from zds.utils.paginator import ZdSPagingListView
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.core.files import File
@@ -29,17 +30,18 @@ import shutil
 import os
 from django.utils.translation import ugettext_lazy as _
 
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
+from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
 from zds.tutorialv2.models.models_database import PublishableContent
 
 
-class ListGallery(ListView):
+class ListGallery(ZdSPagingListView):
     """Display the gallery list with all their images"""
 
     object = UserGallery
     template_name = "gallery/gallery/list.html"
     context_object_name = "user_galleries"
+    paginate_by = settings.ZDS_APP['gallery']['gallery_per_page']
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
