@@ -21,6 +21,7 @@ from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
+from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
@@ -892,8 +893,12 @@ def date_to_chart(posts):
 @login_required
 @require_POST
 def add_oldtuto(request):
-    identifier = request.POST["id"]
-    profile_pk = request.POST["profile_pk"]
+    try:
+        identifier = request.POST["id"]
+        profile_pk = request.POST["profile_pk"]
+    except MultiValueDictKeyError:
+        raise Http404
+
     profile = get_object_or_404(Profile, pk=profile_pk)
     if profile.sdz_tutorial:
         olds = profile.sdz_tutorial.strip().split(":")
