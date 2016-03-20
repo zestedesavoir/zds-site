@@ -67,7 +67,7 @@ class PublishableContent(models.Model):
                                          verbose_name='Sous-Catégorie',
                                          blank=True, db_index=True)
 
-    tags = models.ManyToManyField(Tag, verbose_name='Tags du contenu', null=True, blank=True, db_index=True)
+    tags = models.ManyToManyField(Tag, verbose_name='Tags du contenu', blank=True, db_index=True)
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',

@@ -753,6 +753,6 @@ class TagsListView(ListView):
         tags_pk = [tag['content__tags'] for tag in PublishedContent.objects.values('content__tags').distinct()]
         queryset = Tag.objects\
             .filter(pk__in=tags_pk)\
-            .order_by('title')\
-            .annotate(num_content=Count('publishablecontent'))
+            .annotate(num_content=Count('publishablecontent__publishedcontent'))\
+            .order_by('-num_content', 'title')
         return queryset

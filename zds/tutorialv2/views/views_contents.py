@@ -129,6 +129,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
             self.content.helps.add(helpwriting)
 
         # Add tags
+        print(form.cleaned_data["tags"])
         self.content.add_tags(form.cleaned_data["tags"].split(','))
 
         self.content.save()

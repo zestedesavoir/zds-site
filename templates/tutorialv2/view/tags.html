@@ -26,11 +26,13 @@
 
 {% block content %}
     {% for tag in tags %}
-        <div>
-            {{ tag }} ({{ tag.num_content }})
+        <div class="content-tag">
+            <a href="{% url 'content:list' %}?tag={{ tag.slug }}">
+                <strong>{{ tag }}</strong>
+                <span>{{ tag.num_content }} {% trans "contenu" %}{{ tag.num_content|pluralize }}</span>
+            </a>
         </div>
-        <br/>
     {% empty %}
-        {% trans "Aucun tag." %}
+        <p>{% trans "Aucun tag." %}</p>
     {% endfor %}
 {% endblock %}

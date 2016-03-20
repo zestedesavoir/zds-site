@@ -26,3 +26,25 @@
         }
     }
 }
+
+.content-tag {
+    display: inline-block;
+    padding: 5px;
+    box-sizing: border-box;
+    color: white;
+    line-height: 1.4em;
+
+    a {
+        display: block;
+        padding: 5px 10px;
+        text-decoration: none;
+        color: rgba(255, 255, 255, .7);
+        background: $color-primary;
+        border: solid 1px rgba(0, 0, 0, .5);
+    }
+
+    strong {
+        display: block;
+        color: white;
+    }
+}
