@@ -68,6 +68,8 @@ class Profile(models.Model):
 
     allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
 
+    zds_smileys = models.BooleanField('Active le pack de smileys Clem', default=True)
+
     email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
 
     # SdZ tutorial IDs separated by columns (:).

@@ -296,8 +296,8 @@ class ProfileForm(MiniProfileForm):
             ('show_sign', _(u"Afficher les signatures")),
             ('hover_or_click', _(u"Cochez pour dérouler les menus au survol")),
             ('allow_temp_visual_changes', _(u"Activer les changements visuels temporaires")),
-            ('email_for_answer', _(u'Recevez un courriel lorsque vous '
-                                   u'recevez une réponse à un message privé')),
+            ('zds_smileys', _(u"Active le pack de smileys Clem")),
+            ('email_for_answer', _(u'Recevez un courriel lorsque vous recevez une réponse à un message privé')),
         ),
         widget=forms.CheckboxSelectMultiple,
     )
@@ -323,6 +323,9 @@ class ProfileForm(MiniProfileForm):
 
         if 'allow_temp_visual_changes' in initial and initial['allow_temp_visual_changes']:
             self.fields['options'].initial += 'allow_temp_visual_changes'
+
+        if 'zds_smileys' in initial and initial['zds_smileys']:
+            self.fields['options'].initial += 'zds_smileys'
 
         if 'email_for_answer' in initial and initial['email_for_answer']:
             self.fields['options'].initial += 'email_for_answer'
