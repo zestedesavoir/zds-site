@@ -59,13 +59,13 @@
             {% trans "Code markdown pour insérer cette image" %} : <br>
 
             {% trans "Taille normale" %} :
-            <input type="text" value="![{{ image.legend|default_if_none:image.title }}]({{app.site.url}}{{ image.physical.url }})" readonly onclick="this.select()"> <br>
+            <input type="text" value="![{{ image.legend|default_if_none:image.title }}]({{ image.physical.url|remove_url_protocole }})" readonly onclick="this.select()"> <br>
 
             {% trans "Miniature" %} :
-            <input type="text" value="![{{ image.legend|default_if_none:image.title }}]({{app.site.url}}{{ image.physical.gallery.url }})" readonly onclick="this.select()"> <br>
+            <input type="text" value="![{{ image.legend|default_if_none:image.title }}]({{ image.physical.gallery.url|remove_url_protocole }})" readonly onclick="this.select()"> <br>
 
             {% trans "Miniature + lien vers taille normale" %} :
-            <input type="text" value="[![{{ image.legend|default_if_none:image.title }}]({{app.site.url}}{{ image.physical.gallery.url }})]({{app.site.url}}{{ image.physical.url }})" readonly onclick="this.select()">
+            <input type="text" value="[![{{ image.legend|default_if_none:image.title }}]({{ image.physical.gallery.url|remove_url_protocole }})]({{ image.physical.url|remove_url_protocole }})" readonly onclick="this.select()">
         </p>
 
         {% crispy as_avatar_form %}
