@@ -238,6 +238,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['conclusion'] = versioned.get_conclusion()
         initial['licence'] = versioned.licence
         initial['subcategory'] = self.object.subcategory.all()
+        initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         initial['helps'] = self.object.helps.all()
 
         initial['last_hash'] = versioned.compute_hash()
@@ -307,6 +308,9 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         publishable.subcategory.clear()
         for subcat in form.cleaned_data["subcategory"]:
             publishable.subcategory.add(subcat)
+
+        publishable.tags.clear()
+        publishable.add_tags(form.cleaned_data['tags'].split(','))
 
         publishable.helps.clear()
         for help in form.cleaned_data["helps"]:
