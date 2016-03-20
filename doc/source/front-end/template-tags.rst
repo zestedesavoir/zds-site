@@ -3,7 +3,7 @@ Elements de templates personnalisés
 ===================================
 
 Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres personnalisés pouvant être utilisés dans les gabarits (*templates*),
-`voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/1.7/howto/custom-template-tags/>`_.
+`voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/1.8/howto/custom-template-tags/>`_.
 
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.

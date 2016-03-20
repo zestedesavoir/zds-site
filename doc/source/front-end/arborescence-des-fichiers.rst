@@ -4,7 +4,7 @@ Arborescence des dossiers
 
 Nous utilisons deux dossiers présents à la racine :
 
-- ``templates/`` pour les fichiers HTML, qui sont agrémentés du `langage de gabarit de Django <https://docs.djangoproject.com/fr/1.7/topics/templates/>`_ ;
+- ``templates/`` pour les fichiers HTML, qui sont agrémentés du `langage de gabarit de Django <https://docs.djangoproject.com/fr/1.8/topics/templates/>`_ ;
 - ``assets/`` pour les images, les smileys ainsi que les fichiers SCSS et JS.
 
 Lors de la compilation, un dossier ``dist/`` contenant les fichiers optimisés venant de ``assets/`` est créé.
