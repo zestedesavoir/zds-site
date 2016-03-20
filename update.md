@@ -487,6 +487,14 @@ Liste des tags exclus
 Dans le fichier settings.py, une nouvelle clé s'appelle top_tag_exclu (dans ZDS_APP -> forum -> top_tag_exclu), elle représente la liste des tags exclus des top tags. Vous pouvez ajouter des tags supplémentaire si la liste ne vous parait pas pertinente en surchargant 
 la clé dans le fichier de configuration de production.
 
+ZEP-25
+------
+
+Avant toute chose il faut avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. En cas de contenus non-migrés automatiquement il y aura un message à la fin ainsi que des `[WARNING]` dans les logs. **La commande peut être assez longue.**
+
+Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
+
+
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
 
 Le déploiement doit être autonome. Ce qui implique que :
