@@ -44,6 +44,7 @@ from zds.utils.models import Comment, CommentLike, CommentDislike
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.tokens import generate_token
+import logging
 
 
 class MemberList(ZdSPagingListView):
@@ -1083,7 +1084,7 @@ def modify_karma(request):
         raise PermissionDenied
 
     try:
-        profile_pk = request.POST["profile_pk"]
+        profile_pk = int(request.POST["profile_pk"])
     except (KeyError, ValueError):
         raise Http404
 
@@ -1094,15 +1095,23 @@ def modify_karma(request):
     note = KarmaNote()
     note.user = profile.user
     note.staff = request.user
-    note.comment = request.POST["warning"]
+    note.comment = request.POST.get("warning", "")
+
     try:
         note.value = int(request.POST["points"])
     except (KeyError, ValueError):
         note.value = 0
 
-    note.save()
-
-    profile.karma += note.value
-    profile.save()
+    try:
+        if note.comment == "":
+            raise ValueError("note.comment must not be empty")
+        elif note.value > 100 or note.value < -100:
+            raise ValueError("note.value must be between -100 and 100 {} given".format(note.value))
+        else:
+            note.save()
+            profile.karma += note.value
+            profile.save()
+    except ValueError as e:
+        logging.getLogger("zds.member").warn("ValueError: modifying karma failed because {}".format(e))
 
     return redirect(reverse("member-detail", args=[profile.user.username]))
