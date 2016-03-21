@@ -291,7 +291,7 @@ def load_categories_content(cli, size, fake):
     cli.stdout.write(u"Nombres de sous-catégories de contenus à créer : {}".format(nb_sub_categories))
     tps1 = time.time()
     for i in range(0, nb_categories):
-        ttl = fake.word()
+        ttl = fake.word() + str(i)
         cat = TCategory(title=ttl,
                         description=fake.sentence(nb_words=15, variable_nb_words=True),
                         slug=slugify(ttl))
@@ -301,7 +301,7 @@ def load_categories_content(cli, size, fake):
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
-        ttl = fake.word()
+        ttl = fake.word() + str(i * 10) + str(i)
         subcat = SubCategory(title=ttl,
                              subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
                              slug=slugify(ttl))
