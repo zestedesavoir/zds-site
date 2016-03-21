@@ -56,10 +56,15 @@
                     </a>
                 </div>
             </div>
-        {% else %}
-            <p>
-                {% trans "Vous êtes déjà connecté" %}.
-            </p>
+            {% else %}
+            <div>
+                <h2>{% trans "Inscription" %}</h2>
+                <p class="alert-box warning">
+                    <strong>
+                        {% trans "Vous êtes déjà inscrit." %}
+                   </strong>
+                </p>
+            </div>
         {% endif %}
 </div>
 {% endblock %}
