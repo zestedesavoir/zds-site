@@ -146,7 +146,8 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
             'form': form,
         }
 
-        votes = CommentVote.objects.filter(user_id=self.request.user.pk, comment__in=context['posts']).all()
+        votes = CommentVote.objects.filter(user_id=self.request.user.pk,
+                                           comment_id__in=[p.pk for p in context['posts']]).all()
         context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
         context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')

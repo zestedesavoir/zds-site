@@ -40,7 +40,7 @@ urlpatterns = [
     url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
-    url(r'^message/karma/(?P<post_pk>\d+)/$', PostKarma.as_view(), name='post-karma'),
+    url(r'^message/karma/(?P<pk>\d+)/$', PostKarma.as_view(), name='post-karma'),
 
     # Categories and forums list.
     url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),

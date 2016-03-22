@@ -252,7 +252,6 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
         else:
             context["user_can_modify"] = []
 
-        self.perform_list(self.object)
         return context
 
     def get_queryset(self):
