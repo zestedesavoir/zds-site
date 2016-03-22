@@ -453,7 +453,15 @@
                                                 <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
                                             </li>
                                         {% endif %}
-                                        <li>
+
+                                        {% if_first_april as first_april %}
+                                        {% if first_april %}
+                                            <li>
+                                                <a href="{% url 'administration' %}">{% trans 'Administration' %}</a>
+                                            </li>
+                                        {% endif %}
+
+                                            <li>
                                             <form
                                                 method="post"
                                                 action="{% url "member-logout" %}"

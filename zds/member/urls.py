@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf.urls import url
+from django.views.generic import TemplateView
 
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
     UpdateUsernameEmailMember, RegisterView, SendValidationEmailView, add_oldtuto, remove_oldtuto, modify_karma, \
@@ -47,5 +48,11 @@ urlpatterns = [
     url(r'^activation/$', active_account, name='member-active-account'),
     url(r'^envoi_jeton/$', generate_token_account, name='member-generate-token-account'),
     url(r'^desinscrire/valider/$', unregister, name='member-unregister'),
-    url(r'^desinscrire/avertissement/$', warning_unregister, name='member-warning-unregister')
+    url(r'^desinscrire/avertissement/$', warning_unregister, name='member-warning-unregister'),
+
+    # First april
+    url(r'^administration/$',
+        TemplateView.as_view(template_name='misc/administration.html'),
+        name="administration")
+
 ]

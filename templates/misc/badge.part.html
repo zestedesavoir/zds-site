@@ -1,9 +1,12 @@
 {% load profile %}
 {% load i18n %}
+{% load date %}
 
+{% if_first_april as first_april %}
 
 {% with status=member|state %}
-    {% if status == 'STAFF' %}
+
+    {% if status == 'STAFF' or first_april %}
         <span class="badge staff {% if push_badge %}push-badge{% endif %}">{% trans "Staff" %}</span>
     {% elif status == 'DOWN'%}
         <span class="badge banned {% if push_badge %}push-badge{% endif %}" title={% blocktrans %}"Compte Inactif"{% endblocktrans %}>{% trans "Dead" %}</span>
