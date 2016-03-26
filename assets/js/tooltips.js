@@ -27,6 +27,7 @@
         firstRun: function() {
             Tooltip.container = $("<div>", { class: "tooltips-container" });
             Tooltip.list = [];
+            Tooltip.nextID = 0;
 
             $("body").append(Tooltip.container);
             Tooltip._initialized = true;
@@ -46,7 +47,12 @@
             /**
              * @member {jQuery} - The tooltip itself
              */
-            this.elem = $("<div>", { class: "tooltip" });
+            this.elem = $("<div>", {
+              class: "tooltip",
+              id: "tooltip-" + Tooltip.nextID,
+              role: "tooltip",
+              "aria-hidden": true
+            });
 
             /**
              * @member {jQuery} - The target element
@@ -61,7 +67,7 @@
              * Builds a DOM like:
              *  <div class="tooltips-container">
              *    <div class="tooltip-wrapper {{ orientation }}">
-             *      <div class="tooltip">{{ content }}</div>
+             *      <div class="tooltip" role="tooltip" id="tooltip-N" aria-hidden="true">{{ content }}</div>
              *    </div>
              *    <div class="tooltip-wrapper">...</div>
              *    ...
@@ -74,11 +80,14 @@
             this.target.on("mouseout", this.mouseout.bind(this));
             this.wrapper.on("mouseout", this.mouseout.bind(this));
 
+            this.target.attr("aria-describedby", "tooltip-" + Tooltip.nextID);
+
             this.hideTimeout = null;
 
             this.mouseon = false;
 
             Tooltip.list.push(this);
+            Tooltip.nextID++;
         },
 
         /**
@@ -123,6 +132,7 @@
          */
         hide: function() {
             this.wrapper.hide();
+            this.elem.attr("aria-hidden", true);
         },
 
         /**
@@ -131,6 +141,7 @@
         show: function() {
             if(this.content !== "") {
                 this.wrapper.show();
+                this.elem.attr("aria-hidden", false);
                 this.recalc(); // Need to recalc on this tick & on next
                 setTimeout(this.recalc.bind(this));
             }
