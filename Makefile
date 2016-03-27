@@ -1,0 +1,92 @@
+all: help
+
+# back
+## django
+generate-pdf:
+	python manage.py generate_pdf
+
+migrate:
+	python manage.py migrate
+
+reset:
+	python manage.py reset
+
+shell:
+	python manage.py shell
+
+## back-utils
+clean-back:
+	find . -name '*.pyc' -exec rm {} \;
+
+install-back:
+	pip install --upgrade -r requirements.txt -r requirements-dev.txt
+
+lint-back:
+	flake8 --exclude=migrations,settings.py --max-line-length=120 zds
+
+report-release-back:
+	python scripts/release_generator.py
+
+run-back:
+	python manage.py runserver 0.0.0.0:8000
+
+test-back:
+	make clean-back && \
+	python manage.py test
+
+# front
+## front-utils
+
+build-front:
+	npm run build
+
+install-front:
+	npm install
+
+lint-front:
+	npm run lint
+
+watch-front:
+	npm run gulp
+
+# generic utils
+
+clean: clean-back
+
+doc:
+	cd doc && \
+	make html
+
+fixtures:
+	python manage.py loaddata fixtures/*.yaml.
+
+help:
+	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  build-front       to build frontend code"
+	@echo "  doc               to generate the html documentation"
+	@echo "  generate-pdf      to regenerate all PDFs"
+	@echo "  help              to get this help"
+	@echo "  install-back      to install backend dependencies"
+	@echo "  install-front     to install frontend dependencies"
+	@echo "  lint-back         to lint backend code (flake8)"
+	@echo "  lint-front        to lint frontend code (jshint)"
+	@echo "  migrate           to migrate the project"
+	@echo "  report-release-back  to generate release report"
+	@echo "  run               to run the project locally"
+	@echo "  shell             to get django shell"
+	@echo "  test              to run django tests"
+	@echo "Open this Makefile to see what each target does."
+	@echo "When a target uses an env variable (eg. $$(VAR)), you can do"
+	@echo "  make VAR=my_var cible"
+
+install: install-back install-front
+
+lint: lint-back lint-front
+
+run:
+	make -j2 watch-front run-back
+
+test: test-back
+
+travis:
+	tox $TEST_APP # set by travis, see .travis.yml
