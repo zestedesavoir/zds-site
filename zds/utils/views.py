@@ -1,18 +1,19 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, get_object_or_404
-from django.utils.decorators import method_decorator
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from zds.member.api.serializers import UserListSerializer
-from zds.member.decorator import can_write_and_read_now
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly
 from zds.utils.models import CommentVote
 
 
 class KarmaView(APIView):
+    permission_classes = (IsAuthenticatedOrReadOnly, CanReadAndWriteNowOrReadOnly,)
     message_class = None
 
     def dispatch(self, request, *args, **kwargs):
@@ -54,27 +55,22 @@ class KarmaView(APIView):
         resp = self.get_response_object()
         return Response(resp)
 
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
     def post(self, request, *args, **kwargs):
-        if self.object.author.pk != request.user.pk:
-            vote = request.POST.get('vote')
-            if vote == 'neutral':
-                CommentVote.objects.filter(user=request.user, comment=self.object).delete()
-            elif vote in ['like', 'dislike']:
-                CommentVote.objects.update_or_create(user=request.user, comment=self.object,
-                                                     defaults={'positive': (vote == 'like')})
-            else:
-                return Response({'error': 'parameter \'vote\' is not valid'}, status=400)
+        if self.object.author.pk == request.user.pk:
+            raise PermissionDenied(detail='author can\'t vote his own post')
+
+        vote = request.POST.get('vote')
+        if vote == 'neutral':
+            CommentVote.objects.filter(user=request.user, comment=self.object).delete()
+        elif vote in ['like', 'dislike']:
+            CommentVote.objects.update_or_create(user=request.user, comment=self.object,
+                                                 defaults={'positive': (vote == 'like')})
         else:
-            return Response({'error': 'author can\'t vote his own post'}, status=401)
+            raise ValidationError(detail='parameter \'vote\' is not valid')
 
         self.object.like = CommentVote.objects.filter(positive=True, comment=self.object).count()
         self.object.dislike = CommentVote.objects.filter(positive=False, comment=self.object).count()
         self.object.save()
 
-        if request.is_ajax():
-            resp = self.get_response_object()
-            return Response(resp)
-
-        return redirect(self.object.get_absolute_url())
+        resp = self.get_response_object()
+        return Response(resp)

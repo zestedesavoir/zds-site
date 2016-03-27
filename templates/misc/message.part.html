@@ -267,36 +267,29 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
-                            <form action="{{ karma_link }}" method="post">
-                                {% csrf_token %}
-                                <button
-                                    type="submit"
-                                    name="vote"
-                                    value="{% if message.pk in user_like %}neutral{% else %}like{% endif %}"
-                                    title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
-                                    class="upvote
-                                           ico-after
-                                           {% if message.like > message.dislike %}more-voted{% endif %}
-                                           {% if message.like > 0 %}has-vote{% endif %}
-                                           {% if message.pk in user_like %}voted{% endif %}"
-                                >
-                                    +{{ message.like }}
-                                </button>
+                            <button
+                                value="{% if message.pk in user_like %}neutral{% else %}like{% endif %}"
+                                title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
+                                class="upvote
+                                       ico-after
+                                       {% if message.like > message.dislike %}more-voted{% endif %}
+                                       {% if message.like > 0 %}has-vote{% endif %}
+                                       {% if message.pk in user_like %}voted{% endif %}"
+                            >
+                                +{{ message.like }}
+                            </button>
 
-                                <button
-                                    type="submit"
-                                    name="vote"
-                                    value="{% if message.pk in user_dislike %}neutral{% else %}dislike{% endif %}"
-                                    title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
-                                    class="downvote
-                                           ico-after
-                                           {% if message.like < message.dislike %}more-voted{% endif %}
-                                           {% if message.dislike > 0 %}has-vote{% endif %}
-                                           {% if message.pk in user_dislike %}voted{% endif %}"
-                                >
-                                    -{{ message.dislike }}
-                                </button>
-                            </form>
+                            <button
+                                value="{% if message.pk in user_dislike %}neutral{% else %}dislike{% endif %}"
+                                title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
+                                class="downvote
+                                       ico-after
+                                       {% if message.like < message.dislike %}more-voted{% endif %}
+                                       {% if message.dislike > 0 %}has-vote{% endif %}
+                                       {% if message.pk in user_dislike %}voted{% endif %}"
+                            >
+                                -{{ message.dislike }}
+                            </button>
                         {% else %}
                             <span
                                 class="upvote
