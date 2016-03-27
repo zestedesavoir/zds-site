@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import zipfile
 import json as json_reader
@@ -25,7 +23,7 @@ def get_file_content_in_zip(archive, path):
     :raise KeyError: if the file is not in the archive
     """
 
-    content = unicode(archive.read(path), 'utf-8')
+    content = str(archive.read(path), 'utf-8')
     return content
 
 
@@ -36,9 +34,9 @@ def filter_keyword(html):
     """
     bs = BeautifulSoup(html)
 
-    keywords = u''
+    keywords = ''
     for tag in bs.findAll(['h1', 'h2', 'h3', 'em', 'strong']):
-        keywords += u' ' + tag.text
+        keywords += ' ' + tag.text
 
     return keywords
 
@@ -50,7 +48,7 @@ def filter_text(html):
     :return: extracted words
     """
     bs = BeautifulSoup(html)
-    return u' '.join(bs.findAll(text=True))
+    return ' '.join(bs.findAll(text=True))
 
 
 def index_extract(extract, search_index_content, archive):
@@ -68,7 +66,7 @@ def index_extract(extract, search_index_content, archive):
     search_index_extract.title = extract.title
     search_index_extract.url_to_redirect = extract.get_absolute_url_online()
 
-    html = u''
+    html = ''
 
     if extract.text:
         try:
@@ -111,12 +109,12 @@ def index_container(container, search_index_content, archive):
     if container.conclusion:
         try:
             conclusion_html = emarkdown(get_file_content_in_zip(archive, container.conclusion))
-            all_html = u'{}{}'.format(all_html, conclusion_html)
+            all_html = '{}{}'.format(all_html, conclusion_html)
             search_index_container.conclusion = filter_text(conclusion_html)
         except KeyError:
             pass
 
-    if all_html != u'':
+    if all_html != '':
         search_index_container.keywords = filter_keyword(all_html)
 
     # index children:
@@ -238,7 +236,7 @@ def reindex_content(published_content):
     search_index_content.url_to_redirect = published_content.get_absolute_url_online()
 
     # Save introduction and conclusion:
-    all_html = u''
+    all_html = ''
 
     if versioned.introduction:
         try:
@@ -251,12 +249,12 @@ def reindex_content(published_content):
     if versioned.conclusion:
         try:
             conclusion_html = emarkdown(get_file_content_in_zip(archive, versioned.conclusion))
-            all_html = u'{}{}'.format(all_html, conclusion_html)
+            all_html = '{}{}'.format(all_html, conclusion_html)
             search_index_content.conclusion = filter_text(conclusion_html)
         except KeyError:
             pass
 
-    if all_html != u'':
+    if all_html != '':
         search_index_content.keywords = filter_keyword(all_html)
 
     search_index_content.type = published_content.content_type.lower()

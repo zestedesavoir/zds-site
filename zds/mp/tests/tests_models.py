@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from math import ceil
@@ -34,7 +32,7 @@ class PrivateTopicTest(TestCase):
             position_in_topic=2)
 
     def test_unicode(self):
-        self.assertEqual(self.topic1.__unicode__(), self.topic1.title)
+        self.assertEqual(self.topic1.__str__(), self.topic1.title)
 
     def test_absolute_url(self):
         url = reverse('private-posts-list', args=[self.topic1.pk, self.topic1.slug()])
@@ -170,10 +168,10 @@ class PrivatePostTest(TestCase):
             position_in_topic=2)
 
     def test_unicode(self):
-        title = u'<Post pour « {0} », #{1}>'.format(
+        title = '<Post pour « {0} », #{1}>'.format(
             self.post1.privatetopic,
             self.post1.pk)
-        self.assertEqual(title, self.post1.__unicode__())
+        self.assertEqual(title, self.post1.__str__())
 
     def test_absolute_url(self):
         page = int(
@@ -214,10 +212,10 @@ class PrivateTopicReadTest(TestCase):
     def test_unicode(self):
         """ test the unicode return """
 
-        ref = u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.topic1, self.profile2.user, self.post2.pk)
+        ref = '<Sujet « {0} » lu par {1}, #{2}>'.format(self.topic1, self.profile2.user, self.post2.pk)
         mark_read(self.topic1, self.profile2.user)
         private_topic = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.profile2.user).first()
-        self.assertEqual(private_topic.__unicode__(), ref)
+        self.assertEqual(private_topic.__str__(), ref)
 
 
 class FunctionTest(TestCase):

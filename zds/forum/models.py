@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 import string
 import uuid
@@ -23,7 +21,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
-    return u"{0}".format(start + end)
+    return "{0}".format(start + end)
 
 
 def image_path_forum(instance, filename):
@@ -35,7 +33,7 @@ def image_path_forum(instance, filename):
     :return:
     """
     ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
+    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
     return os.path.join('forum/normal', str(instance.pk), filename)
 
 
@@ -60,7 +58,7 @@ class Category(models.Model):
                             "d'URL et sont donc interdits : notifications "
                             "resolution_alerte sujet sujets message messages")
 
-    def __unicode__(self):
+    def __str__(self):
         """Textual form of a category."""
         return self.title
 
@@ -111,7 +109,7 @@ class Forum(models.Model):
     slug = models.SlugField(max_length=80, unique=True)
     objects = ForumManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -215,7 +213,7 @@ class Topic(models.Model):
 
     objects = TopicManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -330,10 +328,13 @@ class Topic(models.Model):
                           .latest('post__position')
         if t_read:
             return t_read.post.pk, t_read.post.position
-        return Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk', "position").first().values()
+        return list(Post.objects
+                    .filter(topic__pk=self.pk)
+                    .order_by('position')
+                    .values('pk', "position")
+                    .first()
+                    .values()
+                    )
 
     def resolve_first_post_url(self):
         """resolve the url that leads to this topic first post
@@ -428,8 +429,8 @@ class Post(Comment):
     is_useful = models.BooleanField('Est utile', default=False)
     objects = PostManager()
 
-    def __unicode__(self):
-        return u'<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
+    def __str__(self):
+        return '<Post pour "{0}", #{1}>'.format(self.topic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -458,10 +459,10 @@ class TopicRead(models.Model):
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
     objects = TopicReadManager()
 
-    def __unicode__(self):
-        return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
-                                                        self.user,
-                                                        self.post.pk)
+    def __str__(self):
+        return '<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
+                                                       self.user,
+                                                       self.post.pk)
 
 
 def get_last_topics(user):

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime
 from django.conf import settings
 from django.db import models
@@ -30,8 +28,8 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
         permissions = (
-            ("moderation", u"Modérer un membre"),
-            ("show_ip", u"Afficher les IP d'un membre"),
+            ("moderation", "Modérer un membre"),
+            ("show_ip", "Afficher les IP d'un membre"),
         )
 
     # Link with standard user is a simple one-to-one link, as recommended in official documentation.
@@ -97,7 +95,7 @@ class Profile(models.Model):
     objects = ProfileManager()
     _permissions = {}
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def is_private(self):
@@ -133,7 +131,7 @@ class Profile(models.Model):
         geo = gic.record_by_addr(self.last_ip_address)
 
         if geo is not None:
-            return u'{0}, {1}'.format(geo['city'], geo['country_name'])
+            return '{0}, {1}'.format(geo['city'], geo['country_name'])
         return ''
 
     def get_avatar_url(self):
@@ -145,7 +143,7 @@ class Profile(models.Model):
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
-                return u"{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
+                return "{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
             else:
                 return self.avatar_url
         else:
@@ -414,8 +412,8 @@ class TokenForgotPassword(models.Model):
         """
         return reverse('member-new-password') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
-        return u"{0} - {1}".format(self.user.username, self.date_end)
+    def __str__(self):
+        return "{0} - {1}".format(self.user.username, self.date_end)
 
 
 class TokenRegister(models.Model):
@@ -438,8 +436,8 @@ class TokenRegister(models.Model):
         """
         return reverse('member-active-account') + '?token={0}'.format(self.token)
 
-    def __unicode__(self):
-        return u"{0} - {1}".format(self.user.username, self.date_end)
+    def __str__(self):
+        return "{0} - {1}".format(self.user.username, self.date_end)
 
 
 # TODO: Seems unused
@@ -476,8 +474,8 @@ class Ban(models.Model):
         blank=True,
         null=True, db_index=True)
 
-    def __unicode__(self):
-        return u"{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
+    def __str__(self):
+        return "{0} - ban : {1} ({2}) ".format(self.user.username, self.text, self.pubdate)
 
 
 class KarmaNote(models.Model):
@@ -502,8 +500,8 @@ class KarmaNote(models.Model):
     # TODO: coherence, "create_at" is called "pubdate" in Ban model.
     create_at = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
-    def __unicode__(self):
-        return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
+    def __str__(self):
+        return "{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
 
 
 def logout_user(username):

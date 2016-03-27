@@ -4,7 +4,7 @@ git:
 language: python
 
 python:
-  - 2.7
+  - 3.4
 
 env:
   global:
@@ -33,6 +33,7 @@ addons:
       - libmysqlclient-dev
       - ttf-mscorefonts-installer
       - language-pack-fr
+      - python3-dev
       - unzip
 
 

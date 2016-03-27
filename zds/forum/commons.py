@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from django.contrib import messages
@@ -37,9 +36,9 @@ class TopicEditMixin(object):
         if request.user.has_perm("forum.change_topic"):
             topic.is_locked = request.POST.get('lock') == "true"
             if topic.is_locked:
-                success_message = _(u'Le sujet « {0} » est désormais verrouillé.').format(topic.title)
+                success_message = _('Le sujet « {0} » est désormais verrouillé.').format(topic.title)
             else:
-                success_message = _(u'Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+                success_message = _('Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
             messages.success(request, success_message)
         else:
             raise PermissionDenied
@@ -49,9 +48,9 @@ class TopicEditMixin(object):
         if request.user.has_perm("forum.change_topic"):
             topic.is_sticky = request.POST.get('sticky') == 'true'
             if topic.is_sticky:
-                success_message = _(u'Le sujet « {0} » est désormais épinglé.').format(topic.title)
+                success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
             else:
-                success_message = _(u'Le sujet « {0} » n\'est désormais plus épinglé.').format(topic.title)
+                success_message = _('Le sujet « {0} » n\'est désormais plus épinglé.').format(topic.title)
             messages.success(request, success_message)
         else:
             raise PermissionDenied
@@ -74,7 +73,7 @@ class TopicEditMixin(object):
             topic.save()
 
             messages.success(request,
-                             _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
+                             _("Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))
         else:
             raise PermissionDenied
 
@@ -105,7 +104,7 @@ class PostEditMixin(object):
             if is_staff:
                 post.text_hidden = data.get('text_hidden', '')
 
-            messages.success(request, _(u'Le message est désormais masqué.'))
+            messages.success(request, _('Le message est désormais masqué.'))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
                 signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
         else:
@@ -129,7 +128,7 @@ class PostEditMixin(object):
         alert.pubdate = datetime.now()
         alert.save()
 
-        messages.success(request, _(u'Une alerte a été envoyée à l\'équipe concernant ce message.'))
+        messages.success(request, _('Une alerte a été envoyée à l\'équipe concernant ce message.'))
 
     @staticmethod
     def perform_useful(post):

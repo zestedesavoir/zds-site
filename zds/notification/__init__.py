@@ -1,3 +1,3 @@
 # flake8: noqa
 
-import receivers
+from . import receivers

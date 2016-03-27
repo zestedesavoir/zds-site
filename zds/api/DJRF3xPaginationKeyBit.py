@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from rest_framework_extensions.key_constructor.bits import QueryParamsKeyBit
 
 

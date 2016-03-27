@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.contrib.syndication.views import Feed
 
 from django.utils.feedgenerator import Atom1Feed
@@ -11,10 +9,10 @@ from .models import Post, Topic
 
 
 class LastPostsFeedRSS(Feed):
-    title = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = 'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
     link = '/forums/'
-    description = (u'Les derniers messages '
-                   u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+    description = ('Les derniers messages '
+                   'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
 
     def get_object(self, request):
         obj = {}
@@ -47,7 +45,7 @@ class LastPostsFeedRSS(Feed):
         return posts
 
     def item_title(self, item):
-        return u'{}, message #{}'.format(item.topic.title, item.pk)
+        return '{}, message #{}'.format(item.topic.title, item.pk)
 
     def item_pubdate(self, item):
         return item.pubdate
@@ -72,9 +70,9 @@ class LastPostsFeedATOM(LastPostsFeedRSS):
 
 
 class LastTopicsFeedRSS(Feed):
-    title = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+    title = 'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
     link = '/forums/'
-    description = u'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name'])
+    description = 'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name'])
 
     def get_object(self, request):
         obj = {}
@@ -110,7 +108,7 @@ class LastTopicsFeedRSS(Feed):
         return item.pubdate
 
     def item_title(self, item):
-        return u'{} dans {}'.format(item.title, item.forum.title)
+        return '{} dans {}'.format(item.title, item.forum.title)
 
     def item_description(self, item):
         return item.subtitle

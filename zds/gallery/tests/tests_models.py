@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import os
 
 from django.test import TestCase
@@ -27,9 +25,9 @@ class UserGalleryTest(TestCase):
         self.gallery.delete()
 
     def test_unicode(self):
-        result = _(u'Galerie « {0} » de {1}').format(self.gallery, self.profile.user)
+        result = _('Galerie « {0} » de {1}').format(self.gallery, self.profile.user)
 
-        self.assertEqual(result, self.user_gallery.__unicode__())
+        self.assertEqual(result, self.user_gallery.__str__())
 
     def test_can_write(self):
         self.user_gallery.mode = 'W'
@@ -61,10 +59,10 @@ class ImageTest(TestCase):
         self.gallery.delete()
 
     def test_unicode(self):
-        self.assertEqual(self.image.slug, self.image.__unicode__())
+        self.assertEqual(self.image.slug, self.image.__str__())
 
     def test_get_absolute_url(self):
-        absolute_url = u'{0}/{1}'.format(settings.MEDIA_URL, self.image.physical)
+        absolute_url = '{0}/{1}'.format(settings.MEDIA_URL, self.image.physical)
 
         self.assertEqual(absolute_url, self.image.get_absolute_url())
 
@@ -96,7 +94,7 @@ class GalleryTest(TestCase):
         self.gallery.delete()
 
     def test_unicode(self):
-        self.assertEqual(self.gallery.title, self.gallery.__unicode__())
+        self.assertEqual(self.gallery.title, self.gallery.__str__())
 
     def test_get_absolute_url(self):
         absolute_url = reverse('gallery-details',

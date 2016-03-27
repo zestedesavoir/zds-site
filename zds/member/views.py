@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import uuid
 from datetime import datetime, timedelta
 
@@ -164,10 +162,10 @@ class UpdateMember(UpdateView):
         messages.success(self.request, self.get_success_message())
 
     def get_success_message(self):
-        return _(u'Le profil a correctement été mis à jour.')
+        return _('Le profil a correctement été mis à jour.')
 
     def get_error_message(self):
-        return _(u'Une erreur est survenue.')
+        return _('Une erreur est survenue.')
 
 
 class UpdateAvatarMember(UpdateMember):
@@ -187,7 +185,7 @@ class UpdateAvatarMember(UpdateMember):
         profile.avatar_url = form.data['avatar_url']
 
     def get_success_message(self):
-        return _(u'L\'avatar a correctement été mis à jour.')
+        return _('L\'avatar a correctement été mis à jour.')
 
 
 class UpdatePasswordMember(UpdateMember):
@@ -211,7 +209,7 @@ class UpdatePasswordMember(UpdateMember):
         profile.user.set_password(form.data['password_new'])
 
     def get_success_message(self):
-        return _(u'Le mot de passe a correctement été mis à jour.')
+        return _('Le mot de passe a correctement été mis à jour.')
 
     def get_success_url(self):
         return reverse('update-password-member')
@@ -232,7 +230,7 @@ class UpdateUsernameEmailMember(UpdateMember):
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             KarmaNote(user=profile.user,
                       staff=bot,
-                      comment=_(u"{} s'est renommé {}").format(profile.user.username, form.data['username']),
+                      comment=_("{} s'est renommé {}").format(profile.user.username, form.data['username']),
                       value=0).save()
             # Change the pseudo
             profile.user.username = form.data['username']
@@ -363,7 +361,7 @@ def unregister(request):
                 beta_topic.is_locked = True
                 beta_topic.save()
                 first_post = beta_topic.first_post()
-                first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
+                first_post.update_content(_("# Le tutoriel présenté par ce topic n\'existe plus."))
                 first_post.save()
             content.delete()
         else:
@@ -447,7 +445,7 @@ def modify_profile(request, user_pk):
     if profile.is_private():
         raise PermissionDenied
     if request.user.profile == profile:
-        messages.error(request, _(u"Vous ne pouvez pas vous sanctionner vous-même !"))
+        messages.error(request, _("Vous ne pouvez pas vous sanctionner vous-même !"))
         raise PermissionDenied
 
     if 'ls' in request.POST:
@@ -609,10 +607,10 @@ def settings_mini_profile(request, user_name):
             try:
                 profile.save()
             except:
-                messages.error(request, u"Une erreur est survenue.")
+                messages.error(request, "Une erreur est survenue.")
                 return redirect(reverse("member-settings-mini-profile"))
 
-            messages.success(request, _(u"Le profil a correctement été mis à jour."))
+            messages.success(request, _("Le profil a correctement été mis à jour."))
             return redirect(reverse("member-detail", args=[profile.user.username]))
         else:
             return render(request, "member/settings/profile.html", data)
@@ -663,18 +661,18 @@ def login_view(request):
                         return redirect(reverse("homepage"))
                 else:
                     messages.error(request,
-                                   _(u"Vous n'êtes pas autorisé à vous connecter "
-                                     u"sur le site, vous avez été banni par un "
-                                     u"modérateur."))
+                                   _("Vous n'êtes pas autorisé à vous connecter "
+                                     "sur le site, vous avez été banni par un "
+                                     "modérateur."))
             else:
                 messages.error(request,
-                               _(u"Vous n'avez pas encore activé votre compte, "
-                                 u"vous devez le faire pour pouvoir vous "
-                                 u"connecter sur le site. Regardez dans vos "
-                                 u"mails : {}.").format(user.email))
+                               _("Vous n'avez pas encore activé votre compte, "
+                                 "vous devez le faire pour pouvoir vous "
+                                 "connecter sur le site. Regardez dans vos "
+                                 "mails : {}.").format(user.email))
         else:
             messages.error(request,
-                           _(u"Les identifiants fournis ne sont pas valides."))
+                           _("Les identifiants fournis ne sont pas valides."))
 
     form = LoginForm()
     if next_page is not None:
@@ -728,7 +726,7 @@ def forgot_password(request):
             token.save()
 
             # send email
-            subject = _(u"{} - Mot de passe oublié").format(settings.ZDS_APP['site']['litteral_name'])
+            subject = _("{} - Mot de passe oublié").format(settings.ZDS_APP['site']['litteral_name'])
             from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                           settings.ZDS_APP['site']['email_noreply'])
             context = {
@@ -820,8 +818,8 @@ def active_account(request):
 
     send_mp(bot,
             [usr],
-            _(u"Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
-            _(u"Le manuel du nouveau membre"),
+            _("Bienvenue sur {}").format(settings.ZDS_APP['site']['litteral_name']),
+            _("Le manuel du nouveau membre"),
             msg,
             False,
             True,
@@ -849,7 +847,7 @@ def generate_token_account(request):
     token.save()
 
     # send email
-    subject = _(u"{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
+    subject = _("{} - Confirmation d'inscription").format(settings.ZDS_APP['site']['litteral_name'])
     from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
                                   settings.ZDS_APP['site']['email_noreply'])
     context = {
@@ -913,8 +911,8 @@ def add_oldtuto(request):
     profile.sdz_tutorial = last
     profile.save()
     messages.success(request,
-                     _(u'Le tutoriel a bien été lié au '
-                       u'membre {0}.').format(profile.user.username))
+                     _('Le tutoriel a bien été lié au '
+                       'membre {0}.').format(profile.user.username))
     return redirect(reverse("member-detail",
                             args=[profile.user.username]))
 
@@ -948,8 +946,8 @@ def remove_oldtuto(request):
     profile.save()
 
     messages.success(request,
-                     _(u'Le tutoriel a bien été retiré '
-                       u'au membre {0}.').format(profile.user.username))
+                     _('Le tutoriel a bien été retiré '
+                       'au membre {0}.').format(profile.user.username))
     return redirect(reverse("member-detail",
                             args=[profile.user.username]))
 
@@ -966,22 +964,22 @@ def settings_promote(request, user_pk):
 
     if request.method == "POST":
         form = PromoteMemberForm(request.POST)
-        data = dict(form.data.iterlists())
+        data = dict(form.data.items())
 
         groups = Group.objects.all()
         usergroups = user.groups.all()
 
         if 'groups' in data:
             for group in groups:
-                if unicode(group.id) in data['groups']:
+                if str(group.id) in data['groups']:
                     if group not in usergroups:
                         user.groups.add(group)
-                        messages.success(request, _(u'{0} appartient maintenant au groupe {1}.')
+                        messages.success(request, _('{0} appartient maintenant au groupe {1}.')
                                          .format(user.username, group.name))
                 else:
                     if group in usergroups:
                         user.groups.remove(group)
-                        messages.warning(request, _(u'{0} n\'appartient maintenant plus au groupe {1}.')
+                        messages.warning(request, _('{0} n\'appartient maintenant plus au groupe {1}.')
                                          .format(user.username, group.name))
                         topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
                         for topic in topics_followed:
@@ -994,54 +992,54 @@ def settings_promote(request, user_pk):
                     if isinstance(topic, Topic) and group in topic.forum.group.all():
                         TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
-            messages.warning(request, _(u'{0} n\'appartient (plus ?) à aucun groupe.')
+            messages.warning(request, _('{0} n\'appartient (plus ?) à aucun groupe.')
                              .format(user.username))
 
-        if 'superuser' in data and u'on' in data['superuser']:
+        if 'superuser' in data and 'on' in data['superuser']:
             if not user.is_superuser:
                 user.is_superuser = True
-                messages.success(request, _(u'{0} est maintenant super-utilisateur.')
+                messages.success(request, _('{0} est maintenant super-utilisateur.')
                                  .format(user.username))
         else:
             if user == request.user:
-                messages.error(request, _(u'Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
+                messages.error(request, _('Un super-utilisateur ne peut pas se retirer des super-utilisateurs.'))
             else:
                 if user.is_superuser:
                     user.is_superuser = False
-                    messages.warning(request, _(u'{0} n\'est maintenant plus super-utilisateur.')
+                    messages.warning(request, _('{0} n\'est maintenant plus super-utilisateur.')
                                      .format(user.username))
 
-        if 'activation' in data and u'on' in data['activation']:
+        if 'activation' in data and 'on' in data['activation']:
             user.is_active = True
-            messages.success(request, _(u'{0} est maintenant activé.')
+            messages.success(request, _('{0} est maintenant activé.')
                              .format(user.username))
         else:
             user.is_active = False
-            messages.warning(request, _(u'{0} est désactivé.')
+            messages.warning(request, _('{0} est désactivé.')
                              .format(user.username))
 
         user.save()
 
         usergroups = user.groups.all()
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        msg = _(u'Bonjour {0},\n\n'
-                u'Un administrateur vient de modifier les groupes '
-                u'auxquels vous appartenez.  \n').format(user.username)
+        msg = _('Bonjour {0},\n\n'
+                'Un administrateur vient de modifier les groupes '
+                'auxquels vous appartenez.  \n').format(user.username)
         if len(usergroups) > 0:
-            msg = string_concat(msg, _(u'Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
+            msg = string_concat(msg, _('Voici la liste des groupes dont vous faites dorénavant partie :\n\n'))
             for group in usergroups:
-                msg += u'* {0}\n'.format(group.name)
+                msg += '* {0}\n'.format(group.name)
         else:
-            msg = string_concat(msg, _(u'* Vous ne faites partie d\'aucun groupe'))
-        msg += u'\n\n'
+            msg = string_concat(msg, _('* Vous ne faites partie d\'aucun groupe'))
+        msg += '\n\n'
         if user.is_superuser:
-            msg = string_concat(msg, _(u'Vous avez aussi rejoint le rang des super-utilisateurs. '
-                                       u'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
+            msg = string_concat(msg, _('Vous avez aussi rejoint le rang des super-utilisateurs. '
+                                       'N\'oubliez pas, un grand pouvoir entraîne de grandes responsabilités !'))
         send_mp(
             bot,
             [user],
-            _(u'Modification des groupes'),
-            u'',
+            _('Modification des groupes'),
+            '',
             msg,
             True,
             True,

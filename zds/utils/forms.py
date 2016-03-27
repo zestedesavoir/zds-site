@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
 from django.utils.translation import ugettext_lazy as _
@@ -13,11 +11,11 @@ class CommonLayoutEditor(Layout):
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
             StrictButton(
-                _(u'Envoyer'),
+                _('Envoyer'),
                 type='submit',
                 name='answer'),
             StrictButton(
-                _(u'Aperçu'),
+                _('Aperçu'),
                 type='submit',
                 name='preview',
                 css_class='btn-grey',
@@ -37,11 +35,11 @@ class CommonLayoutVersionEditor(Layout):
                 Field('msg_commit'),
                 ButtonHolder(
                     StrictButton(
-                        _(u'Envoyer'),
+                        _('Envoyer'),
                         type='submit',
                         name='answer'),
                     StrictButton(
-                        _(u'Aperçu'),
+                        _('Aperçu'),
                         type='submit',
                         name='preview',
                         css_class='btn-grey'),

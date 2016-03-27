@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.contrib.syndication.views import Feed
 from django.conf import settings
 
@@ -13,8 +11,8 @@ class LastContentFeedRSS(Feed):
     """
     RSS feed for any type of content.
     """
-    title = u"Contenu sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers contenus parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    title = "Contenu sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = "Les derniers contenus parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
     link = ""
     content_type = None
 
@@ -59,8 +57,8 @@ class LastTutorialsFeedRSS(LastContentFeedRSS):
     """
     content_type = "TUTORIAL"
     link = "/tutoriels/"
-    title = u"Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    title = "Tutoriels sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = "Les derniers tutoriels parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
@@ -74,8 +72,8 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
     """
     content_type = "ARTICLE"
     link = "/articles/"
-    title = u"Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
+    title = "Articles sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = "Les derniers articles parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):

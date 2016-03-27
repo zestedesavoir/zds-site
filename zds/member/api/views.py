@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework import status

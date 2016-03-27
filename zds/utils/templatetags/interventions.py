@@ -1,6 +1,3 @@
-# coding: utf-8
-
-import time
 from datetime import datetime, timedelta
 
 from django import template
@@ -88,17 +85,6 @@ def followed_topics(user):
     return topics
 
 
-def comp(dated_element1, dated_element2):
-    version1 = int(time.mktime(dated_element1['pubdate'].timetuple()))
-    version2 = int(time.mktime(dated_element2['pubdate'].timetuple()))
-    if version1 > version2:
-        return -1
-    elif version1 < version2:
-        return 1
-    else:
-        return 0
-
-
 @register.filter('interventions_topics')
 def interventions_topics(user):
     """
@@ -115,7 +101,7 @@ def interventions_topics(user):
                              'title': notification.title,
                              'url': notification.url})
 
-    posts_unread.sort(cmp=comp)
+    posts_unread.sort(key=lambda post: post['pubdate'].timetuple())
 
     return posts_unread
 

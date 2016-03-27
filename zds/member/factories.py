@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.contrib.auth.models import User, Permission, Group
 import factory
 
@@ -82,7 +80,7 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 
@@ -108,7 +106,7 @@ class StaffProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return u'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
+        return 'My name is {0} and I i\'m the guy who kill the bad guys '.format(self.user.username.lower())
 
     sign = 'Please look my flavour'
 
@@ -122,7 +120,7 @@ class NonAsciiUserFactory(UserFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence(u'ïéàçÊÀ{0}'.format)
+    username = factory.Sequence('ïéàçÊÀ{0}'.format)
 
 
 class NonAsciiProfileFactory(ProfileFactory):

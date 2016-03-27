@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from datetime import datetime, timedelta
 
 from django.core.urlresolvers import reverse
@@ -86,27 +84,27 @@ class InterventionsTest(TestCase):
         tr = Template("{% load interventions %}"
                       "{{ date_today|humane_delta }}"
                       ).render(self.context)
-        self.assertEqual(u"Aujourd&#39;hui", tr)
+        self.assertEqual("Aujourd&#39;hui", tr)
 
         tr = Template("{% load interventions %}"
                       "{{ date_yesterday|humane_delta }}"
                       ).render(self.context)
-        self.assertEqual(u"Hier", tr)
+        self.assertEqual("Hier", tr)
 
         tr = Template("{% load interventions %}"
                       "{{ date_last_week|humane_delta }}"
                       ).render(self.context)
-        self.assertEqual(u"Les 7 derniers jours", tr)
+        self.assertEqual("Les 7 derniers jours", tr)
 
         tr = Template("{% load interventions %}"
                       "{{ date_last_month|humane_delta }}"
                       ).render(self.context)
-        self.assertEqual(u"Les 30 derniers jours", tr)
+        self.assertEqual("Les 30 derniers jours", tr)
 
         tr = Template("{% load interventions %}"
                       "{{ date_last_year|humane_delta }}"
                       ).render(self.context)
-        self.assertEqual(u"Plus ancien", tr)
+        self.assertEqual("Plus ancien", tr)
 
 
 class AlertsTest(TestCase):
@@ -128,7 +126,7 @@ class AlertsTest(TestCase):
             alert = Alert(author=self.dummy_author.user,
                           comment=self.post,
                           scope='F',
-                          text=u'pouet-{}'.format(i),
+                          text='pouet-{}'.format(i),
                           pubdate=(datetime.now() + timedelta(minutes=i)))
             alert.save()
             self.alerts.append(alert)

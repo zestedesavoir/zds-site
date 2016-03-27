@@ -9,7 +9,7 @@ django-crispy-forms==1.6.0
 django-haystack==2.4.1
 django-model-utils==2.4
 django-munin==0.2.1
-python-memcached==1.54
+python3-memcached==1.51
 lxml==3.5.0
 factory-boy==2.6.1
 pygeoip==0.3.2
@@ -20,6 +20,7 @@ easy-thumbnails==2.3
 CairoSVG==1.0.20
 beautifulsoup4==4.4.1
 django-recaptcha==1.0.5
+django-extensions==1.6.1
 
 # Api dependencies
 djangorestframework==3.3.2

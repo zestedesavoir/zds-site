@@ -494,3 +494,26 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+
+Actions à faire pour passer à Python 3
+======================================
+
+**ATTENTION** Nécessite un nouveau virtualenv
+
+mysqlclient
+-----------
+
+Dans un premier temps, AVANT de lancer la mise à jour il faut installer le nouveau driver MySQL (mysqlclient) :
+
+```
+sudo apt-get install python-dev libmysqlclient-dev
+```
+
+Puis installer la nouvelle dépendance dans le virtualenv (`workon NOM_DU_VENV` pour entrer dans le venv) après avoir supprimé l'ancienne :
+
+
+```
+pip uninstall MySQL-python
+pip install --upgrade mysqlclient==1.3.7
+``` 

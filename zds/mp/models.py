@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from math import ceil
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -17,20 +15,20 @@ class PrivateTopic(models.Model):
     """
 
     class Meta:
-        verbose_name = u'Message privé'
-        verbose_name_plural = u'Messages privés'
+        verbose_name = 'Message privé'
+        verbose_name_plural = 'Messages privés'
 
-    title = models.CharField(u'Titre', max_length=130)
-    subtitle = models.CharField(u'Sous-titre', max_length=200, blank=True)
-    author = models.ForeignKey(User, verbose_name=u'Auteur', related_name='author', db_index=True)
-    participants = models.ManyToManyField(User, verbose_name=u'Participants', related_name='participants',
+    title = models.CharField('Titre', max_length=130)
+    subtitle = models.CharField('Sous-titre', max_length=200, blank=True)
+    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True)
+    participants = models.ManyToManyField(User, verbose_name='Participants', related_name='participants',
                                           db_index=True)
     last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
-                                     verbose_name=u'Dernier message')
-    pubdate = models.DateTimeField(u'Date de création', auto_now_add=True, db_index=True)
+                                     verbose_name='Dernier message')
+    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivateTopic model.
 
@@ -210,26 +208,26 @@ class PrivatePost(models.Model):
     """A private post written by an user."""
 
     class Meta:
-        verbose_name = u'Réponse à un message privé'
-        verbose_name_plural = u'Réponses à un message privé'
+        verbose_name = 'Réponse à un message privé'
+        verbose_name_plural = 'Réponses à un message privé'
 
-    privatetopic = models.ForeignKey(PrivateTopic, verbose_name=u'Message privé', db_index=True)
+    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True)
-    text = models.TextField(u'Texte')
-    text_html = models.TextField(u'Texte en HTML')
-    pubdate = models.DateTimeField(u'Date de publication', auto_now_add=True, db_index=True)
-    update = models.DateTimeField(u'Date d\'édition', null=True, blank=True)
-    position_in_topic = models.IntegerField(u'Position dans le sujet', db_index=True)
+    text = models.TextField('Texte')
+    text_html = models.TextField('Texte en HTML')
+    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
+    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+    position_in_topic = models.IntegerField('Position dans le sujet', db_index=True)
     objects = PrivatePostManager()
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivatePost model.
 
         :return: PrivatePost description
         :rtype: unicode
         """
-        return u'<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
+        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -290,21 +288,21 @@ class PrivateTopicRead(models.Model):
     """
 
     class Meta:
-        verbose_name = u'Message privé lu'
-        verbose_name_plural = u'Messages privés lus'
+        verbose_name = 'Message privé lu'
+        verbose_name_plural = 'Messages privés lus'
 
     privatetopic = models.ForeignKey(PrivateTopic, db_index=True)
     privatepost = models.ForeignKey(PrivatePost, db_index=True)
     user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True)
 
-    def __unicode__(self):
+    def __str__(self):
         """
         Human-readable representation of the PrivateTopicRead model.
 
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
+        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def never_privateread(privatetopic, user=None):

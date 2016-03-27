@@ -1,6 +1,6 @@
-# coding: utf-8
-
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 
 from django.conf import settings
 from django.test import TestCase
@@ -265,7 +265,7 @@ class NewTopicViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-new'), ''))
+            '?next=' + urllib.parse.quote(reverse('mp-new'), ''))
 
     def test_success_get_with_and_without_username(self):
 
@@ -369,7 +369,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.post(
             reverse('mp-new'),
             {
-                'participants': u"{}".format(profile_inactive.user.username),
+                'participants': "{}".format(profile_inactive.user.username),
                 'title': 'title',
                 'subtitle': 'subtitle',
                 'text': 'text'
@@ -472,7 +472,7 @@ class AnswerViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('private-posts-new', args=[1, 'private-topic']), ''))
+            '?next=' + urllib.parse.quote(reverse('private-posts-new', args=[1, 'private-topic']), ''))
 
     def test_fail_answer_not_send_topic_pk(self):
 
@@ -570,7 +570,7 @@ class AnswerViewTest(TestCase):
     def test_unicode_title_answer(self):
         """To test unicode title."""
 
-        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title=u'Title with accent àéè')
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, title='Title with accent àéè')
         unicode_topic.participants.add(self.profile2.user)
         unicode_post = PrivatePostFactory(
             privatetopic=unicode_topic,
@@ -590,7 +590,7 @@ class AnswerViewTest(TestCase):
     def test_unicode_subtitle_answer(self):
         """To test unicode subtitle."""
 
-        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle=u'Subtitle with accent àéè')
+        unicode_topic = PrivateTopicFactory(author=self.profile1.user, subtitle='Subtitle with accent àéè')
         unicode_topic.participants.add(self.profile2.user)
         unicode_post = PrivatePostFactory(
             privatetopic=unicode_topic,
@@ -641,7 +641,7 @@ class EditPostViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('private-posts-edit', args=[1, 'private-topic', 1]), ''))
+            '?next=' + urllib.parse.quote(reverse('private-posts-edit', args=[1, 'private-topic', 1]), ''))
 
     def test_succes_get_edit_post_page(self):
         self.client.logout()
@@ -765,7 +765,7 @@ class LeaveViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-delete', args=[1, 'private-topic']), ''))
+            '?next=' + urllib.parse.quote(reverse('mp-delete', args=[1, 'private-topic']), ''))
 
     def test_fail_leave_topic_no_exist(self):
 
@@ -867,7 +867,7 @@ class AddParticipantViewTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-participant', args=[1, 'private-topic']), ''))
+            '?next=' + urllib.parse.quote(reverse('mp-edit-participant', args=[1, 'private-topic']), ''))
 
     def test_fail_add_participant_topic_no_exist(self):
 
@@ -995,7 +995,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + urllib.parse.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
 
         # post
         response = self.client.post(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), {
@@ -1006,7 +1006,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertRedirects(
             response,
             reverse('member-login') +
-            '?next=' + urllib.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
+            '?next=' + urllib.parse.quote(reverse('mp-edit-topic', args=[self.topic1.pk, 'private-topic']), ''))
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertEqual('super title', topic.title)

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -47,10 +45,10 @@ class LastTopicsFeedRSSTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.topicfeed.link, '/forums/')
-        reftitle = u'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = 'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.topicfeed.title, reftitle)
-        refdescription = (u'Les derniers sujets créés '
-                          u'sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+        refdescription = ('Les derniers sujets créés '
+                          'sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
         self.assertEqual(self.topicfeed.description, refdescription)
 
         atom = LastTopicsFeedATOM()
@@ -115,7 +113,7 @@ class LastTopicsFeedRSSTest(TestCase):
     def test_get_title(self):
         """ test the return value of title """
 
-        ref = u'{} dans {}'.format(self.topic2.title, self.topic2.forum.title)
+        ref = '{} dans {}'.format(self.topic2.title, self.topic2.forum.title)
         topics = self.topicfeed.items(obj={'tag': self.tag.pk})
         ret = self.topicfeed.item_title(item=topics[0])
         self.assertEqual(ret, ref)
@@ -203,10 +201,10 @@ class LastPostFeedTest(TestCase):
         """ Test that base parameters are Ok """
 
         self.assertEqual(self.postfeed.link, '/forums/')
-        reftitle = u'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
+        reftitle = 'Derniers messages sur {}'.format(settings.ZDS_APP['site']['litteral_name'])
         self.assertEqual(self.postfeed.title, reftitle)
-        refdescription = (u'Les derniers messages '
-                          u'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
+        refdescription = ('Les derniers messages '
+                          'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['litteral_name']))
         self.assertEqual(self.postfeed.description, refdescription)
 
         atom = LastPostsFeedATOM()
@@ -271,7 +269,7 @@ class LastPostFeedTest(TestCase):
     def test_get_title(self):
         """ test the return value of title """
 
-        ref = u'{}, message #{}'.format(self.post3.topic.title, self.post3.pk)
+        ref = '{}, message #{}'.format(self.post3.topic.title, self.post3.pk)
         posts = self.postfeed.items(obj={'tag': self.tag2.pk})
         ret = self.postfeed.item_title(item=posts[0])
         self.assertEqual(ret, ref)

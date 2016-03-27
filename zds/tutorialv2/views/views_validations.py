@@ -1,4 +1,3 @@
-# coding: utf-8
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
@@ -74,7 +73,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         except KeyError:
             pass
         except ValueError:
-            raise Http404(u"Format invalide pour le paramètre de la sous-catégorie.")
+            raise Http404("Format invalide pour le paramètre de la sous-catégorie.")
 
         return queryset.order_by("date_proposition").all()
 
@@ -148,7 +147,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [old_validator],
-                _(u"Une nouvelle version a été envoyée en validation."),
+                _("Une nouvelle version a été envoyée en validation."),
                 self.versioned_object.title,
                 msg,
                 False,
@@ -159,7 +158,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         self.object.sha_validation = validation.version
         self.object.save()
 
-        messages.success(self.request, _(u"Votre demande de validation a été transmise à l'équipe."))
+        messages.success(self.request, _("Votre demande de validation a été transmise à l'équipe."))
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
         return super(AskValidationForContent, self).form_valid(form)
@@ -201,7 +200,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         # reject validation:
         quote = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
         validation.status = "CANCEL"
-        validation.comment_authors += _(u'\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
+        validation.comment_authors += _('\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
             .format(quote)
         validation.date_validation = datetime.now()
         validation.save()
@@ -225,13 +224,13 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
             send_mp(
                 bot,
                 [validation.validator],
-                _(u"Demande de validation annulée").format(),
+                _("Demande de validation annulée").format(),
                 versioned.title,
                 msg,
                 False,
             )
 
-        messages.info(self.request, _(u'La validation de ce contenu a bien été annulée.'))
+        messages.info(self.request, _('La validation de ce contenu a bien été annulée.'))
 
         self.success_url = reverse("content:view", args=[validation.content.pk, validation.content.slug]) + \
             "?version=" + validation.version
@@ -251,7 +250,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = None
             validation.status = "PENDING"
             validation.save()
-            messages.info(request, _(u"Ce contenu n'est plus réservé."))
+            messages.info(request, _("Ce contenu n'est plus réservé."))
             return redirect(reverse("validation:list"))
         else:
             validation.validator = request.user
@@ -270,14 +269,14 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             send_mp(
                 validation.validator,
                 validation.content.authors.all(),
-                _(u"Contenu réservé - {0}").format(validation.content.title),
+                _("Contenu réservé - {0}").format(validation.content.title),
                 validation.content.title,
                 msg,
                 True,
                 direct=False
             )
 
-            messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
+            messages.info(request, _("Ce contenu a bien été réservé par {0}.").format(request.user.username))
 
             return redirect(
                 reverse("content:view", args=[validation.content.pk, validation.content.slug]) +
@@ -354,14 +353,14 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Rejet de la demande de publication").format(),
+            _("Rejet de la demande de publication").format(),
             validation.content.title,
             msg,
             True,
             direct=False
         )
 
-        messages.info(self.request, _(u'Le contenu a bien été refusé.'))
+        messages.info(self.request, _('Le contenu a bien été refusé.'))
         self.success_url = reverse('validation:list')
         return super(RejectValidation, self).form_valid(form)
 
@@ -375,7 +374,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
     modal_form = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(u"Publier un contenu depuis la validation n'est pas disponible en GET.")
+        raise Http404("Publier un contenu depuis la validation n'est pas disponible en GET.")
 
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()
@@ -449,14 +448,14 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             send_mp(
                 bot,
                 db_object.authors.all(),
-                _(u"Publication acceptée"),
+                _("Publication acceptée"),
                 versioned.title,
                 msg,
                 True,
                 direct=False
             )
 
-            messages.success(self.request, _(u'Le contenu a bien été validé.'))
+            messages.success(self.request, _('Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()
 
         return super(AcceptValidation, self).form_valid(form)
@@ -517,14 +516,14 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         send_mp(
             bot,
             validation.content.authors.all(),
-            _(u"Dépublication"),
+            _("Dépublication"),
             validation.content.title,
             msg,
             True,
             direct=False
         )
 
-        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
+        messages.success(self.request, _("Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
 
         return super(RevokeValidation, self).form_valid(form)

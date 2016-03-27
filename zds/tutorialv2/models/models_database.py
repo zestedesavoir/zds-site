@@ -1,4 +1,4 @@
-# coding: utf-8
+import codecs
 
 from datetime import datetime
 try:
@@ -112,14 +112,14 @@ class PublishableContent(models.Model):
     is_locked = models.BooleanField('Est verrouillé', default=False)
     js_support = models.BooleanField('Support du Javascript', default=False)
 
-    must_reindex = models.BooleanField(u'Si le contenu doit-être ré-indexé', default=True)
+    must_reindex = models.BooleanField('Si le contenu doit-être ré-indexé', default=True)
 
     public_version = models.ForeignKey(
-        'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+        'PublishedContent', verbose_name='Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = PublishableContentManager()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def textual_type(self):
@@ -129,9 +129,9 @@ class PublishableContent(models.Model):
         :rtype: str
         """
         if self.is_article():
-            return _(u"L'Article")
+            return _("L'Article")
         else:
-            return _(u"Le Tutoriel")
+            return _("Le Tutoriel")
 
     def save(self, *args, **kwargs):
         """
@@ -174,7 +174,7 @@ class PublishableContent(models.Model):
 
         return ''
 
-    def get_absolute_contact_url(self, title=u'Collaboration'):
+    def get_absolute_contact_url(self, title='Collaboration'):
         """ Get url to send a new PM for collaboration
 
         :param title: what is going to be in the title of the PM before the name of the content
@@ -182,7 +182,7 @@ class PublishableContent(models.Model):
         :return: url to the PM creation form
         :rtype: str
         """
-        get = '?' + urlencode({'title': u'{} - {}'.format(title, self.title)})
+        get = '?' + urlencode({'title': '{} - {}'.format(title, self.title)})
 
         for author in self.authors.all():
             get += '&' + urlencode({'username': author.username})
@@ -291,7 +291,7 @@ class PublishableContent(models.Model):
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
             raise Http404(
-                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}".format(
+                "Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}".format(
                     type(error), str(error)))
 
     def load_version(self, sha=None, public=None):
@@ -329,10 +329,10 @@ class PublishableContent(models.Model):
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            manifest = open(os.path.join(path, 'manifest.json'), 'r')
-            json = json_reader.loads(manifest.read())
-            versioned = get_content_from_json(json, public.sha_public,
-                                              slug, public=True, max_title_len=max_title_length)
+            with codecs.open(os.path.join(path, 'manifest.json'), 'r', encoding="utf-8") as manifest:
+                json = json_reader.loads(manifest.read())
+                versioned = get_content_from_json(json, public.sha_public,
+                                                  slug, public=True, max_title_len=max_title_length)
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
@@ -347,7 +347,7 @@ class PublishableContent(models.Model):
                 json = json_reader.loads(data)
             except ValueError:
                 raise BadManifestError(
-                    _(u'Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
+                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
 
             versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
@@ -560,7 +560,7 @@ class PublishedContent(models.Model):
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
 
-    def __unicode__(self):
+    def __str__(self):
         return _('Version publique de "{}"').format(self.content.title)
 
     def title(self):
@@ -823,8 +823,8 @@ class ContentReaction(Comment):
     related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
                                         related_name="related_content_note", db_index=True)
 
-    def __unicode__(self):
-        return u'<Tutorial pour "{0}", #{1}>'.format(self.related_content, self.pk)
+    def __str__(self):
+        return '<Tutorial pour "{0}", #{1}>'.format(self.related_content, self.pk)
 
     def get_absolute_url(self):
         """Find the url to the reaction
@@ -855,12 +855,12 @@ class ContentRead(models.Model):
         Save this model but check that if we have not a related note it is because the user is content author.
         """
         if self.user not in self.content.authors.all() and self.note is None:
-            raise ValueError(_(u"La note doit exister ou l'utilisateur doit être l'un des auteurs."))
+            raise ValueError(_("La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
         return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
 
-    def __unicode__(self):
-        return u'<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
+    def __str__(self):
+        return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
 
 
 class Validation(models.Model):
@@ -892,8 +892,8 @@ class Validation(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING')
 
-    def __unicode__(self):
-        return _(u'Validation de « {} »').format(self.content.title)
+    def __str__(self):
+        return _('Validation de « {} »').format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending
