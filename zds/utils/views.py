@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from zds.member.api.serializers import UserListSerializer
 from zds.member.decorator import can_write_and_read_now
 from zds.utils.models import CommentVote
 
@@ -32,16 +33,17 @@ class KarmaView(APIView):
             user_vote = 'neutral'
 
         votes = CommentVote.objects.filter(comment=self.object, id__gt=anon_id_limit).select_related('user').all()
+        like_list = UserListSerializer([vote.user for vote in votes if vote.positive], many=True)
+        dislike_list = UserListSerializer([vote.user for vote in votes if not vote.positive], many=True)
+
         resp = {
             'like': {
                 'count': self.object.like,
-                'list': [{'username': vote.user.username, 'link': vote.user.get_absolute_url(),
-                          'avatarUrl': vote.user.profile.get_avatar_url()} for vote in votes if vote.positive]
+                'list': like_list.data
             },
             'dislike': {
                 'count': self.object.dislike,
-                'list': [{'username': vote.user.username, 'link': vote.user.get_absolute_url(),
-                          'avatarUrl': vote.user.profile.get_avatar_url()} for vote in votes if not vote.positive]
+                'list': dislike_list.data
             },
             'user': user_vote
         }

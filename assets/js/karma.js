@@ -209,7 +209,7 @@
                     $("<li>", { class: "muted", text: "Pas de votes " + (sign === "like" ? "positifs" : "négatifs")}).appendTo(this[sign].listElem);
                 } else {
                     this[sign].listElem.append(data[sign].list.map(function(user) {
-                        return $("<li>").append($("<a>", { href: user.link, text: user.username }).prepend($("<img />", { src: user.avatarUrl })));
+                        return $("<li>").append($("<a>", { href: user.link, text: user.username }).prepend($("<img />", { src: user['avatar_url'] })));
                     }));
 
                     if(data[sign].list.length < data[sign].count) {

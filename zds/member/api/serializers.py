@@ -17,10 +17,11 @@ class UserListSerializer(serializers.ModelSerializer):
     serializers.
     """
     avatar_url = serializers.CharField(source='profile.get_avatar_url')
+    link = serializers.CharField(source='get_absolute_url')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url')
+        fields = ('id', 'username', 'link', 'is_active', 'date_joined', 'avatar_url')
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
@@ -30,6 +31,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
+    link = serializers.CharField(source='user.get_absolute_url')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
     avatar_url = serializers.CharField(source='get_avatar_url')
@@ -37,7 +39,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url', 'permissions')
+        fields = ('id', 'username', 'link', 'is_active', 'date_joined', 'avatar_url', 'permissions')
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
