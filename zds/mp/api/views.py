@@ -18,7 +18,7 @@ from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAloneInPrivatePost, IsAuthor
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
-    PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
+    PrivatePostSerializer, PrivatePostActionSerializer
 from zds.mp.commons import LeavePrivateTopic
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.notification.models import Notification
@@ -377,7 +377,7 @@ class PrivatePostListAPI(ListCreateAPIView):
         if self.request.method == 'GET':
             return PrivatePostSerializer
         elif self.request.method == 'POST':
-            return PrivatePostCreateSerializer
+            return PrivatePostActionSerializer
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
@@ -459,7 +459,7 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'GET':
             return PrivatePostSerializer
         elif self.request.method == 'PUT':
-            return PrivatePostUpdateSerializer
+            return PrivatePostActionSerializer
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
