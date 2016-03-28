@@ -6,6 +6,7 @@ Vous avez la possibilité de générer le (ou les) PDF(s) d'un (ou plusieurs) co
 
 .. sourcecode:: bash
 
+    make generate-pdf # ou la commande suivante :
     python manage.py generate_pdf
 
 Les PDFs de tout les contenus publiés seront alors (re)générés.

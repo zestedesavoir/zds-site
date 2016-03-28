@@ -1,6 +1,20 @@
 all: help
 
-# back
+# install
+## linux
+install-debian:
+	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+
+install-ubuntu:
+	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt1-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+
+install-fedora:
+	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox
+
+install-osx:
+	brew install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox node
+
+# dev back
 ## django
 generate-pdf:
 	python manage.py generate_pdf
@@ -40,6 +54,9 @@ test-back:
 build-front:
 	npm run build
 
+clean-front:
+	npm run clean
+
 install-front:
 	npm install
 
@@ -68,6 +85,10 @@ help:
 	@echo "  help              to get this help"
 	@echo "  install-back      to install backend dependencies"
 	@echo "  install-front     to install frontend dependencies"
+	@echo "  install-debian    to install debian dependencies"
+	@echo "  install-ubuntu    to install ubuntu dependencies"
+	@echo "  install-fedora    to install fedora dependencies"
+	@echo "  install-osx       to install os x dependencies"
 	@echo "  lint-back         to lint backend code (flake8)"
 	@echo "  lint-front        to lint frontend code (jshint)"
 	@echo "  migrate           to migrate the project"

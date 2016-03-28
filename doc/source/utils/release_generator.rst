@@ -6,6 +6,7 @@ Vous pouvez générer des rapports de releases via la commande interactive (depu
 
 .. sourcecode:: bash
 
+    make report-release-back # ou la commande suivante :
     python scripts/release_generator.py
 
 Un fichier markdown ``release_summary.md`` sera alors créé avec :

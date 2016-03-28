@@ -144,7 +144,7 @@ Le CdP (Chef de Projet)
   - Gérer les tensions entre devs/membres si nécessaire
   - Gérer la "vie de l'équipe" et sa logistique (droits github…)
 
-Le Sysadmin (administrateur systeme et reseau)
+Le Sysadmin (administrateur système et réseau)
 ----------------------------------------------
 
   - Roles

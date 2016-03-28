@@ -13,7 +13,7 @@ L'API est toujours en développement et n'est pas encore versionnée. Même si e
 Schéma
 ------
 
-L'API est accessible à partir du domaine ``zestedesavoir.com/api/`` (prochainement ``api.zestedesavoir.com``) et en HTTP ou en HTTPS mais dès lors où vous effectuez des requêtes authentifiées, le HTTPS devient obligatoire. De base, toutes les réponses sont renvoyées en JSON.
+L'API est accessible à partir du domaine ``zestedesavoir.com/api/`` (prochainement ``api.zestedesavoir.com``) et en HTTP ou en HTTPS. Dès lors que vous effectuez des requêtes authentifiées le HTTPS devient obligatoire. De base, toutes les réponses sont renvoyées en JSON.
 
 .. sourcecode:: bash
 
@@ -43,10 +43,10 @@ Tous les timestamp sont retournés sous le format ISO 8601 : ``YYYY-MM-DDTHH:MM:
 Les verbes HTTP
 ---------------
 
-- ``GET`` : Utilisez pour récupérer des ressources.
-- ``POST`` : Utilisez pour créer des ressources.
-- ``PUT`` : Utilisez pour mettre à jour des ressources.
-- ``DELETE`` : Utilisez pour supprimer des ressources.
+- ``GET`` : Utilisés pour récupérer des ressources.
+- ``POST`` : Utilisés pour créer des ressources.
+- ``PUT`` : Utilisés pour mettre à jour des ressources.
+- ``DELETE`` : Utilisés pour supprimer des ressources.
 
 Les autres verbes ne sont pas supportés.
 
@@ -54,13 +54,13 @@ Les autres verbes ne sont pas supportés.
 Les formats d'entrées/sorties
 -----------------------------
 
-Par défaut, le serveur renvoie les réponses sous le format ``JSON`` mais il gère aussi le ``XML``. Pour demander au serveur de renvoyer les réponses sous ce dernier format, il faut utiliser l'en-tête ``Accept`` en spécifiant ``application/xml`` comme valeur (ou ``application/json`` pour renvoyer du ``JSON``).
+Par défaut, le serveur renvoie les réponses au le format ``JSON`` mais il gère aussi le ``XML``. Pour demander au serveur de renvoyer les réponses en ``XML``, il faut utiliser l'en-tête ``Accept`` en spécifiant ``application/xml`` comme valeur (``application/json`` pour recevoir du ``JSON``).
 
 .. sourcecode:: bash
 
     $ curl -H "Accept: application/xml" https://zestedesavoir.com/api/membres/
 
-Les `formats de sorties (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
+Les `formats de sortie (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
 
 .. sourcecode:: python
 
@@ -78,7 +78,7 @@ Plusieurs formats d'entrées sont supportés par le serveur, à savoir le ``JSON
 
     $ curl -H "Content-Type: application/xml" https://zestedesavoir.com/api/membres/
 
-Les `formats d'entrées (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``parser``.
+Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
 
 .. sourcecode:: python
 
@@ -96,7 +96,7 @@ Cache
 
 Un cache spécifique à l'API est mis en place pour mettre en cache toutes les méthodes ``GET``. Le système n'est pas spécifique à Django Rest Framework mais est disponible via une librairie tierce qui a été développée spécialement pour fonctionner avec DRF, `DRF-Extensions (en) <http://chibisov.github.io/drf-extensions/docs/>`_.
 
-Pour placer un cache, il suffit d'annoter la méthode ``GET`` voulue par l'annotation ``@cache_response()`` (comme le mentionne la `documentation à ce sujet (en) <http://chibisov.github.io/drf-extensions/docs/#caching>`_
+Pour placer un cache, il suffit d'annoter la méthode ``GET`` voulue avec l'annotation ``@cache_response()`` (comme le mentionne la `documentation à ce sujet (en) <http://chibisov.github.io/drf-extensions/docs/#caching>`_
 ). Par exemple, la méthode ``GET`` pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.
 
 .. sourcecode:: python
@@ -116,11 +116,11 @@ Pour enrichir la clé d'un cache, DRF-Extensions propose les ``KeyConstructor``.
 ETag
 ----
 
-Un ETag est un identifiant unique assigné par le serveur à chaque version d'une ressource accessible via une URL. Si la ressource accessible via cette URL change, un nouvel ETag différent du précédent sera assigné. Cela permet notamment d'alléger le serveur lorsque le client utilise cet en-tête pour que le serveur ne calcul que l'ETag de la ressource et juge nécessaire ou non d'effectuer la requête en base de données si l'ancien et le nouveau ETag sont différents.
+Un ETag est un identifiant unique assigné par le serveur à chaque version d'une ressource accessible via une URL. Si la ressource accessible via cette URL change, un nouvel ETag sera assigné. Lorsque le client utilise cet en-tête, cela permet d'alléger le serveur : il suffit au serveur de comparer l'ETag de la ressource et celui fourni par le client pour décider si une requête en base de données est nécessaire.
 
 Le calcul de l'ETag n'est pas natif à Django Rest Framework mais est accessible via la `bibliothèque DRF-Extensions (en) <http://chibisov.github.io/drf-extensions/docs/#conditional-requests>`_. Le calcul est ajouté sur toutes les méthodes ``GET`` et ``PUT``. Il est inutile de calculer des ETags pour des requêtes ``POST`` et ``DELETE`` puisque ces deux méthodes ont pour objectif de créer et supprimer des ressources.
 
-Pour placer un ETag, il suffit d'annoter la méthode voulue par l'annotation ``@etag()``. Par exemple, la méthode ``GET`` pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.
+Pour placer un ETag, il suffit d'annoter la méthode voulue avec l'annotation ``@etag()``. Par exemple, la méthode ``GET`` pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.
 
 .. sourcecode:: python
 
@@ -138,7 +138,7 @@ Pour enrichir la clé de l'ETag, DRF-Extensions propose les ``KeyConstructor``. 
 
 **Note :** L'ETag et le cache peuvent fonctionner ensemble. Une méthode peut être annotée avec ``@etag()`` et ``@cache_response()``.
 
-Pour utiliser un ETag, faite une requête vers n'importe quelle ressource en ``GET`` ou ``PUT``. Dans les en-têtes de la réponse, il y figurera l'ETag avec sa valeur. Pour les prochaines requêtes vers cette même ressource, renseignez l'en-tête ``If-None-Match`` et l'ETag sauvegardé comme valeur.
+Pour utiliser un ETag, faites une requête vers n'importe quelle ressource en ``GET`` ou ``PUT``. Dans les en-têtes de la réponse figurera l'ETag et sa valeur. Pour les prochaines requêtes vers cette même ressource, renseignez l'en-tête ``If-None-Match`` avec l'ETag sauvegardé comme valeur.
 
 .. sourcecode:: bash
 
@@ -149,7 +149,7 @@ Si le serveur constate qu'il n'y a aucun changement dans la ressource, il renver
 Throttling
 ----------
 
-Le `throttling` permet de poser des limites quant au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier ``settings.py`` du projet sous l'attribut ``DEFAULT_THROTTLE_CLASSES`` du dictionnaire ``REST_FRAMEWORK`` pour spécifier les types de throttling à appliquer et sous ``DEFAULT_THROTTLE_RATES`` pour spécifier les taux.
+Le `throttling` permet d'imposer des limites au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier ``settings.py`` du projet sous l'attribut ``DEFAULT_THROTTLE_CLASSES`` du dictionnaire ``REST_FRAMEWORK`` pour spécifier les types de throttling à appliquer et sous ``DEFAULT_THROTTLE_RATES`` pour spécifier les taux.
 
 .. sourcecode:: python
 
@@ -169,9 +169,9 @@ Il existe d'autres configurations possibles. Pour en prendre conscience, rendez-
 Pagination
 ----------
 
-La pagination permet d'éviter au serveur de faire des requêtes trop lourdes sur la base de données. Par exemple, si un client désire récupérer la liste de tous les utilisateurs de la plateforme et que cette même plateforme dispose d'un très grand nombre d'utilisateurs, la requête en base de données pourrait être lourde. Coupler à ceci des intentions malveillantes pour faire tomber le serveur, cela en devient presque une sécurité de paginer les listes de ressources.
+La pagination permet d'éviter au serveur de faire des requêtes trop lourdes sur la base de données. Par exemple, si un client désire récupérer la liste de tous les utilisateurs de la plateforme et que cette même plateforme dispose d'un très grand nombre d'utilisateurs, la requête en base de données pourrait être lourde. Coupler à ceci des intentions malveillantes pour faire tomber le serveur, paginer les listes de ressources est presque une mesure de sécurité.
 
-La pagination peut être configurée directement dans les vues de l'API mais aussi dans le fichier ``settings.py`` pour s'appliquer à l'ensemble des listes de toutes les ressources de l'API. Dans le fichier ``settings.py``, ``PAGINATE_BY`` renseigne la taille d'une page, ``PAGINATE_BY_PARAM`` permet aux clients de modifier la taille d'une page et ``MAX_PAGINATE_BY`` permet de limiter cette dernière customisation.
+La pagination peut être configurée directement dans les vues de l'API mais aussi dans le fichier ``settings.py`` pour s'appliquer à l'ensemble des listes des ressources de l'API. Dans le fichier ``settings.py``, ``PAGINATE_BY`` renseigne la taille d'une page, ``PAGINATE_BY_PARAM`` permet aux clients de modifier la taille d'une page et ``MAX_PAGINATE_BY`` permet d'imposer une taille maximale.
 
 .. sourcecode:: python
 
@@ -183,13 +183,13 @@ La pagination peut être configurée directement dans les vues de l'API mais aus
 
 Toutes les informations complémentaires à ce sujet sont disponibles dans la `documentation de la pagination (en) <http://www.django-rest-framework.org/api-guide/pagination/>`_.
 
-Son utilisation est simple, il suffit de renseigner la page avec le paramètre ``page`` et, optionnellement, ``page_size`` pour renseigner la taille de la page. Par exemple, récupérer la page 2 d'une page de taille 2 ressemblera à la requête suivante.
+Son utilisation est simple, il suffit de renseigner la page avec le paramètre ``page`` et, optionnellement, ``page_size`` pour renseigner la taille de la page. Par exemple, récupérer la page 2 d'une page de taille 3 ressemblera à la requête suivante.
 
 .. sourcecode:: bash
 
-    $ curl https://zestedesavoir.com/api/membres/?page=2&page_size=2
+    $ curl https://zestedesavoir.com/api/membres/?page=2&page_size=3
 
-Dans la réponse, on retrouve des méta informations à propos de la liste : la taille totale de la liste, l'URL vers la page suivante et précédente et la liste attendue avec la ressource souhaitée.
+Dans la réponse, on retrouve des méta informations à propos de la liste : la taille totale de la liste, l'URL vers les pages suivantes et précédentes et la liste attendue avec la ressource souhaitée.
 
 .. sourcecode:: json
 
@@ -219,9 +219,9 @@ Authentification
 Bibliothèque tierce choisie
 ---------------------------
 
-Django Rest Framework supporte plusieurs systèmes d'authentification (comme en témoigne la `documentation sur l'authentification (en) <http://www.django-rest-framework.org/api-guide/authentication/>`_). Sur Zeste de Savoir, il a été décidé d'utiliser l'OAuth2 (dont la spécification du protocole est disponible via `ce lien (en) <http://tools.ietf.org/html/rfc6749>`_) pour tenter d'avoir le système le plus sécurisé possible.
+Django Rest Framework supporte plusieurs systèmes d'authentification (comme en témoigne la `documentation sur l'authentification (en) <http://www.django-rest-framework.org/api-guide/authentication/>`_). Sur Zeste de Savoir, il a été décidé d'utiliser OAuth2 (dont la spécification du protocole est disponible via `ce lien (en) <http://tools.ietf.org/html/rfc6749>`_) pour tenter d'avoir le système le plus sécurisé possible.
 
-L'authentification n'est pas directement dans Django Rest Framework, il ne fait que supporter des librairies tierces qui s'en occupe. La librairie choisie est `Django OAuth Toolkit <https://django-oauth-toolkit.readthedocs.org/en/0.7.0/>`_ pour sa forte compatibilité avec Django Rest Framework, sa maintenance et sa compatibilité Python 3 et Django 1.7 (ou plus).
+L'authentification n'est pas directement dans Django Rest Framework, il ne fait que supporter des librairies tierces qui s'en occupent. La librairie choisie est `Django OAuth Toolkit <https://django-oauth-toolkit.readthedocs.org/en/0.7.0/>`_ pour sa forte compatibilité avec Django Rest Framework, sa maintenance et sa compatibilité Python 3 et Django 1.7 (ou plus).
 
 Toute sa configuration est détaillée dans la `documentation de cette bibliothèque <https://django-oauth-toolkit.readthedocs.org/en/0.7.0/rest-framework/getting_started.html>`_.
 
@@ -231,29 +231,29 @@ Utilisation
 Créer un client
 ^^^^^^^^^^^^^^^
 
-Des requêtes authentifiées ne peuvent se faire sans un client. Ce client est appelé "Application" dans Django OAuth Toolkit. C'est pourquoi, il sera nommé ainsi dans la suite de cette documentation. Pour créer une application, il faut en demander la création auprès d'un administrateur de la plateforme où il sera en mesure d'en créer 2 types : confidentiel et public. Une application confidentielle permet l'utilisation d'un ``refresh_token`` au contraire d'une application publique qui se contente de renvoyer un ``access_token``.
+Des requêtes authentifiées ne peuvent se faire sans un client. Ce client est appelé "Application" dans Django OAuth Toolkit. C'est pourquoi il sera nommé ainsi dans la suite de cette documentation. Pour créer une application, il faut en demander la création auprès des administrateurs de la plateforme. Ils seront en mesure d'en créer 2 types : confidentielle et publique. Une application confidentielle permet l'utilisation d'un ``refresh_token`` au contraire d'une application publique qui se contente d'envoyer un ``access_token``.
 
-Pour l'administrateur, il doit se rendre dans la section "OAuth2_provider", puis créer une application. Un identifiant et une clé secrète cliente seront automatiquement générés et seront les informations à communiquer auprès du développeur tiers. Après, il doit renseigner au minimum l'utilisateur concerné par la demande, le type du client et le `grant type`.
+Dans l'interface d'administration de Django, se rendre dans la section "OAuth2_provider" puis créer une application. Un identifiant et une clé secrète cliente seront automatiquement générés et seront les informations à communiquer auprès des développeurs tiers. Il est ensuite nécessaire de renseigner au minimum la personne concernée par la demande, le type du client et le `grant type`.
 
-- Utilisateur concerné : Cela ne veut pas dire que cet utilisateur est le seul à pouvoir s'authentifier avec l'application. Cela le rend juste responsable en cas de dérive.
+- Utilisateurs concernés : Cela ne veut pas dire que ces utilisateurs sont les seuls à pouvoir s'authentifier avec l'application. Cela les rend juste responsables en cas de dérive.
 - Type du client : Privilégiez le type confidentiel au public pour permettre aux clients tiers de ne pas redemander aux utilisateurs leurs informations de connexion après l'expiration de leur token.
-- `grant type` : Renseignez `Resource owner password-based` pour baser l'authentification sur le mot de passe de l'utilisateur final.
+- `grant type` : Renseignez `Resource owner password-based` pour baser l'authentification sur le mot de passe du compte utilisateur sur la plateforme.
 
 Récupérer les tokens d'authentification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pour récupérer les tokens, le développeur doit exécuter une requête en ``POST`` et en spécifiant l'identifiant et la clé secrète de l'application, le `grant type` spécifié dans l'application et le pseudo/mot de passe de l'utilisateur qui souhaite s'authentifier. Une requête basique ressemblerait à la commande ci-dessous. Toute fois, sachez que les caractères spéciaux doivent être échappés dans une commande ``curl`` comme celle exposé dans cette documentation. On ne peut que vous conseiller d'exécuter cette même requête plutôt dans une console REST comme il en existe des centaines.
+Pour récupérer les tokens, les développeurs doivent exécuter une requête en ``POST`` et en spécifiant l'identifiant et la clé secrète de l'application, le `grant type` spécifié dans l'application et le pseudo/mot de passe du compte utilisateur qui souhaite s'authentifier. Une requête basique ressemblerait à la commande ci-dessous. Toute fois, sachez que les caractères spéciaux doivent être échappés dans une commande ``curl`` comme celle exposé dans cette documentation. On ne peut que vous conseiller d'exécuter cette même requête plutôt dans une console REST comme il en existe des centaines.
 
 .. sourcecode:: bash
 
     $ curl -X POST -d "client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD" https://zestedesavoir.com/oauth2/token/
 
-Si l'application est bien en confidentielle, la réponse à cette requête exposera 2 tokens, son type, sa date d'expiration et sa portée.
+Si l'application est bien en "confidentiel", la réponse à cette requête exposera 2 tokens, son type, sa date d'expiration et sa portée.
 
 - ``access_token`` : Token a utiliser dans les requêtes que vous souhaitez authentifier.
 - ``token_type`` : Le type de l'OAuth2 sera toujours `Bearer` et devra être spécifié dans les prochaines requêtes.
 - ``expires_in`` : Le `timestamp` correspondant à la date d'expiration de l'``access_token``.
-- ``refresh_token`` : Permet d'effectuer une nouveau requête pour récupérer les tokens d'authentification sans spécifier le pseudo et le mot de passe de l'utilisateur.
+- ``refresh_token`` : Permet d'effectuer une nouveau requête pour récupérer les tokens d'authentification sans spécifier le pseudo et le mot de passe utilisateur.
 - ``scope`` : Portée du token d'authentification générée pour le serveur.
 
 .. sourcecode:: json
@@ -271,7 +271,7 @@ Si l'application est bien en confidentielle, la réponse à cette requête expos
 Utiliser un access_token
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Pour utiliser l'``access_token``, il faut le renseigner dans l'en-tête de la requête sous l'attribut ``Authorization`` avec comme valeur ``Bearer wERPXXHpYAsJV29eATLjSO2u5bamyw``. 
+Pour utiliser l'``access_token``, il faut le renseigner dans l'en-tête de la requête sous l'attribut ``Authorization`` avec comme valeur ``Bearer wERPXXHpYAsJV29eATLjSO2u5bamyw``.
 
 .. sourcecode:: bash
 
@@ -293,7 +293,7 @@ A la suite de cela, de nouveaux tokens seront renvoyés et devront être sauvega
 Django REST Swagger
 ===================
 
-Django REST Swagger est une bibliothèque qui génère automatiquement la documentation d'une API Django basé sur la bibliothèque Django REST framework.
+Django REST Swagger est une bibliothèque qui génère automatiquement la documentation d'une API Django basée sur la bibliothèque Django REST framework.
 
 Cette documentation est accessible par l'url ``http://zestedesavoir.com/api/`` et, via cette page, il est possible de :
 
