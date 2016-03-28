@@ -68,7 +68,7 @@ watch-front:
 
 # generic utils
 
-clean: clean-back
+clean: clean-back clean-front
 
 doc:
 	cd doc && \
@@ -91,9 +91,14 @@ help:
 	@echo "  install-osx       to install os x dependencies"
 	@echo "  lint-back         to lint backend code (flake8)"
 	@echo "  lint-front        to lint frontend code (jshint)"
+	@echo "  clean-back        to clean *.pyc"
+	@echo "  clean-front       to clean frontend builds"
+	@echo "  clean             to clean everything"
+	@echo "  watch-front       to watch frontend code"
 	@echo "  migrate           to migrate the project"
 	@echo "  report-release-back  to generate release report"
 	@echo "  run               to run the project locally"
+	@echo "  run-back          to only run the backend"
 	@echo "  shell             to get django shell"
 	@echo "  test              to run django tests"
 	@echo "Open this Makefile to see what each target does."
