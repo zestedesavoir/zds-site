@@ -187,7 +187,7 @@ class Comment(models.Model):
 
     def get_user_vote(self, user):
         """ Get a user vote (like, dislike or neutral) """
-        if(user.is_authenticated()):
+        if user.is_authenticated():
             try:
                 user_vote = 'like' if CommentVote.objects.get(user=user,
                                                               comment=self).positive else 'dislike'
