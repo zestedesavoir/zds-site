@@ -20,19 +20,21 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, CanReadTopic
 from zds.member.decorator import can_write_and_read_now
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
+from zds.utils.api.views import KarmaView
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
-from zds.utils.views import KarmaView
 
 
 class CategoriesForumsListView(ListView):
@@ -563,14 +565,8 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
 
 class PostKarma(KarmaView):
-    message_class = Post
-    list_like = True
-
-    def dispatch(self, request, *args, **kwargs):
-        self.object = get_object_or_404(self.message_class, pk=self.kwargs.get('pk'))
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        return super(KarmaView, self).dispatch(request, *args, **kwargs)
+    queryset = Post.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, CanReadTopic)
 
 
 class FindPost(FindTopic):

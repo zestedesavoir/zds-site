@@ -34,7 +34,7 @@
             this.karmaURI = this.karmaElem.data("karma-uri");
 
             /**
-             * @member {string} - Token to pass when doing a post request
+             * @member {string} - Token to pass when doing a put request
              */
             this.csrf = $("input[name=csrfmiddlewaretoken]").val();
 
@@ -82,7 +82,14 @@
          */
         vote: function(vote, event) {
             if(vote === this.currentVote) vote = "neutral";
-            $.post(this.karmaURI, { "vote": vote, "csrfmiddlewaretoken": this.csrf }).done(this.update.bind(this));
+            $.ajax({
+              method: "PUT",
+              url: this.karmaURI,
+              data: { "vote": vote },
+              headers: {
+                "X-CSRFToken": this.csrf
+              }
+            }).done(this.update.bind(this));
 
             if(event) {
                 event.preventDefault();
