@@ -620,6 +620,7 @@ class PrivatePostListAPI(APITestCase):
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
         self.private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.private_topic.participants.add(ProfileFactory().user)
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -832,15 +833,31 @@ class PrivatePostListAPI(APITestCase):
         response = self.client.post(reverse('api-mp-message-list', args=[99999]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_create_post(self):
+    def test_create_post_in_a_private_topic_with_messages(self):
         """
-        Creates a post in a topic
+        Creates a post in a private topic with existing messages.
         """
+        PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1)
+        participant = ProfileFactory()
+        self.private_topic.participants.add(participant.user)
+        PrivatePostFactory(author=participant.user, privatetopic=self.private_topic, position_in_topic=2)
+
         data = {
             'text': 'Welcome to this private post!'
         }
         response = self.client.post(reverse('api-mp-message-list', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_post_without_any_participant(self):
+        """
+        Creates a post in a topic without any participant.
+        """
+        data = {
+            'text': 'Welcome to this private post!'
+        }
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        response = self.client.post(reverse('api-mp-message-list', args=[private_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivatePostDetailAPI(APITestCase):

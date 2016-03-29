@@ -16,7 +16,7 @@ from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
-    IsAloneInPrivatePost, IsAuthor
+    IsAuthor, IsNotAloneInPrivatePost
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
     PrivatePostSerializer, PrivatePostActionSerializer
 from zds.mp.commons import LeavePrivateTopic
@@ -373,20 +373,17 @@ class PrivatePostListAPI(ListCreateAPIView):
         """
         return self.create(request, *args, **kwargs)
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, DRYPermissions, ]
+        if self.request.method == 'POST':
+            permission_classes.append(IsNotAloneInPrivatePost)
+        return [permission() for permission in permission_classes]
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return PrivatePostSerializer
         elif self.request.method == 'POST':
             return PrivatePostActionSerializer
-
-    def get_permissions(self):
-        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
-        if self.request.method == 'GET':
-            permission_classes.append(DRYPermissions)
-        elif self.request.method == 'POST':
-            permission_classes.append(IsAloneInPrivatePost)
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))

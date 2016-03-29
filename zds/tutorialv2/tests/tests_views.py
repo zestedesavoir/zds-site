@@ -27,6 +27,16 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
+
+from zds.gallery.factories import UserGalleryFactory
+from zds.gallery.models import Image
+from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.models import Topic, Post, TopicFollowed, TopicRead
+from zds.mp.models import PrivateTopic
+from django.utils.encoding import smart_text
+
+from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
+from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
 from zds.utils.templatetags.interventions import interventions_topics
