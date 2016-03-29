@@ -6,13 +6,14 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Count
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, FormView
+from django.views.generic import RedirectView, FormView, ListView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
@@ -22,7 +23,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
+from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
@@ -267,11 +268,13 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
     template_name = 'tutorialv2/index_online.html'
+    category = None
     tag = None
+    current_content_type = None
 
     def get_queryset(self):
         """Filter the contents to obtain the list of given type.
-        If tag parameter is provided, only contents which have this category will be listed.
+        If category parameter is provided, only contents which have this category will be listed.
 
         :return: list of contents with the good type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
@@ -282,7 +285,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             "tutorialv2_contentreaction.related_content_id",
             r"`tutorialv2_publishablecontent`.`id`"
         )
-        queryset = PublishedContent.objects.filter(content_type=self.current_content_type, must_redirect=False)
+        queryset = PublishedContent.objects.filter(must_redirect=False)
+        if self.current_content_type:
+            queryset = queryset.filter(content_type=self.current_content_type)
 
         # prefetch:
         queryset = queryset\
@@ -296,9 +301,12 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__last_note__related_content__public_version')\
             .filter(pk=F('content__public_version__pk'))
 
+        if 'category' in self.request.GET:
+            self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
+            queryset = queryset.filter(content__subcategory__in=[self.category])
         if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
-            queryset = queryset.filter(content__subcategory__in=[self.tag])
+            self.tag = get_object_or_404(Tag, slug=self.request.GET.get('tag'))
+            queryset = queryset.filter(content__tags__in=[self.tag])
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
@@ -309,7 +317,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
-        context['tag'] = self.tag
+        context['category'] = self.category
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
@@ -733,3 +741,18 @@ class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, F
         if self.request.is_ajax():
             return HttpResponse(json_writer.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
+
+
+class TagsListView(ListView):
+
+    model = Tag
+    template_name = "tutorialv2/view/tags.html"
+    context_object_name = 'tags'
+
+    def get_queryset(self):
+        tags_pk = [tag['content__tags'] for tag in PublishedContent.objects.values('content__tags').distinct()]
+        queryset = Tag.objects\
+            .filter(pk__in=tags_pk)\
+            .annotate(num_content=Count('publishablecontent__publishedcontent'))\
+            .order_by('-num_content', 'title')
+        return queryset

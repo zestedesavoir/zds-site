@@ -11,24 +11,28 @@ except ImportError:
 
 from math import ceil
 import shutil
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import Http404
+from django.utils.encoding import smart_text
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
+
 from git import Repo, BadObject
 from gitdb.exc import BadName
 import os
 from uuslug import uuslug
+
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
-from zds.utils.models import SubCategory, Licence, HelpWriting, Comment
+from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
@@ -42,7 +46,7 @@ class PublishableContent(models.Model):
 
     A PublishableContent retains metadata about a content in database, such as
 
-    - authors, description, source (if the content comes from another website), subcategory and licence ;
+    - authors, description, source (if the content comes from another website), subcategory, tags and licence ;
     - Thumbnail and gallery ;
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
@@ -63,6 +67,7 @@ class PublishableContent(models.Model):
                                          verbose_name='Sous-Catégorie',
                                          blank=True, db_index=True)
 
+    tags = models.ManyToManyField(Tag, verbose_name='Tags du contenu', blank=True, db_index=True)
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',
@@ -512,6 +517,23 @@ class PublishableContent(models.Model):
                 shutil.rmtree(self.public_version.get_prod_path())
 
         Validation.objects.filter(content=self).delete()
+
+    def add_tags(self, tag_collection):
+        """
+        Add all tags contained in `tag_collection` to this content.
+        If a tag is unknown, it is added to the system.
+        :param tag_collection: A collection of tags.
+        :type tag_collection: list
+        """
+        for tag in tag_collection:
+            tag_title = smart_text(tag.strip().lower())
+            current_tag = Tag.objects.filter(title=tag_title).first()
+            if current_tag is None:
+                current_tag = Tag(title=tag_title)
+                current_tag.save()
+
+            self.tags.add(current_tag)
+        self.save()
 
 
 @receiver(pre_delete, sender=PublishableContent)

@@ -310,6 +310,10 @@
         padding-top: 3px;
         padding-bottom: 0;
     }
+    // used in the "new content" page
+    .checkbox-new-content {
+        padding: 0;
+    }
 }
 
 @media only screen and #{$media-wide} {

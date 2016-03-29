@@ -1,0 +1,38 @@
+{% extends "tutorialv2/base.html" %}
+{% load profile %}
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+
+
+{% block title %}
+    {% trans "Liste des tags" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Liste des tags" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+
+{% endblock %}
+
+
+
+{% block content %}
+    {% for tag in tags %}
+        <div class="content-tag">
+            <a href="{% url 'content:list' %}?tag={{ tag.slug }}">
+                <strong>{{ tag }}</strong>
+                <span>{{ tag.num_content }} {% trans "contenu" %}{{ tag.num_content|pluralize }}</span>
+            </a>
+        </div>
+    {% empty %}
+        <p>{% trans "Aucun tag." %}</p>
+    {% endfor %}
+{% endblock %}

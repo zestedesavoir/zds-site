@@ -341,6 +341,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             .prefetch_related('content')\
             .prefetch_related("content__authors")\
             .prefetch_related("content__subcategory")\
+            .prefetch_related("content__tags")\
             .prefetch_related('content__public_version')\
             .select_related('content__last_note')
 

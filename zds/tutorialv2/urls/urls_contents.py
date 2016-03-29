@@ -9,7 +9,7 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, FollowContent
+    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, FollowContent
 
 
 urlpatterns = [
@@ -135,5 +135,10 @@ urlpatterns = [
 
     # markdown import
     url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
-    url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import")
+    url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
+
+    # tags
+    url(r'^tags/$', TagsListView.as_view(), name='tags'),
+
+    url(r'^$', ListOnlineContents.as_view(), name='list'),
 ]

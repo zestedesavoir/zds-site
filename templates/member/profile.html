@@ -125,7 +125,7 @@
             <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">{% trans "Derniers tutoriels" %}</h2>
             <div class="content-item-list">
                 {% for public_tutorial in tutorials %}
-                    {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with show_description=True %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_tutorial %}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>
@@ -138,7 +138,7 @@
             <h2 class="ico-after ico-articles" id="derniers-articles">{% trans "Derniers articles" %}</h2>
             <div class="content-item-list">
                 {% for public_article in articles %}
-                    {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_tutorial %}
                 {% endfor %}
             </div>
         {% endif %}

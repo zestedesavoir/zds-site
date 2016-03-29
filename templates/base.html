@@ -193,7 +193,7 @@
 
                                     <ul class="dropdown-list">
                                         {% with categories='TUTORIAL'|top_categories_content %}
-                                            {% for title, subcats in categories.items %}
+                                            {% for title, subcats in categories.categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
@@ -201,7 +201,7 @@
                                                         </li>
                                                         {% for subcat,slug in subcats %}
                                                             <li>
-                                                                <a href="{% url "tutorial:list" %}?tag={{ slug }}">
+                                                                <a href="{% url "tutorial:list" %}?category={{ slug }}">
                                                                     {{  subcat }}
                                                                 </a>
                                                             </li>
@@ -215,6 +215,19 @@
                                                     </li>
                                                 </ul>
                                             {% endfor %}
+                                            {% if categories.tags %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Tags les plus utilisés" %}
+                                                        </li>
+                                                        {% for tag in categories.tags %}
+                                                            <li><a href="{% url 'tutorial:list' %}?tag={{ tag.slug }}">{{ tag }}</a></li>
+                                                        {% endfor %}
+                                                        <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                    </ul>
+                                                </li>
+                                            {% endif %}
                                         {% endwith %}
                                     </ul>
                                 </div>
