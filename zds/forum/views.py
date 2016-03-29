@@ -20,16 +20,13 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
-from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, CanReadTopic
 from zds.member.decorator import can_write_and_read_now
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
-from zds.utils.api.views import KarmaView
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
@@ -562,11 +559,6 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
         return redirect(reverse("forum-topics-list", args=[
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
-
-
-class PostKarma(KarmaView):
-    queryset = Post.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly, CanReadTopic)
 
 
 class FindPost(FindTopic):

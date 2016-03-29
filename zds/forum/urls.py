@@ -5,7 +5,7 @@ from django.conf.urls import url
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostUseful, PostUnread, FindPost, followed_topics, solve_alert, complete_topic, PostKarma
+    PostUseful, PostUnread, FindPost, followed_topics, solve_alert, complete_topic
 
 
 urlpatterns = [
@@ -40,7 +40,6 @@ urlpatterns = [
     url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
-    url(r'^message/karma/(?P<pk>\d+)/$', PostKarma.as_view(), name='post-karma'),
 
     # Categories and forums list.
     url(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),

@@ -2,7 +2,6 @@
 
 from datetime import datetime
 
-from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -10,15 +9,6 @@ from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, Topi
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentVote
-
-try:
-    import ujson as json_reader
-except ImportError:
-    try:
-        import simplejson as json_reader
-    except ImportError:
-        import json as json_reader
 
 
 class CategoriesForumsListViewTests(TestCase):
@@ -1438,155 +1428,6 @@ class PostUnreadTest(TestCase):
         response = self.client.get(reverse('post-unread') + '?message={}'.format(post.pk), follow=False)
 
         self.assertEqual(302, response.status_code)
-
-
-class PostLikeDisLikeTest(TestCase):
-    def test_failure_post_like_and_dislike_with_client_unauthenticated(self):
-        profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        another_profile = ProfileFactory()
-        post = PostFactory(topic=topic, author=another_profile.user, position=2)
-
-        response = self.client.post(reverse('post-karma', args=(post.pk,)), follow=False)
-        self.assertEqual(302, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_sanctioned_user(self):
-        profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        another_profile = ProfileFactory()
-        post = PostFactory(topic=topic, author=another_profile.user, position=2)
-
-        profile = ProfileFactory()
-        profile.can_read = False
-        profile.can_write = False
-        profile.save()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-karma', args=(post.pk,)))
-        self.assertEqual(403, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_a_message_not_found(self):
-        profile = ProfileFactory()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-karma', args=(99999,)), follow=False)
-        self.assertEqual(404, response.status_code)
-
-    def test_failure_post_like_and_dislike_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
-
-        profile = ProfileFactory()
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-karma', args=(topic.last_message.pk,)), {'vote': 'like'})
-        self.assertEqual(403, response.status_code)
-
-    def test_success_post_like_and_dislike(self):
-        profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        another_profile = ProfileFactory()
-        post = PostFactory(topic=topic, author=another_profile.user, position=2)
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-karma', args=(post.pk,)), {'vote': 'like'}, follow=False)
-        self.assertEqual(302, response.status_code)
-
-    def test_find_likers_and_dislikers(self):
-        profile = ProfileFactory()
-        profile2 = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        another_profile = ProfileFactory()
-
-        upvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=2)
-        upvoted_answer.like += 2
-        upvoted_answer.save()
-        CommentVote.objects.create(user=profile.user, comment=upvoted_answer, positive=True)
-
-        downvoted_answer = PostFactory(topic=topic, author=another_profile.user, position=3)
-        downvoted_answer.dislike += 2
-        downvoted_answer.save()
-        anon_limit = CommentVote.objects.create(user=profile.user, comment=downvoted_answer, positive=False)
-
-        CommentVote.objects.create(user=profile2.user, comment=upvoted_answer, positive=True)
-        CommentVote.objects.create(user=profile2.user, comment=downvoted_answer, positive=False)
-
-        equal_answer = PostFactory(topic=topic, author=another_profile.user, position=4)
-        equal_answer.like += 1
-        equal_answer.dislike += 1
-        equal_answer.save()
-        CommentVote.objects.create(user=profile.user, comment=equal_answer, positive=True)
-        CommentVote.objects.create(user=profile2.user, comment=equal_answer, positive=False)
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-
-        # on first message we should see 2 likes and 0 anonymous
-        response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),
-                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, response.status_code)
-        json = json_reader.loads(response.content)
-        self.assertEqual(2, len(json['like']['list']))
-        self.assertEqual(0, len(json['dislike']['list']))
-        self.assertEqual(2, json['like']['count'])
-        self.assertEqual(0, json['dislike']['count'])
-
-        # on second message we should see 2 dislikes and 0 anonymous
-        response = self.client.get(reverse('post-karma', args=[downvoted_answer.pk]),
-                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, response.status_code)
-        json = json_reader.loads(response.content)
-        self.assertEqual(0, len(json['like']['list']))
-        self.assertEqual(2, len(json['dislike']['list']))
-        self.assertEqual(0, json['like']['count'])
-        self.assertEqual(2, json['dislike']['count'])
-
-        # on third message we should see 1 like and 1 dislike and 0 anonymous
-        response = self.client.get(reverse('post-karma', args=[equal_answer.pk]),
-                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, response.status_code)
-        json = json_reader.loads(response.content)
-        self.assertEqual(1, len(json['like']['list']))
-        self.assertEqual(1, len(json['dislike']['list']))
-        self.assertEqual(1, json['like']['count'])
-        self.assertEqual(1, json['dislike']['count'])
-
-        # Now we change the settings to keep anonymous the first [dis]like
-        settings.VOTES_ID_LIMIT = anon_limit.pk
-        # and we run the same tests
-        # on first message we should see 1 like and 1 anonymous
-        response = self.client.get(reverse('post-karma', args=[upvoted_answer.pk]),
-                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, response.status_code)
-        json = json_reader.loads(response.content)
-        self.assertEqual(1, len(json['like']['list']))
-        self.assertEqual(0, len(json['dislike']['list']))
-        self.assertEqual(2, json['like']['count'])
-        self.assertEqual(0, json['dislike']['count'])
-
-        # on second message we should see 1 dislikes and 1 anonymous
-        response = self.client.get(reverse('post-karma', args=[downvoted_answer.pk]),
-                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, response.status_code)
-        json = json_reader.loads(response.content)
-        self.assertEqual(0, len(json['like']['list']))
-        self.assertEqual(1, len(json['dislike']['list']))
-        self.assertEqual(0, json['like']['count'])
-        self.assertEqual(2, json['dislike']['count'])
-
-        # on third message we should see 1 like and 1 dislike and 0 anonymous
-        response = self.client.get(reverse('post-karma', args=[equal_answer.pk]),
-                                   {}, "text/json", HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        self.assertEqual(200, response.status_code)
-        json = json_reader.loads(response.content)
-        self.assertEqual(1, len(json['like']['list']))
-        self.assertEqual(1, len(json['dislike']['list']))
-        self.assertEqual(1, json['like']['count'])
-        self.assertEqual(1, json['dislike']['count'])
 
 
 class FindPostTest(TestCase):
