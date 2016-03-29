@@ -41,7 +41,7 @@
 
 {% block content_out %}
     <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% endif %}" itemprop="name">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag }}

@@ -31,7 +31,9 @@ def categories_to_tags():
                 current_tag.save()
                 print('[ZEP-25] : Tag "{}" added'.format(current_tag))
                 n += 1
-            content.tags.add(current_tag)
+            # do not add "autre" tag (useless)
+            if current_tag != 'autre':
+                content.tags.add(current_tag)
         content.save()
     print('[ZEP-25] : {} new tag(s)'.format(n))
 
@@ -119,17 +121,22 @@ def update_categories():
 
 def alert_authors():
     """
-    Send a private message to all authors for new tags system.
+    Send a private message to all authors (with a `PublishableContent`) for new tags system.
 
     :return: None
     """
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+    bots = [
+        get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account']),
+        get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account']),
+        get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
+    ]
     users = []
     contents = PublishableContent.objects.all()
     for content in contents:
         authors = content.authors.all()
         for author in authors:
-            if author not in users:
+            if author not in users and author not in bots:
                 users.append(author)
     for user in users:
         msg = 'Bonjour {0},\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutoriels ' \
@@ -137,11 +144,11 @@ def alert_authors():
               'savoir.com/forums/sujet/2378/zep-25-categorisation-des-articles-et-tutoriels/)). Les **tags** ont fait' \
               ' leur apparition et les catégories ont été revues afin de faciliter et d\'aléger cette classification.' \
               '\n\nLes anciennes catégories ont été transformées en tags et de nouvelles catégories plus générales on' \
-              't été ajoutés. L\'équipe de Zeste de Savoir va (ou a déjà) changé les catégories des contenus publiés.' \
-              '\n\nNous vous invitons à vérifier la catégorie de vos [articles](https://zestedesavoir.com/contenus/ar' \
-              'ticles/{1}/) et [tutoriels](https://zestedesavoir.com/contenus/tutoriels/{1}/) mais également la perti' \
-              'nence des tags et en ajouter si besoin.\n\n\nNous restons à votre disposition et votre écoute pour tou' \
-              'tes suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'
+              't été ajoutés. L\'équipe de Zeste de Savoir va ou a déjà changé les catégories des contenus publiés.\n' \
+              '\nNous vous invitons à vérifier la catégorie de vos [articles](https://zestedesavoir.com/contenus/arti' \
+              'cles/{1}/) et [tutoriels](https://zestedesavoir.com/contenus/tutoriels/{1}/) mais également la pertine' \
+              'nce des tags et en ajouter si besoin.\n\n\nNous restons à votre disposition et votre écoute pour toute' \
+              's suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'
         send_mp(
             bot,
             [user],
@@ -216,9 +223,10 @@ def migrate_zds():
                 print('[ZEP-25] : New category "{}" for content "{}"'.format(subcategory, content))
                 sucess += 1
             except PublishableContent.DoesNotExist:
-                print('[ZEP-25][WARNING] : Content with pk "{}" is not in list. It should not happend in production'
+                print('[ZEP-25][WARNING] : Content with pk "{}" is not in list, it should not happend in production'
                       .format(ct))
                 fail += 1
+
     # alert for content not in list
     for pk in contents_pk:
         content = PublishableContent.objects.get(pk=pk)

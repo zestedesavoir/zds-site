@@ -475,7 +475,6 @@ ZDS_APP = {
         'helps_per_page': 20,
         'content_per_page': 42,
         'feed_length': 5,
-        'top_tag_max': 5,
     },
     'content': {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),

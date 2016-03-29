@@ -522,7 +522,8 @@ class PublishableContent(models.Model):
         """
         Add all tags contained in `tag_collection` to this content.
         If a tag is unknown, it is added to the system.
-        :param list tag_collection: A collection of tags.
+        :param tag_collection: A collection of tags.
+        :type tag_collection: list
         """
         for tag in tag_collection:
             tag_title = smart_text(tag.strip().lower())
