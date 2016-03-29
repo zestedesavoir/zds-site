@@ -2,7 +2,6 @@
 
 import os
 import sys
-from os.path import dirname
 from os.path import join
 
 from django.contrib.messages import constants as message_constants
@@ -94,7 +93,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z' # noqa
+SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'  # noqa
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -147,7 +146,7 @@ TEMPLATES = [
                 'zds.utils.context_processor.git_version',
             ],
             'debug': DEBUG,
-            }
+        }
     },
 ]
 
@@ -220,14 +219,14 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
-        #'rest_framework.parsers.XMLParser',
+        # 'rest_framework.parsers.XMLParser',
         'rest_framework_xml.parsers.XMLParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        #'rest_framework.renderers.XMLRenderer',
+        # 'rest_framework.renderers.XMLRenderer',
         'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
@@ -366,7 +365,6 @@ GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
     message_constants.INFO: 'info',
@@ -549,7 +547,7 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8" # noqa
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"  # noqa
 
 # ReCaptcha stuff
 USE_CAPTCHA = False
@@ -572,6 +570,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Load the production settings, overwrite the existing ones if needed
 try:
-    from settings_prod import *
+    from settings_prod import *  # noqa
 except ImportError:
     pass
