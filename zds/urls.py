@@ -96,9 +96,10 @@ urlpatterns += \
     [
         url(r'^api/', include('rest_framework_swagger.urls')),
         url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+        url(r'^api/contenus/', include('zds.tutorialv2.api.urls')),
+        url(r'^api/forums/', include('zds.forum.api.urls')),
         url(r'^api/membres/', include('zds.member.api.urls')),
         url(r'^api/mps/', include('zds.mp.api.urls')),
-        url(r'^api/forums/', include('zds.forum.api.urls')),
     ]
 
 # SiteMap URLs

@@ -4303,33 +4303,33 @@ class PublishedContentTests(TestCase):
                 password='hostel77'),
             True)
         reac = ContentReaction.objects.last()
-        result = self.client.post(
+        result = self.client.put(
             reverse("content:reaction-karma", args=(reac.pk,)),
             {'vote': 'like'},
             follow=False
         )
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 200)
         self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 1)
-        result = self.client.post(
+        result = self.client.put(
             reverse("content:reaction-karma", args=(reac.pk,)),
             {'vote': 'neutral'},
             follow=False
         )
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 200)
         self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 0)
-        result = self.client.post(
+        result = self.client.put(
             reverse("content:reaction-karma", args=(reac.pk,)),
             {'vote': 'like'},
             follow=False
         )
-        result = self.client.post(
+        result = self.client.put(
             reverse("content:reaction-karma", args=(reac.pk,)),
             {'vote': 'dislike'},
             follow=False
         )
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 200)
         self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 0)
-        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.status_code, 200)
         self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=False).count(), 1)
 
     def test_hide_reaction(self):

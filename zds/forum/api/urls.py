@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
-from .views import PostKarma
+from .views import PostKarmaView
 
 urlpatterns = [
-    url(r'^message/(?P<pk>\d+)/karma$', PostKarma.as_view(), name='api-post-karma'),
+    url(r'^message/(?P<pk>\d+)/karma$', PostKarmaView.as_view(), name='api-post-karma'),
 ]

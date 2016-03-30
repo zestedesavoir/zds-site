@@ -56,7 +56,7 @@
             {% endcaptureas %}
 
             {% captureas karma_link %}
-                {% url "content:reaction-karma" message.pk %}
+                {% url "api-content-reaction-karma" message.pk %}
             {% endcaptureas %}
 
             {% include "misc/message.part.html" with perms_change=perms.tutorialv2.change_contentreaction topic=object %}
