@@ -6,16 +6,16 @@ from zds.member.api.serializers import UserListSerializer
 
 class LikesSerializer(ModelSerializer):
     count = IntegerField(source='like', read_only=True)
-    list = UserListSerializer(source='get_likers', many=True, read_only=True)
+    users = UserListSerializer(source='get_likers', many=True, read_only=True)
 
     class Meta:
         model = Comment
-        fields = ('count', 'list',)
+        fields = ('count', 'users')
 
 
 class DislikesSerializer(LikesSerializer):
     count = IntegerField(source='dislike', read_only=True)
-    list = UserListSerializer(source='get_dislikers', many=True, read_only=True)
+    users = UserListSerializer(source='get_dislikers', many=True, read_only=True)
 
 
 class KarmaSerializer(ModelSerializer):
@@ -26,7 +26,7 @@ class KarmaSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('like', 'dislike', 'user', 'vote',)
+        fields = ('like', 'dislike', 'user', 'vote')
 
     def get_user(self, obj):
         request = self.context.get('request', None)

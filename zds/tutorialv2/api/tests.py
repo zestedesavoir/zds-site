@@ -146,24 +146,24 @@ class ContentReactionKarmaAPITest(APITestCase):
         # on first message we should see 2 likes and 0 anonymous
         response = self.client.get(reverse('api:content:reaction-karma', args=[upvoted_reaction.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(2, len(response.data['like']['list']))
-        self.assertEqual(0, len(response.data['dislike']['list']))
+        self.assertEqual(2, len(response.data['like']['users']))
+        self.assertEqual(0, len(response.data['dislike']['users']))
         self.assertEqual(2, response.data['like']['count'])
         self.assertEqual(0, response.data['dislike']['count'])
 
         # on second message we should see 2 dislikes and 0 anonymous
         response = self.client.get(reverse('api:content:reaction-karma', args=[downvoted_reaction.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(0, len(response.data['like']['list']))
-        self.assertEqual(2, len(response.data['dislike']['list']))
+        self.assertEqual(0, len(response.data['like']['users']))
+        self.assertEqual(2, len(response.data['dislike']['users']))
         self.assertEqual(0, response.data['like']['count'])
         self.assertEqual(2, response.data['dislike']['count'])
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
         response = self.client.get(reverse('api:content:reaction-karma', args=[equal_reaction.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(1, len(response.data['like']['list']))
-        self.assertEqual(1, len(response.data['dislike']['list']))
+        self.assertEqual(1, len(response.data['like']['users']))
+        self.assertEqual(1, len(response.data['dislike']['users']))
         self.assertEqual(1, response.data['like']['count'])
         self.assertEqual(1, response.data['dislike']['count'])
 
@@ -173,23 +173,23 @@ class ContentReactionKarmaAPITest(APITestCase):
         # on first message we should see 1 like and 1 anonymous
         response = self.client.get(reverse('api:content:reaction-karma', args=[upvoted_reaction.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(1, len(response.data['like']['list']))
-        self.assertEqual(0, len(response.data['dislike']['list']))
+        self.assertEqual(1, len(response.data['like']['users']))
+        self.assertEqual(0, len(response.data['dislike']['users']))
         self.assertEqual(2, response.data['like']['count'])
         self.assertEqual(0, response.data['dislike']['count'])
 
         # on second message we should see 1 dislikes and 1 anonymous
         response = self.client.get(reverse('api:content:reaction-karma', args=[downvoted_reaction.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(0, len(response.data['like']['list']))
-        self.assertEqual(1, len(response.data['dislike']['list']))
+        self.assertEqual(0, len(response.data['like']['users']))
+        self.assertEqual(1, len(response.data['dislike']['users']))
         self.assertEqual(0, response.data['like']['count'])
         self.assertEqual(2, response.data['dislike']['count'])
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
         response = self.client.get(reverse('api:content:reaction-karma', args=[equal_reaction.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(1, len(response.data['like']['list']))
-        self.assertEqual(1, len(response.data['dislike']['list']))
+        self.assertEqual(1, len(response.data['like']['users']))
+        self.assertEqual(1, len(response.data['dislike']['users']))
         self.assertEqual(1, response.data['like']['count'])
         self.assertEqual(1, response.data['dislike']['count'])

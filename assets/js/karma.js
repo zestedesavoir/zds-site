@@ -124,12 +124,12 @@
          *
          * @param {Object} data
          * @param {Object} data.like - Data related to likes
-         * @param {Object} data.like.list - List of the non-anonymous likers
-         * @param {string} data.like.list[].username - Username of a liker
+         * @param {Object} data.like.users - List of the non-anonymous likers
+         * @param {string} data.like.users[].username - Username of a liker
          * @param {number} data.like.count - Like total count
          * @param {Object} data.dislike - Data related to dislikes
-         * @param {Object} data.dislike.list - List of the non-anonymous dislikers
-         * @param {string} data.dislike.list[].username - Username of a disliker
+         * @param {Object} data.dislike.users - List of the non-anonymous dislikers
+         * @param {string} data.dislike.users[].username - Username of a disliker
          * @param {number} data.dislike.count - Dislike total count
          * @param {string} data.user - User vote, "like", "dislike" or "neutral"
          */
@@ -195,8 +195,8 @@
             this[sign].button.text((sign === "like" ? "+" : "-") + data[sign].count);
 
             // Updating the tooltip
-            if(data[sign].hasOwnProperty("list")) {
-                var likers = data[sign].list.slice(0, 9);
+            if(data[sign].hasOwnProperty("users")) {
+                var likers = data[sign].users.slice(0, 9);
                 var otherLikeCount = data[sign].count - likers.length;
 
                 var currentUser = $("#my-account .username").text();
@@ -215,12 +215,12 @@
                 if(data[sign].count === 0) {
                     $("<li>", { class: "muted", text: "Pas de votes " + (sign === "like" ? "positifs" : "négatifs")}).appendTo(this[sign].listElem);
                 } else {
-                    this[sign].listElem.append(data[sign].list.map(function(user) {
+                    this[sign].listElem.append(data[sign].users.map(function(user) {
                         return $("<li>").append($("<a>", { href: user["html_url"], text: user.username }).prepend($("<img />", { src: user["avatar_url"] })));
                     }));
 
-                    if(data[sign].list.length < data[sign].count) {
-                        $("<li>", { text: (data[sign].count - data[sign].list.length) + " anonymes", class: "muted" }).appendTo(this[sign].listElem);
+                    if(data[sign].users.length < data[sign].count) {
+                        $("<li>", { text: (data[sign].count - data[sign].users.length) + " anonymes", class: "muted" }).appendTo(this[sign].listElem);
                     }
                 }
             }
