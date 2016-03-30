@@ -38,7 +38,7 @@ L'API est accessible à partir du domaine ``zestedesavoir.com/api/`` (prochainem
       "results":[]
     }
 
-Tous les timestamp sont retournés sous le format ISO 8601 : ``YYYY-MM-DDTHH:MM:SSZ``.
+Tous les timestamp sont retournés au le format ISO 8601 : ``YYYY-MM-DDTHH:MM:SSZ``.
 
 Les verbes HTTP
 ---------------
@@ -54,7 +54,7 @@ Les autres verbes ne sont pas supportés.
 Les formats d'entrées/sorties
 -----------------------------
 
-Par défaut, le serveur renvoie les réponses au le format ``JSON`` mais il gère aussi le ``XML``. Pour demander au serveur de renvoyer les réponses en ``XML``, il faut utiliser l'en-tête ``Accept`` en spécifiant ``application/xml`` comme valeur (``application/json`` pour recevoir du ``JSON``).
+Par défaut, le serveur renvoie les réponses au format ``JSON`` mais il gère aussi le ``XML``. Pour demander au serveur de renvoyer les réponses en ``XML``, il faut utiliser l'en-tête ``Accept`` en spécifiant ``application/xml`` comme valeur (``application/json`` pour recevoir du ``JSON``).
 
 .. sourcecode:: bash
 
