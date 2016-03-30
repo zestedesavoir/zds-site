@@ -4283,55 +4283,6 @@ class PublishedContentTests(TestCase):
         self.assertEqual(ContentReaction.objects.count(), 1)  # no new reaction has been posted
         self.assertTrue(result.context['newnote'])  # message appears !
 
-    def test_upvote_downvote(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
-
-        self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
-            {
-                'text': u'message',
-                'last_note': '0'
-            }, follow=True)
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        reac = ContentReaction.objects.last()
-        result = self.client.put(
-            reverse("content:reaction-karma", args=(reac.pk,)),
-            {'vote': 'like'},
-            follow=False
-        )
-        self.assertEqual(result.status_code, 200)
-        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 1)
-        result = self.client.put(
-            reverse("content:reaction-karma", args=(reac.pk,)),
-            {'vote': 'neutral'},
-            follow=False
-        )
-        self.assertEqual(result.status_code, 200)
-        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 0)
-        result = self.client.put(
-            reverse("content:reaction-karma", args=(reac.pk,)),
-            {'vote': 'like'},
-            follow=False
-        )
-        result = self.client.put(
-            reverse("content:reaction-karma", args=(reac.pk,)),
-            {'vote': 'dislike'},
-            follow=False
-        )
-        self.assertEqual(result.status_code, 200)
-        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=True).count(), 0)
-        self.assertEqual(result.status_code, 200)
-        self.assertEqual(CommentVote.objects.filter(user=self.user_author, positive=False).count(), 1)
-
     def test_hide_reaction(self):
         text_hidden = \
             u"Ever notice how you come across somebody once in a while you shouldn't have fucked with? That's me."
