@@ -26,7 +26,7 @@ class ForumPostKarmaAPITest(APITestCase):
         topic = add_topic_in_a_forum(forum, profile)
         post = PostFactory(topic=topic, author=profile.user, position=2)
 
-        response = self.client.put(reverse('api-post-karma', args=(post.pk,)))
+        response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_failure_post_karma_with_sanctioned_user(self):
@@ -42,11 +42,11 @@ class ForumPostKarmaAPITest(APITestCase):
         profile.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.put(reverse('api-post-karma', args=(post.pk,)))
+        response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_failure_post_karma_with_a_message_not_found(self):
-        response = self.client.get(reverse('api-post-karma', args=(99999,)))
+        response = self.client.get(reverse('api:forum:post-karma', args=(99999,)))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_failure_post_karma_of_a_forum_we_cannot_read(self):
@@ -57,7 +57,7 @@ class ForumPostKarmaAPITest(APITestCase):
         topic = add_topic_in_a_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.put(reverse('api-post-karma', args=(topic.last_message.pk,)), {'vote': 'like'})
+        response = self.client.put(reverse('api:forum:post-karma', args=(topic.last_message.pk,)), {'vote': 'like'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_success_post_karma_like(self):
@@ -68,7 +68,7 @@ class ForumPostKarmaAPITest(APITestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.put(reverse('api-post-karma', args=(post.pk,)), {'vote': 'like'})
+        response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)), {'vote': 'like'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=post, positive=True).exists())
 
@@ -80,7 +80,7 @@ class ForumPostKarmaAPITest(APITestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.put(reverse('api-post-karma', args=(post.pk,)), {'vote': 'dislike'})
+        response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)), {'vote': 'dislike'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=post, positive=False).exists())
 
@@ -96,7 +96,7 @@ class ForumPostKarmaAPITest(APITestCase):
 
         self.assertTrue(CommentVote.objects.filter(pk=vote.pk).exists())
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.put(reverse('api-post-karma', args=(post.pk,)), {'vote': 'neutral'})
+        response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)), {'vote': 'neutral'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(CommentVote.objects.filter(pk=vote.pk).exists())
 
@@ -111,7 +111,7 @@ class ForumPostKarmaAPITest(APITestCase):
         vote.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.put(reverse('api-post-karma', args=(post.pk,)), {'vote': 'like'})
+        response = self.client.put(reverse('api:forum:post-karma', args=(post.pk,)), {'vote': 'like'})
         vote.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -147,7 +147,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
 
         # on first message we should see 2 likes and 0 anonymous
-        response = self.client.get(reverse('api-post-karma', args=[upvoted_answer.pk]))
+        response = self.client.get(reverse('api:forum:post-karma', args=[upvoted_answer.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(2, len(response.data['like']['list']))
         self.assertEqual(0, len(response.data['dislike']['list']))
@@ -155,7 +155,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(0, response.data['dislike']['count'])
 
         # on second message we should see 2 dislikes and 0 anonymous
-        response = self.client.get(reverse('api-post-karma', args=[downvoted_answer.pk]))
+        response = self.client.get(reverse('api:forum:post-karma', args=[downvoted_answer.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(0, len(response.data['like']['list']))
         self.assertEqual(2, len(response.data['dislike']['list']))
@@ -163,7 +163,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(2, response.data['dislike']['count'])
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
-        response = self.client.get(reverse('api-post-karma', args=[equal_answer.pk]))
+        response = self.client.get(reverse('api:forum:post-karma', args=[equal_answer.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(1, len(response.data['like']['list']))
         self.assertEqual(1, len(response.data['dislike']['list']))
@@ -174,7 +174,7 @@ class ForumPostKarmaAPITest(APITestCase):
         settings.VOTES_ID_LIMIT = anon_limit.pk
         # and we run the same tests
         # on first message we should see 1 like and 1 anonymous
-        response = self.client.get(reverse('api-post-karma', args=[upvoted_answer.pk]))
+        response = self.client.get(reverse('api:forum:post-karma', args=[upvoted_answer.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(1, len(response.data['like']['list']))
         self.assertEqual(0, len(response.data['dislike']['list']))
@@ -182,7 +182,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(0, response.data['dislike']['count'])
 
         # on second message we should see 1 dislikes and 1 anonymous
-        response = self.client.get(reverse('api-post-karma', args=[downvoted_answer.pk]))
+        response = self.client.get(reverse('api:forum:post-karma', args=[downvoted_answer.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(0, len(response.data['like']['list']))
         self.assertEqual(1, len(response.data['dislike']['list']))
@@ -190,7 +190,7 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(2, response.data['dislike']['count'])
 
         # on third message we should see 1 like and 1 dislike and 0 anonymous
-        response = self.client.get(reverse('api-post-karma', args=[equal_answer.pk]))
+        response = self.client.get(reverse('api:forum:post-karma', args=[equal_answer.pk]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(1, len(response.data['like']['list']))
         self.assertEqual(1, len(response.data['dislike']['list']))
