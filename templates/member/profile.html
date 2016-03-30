@@ -6,7 +6,7 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-
+{% load remove_url_protocole %}
 
 
 {% block title %}
@@ -33,7 +33,7 @@
 
         <div class="member-card">
             <div class="member-avatar">
-                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
 
                 {% include 'misc/badge.part.html' with member=usr %}
             </div>
