@@ -22,6 +22,7 @@ overrided_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'conte
 overrided_zds_app['content']['extra_content_generation_policy'] = "SYNC"
 overrided_zds_app['content']['build_pdf_when_published'] = False
 
+
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentReactionKarmaAPITest(APITestCase):
@@ -73,7 +74,6 @@ class ContentReactionKarmaAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=reaction, positive=True).exists())
 
-
     def test_success_reaction_karma_dislike(self):
         author = ProfileFactory()
         reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content)
@@ -85,7 +85,6 @@ class ContentReactionKarmaAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=reaction, positive=False).exists())
 
-
     def test_success_reaction_karma_neutral(self):
         author = ProfileFactory()
         reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content)
@@ -93,14 +92,13 @@ class ContentReactionKarmaAPITest(APITestCase):
         profile = ProfileFactory()
 
         vote = CommentVote(user=profile.user, comment=reaction, positive=True)
-        vote.save();
+        vote.save()
 
         self.assertTrue(CommentVote.objects.filter(pk=vote.pk).exists())
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.put(reverse('api-content-reaction-karma', args=(reaction.pk,)), {'vote': 'neutral'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(CommentVote.objects.filter(pk=vote.pk).exists())
-
 
     def test_success_reaction_karma_like_already_disliked(self):
         author = ProfileFactory()
@@ -109,7 +107,7 @@ class ContentReactionKarmaAPITest(APITestCase):
         profile = ProfileFactory()
 
         vote = CommentVote(user=profile.user, comment=reaction, positive=False)
-        vote.save();
+        vote.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.put(reverse('api-content-reaction-karma', args=(reaction.pk,)), {'vote': 'like'})

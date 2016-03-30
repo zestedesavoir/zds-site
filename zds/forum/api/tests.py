@@ -72,7 +72,6 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=post, positive=True).exists())
 
-
     def test_success_post_karma_dislike(self):
         profile = ProfileFactory()
         category, forum = create_category()
@@ -85,7 +84,6 @@ class ForumPostKarmaAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=post, positive=False).exists())
 
-
     def test_success_post_karma_neutral(self):
         profile = ProfileFactory()
         category, forum = create_category()
@@ -94,14 +92,13 @@ class ForumPostKarmaAPITest(APITestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         vote = CommentVote(user=profile.user, comment=post, positive=True)
-        vote.save();
+        vote.save()
 
         self.assertTrue(CommentVote.objects.filter(pk=vote.pk).exists())
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.put(reverse('api-post-karma', args=(post.pk,)), {'vote': 'neutral'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(CommentVote.objects.filter(pk=vote.pk).exists())
-
 
     def test_success_post_karma_like_already_disliked(self):
         profile = ProfileFactory()
@@ -111,7 +108,7 @@ class ForumPostKarmaAPITest(APITestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         vote = CommentVote(user=profile.user, comment=post, positive=False)
-        vote.save();
+        vote.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.put(reverse('api-post-karma', args=(post.pk,)), {'vote': 'like'})
