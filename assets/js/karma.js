@@ -210,6 +210,7 @@
 
                 this[sign].tooltip.setContent(likeStr);
 
+                // Build list in modal
                 this[sign].listElem.empty();
 
                 if(data[sign].count === 0) {
@@ -219,8 +220,9 @@
                         return $("<li>").append($("<a>", { href: user["html_url"], text: user.username }).prepend($("<img />", { src: user["avatar_url"] })));
                     }));
 
-                    if(data[sign].users.length < data[sign].count) {
-                        $("<li>", { text: (data[sign].count - data[sign].users.length) + " anonymes", class: "muted" }).appendTo(this[sign].listElem);
+                    var anonymous = data[sign].count - data[sign].users.length;
+                    if(anonymous) {
+                        $("<li>", { text: anonymous + " anonyme" + (anonymous === 1 ? "" : "s"), class: "muted" }).appendTo(this[sign].listElem);
                     }
                 }
             }
