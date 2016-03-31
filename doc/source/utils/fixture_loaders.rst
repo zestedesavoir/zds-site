@@ -70,7 +70,7 @@ Pour utiliser les factories, il vous faudra vous référer à la documentation d
 - les champs personnalisés qui sont faits pour indiquer des comportements complémentaires à la commande
   par exemple, avec la zds.utils.HelpWrittingFactory, utiliser ``fixture_image_path`` vous permettra de renseigner le chemin relatif de l'image dans le dossier ``fixtures`` plutôt que le chemin absolu.
 
-Bien que ce module soit optionnel, si vous désirez qu'il soit possible de demander de l'aide sur les tutoriels et articles, 
+Bien que ce module soit optionnel, si vous désirez qu'il soit possible de demander de l'aide sur les tutoriels et articles,
 il vous faudra utiliser ``python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml``.
 
 Tester sur un jeu de données massif

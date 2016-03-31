@@ -196,12 +196,12 @@ gulp.task("watch", function() {
 /**
  * Tests
  */
-gulp.task("test", ["jshint"]);
+gulp.task("lint", ["jshint"]);
 
 /**
  * CI builds
  */
-gulp.task("travis", ["test", "build"]);
+gulp.task("travis", ["lint", "build"]);
 
 /**
  * Build all the things!
