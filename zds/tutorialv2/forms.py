@@ -86,6 +86,25 @@ class AuthorForm(forms.Form):
         return super(AuthorForm, self).is_valid() and "users" in self.clean()
 
 
+class RemoveAuthorForm(AuthorForm):
+
+    def clean(self):
+        """Check every username and send it to the cleaned_data["user"] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(AuthorForm, self).clean()
+        users = []
+        for username in cleaned_data.get('username').split(","):
+            # we can remove all users (bots inclued)
+            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
+            if user is not None:
+                users.append(user.user)
+        if len(users) > 0:
+            cleaned_data["users"] = users
+        return cleaned_data
+
+
 class ContainerForm(FormWithTitle):
 
     introduction = forms.CharField(

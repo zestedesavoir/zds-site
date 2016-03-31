@@ -37,7 +37,7 @@ from zds.member.models import Profile
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -1740,6 +1740,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
 class RemoveAuthorFromContent(AddAuthorToContent):
 
+    form_class = RemoveAuthorForm
+
     @staticmethod
     def remove_author(content, user):
         """Remove an user from the authors and ensure that he is access to the content's gallery is also removed.
@@ -1795,10 +1797,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
         if not current_user:  # if the removed author is not current user
             messages.success(
-                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de « {} ».').format(authors_list, _type))
+                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de {}.').format(authors_list, _type))
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
-            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de « {} ».').format(_type))
+            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}.').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
         self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
         # to the content itself. This does not please me but I think it is better to do that like that instead of
