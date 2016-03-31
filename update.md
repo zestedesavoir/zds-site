@@ -494,6 +494,20 @@ Avant toute chose il faut avoir lancé les migrations. La commande `python manag
 
 Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
 
+Identifier les pk des votes pour la limite de désanonymisation - #1851
+---------------------------------------------------------------------------
+
+Lors de la migration, Django va éventuellement demander s'il faut supprimer les anciennes tables des votes. Il faut simplement répondre oui, dans ce cas.
+
+La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher le PK du dernier vote afin de l'enregistrer dans le `settings_prod.py`. Voici la requète à executer pour obtenir ces informations (à faire après la migration) :
+
+```sql
+SELECT max(id) FROM utils_commentvote;
+```
+
+Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
+
+---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
 
@@ -502,14 +516,3 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
-
-Identifier les pk des votes pour la limite de désanonymisation - #1851
----------------------------------------------------------------------------
-
-La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher le PK du dernier vote afin de l'enregistrer dans le `settings_prod.py`. Voici la requète à executer pour obtenir ces informations (à faire après la migration) :
-
-```sql
-Select max(id) from utils_commentvote
-```
-
-Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
