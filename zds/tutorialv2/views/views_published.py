@@ -23,7 +23,7 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
-from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert, Tag
+from zds.utils.models import CommentVote, SubCategory, Alert, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
@@ -114,23 +114,15 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-
-        context["user_dislike"] = CommentDislike.objects\
-            .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
-            .values_list('comments__pk', flat=True)
-        context["user_like"] = CommentLike.objects\
-            .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
-            .values_list('comments__pk', flat=True)
+        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
-            context["user_can_modify"] = [reaction.pk for reaction in context['reactions']]
+            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions]
         else:
-            queryset_reactions_user = ContentReaction.objects\
-                .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
-                .values_list('id', flat=True)
-            context["user_can_modify"] = queryset_reactions_user
+            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions
+                                          if reaction.author == self.request.user]
 
         context['isantispam'] = self.object.antispam()
 
@@ -525,76 +517,6 @@ class UpdateNoteView(SendNoteFormView):
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)
-
-
-class UpvoteReaction(LoginRequiredMixin, FormView):
-
-    add_class = CommentLike
-    """
-    :var add_class: The model class where the vote will be added
-    """
-
-    remove_class = CommentDislike
-    """
-    :var remove_class: The model class where the vote will be removed if exists
-    """
-
-    add_like = 1
-    """
-    :var add_like: The value that will be added to like total
-    """
-
-    add_dislike = 0
-    """
-    :var add_dislike: The value that will be added to the dislike total
-    """
-
-    def post(self, request, *args, **kwargs):
-        if "message" not in self.request.GET or not self.request.GET["message"].isdigit():
-            raise Http404(u"Le paramètre 'message' doit être un digit.")
-        note_pk = int(self.request.GET["message"])
-        note = get_object_or_404(ContentReaction, pk=note_pk)
-        resp = {}
-        user = self.request.user
-        if note.author.pk != user.pk:
-
-            # Making sure the user is allowed to do that
-
-            if self.add_class.objects.filter(user__pk=user.pk,
-                                             comments__pk=note_pk).count() == 0:
-                like = self.add_class()
-                like.user = user
-                like.comments = note
-                note.like += self.add_like
-                note.dislike += self.add_dislike
-                note.save()
-                like.save()
-                if self.remove_class.objects.filter(user__pk=user.pk,
-                                                    comments__pk=note_pk).count() > 0:
-                    self.remove_class.objects.filter(
-                        user__pk=user.pk,
-                        comments__pk=note_pk).all().delete()
-                    note.dislike = note.dislike - self.add_like
-                    note.like = note.like - self.add_dislike
-                    note.save()
-            else:
-                self.add_class.objects.filter(user__pk=user.pk,
-                                              comments__pk=note_pk).all().delete()
-                note.like = note.like - self.add_like
-                note.dislike = note.dislike - self.add_dislike
-                note.save()
-        resp["upvotes"] = note.like
-        resp["downvotes"] = note.dislike
-        if self.request.is_ajax():
-            return StreamingHttpResponse(json_writer.dumps(resp))
-        return redirect(note.get_absolute_url())
-
-
-class DownvoteReaction(UpvoteReaction):
-    add_class = CommentDislike
-    remove_class = CommentLike
-    add_like = 0
-    add_dislike = 1
 
 
 class HideReaction(FormView, LoginRequiredMixin):

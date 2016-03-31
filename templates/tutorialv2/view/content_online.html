@@ -183,7 +183,6 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
-    {% set perms.tutorialv2.change_contentreaction as perms_change %}
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -194,12 +193,8 @@
             {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
 
-        {% captureas upvote_link %}
-            {% url "content:up-vote" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas downvote_link %}
-            {% url "content:down-vote" %}?message={{ message.pk }}
+        {% captureas karma_link %}
+            {% url "api:content:reaction-karma" message.pk %}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
@@ -222,13 +217,7 @@
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% if message.pk in user_can_modify %}
-            {% set True as can_edit %}
-        {% else %}
-            {% set False as can_edit %}
-        {% endif %}
-
-        {% include "tutorialv2/includes/reaction_message.part.html" with topic=object %}
+        {% include "misc/message.part.html" with perms_change=perms.tutorialv2.change_contentreaction topic=object %}
     {% endfor %}
 
 

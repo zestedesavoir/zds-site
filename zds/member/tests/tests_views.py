@@ -22,7 +22,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
-from zds.utils.models import CommentLike
+from zds.utils.models import CommentVote
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -405,7 +405,7 @@ class MemberTests(TestCase):
         upvoted_answer = PostFactory(topic=answered_topic, author=user2.user, position=4)
         upvoted_answer.like += 1
         upvoted_answer.save()
-        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
+        CommentVote.objects.create(user=user.user, comment=upvoted_answer, positive=True)
 
         private_topic = PrivateTopicFactory(author=user.user)
         private_topic.participants.add(user2.user)
@@ -502,7 +502,7 @@ class MemberTests(TestCase):
         self.assertEquals(alone_gallery.get_linked_users().count(), 1)
         self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(CommentVote.objects.filter(user=user.user, positive=True).count(), 0)
         self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
         # zep 12, published contents and beta

@@ -29,7 +29,7 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag, CommentDislike, CommentLike
+from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
 
@@ -140,16 +140,18 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
         })
-        reaction_ids = [post.pk for post in context['posts']]
-        context["user_dislike"] = CommentDislike.objects\
-            .select_related('comment')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
-        context["user_like"] = CommentLike.objects\
-            .select_related('comment')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+
+        votes = CommentVote.objects.filter(user_id=self.request.user.pk, comment__in=context['posts']).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+        context['isantispam'] = self.object.antispam()
+
+        if self.request.user.has_perm('forum.change_topic'):
+            context["user_can_modify"] = [post.pk for post in context['posts']]
+        else:
+            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)
@@ -557,42 +559,6 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
         return redirect(reverse("forum-topics-list", args=[
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
-
-
-class PostLike(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
-    @method_decorator(require_POST)
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        return super(PostLike, self).dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.perform_like_post(self.object, self.request.user)
-
-        if request.is_ajax():
-            resp = {
-                'upvotes': self.object.like,
-                'downvotes': self.object.dislike
-            }
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
-
-
-class PostDisLike(PostLike):
-    def post(self, request, *args, **kwargs):
-        self.perform_dislike_post(self.object, self.request.user)
-
-        if request.is_ajax():
-            resp = {
-                'upvotes': self.object.like,
-                'downvotes': self.object.dislike
-            }
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
 
 
 class FindPost(FindTopic):

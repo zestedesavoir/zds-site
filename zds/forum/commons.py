@@ -12,7 +12,7 @@ from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification
 from zds.utils.forums import get_tag_by_title
-from zds.utils.models import Alert, CommentLike, CommentDislike
+from zds.utils.models import Alert
 
 
 class TopicEditMixin(object):
@@ -156,52 +156,6 @@ class PostEditMixin(object):
                 topic_read.delete()
 
         signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
-
-    @staticmethod
-    def perform_like_post(post, user):
-        """
-        If the post isn't liked by the user before, the post is liked by the user and a dislike is removed if exists.
-        Otherwise, the like is removed.
-        """
-        if post.author.pk != user.pk:
-            if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
-                like = CommentLike()
-                like.user = user
-                like.comments = post
-                post.like = post.like + 1
-                post.save()
-                like.save()
-                if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() > 0:
-                    CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
-                    post.dislike = post.dislike - 1
-                    post.save()
-            else:
-                CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
-                post.like = post.like - 1
-                post.save()
-
-    @staticmethod
-    def perform_dislike_post(post, user):
-        """
-        If the post isn't disliked by the user before, the post is disliked by the user and a like is removed if exists.
-        Otherwise, the dislike is removed.
-        """
-        if post.author.pk != user.pk:
-            if CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() == 0:
-                dislike = CommentDislike()
-                dislike.user = user
-                dislike.comments = post
-                post.dislike = post.dislike + 1
-                post.save()
-                dislike.save()
-                if CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).count() > 0:
-                    CommentLike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
-                    post.like = post.like - 1
-                    post.save()
-            else:
-                CommentDislike.objects.filter(user__pk=user.pk, comments__pk=post.pk).all().delete()
-                post.dislike = post.dislike - 1
-                post.save()
 
     @staticmethod
     def perform_edit_post(post, user, text):

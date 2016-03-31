@@ -276,7 +276,7 @@ La recherche est maintenant en français:
   - Arrêter Solr : `supervisorctl stop solr`
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Vérifier que les fichiers contractions_fr.txt et stopwords_fr.txt dans le dossier d'installation de Solr/example/solr/collection1/conf/lang/ sont pertinent.
-  - Si les fichiers contractions_fr.txt et stopwords_fr.txt ne sont pas pertinent. Télécharger et remplacer les fichiers par ceux contenu dans [ce drive](https:// drive.google.com/folderview?id=0B5ux7uNoD6owfklUNnpOVWhuaTFkVjltSzR0UER2bWcwT1VQdUQ1WW5telU5TWFGLXFqM0U&usp=sharing). 
+  - Si les fichiers contractions_fr.txt et stopwords_fr.txt ne sont pas pertinent. Télécharger et remplacer les fichiers par ceux contenu dans [ce drive](https:// drive.google.com/folderview?id=0B5ux7uNoD6owfklUNnpOVWhuaTFkVjltSzR0UER2bWcwT1VQdUQ1WW5telU5TWFGLXFqM0U&usp=sharing).
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
 
@@ -290,7 +290,7 @@ ZEP-12 aka Apocalypse
 
 **Étapes préliminaires**
 
-Il vous faut *absolument* faire une sauvegarde de secours de la base de données et du dossier `media/`. 
+Il vous faut *absolument* faire une sauvegarde de secours de la base de données et du dossier `media/`.
 
 Il est fortement conseillé de détecter les tutoriels et articles dont le dépot GIT est cassé via les commandes suivantes ([testées sur la bêta ici](https://github.com/artragis/zds-site/issues/238#issuecomment-131577950)) :
 
@@ -308,7 +308,7 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
   ```sql
   SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
   ```
-  Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe): 
+  Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe):
   ```bash
   DB="dbname";USER="dbusername";PASS="dbusername";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
   ```
@@ -371,7 +371,7 @@ Actions à faire pour mettre en prod la version 16
 Réparer la table HS
 -------------------
 
-**Avant déploiement :** 
+**Avant déploiement :**
 
 1. Se connecter au serveur MySQL : `mysql -u root -p`
 2. Se mettre sur la base de ZdS : `use zdsdb;`
@@ -379,7 +379,7 @@ Réparer la table HS
 4. Si cette table contient une colonne nommée `skip_authorization`, la supprimer : `alter table oauth2_provider_accesstoken drop column skip_authorization;`
 5. Quitter MySQL
 
-Mise à jours de la version de Haystack à la 4.1 
+Mise à jours de la version de Haystack à la 4.1
 -----------------------------------------------
 
 Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
@@ -484,7 +484,7 @@ Notifications
 Liste des tags exclus
 ---------------------
 
-Dans le fichier settings.py, une nouvelle clé s'appelle top_tag_exclu (dans ZDS_APP -> forum -> top_tag_exclu), elle représente la liste des tags exclus des top tags. Vous pouvez ajouter des tags supplémentaire si la liste ne vous parait pas pertinente en surchargant 
+Dans le fichier settings.py, une nouvelle clé s'appelle top_tag_exclu (dans ZDS_APP -> forum -> top_tag_exclu), elle représente la liste des tags exclus des top tags. Vous pouvez ajouter des tags supplémentaire si la liste ne vous parait pas pertinente en surchargant
 la clé dans le fichier de configuration de production.
 
 ZEP-25
@@ -494,6 +494,20 @@ Avant toute chose il faut avoir lancé les migrations. La commande `python manag
 
 Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
 
+Identifier les pk des votes pour la limite de désanonymisation - #1851
+---------------------------------------------------------------------------
+
+Lors de la migration, Django va éventuellement demander s'il faut supprimer les anciennes tables des votes. Il faut simplement répondre oui, dans ce cas.
+
+La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher le PK du dernier vote afin de l'enregistrer dans le `settings_prod.py`. Voici la requète à executer pour obtenir ces informations (à faire après la migration) :
+
+```sql
+SELECT max(id) FROM utils_commentvote;
+```
+
+Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
+
+---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
 

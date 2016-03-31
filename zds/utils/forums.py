@@ -11,6 +11,7 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
 from zds.utils.mixins import QuoteMixin
+from zds.utils.models import CommentVote
 
 
 def get_tag_by_title(title):
@@ -138,12 +139,28 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
                 return HttpResponse(json.dumps({'text': text}), content_type='application/json')
 
         form = self.create_forum(self.form_class, **{'text': text})
-        return render(request, self.template_name, {
+        context = {
             'topic': self.object,
-            'posts': self.posts,
+            'posts': list(self.posts),
             'last_post_pk': self.object.last_message.pk,
             'form': form,
-        })
+        }
+
+        votes = CommentVote.objects.filter(user_id=self.request.user.pk,
+                                           comment_id__in=[p.pk for p in context['posts']]).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
+        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+
+        if hasattr(self.object, 'antispam'):
+            context['isantispam'] = self.object.antispam()
+
+        if self.request.user.has_perm('forum.change_topic'):
+            context["user_can_modify"] = [post.pk for post in context['posts']]
+        else:
+            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)

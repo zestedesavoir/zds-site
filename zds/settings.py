@@ -248,6 +248,10 @@ REST_FRAMEWORK_EXTENSIONS = {
 }
 
 SWAGGER_SETTINGS = {
+    'exclude_namespaces': [
+        'content',
+        'forum'
+    ],
     'enabled_methods': [
         'get',
         'post',
@@ -556,6 +560,9 @@ RECAPTCHA_USE_SSL = True
 # keys (should be overriden in the settings_prod.py file)
 RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa
 RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
+
+# Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
+VOTES_ID_LIMIT = 0
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/

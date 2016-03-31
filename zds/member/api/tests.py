@@ -25,7 +25,7 @@ class MemberListAPITest(APITestCase):
         """
         Gets empty list of users in the database.
         """
-        response = self.client.get(reverse('api-member-list'))
+        response = self.client.get(reverse('api:member:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
         self.assertEqual(response.data.get('results'), [])
@@ -38,7 +38,7 @@ class MemberListAPITest(APITestCase):
         """
         self.create_multiple_users()
 
-        response = self.client.get(reverse('api-member-list'))
+        response = self.client.get(reverse('api:member:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
@@ -51,14 +51,14 @@ class MemberListAPITest(APITestCase):
         """
         self.create_multiple_users(REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse('api-member-list'))
+        response = self.client.get(reverse('api:member:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
 
-        response = self.client.get(reverse('api-member-list') + '?page=2')
+        response = self.client.get(reverse('api:member:list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNone(response.data.get('next'))
@@ -71,7 +71,7 @@ class MemberListAPITest(APITestCase):
         """
         self.create_multiple_users(REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse('api-member-list') + '?page=2')
+        response = self.client.get(reverse('api:member:list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 11)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -82,7 +82,7 @@ class MemberListAPITest(APITestCase):
         """
         Gets an error when the user asks a wrong page.
         """
-        response = self.client.get(reverse('api-member-list') + '?page=2')
+        response = self.client.get(reverse('api:member:list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_of_users_with_a_custom_page_size(self):
@@ -93,7 +93,7 @@ class MemberListAPITest(APITestCase):
         self.create_multiple_users(REST_PAGE_SIZE * 2)
 
         page_size = 'page_size'
-        response = self.client.get(reverse('api-member-list') + '?{}=20'.format(page_size))
+        response = self.client.get(reverse('api:member:list') + '?{}=20'.format(page_size))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 20)
         self.assertEqual(len(response.data.get('results')), 20)
@@ -109,7 +109,7 @@ class MemberListAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_users(page_size_value)
 
-        response = self.client.get(reverse('api-member-list') + '?page_size={}'.format(page_size_value))
+        response = self.client.get(reverse('api:member:list') + '?page_size={}'.format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
@@ -123,7 +123,7 @@ class MemberListAPITest(APITestCase):
         self.create_multiple_users()
         StaffProfileFactory()
 
-        response = self.client.get(reverse('api-member-list') + '?search=firmstaff')
+        response = self.client.get(reverse('api:member:list') + '?search=firmstaff')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('count') > 0)
 
@@ -134,7 +134,7 @@ class MemberListAPITest(APITestCase):
         """
         self.create_multiple_users()
 
-        response = self.client.get(reverse('api-member-list') + '?search=zozor')
+        response = self.client.get(reverse('api:member:list') + '?search=zozor')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
         self.assertIsNone(response.data.get('next'))
@@ -149,7 +149,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data.get('username'), data.get('username'))
         self.assertEqual(response.data.get('email'), data.get('email'))
@@ -164,10 +164,10 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('username'))
         self.assertIsNotNone(response.data.get('email'))
@@ -180,7 +180,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('username'))
 
@@ -193,7 +193,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('username'))
 
@@ -206,7 +206,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('username'))
 
@@ -220,7 +220,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_register_new_user_without_email(self):
@@ -231,7 +231,7 @@ class MemberListAPITest(APITestCase):
             'username': 'Clem',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('email'))
 
@@ -244,7 +244,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@yopmail.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('email'))
 
@@ -256,7 +256,7 @@ class MemberListAPITest(APITestCase):
             'username': 'Clem',
             'email': 'clem@zestedesavoir.com'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIsNotNone(response.data.get('password'))
 
@@ -269,7 +269,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         user = User.objects.get(username=response.data.get('username'))
@@ -285,7 +285,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         self.assertEquals(len(mail.outbox), 1)
@@ -300,7 +300,7 @@ class MemberListAPITest(APITestCase):
             'email': 'clem@zestedesavoir.com',
             'password': 'azerty'
         }
-        response = self.client.post(reverse('api-member-list'), data)
+        response = self.client.post(reverse('api:member:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         user = User.objects.get(username=response.data.get('username'))
@@ -311,14 +311,14 @@ class MemberListAPITest(APITestCase):
         """
         Gets an error when the user try to make a request with a method not allowed.
         """
-        response = self.client.put(reverse('api-member-list'))
+        response = self.client.put(reverse('api:member:list'))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_member_list_url_with_delete_method(self):
         """
         Gets an error when the user try to make a request with a method not allowed.
         """
-        response = self.client.delete(reverse('api-member-list'))
+        response = self.client.delete(reverse('api:member:list'))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create_multiple_users(self, number_of_users=REST_PAGE_SIZE):
@@ -339,7 +339,7 @@ class MemberMyDetailAPITest(APITestCase):
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, profile.user.username, 'hostel77')
 
-        response = client_authenticated.get(reverse('api-member-profile'))
+        response = client_authenticated.get(reverse('api:member:profile'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(profile.user.id, response.data.get('id'))
         self.assertEqual(profile.user.username, response.data.get('username'))
@@ -362,7 +362,7 @@ class MemberMyDetailAPITest(APITestCase):
         """
         client = APIClient()
 
-        response = client.get(reverse('api-member-profile'))
+        response = client.get(reverse('api:member:profile'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -381,7 +381,7 @@ class MemberDetailAPITest(APITestCase):
         """
         Gets all information about a user.
         """
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.profile.user.id, response.data.get('id'))
         self.assertEqual(self.profile.user.username, response.data.get('username'))
@@ -402,7 +402,7 @@ class MemberDetailAPITest(APITestCase):
         Gets all information about a user not synchronized.
         """
         decal = ProfileNotSyncFactory()
-        response = self.client.get(reverse('api-member-detail', args=[decal.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[decal.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('id'), decal.user.id)
 
@@ -413,7 +413,7 @@ class MemberDetailAPITest(APITestCase):
         self.profile.show_email = True
         self.profile.save()
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data.get('email'))
 
@@ -424,7 +424,7 @@ class MemberDetailAPITest(APITestCase):
         self.profile.show_email = True
         self.profile.save()
 
-        response = self.client_authenticated.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client_authenticated.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('show_email'))
         self.assertEqual(self.profile.user.email, response.data.get('email'))
@@ -433,14 +433,14 @@ class MemberDetailAPITest(APITestCase):
         """
         Gets an error when the user isn't present in the database.
         """
-        response = self.client.get(reverse('api-member-detail', args=[42]))
+        response = self.client.get(reverse('api:member:detail', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_member_details_without_any_change(self):
         """
         Updates a member but without any changes.
         """
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.profile.user.id, response.data.get('id'))
@@ -467,7 +467,7 @@ class MemberDetailAPITest(APITestCase):
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, decal.user.username, 'hostel77')
 
-        response = client_authenticated.put(reverse('api-member-detail', args=[decal.user.id]))
+        response = client_authenticated.put(reverse('api:member:detail', args=[decal.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('id'), decal.user.id)
 
@@ -475,14 +475,14 @@ class MemberDetailAPITest(APITestCase):
         """
         Tries to update a member who doesn't exist in the database.
         """
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[42]))
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_member_details_with_a_problem_in_authentication(self):
         """
         Tries to update a member with a authentication not valid.
         """
-        response = self.client.put(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.put(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_member_details_without_permissions(self):
@@ -490,7 +490,7 @@ class MemberDetailAPITest(APITestCase):
         Tries to update information about a member when the user isn't the target user.
         """
         another = ProfileFactory()
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[another.user.id]))
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[another.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_member_details_username(self):
@@ -500,7 +500,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'username': 'Clem'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), data.get('username'))
 
@@ -511,7 +511,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'email': 'clem@zestedesavoir.com'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('email'), data.get('email'))
 
@@ -522,7 +522,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'email': 'wrong email'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_member_details_site(self):
@@ -532,7 +532,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'site': 'www.zestedesavoir.com'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('site'), data.get('site'))
 
@@ -543,7 +543,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'avatar_url': 'www.zestedesavoir.com'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('avatar_url'), data.get('avatar_url'))
 
@@ -554,7 +554,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'biography': 'It is my awesome biography.'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('biography'), data.get('biography'))
 
@@ -565,7 +565,7 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'sign': 'It is my awesome sign.'
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('sign'), data.get('sign'))
 
@@ -576,14 +576,14 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'show_email': True
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_email'), data.get('show_email'))
 
         data = {
             'show_email': False
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_email'), data.get('show_email'))
 
@@ -594,14 +594,14 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'show_sign': True
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_sign'), data.get('show_sign'))
 
         data = {
             'show_sign': False
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('show_sign'), data.get('show_sign'))
 
@@ -612,14 +612,14 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'hover_or_click': True
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('hover_or_click'), data.get('hover_or_click'))
 
         data = {
             'hover_or_click': False
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('hover_or_click'), data.get('hover_or_click'))
 
@@ -630,14 +630,14 @@ class MemberDetailAPITest(APITestCase):
         data = {
             'email_for_answer': True
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('email_for_answer'), data.get('email_for_answer'))
 
         data = {
             'email_for_answer': False
         }
-        response = self.client_authenticated.put(reverse('api-member-detail', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.put(reverse('api:member:detail', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('email_for_answer'), data.get('email_for_answer'))
 
@@ -645,14 +645,14 @@ class MemberDetailAPITest(APITestCase):
         """
         Gets an error when the user try to make a request with a method not allowed.
         """
-        response = self.client.post(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.post(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_member_detail_url_with_delete_method(self):
         """
         Gets an error when the user try to make a request with a method not allowed.
         """
-        response = self.client.delete(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.delete(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
@@ -673,7 +673,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Applies a read only sanction at a member given by a staff user.
         """
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -685,7 +685,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         decal = ProfileNotSyncFactory()
 
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[decal.user.id]))
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[decal.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('id'), decal.user.id)
 
@@ -696,7 +696,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-jrs': 1
         }
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -710,7 +710,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-text': 'You are a bad boy!'
         }
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -720,7 +720,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Applies a read only sanction at a member given but not present in the database.
         """
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[42]))
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_apply_read_only_at_a_member_with_unauthenticated_client(self):
@@ -728,7 +728,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         Tries to apply a read only sanction at a member with a user isn't authenticated.
         """
         client = APIClient()
-        response = client.post(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = client.post(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_apply_read_only_at_a_member_without_permissions(self):
@@ -739,17 +739,17 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_remove_read_only_at_a_member(self):
         """
         Removes a read only sanction at a member given by a staff user.
         """
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = self.client_authenticated.delete(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -762,10 +762,10 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-jrs': 1
         }
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = self.client_authenticated.delete(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -779,10 +779,10 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-text': 'You are a bad boy!'
         }
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = self.client_authenticated.delete(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -792,7 +792,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         """
         Removes a read only sanction at a member given but not present in the database.
         """
-        response = self.client_authenticated.delete(reverse('api-member-read-only', args=[42]))
+        response = self.client_authenticated.delete(reverse('api:member:read-only', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_read_only_at_a_member_with_unauthenticated_client(self):
@@ -800,7 +800,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         Tries to remove a read only sanction at a member with a user isn't authenticated.
         """
         client = APIClient()
-        response = client.delete(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = client.delete(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_remove_read_only_at_a_member_without_permissions(self):
@@ -811,7 +811,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = client_authenticated.delete(reverse('api-member-read-only', args=[self.profile.user.id]))
+        response = client_authenticated.delete(reverse('api:member:read-only', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_staff_apply_read_only_on_self(self):
@@ -821,7 +821,7 @@ class MemberDetailReadingOnlyAPITest(APITestCase):
         data = {
             'ls-text': 'I am a bad staff!'
         }
-        response = self.client_authenticated.post(reverse('api-member-read-only', args=[self.staff.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:read-only', args=[self.staff.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -842,7 +842,7 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Applies a ban sanction at a member given by a staff user.
         """
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -854,7 +854,7 @@ class MemberDetailBanAPITest(APITestCase):
         """
         decal = ProfileNotSyncFactory()
 
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[decal.user.id]))
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[decal.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('id'), decal.user.id)
 
@@ -865,7 +865,7 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-jrs': 1
         }
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -879,7 +879,7 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-text': 'You are a bad boy!'
         }
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -889,7 +889,7 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Applies a ban sanction at a member given but not present in the database.
         """
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[42]))
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_apply_ban_at_a_member_with_unauthenticated_client(self):
@@ -897,7 +897,7 @@ class MemberDetailBanAPITest(APITestCase):
         Tries to apply a ban sanction at a member with a user isn't authenticated.
         """
         client = APIClient()
-        response = client.post(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = client.post(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_apply_ban_at_a_member_without_permissions(self):
@@ -908,17 +908,17 @@ class MemberDetailBanAPITest(APITestCase):
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_remove_ban_at_a_member(self):
         """
         Removes a ban sanction at a member given by a staff user.
         """
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client_authenticated.delete(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = self.client_authenticated.delete(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -931,10 +931,10 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-jrs': 1
         }
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client_authenticated.delete(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = self.client_authenticated.delete(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -948,10 +948,10 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-text': 'You are a bad boy!'
         }
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.profile.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = self.client_authenticated.delete(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = self.client_authenticated.delete(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('username'), self.profile.user.username)
         self.assertEqual(response.data.get('email'), self.profile.user.email)
@@ -961,7 +961,7 @@ class MemberDetailBanAPITest(APITestCase):
         """
         Removes a ban sanction at a member given but not present in the database.
         """
-        response = self.client_authenticated.delete(reverse('api-member-ban', args=[42]))
+        response = self.client_authenticated.delete(reverse('api:member:ban', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_ban_at_a_member_with_unauthenticated_client(self):
@@ -969,7 +969,7 @@ class MemberDetailBanAPITest(APITestCase):
         Tries to remove a ban sanction at a member with a user isn't authenticated.
         """
         client = APIClient()
-        response = client.delete(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = client.delete(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_remove_ban_at_a_member_without_permissions(self):
@@ -980,7 +980,7 @@ class MemberDetailBanAPITest(APITestCase):
         client_authenticated = APIClient()
         authenticate_client(client_authenticated, client_oauth2, self.profile.user.username, 'hostel77')
 
-        response = client_authenticated.delete(reverse('api-member-ban', args=[self.profile.user.id]))
+        response = client_authenticated.delete(reverse('api:member:ban', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_staff_apply_ban_on_self(self):
@@ -990,7 +990,7 @@ class MemberDetailBanAPITest(APITestCase):
         data = {
             'ban-text': 'I am a bad staff!'
         }
-        response = self.client_authenticated.post(reverse('api-member-ban', args=[self.staff.user.id]), data)
+        response = self.client_authenticated.post(reverse('api:member:ban', args=[self.staff.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -1005,7 +1005,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Anonymous users have the permission to read any member.
         """
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('read'))
 
@@ -1016,7 +1016,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.profile.user),
                             self.profile.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('read'))
 
@@ -1027,7 +1027,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.staff.user),
                             self.staff.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('read'))
 
@@ -1035,7 +1035,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         An anonymous user haven't write permissions.
         """
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('write'))
 
@@ -1046,7 +1046,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.profile.user),
                             self.profile.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('write'))
 
@@ -1057,7 +1057,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.staff.user),
                             self.staff.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('write'))
 
@@ -1065,7 +1065,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Only the user authenticated have update permissions.
         """
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('update'))
 
@@ -1076,7 +1076,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.profile.user),
                             self.profile.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('update'))
 
@@ -1087,7 +1087,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.staff.user),
                             self.staff.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('update'))
 
@@ -1095,7 +1095,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Only staff have ban permission.
         """
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('ban'))
 
@@ -1106,7 +1106,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.profile.user),
                             self.profile.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('ban'))
 
@@ -1117,7 +1117,7 @@ class PermissionMemberAPITest(APITestCase):
         authenticate_client(self.client, create_oauth2_client(self.staff.user),
                             self.staff.user.username, 'hostel77')
 
-        response = self.client.get(reverse('api-member-detail', args=[self.profile.user.id]))
+        response = self.client.get(reverse('api:member:detail', args=[self.profile.user.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('ban'))
 
@@ -1131,13 +1131,13 @@ class CacheMemberAPITest(APITestCase):
         another_profile = ProfileFactory()
 
         authenticate_client(self.client, create_oauth2_client(profile.user), profile.user.username, 'hostel77')
-        response = self.client.get(reverse('api-member-profile'))
+        response = self.client.get(reverse('api:member:profile'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(profile.user.username, response.data.get('username'))
 
         authenticate_client(self.client, create_oauth2_client(another_profile.user),
                             another_profile.user.username, 'hostel77')
-        response = self.client.get(reverse('api-member-profile'))
+        response = self.client.get(reverse('api:member:profile'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(another_profile.user.username, response.data.get('username'))
 

@@ -27,7 +27,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, CommentDislike, CommentLike, Alert
+from zds.utils.models import HelpWriting, Alert
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
@@ -4282,51 +4282,6 @@ class PublishedContentTests(TestCase):
 
         self.assertEqual(ContentReaction.objects.count(), 1)  # no new reaction has been posted
         self.assertTrue(result.context['newnote'])  # message appears !
-
-    def test_upvote_downvote(self):
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
-
-        self.client.post(
-            reverse("content:add-reaction") + u'?pk={}'.format(self.tuto.pk),
-            {
-                'text': u'message',
-                'last_note': '0'
-            }, follow=True)
-
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        reac = ContentReaction.objects.last()
-        result = self.client.post(
-            reverse("content:up-vote") + "?message=" + str(reac.pk),
-            follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 1)
-        result = self.client.post(
-            reverse("content:up-vote") + "?message=" + str(reac.pk),
-            follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
-        result = self.client.post(
-            reverse("content:up-vote") + "?message=" + str(reac.pk),
-            follow=False
-        )
-        result = self.client.post(
-            reverse("content:down-vote") + "?message=" + str(reac.pk),
-            follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.filter(user__pk=self.user_author.pk).count(), 0)
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.filter(user__pk=self.user_author.pk).count(), 1)
 
     def test_hide_reaction(self):
         text_hidden = \

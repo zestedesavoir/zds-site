@@ -1,0 +1,35 @@
+$tooltip-arrow-size: 6px;
+$tooltip-background-color: #333;
+
+.tooltips-container {
+    .tooltip-wrapper {
+        position: absolute;
+        z-index: 30;
+
+        .tooltip {
+            font-size: 12px;
+            line-height: 16px;
+            color: white;
+            background-color: $tooltip-background-color;
+            padding: 6px 8px;
+        }
+
+        &.top::after {
+            border-top: solid $tooltip-arrow-size $tooltip-background-color;
+        }
+
+        &.bottom::before {
+            border-bottom: solid $tooltip-arrow-size $tooltip-background-color;
+        }
+
+        &.top::after, &.bottom::before {
+            margin: auto;
+            content: '';
+            height: 0;
+            width: 0;
+            display: block;
+            border-left: solid $tooltip-arrow-size transparent;
+            border-right: solid $tooltip-arrow-size transparent;
+        }
+    }
+}
