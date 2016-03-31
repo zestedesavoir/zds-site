@@ -32,11 +32,13 @@ class Migration(migrations.Migration):
             unique_together=set([('user', 'comment')]),
         ),
         migrations.RunSQL((
-            'INSERT INTO utils_commentvote (comment_id, user_id, positive) '
-            'SELECT t1.comments_id as comment_id, t1.user_id as user_id, 1 as positive '
+            'REPLACE INTO utils_commentvote (comment_id, user_id, positive)'
+            'SELECT comment_id, user_id, positive FROM ('
+            'SELECT DISTINCT t1.comments_id as comment_id, t1.user_id as user_id, 1 as positive '
             'FROM utils_commentlike t1 '
-            'UNION SELECT t2.comments_id as comment_id, t2.user_id as user_id, 0 as positive '
-            'FROM utils_commentdislike t2;'
+            'UNION SELECT DISTINCT t2.comments_id as comment_id, t2.user_id as user_id, 0 as positive '
+            'FROM utils_commentdislike t2'
+            ') AS t3;'
             ), reverse_sql=(
             'INSERT INTO utils_commentlike (comments_id, user_id) '
             'SELECT vote.comment_id as comments_id, vote.user_id as user_id '
