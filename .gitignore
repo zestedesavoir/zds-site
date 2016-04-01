@@ -10,6 +10,7 @@ base.db
 /contents-public
 /media
 /articles-data
+django_cache
 
 /tutoriels-private-test
 /tutoriels-public-test

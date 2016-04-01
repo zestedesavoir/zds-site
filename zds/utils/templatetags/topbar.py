@@ -8,12 +8,35 @@ from zds.forum.models import Forum, Topic
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.models import CategorySubCategory, Tag
 from django.db.models import Count
+from django.core.cache import cache
 
 register = template.Library()
 
 
 @register.filter('top_categories')
 def top_categories(user):
+
+    # Compute key cache based on group the user is with.
+    key_cache = 'cache_top_tags_'
+    if user and user.is_authenticated():
+        key_cache += '_'.join(str(group) for group in user.groups.all())
+
+    # Cache can expire by two ways, invalidate cache by timeout or an admin
+    tags = cache.get(key_cache, 'has expired')
+
+    if tags is None or tags == 'has expired':
+
+        categories = fetch_top_categories(user)
+
+        cache.set(key_cache, categories, settings.ZDS_APP['forum']['top_tag_cache'])
+
+        return categories
+    else:
+        return tags
+
+
+# You may want to use top_categories instead, it's wrap this method with cache
+def fetch_top_categories(user):
     cats = {}
 
     forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").distinct().all()

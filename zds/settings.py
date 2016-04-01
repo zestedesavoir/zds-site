@@ -511,7 +511,9 @@ ZDS_APP = {
         'old_post_limit_days': 90,
         # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
         # Be warned exclude too much tags can restrict performance
-        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
+        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article'],
+        # Cache in second
+        'top_tag_cache': 60 * 60 * 24,
     },
     'topic': {
         'home_number': 6,
