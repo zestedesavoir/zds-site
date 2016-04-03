@@ -306,7 +306,7 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 - La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
   Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le `WHERE`):
   ```sql
-  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
+  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
   ```
   Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe):
   ```bash
@@ -490,7 +490,14 @@ la clé dans le fichier de configuration de production.
 ZEP-25
 ------
 
-Avant toute chose il faut avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. En cas de contenus non-migrés automatiquement il y aura un message à la fin ainsi que des `[WARNING]` dans les logs. **La commande peut être assez longue.**
+Il faut dans un premier temps supprimer les restes des tables des articles et tutoriels avant la ZEP-12 :
+
+```sql
+DROP TABLE article_article_subcategory;
+DROP TABLE tutorial_tutorial_subcategory;
+```
+
+Avant de continuer il faut s'assurer d'avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. En cas de contenus non-migrés automatiquement il y aura un message à la fin ainsi que des `[WARNING]` dans les logs. **La commande peut être assez longue.**
 
 Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
 
@@ -516,3 +523,4 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
