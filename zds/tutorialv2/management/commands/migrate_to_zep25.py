@@ -146,19 +146,19 @@ def alert_authors():
                 users.append(author)
     for user in users:
         msg = 'Bonjour {0},\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutoriels ' \
-              'et bientôt tribunes libres) possèdent maintenant une nouvelle classification ([ZEP-25](https://zestede' \
+              'et bientôt tribunes libres) possèdent une nouvelle classification ([ZEP-25](https://zestede' \
               'savoir.com/forums/sujet/2378/zep-25-categorisation-des-articles-et-tutoriels/)). Les **tags** ont fait' \
-              ' leur apparition et les catégories ont été revues afin de faciliter et d\'aléger cette classification.' \
+              ' leur apparition et les catégories ont été revues afin de faciliter et d\'alléger cette classification.' \
               '\n\nLes anciennes catégories ont été transformées en tags et de nouvelles catégories plus générales on' \
               't été ajoutés. L\'équipe de Zeste de Savoir va ou a déjà changé les catégories des contenus publiés.\n' \
               '\nNous vous invitons à vérifier la catégorie de vos [articles](https://zestedesavoir.com/contenus/arti' \
-              'cles/{1}/) et [tutoriels](https://zestedesavoir.com/contenus/tutoriels/{1}/) mais également la pertine' \
+              'cles/{1}/) et [tutoriels](https://zestedesavoir.com/contenus/tutoriels/{2}/) mais également la pertine' \
               'nce des tags et en ajouter si besoin.\n\n\nNous restons à votre disposition et votre écoute pour toute' \
-              's suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'
+              's suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'.format(author.username, author.pk, author.pk)
         send_mp(
             bot,
             [user],
-            'Changement de classification du contenu sur Zeste de Savoir',
+            'Changement de classification des contenus sur Zeste de Savoir',
             'Ce qui change pour vous en tant qu\'auteur',
             msg
         )
