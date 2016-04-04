@@ -146,21 +146,21 @@ def alert_authors():
                 users.append(author)
     for user in users:
         msg = 'Bonjour {0},\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutoriels ' \
-              'et bientôt tribunes libres) possèdent une nouvelle classification ([ZEP-25](https://zestede' \
-              'savoir.com/forums/sujet/2378/zep-25-categorisation-des-articles-et-tutoriels/)). Les **tags** ont fait' \
-              ' leur apparition et les catégories ont été revues afin de faciliter et d\'alléger cette classification.' \
+              'et bientôt tribunes libres) possèdent une nouvelle classification ([ZEP-25](https://zestedesavoir.com' \
+              '/forums/sujet/2378/zep-25-categorisation-des-articles-et-tutoriels/)). Les **tags** ont fait leur' \
+              ' apparition et les catégories ont été revues afin de faciliter et d\'alléger cette classification.' \
               '\n\nLes anciennes catégories ont été transformées en tags et de nouvelles catégories plus générales on' \
               't été ajoutés. L\'équipe de Zeste de Savoir va ou a déjà changé les catégories des contenus publiés.\n' \
               '\nNous vous invitons à vérifier la catégorie de vos [articles](https://zestedesavoir.com/contenus/arti' \
               'cles/{1}/) et [tutoriels](https://zestedesavoir.com/contenus/tutoriels/{2}/) mais également la pertine' \
               'nce des tags et en ajouter si besoin.\n\n\nNous restons à votre disposition et votre écoute pour toute' \
-              's suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'.format(author.username, author.pk, author.pk)
+              's suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'
         send_mp(
             bot,
             [user],
             'Changement de classification des contenus sur Zeste de Savoir',
             'Ce qui change pour vous en tant qu\'auteur',
-            msg
+            msg.format(author.username, author.pk, author.pk)
         )
         print(u'[ZEP-25] : PM send to {}'.format(user))
 
@@ -210,7 +210,7 @@ def migrate_zds():
         u'Communication et management': [305, 341, 391],
         u'Zeste de Savoir': [1, 8, 9, 11, 13, 14, 15, 20, 22, 36, 38, 40, 48, 49, 52, 59, 64, 71, 72, 77, 82, 83, 86,
                              90, 93, 99, 108, 115, 137, 138, 142, 145, 173, 174, 185, 194, 195, 196, 198, 206, 216, 222,
-                             244, 249, 261, 877, 978, 1002, 1120, 1162, 1062],
+                             244, 249, 261, 877, 978, 1002, 1120, 1163, 1062],
         u'Autres': [11, 13, 14, 15, 52, 69, 90, 95, 103, 104, 142, 173, 196, 195, 936, 950, 1139, 1214],
     }
     contents_pk = [item['pk'] for item in PublishableContent.objects.values(u'pk')]
@@ -264,7 +264,7 @@ class Command(BaseCommand):
            'is message\n  prod          Convert all published content in https://zestedesavoir.com\n  tags          C' \
            'hange all content categories to tags'
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **_):
         if len(args) > 0:
             if args[0] == 'alert':
                 alert_authors()
