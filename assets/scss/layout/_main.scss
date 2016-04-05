@@ -41,6 +41,9 @@
         &.ico-forum:after {
             @include sprite-position($forum-heading);
         }
+        &.ico-tags:after {
+            @include sprite-position($tags);
+        }
 
         &.illu img {
             position: absolute;
