@@ -112,7 +112,7 @@
             </div>
         </section>
         <div class="home-row">
-           <section itemscope itemtype="http://schema.org/ItemList">
+            <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
                     <a href="{% url "tutorial:list" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
@@ -139,7 +139,7 @@
 
                 <div class="content-item-list">
                     {% for article in last_articles %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True show_reactions=True %}
                     {% empty %}
                         <p>{% trans "Aucun article disponible." %}</p>
                     {% endfor %}
