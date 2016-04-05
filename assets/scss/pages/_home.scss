@@ -33,7 +33,7 @@ $content-width: 1145px;
 
     .home-header {
         border-bottom: solid 1px white;
-        padding-top: 40px;
+        padding-top: 20px;
         background-color: #19516b; // fallback for older browser
         background: #19516b radial-gradient(at top, rgba(255,255,255,0.1),rgba(0,0,0,0) 60%);
         margin-bottom: -170px;
@@ -50,10 +50,10 @@ $content-width: 1145px;
             color: white;
             text-align: justify;
         }
-        p, ul {
-            font-size: 16px;
-            font-size: 1.6rem;
-            color: white;
+
+        ul {
+            color: #EEE;
+            margin: 10px 0;
         }
 
         a:not(.home-description-button) {
@@ -67,13 +67,13 @@ $content-width: 1145px;
 
         .column {
             flex: 1;
-            padding: 0 10px;
+            padding: 0 20px;
 
             h2 {
                 font-size: 18px;
                 font-size: 1.8rem;
                 color: white;
-                margin: 0 0 5px 0;
+                margin: 20px 0 10px 0;
                 border-bottom-color: white;
                 font-weight: 300; // Light
             }
@@ -405,9 +405,11 @@ $content-width: 1145px;
                     font-size: 22px;
                     font-size: 2.2rem;
                 }
+
                 p, ul {
-                    font-size: 16px;
-                    font-size: 1.6rem;
+                    line-height: 22px;
+                    font-size: 15px;
+                    font-size: 1.5rem;
                 }
             }
             &.connected {
