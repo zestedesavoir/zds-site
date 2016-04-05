@@ -27,7 +27,7 @@ ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide 
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libffi : ``apt-get install libffi-dev``
-- libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev``
+- libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée libjpeg8 et libjpeg8-dev sur  certains OS comme Ubuntu)
 
 Ou à l'aide du Makefile (``sudo`` sera appelé automatiquement, ne l'ajoutez jamais si on ne le précise pas) :
 
