@@ -466,14 +466,14 @@ ZDS_APP = {
         'gallery_per_page': 21,
     },
     'article': {
-        'home_number': 4,
+        'home_number': 3,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
         'default_license_pk': 7,
-        'home_number': 5,
+        'home_number': 4,
         'helps_per_page': 20,
         'content_per_page': 42,
         'feed_length': 5,

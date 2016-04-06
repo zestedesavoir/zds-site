@@ -36,11 +36,11 @@ class PublishedContentManager(models.Manager):
     def last_articles_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type='ARTICLE')
 
-    def get_tutorials_count(self):
+    def get_contents_count(self):
         """
         :rtype: int
         """
-        return self.filter(content_type="TUTORIAL", must_redirect=False)\
+        return self.filter(must_redirect=False)\
                    .count()
 
 

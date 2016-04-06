@@ -112,7 +112,7 @@
             </div>
         </section>
         <div class="home-row">
-           <section itemscope itemtype="http://schema.org/ItemList">
+            <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
                     <a href="{% url "tutorial:list" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
@@ -122,17 +122,10 @@
 
                 <div class="content-item-list">
                     {% for tutorial in last_tutorials %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=tutorial show_description=True item_class=forloop.first|yesno:", mini" %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=tutorial show_description=True %}
                     {% empty %}
                         <p>{% trans "Aucun tutoriel disponible." %}</p>
                     {% endfor %}
-                    <div class="content-item write-tutorial">
-                        <div class="write-tutorial-text">
-                            <p>{% blocktrans %}Il y a {{ tutorials_count }} tutoriels sur Zeste de Savoir.{% endblocktrans %}</p>
-                            <p class="lead">{% trans "Pourquoi pas le vôtre ?" %}</p>
-                        </div>
-                        <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
-                    </div>
                 </div>
             </section>
 
@@ -146,10 +139,18 @@
 
                 <div class="content-item-list">
                     {% for article in last_articles %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True show_reactions=True %}
                     {% empty %}
                         <p>{% trans "Aucun article disponible." %}</p>
                     {% endfor %}
+
+                    <div class="content-item write-tutorial">
+                        <div class="write-tutorial-text">
+                            <p>{% blocktrans %}Il y a {{ contents_count }}&nbsp;publications sur&nbsp;Zeste&nbsp;de&nbsp;Savoir.{% endblocktrans %}</p>
+                            <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
+                        </div>
+                        <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
+                    </div>
                 </div>
             </section>
         </div>
