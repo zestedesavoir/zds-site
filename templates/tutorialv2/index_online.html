@@ -8,6 +8,8 @@
 {% block title %}
     {% if tag %}
         {{ tag }}
+    {% elif category %}
+        {{ category }}
     {% else %}
         {% trans "Tous les" %} {{ verbose_type_name_plural }}
     {% endif %}
@@ -19,6 +21,10 @@
     {% if tag %}
         {% blocktrans %}
             Découvrez tous nos {{ verbose_type_name_plural }} sur {{ tag }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
+        {% endblocktrans %}
+    {% elif category %}
+        {% blocktrans %}
+            Découvrez toutes nos {{ verbose_type_name_plural }} sur {{ category }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
         {% endblocktrans %}
     {% else %}
         {% blocktrans %}
@@ -32,6 +38,8 @@
 {% block breadcrumb %}
     {% if tag %}
         <li>{{ tag }}</li>
+    {% elif category %}
+        <li>{{ category }}</li>
     {% else %}
         <li>{% trans "Tous les" %} {{ verbose_type_name_plural }}</li>
     {% endif %}
@@ -45,6 +53,8 @@
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag }}
+                {% elif category %}
+                    {{ verbose_type_name_plural|title }} : {{ category }}
                 {% else %}
                     {% trans "Tous les" %} {{ verbose_type_name_plural }}
                 {% endif %}
