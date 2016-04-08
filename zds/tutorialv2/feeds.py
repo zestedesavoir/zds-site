@@ -13,7 +13,7 @@ class LastContentFeedRSS(Feed):
     """
     RSS feed for any type of content.
     """
-    title = u"Contenu sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    title = u"Contenus sur {}".format(settings.ZDS_APP['site']['litteral_name'])
     description = u"Les derniers contenus parus sur {}.".format(settings.ZDS_APP['site']['litteral_name'])
     link = ""
     content_type = None
@@ -51,6 +51,11 @@ class LastContentFeedRSS(Feed):
 
     def item_link(self, item):
         return item.get_absolute_url_online()
+
+
+class LastContentFeedATOM(LastContentFeedRSS):
+    feed_type = Atom1Feed
+    subtitle = LastContentFeedRSS.description
 
 
 class LastTutorialsFeedRSS(LastContentFeedRSS):
