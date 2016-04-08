@@ -415,7 +415,7 @@ $content-width: 1145px;
             &.connected {
                 // Rules to don't be hidden by the .home-search-box::before background-image
                 max-width: 740px;
-                margin: 0px auto;
+                margin: 15px auto 0;
             }
         }
     }
