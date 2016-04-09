@@ -528,11 +528,12 @@ class PublishableContent(models.Model):
         for tag in tag_collection:
             tag_title = smart_text(tag.strip().lower())
             current_tag = Tag.objects.filter(title=tag_title).first()
-            if current_tag is None:
-                current_tag = Tag(title=tag_title)
-                current_tag.save()
+            if len(tag_title) > 0:
+                if current_tag is None:
+                    current_tag = Tag(title=tag_title)
+                    current_tag.save()
 
-            self.tags.add(current_tag)
+                self.tags.add(current_tag)
         self.save()
 
 
