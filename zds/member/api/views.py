@@ -108,6 +108,53 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
+        
+class ContactableMemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
+    """
+    Profile resource to list all contactable members
+    """
+
+    queryset = Profile.objects.contactable_members()
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('user__username',)
+    list_key_func = PagingSearchListKeyConstructor()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Lists all users in the system.
+        ---
+
+        parameters:
+            - name: page
+              description: Restricts output to the given page number.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets the number of profiles per page.
+              required: false
+              paramType: query
+            - name: search
+              description: Filters by username.
+              required: false
+              paramType: query
+        responseMessages:
+            - code: 404
+              message: Not Found
+        """
+        return self.list(request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ProfileListSerializer
+
+    def get_permissions(self):
+        permission_classes = [AllowAny, ]
+        if self.request.method == 'GET':
+            permission_classes.append(DRYPermissions)
+        return [permission() for permission in permission_classes]
+
 
 class MemberMyDetailAPI(RetrieveAPIView):
     """

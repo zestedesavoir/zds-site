@@ -21,7 +21,7 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
                 'placeholder': _(u'Les participants doivent '
                                  u'être séparés par une virgule.'),
                 'required': 'required',
-                'data-autocomplete': '{ "type": "multiple" }'}))
+                'data-autocomplete': '{ "type": "multiple", "url": "/api/membres/contactable/?search=%s" }'}))
 
     title = forms.CharField(
         label=_('Titre'),
