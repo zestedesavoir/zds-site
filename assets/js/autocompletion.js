@@ -135,23 +135,24 @@
             if (this.options.type === "multiple") {
                 var lastComma = input.lastIndexOf(",");
                 if (lastComma !== -1) {
-                    input = input.substr(0, lastComma) + ", " + completion.username + ", ";
+                    input = input.substr(0, lastComma) + ", " + completion[this.options.fieldname] + ", ";
                     this.$input.val(input);
                 } else {
-                    this.$input.val(completion.username + ", ");
+                    this.$input.val(completion[this.options.fieldname] + ", ");
                 }
             } else {
-                this.$input.val(completion.username);
+                this.$input.val(completion[this.options.fieldname]);
             }
 
-            this._lastAutocomplete = completion.username;
+            this._lastAutocomplete = completion[this.options.fieldname];
             this.selected = -1; // Deselect properly
             this.$input.trigger("input");
         },
 
         updateCache: function(data) {
             for (var i = 0; i < data.length; i++) {
-                this.cache[data[i].username] = data[i];
+                console.log(this.cache[data[i]]);
+                this.cache[data[i][this.options.fieldname]] = data[i];
             }
         },
 
@@ -186,7 +187,7 @@
             return $.grep(
                 this.cache,
                 function(e) {
-                    return e.username.match(regexp);
+                    return e.this.options.fieldname.match(regexp);
                 }
             );
         },
@@ -200,8 +201,9 @@
         },
 
         filterData: function(data, exclude) {
+            var fieldname = this.options.fieldname;
             return data.filter(function(e) {
-                return exclude.indexOf(e.username) === -1;
+                return exclude.indexOf(e[fieldname]) === -1;
             });
         },
 
@@ -222,9 +224,9 @@
             var $list = $("<ul>"),
                 $el, selected = false;
             for (var i in list) {
-                if ($("#my-account .username").text() === list[i].username)
+                if ($("#my-account .username").text() === list[i][this.options.fieldname])
                     continue;
-                $el = $("<li>").text(list[i].username);
+                $el = $("<li>").text(list[i][this.options.fieldname]);
                 $el.attr("data-autocomplete-id", list[i].id);
                 if (list[i].id === this.selected) {
                     $el.addClass("active");
@@ -246,7 +248,7 @@
                 otherMatches = [];
 
             for (var i = 0; i < list.length; i++) {
-                if (list[i].username.indexOf(search) === 0) {
+                if (list[i][this.options.fieldname].indexOf(search) === 0) {
                     bestMatches.push(list[i]);
                 } else {
                     otherMatches.push(list[i]);
@@ -254,8 +256,8 @@
             }
 
             var sortFn = function(a, b) {
-                var valueA = a.username.toLowerCase(),
-                    valueB = b.username.toLowerCase();
+                var valueA = a[this.options.fieldname].toLowerCase(),
+                    valueB = b[this.options.fieldname].toLowerCase();
                 if (valueA < valueB)
                     return -1;
                 if (valueA > valueB)
@@ -263,8 +265,8 @@
                 return 0;
             };
 
-            bestMatches.sort(sortFn);
-            otherMatches.sort(sortFn);
+            bestMatches.sort(sortFn.bind(this));
+            otherMatches.sort(sortFn.bind(this));
 
             return bestMatches.concat(otherMatches);
         },
@@ -294,7 +296,8 @@
         var defaults = {
             type: "single", // single|multiple|mentions
             url: "/api/membres/?search=%s",
-            limit: 4
+            limit: 4,
+            fieldname: "username"
         };
 
         if (!options) {

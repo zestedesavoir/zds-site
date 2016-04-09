@@ -1,9 +1,14 @@
 from django.contrib.auth.models import AnonymousUser
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, IntegerField, ChoiceField
-from zds.utils.models import Comment
+from zds.utils.models import Comment, Tag
 from zds.member.api.serializers import UserListSerializer
 
 
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id','title')
+        
 class LikesSerializer(ModelSerializer):
     count = IntegerField(source='like', read_only=True)
     users = UserListSerializer(source='get_likers', many=True, read_only=True)
@@ -44,3 +49,5 @@ class KarmaSerializer(ModelSerializer):
             instance.save()
 
         return instance
+        
+        
