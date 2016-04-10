@@ -48,10 +48,18 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     Profile resource to list and register.
     """
 
-    queryset = Profile.objects.all_members_ordered_by_date_joined()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('user__username',)
     list_key_func = PagingSearchListKeyConstructor()
+    
+    
+    def get_queryset(self):
+        contactable = self.request.query_params.get('contactable', None)
+        if contactable is not None:
+            queryset = Profile.objects.contactable_members()
+        else :
+            queryset = Profile.objects.all_members_ordered_by_date_joined()
+        return queryset
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -105,53 +113,6 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     def get_permissions(self):
         permission_classes = [AllowAny, ]
         if self.request.method == 'GET' or self.request.method == 'POST':
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
-
-        
-class ContactableMemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
-    """
-    Profile resource to list all contactable members
-    """
-
-    queryset = Profile.objects.contactable_members()
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__username',)
-    list_key_func = PagingSearchListKeyConstructor()
-
-    @etag(list_key_func)
-    @cache_response(key_func=list_key_func)
-    def get(self, request, *args, **kwargs):
-        """
-        Lists all users in the system.
-        ---
-
-        parameters:
-            - name: page
-              description: Restricts output to the given page number.
-              required: false
-              paramType: query
-            - name: page_size
-              description: Sets the number of profiles per page.
-              required: false
-              paramType: query
-            - name: search
-              description: Filters by username.
-              required: false
-              paramType: query
-        responseMessages:
-            - code: 404
-              message: Not Found
-        """
-        return self.list(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return ProfileListSerializer
-
-    def get_permissions(self):
-        permission_classes = [AllowAny, ]
-        if self.request.method == 'GET':
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
