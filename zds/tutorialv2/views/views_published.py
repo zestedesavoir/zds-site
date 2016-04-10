@@ -310,6 +310,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
         context['category'] = self.category
+        context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
