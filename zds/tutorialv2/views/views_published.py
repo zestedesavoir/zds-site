@@ -125,11 +125,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                                           if reaction.author == self.request.user]
 
         context['isantispam'] = self.object.antispam()
-<<<<<<< HEAD
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de')) 
-=======
-        context['pm_link'] = self.object.get_absolute_contact_url(`_(u'À propos de')`) 
->>>>>>> 32b2953a6f280b9640e0292ef6bd38196aa744ec
 
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
@@ -236,11 +232,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         context['container'] = container
-<<<<<<< HEAD
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
-=======
-        context['pm_link'] = self.object.get_absolute_contact_url(`_(u'À propos de')`) 
->>>>>>> 32b2953a6f280b9640e0292ef6bd38196aa744ec
 
         context['formWarnTypo'] = WarnTypoForm(
             self.versioned_object, container, initial={'target': container.get_path(relative=True)})
