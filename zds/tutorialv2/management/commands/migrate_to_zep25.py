@@ -137,7 +137,7 @@ def alert_authors():
         get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account']),
         get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     ]
-    authors_pk = set(PublishableContent.objects.value_list("authors__pk", flat=True))
+    authors_pk = set(PublishableContent.objects.value_list("authors__pk", flat=True)) - set(bots)
     users = list(User.objects.filter(pk__in=list(authors_pk)))
     for user in users:
         msg = 'Bonjour {0},\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutoriels ' \
