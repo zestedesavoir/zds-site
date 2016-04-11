@@ -137,13 +137,8 @@ def alert_authors():
         get_object_or_404(User, username=settings.ZDS_APP['member']['anonymous_account']),
         get_object_or_404(User, username=settings.ZDS_APP['member']['external_account'])
     ]
-    users = []
-    contents = PublishableContent.objects.all()
-    for content in contents:
-        authors = content.authors.all()
-        for author in authors:
-            if author not in users and author not in bots:
-                users.append(author)
+    authors_pk = set(PublishableContent.objects.value_list("authors__pk", flat=True))
+    users = list(User.objects.filter(pk__in=list(authors_pk)))
     for user in users:
         msg = 'Bonjour {0},\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutoriels ' \
               'et bientôt tribunes libres) possèdent une nouvelle classification ([ZEP-25](https://zestedesavoir.com' \
@@ -160,7 +155,7 @@ def alert_authors():
             [user],
             'Changement de classification des contenus sur Zeste de Savoir',
             'Ce qui change pour vous en tant qu\'auteur',
-            msg.format(author.username, author.pk, author.pk)
+            msg.format(user.username, user.pk, user.pk)
         )
         print(u'[ZEP-25] : PM send to {}'.format(user))
 
