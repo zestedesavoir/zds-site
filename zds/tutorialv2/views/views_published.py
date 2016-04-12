@@ -125,7 +125,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                                           if reaction.author == self.request.user]
 
         context['isantispam'] = self.object.antispam()
-        context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de')) 
+        context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
 
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
