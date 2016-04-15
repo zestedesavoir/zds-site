@@ -1,8 +1,7 @@
 # coding: utf-8
 
-from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
@@ -23,21 +22,21 @@ class PagingSearchListKeyConstructor(DefaultKeyConstructor):
     search = bits.QueryParamsKeyBit(['search'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
-    #tag = bits.TagKeyBit()
     
-class TagListAPI(ListCreateAPIView):
+class TagListAPI(ListAPIView):
     """
     Profile resource to list
     """
 
     queryset = Tag.objects.all()
     list_key_func = PagingSearchListKeyConstructor()
+    serializer_class = TagSerializer
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
         """
-        Lists all tah in the system.
+        Lists all tag in the system.
         ---
 
         parameters:
@@ -58,14 +57,3 @@ class TagListAPI(ListCreateAPIView):
               message: Not Found
         """
         return self.list(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return TagSerializer
-
-    def get_permissions(self):
-        permission_classes = [AllowAny, ]
-        if self.request.method == 'GET' : 
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
-

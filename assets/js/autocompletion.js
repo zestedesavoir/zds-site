@@ -85,7 +85,7 @@
             if (!search || search === this._lastAutocomplete) {
                 this.hideDropdown();
             } else {
-                this.fetchUsers(search)
+                this.fetchData(search)
                     .done(function(data) {
                         self.updateCache(data.results);
                         self.updateDropdown(self.sortList(data.results, search));
@@ -271,7 +271,7 @@
             return bestMatches.concat(otherMatches);
         },
 
-        fetchUsers: function(input) {
+        fetchData: function(input) {
             return $.getJSON(this.options.url.replace("%s", input));
         }
     };
@@ -293,7 +293,7 @@
     }
 
     $.fn.autocomplete = function(options) {
-        var defaults = {
+        var defaults = { // defaults are set for pm member autocomplete
             type: "single", // single|multiple|mentions
             url: "/api/membres/?search=%s",
             limit: 4,
