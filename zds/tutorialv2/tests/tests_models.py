@@ -499,7 +499,8 @@ class ContentTests(TestCase):
         tuto.add_tags(tags)
         tags_len += 2
         tuto_tags_len += 2
-        self.assertEqual(tags_len, len(Tag.objects.all()))
+        self.assertEqual(tags_len, Tag.objects.count(),
+                         'all tags are "{}"'.format('","'.join([str(t) for t in Tag.objects.all()])))
         self.assertEqual(tuto_tags_len, len(tuto.tags.all()))
 
     def tearDown(self):
