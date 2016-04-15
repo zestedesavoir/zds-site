@@ -633,6 +633,7 @@ def login_view(request):
     csrf_tk = {}
     csrf_tk.update(csrf(request))
     error = False
+    initial = {}
 
     # Redirecting user once logged in?
 
@@ -674,8 +675,9 @@ def login_view(request):
         else:
             messages.error(request,
                            _(u"Les identifiants fournis ne sont pas valides."))
+            initial = {'username': username}
 
-    form = LoginForm()
+    form = LoginForm(initial=initial)
     if next_page is not None:
         form.helper.form_action += "?next=" + next_page
 
