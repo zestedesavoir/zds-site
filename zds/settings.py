@@ -161,6 +161,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.humanize',
 
+    'django_extensions',
     'easy_thumbnails',
     'easy_thumbnails.optimize',
     'crispy_forms',
@@ -566,7 +567,8 @@ VOTES_ID_LIMIT = 0
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = ['--with-html']
 
 OAUTH2_PROVIDER = {
     'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'
