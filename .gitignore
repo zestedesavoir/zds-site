@@ -31,7 +31,6 @@ base.db
 /assets/scss/_sprite.scss
 /assets/scss/vendors
 /assets/js/vendors
-settings.py
 
 #############
 ## Python
