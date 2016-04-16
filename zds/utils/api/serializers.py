@@ -4,12 +4,14 @@ from zds.utils.models import Comment, Tag
 from zds.member.api.serializers import UserListSerializer
 from dry_rest_permissions.generics import DRYPermissions
 
+
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('id','title')
+        fields = ('id', 'title')
         permissions_classes = DRYPermissions
-        
+
+
 class LikesSerializer(ModelSerializer):
     count = IntegerField(source='like', read_only=True)
     users = UserListSerializer(source='get_likers', many=True, read_only=True)
@@ -50,5 +52,3 @@ class KarmaSerializer(ModelSerializer):
             instance.save()
 
         return instance
-        
-        

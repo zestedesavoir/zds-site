@@ -3,8 +3,6 @@
 from rest_framework import filters
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
@@ -17,12 +15,14 @@ class KarmaView(RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = KarmaSerializer
 
+
 class PagingSearchListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
     search = bits.QueryParamsKeyBit(['search'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
-    
+
+
 class TagListAPI(ListAPIView):
     """
     Profile resource to list
@@ -31,6 +31,8 @@ class TagListAPI(ListAPIView):
     queryset = Tag.objects.all()
     list_key_func = PagingSearchListKeyConstructor()
     serializer_class = TagSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('title',)
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
