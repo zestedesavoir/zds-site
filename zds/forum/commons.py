@@ -10,9 +10,19 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
-from zds.notification.models import TopicAnswerSubscription, Notification
+from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert
+
+
+class ForumEditMixin(object):
+    @staticmethod
+    def perform_follow(forum, user):
+        return NewTopicSubscription.objects.toggle_follow(forum, user).is_active
+
+    @staticmethod
+    def perform_follow_by_email(forum, user):
+        return NewTopicSubscription.objects.toggle_follow(forum, user, True).is_active
 
 
 class TopicEditMixin(object):

@@ -13,7 +13,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.models import mark_read
 from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription
+    PrivateTopicAnswerSubscription, NewTopicSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
     SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
@@ -213,6 +213,41 @@ class NotificationForumTest(TestCase):
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
         self.assertEqual(1, len(notifications))
+
+    def test_notifications_on_a_forum_subscribed(self):
+        """
+        When a user subscribes to a forum, he receive a notification for each topic created.
+        """
+        # Subscribe.
+        NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        # Unsubscribe.
+        NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
+    def test_mark_read_a_topic_of_a_forum_subscribed(self):
+        """
+        When a user have a notification on a topic, the notification should be marked as read.
+        """
+        NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        PostFactory(topic=topic, author=self.user2, position=1)
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertEqual(response.status_code, 200)
+
+        notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
 
 
 class NotificationPublishableContentTest(TestCase):
