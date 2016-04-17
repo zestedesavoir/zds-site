@@ -287,6 +287,17 @@ class CommentVote(models.Model):
     positive = models.BooleanField("Est un vote positif", default=True)
 
 
+class TagManager(models.Manager):
+    def get_from_title(self, title):
+        if len(slugify(title.strip())) < 1:
+            raise ValueError('tag "{}" is not correct'.format(title))
+        current_tag = self.filter(title=title).first()
+        if current_tag is None:
+            current_tag = Tag(title=title)
+            current_tag.save()
+        return current_tag
+
+
 class Tag(models.Model):
 
     """Set of tags."""
@@ -296,6 +307,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Tags'
     title = models.CharField(max_length=20, verbose_name='Titre')
     slug = models.SlugField(max_length=20)
+    objects = TagManager()
 
     def __unicode__(self):
         """Textual Link Form."""

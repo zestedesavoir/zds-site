@@ -297,8 +297,11 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
             queryset = queryset.filter(content__subcategory__in=[self.category])
         if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(Tag, slug=self.request.GET.get('tag'))
-            queryset = queryset.filter(content__tags__in=[self.tag])
+            self.tag = Tag.objects.filter(slug=self.request.GET.get('tag').lower())
+            if not self.tag:
+                raise Http404("tag not found " + self.request.GET.get('tag'))
+            queryset = queryset.filter(content__tags__in=list(self.tag))  # different tags can have same
+            # slug such as C/C#/C++, as a first version we get all of them
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
@@ -310,6 +313,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
         context['category'] = self.category
+        context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context

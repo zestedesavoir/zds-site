@@ -15,6 +15,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
+from zds.utils.models import Tag
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -465,6 +466,41 @@ class ContentTests(TestCase):
         article.public_version.load_public_version()
         self.assertEqual(old_date, article.public_version.publication_date)
         self.assertNotEqual(old_date, article.public_version.update_date)
+
+    def test_add_tags(self):
+        tuto = self.tuto
+        tags_len = len(Tag.objects.all())
+        tuto_tags_len = len(tuto.tags.all())
+
+        # add 3 tags
+        tags = ['a', 'b', 'c']
+        tuto.add_tags(tags)
+        tags_len += 3
+        tuto_tags_len += 3
+        self.assertEqual(tags_len, len(Tag.objects.all()))
+        self.assertEqual(tuto_tags_len, len(tuto.tags.all()))
+
+        # add the same tags (nothing append)
+        tags = ['a', 'b', 'c']
+        tuto.add_tags(tags)
+        self.assertEqual(tags_len, len(Tag.objects.all()))
+        self.assertEqual(tuto_tags_len, len(tuto.tags.all()))
+
+        # add 2 more
+        tags = ['d', 'e']
+        tuto.add_tags(tags)
+        tags_len += 2
+        tuto_tags_len += 2
+        self.assertEqual(tags_len, len(Tag.objects.all()))
+        self.assertEqual(tuto_tags_len, len(tuto.tags.all()))
+
+        # add 3 with invalid content (only 2 valid)
+        tags = ['f', 'g', ' ']
+        tuto.add_tags(tags)
+        tags_len += 2
+        tuto_tags_len += 2
+        self.assertEqual(tags_len, len(Tag.objects.all()))
+        self.assertEqual(tuto_tags_len, len(tuto.tags.all()))
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

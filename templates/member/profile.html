@@ -138,7 +138,7 @@
             <h2 class="ico-after ico-articles" id="derniers-articles">{% trans "Derniers articles" %}</h2>
             <div class="content-item-list">
                 {% for public_article in articles %}
-                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_tutorial %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_article show_reactions=True %}
                 {% endfor %}
             </div>
         {% endif %}

@@ -73,7 +73,7 @@
             <div class="content-item-list clearfix">
                 {% for article in articles %}
                     {% if filter == 'public' %}
-                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=article.public_version content=article %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=article.public_version content=article show_reactions=True %}
                     {% else %}
                         {% captureas type %}{% if filter == "beta" %}beta{% endif %}{% endcaptureas %}
                         {% include "tutorialv2/includes/content_item.part.html" with show_description=True type=type content=article %}
