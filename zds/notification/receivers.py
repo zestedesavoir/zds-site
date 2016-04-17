@@ -12,7 +12,7 @@ from django.dispatch import receiver
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, Subscription, Notification
+    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription
 from zds.notification.signals import answer_unread, content_read, new_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
@@ -61,9 +61,15 @@ def mark_topic_notifications_read(sender, **kwargs):
     topic = kwargs.get('instance')
     user = kwargs.get('user')
 
+    # Subscription to the topic
     subscription = TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True)
     if subscription:
         subscription.mark_notification_read()
+
+    # Subscription to the forum
+    subscription = NewTopicSubscription.objects.get_existing(user, topic.forum, is_active=True)
+    if subscription:
+        subscription.mark_notification_read(content=topic)
 
 
 @receiver(content_read, sender=PublishableContent)
@@ -97,6 +103,22 @@ def mark_pm_reactions_read(sender, **kwargs):
     subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_topic, is_active=True)
     if subscription:
         subscription.mark_notification_read()
+
+
+@receiver(post_save, sender=Topic)
+@disable_for_loaddata
+def new_topic_event(sender, **kwargs):
+    """
+    :param kwargs: contains instance: the new topic.
+    Sends a notification to the subscribers of the forum.
+    """
+    if kwargs.get('created', True):
+        topic = kwargs.get('instance')
+
+        subscriptions = NewTopicSubscription.objects.get_subscriptions(topic.forum)
+        for subscription in subscriptions:
+            if subscription.user != topic.author:
+                subscription.send_notification(content=topic, sender=topic.author)
 
 
 @receiver(post_save, sender=Post)

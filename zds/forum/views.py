@@ -21,7 +21,7 @@ from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
-from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
+from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
@@ -59,7 +59,7 @@ class CategoryForumsDetailView(DetailView):
         return context
 
 
-class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
+class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):
 
     context_object_name = 'topics'
     paginate_by = settings.ZDS_APP['forum']['topics_per_page']
@@ -72,7 +72,23 @@ class ForumTopicsListView(FilterMixin, ZdSPagingListView, SingleObjectMixin):
         self.object = self.get_object()
         if not self.object.can_read(request.user):
             raise PermissionDenied
-        return super(ForumTopicsListView, self).get(request, *args, **kwargs)
+        return super(ZdSPagingListView, self).get(request, *args, **kwargs)
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    @method_decorator(transaction.atomic)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        response = {}
+        if 'follow' in request.POST:
+            response['follow'] = self.perform_follow(self.object, request.user)
+        elif 'email' in request.POST:
+            response['email'] = self.perform_follow_by_email(self.object, request.user)
+
+        self.object.save()
+        if request.is_ajax():
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return redirect(u"{}?page={}".format(self.object.get_absolute_url(), self.page))
 
     def get_context_data(self, **kwargs):
         context = super(ForumTopicsListView, self).get_context_data(**kwargs)

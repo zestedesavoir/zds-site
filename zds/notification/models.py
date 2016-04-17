@@ -176,10 +176,14 @@ class MultipleNotificationsMixin(object):
         assert hasattr(self, "send_email")
 
         notification = Notification(subscription=self, content_object=content, sender=sender)
+        notification.content_object = content
+        notification.sender = sender
         notification.url = self.get_notification_url(content)
         notification.title = self.get_notification_title(content)
+        notification.is_read = False
         notification.save()
         self.set_last_notification(notification)
+        self.save()
 
         if send_email and self.by_email:
             self.send_email(notification)
@@ -254,6 +258,24 @@ class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMi
     def __unicode__(self):
         return _(u'<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
             .format(self.user.username, self.object_id)
+
+
+class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
+    """
+    Subscription to new topics in a forum or with a tag
+    """
+    module = _(u'Forum')
+    objects = SubscriptionManager()
+
+    def __unicode__(self):
+        return _(u'<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\
+            .format(self.profile, self.content_type, self.object_id)
+
+    def get_notification_url(self, topic):
+        return topic.get_absolute_url()
+
+    def get_notification_title(self, topic):
+        return topic.title
 
 
 class Notification(models.Model):
