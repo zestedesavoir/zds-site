@@ -291,7 +291,7 @@ class TagManager(models.Manager):
     def get_from_title(self, title):
         if len(slugify(title.strip())) < 1:
             raise ValueError('tag "{}" is not correct'.format(title))
-        current_tag = self.filter(slug=slugify(title)).first()
+        current_tag = self.filter(title=title).first()
         if current_tag is None:
             current_tag = Tag(title=title)
             current_tag.save()
