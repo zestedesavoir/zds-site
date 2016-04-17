@@ -650,7 +650,7 @@ def solve_alert(request):
             u"Résolution d'alerte : {0}".format(post.topic.title),
             "",
             msg,
-            False,
+            True,
         )
 
     alert.delete()
