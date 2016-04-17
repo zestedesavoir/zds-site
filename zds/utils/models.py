@@ -293,7 +293,7 @@ class TagManager(models.Manager):
             raise ValueError('tag "{}" is not correct'.format(title))
         current_tag = self.filter(slug=slugify(title)).first()
         if current_tag is None:
-            current_tag = Tag(title=tag_title)
+            current_tag = Tag(title=title)
             current_tag.save()
         return current_tag
 
