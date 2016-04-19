@@ -20,37 +20,37 @@ De la structure générale d'un contenu
 Des extraits
 ------------
 
-Un **extrait** est une unité de texte. Il possède un titre (*title*) et du 
-texte (*text*). Dans l'interface d'édition d'un tutoriel, un extrait est 
+Un **extrait** est une unité de texte. Il possède un titre (*title*) et du
+texte (*text*). Dans l'interface d'édition d'un tutoriel, un extrait est
 désigné par le terme « section ».
 
 Des conteneurs
 --------------
 
-Un conteneur est une boîte ayant pour rôle de regrouper des éléments 
-sémantiquement proches. Il est caractérisé par son titre (*title*) et possède 
-une introduction (*introduction*) ainsi qu'une conclusion (*conclusion*), 
-possiblement vides. 
+Un conteneur est une boîte ayant pour rôle de regrouper des éléments
+sémantiquement proches. Il est caractérisé par son titre (*title*) et possède
+une introduction (*introduction*) ainsi qu'une conclusion (*conclusion*),
+possiblement vides.
 
-Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux 
-types : conteneur ou extrait. La structure d'un conteneur obéit à certaines 
+Les éléments regroupés, appelés « enfants » (*children*) peuvent être de deux
+types : conteneur ou extrait. La structure d'un conteneur obéit à certaines
 règles :
 
 * Un conteneur ne peut comporter un conteneur composé lui-même d'un conteneur ;
 * Un conteneur ne peut comporter d'enfants directs à la fois des conteneurs et des extraits.
 
-Au niveau de la terminologie, on désigne par « partie » tout conteneur de 
-niveau 1, c'est-à-dire n'étant pas inclus dans un autre conteneur, et par 
+Au niveau de la terminologie, on désigne par « partie » tout conteneur de
+niveau 1, c'est-à-dire n'étant pas inclus dans un autre conteneur, et par
 « chapitre » tout conteneur enfant d'une partie.
 
 Un contenu
 ----------
 
-Un **contenu** est un agencement particulier de conteneurs et d'extraits. Il 
-est décrit par des métadonnées (*metadata*), détaillées 
-`ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article 
-ou tutoriel. Leur visée pédagogique diffère, mais aussi leur structure : un 
-article ne peut comporter de conteneurs, seulement des extraits, ce qui n'est 
+Un **contenu** est un agencement particulier de conteneurs et d'extraits. Il
+est décrit par des métadonnées (*metadata*), détaillées
+`ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article
+ou tutoriel. Leur visée pédagogique diffère, mais aussi leur structure : un
+article ne peut comporter de conteneurs, seulement des extraits, ce qui n'est
 pas le cas d'un tutoriel.
 
 Les exemples suivants devraient éclairer ces notions.
@@ -60,7 +60,7 @@ Communément appelé « mini-tutoriel » :
 .. sourcecode:: none
 
     + Tutoriel
-        + Section 
+        + Section
         + Section
         + Section
 
@@ -71,9 +71,9 @@ Communément appelé « moyen-tutoriel » :
     + Tutoriel
         + Partie
             + Section
-        + Partie 
+        + Partie
             + Section
-            + Section 
+            + Section
 
 Communément appelé « big-tutoriel » :
 
@@ -82,10 +82,10 @@ Communément appelé « big-tutoriel » :
     + Tutoriel
         + Partie
             + Chapitre
-                + Section 
+                + Section
                 + Section
             + Chapitre
-                + Section 
+                + Section
         + Partie
             + Chapitre
                 + Section
@@ -103,7 +103,7 @@ On peut aussi faire un mélange des conteneurs :
             + Chapitre
                 + Section
             + Chapitre
-                + Section 
+                + Section
 
 Mais pas de conteneurs et d'extraits adjacents :
 
@@ -115,43 +115,43 @@ Mais pas de conteneurs et d'extraits adjacents :
         + Partie
             + Section
         + Section /!\ Impossible !
-        + Partie 
+        + Partie
             + Chapitre
                 + Section
             + Section /!\ Impossible !
 
-Pour finir, un article. Même structure qu'un mini-tutoriel, mais vocation 
+Pour finir, un article. Même structure qu'un mini-tutoriel, mais vocation
 pédagogique différente :
 
 .. sourcecode:: none
 
     + Article
-        + Section 
+        + Section
         + Section
 
-D'autre part, tout contenu se voit attribuer un identifiant unique sous la 
-forme d'un entier naturel (en anglais : *pk*, pour *primary key*). Cet 
-identifiant apparaît dans les URLs, qui sont de la forme 
-``/contenus/{pk}/{slug}``. Il rend plus efficace la recherche en base de 
-données. Le *slug*, quant à lui, a le mérite d'être compréhensible par un être 
-humain et permet de gérer les cas de redirection 301 (voir plus bas). 
+D'autre part, tout contenu se voit attribuer un identifiant unique sous la
+forme d'un entier naturel (en anglais : *pk*, pour *primary key*). Cet
+identifiant apparaît dans les URLs, qui sont de la forme
+``/contenus/{pk}/{slug}``. Il rend plus efficace la recherche en base de
+données. Le *slug*, quant à lui, a le mérite d'être compréhensible par un être
+humain et permet de gérer les cas de redirection 301 (voir plus bas).
 
 Des objets en général
 ---------------------
 
-Tous les textes (introductions, conclusions et extraits) sont formatés en 
+Tous les textes (introductions, conclusions et extraits) sont formatés en
 Markdown (dans la version étendue de ZdS).
 
-Conteneurs et extraits sont des **objets** (*object*). Dès lors, ils possèdent 
-tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de 
-caractères générée à partir du titre de l'objet et qui, tout en restant lisible 
-par un être humain, le simplifie considérablement. Un *slug* est uniquement 
-composé de caractères alphanumériques minuscules et non-accentués 
-(``[a-z0-9]*``) ainsi que des caractères ``-`` (tiret) et ``_`` (*underscore*). 
-Ce *slug* a deux utilités : il est employé dans l'URL permettant de consulter 
-l'objet depuis le site Web et dans le nom des fichiers ou dossiers employés pour le 
-stocker (détails plus bas). Dès lors, cette spécification **impose** que ce 
-*slug* soit unique au sein du conteneur parent, et que le *slug* du contenu 
+Conteneurs et extraits sont des **objets** (*object*). Dès lors, ils possèdent
+tous deux un *slug* (littéralement, « limace ») : il s'agit d'une chaîne de
+caractères générée à partir du titre de l'objet et qui, tout en restant lisible
+par un être humain, le simplifie considérablement. Un *slug* est uniquement
+composé de caractères alphanumériques minuscules et non-accentués
+(``[a-z0-9]*``) ainsi que des caractères ``-`` (tiret) et ``_`` (*underscore*).
+Ce *slug* a deux utilités : il est employé dans l'URL permettant de consulter
+l'objet depuis le site Web et dans le nom des fichiers ou dossiers employés pour le
+stocker (détails plus bas). Dès lors, cette spécification **impose** que ce
+*slug* soit unique au sein du conteneur parent, et que le *slug* du contenu
 soit unique au sein de tous les contenus de ZdS.
 
 La taille des *slugs* ne peut dépasser une certaine limite, définie dans le code par
@@ -162,19 +162,19 @@ une contrainte sur la taille maximum d'un nom de fichier sur les différents sys
 
 .. note::
 
-    À noter que l'*underscore* est conservé par compatibilité avec l'ancien 
-    système, les nouveaux *slugs* générés par le système d'édition de ZdS 
+    À noter que l'*underscore* est conservé par compatibilité avec l'ancien
+    système, les nouveaux *slugs* générés par le système d'édition de ZdS
     n'en contiendront pas.
 
 .. note::
 
-    Lors du déplacement d'un conteneur ou d'un extrait, les *slugs* sont modifiés 
+    Lors du déplacement d'un conteneur ou d'un extrait, les *slugs* sont modifiés
     de manière à ce qu'il n'y ait pas de collision.
 
 .. attention::
 
-    L'introduction et la conclusion d'un conteneur possèdent également un 
-    *slug*, pour des raisons de stockage (voir plus bas). Il ne faut pas 
+    L'introduction et la conclusion d'un conteneur possèdent également un
+    *slug*, pour des raisons de stockage (voir plus bas). Il ne faut pas
     oublier la contrainte d'unicité à l'intérieur d'un conteneur.
 
 .. attention::
@@ -191,59 +191,59 @@ Cycle de vie des contenus
 =========================
 
 Quelque soit le type de contenu, le cycle de vie de celui-ci reste toujours le même.
-Un contenu peut être rédigé par un ou plusieurs auteurs. Chaque modification 
+Un contenu peut être rédigé par un ou plusieurs auteurs. Chaque modification
 est conservée afin de pouvoir retrouver l'historique des modifications et éventuellement
-récupérer un morceau de texte perdu. Lorsqu'un contenu est créé il rentre dans 
+récupérer un morceau de texte perdu. Lorsqu'un contenu est créé il rentre dans
 sa première étape.
 
 Le brouillon
 ------------
 
-Le brouillon est la première étape du cycle de vie d'un contenu. Il donne 
-toujours l'état le plus récent d'un contenu vu par les auteurs. Chaque fois 
-que le contenu est modifié, c'est la version brouillon qui est mise à jour. 
-La version brouillon est accessible uniquement pour les auteurs et validateurs 
-d'un tutoriel. Si on souhaite donner un accès en lecture seule à nos écrits, 
+Le brouillon est la première étape du cycle de vie d'un contenu. Il donne
+toujours l'état le plus récent d'un contenu vu par les auteurs. Chaque fois
+que le contenu est modifié, c'est la version brouillon qui est mise à jour.
+La version brouillon est accessible uniquement pour les auteurs et validateurs
+d'un tutoriel. Si on souhaite donner un accès en lecture seule à nos écrits,
 il faut passer par la méthode adéquate.
 
 La bêta
 -------
 
-Lorsque les auteurs estiment que leur tutoriel a atteint un certain niveau de 
-maturité, et qu'ils souhaitent recueillir des retours de la communauté, ils ont 
+Lorsque les auteurs estiment que leur tutoriel a atteint un certain niveau de
+maturité, et qu'ils souhaitent recueillir des retours de la communauté, ils ont
 la possibilité de le mettre à la disposition de cette dernière le contenu en
 lecture seule. C'est le mode bêta.
 
-Lors de la mise en bêta d'un contenu, un sujet est automatiquement ouvert dans 
-la Bêta-zone, contenant l'adresse de la bêta. Cette dernière est de la forme : 
+Lors de la mise en bêta d'un contenu, un sujet est automatiquement ouvert dans
+la Bêta-zone, contenant l'adresse de la bêta. Cette dernière est de la forme :
 ``/contenus/beta/{pk}/{slug}/``.
 
-Il faut en outre noter que seule une version précise du contenu est mise en 
-bêta. Au moment de la mise en bêta, les versions brouillon et bêta coïncident 
-mais l'auteur peut tout à fait poursuivre son travail sans affecter la seconde. 
-Seulement, la version brouillon ne sera plus identique à la version en bêta et 
-il ne faudra pas oublier de mettre à jour cette dernière pour que la communauté 
+Il faut en outre noter que seule une version précise du contenu est mise en
+bêta. Au moment de la mise en bêta, les versions brouillon et bêta coïncident
+mais l'auteur peut tout à fait poursuivre son travail sans affecter la seconde.
+Seulement, la version brouillon ne sera plus identique à la version en bêta et
+il ne faudra pas oublier de mettre à jour cette dernière pour que la communauté
 puisse juger des dernières modifications.
 
 La validation
 -------------
 
-Une fois que l'auteur a eu assez de retours sur son contenu, et qu'il estime 
-qu'il est prêt à être publié, il décide d'envoyer son contenu en validation. 
-*Via* l'interface idoine, un validateur peut alors réserver le contenu et 
-commencer à vérifier qu'il satisfait la politique éditoriale du site. Dans le 
-cas contraire, le contenu est rejeté et un message est envoyé aux auteurs pour 
+Une fois que l'auteur a eu assez de retours sur son contenu, et qu'il estime
+qu'il est prêt à être publié, il décide d'envoyer son contenu en validation.
+*Via* l'interface idoine, un validateur peut alors réserver le contenu et
+commencer à vérifier qu'il satisfait la politique éditoriale du site. Dans le
+cas contraire, le contenu est rejeté et un message est envoyé aux auteurs pour
 expliquer les raisons du refus.
 
-L'envoi en validation n'est pas définitif, dans le sens où vous pouvez à tout 
-moment mettre à jour la version en cours de validation. Évitez d'en abuser tout 
-de même, car, si un validateur commence à lire votre tutoriel, il devra 
-recommencer son travail si vous faites une mise à jour dessus. Cela pourrait non 
-seulement ralentir le processus de validation de votre tutoriel, mais aussi ceux 
+L'envoi en validation n'est pas définitif, dans le sens où vous pouvez à tout
+moment mettre à jour la version en cours de validation. Évitez d'en abuser tout
+de même, car, si un validateur commence à lire votre tutoriel, il devra
+recommencer son travail si vous faites une mise à jour dessus. Cela pourrait non
+seulement ralentir le processus de validation de votre tutoriel, mais aussi ceux
 autres tutoriels !
 
-Comme pour la bêta, la version brouillon du tutoriel peut continuer à être 
-améliorée pendant que la version de validation reste figée. Auteurs et validateurs 
+Comme pour la bêta, la version brouillon du tutoriel peut continuer à être
+améliorée pendant que la version de validation reste figée. Auteurs et validateurs
 peuvent donc continuer à travailler chacun de leur côté.
 
 La publication
@@ -251,10 +251,12 @@ La publication
 
 **Le cas général**
 
-Une fois que le contenu est passé en validation et a satisfait les critères 
-éditoriaux, il est publié. Il faut bien préciser que le processus de 
-validation peut être assez long. De plus, un historique de validation est 
-disponible pour les validateurs.
+Une fois que le contenu est passé en validation et a satisfait les critères
+éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs, afin
+de les informer de la publication, et de leur transmettre le message laissé
+par le validateur en charge du contenu. Il faut bien préciser que le processus
+de validation peut être assez long. 
+De plus, un historique de validation est disponible pour les validateurs.
 
 La publication d'un contenu entraîne l'exportation du contenu en plusieurs formats :
 
@@ -264,16 +266,16 @@ La publication d'un contenu entraîne l'exportation du contenu en plusieurs form
 - EPUB : format de lecture adapté aux liseuses
 - Archive : un export de l'archive contenant la version publiée du contenu
 
-Pour différentes raisons, il se peut que l'export dans divers formats échoue. 
-Dans ce cas, le lien de téléchargement n'est pas présenté. Un fichier de log 
+Pour différentes raisons, il se peut que l'export dans divers formats échoue.
+Dans ce cas, le lien de téléchargement n'est pas présenté. Un fichier de log
 sur le serveur enregistre les problèmes liés à l'export d'un format.
 
-Aujourd'hui, il existe des bugs dans la conversion en PDF (notamment les blocs spécifiques à ZdS), 
-qui devraient être réglés plus tard avec la 
+Aujourd'hui, il existe des bugs dans la conversion en PDF (notamment les blocs spécifiques à ZdS),
+qui devraient être réglés plus tard avec la
 `ZEP-05 <http://zestedesavoir.com/forums/sujet/676/zep-05-refonte-du-traitement-markdown-pour-lexport>`__)
 
-Enfin, signalons qu'il est possible à tout moment pour un membre de l'équipe 
-de dépublier un contenu. Le cas échéant, un message sera envoyé aux auteurs, 
+Enfin, signalons qu'il est possible à tout moment pour un membre de l'équipe
+de dépublier un contenu. Le cas échéant, un message sera envoyé aux auteurs,
 indiquant les raisons de la dépublication.
 
 **Les politiques de génération**
@@ -302,9 +304,9 @@ Vous pouvez aussi simplement surcharger chacun des ``Publicator`` par défaut en
 L'entraide
 ----------
 
-Afin d'aider les auteurs de contenus à rédiger ces derniers, des options lors 
-de la création/édition de ce dernier sont disponibles. L'auteur peut ainsi 
-faire aisément une demande d'aide pour les raisons suivantes 
+Afin d'aider les auteurs de contenus à rédiger ces derniers, des options lors
+de la création/édition de ce dernier sont disponibles. L'auteur peut ainsi
+faire aisément une demande d'aide pour les raisons suivantes
 (liste non exhaustive) :
 
 - Besoin d'aide à l'écriture
@@ -312,13 +314,13 @@ faire aisément une demande d'aide pour les raisons suivantes
 - Besoin d'aide pour illustrer
 - Désir d'abandonner le contenu et recherche d'un repreneur
 
-L'ensemble des contenus à la recherche d'aide est visible via la page 
-``/contenus/aides/``. Cette page génère un tableau récapitulatif de toutes les 
-demandes d'aides pour les différents contenus et des filtres peuvent être 
+L'ensemble des contenus à la recherche d'aide est visible via la page
+``/contenus/aides/``. Cette page génère un tableau récapitulatif de toutes les
+demandes d'aides pour les différents contenus et des filtres peuvent être
 appliqués.
 
-Il est également possible **pour tout membre qui n'est pas auteur du contenu consulté** 
-de signaler une erreur, en employant le bouton prévu à cet effet et situé en 
+Il est également possible **pour tout membre qui n'est pas auteur du contenu consulté**
+de signaler une erreur, en employant le bouton prévu à cet effet et situé en
 bas d'une page du contenu.
 
 
@@ -334,16 +336,16 @@ Ce bouton est disponible sur la version publiée ou en bêta d'un contenu. Cliqu
 
       Boite de dialogue permettant de signaler à l'auteur une erreur qu'il aurait commise
 
-Le message ne peut pas être vide, mais n'hésitez pas à être précis et à fournir 
-des détails. Cliquer sur "Envoyer" enverra un message privé aux auteurs du 
-contenu, reprenant votre message sous forme d'une citation. Vous participerez 
-également à la conversation, afin que les auteurs puissent vous demander plus 
+Le message ne peut pas être vide, mais n'hésitez pas à être précis et à fournir
+des détails. Cliquer sur "Envoyer" enverra un message privé aux auteurs du
+contenu, reprenant votre message sous forme d'une citation. Vous participerez
+également à la conversation, afin que les auteurs puissent vous demander plus
 de détails si nécessaire.
 
 Import de contenus
 ==================
 
-Zeste de Savoir permet d'importer des contenus provenant de sources 
+Zeste de Savoir permet d'importer des contenus provenant de sources
 extérieures.
 
 
@@ -386,15 +388,15 @@ Règles
 ------
 
 Au maximum, le système d'importation tentera d'être compréhensif envers une arborescence qui
-différente de celle énoncée ci-dessus. Par contre 
-**l'importation réorganisera les fichiers importés de la manière décrite ci-dessus**, 
+différente de celle énoncée ci-dessus. Par contre
+**l'importation réorganisera les fichiers importés de la manière décrite ci-dessus**,
 afin de parer aux mauvaises surprises.
 
-Tout contenu qui ne correspond pas aux règles précisées ci-dessus ne sera pas 
-ré-importable. Ne sera pas ré-importable non plus tout contenu dont les 
-fichiers indiqués dans le ``manifest.json`` n'existent pas ou sont incorrects. 
-Seront supprimés les fichiers qui seraient inutiles (images, qui actuellement 
-doivent être importées séparément dans une galerie, autres fichiers 
+Tout contenu qui ne correspond pas aux règles précisées ci-dessus ne sera pas
+ré-importable. Ne sera pas ré-importable non plus tout contenu dont les
+fichiers indiqués dans le ``manifest.json`` n'existent pas ou sont incorrects.
+Seront supprimés les fichiers qui seraient inutiles (images, qui actuellement
+doivent être importées séparément dans une galerie, autres fichiers
 supplémentaires) pour des raisons élémentaires de sécurité.
 
 Aspects techniques et fonctionnels
@@ -403,9 +405,9 @@ Aspects techniques et fonctionnels
 Les métadonnées
 ---------------
 
-On distingue actuellement deux types de métadonnées (*metadata*) : celles 
-versionnées (et donc reprises dans le ``manifest.json``) et celles qui ne le 
-sont pas. La liste exhaustive de ces dernières (à l'heure actuelle) est la 
+On distingue actuellement deux types de métadonnées (*metadata*) : celles
+versionnées (et donc reprises dans le ``manifest.json``) et celles qui ne le
+sont pas. La liste exhaustive de ces dernières (à l'heure actuelle) est la
 suivante :
 
 + Les *hash* des différentes versions du tutoriel (``sha_draft``, ``sha_beta``, ``sha_public`` et ``sha_validation``) ;
@@ -422,42 +424,42 @@ suivante :
 Le stockage en base de données
 ------------------------------
 
-Les métadonnées non versionnées sont stockées dans la base de données, à l'aide 
-du modèle ``PublishableContent``. Pour des raisons de facilité, certaines des 
-métadonnées versionnées sont également intégrées dans la base : 
+Les métadonnées non versionnées sont stockées dans la base de données, à l'aide
+du modèle ``PublishableContent``. Pour des raisons de facilité, certaines des
+métadonnées versionnées sont également intégrées dans la base :
 
-+ Le titre 
-+ Le type de contenu 
-+ La licence 
-+ La description 
++ Le titre
++ Le type de contenu
++ La licence
++ La description
 
-En ce qui concerne cette dernière, celle stockée en base est **toujours** 
-celle de **la version brouillon**. Il ne faut donc **en aucun cas** les 
-employer pour résoudre une URL ou à travers une template correspondant 
+En ce qui concerne cette dernière, celle stockée en base est **toujours**
+celle de **la version brouillon**. Il ne faut donc **en aucun cas** les
+employer pour résoudre une URL ou à travers une template correspondant
 à la version publiée.
 
-Les métadonnées versionnées sont stockées dans le fichier ``manifest.json``. Ce 
+Les métadonnées versionnées sont stockées dans le fichier ``manifest.json``. Ce
 dernier est rattaché à une version du contenu par le truchement de git.
 
-À la publication du contenu, un objet ``PublishedContent`` est créé, reprenant 
-les informations importantes de cette version. C'est alors cet objet qui est 
-utilisé pour résoudre les URLs. C'est également lui qui se cache derrière le 
+À la publication du contenu, un objet ``PublishedContent`` est créé, reprenant
+les informations importantes de cette version. C'est alors cet objet qui est
+utilisé pour résoudre les URLs. C'est également lui qui se cache derrière le
 mécanisme de redirection si, entre deux versions, le *slug* du contenu change.
 
 Le stockage *via* des dossiers
 ------------------------------
 
-Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre 
-(dont le nom est le *slug* du contenu), stocké dans l'endroit défini par la 
-variable ``ZDS_APP['content']['repo_path']``. Dans ce dossier se trouve le 
+Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre
+(dont le nom est le *slug* du contenu), stocké dans l'endroit défini par la
+variable ``ZDS_APP['content']['repo_path']``. Dans ce dossier se trouve le
 fichier ``manifest.json``.
 
-Pour chaque conteneur, un dossier est créé, contenant les éventuels fichiers 
-correspondant aux introduction, conclusion et différents extraits, ainsi que 
-des dossiers pour les éventuels conteneurs enfants. Il s'agit de la forme d'un 
+Pour chaque conteneur, un dossier est créé, contenant les éventuels fichiers
+correspondant aux introduction, conclusion et différents extraits, ainsi que
+des dossiers pour les éventuels conteneurs enfants. Il s'agit de la forme d'un
 contenu tel que généré par ZdS en utilisant l'éditeur en ligne.
 
-Il est demandé de se conformer au maximum à cette structure pour éviter les 
+Il est demandé de se conformer au maximum à cette structure pour éviter les
 mauvaises surprises en cas d'édition externe (voir ci-dessous).
 
 Les permissions
@@ -474,18 +476,18 @@ Ces permissions doivent être accordées au administateurs/modérateurs/validate
 Processus de publication
 ------------------------
 
-Apès avoir passé les étapes de validation, le contenu est près à être publié. 
-Cette action est effectuée par un membre du Staff. Le but de la publication 
-est double : permettre aux visiteurs de consulter le contenu, mais aussi 
-d’effectuer certains traitements (détaillés ci-après) afin que celui-ci soit 
-sous une forme qui soit plus rapidement affichable par ZdS. C’est pourquoi ces 
-contenus ne sont pas stockés au même endroit (voir 
+Apès avoir passé les étapes de validation, le contenu est près à être publié.
+Cette action est effectuée par un membre du Staff. Le but de la publication
+est double : permettre aux visiteurs de consulter le contenu, mais aussi
+d’effectuer certains traitements (détaillés ci-après) afin que celui-ci soit
+sous une forme qui soit plus rapidement affichable par ZdS. C’est pourquoi ces
+contenus ne sont pas stockés au même endroit (voir
 ``ZDS_AP['content']['repo_public_path']``) que les brouillons.
 
 La publication se passe comme suit :
 
 1. Un dossier temporaire est créé, afin de ne pas affecter la version publique précédente, si elle existe. Ce dossier est nommé ``{slug}__build``;
-2. Le code *markdown* est converti en HTML afin de gagner du temps à l'affichage. Pour chaque conteneur, deux cas se présentent : 
+2. Le code *markdown* est converti en HTML afin de gagner du temps à l'affichage. Pour chaque conteneur, deux cas se présentent :
     * Si celui-ci contient des extraits, ils sont tous rassemblés dans un seul fichier HTML, avec l'introduction et la conclusion ;
     * Dans le cas contraire, l'introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le *manifest* sont mis à jour.
 3. Le *manifest* correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
@@ -495,7 +497,7 @@ La publication se passe comme suit :
 Consultation d'un contenu publié
 --------------------------------
 
-On n'utilise pas git pour afficher la version publiée d'un contenu. Dès lors, 
+On n'utilise pas git pour afficher la version publiée d'un contenu. Dès lors,
 deux cas se présentent :
 
 + L'utilisateur consulte un conteneur dont les enfants sont eux-mêmes des conteneurs (c'est-à-dire le conteneur principal ou une partie d'un big-tutoriel) : le ``manifest.json`` est employé pour générer le sommaire, comme c'est le cas actuellement. L'introduction et la conclusion sont également affichées.
@@ -504,32 +506,32 @@ deux cas se présentent :
 Qu'en est-il des images ?
 -------------------------
 
-Le versionnage des images d'un contenu (celles qui font partie de la galerie 
-rattachée) continue à faire débat, et il a été décidé pour le moment de ne 
+Le versionnage des images d'un contenu (celles qui font partie de la galerie
+rattachée) continue à faire débat, et il a été décidé pour le moment de ne
 pas les versionner, pour des raisons simples :
 
 - Versionner les images peut rendre très rapidement une archive lourde : si l'auteur change beaucoup d'images, il va se retrouver avec des images plus jamais utilisées qui traînent dans son archive ;
 - Avoir besoin d'interroger le dépôt à chaque fois pour lire les images peut rapidement devenir lourd pour la lecture.
 
-Le parti a été pris de ne pas versionner les images qui sont stockées sur le 
-serveur. Ce n'est pas critique et on peut très bien travailler ainsi. Par 
-contre, il vaudra mieux y réfléchir pour une version 3 afin de proposer 
+Le parti a été pris de ne pas versionner les images qui sont stockées sur le
+serveur. Ce n'est pas critique et on peut très bien travailler ainsi. Par
+contre, il vaudra mieux y réfléchir pour une version 3 afin de proposer
 une rédaction totale en mode hors-ligne.
 
 Passage des tutos v1 aux tutos v2
 =================================
 
-Le parseur v2 ne permettant qu'un support minimal des tutoriels à l'ancien 
+Le parseur v2 ne permettant qu'un support minimal des tutoriels à l'ancien
 format, il est nécessaire de mettre en place des procédures de migration.
 
 Migrer une archive v1 vers une archive v2
 -----------------------------------------
 
-Le premier cas qu'il est possible de rencontrer est la présence d'une 
+Le premier cas qu'il est possible de rencontrer est la présence d'une
 archive *hors ligne* d'un tutoriel à la version 1.
 
 La migration de cette archive consistera alors à ne migrer que le *manifest*.
-En effet, la nouvelle architecture étant bien plus souple du 
+En effet, la nouvelle architecture étant bien plus souple du
 point de vue des nomenclatures, il ne sera pas nécessaire de l'adapter.
 
 Un outil intégré au code de ZdS a été mis en place. Il vous faudra alors :
@@ -573,7 +575,7 @@ Si vous souhaitez implémenter votre propre convertisseur, voici l'algorithme ut
                         str(extract["pk"]) + "_" + slugify(extract["title"]))
                     current_chapter.add_extract(current_extract)
                     current_extract.text = current_extract.get_path(True)
-                    
+
     elif "chapter" in data:
         # if it is a mini tutorial
         for extract in data["chapter"]["extracts"]:
