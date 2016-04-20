@@ -47,21 +47,19 @@ Prérequis
 - Installez Virtualenv avec les commandes suivante :
     - ``pip install virtualenv``
     - ``pip install virtualenvwrapper-powershell``
-- Désactivez la sécurité sur les script powershell (mode administrateur obligatoire) : ``Set-ExecutionPolicy RemoteSigned``, pour autoriser ``Import-Module``.
-- Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
-    - Créez le dossier ``.virtualenvs`` avec la commande ``mkdir .virtualenvs`` dans le dossier où vous souhaitez voir installer votre environnement virtuel.
-    - ``set $env:WORKON_HOME``
-    - ``Import-Module virtualenvwrapper``, *la console PowerShell pourrait hurler à cette commande, mais normalement ça passe, en cas de deuxième essai vous ne devriez plus avoir d'erreur*.
-    - ``New-VirtualEnvironment zdsenv --no-site-packages``
 - Clonez le dépot git *via la console git* (et pas via powershell) windows: ``git clone https://github.com/zestedesavoir/zds-site.git``
+- Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
+    - se placer dans le dossier du dépôt cloné (``zds-site`` si tout va bien)
+    - tapez ``virtualenv zdsenv``
+    - Activez l'environnement en exécutant le fichier ``zdsenv/bin/activate.ps1``
 
 (?) Si vous avez ``(zdsenv)`` à gauche de la zone de saisie, c'est que vous êtes dans l'environnement *zdsenv*.
+
+Pour redémarrer virtualenv les fois suivantes : exécutez à nouveau le fichier ``zdsenv/bin/activate.ps1``.
 
 .. sourcecode:: none
 
     (zdsenv)PS C:\dev\zestedesavoir\
-
-Pour redémarrer virtualenv les fois suivantes : ``workon zdsenv``.
 
 Lancez par la suite ``pip install -r requirements.txt -r requirements-dev.txt``.
 
