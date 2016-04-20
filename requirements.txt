@@ -1,19 +1,19 @@
 # Implicit dependencies (optional dependencies of dependencies)
 pysolr==3.4.0
-pygments==2.1.2
-python-social-auth==0.2.14
+pygments==2.1.3
+python-social-auth==0.2.19
 
 # Explicit dependencies (references in code)
-Django==1.8.11
+Django==1.8.13
 django-crispy-forms==1.6.0
 django-haystack==2.4.1
-django-model-utils==2.4
+django-model-utils==2.5
 django-munin==0.2.1
 python-memcached==1.54
 lxml==3.6.0
-factory-boy==2.6.1
+factory-boy==2.7.0
 pygeoip==0.3.2
-pillow==3.1.1
+pillow==3.2.0
 gitpython==1.0.1
 https://github.com/zestedesavoir/Python-ZMarkdown/archive/2.6.0-zds.8.zip
 easy-thumbnails==2.3
@@ -27,11 +27,12 @@ djangorestframework-xml==1.3.0
 django-filter==0.13
 django-oauth-toolkit==0.10.0
 drf-extensions==0.2.8
-django-rest-swagger==0.3.5
+django-rest-swagger==0.3.6
 django-cors-middleware==1.2.0
 dry-rest-permissions==0.1.6
 
 # Zep 12 dependency
-django-uuslug==1.0.3
-python-slugify==1.1.4 # next versions of this library break previous behavior for slug generation from string with single quotes
 watchdog==0.8.3 # use last non-bc-breaking version
+# next versions of this libraries break previous behavior for slug generation from string with single quotes
+django-uuslug==1.0.3
+python-slugify==1.1.4
