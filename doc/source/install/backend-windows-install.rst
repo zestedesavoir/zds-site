@@ -24,7 +24,7 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 
 .. Attention::
 
-    Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installés le soit en 32 bits.
+    Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installer le soit en 32 bits ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
 
 -----------
 
@@ -33,7 +33,7 @@ Prérequis
 
 
 - Téléchargez et installez les outils suivants :
-    - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_. Uniquement pour les PC tournant sous windows 7 ou antérieur (installé par défaut avec Windows depuis)
+    - `PowerShell 3.0+ <http://www.microsoft.com/fr-fr/download/details.aspx?id=40855>`_. Uniquement pour les PC tournant sous windows 7 ou antérieur (installé par défaut avec Windows depuis).
     - `Git <http://git-scm.com/download/win>`_ (Git pour Eclipse ne suffit pas ; associez les .sh).
     - `gettext <https://www.gnu.org/software/gettext/>`_.
 - `Téléchargez et installez Python 2.7 <https://www.python.org/download/releases/2.7/>`_.
@@ -47,34 +47,32 @@ Prérequis
 - Installez Virtualenv avec les commandes suivante :
     - ``pip install virtualenv``
     - ``pip install virtualenvwrapper-powershell``
-- Désactivez la sécurité sur les script powershell (mode administrateur obligatoire) : ``Set-ExecutionPolicy RemoteSigned``, pour autoriser ``Import-Module``.
-- Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
-    - créez le dossier ``.virtualenvs`` avec la commande ``mkdir .virtualenvs`` dans dans le dossier ou vous souhaitez voir installé votre environnement virtuel.
-    - ``set $env:WORKON_HOME``
-    - ``Import-Module virtualenvwrapper``, *la console PowerShell pourrait hurler à cette commande, mais normalement ça passe, en cas de deuxième essai vous ne devriez plus avoir d'erreur*.
-    - ``New-VirtualEnvironment zdsenv --no-site-packages``
 - Clonez le dépot git *via la console git* (et pas via powershell) windows: ``git clone https://github.com/zestedesavoir/zds-site.git``
+- Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
+    - se placer dans le dossier du dépôt cloné (``zds-site`` si tout va bien)
+    - tapez ``virtualenv zdsenv``
+    - Activez l'environnement en exécutant le fichier ``zdsenv/bin/activate.ps1``
 
 (?) Si vous avez ``(zdsenv)`` à gauche de la zone de saisie, c'est que vous êtes dans l'environnement *zdsenv*.
+
+Pour redémarrer virtualenv les fois suivantes : exécutez à nouveau le fichier ``zdsenv/bin/activate.ps1``.
 
 .. sourcecode:: none
 
     (zdsenv)PS C:\dev\zestedesavoir\
 
-Pour redémarrer virtualenv les fois suivantes : ``workon zdsenv``.
-
 Lancez par la suite ``pip install -r requirements.txt -r requirements-dev.txt``.
 
-Si l'erreur suivante apparait :
+Si l'erreur suivante apparaît :
 
 .. error::
     Unable to find vcvarsall.bat
 
-Installez le compilateur Visual C++ pour python disponible à l'adresse suivante :  <https://www.microsoft.com/en-us/download/confirmation.aspx?id=44266>.
+Installez le compilateur Visual C++ pour python disponible `ici  <https://www.microsoft.com/en-us/download/confirmation.aspx?id=44266>`_.
 
 Pour que la modification soit effective, relancer une nouvelle fenêtre powershell.
 
-Les virtualenvs et pycharm 
+Les virtualenvs et pycharm
 --------------------------
 
 Avec PyCharm (Pour avoir une license Pro contactez le directeur technique (DTC)) vous pouvez gérer les virtualenv de manière bien plus performante qu'avec la commande powershell de base.
@@ -99,12 +97,12 @@ Suite de l'installation
 - Dans la console PowerShell via l'environnement zdsenv installez les dépendances.
     - ``easy_install lxml``
     - ``pip install -r requirements.txt -r requirements-dev.txt``
-    - Cairo, disponible à l'adresse suivante : <http://www.salsabeatmachine.org/python/pycairo-1.8.10.win32-py2.7.exe>
-    - GTK+ (qui contient les Dlls de Cairo) disponible à l'adresse suivante : <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>
+    - Cairo, disponible `ici <http://www.salsabeatmachine.org/python/pycairo-1.8.10.win32-py2.7.exe>`_
+    - GTK+ (qui contient les Dlls de Cairo) disponible `ici <http://downloads.sourceforge.net/gladewin32/gtk-2.12.9-win32-2.exe>`_
     - ``python manage.py migrate``
     - ``python manage.py runserver``
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Pandoc.
 
-- Téléchagez et installez `MikTex <http://miktex.org/download>`_
+- Téléchargez et installez `MikTex <http://miktex.org/download>`_
 - Téléchargez et installez `Pandoc <https://github.com/jgm/pandoc/releases>`_

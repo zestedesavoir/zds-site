@@ -17,14 +17,14 @@ Windows
 
     Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
 
-Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Choisissez *Windows Installer*, avec l'architecture adéquate, et installez Node.js en ouvrant le fichier téléchargé.
+Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Sélectionnez les versions stables (beaucoup plus à jour que les versions LTS), Choisissez *Windows Installer*, avec l'architecture 32 ou 64 bits, et installez Node.js en ouvrant le fichier téléchargé.
 
-Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour mettre à jour npm, vous avez `trois possibilités <https://github.com/npm/npm/wiki/Troubleshooting#upgrading-on-windows)>`_, l'une d'elle est de faire ``npm install npm`` dans le dossier ``C:\Program Files (x86)\nodejs``.
+Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour le mettre à jour, il suffit d'appeler la commande ``npm install npm@latest``
 
 Veillez à respecter `ces conditions <https://github.com/TooTallNate/node-gyp#installation>`_, avant de faire  ``npm install`` (dans l'ordre d'installation) :
 
-- `Visual C++ 2010 Express <http://go.microsoft.com/?linkid=9709949>`_.
-- `Windows 7 64-bit SDK <http://www.microsoft.com/en-us/download/details.aspx?id=8279>`_, si vous êtes en 64bits.
+- `Visual C++ 2010 Express <https://www.microsoft.com/fr-fr/download/details.aspx?id=23691>`_.
+- `Windows 7 64-bit SDK <http://www.microsoft.com/en-us/download/details.aspx?id=8279>`_, si vous êtes en 64bits et sous windows 7.
 
   En cas de problème, avec l'installation du SDK, suivez `ces instructions <http://www.mathworks.com/matlabcentral/answers/95039#answer_104391>`_ :
    - Désinstallez : **Microsoft Visual C++ 2010 redistributable packages (x86 et x64)**, *dans le panneau de configuration*.
@@ -32,7 +32,10 @@ Veillez à respecter `ces conditions <https://github.com/TooTallNate/node-gyp#in
    - Appliquez ce patch : `SDK 7.1 <http://www.microsoft.com/en-us/download/details.aspx?id=4422>`_.
    - Réinstallez (ils se sont peut-être déjà réinstallés tous seuls) `Microsoft Visual C++ 2010 redistributable x64 <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`_ et `Microsoft Visual C++ 2010 redistributable x86 <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`_.
 
+Une fois les conditions précédemment listées satisfaites, placez-vous dans le dossier ``C:\Program Files (x86)\nodejs\node_modules\npm``.
 - Vous devez posséder `Visual Studio Express 2013 pour Windows Desktop <https://app.vssps.visualstudio.com/profile/review?download=true&family=VisualStudioExpressDesktop>`_, la version 2012 ne suffit pas, forcez l'utilisation de vs 2013 comme ceci : ``npm install --msvs_version=2013``, il est même conseillé de faire ``npm config set msvs_version 2013``, pour les futurs installations/commandes.
+
+Vous pouvez alors faire ``npm install``.
 
 Mac OS X
 --------
