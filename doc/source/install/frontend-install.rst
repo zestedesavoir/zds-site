@@ -19,7 +19,7 @@ Windows
 
 Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Sélectionnez les versions stables (beaucoup plus à jour que les versions LTS), Choisissez *Windows Installer*, avec l'architecture 32 ou 64 bits, et installez Node.js en ouvrant le fichier téléchargé.
 
-Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``.
+Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour le mettre à jour, il suffit d'appeler la commande ``npm install npm@latest``
 
 Veillez à respecter `ces conditions <https://github.com/TooTallNate/node-gyp#installation>`_, avant de faire  ``npm install`` (dans l'ordre d'installation) :
 
