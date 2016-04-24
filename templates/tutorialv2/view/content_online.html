@@ -106,7 +106,7 @@
 {% endblock %}
 
 {% block sidebar_actions %}
-
+    {% if user.is_authenticated %}
     <li>
     {% with content_is_followed=object|is_content_followed %}
         <form action="{% url "content:follow" object.pk %}" method="post">
@@ -133,7 +133,7 @@
         </form>
     {% endwith %}
     </li>
-
+    {% endif %}
 {% endblock %}
 
 {% block sidebar_blocks %}
