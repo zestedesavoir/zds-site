@@ -8,6 +8,8 @@
 {% block title %}
     {% if tag %}
         {{ tag }}
+    {% elif category %}
+        {{ category }}
     {% else %}
         {% trans "Tous les" %} {{ verbose_type_name_plural }}
     {% endif %}
@@ -19,6 +21,10 @@
     {% if tag %}
         {% blocktrans %}
             Découvrez tous nos {{ verbose_type_name_plural }} sur {{ tag }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
+        {% endblocktrans %}
+    {% elif category %}
+        {% blocktrans %}
+            Découvrez tous nos {{ verbose_type_name_plural }} sur {{ category }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
         {% endblocktrans %}
     {% else %}
         {% blocktrans %}
@@ -32,6 +38,8 @@
 {% block breadcrumb %}
     {% if tag %}
         <li>{{ tag }}</li>
+    {% elif category %}
+        <li>{{ category }}</li>
     {% else %}
         <li>{% trans "Tous les" %} {{ verbose_type_name_plural }}</li>
     {% endif %}
@@ -45,6 +53,8 @@
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag }}
+                {% elif category %}
+                    {{ verbose_type_name_plural|title }} : {{ category }}
                 {% else %}
                     {% trans "Tous les" %} {{ verbose_type_name_plural }}
                 {% endif %}
@@ -57,9 +67,15 @@
 
         {% if public_contents %}
             <div class="content-item-list">
-                {% for public_content in public_contents %}
-                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
-                {% endfor %}
+                {% if current_content_type == "ARTICLE" %}
+                    {% for public_content in public_contents %}
+                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
+                    {% endfor %}
+                {% else %}
+                    {% for public_content in public_contents %}
+                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
+                    {% endfor %}
+                {% endif %}
                 <div class="fill"></div>
                 <div class="fill"></div>
                 <div class="fill"></div>

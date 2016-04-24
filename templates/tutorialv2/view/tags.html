@@ -18,21 +18,23 @@
 
 
 
-{% block headline %}
+{% block content_out %}
+    <section class="full-content-wrapper">
+        <h2 class="ico-after ico-tags">
+          Tous les tags
+        </h2>
 
-{% endblock %}
-
-
-
-{% block content %}
-    {% for tag in tags %}
-        <div class="content-tag">
-            <a href="{% url 'content:list' %}?tag={{ tag.slug }}">
-                <strong>{{ tag }}</strong>
-                <span>{{ tag.num_content }} {% trans "contenu" %}{{ tag.num_content|pluralize }}</span>
-            </a>
+        <div class="content-tags-list">
+            {% for tag in tags %}
+                <div class="content-tag">
+                    <a href="{% url 'content:list' %}?tag={{ tag.slug }}">
+                        <div class="tag-title">{{ tag }}</div>
+                        <div class="tag-count">{{ tag.num_content }} {% trans "contenu" %}{{ tag.num_content|pluralize }}</div>
+                    </a>
+                </div>
+            {% empty %}
+                <p>{% trans "Aucun tag." %}</p>
+            {% endfor %}
         </div>
-    {% empty %}
-        <p>{% trans "Aucun tag." %}</p>
-    {% endfor %}
+    </section>
 {% endblock %}

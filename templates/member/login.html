@@ -22,52 +22,50 @@
 
 
 {% block content_out %}
-    <section class="content-wrapper">
-        {% if not user.is_authenticated %}
-            {% if error %}
-                <div class="alert-box warning">
-                    {{ error }}
-                </div>
-            {% endif %}
-            <p class="alert-box success">
-                {% url "register-member" as url_register %}
-                {% blocktrans %}
-                    Si vous n'avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
-                {% endblocktrans %}
-            </p>
-
-            <div>
-                <div class="content-col-2">
-                    <h2>{% trans "Connexion classique" %}</h2>
-                    {% crispy form %}
-                    <p>
-                        <a href="{% url "member-forgot-password" %}">
-                            {% trans "Mot de passe oublié ?" %}
-                        </a>
-                    </p>
-                    <p>
-                        <a href="{% url "send-validation-email" %}">
-                            {% trans "Vous n'avez pas reçu le courriel d'activation ?" %}
-                        </a>
-                    </p>
-                </div>
-                <div class="content-col-2">
-                    <h2>{% trans "Connexion via réseaux sociaux" %}</h2>
-
-                    <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
-                        {% trans "Connexion via Facebook" %}
-                    </a>
-                    <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus btn-holder">
-                        {% trans "Connexion via Google+" %}
-                    </a>
-                </div>
-            </div>
-        {% else %}
-            <h1>{% trans "Connexion" %}</h1>
-
-            <p class="alert-box error">
-                {% trans "Vous êtes déjà connecté" %}.
+    {% if not user.is_authenticated %}
+        {% if error %}
+            <p class="alert-box warning">
+                {{ error }}
             </p>
         {% endif %}
-    </section>
+        <p class="alert-box success">
+            {% url "register-member" as url_register %}
+            {% blocktrans %}
+                Si vous n'avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
+            {% endblocktrans %}
+        </p>
+
+        <section class="content-wrapper">
+            <div class="content-col-2">
+                <h2>{% trans "Connexion classique" %}</h2>
+                {% crispy form %}
+                <p>
+                    <a href="{% url "member-forgot-password" %}">
+                        {% trans "Mot de passe oublié ?" %}
+                    </a>
+                </p>
+                <p>
+                    <a href="{% url "send-validation-email" %}">
+                        {% trans "Vous n'avez pas reçu le courriel d'activation ?" %}
+                    </a>
+                </p>
+            </div>
+            <div class="content-col-2">
+                <h2>{% trans "Connexion via réseaux sociaux" %}</h2>
+
+                <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
+                    {% trans "Connexion via Facebook" %}
+                </a>
+                <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus btn-holder">
+                    {% trans "Connexion via Google+" %}
+                </a>
+            </div>
+        </section>
+    {% else %}
+        <h1>{% trans "Connexion" %}</h1>
+
+        <p class="alert-box error">
+            {% trans "Vous êtes déjà connecté" %}.
+        </p>
+    {% endif %}
 {% endblock %}
