@@ -2,6 +2,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
+from zds.forum.models import Topic
 from zds.utils import get_current_user
 
 
@@ -114,19 +116,6 @@ class SubscriptionManager(models.Manager):
 
         return [subscription.user for subscription in subscription_list]
 
-    def get_objects_followed_by(self, user):
-        """
-        Gets objects followed by the given user.
-
-        :param user: concerned user.
-        :type user: django.contrib.auth.models.User
-        :return: All objects followed by given user.
-        """
-        subscription_list = self.filter(user=user, is_active=True) \
-            .order_by('last_notification__pubdate')
-
-        return [subscription.content_object for subscription in subscription_list]
-
     def toggle_follow(self, content_object, user=None, by_email=False):
         """
         Toggle following of a resource notifiable for a user.
@@ -158,6 +147,20 @@ class TopicAnswerSubscriptionManager(SubscriptionManager):
     """
     Custom topic answer subscription manager.
     """
+
+    def get_objects_followed_by(self, user):
+        """
+        Gets objects followed by the given user.
+
+        :param user: concerned user.
+        :type user: django.contrib.auth.models.User
+        :return: All objects followed by given user.
+        """
+        topic_list = self.filter(user=user, is_active=True, content_type=ContentType.objects.get_for_model(Topic)) \
+            .values_list('object_id', flat=True)
+
+        return Topic.objects.filter(id__in=topic_list).order_by('-last_message__pubdate')
+
     def unfollow_and_mark_read_everybody_at(self, topic):
         """
         Deactivate a subscription at a topic and mark read the notification associated if exist.
