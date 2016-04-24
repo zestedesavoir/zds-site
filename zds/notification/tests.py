@@ -9,7 +9,7 @@ from zds import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
@@ -213,6 +213,27 @@ class NotificationForumTest(TestCase):
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
         self.assertEqual(1, len(notifications))
+
+    def test_topics_followed_by_a_user(self):
+        """
+        Check that we retrieve well topics followed by a user.
+        """
+        user = UserFactory()
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
+        self.assertEqual(0, len(topics_followed))
+
+        first = TopicFactory(forum=self.forum11, author=user)
+        second = TopicFactory(forum=self.forum11, author=user)
+        third = TopicFactory(forum=self.forum11, author=user)
+
+        # Subscribes to all topics.
+        TopicAnswerSubscription.objects.get_or_create_active(user, second)
+        TopicAnswerSubscription.objects.get_or_create_active(user, first)
+        TopicAnswerSubscription.objects.get_or_create_active(user, third)
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
+        self.assertEqual(3, len(topics_followed))
 
 
 class NotificationPublishableContentTest(TestCase):
