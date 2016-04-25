@@ -118,7 +118,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                  <a href="{% url 'content:list' %}?tag={{ tag.slug }}">
+                  <a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">
                     {{ tag.title }}
                   </a>
                 </li>
