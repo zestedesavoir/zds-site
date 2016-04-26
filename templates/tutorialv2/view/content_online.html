@@ -133,6 +133,18 @@
         </form>
     {% endwith %}
     </li>
+    
+    {% if not user in content.authors.all and user.is_authenticated %}
+    <li>
+        <a href="{{ pm_link }}" class="ico-after cite blue">
+        {% blocktrans count counter=content.authors.all|length %}
+            Contacter l'auteur par MP
+        {% plural %}
+            Contacter les auteurs par MP
+        {% endblocktrans %}
+        </a>
+    </li>
+    {% endif %}
 
 {% endblock %}
 
