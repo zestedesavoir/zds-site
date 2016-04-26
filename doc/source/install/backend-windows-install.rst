@@ -24,7 +24,7 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 
 .. Attention::
 
-    Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installer le soit en 32 bits ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
+    Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installer soient en 32 bits ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
 
 -----------
 
