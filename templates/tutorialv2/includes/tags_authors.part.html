@@ -7,7 +7,7 @@
 {% if publishablecontent.tags.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
         {% for tag in publishablecontent.tags.all %}
-            <li><a href="{% url 'content:list' %}?tag={{ tag.slug }}">{{ tag.title }}</a></li>
+            <li><a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">{{ tag.title }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
