@@ -681,6 +681,6 @@ class TagsListView(ListView):
         queryset = Tag.objects\
             .filter(pk__in=tags_pk, publishablecontent__public_version__isnull=False,
                     publishablecontent__type__in=self.displayed_types)\
-            .annotate(num_content=Count('publishablecontent__publishedcontent'))\
+            .annotate(num_content=Count('publishablecontent'))\
             .order_by('-num_content', 'title')
         return queryset
