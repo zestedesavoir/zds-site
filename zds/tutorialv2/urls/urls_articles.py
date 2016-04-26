@@ -2,7 +2,8 @@
 
 from django.conf.urls import url
 
-from zds.tutorialv2.views.views_published import ListArticles, DisplayOnlineArticle, DownloadOnlineArticle
+from zds.tutorialv2.views.views_published import ListArticles, DisplayOnlineArticle, DownloadOnlineArticle, \
+    TagsListView
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
 urlpatterns = [
@@ -25,5 +26,6 @@ urlpatterns = [
         name='download-zip'),
 
     # Listing
-    url(r'^$', ListArticles.as_view(), name='list')
+    url(r'^$', ListArticles.as_view(), name='list'),
+    url(r'tags/*', TagsListView.as_view(displayed_types=["ARTICLE"]), name="tags")
 ]

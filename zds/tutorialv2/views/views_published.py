@@ -674,11 +674,16 @@ class TagsListView(ListView):
     model = Tag
     template_name = "tutorialv2/view/tags.html"
     context_object_name = 'tags'
+    displayed_types = ["TUTORIAL", "ARTICLE"]
 
     def get_queryset(self):
-        tags_pk = [tag['content__tags'] for tag in PublishedContent.objects.values('content__tags').distinct()]
+        published = PublishedContent.objects.filter(
+            must_redirect=False,
+            content__type__in=self.displayed_types).values('content__tags').distinct()
+        tags_pk = [tag['content__tags'] for tag in published]
         queryset = Tag.objects\
-            .filter(pk__in=tags_pk)\
-            .annotate(num_content=Count('publishablecontent__publishedcontent'))\
+            .filter(pk__in=tags_pk, publishablecontent__public_version__isnull=False,
+                    publishablecontent__type__in=self.displayed_types)\
+            .annotate(num_content=Count('publishablecontent'))\
             .order_by('-num_content', 'title')
         return queryset
