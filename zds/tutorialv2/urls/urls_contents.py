@@ -11,7 +11,13 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
     HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, FollowContent
 
+from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
+
 urlpatterns = [
+    # Flux
+    url(r'^flux/rss/$', LastContentFeedRSS(), name='feed-rss'),
+    url(r'^flux/atom/$', LastContentFeedATOM(), name='feed-atom'),
+
     url(r'^tutoriels/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
         name="find-tutorial"),

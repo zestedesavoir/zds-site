@@ -110,6 +110,18 @@
             <a href="{% url 'content:helps' %}?type=article" class="new-btn ico-after help blue">
                 {% trans "Aider les auteurs" %}
             </a>
+        {% elif current_content_type == None %}
+            <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+                {% trans "Nouvel article" %}
+            </a>
+
+            <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+                {% trans "Nouveau tutoriel" %}
+            </a>
+
+            <a href="{% url 'content:helps' %}" class="new-btn ico-after help blue">
+                {% trans "Aider les auteurs" %}
+            </a>
         {% endif %}
 
         <h3>{% blocktrans %} Catégories <span class="wide">des {{ verbose_type_name_plural }}</span> {% endblocktrans %}</h3>
@@ -119,6 +131,8 @@
                 {% url "article:list" %}
             {% elif current_content_type == "TUTORIAL" %}
                 {% url "tutorial:list" %}
+            {% elif current_content_type == None %}
+                {% url "content:list" %}
             {% endif %}
         {% endcaptureas %}
 
@@ -150,6 +164,8 @@
                             href="{% url "article:feed-rss" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-rss" %}"
+                        {% elif current_content_type == None %}
+                            href="{% url "content:feed-rss" %}"
                         {% endif %}
                     class="ico-after rss blue">
                         {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (RSS) {% endblocktrans %}
@@ -161,6 +177,8 @@
                             href="{% url "article:feed-atom" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-atom" %}"
+                        {% elif current_content_type == None %}
+                            href="{% url "content:feed-atom" %}"
                         {% endif %}
                     class="ico-after rss blue">
                         {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (ATOM) {% endblocktrans %}
