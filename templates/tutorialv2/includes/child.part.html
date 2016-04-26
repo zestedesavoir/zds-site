@@ -41,14 +41,14 @@
                         {% for element in child|target_tree %}
                                 <option value="before:{{element.0}}"
                                 {% if not element.3 %} disabled {% endif %}>
-                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
                                 </option>
                         {% endfor %}
                         <option disabled="disabled">&mdash; {% trans "Déplacer après" %}</option>
                         {% for element in child|target_tree %}
                                 <option value="after:{{element.0}}"
                                 {% if not element.3 %} disabled {% endif %}>
-                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1 }}
+                                     &mdash;&mdash;{% for _ in element.2|times %}&mdash;{% endfor %}{{ element.1|truncatechars:50 }}
                                 </option>
                         {% endfor %}
                     </select>
