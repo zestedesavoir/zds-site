@@ -65,10 +65,7 @@ def humane_delta(value):
 
 @register.filter('followed_topics')
 def followed_topics(user):
-    topics_followed = TopicAnswerSubscription.objects.filter(user=user,
-                                                             content_type__model='topic',
-                                                             is_active=True)\
-        .order_by('-last_notification__pubdate')[:10]
+    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)[:10]
     # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
     # the number of days for which we can say we're still in the period
     # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
@@ -76,14 +73,14 @@ def followed_topics(user):
     # Number is use for index for sort map easily
     periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
     topics = {}
-    for topic_followed in topics_followed:
+    for topic in topics_followed:
         for period in periods:
-            if topic_followed.content_object.last_message.pubdate.date() \
-                    >= (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
+            if topic.last_message.pubdate.date() >= \
+                    (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
                 if period[0] in topics:
-                    topics[period[0]].append(topic_followed.content_object)
+                    topics[period[0]].append(topic)
                 else:
-                    topics[period[0]] = [topic_followed.content_object]
+                    topics[period[0]] = [topic]
                 break
     return topics
 
