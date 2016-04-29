@@ -2,6 +2,7 @@
 
 from django.conf import settings
 from django.db import models
+from zds.utils.models import Tag
 
 
 class PublishedContentManager(models.Manager):
@@ -44,7 +45,7 @@ class PublishedContentManager(models.Manager):
                    .count()
 
     def get_top_tags(self, displayed_types, limit=-1):
-        published = PublishedContent.objects.filter(
+        published = self.filter(
             must_redirect=False,
             content__type__in=displayed_types).values('content__tags').distinct()
         tags_pk = [tag['content__tags'] for tag in published]
