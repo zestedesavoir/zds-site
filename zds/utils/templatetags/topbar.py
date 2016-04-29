@@ -93,25 +93,8 @@ def top_categories_content(_type):
         else:
             cats[key] = [(csc['subcategory__title'], csc['subcategory__slug'])]
 
-    # get all tags from contents
-    tmp_tags = (PublishedContent.objects
-                .filter(must_redirect=False)
-                .values_list('content__tags__pk', flat=True)
-                .select_related('content')
-                .distinct()
-                .filter(content__tags__isnull=False)
-                [:settings.ZDS_APP['forum']['top_tag_max'] + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
-
-    tags_not_filtered = Tag.objects.filter(pk__in=[pk for pk in tmp_tags])
-
-    # select tags that are not in the excluded list
-    tags = []
-    for tag in tags_not_filtered:
-        if tag.title not in settings.ZDS_APP['forum']['top_tag_exclu'] \
-                and len(tags) <= settings.ZDS_APP['forum']['top_tag_max']:
-            tags.append(tag)
-
-    return {"tags": tags, "categories": cats}
+    return {"tags": PublishedContent.objects.get_top_tags(limit=settings.ZDS_APP['forum']['top_tag_max']),
+            "categories": cats}
 
 
 @register.filter('auth_forum')

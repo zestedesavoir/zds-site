@@ -43,6 +43,20 @@ class PublishedContentManager(models.Manager):
         return self.filter(must_redirect=False)\
                    .count()
 
+    def get_top_tags(self, displayed_types, limit=-1):
+        published = PublishedContent.objects.filter(
+            must_redirect=False,
+            content__type__in=self.displayed_types).values('content__tags').distinct()
+        tags_pk = [tag['content__tags'] for tag in published]
+        queryset = Tag.objects\
+            .filter(pk__in=tags_pk, publishablecontent__public_version__isnull=False,
+                    publishablecontent__type__in=displayed_types)\
+            .annotate(num_content=Count('publishablecontent'))\
+            .order_by('-num_content', 'title')
+        if limit > 0:
+            queryset = queryset[:limit]
+        return queryset
+
 
 class PublishableContentManager(models.Manager):
     """..."""
