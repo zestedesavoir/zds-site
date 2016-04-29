@@ -675,4 +675,5 @@ class TagsListView(ListView):
     template_name = "tutorialv2/view/tags.html"
     context_object_name = 'tags'
     displayed_types = ["TUTORIAL", "ARTICLE"]
-    queryset = PublishedContent.objects.get_top_tags(self.displayed_types)
+    def get_queryset(self):
+        return PublishedContent.objects.get_top_tags(self.displayed_types)
