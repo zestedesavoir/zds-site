@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import models
 from zds.utils.models import Tag
+from django.db.models import Count
 
 
 class PublishedContentManager(models.Manager):
