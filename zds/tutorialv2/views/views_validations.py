@@ -17,7 +17,7 @@ from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm
+    CancelValidationForm, PublicationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
@@ -108,6 +108,9 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     modal_form = True
 
     def get_form_kwargs(self):
+        # TODO : vérifier pour Mixin
+        if not self.versioned_object.required_validation_before():
+            raise PermissionDenied
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
         return kwargs
@@ -521,6 +524,139 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         self.success_url = self.versioned_object.get_absolute_url() + '?version=' + validation.version
 
         return super(RevokeValidation, self).form_valid(form)
+
+
+class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    """Publish the content"""
+
+    form_class = PublicationForm
+
+    modal_form = True
+    prefetch_all = False
+    must_be_author = True
+    authorized_for_staff = True  # an admin could ask validation for a content
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Publier un contenu n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(Publish, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        user = self.request.user
+
+        # get database representation and validated version
+        db_object = self.object
+        versioned = self.versioned_object
+        self.success_url = versioned.get_absolute_url()
+        is_update = db_object.sha_public
+        try:
+            published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
+        except FailureDuringPublication as e:
+            messages.error(self.request, e.message)
+        else:
+            # save in database
+
+            db_object.source = form.cleaned_data['source']
+            db_object.sha_validation = None
+
+            db_object.public_version = published
+
+            if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
+                db_object.pubdate = datetime.now()
+
+            db_object.save()
+
+            if is_update:
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_accept_update.md',
+                    {
+                        'content': versioned,
+                        'url': published.get_absolute_url_online(),
+                        'validator': None
+                    })
+            else:
+                msg = render_to_string(
+                    'tutorialv2/messages/validation_accept_content.md',
+                    {
+                        'content': versioned,
+                        'url': published.get_absolute_url_online(),
+                        'validator': None
+                    })
+
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            send_mp(
+                bot,
+                db_object.authors.all(),
+                _(u"Contenu publié"),
+                versioned.title,
+                msg,
+                True,
+                direct=False
+            )
+
+            messages.success(self.request, _(u'Le contenu a bien été publié.'))
+            self.success_url = published.get_absolute_url_online()
+
+        return super(Publish, self).form_valid(form)
+
+
+class Unpublish(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
+    """Unpublish a content"""
+
+    form_class = RevokeValidationForm
+    is_public = True
+
+    modal_form = True
+
+    def get_form_kwargs(self):
+        kwargs = super(Unpublish, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        print(0)
+        versioned = self.versioned_object
+
+        if form.cleaned_data['version'] != self.object.sha_public:
+            raise PermissionDenied
+
+        if self.request.user not in versioned.authors.all():
+            raise PermissionDenied
+
+        unpublish_content(self.object)
+
+        self.object.sha_public = None
+        self.object.pubdate = None
+        self.object.save()
+
+        # send PM
+        msg = render_to_string(
+            'tutorialv2/messages/validation_revoke.md',
+            {
+                'content': versioned,
+                'url': versioned.get_absolute_url(),
+                'admin': self.request.user,
+                'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            versioned.authors.all(),
+            _(u"Dépublication"),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
+        self.success_url = self.versioned_object.get_absolute_url()
+
+        return super(Unpublish, self).form_valid(form)
 
 
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):

@@ -21,6 +21,7 @@ from uuslug import slugify
 from zds import settings
 from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
 from zds.utils.models import Licence
@@ -494,7 +495,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             versioned.description = json['description']
 
         if 'type' in json:
-            if json['type'] == 'ARTICLE' or json['type'] == 'TUTORIAL':
+            if json['type'] in CONTENT_TYPE_LIST:
                 versioned.type = json['type']
 
         if 'licence' in json:
@@ -512,6 +513,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         fill_containers_from_json(json, versioned)
     else:
         # MINIMUM (!) fallback for version 1.0
+        # only support of ARTICLE and TUTORIAL
 
         if 'type' in json:
             if json['type'] == 'article':
