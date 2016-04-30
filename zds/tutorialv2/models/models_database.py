@@ -44,7 +44,7 @@ ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
 @python_2_unicode_compatible
 class PublishableContent(models.Model):
-    """A tutorial whatever its size or an article.
+    """A publishable content.
 
     A PublishableContent retains metadata about a content in database, such as
 
@@ -53,7 +53,7 @@ class PublishableContent(models.Model):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" or "TUTORIAL"
+    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -134,8 +134,12 @@ class PublishableContent(models.Model):
         """
         if self.is_article():
             return _(u"L'Article")
-        else:
+        elif self.is_opinion():
+            return _(u"Le Billet")
+        elif self.is_tutorial():
             return _(u"Le Tutoriel")
+        else:
+            return _(u"Le Contenu")
 
     def save(self, *args, **kwargs):
         """
@@ -280,6 +284,13 @@ class PublishableContent(models.Model):
         """
         return self.type == 'TUTORIAL'
 
+    def is_opinion(self):
+        """
+        :return: ``True`` if opinion, ``False`` otherwise
+        :rtype: bool
+        """
+        return self.type == 'OPINION'
+
     def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
         `public` is `True`).
@@ -370,8 +381,8 @@ class PublishableContent(models.Model):
         ]
 
         fns = [
-            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'get_absolute_contact_url',
-            'get_note_count', 'antispam'
+            'in_beta', 'in_validation', 'in_public', 'is_article', 'is_tutorial', 'is_opinion',
+            'get_absolute_contact_url', 'get_note_count', 'antispam'
         ]
 
         # load functions and attributs in `versioned`
@@ -644,6 +655,14 @@ class PublishedContent(models.Model):
         :rtype: bool
         """
         return self.content_type == "TUTORIAL"
+
+    def is_opinion(self):
+        """
+
+        :return: ``True`` if it is an opinion, ``False`` otherwise.
+        :rtype: bool
+        """
+        return self.content_type == "OPINION"
 
     def get_extra_contents_directory(self):
         """
