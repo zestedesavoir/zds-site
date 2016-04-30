@@ -49,7 +49,7 @@
 
 {% block content_out %}
     <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% elif current_content_type == "OPINION" %}opinions{% else %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
                     {{ verbose_type_name_plural|title }} : {{ tag.title }}
@@ -110,6 +110,9 @@
             <a href="{% url 'content:helps' %}?type=article" class="new-btn ico-after help blue">
                 {% trans "Aider les auteurs" %}
             </a>
+        {% elif current_content_type == "OPINION" %}
+            <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+                {% trans "Nouveau billet" %}
         {% elif current_content_type == None %}
             <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
@@ -121,6 +124,7 @@
 
             <a href="{% url 'content:helps' %}" class="new-btn ico-after help blue">
                 {% trans "Aider les auteurs" %}
+
             </a>
         {% endif %}
 
@@ -131,6 +135,8 @@
                 {% url "article:list" %}
             {% elif current_content_type == "TUTORIAL" %}
                 {% url "tutorial:list" %}
+            {% elif current_content_type == "OPINION" %}
+                {% url "opinion:list" %}
             {% elif current_content_type == None %}
                 {% url "content:list" %}
             {% endif %}
@@ -164,6 +170,8 @@
                             href="{% url "article:feed-rss" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-rss" %}"
+                        {% elif current_content_type == "OPINION" %}
+                            href="{% url "opinion:feed-rss" %}"
                         {% elif current_content_type == None %}
                             href="{% url "content:feed-rss" %}"
                         {% endif %}
@@ -177,6 +185,8 @@
                             href="{% url "article:feed-atom" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-atom" %}"
+                        {% elif current_content_type == "OPINION" %}
+                            href="{% url "opinion:feed-atom" %}"
                         {% elif current_content_type == None %}
                             href="{% url "content:feed-atom" %}"
                         {% endif %}
