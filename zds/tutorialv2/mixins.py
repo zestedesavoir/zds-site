@@ -292,6 +292,10 @@ class ContentTypeMixin(object):
             v_type_name = _(u'tutoriel')
             v_type_name_plural = _(u'tutoriels')
 
+        if self.current_content_type == 'OPINION':
+            v_type_name = _(u'billet')
+            v_type_name_plural = _(u'billets')
+
         context['current_content_type'] = self.current_content_type
         context['verbose_type_name'] = v_type_name
         context['verbose_type_name_plural'] = v_type_name_plural

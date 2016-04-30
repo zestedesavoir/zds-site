@@ -188,12 +188,21 @@
                             </button>
                         </form>
                     </li>
-                    <li>
-                        <a href="#unpublish" class="ico-after open-modal cross blue">
-                            {% trans "Dépublier" %}
-                        </a>
-                        {% crispy formRevokeValidation %}
-                    </li>
+                    {% if content.required_validation_before %}
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formRevokeValidation %}
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formUnpublication %}
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

@@ -5,15 +5,17 @@ from git import Repo
 import os
 import shutil
 import codecs
+from uuslug import slugify
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from zds.settings import ZDS_APP
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from uuslug import slugify
 from zds.utils.misc import compute_hash
+from zds.tutorialv2.models import SINGLE_CONTAINER, CONTENT_TYPES_BETA, CONTENT_TYPES_VALIDATION_BEFORE
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
 
 
@@ -26,7 +28,7 @@ class Container:
 
     It has also a tree depth.
 
-    A container could be either a tutorial/article, a part or a chapter.
+    A container could be either a tutorial/article/opinion, a part or a chapter.
     """
 
     title = ''
@@ -215,7 +217,7 @@ class Container:
         """
         if not self.has_extracts():
             if self.get_tree_depth() < ZDS_APP['content']['max_tree_depth'] - 1:
-                if not self.top_container().is_article:
+                if not self.top_container().type in SINGLE_CONTAINER:
                     return True
         return False
 
@@ -751,6 +753,25 @@ class Container:
         else:
             return _(u'Section')
 
+    def can_be_in_beta(self):
+        """
+        Check if content can be in beta.
+
+        :return: True if content can be in beta, False else.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_BETA
+
+    def required_validation_before(self):
+        """
+        Check if content required a validation before publication.
+        Used to check if JsFiddle is available too.
+
+        :return: True if required a validation before publication, False else.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
+
 
 class Extract:
     """
@@ -1034,6 +1055,7 @@ class VersionedContent(Container):
 
     is_article = False
     is_tutorial = False
+    is_opinion = False
 
     authors = None
     subcategory = None
@@ -1048,7 +1070,7 @@ class VersionedContent(Container):
     def __init__(self, current_version, _type, title, slug, slug_repository=''):
         """
         :param current_version: version of the content
-        :param _type: either 'TUTORIAL' or 'ARTICLE'
+        :param _type: either "TUTORIAL", "ARTICLE" or "OPINION"
         :param title: title of the content
         :param slug: slug of the content
         :param slug_repository: slug of the directory that contains the repository, named after database slug.
@@ -1078,8 +1100,12 @@ class VersionedContent(Container):
         """
         if self.is_article:
             return _(u"L'Article")
-        else:
+        elif self.is_tutorial:
             return _(u'Le Tutoriel')
+        elif self.is_opinion:
+            return _(u'Le Billet')
+        else:
+            return _(u'Le Contenu')
 
     def get_absolute_url(self, version=None):
         """
@@ -1106,6 +1132,8 @@ class VersionedContent(Container):
             _reversed = 'article'
         elif self.is_tutorial:
             _reversed = 'tutorial'
+        elif self.is_opinion:
+            _reversed = 'opinion'
         return reverse(_reversed + ':view', kwargs={'pk': self.pk, 'slug': self.slug})
 
     def get_absolute_url_beta(self):
@@ -1160,7 +1188,7 @@ class VersionedContent(Container):
         :rtype: list[Container]
         """
         continuous_list = []
-        if not self.is_article:  # article cannot be paginated
+        if self.type not in SINGLE_CONTAINER:  # cannot be paginated
             if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers !
                 for child in self.children:
                     if len(child.children) != 0:
@@ -1263,7 +1291,7 @@ class PublicContent(VersionedContent):
         """ This initialisation function avoid the loading of the Git repository
 
         :param current_version: version of the content
-        :param _type: either 'TUTORIAL' or 'ARTICLE'
+        :param _type: either "TUTORIAL", "ARTICLE" or "OPINION"
         :param title: title of the content
         :param slug: slug of the content
         """

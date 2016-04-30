@@ -36,7 +36,8 @@ from zds.member.models import Profile
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
+    UnpublicationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -171,12 +172,19 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+            context['formUnpublication'] = UnpublicationForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         if self.versioned_object.is_beta:
             context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
 
         context['validation'] = validation
         context['formJs'] = form_js
+
+        if self.versioned_object.required_validation_before:
+            context['formPublication'] = PublicationForm(self.versioned_object,     initial={'source': self.object.source})
+        else:
+            context['formPublication'] = None
 
     def get_context_data(self, **kwargs):
         context = super(DisplayContent, self).get_context_data(**kwargs)
@@ -314,9 +322,11 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.tags.clear()
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
-        publishable.helps.clear()
-        for help in form.cleaned_data['helps']:
-            publishable.helps.add(help)
+        # help only for content with validation before
+        if versioned.required_validation_before():
+            publishable.helps.clear()
+            for help_ in form.cleaned_data['helps']:
+                publishable.helps.add(help_)
 
         publishable.save()
 
@@ -1579,6 +1589,9 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
     def form_valid(self, form):
         """Change the js fiddle support of content and redirect to the view page """
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
+        # forbiden for content without a validation before publication
+        if not content.load_version().required_validation_before():
+            raise PermissionDenied
         content.js_support = form.cleaned_data['js_support']
         content.save()
         return redirect(content.load_version().get_absolute_url())
