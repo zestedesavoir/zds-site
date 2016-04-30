@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
@@ -677,13 +676,4 @@ class TagsListView(ListView):
     displayed_types = ["TUTORIAL", "ARTICLE"]
 
     def get_queryset(self):
-        published = PublishedContent.objects.filter(
-            must_redirect=False,
-            content__type__in=self.displayed_types).values('content__tags').distinct()
-        tags_pk = [tag['content__tags'] for tag in published]
-        queryset = Tag.objects\
-            .filter(pk__in=tags_pk, publishablecontent__public_version__isnull=False,
-                    publishablecontent__type__in=self.displayed_types)\
-            .annotate(num_content=Count('publishablecontent'))\
-            .order_by('-num_content', 'title')
-        return queryset
+        return PublishedContent.objects.get_top_tags(self.displayed_types)
