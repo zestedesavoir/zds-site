@@ -18,6 +18,11 @@
         current
     {% endif %}
 {% endblock %}
+{% block menu_opinion %}
+    {% if current_content_type == "OPINION" %}
+        current
+    {% endif %}
+{% endblock %}
 
 
 
@@ -36,9 +41,11 @@
                 href="{% url "article:list" %}"
             {% elif current_content_type == "TUTORIAL" %}
                 href="{% url "tutorial:list" %}"
-            {% elif current_content_type == None %}
+            {% elif current_content_type == "OPINION" %}
+                href="{% url "opinion:list" %}"
+            {% else %}
                 href="{% url "content:list" %}"
-            {% endif %}
+            {% elif current_content_type == None %}
             itemprop="url">
             <span itemprop="title">{{ verbose_type_name_plural|title }}</span>
         </a>

@@ -225,7 +225,7 @@ class ContentForm(ContainerForm):
     )
 
     helps = forms.ModelMultipleChoiceField(
-        label=_(u"Pour m'aider, je cherche un..."),
+        label=_(u"Pour m'aider, je cherche un... (non disponible pour les billets)"),
         queryset=HelpWriting.objects.all(),
         required=False,
         widget=forms.CheckboxSelectMultiple()
@@ -1053,3 +1053,79 @@ class WarnTypoForm(forms.Form):
                 del cleaned_data['text']
 
         return cleaned_data
+
+
+class PublicationForm(forms.Form):
+
+    """
+    The publication form.
+    TODO : voir si on peut faire hériter AcceptValidationForm avec celui-ci.
+    """
+
+    is_major = forms.BooleanField(
+        label=_(u'Version majeure ?'),
+        required=False,
+        initial=True
+    )
+
+    source = forms.CharField(
+        label='',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Pour un contenu importé d\'un autre site, adresse de la source.')
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(PublicationForm, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:publish', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'valid-publication'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            Field('source'),
+            Field('is_major'),
+            StrictButton(_(u'Publier'), type='submit')
+        )
+
+
+class UnpublicationForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    text = forms.CharField(
+        label='',
+        required=True,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _(u'Pourquoi dépublier ce contenu ?'),
+                'rows': '6'
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(UnpublicationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:unpublish', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'unpublish'
+
+        self.helper.layout = Layout(
+            CommonLayoutModalText(),
+            Field('version'),
+            StrictButton(
+                _(u'Dépublier'),
+                type='submit')
+        )

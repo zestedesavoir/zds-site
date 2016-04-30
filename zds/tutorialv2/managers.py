@@ -40,6 +40,9 @@ class PublishedContentManager(models.Manager):
     def last_articles_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type='ARTICLE')
 
+    def last_opinions_of_a_member_loaded(self, author):
+        return self.last_contents_of_a_member_loaded(author, _type='OPINION')
+
     def get_contents_count(self):
         """
         :rtype: int

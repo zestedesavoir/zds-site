@@ -13,6 +13,8 @@
         {% trans "Tutoriels de" %} {{ usr.username }}
     {% elif articles != None %}
         {% trans "Articles de" %} {{ usr.username }}
+    {% elif opinions != None %}
+        {% trans "Tribune libre de" %} {{ usr.username }}
     {% endif %}
 {% endblock %}
 
@@ -26,6 +28,11 @@
         current
     {% endif %}
 {% endblock %}
+{% block menu_opinion %}
+    {% if opinions %}
+        current
+    {% endif %}
+{% endblock %}
 
 
 {% block breadcrumb_base %}
@@ -35,6 +42,9 @@
     {% elif articles != None %}
         <li><a href="{% url "article:list" %}">{% trans "Articles" %}</a></li>
         <li><a href="{% url "content:find-article" usr.pk %}">{% trans "Articles de" %} {{ usr.username }}</a></li>
+    {% elif opinions != None %}
+        <li><a href="{% url "opinion:list" %}">{% trans "Tribunes libres" %}</a></li>
+        <li><a href="{% url "content:find-opinion" usr.pk %}">{% trans "Tribune libre de" %} {{ usr.username }}</a></li>
     {% endif %}
 {% endblock %}
 
@@ -50,6 +60,8 @@
                     {% trans "Tutoriels de" %} {{ usr.username }}
                 {% elif articles != None %}
                     {% trans "Articles de" %} {{ usr.username }}
+                {% elif opinions != None %}
+                    {% trans "Tribune libre de" %} {{ usr.username }}
                 {% endif %}
             {% endblock %}
         </h2>
@@ -84,9 +96,22 @@
                 <div class="fill"></div>
                 <div class="fill"></div>
             </div>
+        {% elif opinions != None %}
+            <div class="content-item-list clearfix">
+                {% for opinion in opinions %}
+                    {% if filter == 'public' %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=opinion.public_version content=opinion %}
+                    {% else %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True content=opinion %}
+                    {% endif %}
+                {% endfor %}
+                <div class="fill"></div>
+                <div class="fill"></div>
+                <div class="fill"></div>
+            </div>
         {% endif %}
 
-        {% if not articles and not tutorials and not contents %}
+        {% if not articles and not tutorials and not opinions and not contents %}
             <p>{% trans "Il n'y a aucun contenu pour cet utilisateur." %}</p>
         {% endif %}
 
@@ -105,6 +130,10 @@
     {% elif articles != None %}
         <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
             {% trans "Nouvel article" %}
+        </a>
+    {% elif opinions != None %}
+        <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+            {% trans "Nouveau billet" %}
         </a>
     {% endif %}
 
@@ -154,6 +183,8 @@
                         <li><a href="{% url "content:find-tutorial" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                     {% elif articles != None %}
                         <li><a href="{% url "content:find-article" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                    {% elif opinions != None %}
+                        <li><a href="{% url "content:find-opinion" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                     {% endif %}
                 {% endfor %}
             </ul>

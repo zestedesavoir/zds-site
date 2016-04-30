@@ -86,3 +86,19 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
     feed_type = Atom1Feed
     subtitle = LastArticlesFeedRSS.description
+
+
+class LastOpinionsFeedRSS(LastContentFeedRSS):
+    """
+    Redefinition of `LastContentFeedRSS` for opinions only
+    """
+    content_type = "OPIJION"
+    link = "/tribunes-libres/"
+    title = u"Tribunes libres sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers billets des tribunes libres parus sur {}.".format(
+        settings.ZDS_APP['site']['litteral_name'])
+
+
+class LastOpinionsFeedATOM(LastOpinionsFeedRSS):
+    feed_type = Atom1Feed
+    subtitle = LastOpinionsFeedRSS.description
