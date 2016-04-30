@@ -148,17 +148,26 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                <li>
-                    <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                        {% trans "Historique validation" %}
-                    </a>
-                </li>
-                <li>
-                    <a href="#unpublish" class="ico-after open-modal cross blue">
-                        {% trans "Dépublier" %}
-                    </a>
-                    {% crispy formRevokeValidation %}
-                </li>
+                    <li>
+                        <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                            {% trans "Historique validation" %}
+                        </a>
+                    </li>
+                    {% if content.required_validation_before %}
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formRevokeValidation %}
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="#unpublish" class="ico-after open-modal cross blue">
+                                {% trans "Dépublier" %}
+                            </a>
+                            {% crispy formUnpublication %}
+                        </li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>
