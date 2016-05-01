@@ -25,6 +25,7 @@
 {% block content_out %}
     {% url 'tutorial:list' as url_tutorials %}
     {% url 'article:list' as url_articles %}
+    {% url 'opinion:list' as url_opinions %}
     {% url 'cats-forums-list' as url_forums %}
 
     {% url 'pages-association' as url_association %}
@@ -58,6 +59,7 @@
                             <ul>
                                 <li>des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>&nbsp;;</li>
                                 <li>des <a href='{{url_articles}}'>articles</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_opinions }}">tribunes libres</a>&nbsp;;</li>
                                 <li>et des <a href='{{url_forums}}'>forums d'entraide</a>.</li>
                             </ul>
                             <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
@@ -71,7 +73,7 @@
                         {% endblocktrans %}
                         <h2>{% trans "… sur une plate-forme libre" %}</h2>
                         {% blocktrans %}
-                            <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
+                            <p>Le site est géré et financé par une <a href="{{ url_association }}">association</a> à but non lucratif.</p>
                         {% endblocktrans %}
                         {% if app.site.contribute_link %}
                             {% blocktrans with contribute_link=app.site.contribute_link %}
@@ -155,21 +157,40 @@
             </section>
         </div>
 
-        <section itemscope itemtype="http://schema.org/ItemList">
-            <h2 class="home-heading ico-after ico-forum" itemprop="name">
-                {% trans "Derniers sujets" %}
-                <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
-            </h2>
+        <div class="home-row">
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="ico-after ico-opinions home-heading" itemprop="name">
+                    {% trans "Derniers billets" %}
+                    <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
+                </h2>
 
-            <meta itemprop="itemListOrder" content="Descending">
+                <meta itemprop="itemListOrder" content="Descending">
 
-            <div class="content-item-list">
-              {% for topic in last_topics %}
-                  {% include 'forum/includes/topic_item.part.html' %}
-              {% empty %}
-                  <p>{% trans "Aucun sujet disponible." %}</p>
-              {% endfor %}
-            </div>
-        </section>
+                <div class="content-item-list">
+                    {% for opinion in last_opinions %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" %}
+                    {% empty %}
+                        <p>{% trans "Aucun billet disponible." %}</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section itemscope itemtype="http://schema.org/ItemList">
+                <h2 class="home-heading ico-after ico-forum" itemprop="name">
+                    {% trans "Derniers sujets" %}
+                    <a href="{% url 'cats-forums-list' %}" class="btn btn-grey">{% trans "Tous les sujets" %}</a>
+                </h2>
+
+                <meta itemprop="itemListOrder" content="Descending">
+
+                <div class="content-item-list">
+                  {% for topic in last_topics %}
+                      {% include 'forum/includes/topic_item.part.html' %}
+                  {% empty %}
+                      <p>{% trans "Aucun sujet disponible." %}</p>
+                  {% endfor %}
+                </div>
+            </section>
+        </div>
     </div>
 {% endblock %}

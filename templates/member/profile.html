@@ -126,6 +126,15 @@
                 {% endfor %}
             </div>
         {% endif %}
+
+        {% if opinions %}
+            <h2 class="ico-after ico-opinions" id="derniers-billets">{% trans "Derniers billets" %}</h2>
+            <div class="content-item-list">
+                {% for public_opinion in opinions %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_opinion %}
+                {% endfor %}
+            </div>
+        {% endif %}
     </section>
 
 
@@ -428,7 +437,7 @@
                                 {% trans "En béta" %}
                             </a>
                         </li>
-                     {% endif %}
+                    {% endif %}
                     {% if profile.user == user %}
                         {% if articles_validation_count > 0 %}
                             <li>
@@ -463,6 +472,45 @@
                             <li class="inactive mobile-menu-link mobile-menu-sublink">
                                 <span>
                                     <span class="count">{{ articles_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </span>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% with opinions_draft_count=profile.get_draft_opinions.count opinions_public_count=profile.get_public_opinions.count %}
+            {% if opinions_draft_count > 0 or opinions_public_count > 0 %}
+                <h4 class="mobile-menu-link" data-title="{% trans 'Billets' %}">{% trans 'Billets' %}</h4>
+                <ul>
+                    {% if opinions_public_count > 0 %}
+                        <li>
+                            <a href="{% url "content:find-opinion" usr.pk %}?filter=public"
+                               class="mobile-menu-link mobile-menu-sublink"
+                            >
+                                <span class="count">{{ opinions_public_count }}</span>
+                                {% trans "En ligne" %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if profile.user == user %}
+                        {% if opinions_draft_count > 0 %}
+                            <li>
+                                <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction"
+                                   class="mobile-menu-link mobile-menu-sublink"
+                                >
+                                    <span class="count">{{ opinions_draft_count }}</span>
+                                    {% trans "En rédaction" %}
+                                </a>
+                            </li>
+                         {% endif %}
+                    {% else %}
+                        {% if opinions_draft_count > 0 %}
+                            <li class="inactive mobile-menu-link mobile-menu-sublink">
+                                <span>
+                                    <span class="count">{{ opinions_draft_count }}</span>
                                     {% trans "En rédaction" %}
                                 </span>
                             </li>
