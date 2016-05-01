@@ -19,6 +19,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 
 - Tutoriels
 - Articles
+- Tribunes libres
 - Membres
 - Forums
 - Messages privés
