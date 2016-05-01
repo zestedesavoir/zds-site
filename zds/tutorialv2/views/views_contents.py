@@ -50,7 +50,7 @@ from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.utils.models import Licence
 from zds.utils.models import Tag, HelpWriting
 from zds.utils.mps import send_mp
-from zds.utils.paginator import ZdSPagingListView
+from zds.utils.paginator import ZdSPagingListView, make_pagination
 
 
 class RedirectOldBetaTuto(RedirectView):
@@ -1209,7 +1209,15 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         context = super(DisplayHistory, self).get_context_data(**kwargs)
 
         repo = self.versioned_object.repository
-        context['commits'] = objects.commit.Commit.iter_items(repo, 'HEAD')
+        commits = list(objects.commit.Commit.iter_items(repo, 'HEAD'))
+
+        # Pagination of commits
+        make_pagination(
+            context,
+            self.request,
+            commits,
+            settings.ZDS_APP['content']['commits_per_page'],
+            context_list_name="commits")
 
         # Git empty tree is 4b825dc642cb6eb9a060e54bf8d69288fbee4904, see
         # http://stackoverflow.com/questions/9765453/gits-semi-secret-empty-tree
