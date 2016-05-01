@@ -472,6 +472,10 @@ ZDS_APP = {
         'home_number': 3,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
+    'opinions': {
+        'home_number': 5,
+        'repo_path': os.path.join(BASE_DIR, 'opinions-data')
+    },
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),

@@ -82,6 +82,7 @@ class MemberDetail(DetailView):
         for topic in context['topics']:
             topic.is_followed = topic in followed_topics
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
+        context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
@@ -868,6 +869,7 @@ def activate_account(request):
             'username': usr.username,
             'tutorials_url': settings.ZDS_APP['site']['url'] + reverse('tutorial:list'),
             'articles_url': settings.ZDS_APP['site']['url'] + reverse('article:list'),
+            'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse('member-list'),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
             'site_name': settings.ZDS_APP['site']['litteral_name']
