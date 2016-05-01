@@ -87,6 +87,7 @@ class MemberDetail(DetailView):
         context['profile'] = profile
         context['topics'] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user))
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
+        context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
@@ -360,6 +361,30 @@ def unregister(request):
     external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
+    for content in request.user.profile.get_contents():
+        # we delete content only if not published with only one author
+        if not content.in_public() and content.authors.count() == 1:
+            if content.in_beta() and content.beta_topic:
+                beta_topic = content.beta_topic
+                beta_topic.is_locked = True
+                beta_topic.save()
+                first_post = beta_topic.first_post()
+                first_post.update_content(_(u"# Le contenu présenté par ce topic n\'existe plus."))
+                first_post.save()
+            content.delete()
+        else:
+            if content.authors.count() == 1:
+                content.authors.add(external)
+                external_gallery = UserGallery()
+                external_gallery.user = external
+                external_gallery.gallery = content.gallery
+                external_gallery.mode = 'W'
+                external_gallery.save()
+                UserGallery.objects.filter(user=current).filter(gallery=content.gallery).delete()
+
+            content.authors.remove(current)
+            content.save()
+
     # comments likes / dislikes
     for vote in CommentVote.objects.filter(user=current):
         if vote.positive:
@@ -799,6 +824,7 @@ def active_account(request):
             'username': usr.username,
             'tutorials_url': settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
             'articles_url': settings.ZDS_APP['site']['url'] + reverse("article:list"),
+            'opinions_url': settings.ZDS_APP['site']['url'] + reverse('opinion:list'),
             'members_url': settings.ZDS_APP['site']['url'] + reverse("member-list"),
             'forums_url': settings.ZDS_APP['site']['url'] + reverse('cats-forums-list'),
             'site_name': settings.ZDS_APP['site']['litteral_name']
