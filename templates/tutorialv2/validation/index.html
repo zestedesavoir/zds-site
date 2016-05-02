@@ -4,15 +4,18 @@
 {% load i18n %}
 
 {% block title_base %}
-    &bull; {% trans "Validation" %}
+    {% trans "Validation" %}
 {% endblock %}
 
 {% block title %}
-    {% trans "Validation" %}
     {% if request.GET.type == "reserved" %}
-        / {% trans "Réservés" %}
+        {% trans "Reservés" %} &bull;
     {% elif request.GET.type == "orphan" %}
-        / {% trans "Non-réservés" %}
+        {% trans "Non-reservés" %} &bull;
+    {% elif request.GET.type == "article" %}
+        {% trans "Articles" %} &bull;
+    {% elif request.GET.type == "tuto" %}
+        {% trans "Tutoriels" %} &bull;
     {% endif %}
 {% endblock %}
 
