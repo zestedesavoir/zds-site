@@ -491,6 +491,7 @@ ZDS_APP = {
         'content_per_page': 50,
         'notes_per_page': 25,
         'helps_per_page': 20,
+        'commits_per_page': 20,
         'feed_length': 5,
         'user_page_number': 5,
         'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
