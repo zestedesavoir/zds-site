@@ -568,6 +568,7 @@ class UtilsTests(TestCase):
         self.assertTrue(PublicatorRegistery.get("test").publish.called)
         handler.finish_generation.assert_called_with("/path/to", "path")
         handler.prepare_generation.assert_called_with("/path/to")
+        os.remove("path")
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
