@@ -70,9 +70,19 @@
                     </thead>
                     <tbody>
                         {% for validation in validations %}
-                            <tr>
+                            <tr class="{% if validation.validator and validation.validator.username == user.username %}
+                                my-validation-content-title
+                                {% endif %}">
                                 <td>
-                                    <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}">
+                                    <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}"
+                                       class="
+                                        {% if validation.versioned_content.get_tree_depth == 0 %}
+                                            small-content-title
+                                        {% elif validation.versioned_content.get_tree_depth == 1 %}
+                                            medium-content-title
+                                        {% else %}
+                                            big-content-title
+                                        {% endif %}">
                                         {{ validation.versioned_content.title }}
                                     </a>
                                     <br>
