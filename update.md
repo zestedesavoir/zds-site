@@ -475,6 +475,37 @@ _________
 Actions à faire pour mettre en prod la version 18
 =================================================
 
+Changements de configuration Nginx
+----------------------------------
+
+Une réécriture complète de la configuration Nginx a été faite en béta ; il faut donc refléter les changements en prod.
+
+**Ces changements sont relativement lourds, donc une sauvegarde de `/etc/nginx` avant de faire quoi que ce soit n'est pas de trop. Ces changements doivent être fait *avant* la mise en prod, et tous les changements peuvent être fait sans aucun downtime, puisque l'ancienne configuration reste active tant que nginx n'est pas `reload`**
+
+Créer un dossier `/opt/zdsenv/webroot`, et y symlink toutes les resources statiques:
+
+```sh
+mkdir /opt/zdsenv/webroot
+cd /opt/zdsenv/webroot
+ln -s ../ZesteDeSavoir/{static,media,errors,robots.txt} ./
+```
+
+**Aussi symlink toutes les autres resources qui doivent être accessibles, type les fichiers de vérification de Gandi/des Google Webmaster Tools**
+
+Ensuite, le fichier `dhparam.pem` a été déplacé de `/etc/nginx/dhparam.pem` à `/etc/ssl/dhparam.pem`. Il faut donc le faire en prod (ou regénérer les dhparam via `openssl dhparam -out /etc/ssl/dhparam.pem 4096` ; cette commande peut prendre 2-3min)
+
+Enfin, la localisation des certificats a été modifiée pour qu'elle soit la même en beta et en prod. En beta, les fichiers ont été symlink, il faut donc faire de même en prod (ou les déplacer/copier), en mettant la chaine de certificat dans `/etc/ssl/certs/zds-live.crt` et la clé dans `/etc/ssl/private/zds-live.key`. **Voir la configuration nginx actuelle pour voir de quel fichiers il s'agit.**
+
+Une fois que ces changements sont fait, il faut copier la nouvelle configuration nginx dans `/etc/nginx`. Elle se trouve dans le dépot dans `doc/source/install/nginx/`.
+
+Les anciens fichier dans `sites-{enabled,available}/` et dans `conf.d/` peuvent être virés s'il y en a ; les autres fichiers qui sont la "par défaut" doivent rester la (même si `mimes.types` semble être le seul fichier indispensable)
+
+Symlink le fichier `zestedesavoir`: `ln -s ../sites-enabled/zestedesavoir /etc/nginx/sites-available/`
+
+Enfin, **en prod uniquement**, symlink le fichier `prod-redirect`: `ln -s ../sites-enabled/prod-redirect /etc/nginx/sites-available/`
+
+Tester la configuration avant de la recharger: (en root) `nginx -t`. S'il n'y a aucune erreur, recharger nginx via `systemctl reload nginx.service`
+
 Notifications
 -------------
 
