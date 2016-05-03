@@ -545,6 +545,25 @@ SELECT max(id) FROM utils_commentvote;
 
 Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
 
+# Supprimer toute trace des tables pré-zep-12
+
+Il faudra supprimer en SQL:
+
+- `UPDATE tutorial_tutorial SET last_note_pk=NULL;`
+- `UPDATE article_article SET last_reaction=NULL;`
+- `DROP TABLE tutorial_tutorial_subcategory;`
+- `DROP TABLE tutorial_tutorial_authors;`
+- `DROP TABLE tutorial_note;`
+- `DROP TABLE tutorial_tutorialread;`
+- `DROP TABLE tutorial_tutorial;`
+- `DROP TABLE article_article_subcategory;`
+- `DROP TABLE article_article_authors;`
+- `DROP TABLE article_reaction;`
+- `DROP TABLE article_articleread;`
+- `DROP TABLE article_article;`
+ 
+
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
