@@ -518,18 +518,18 @@ Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT
 
 Il faudra supprimer en SQL:
 
-- `UPDATE tutorial_tutorial SET last_note_pk=NULL`
-- `UPDATE article_article SET last_reaction=NULL`
-- `tutorial_tutorial_subcategory`
-- `tutorial_tutorial_authors`
-- `tutorial_note`
-- `tutorial_tutorialread`
-- `tutorial_tutorial`
-- `article_article_subcategory`
-- `article_article_authors`
-- `article_reaction`
-- `article_articleread`
-- `article_article`
+- `UPDATE tutorial_tutorial SET last_note_pk=NULL;`
+- `UPDATE article_article SET last_reaction=NULL;`
+- `DROP TABLE tutorial_tutorial_subcategory;`
+- `DROP TABLE tutorial_tutorial_authors;`
+- `DROP TABLE tutorial_note;`
+- `DROP TABLE tutorial_tutorialread;`
+- `DROP TABLE tutorial_tutorial;`
+- `DROP TABLE article_article_subcategory;`
+- `DROP TABLE article_article_authors;`
+- `DROP TABLE article_reaction;`
+- `DROP TABLE article_articleread;`
+- `DROP TABLE article_article;`
  
 
 
