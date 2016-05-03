@@ -8,7 +8,6 @@
 {% load captureas %}
 {% load pluralize_fr %}
 
-
 {% block title %}
     {{ content.title }}
 {% endblock %}
@@ -48,46 +47,52 @@
 
     {% if is_staff or can_edit %}
         {% if content.in_validation %}
-            {% if validation.version == content.current_version %}
-                {% if validation.is_pending %}
-                    <p class="content-wrapper alert-box alert">
-                        {% trans "Ce contenu est en attente d'un validateur." %}
-                    </p>
-                {% elif validation.is_pending_valid %}
-                    <p class="content-wrapper alert-box info">
-                        {% trans "Ce contenu est en cours de validation par" %}
-                        {% include "misc/member_item.part.html" with member=validation.validator %}
-                    </p>
-                {% endif %}
-                {% if validation.comment_authors %}
-                    <div class="content-wrapper comment-author">
-                        <p>
-                            {% trans "Le message suivant a été laissé à destination des validateurs" %} :
+            {% with validations|first as validation %}
+                {% if validation.version == content.current_version %}
+                    {% if validation.is_pending %}
+                        <p class="content-wrapper alert-box alert">
+                            {% trans "Ce contenu est en attente d'un validateur." %}
                         </p>
+                    {% elif validation.is_pending_valid %}
+                        <p class="content-wrapper alert-box info">
+                            {% trans "Ce contenu est en cours de validation par" %}
+                            {% include "misc/member_item.part.html" with member=validation.validator %}
+                        </p>
+                    {% endif %}
+                    {% if validation.comment_authors %}
+                        <div class="content-wrapper comment-author">
+                            <p>
+                                {% trans "Le message suivant a été laissé à destination des validateurs" %} :
+                            </p>
 
-                        <blockquote>
-                            {{ validation.comment_authors|emarkdown }}
-                        </blockquote>
+                            <blockquote>
+                                {{ validation.comment_authors|emarkdown }}
+                            </blockquote>
+                        </div>
+                    {% endif %}
+                    <p class="content-wrapper alert-box info">{% trans "Historique de validation" %}</p>
+                    <div>
+                        {% include "tutorialv2/includes/validation_history.part.html" with member=validation.validator %}
                     </div>
+                {% else %}
+                    {% if validation.is_pending %}
+                        <p class="content-wrapper alert-box alert">
+                            <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
+                                {% trans "Une autre version de ce contenu" %}
+                            </a>
+                            {% trans "est en attente d'un validateur" %}
+                        </p>
+                    {% elif validation.is_pending_valid %}
+                        <p class="content-wrapper alert-box info">
+                            <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
+                                {% trans "Une autre version de ce contenu" %}
+                            </a>
+                            {% trans "est en cours de validation par" %}
+                            {% include "misc/member_item.part.html" with member=validation.validator %}
+                        </p>
+                    {% endif %}
                 {% endif %}
-            {% else %}
-                {% if validation.is_pending %}
-                    <p class="content-wrapper alert-box alert">
-                        <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
-                            {% trans "Une autre version de ce contenu" %}
-                        </a>
-                        {% trans "est en attente d'un validateur" %}
-                    </p>
-                {% elif validation.is_pending_valid %}
-                    <p class="content-wrapper alert-box info">
-                        <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
-                            {% trans "Une autre version de ce contenu" %}
-                        </a>
-                        {% trans "est en cours de validation par" %}
-                        {% include "misc/member_item.part.html" with member=validation.validator %}
-                    </p>
-                {% endif %}
-            {% endif %}
+            {% endwith %}
         {% endif %}
     {% endif %}
 

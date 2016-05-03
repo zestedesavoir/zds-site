@@ -159,19 +159,21 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
     def get_forms(self, context):
         """get all the auxiliary forms about validation, js fiddle..."""
 
-        validation = Validation.objects.filter(content__pk=self.object.pk) \
-            .order_by('-date_proposition') \
-            .first()
+        validations = list(Validation.objects
+                           .filter(content__pk=self.object.pk)
+                           .prefetch_related("validator")
+                           .order_by('-date_proposition'))
 
         form_js = JsFiddleActivationForm(initial={'js_support': self.object.js_support})
 
         context['formAskValidation'] = AskValidationForm(
             content=self.versioned_object, initial={'source': self.object.source, 'version': self.sha})
 
-        if validation:
-            context['formValid'] = AcceptValidationForm(validation, initial={'source': self.object.source})
-            context['formReject'] = RejectValidationForm(validation)
-            context['formCancel'] = CancelValidationForm(validation)
+        if validations:
+            context['formValid'] = AcceptValidationForm(validations[0], initial={'source': self.object.source})
+            context['formReject'] = RejectValidationForm(validations[0])
+            context['formCancel'] = CancelValidationForm(validations[0])
+            context["validations"] = list(validations)
 
         if self.versioned_object.sha_public:
             context['formRevokeValidation'] = RevokeValidationForm(
@@ -182,7 +184,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if self.versioned_object.is_beta:
             context['formWarnTypo'] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
 
-        context['validation'] = validation
+        context['validation'] = validations[0] if validations else None
         context['formJs'] = form_js
 
         if self.versioned_object.requires_validation_before:
