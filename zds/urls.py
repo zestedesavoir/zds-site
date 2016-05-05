@@ -71,7 +71,6 @@ sitemaps = {
 admin.autodiscover()
 
 
-<<<<<<< HEAD
 urlpatterns = [
     url(r'^', include('zds.tutorialv2.urls')),
     url(r'^forums/', include('zds.forum.urls')),

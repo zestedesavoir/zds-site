@@ -45,6 +45,12 @@
     };
 
     $(document).ready(function() {
+        console.log("lol0");
+        $.get( "/api/membres/mon-profil", function( data ) {
+            console.log("ok");
+            console.log(data);
+        });
         $(".reaction-poll").poll();
+
     });
 })(jQuery);

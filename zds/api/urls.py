@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^forums/', include('zds.forum.api.urls', namespace='forum')),
     url(r'^membres/', include('zds.member.api.urls', namespace='member')),
     url(r'^mps/', include('zds.mp.api.urls', namespace='mp')),
+    url(r'^sondages/', include('zds.poll.api.urls', namespace='poll')),
 ]
