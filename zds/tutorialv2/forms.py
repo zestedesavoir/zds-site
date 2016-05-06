@@ -67,19 +67,21 @@ class AuthorForm(forms.Form):
             )
         )
 
-    def clean(self):
+    def clean_username(self):
         """Check every username and send it to the cleaned_data["user"] list
 
         :return: a dictionary of all treated data with the users key added
         """
         cleaned_data = super(AuthorForm, self).clean()
         users = []
-        for username in cleaned_data.get('username').split(","):
-            user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                users.append(user.user)
-        if len(users) > 0:
-            cleaned_data["users"] = users
+        if cleaned_data.get('username'):
+            for username in cleaned_data.get('username').split(","):
+                user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
+                    .first()
+                if user is not None:
+                    users.append(user.user)
+            if len(users) > 0:
+                cleaned_data["users"] = users
         return cleaned_data
 
     def is_valid(self):
@@ -88,7 +90,7 @@ class AuthorForm(forms.Form):
 
 class RemoveAuthorForm(AuthorForm):
 
-    def clean(self):
+    def clean_username(self):
         """Check every username and send it to the cleaned_data["user"] list
 
         :return: a dictionary of all treated data with the users key added
