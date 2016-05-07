@@ -9,6 +9,9 @@ from django.template.loader import get_template
 from django.template import Context
 from zds.poll.models import Poll
 
+# !(sondage:2)
+POLL_LINK_RE = r'(^|\n)!\(sondage\:(?P<poll_pk>\d+)\)'
+
 
 class PollExtension(Extension):
     def __init__(self, configs):
@@ -19,13 +22,11 @@ class PollExtension(Extension):
             self.config[key][0] = value
 
     def extendMarkdown(self, md, md_globals):
-        poll_re = u'^\[\[sondage\{(?P<poll_pk>\d+)\}\]\]'
-        md.inlinePatterns.add('polls', PollPattern(poll_re), "<linebreak")
+        md.inlinePatterns.add('polls', PollPattern(POLL_LINK_RE), "<linebreak")
 
 
 class PollPattern(Pattern):
-    def __init__(self, pattern):
-        Pattern.__init__(self, pattern)
+    """ Return a poll element from the given match. """
 
     def handleMatch(self, m):
         try:
