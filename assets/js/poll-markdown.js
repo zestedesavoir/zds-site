@@ -15,13 +15,15 @@
         this.poll.data("poll", this);
     };
 
+    var poll_uri = "/api/sondages/";
+
     Poll.prototype = {
 
         /**
          * Initialize the poll
          */
         init: function() {
-            this.URI = this.poll.data("uri");
+            this.URI = this.poll.data("pk");
             this.fetchUpdate();
         },
 
@@ -29,7 +31,7 @@
          * Fetch the poll
          */
         fetchUpdate: function() {
-            $.getJSON(this.URI).done(function(response){
+            $.getJSON(poll_uri+this.URI).done(function(response){
                 console.log(response)
             });
         }

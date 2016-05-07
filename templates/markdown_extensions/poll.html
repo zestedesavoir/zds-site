@@ -1,5 +1,5 @@
 {% extends "markdown_extensions/base.html" %}
 
 {% block content %}
-    <div data-uri="/api/sondages/{{ poll.pk }}" class="reaction-poll"></div>
+    <div data-pk="{{ poll.pk }}" class="reaction-poll"></div>
 {% endblock %}
