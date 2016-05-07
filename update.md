@@ -512,6 +512,8 @@ Notifications
 1. Lors de l'application des migrations `python manage.py migrate`, Django va vous demander s'il doit supprimer la table topicfollowed. Renseignez oui.
 2. Exécuter la commande `python manage.py migrate_subscriptions` pour migrer les anciennes notifications vers les nouvelles.
 
+Si vous constatez des problèmes de performance, lancez la commande suivante : `mysqloptimize -uroot -p zdsdb`
+
 Liste des tags exclus
 ---------------------
 
