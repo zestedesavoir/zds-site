@@ -14,6 +14,4 @@ class PollListAPIView(ListAPIView):
 
 class PollDetailAPIView(RetrieveAPIView):
     serializer_class = PollDetailSerializer
-    lookup_field = 'poll__id'
     queryset = Poll.objects.all()
-

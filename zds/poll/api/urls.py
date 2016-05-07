@@ -6,5 +6,5 @@ from zds.poll.api.views import PollListAPIView, PollDetailAPIView
 
 urlpatterns = [
     url(r'^$', PollListAPIView.as_view(), name='list'),
-    url(r'^(?P<poll__id>[0-9]+)/$', PollDetailAPIView.as_view(), name='detail'),
+    url(r'^(?P<pk>[0-9]+)/$', PollDetailAPIView.as_view(), name='detail'),
 ]

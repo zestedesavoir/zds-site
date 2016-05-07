@@ -10,7 +10,7 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder
 
-from zds.poll.models import Poll, Choice, UniqueVote, MultipleVote, MULTIPLE_VOTE_KEY, UNIQUE_VOTE_KEY
+from zds.poll.models import Poll, Choice
 
 
 #############################
@@ -128,74 +128,3 @@ PollInlineFormSet = forms.inlineformset_factory(
     min_num=2,
     max_num=20
 )
-
-#############################
-# Votes
-#############################
-
-
-class UniqueVoteForm(forms.ModelForm):
-
-    class Meta:
-        model = UniqueVote
-        fields = ('choice',)
-        widgets = {
-            'choice': forms.RadioSelect()
-        }
-
-    def __init__(self, poll=None, *args, **kwargs):
-        super(UniqueVoteForm, self).__init__(*args, **kwargs)
-        self.fields['choice'].empty_label = None
-        self.fields['choice'].queryset = Choice.objects.filter(poll=poll)
-
-        if kwargs.get('initial'):
-            button_label = 'Modifier mon vote'
-        else:
-            button_label = 'Voter'
-
-        self.helper = FormHelper()
-
-        self.helper.layout = Layout(
-            Field('choice'),
-            ButtonHolder(
-                StrictButton(button_label, type='submit')
-            )
-        )
-
-
-class MultipleVoteForm(forms.Form):
-
-    choices = forms.ModelMultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple(),
-        queryset=None,
-        required=False
-    )
-
-    class Meta:
-        model = MultipleVote
-        fields = ('choices',)
-
-    def __init__(self, poll=None, *args, **kwargs):
-        super(MultipleVoteForm, self).__init__(*args, **kwargs)
-        self.fields['choices'].empty_label = None
-        self.fields['choices'].queryset = Choice.objects.filter(poll=poll)
-        self.helper = FormHelper()
-
-        if kwargs.get('initial'):
-            button_label = 'Modifier mon vote'
-        else:
-            button_label = 'Voter'
-
-        self.helper.layout = Layout(
-            'choices',
-            ButtonHolder(
-                StrictButton(button_label, type='submit'),
-            ),
-        )
-
-
-def get_vote_form(poll, data=None, *args, **kwargs):
-    if poll.type_vote == MULTIPLE_VOTE_KEY:
-        return MultipleVoteForm(poll, data=data, *args, **kwargs)
-    elif poll.type_vote == UNIQUE_VOTE_KEY:
-        return UniqueVoteForm(poll, data=data, *args, **kwargs)

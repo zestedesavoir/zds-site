@@ -29,7 +29,6 @@
          * Fetch the poll
          */
         fetchUpdate: function() {
-            console.log("fetch");
             $.getJSON(this.URI).done(function(response){
                 console.log(response)
             });
@@ -45,11 +44,6 @@
     };
 
     $(document).ready(function() {
-        console.log("lol0");
-        $.get( "/api/membres/mon-profil", function( data ) {
-            console.log("ok");
-            console.log(data);
-        });
         $(".reaction-poll").poll();
 
     });

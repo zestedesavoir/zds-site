@@ -33,24 +33,8 @@
         {% endfor %}
     </ul>
 
-    {% if not user.is_authenticated %}
-        <div class="alert-box info alert-box-not-closable">
-            {% trans "Vous devez être connecté pour pouvoir voter" %}. <br>
-            <a href="{% url "zds.member.views.login_view" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
-        </div>
-        <div class="alert-box not-member alert-box-not-closable">
-            <h4 class="alert-box-title">Pas encore inscrit ?</h4>
-            <p>
-                {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité" %}. <br>
-                <a href="{% url "register-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
-            </p>
-        </div>
-    {% else %}
-        {% if poll.is_open %}
-            {% crispy form %}
-        {% else %}
-            {% trans "Sondage fermé." %}
-        {% endif %}
+    {% if not poll.is_open %}
+        {% trans "Sondage fermé." %}
     {% endif %}
 
 {% endblock %}
