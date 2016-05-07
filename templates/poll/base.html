@@ -1,14 +1,10 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title_base %}
-    &bull; {% trans "Sondages" %}
-{% endblock %}
-
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "poll-list" %}">{% trans "Sondages" %}</a></li>
+    <li><a href="{% url "poll-list" %}">{% trans "Mes sondages" %}</a></li>
 {% endblock %}
 
 {% block sidebar %}

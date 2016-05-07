@@ -8,16 +8,10 @@
 {% endblock %}
 
 
-
-{% block breadcrumb %}
-    <li>{% trans "Mes sondages" %}</li>
-{% endblock %}
-
-
-
 {% block headline %}
-    <h2>{% trans "Mes sondages" %}</h2>
+    {% trans "Mes sondages" %}
 {% endblock %}
+
 
 {% block content %}
     {% include "misc/pagination.part.html" with position="top" %}
