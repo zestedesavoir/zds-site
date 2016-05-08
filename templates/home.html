@@ -72,9 +72,8 @@
                             <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
                         {% endblocktrans %}
                         {% if app.site.contribute_link %}
-                            {% blocktrans %}
-                                <p>Chacun peut  <a href="{{ app.site.contribute_link }}">contribuer au code source</a>
-                                    de la plate-forme, qui est ouvert.</p>
+                            {% blocktrans with contribute_link=app.site.contribute_link %}
+                                <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
                             {% endblocktrans %}
                         {% endif %}
                 </div>
