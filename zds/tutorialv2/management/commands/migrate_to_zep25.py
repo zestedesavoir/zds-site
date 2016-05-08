@@ -149,7 +149,7 @@ class Command(BaseCommand):
                 if author not in users and author not in bots:
                     users.append(author)
         for user in users:
-            msg = 'Bonjour {0},\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutori' \
+            msg = 'Bonjour,\n\nDepuis la dernière version de Zeste de Savoir, tous les contenus (articles, tutori' \
                   'els et bientôt tribunes libres) possèdent maintenant une nouvelle classification ([ZEP-25](https:/' \
                   '/zestedesavoir.com/forums/sujet/2378/zep-25-categorisation-des-articles-et-tutoriels/)). Les **tag' \
                   's** ont fait leur apparition et les catégories ont été revues afin de faciliter et d\'aléger cette' \
