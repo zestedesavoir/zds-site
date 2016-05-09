@@ -34,9 +34,9 @@ class Command(BaseCommand):
             categories = content.subcategory.all()
             for cat in categories:
                 tag_title = smart_text(cat.slug.replace('-', ' ').strip().lower())
-                current_tag = Tag.objects.filter(title=tag_title).first()
+                current_tag = Tag.objects.filter(slug=tag_title).first()
                 if current_tag is None:
-                    current_tag = Tag(title=tag_title)
+                    current_tag = Tag(title=cat, slug=tag_title)
                     current_tag.save()
                     self.stdout.write('[ZEP-25] : Tag "{}" added'.format(current_tag))
                     n += 1
