@@ -291,7 +291,7 @@ class TagManager(models.Manager):
     def get_from_title(self, title):
         if not title.strip() or not slugify(title.strip().replace("-", "")):
             raise ValueError('tag "{}" is not correct'.format(title))
-        current_tag = self.filter(title=title).first()
+        current_tag = self.filter(title=title[:Tag._meta.get_field("title").max_length]).first()
         if current_tag is None:
             current_tag = Tag(title=title)
             current_tag.save()
@@ -305,8 +305,8 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
-    title = models.CharField(max_length=20, verbose_name='Titre')
-    slug = models.SlugField(max_length=20)
+    title = models.CharField(max_length=30, verbose_name='Titre')
+    slug = models.SlugField(max_length=30)
     objects = TagManager()
 
     def __unicode__(self):
