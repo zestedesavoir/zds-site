@@ -17,7 +17,7 @@ from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm, PublicationForm
+    CancelValidationForm, PublicationForm, OpinionValidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
@@ -545,8 +545,6 @@ class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return kwargs
 
     def form_valid(self, form):
-        user = self.request.user
-
         # get database representation and validated version
         db_object = self.object
         versioned = self.versioned_object
@@ -603,7 +601,7 @@ class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(Publish, self).form_valid(form)
 
 
-class Unpublish(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
+class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin):
     """Unpublish a content"""
 
     form_class = RevokeValidationForm
@@ -617,13 +615,11 @@ class Unpublish(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContent
         return kwargs
 
     def form_valid(self, form):
-        print(0)
         versioned = self.versioned_object
 
-        if form.cleaned_data['version'] != self.object.sha_public:
-            raise PermissionDenied
+        user = self.request.user
 
-        if self.request.user not in versioned.authors.all():
+        if user not in versioned.authors.all() and not user.has_perm('tutorialv2.change_validation'):
             raise PermissionDenied
 
         unpublish_content(self.object)
@@ -638,7 +634,7 @@ class Unpublish(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContent
             {
                 'content': versioned,
                 'url': versioned.get_absolute_url(),
-                'admin': self.request.user,
+                'admin': user,
                 'message_reject': '\n'.join(['> ' + a for a in form.cleaned_data['text'].split('\n')])
             })
 
@@ -657,6 +653,57 @@ class Unpublish(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContent
         self.success_url = self.versioned_object.get_absolute_url()
 
         return super(Unpublish, self).form_valid(form)
+
+
+class ValidPublication(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    """Publish the content"""
+
+    form_class = OpinionValidationForm
+
+    modal_form = True
+    prefetch_all = False
+    must_be_author = True
+    authorized_for_staff = True
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(ValidPublication, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        # get database representation and validated version
+        db_object = self.object
+        versioned = self.versioned_object
+        self.success_url = versioned.get_absolute_url_online()
+
+        db_object.sha_approved = form.cleaned_data['version']
+        db_object.save()
+
+        msg = render_to_string(
+            'tutorialv2/messages/validation_opinion.md',
+            {
+                'title': versioned.title,
+                'url': versioned.get_absolute_url(),
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            versioned.authors.all(),
+            _(u"Billet approuvé"),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        messages.success(self.request, _(u'Le contenu a bien été validé.'))
+
+        return super(ValidPublication, self).form_valid(form)
+
 
 
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):

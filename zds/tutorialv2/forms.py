@@ -1129,3 +1129,29 @@ class UnpublicationForm(forms.Form):
                 _(u'Dépublier'),
                 type='submit')
         )
+
+
+class OpinionValidationForm(forms.Form):
+
+    version = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, content, *args, **kwargs):
+        super(OpinionValidationForm, self).__init__(*args, **kwargs)
+
+        # modal form, send back to previous page:
+        self.previous_page_url = content.get_absolute_url_online()
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('validation:valid', kwargs={'pk': content.pk, 'slug': content.slug})
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'valid-opinion'
+
+        self.helper.layout = Layout(
+            HTML("<p>Êtes-vous certain(e) de vouloir valider ce billet ?</p>"),
+            CommonLayoutModalText(),
+            Field('version'),
+            StrictButton(
+                _(u'Valider'),
+                type='submit')
+        )

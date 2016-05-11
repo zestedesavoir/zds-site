@@ -1,4 +1,5 @@
 # coding: utf-8
+from datetime import datetime
 import logging
 import json as json_reader
 import os
@@ -10,6 +11,7 @@ import zipfile
 from datetime import datetime
 
 from PIL import Image as ImagePIL
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -28,8 +30,7 @@ from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 from uuslug import slugify
 
-from zds.forum.models import Forum, mark_read
-from zds.forum.models import Topic
+from zds.forum.models import Forum, mark_read, Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
@@ -47,7 +48,8 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.utils.models import HelpWriting
+
+from zds.utils.models import Licence, HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -75,6 +77,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
+        form.initial['licence'] = Licence.objects.get(pk=settings.ZDS_APP['content']['default_licence_pk'])
         return form
 
     def form_valid(self, form):
@@ -182,7 +185,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context['formJs'] = form_js
 
         if self.versioned_object.required_validation_before:
-            context['formPublication'] = PublicationForm(self.versioned_object,     initial={'source': self.object.source})
+            context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
         else:
             context['formPublication'] = None
 
