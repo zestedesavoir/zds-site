@@ -1046,6 +1046,7 @@ class VersionedContent(Container):
     sha_beta = None
     sha_public = None
     sha_validation = None
+    sha_approved = None
     is_beta = False
     is_validation = False
     is_public = False
@@ -1090,7 +1091,7 @@ class VersionedContent(Container):
             self.repository = Repo(self.get_path())
 
     def __unicode__(self):
-        return self.title
+        return self.title + 'lol'
 
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article

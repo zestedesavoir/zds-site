@@ -81,6 +81,12 @@
 
 {% block content %}
 
+    {% if content.is_opinion and content.sha_public != content.sha_approved %}
+        <div class="alert-box warning">
+            {% trans "Ce billet n'a pas encore été validé par l'équipe du site." %}
+        </div>
+    {% endif %}
+
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
@@ -196,6 +202,14 @@
                             {% crispy formRevokeValidation %}
                         </li>
                     {% else %}
+                        {% if content.sha_public != content.sha_approved and is_staff %}
+                            <li>
+                                <a href="#valid-opinion" class="ico-after open-modal tick green">
+                                    {% trans "Valider le billet" %}
+                                </a>
+                                {% crispy formValidOpinion %}
+                            </li>
+                        {% endif %}
                         <li>
                             <a href="#unpublish" class="ico-after open-modal cross blue">
                                 {% trans "Dépublier" %}
