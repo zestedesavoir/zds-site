@@ -22,7 +22,8 @@ from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
-from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm
+from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
+    OpinionValidationForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
@@ -105,6 +106,10 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                     context['previous_article'] = all_articles[position - 1]
                 if position < articles_count - 1:
                     context['next_article'] = all_articles[position + 1]
+
+        if self.versioned_object.type == 'OPINION':
+            context['formValidOpinion'] = OpinionValidationForm(
+                self.versioned_object, initial={'version': self.versioned_object.sha_public})
 
         # pagination of comments
         make_pagination(context,

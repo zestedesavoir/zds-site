@@ -34,7 +34,7 @@ from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.tutorials import get_blob
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
+from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_VALIDATION_BEFORE
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
 import logging
@@ -96,6 +96,8 @@ class PublishableContent(models.Model):
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
+    sha_approved = models.CharField('Sha1 de la version approuvée (contenus avec publication sans validation)',
+                                blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
@@ -378,7 +380,7 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'sha_approved'
         ]
 
         fns = [
@@ -544,6 +546,16 @@ class PublishableContent(models.Model):
                 logger.warning(e)
 
         self.save()
+
+    def required_validation_before(self):
+        """
+        Check if content required a validation before publication.
+        Used to check if JsFiddle is available too.
+
+        :return: True if required a validation before publication, False else.
+        :rtype: bool
+        """
+        return self.type in CONTENT_TYPES_VALIDATION_BEFORE
 
 
 @receiver(pre_delete, sender=PublishableContent)
