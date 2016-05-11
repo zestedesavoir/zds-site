@@ -287,17 +287,6 @@ class CommentVote(models.Model):
     positive = models.BooleanField("Est un vote positif", default=True)
 
 
-class TagManager(models.Manager):
-    def get_from_title(self, title):
-        if not title.strip() or not slugify(title.strip().replace("-", "")):
-            raise ValueError('tag "{}" is not correct'.format(title))
-        current_tag = self.filter(title=title[:Tag._meta.get_field("title").max_length]).first()
-        if current_tag is None:
-            current_tag = Tag(title=title)
-            current_tag.save()
-        return current_tag
-
-
 class Tag(models.Model):
 
     """Set of tags."""
@@ -305,9 +294,9 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
-    title = models.CharField(max_length=30, verbose_name='Titre')
-    slug = models.SlugField(max_length=30)
-    objects = TagManager()
+
+    title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
+    slug = models.SlugField('Slug', max_length=30)
 
     def __unicode__(self):
         """Textual Link Form."""
@@ -317,6 +306,8 @@ class Tag(models.Model):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
+        if not self.title.strip() or not slugify(self.title.strip().replace('-', '')):
+            raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)

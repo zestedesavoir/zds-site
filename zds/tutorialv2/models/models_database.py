@@ -527,9 +527,8 @@ class PublishableContent(models.Model):
         :type tag_collection: list
         """
         for tag in tag_collection:
-            tag_title = smart_text(tag.strip().lower())
             try:
-                current_tag = Tag.objects.get_from_title(tag_title)
+                current_tag, created = Tag.objects.get_or_create(title__iexac=tag)
                 self.tags.add(current_tag)
             except ValueError as e:
                 logging.getLogger("zds.tutorialv2").warn(e)
