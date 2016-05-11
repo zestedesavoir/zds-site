@@ -530,7 +530,7 @@ DROP TABLE article_article_subcategory;
 DROP TABLE tutorial_tutorial_subcategory;
 ```
 
-Avant de continuer il faut s'assurer d'avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. En cas de contenus non-migrés automatiquement il y aura un message à la fin ainsi que des `[WARNING]` dans les logs. **La commande peut être assez longue.**
+Avant de continuer il faut s'assurer d'avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. **La commande peut être assez longue.** Pensez à modifier manuellement (via l'interface d'admin si besoin) les contenus publiés après la date spécifiés à la fin de la commande).
 
 Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
 
@@ -547,12 +547,14 @@ SELECT max(id) FROM utils_commentvote;
 
 Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
 
-# Supprimer toute trace des tables pré-zep-12
+Supprimer toute trace des tables pré-zep-12
+-------------------------------------------
 
 Il faudra supprimer en SQL:
 
-- `UPDATE tutorial_tutorial SET last_note_pk=NULL;`
-- `UPDATE article_article SET last_reaction=NULL;`
+- `SET FOREIGN_KEY_CHECKS=0;`
+- `UPDATE tutorial_tutorial SET last_note_id=NULL;`
+- `UPDATE article_article SET last_reaction_id=NULL;`
 - `DROP TABLE tutorial_tutorial_subcategory;`
 - `DROP TABLE tutorial_tutorial_authors;`
 - `DROP TABLE tutorial_note;`
@@ -563,8 +565,9 @@ Il faudra supprimer en SQL:
 - `DROP TABLE article_reaction;`
 - `DROP TABLE article_articleread;`
 - `DROP TABLE article_article;`
+- `SET FOREIGN_KEY_CHECKS=1;`
  
-
+S'il y a une erreur pour `article_article_subcategory` et `DROP TABLE tutorial_tutorial_subcategory;` c'est que les tables ont déjà été supprimées précédement (ZEP-25).
 
 ---
 
