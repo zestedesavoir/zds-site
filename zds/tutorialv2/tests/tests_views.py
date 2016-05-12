@@ -27,7 +27,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, Alert
+from zds.utils.models import HelpWriting, Alert, Tag
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
@@ -582,7 +582,9 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-
+        sometag = Tag("randomizeit")
+        sometag.save()
+        self.tuto.tags.add(sometag)
         # create second author and add to tuto
         second_author = ProfileFactory().user
         self.tuto.authors.add(second_author)
