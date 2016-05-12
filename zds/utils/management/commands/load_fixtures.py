@@ -363,11 +363,14 @@ def load_contents(cli, _type, size, fake):
     nb_avg_extracts_in_content = size
 
     is_articles = _type == 'ARTICLE'
-    is_tutorials = not is_articles
+    is_tutorials = _type == 'TUTORIAL'
+    is_opinion = _type == 'OPINION'
 
     textual_type = u'article'
     if is_tutorials:
         textual_type = u'tutoriel'
+    elif is_opinion:
+        textual_type = u'billet'
 
     # small introduction
     cli.stdout.write(u'À créer: {:d} {}s'.format(nb_contents, textual_type), ending='')
@@ -382,10 +385,15 @@ def load_contents(cli, _type, size, fake):
         u' - {:g} en brouillon'.format(
             nb_contents *
             (1 - percent_contents_public - percent_contents_in_validation - percent_contents_with_validator)))
-    cli.stdout.write(
-        u' - {:g} en validation (dont {:g} réservés)'
-        .format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
-                nb_contents * percent_contents_with_validator))
+    if is_opinion:
+        cli.stdout.write(
+            u' - {:g} publiés et aprouvés'.format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
+                    nb_contents * percent_contents_with_validator))
+    else:
+        cli.stdout.write(
+            u' - {:g} en validation (dont {:g} réservés)'
+            .format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
+                    nb_contents * percent_contents_with_validator))
     cli.stdout.write(u' - {:g} publiés'.format(nb_contents * percent_contents_public))
 
     tps1 = time.time()
@@ -463,7 +471,7 @@ def load_contents(cli, _type, size, fake):
 
         versioned = content.load_version()
 
-        if current_size == 0 or is_articles:
+        if current_size == 0 or is_articles or is_opinion:
             for j in range(random.randint(1, nb_avg_extracts_in_content * 2)):
                 ExtractFactory(container=versioned, title=fake.text(max_nb_chars=60), light=False)
         else:
@@ -491,27 +499,37 @@ def load_contents(cli, _type, size, fake):
 
         # then, validation if needed:
         if to_do > 0:
-            valid = CValidation(
-                content=content, version=content.sha_draft, date_proposition=datetime.now(), status='PENDING')
-            valid.comment_validator = fake.text(max_nb_chars=200)
-
-            content.sha_validation = content.sha_draft
-
-            if to_do > 1:  # reserve validation
-                valid.date_reserve = datetime.now()
-                valid.validator = staffs[random.randint(0, nb_staffs - 1)]
-                valid.status = 'PENDING_V'
-            if to_do > 2:  # publish content
-                valid.comment_validator = fake.text(max_nb_chars=80)
-                valid.status = 'ACCEPT'
-                valid.date_validation = datetime.now()
-                content.sha_public = content.sha_draft
-
+            if is_opinion:
+                if to_do > 1:
+                    content.sha_public = content.sha_draft
+                    if to_do < 2:
+                        content.sha_approved = content.sha_draft
                 published = publish_content(content, versioned)
                 content.public_version = published
+                content.save()
 
-            valid.save()
-            content.save()
+            else:
+                valid = CValidation(
+                    content=content, version=content.sha_draft, date_proposition=datetime.now(), status='PENDING')
+                valid.comment_validator = fake.text(max_nb_chars=200)
+
+                content.sha_validation = content.sha_draft
+
+                if to_do > 1:  # reserve validation
+                    valid.date_reserve = datetime.now()
+                    valid.validator = staffs[random.randint(0, nb_staffs - 1)]
+                    valid.status = 'PENDING_V'
+                if to_do > 2:  # publish content
+                    valid.comment_validator = fake.text(max_nb_chars=80)
+                    valid.status = 'ACCEPT'
+                    valid.date_validation = datetime.now()
+                    content.sha_public = content.sha_draft
+
+                    published = publish_content(content, versioned)
+                    content.public_version = published
+
+                valid.save()
+                content.save()
 
         sys.stdout.flush()
 
@@ -568,6 +586,7 @@ Examples:
                           'gallery',
                           'article',
                           'tutorial',
+                          'opinion',
                           'comment',
                           'reaction']
         if len(args) == 1 and args[0] == 'help':
@@ -617,5 +636,7 @@ Examples:
             load_contents(self, 'TUTORIAL', size, fake)
         if 'article' in default_module:
             load_contents(self, 'ARTICLE', size, fake)
+        if 'opinion' in default_module:
+            load_contents(self, 'OPINION', size, fake)
         if 'comment' in default_module:
             load_comment_content(self, size, fake)
