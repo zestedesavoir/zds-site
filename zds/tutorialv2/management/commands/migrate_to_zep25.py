@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from django.utils.encoding import smart_text
 from django.utils.text import slugify
 
 from zds import settings
@@ -33,16 +32,13 @@ class Command(BaseCommand):
         for content in contents:
             categories = content.subcategory.all()
             for cat in categories:
-                tag_title = smart_text(cat.slug.replace('-', ' ').strip().lower())
-                current_tag = Tag.objects.filter(title=tag_title).first()
-                if current_tag is None:
-                    current_tag = Tag(title=tag_title)
-                    current_tag.save()
-                    self.stdout.write('[ZEP-25] : Tag "{}" added'.format(current_tag))
-                    n += 1
                 # do not add "autre" tag (useless)
-                if current_tag != 'autre':
+                if cat.strip() != 'autre':
+                    current_tag, created = Tag.objects.get_or_create(title=cat.lower())
                     content.tags.add(current_tag)
+                    if created:
+                        self.stdout.write('[ZEP-25] : Tag "{}" added'.format(current_tag))
+                        n += 1
             content.save()
         self.stdout.write('[ZEP-25] : {} new tag(s)'.format(n))
 
