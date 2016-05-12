@@ -107,7 +107,7 @@ class PublishableContent(models.Model):
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)
-    # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial)
+    # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
     helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
@@ -130,6 +130,10 @@ class PublishableContent(models.Model):
 
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+
+    # used for opinion to article promotion to keep an history and add canonical link
+    promotion_content = models.ForeignKey(
+        'self', verbose_name=u'Contenu promu', blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = PublishableContentManager()
 
@@ -387,7 +391,8 @@ class PublishableContent(models.Model):
 
         attrs = [
             'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_approved'
+            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_approved',
+            'promotion_content'
         ]
 
         fns = [

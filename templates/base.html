@@ -112,6 +112,7 @@
     <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}">
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.litteral_name }}" href="{% url "search:opensearch" %}">
+    {% block extra_link %}{% endblock %}
 </head>
 
 {% if not user.is_authenticated or user.profile.allow_temp_visual_changes %}
