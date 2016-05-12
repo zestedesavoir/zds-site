@@ -1285,7 +1285,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         i = 0
         max_len = Topic._meta.get_field("title").max_length
 
-        while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i]) + 2 < max_len:
+        while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i].title) + 2 < max_len:
             _tags += '[{}]'.format(tags[i])
             i += 1
         forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
