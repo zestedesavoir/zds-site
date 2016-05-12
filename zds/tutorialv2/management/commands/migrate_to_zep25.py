@@ -35,7 +35,7 @@ class Command(BaseCommand):
             for cat in categories:
                 # do not add "autre" tag (useless)
                 if cat.strip() != 'autre':
-                    current_tag, created = Tag.objects.get_or_create(title__iexac=cat)
+                    current_tag, created = Tag.objects.get_or_create(title=cat.lower())
                     content.tags.add(current_tag)
                     if created:
                         self.stdout.write('[ZEP-25] : Tag "{}" added'.format(current_tag))
