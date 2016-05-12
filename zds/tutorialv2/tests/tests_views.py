@@ -610,7 +610,7 @@ class ContentTests(TestCase):
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user_author, beta_topic, is_active=True))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
-        self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
+        self.assertEqual(beta_topic.tags.first().title, sometag.title)
 
         # test if second author follow the topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(second_author, beta_topic, is_active=True))
