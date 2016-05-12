@@ -523,7 +523,7 @@ ZDS_APP = {
         'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
     },
     'topic': {
-        'home_number': 6,
+        'home_number': 5,
     },
     'featured_resource': {
         'featured_per_page': 100,

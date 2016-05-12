@@ -1040,15 +1040,8 @@ class WarnTypoForm(forms.Form):
 class PublicationForm(forms.Form):
 
     """
-    The publication form.
-    TODO : voir si on peut faire hériter AcceptValidationForm avec celui-ci.
+    The publication form (used for content without validation before).
     """
-
-    is_major = forms.BooleanField(
-        label=_(u'Version majeure ?'),
-        required=False,
-        initial=True
-    )
 
     source = forms.CharField(
         label='',
@@ -1072,7 +1065,6 @@ class PublicationForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
-            Field('is_major'),
             StrictButton(_(u'Publier'), type='submit')
         )
 
