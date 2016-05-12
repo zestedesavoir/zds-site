@@ -1278,13 +1278,15 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     action = None
 
     def _get_all_tags(self):
-        return self.object.tags.all()
+        return list(self.object.tags.all())
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
         _tags = "[beta][{}]".format(_type)
         i = 0
-        while len(topic_title) + len(_tags) + len(tags[i]) + 2 < Topic._meta.get_field("title").max_length:
+        max_len = Topic._meta.get_field("title").max_length
+
+        while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i]) + 2 < max_len:
             _tags += '[{}]'.format(tags[i])
             i += 1
         forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
