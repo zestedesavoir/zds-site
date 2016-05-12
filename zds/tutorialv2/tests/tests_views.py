@@ -582,7 +582,7 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        sometag = Tag("randomizeit")
+        sometag = Tag(title="randomizeit")
         sometag.save()
         self.tuto.tags.add(sometag)
         # create second author and add to tuto
