@@ -5,7 +5,7 @@ from haystack.forms import SearchForm
 
 from zds.forum.models import Post, Topic
 from zds.search.constant import MODEL_NAMES, model_topic, model_post, model_extract, model_article, model_tutorial, \
-    model_part, model_chapter
+    model_part, model_chapter, model_opinion
 from zds.search.models import SearchIndexContent, SearchIndexContainer, SearchIndexExtract
 
 
@@ -49,6 +49,10 @@ class CustomSearchForm(SearchForm):
             if model_article() not in self.cleaned_data["models"] and \
                model_tutorial() in self.cleaned_data["models"]:
                 sqs = sqs.exclude(type='article')
+
+            if model_opinion() not in self.cleaned_data["models"] and \
+               model_tutorial() in self.cleaned_data["models"]:
+                sqs = sqs.exclude(type='opinion')
 
             if model_article() in self.cleaned_data["models"] and \
                model_tutorial() not in self.cleaned_data["models"]:
