@@ -17,7 +17,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import Http404
-from django.utils.encoding import smart_text
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, post_delete
