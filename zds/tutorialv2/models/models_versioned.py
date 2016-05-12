@@ -1092,7 +1092,7 @@ class VersionedContent(Container):
             self.repository = Repo(self.get_path())
 
     def __unicode__(self):
-        return self.title + 'lol'
+        return self.title
 
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article

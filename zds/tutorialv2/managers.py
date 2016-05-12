@@ -2,8 +2,9 @@
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Count, F
+
 from zds.utils.models import Tag
-from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -197,8 +198,9 @@ class PublishableContentManager(models.Manager):
         :rtype: list
         """
         home_number = settings.ZDS_APP['opinions']['home_number']
+        # TODO : add votes filter when available in this query
         all_contents = self.filter(type="OPINION") \
-                           .filter(public_version__isnull=False) \
+                           .filter(public_version__isnull=False, sha_approved=F('sha_public')) \
                            .prefetch_related("authors") \
                            .prefetch_related("authors__profile") \
                            .select_related("last_note") \
