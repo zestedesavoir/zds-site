@@ -11,7 +11,6 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.encoding import smart_text
 
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
