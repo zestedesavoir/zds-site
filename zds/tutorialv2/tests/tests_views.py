@@ -5683,6 +5683,345 @@ class PublishedContentTests(TestCase):
         result = self.client.get(reverse('validation:list') + '?type=tuto')
         self.assertNotIn('class="update_content"', result.content)
 
+    def test_opinion_publication_author(self):
+        """
+        Test the publication of PublishableContent where type is OPINION (with author).
+        """
+
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+    def test_opinion_publication_staff(self):
+        """
+        Test the publication of PublishableContent where type is OPINION (with staff).
+        """
+
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+    def test_opinion_publication_guest(self):
+        """
+        Test the publication of PublishableContent where type is OPINION (with guest => 403).
+        """
+
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+    def test_opinion_unpublication(self):
+        """
+        Test the unpublication of PublishableContent where type is OPINION (with author).
+        """
+
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+        text_unpublication = u'Au revoir !'
+
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        # author
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # unpublish
+        result = self.client.post(
+            reverse('validation:unpublish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_unpublication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # staff
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # unpublish
+        result = self.client.post(
+            reverse('validation:unpublish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_unpublication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # guest => 403
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish with author
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_guest.username,
+                password='hostel77'),
+            True)
+
+        # unpublish
+        result = self.client.post(
+            reverse('validation:unpublish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_unpublication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+    def test_opinion_validation(self):
+        """
+        Test the validation of PublishableContent where type is OPINION.
+        """
+
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # valid with author => 403
+        result = self.client.post(
+            reverse('validation:valid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # valid with staff
+        result = self.client.post(
+            reverse('validation:valid', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+    def test_opinion_promotion(self):
+        """
+        Test the promotion of PublishableContent where type is OPINION.
+        """
+
+        text_publication = u'Aussi tôt dit, aussi tôt fait !'
+
+        opinion = PublishableContentFactory(type='OPINION')
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode='W')
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+        ExtractFactory(container=opinion_draft, db_object=opinion)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # publish
+        result = self.client.post(
+            reverse('validation:publish', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'text': text_publication,
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # valid with author => 403
+        result = self.client.post(
+            reverse('validation:promote', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # valid with staff
+        result = self.client.post(
+            reverse('validation:promote', kwargs={'pk': opinion.pk, 'slug': opinion.slug}),
+            {
+                'source': '',
+                'version': opinion.load_version().current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
     def tearDown(self):
 
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

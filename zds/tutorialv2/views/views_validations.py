@@ -664,15 +664,14 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidati
         return super(Unpublish, self).form_valid(form)
 
 
-class ValidPublication(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
+class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     """Publish the content"""
 
     form_class = OpinionValidationForm
 
     modal_form = True
     prefetch_all = False
-    must_be_author = True
-    authorized_for_staff = True
+    permissions = ["tutorialv2.change_validation"]
 
     def get(self, request, *args, **kwargs):
         raise Http404(_(u"Valider un contenu n'est pas possible avec la méthode « GET »."))
@@ -714,7 +713,6 @@ class ValidPublication(LoggedWithReadWriteHability, NoValidationBeforeFormViewMi
         return super(ValidPublication, self).form_valid(form)
 
 
-
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
     permissions = ['tutorialv2.change_validation']
@@ -736,15 +734,14 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         return redirect(content.get_absolute_url_online())
 
 
-class PromoteOpinionToArticle(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
+class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormViewMixin):
     """Publish the content"""
 
     form_class = PromoteOpinionToArticleForm
 
     modal_form = True
     prefetch_all = False
-    must_be_author = True
-    authorized_for_staff = True
+    permissions = ["tutorialv2.change_validation"]
 
     def get(self, request, *args, **kwargs):
         raise Http404(_(u"Promouvoir un billet n'est pas possible avec la méthode « GET »."))
