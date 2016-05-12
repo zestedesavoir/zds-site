@@ -542,3 +542,14 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
         self.versioned_object = self.get_versioned_object()
 
         return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
+
+
+class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
+    """
+    Ensure the content do not require validation before publication.
+    """
+
+    def get_form_kwargs(self):
+        if self.versioned_object.required_validation_before():
+            raise PermissionDenied
+        return super(NoValidationBeforeFormViewMixin, self).get_form_kwargs()

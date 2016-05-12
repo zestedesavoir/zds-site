@@ -20,7 +20,7 @@ from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, OpinionValidationForm, PromoteOpinionToArticleForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
-    SingleOnlineContentFormViewMixin
+    SingleOnlineContentFormViewMixin, NoValidationBeforeFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.tutorialv2.utils import init_new_repo
@@ -122,7 +122,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     modal_form = True
 
     def get_form_kwargs(self):
-        # TODO : vérifier pour Mixin
         if not self.versioned_object.required_validation_before():
             raise PermissionDenied
         kwargs = super(AskValidationForContent, self).get_form_kwargs()
@@ -540,15 +539,15 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super(RevokeValidation, self).form_valid(form)
 
 
-class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    """Publish the content"""
+class Publish(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
+    """Publish the content (only no validation before content)"""
 
     form_class = PublicationForm
 
     modal_form = True
     prefetch_all = False
     must_be_author = True
-    authorized_for_staff = True  # an admin could ask validation for a content
+    authorized_for_staff = True
 
     def get(self, request, *args, **kwargs):
         raise Http404(_(u"Publier un contenu n'est pas possible avec la méthode « GET »."))
@@ -559,13 +558,13 @@ class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return kwargs
 
     def form_valid(self, form):
-        # get database representation and validated version
+        # get database representation
         db_object = self.object
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url()
         is_update = db_object.sha_public
         try:
-            published = publish_content(db_object, versioned, is_major_update=form.cleaned_data['is_major'])
+            published = publish_content(db_object, versioned, is_major_update=False)
         except FailureDuringPublication as e:
             messages.error(self.request, e.message)
         else:
@@ -575,10 +574,6 @@ class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             db_object.sha_validation = None
 
             db_object.public_version = published
-
-            if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
-                db_object.pubdate = datetime.now()
-
             db_object.save()
 
             if is_update:
@@ -615,7 +610,7 @@ class Publish(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(Publish, self).form_valid(form)
 
 
-class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin):
+class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidationBeforeFormViewMixin):
     """Unpublish a content"""
 
     form_class = RevokeValidationForm
@@ -669,7 +664,7 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin):
         return super(Unpublish, self).form_valid(form)
 
 
-class ValidPublication(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class ValidPublication(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
     """Publish the content"""
 
     form_class = OpinionValidationForm
@@ -741,7 +736,7 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         return redirect(content.get_absolute_url_online())
 
 
-class PromoteOpinionToArticle(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class PromoteOpinionToArticle(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
     """Publish the content"""
 
     form_class = PromoteOpinionToArticleForm

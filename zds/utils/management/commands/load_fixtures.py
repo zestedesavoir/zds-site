@@ -387,8 +387,9 @@ def load_contents(cli, _type, size, fake):
             (1 - percent_contents_public - percent_contents_in_validation - percent_contents_with_validator)))
     if is_opinion:
         cli.stdout.write(
-            u' - {:g} publiés et aprouvés'.format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
-                    nb_contents * percent_contents_with_validator))
+            u' - {:g} publiés et aprouvés'.format(
+                nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
+                nb_contents * percent_contents_with_validator))
     else:
         cli.stdout.write(
             u' - {:g} en validation (dont {:g} réservés)'
