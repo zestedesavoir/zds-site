@@ -8,6 +8,8 @@ Vocabulaire et définitions
 - **Contenu** (*content*): désigne, de manière générale, tout ce qui peut être produit et édité sur Zeste de Savoir, c'est-à-dire, à l'heure actuelle, un article ou un tutoriel. Tout contenu est rattaché à un dossier qui lui est propre et dont l'organisation est explicitée plus bas. Ce dossier comporte des informations sur le contenu lui-même (*metadata* : un auteur, une description, une licence...) ainsi que des textes, agencés dans une arborescence bien précise.
 - **Article** : contenu, généralement court, visant à faire découvrir un sujet plus qu'à l'expliquer au lecteur (introduit sans rentrer dans les détails) ou à fournir un état des lieux sur un point donné de manière concise (rapports de *release*, actualité...).
 - **Tutoriel** : contenu, en général plus long, ayant pour objectif d'enseigner un savoir-faire au lecteur.
+- **Tribune libre** : ensemble de billets associé à un utilisateur.
+- **Billet** : contenu, généralement court dont l'objectif est donner un retour d'expérience, de donner son opinion quant à une actualité, de donner un lien intéressant… La publication d'un billet sans fait sans validation avant mais avec une modération après.
 - **git**: système de gestion de versions employé (entre autres) par ZdS. Il permet de faire coexister différentes versions d'un contenu de manière simple et transparente pour l'auteur.
 - **Version** : état du contenu à un moment donné. Toute mise à jour du contenu (ou d'une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un *hash*, c'est-à-dire par une chaîne de 40 caractères de long (aussi appelée *sha*, en référence à l'algorithme employé pour les générer). Ce *hash* permet d'identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du *sha*, sont désignées par un nom. On distingue ainsi la version brouillon (*draft*), la version en bêta (*beta*), la version en validation (*validation*) et la version publiée (*public*). Pour ce faire, les *hash* correspondant à ces versions sont simplement mis de côté.
 - Fichier **manifest.json** : fichier à la racine de tout contenu dont l'objectif est de décrire ce dernier. Un tel fichier comporte deux types d'informations : à propos du contenu en lui-même (les métadonnées mentionnées plus haut) et à propos de son arborescence. La spécification de ce fichier est détaillée plus loin. On retiendra qu'à chaque version correspond un fichier ``manifest.json`` et que le contenu de ce dernier peut fortement varier d'une version à l'autre.
@@ -606,7 +608,7 @@ Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
 - ``extra_content_watchdog_dir``: dossier qui permet à l'observateur (si ``extra_content_generation_policy`` vaut ``"WATCHDOG"``) de savoir qu'un contenu a été publié
 - ``max_tree_depth``: Profondeur maximale de la hiérarchie des tutoriels : par défaut ``3`` pour partie/chapitre/extrait
 - ``default_licence_pk``: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures
-- ``content_per_page``: Nombre de contenus dans les listing (articles, tutoriels)
+- ``content_per_page``: Nombre de contenus dans les listing (articles, tutoriels, billets)
 - ``notes_per_page``: Nombre de réactions nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)
 - ``helps_per_page`` : Nombre de contenus ayant besoin d'aide dans la page ZEP-03
 - ``feed_length``: Nombre de contenus affiché dans un flux RSS ou ATOM,
