@@ -1278,26 +1278,14 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     action = None
 
     def _get_all_tags(self):
-        all_tags = []
-        categories = self.object.subcategory.all()
-        names = [smart_text(category.title).lower() for category in categories]
-        existing_tags = Tag.objects.filter(title__in=names).all()
-        existing_tags_names = [tag.title for tag in existing_tags]
-        unexisting_tags = list(set(names) - set(existing_tags_names))
-        for tag in unexisting_tags:
-            new_tag = Tag()
-            new_tag.title = tag[:20]
-            new_tag.save()
-            all_tags.append(new_tag)
-        all_tags += existing_tags
-        return all_tags
+        return self.object.tags.all()
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
-        tags = "[beta][{}]".format(_type)
+        _tags = "[beta][{}]".format(_type)
         i = 0
-        while len(topic_title) + len(tags) + len(tags[i]) + 2 < Topic._meta.get_field("title").max_length:
-            tags += '[{}]'.format(tags[i])
+        while len(topic_title) + len(_tags) + len(tags[i]) + 2 < Topic._meta.get_field("title").max_length:
+            _tags += '[{}]'.format(tags[i])
             i += 1
         forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
         topic = create_topic(request=self.request,
