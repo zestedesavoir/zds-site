@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db.models import Q
+from django.db.models import F, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -97,6 +97,18 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context['validations'] = [_valid for _valid in context['validations'] if _valid.pk not in removed_ids]
         context['category'] = self.subcategory
         return context
+
+
+class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    """List the validations, with possibilities of filters"""
+
+    permissions = ["tutorialv2.change_validation"]
+    template_name = "tutorialv2/validation/opinions.html"
+    context_object_name = 'contents'
+    subcategory = None
+    queryset = PublishableContent.objects\
+        .filter(type='OPINION', sha_public__isnull=False)\
+        .exclude(sha_approved=F('sha_public'))
 
 
 class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -793,7 +805,7 @@ class PromoteOpinionToArticle(LoggedWithReadWriteHability, SingleContentFormView
         validation.date_proposition = datetime.now()
         validation.comment_authors = _(u'Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
             opinion.title,
-            opinion.get_absolute_url_online(),
+            db_object.get_absolute_url_online(),
             self.request.user.username,
             self.request.user.profile.get_absolute_url()
         ))
