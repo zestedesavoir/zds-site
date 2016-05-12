@@ -31,6 +31,12 @@
 {% endspaceless %}{% endblock %}
 
 
+{% block extra_link %}
+    {% if content.promotion_content.get_absolute_url_online %}
+        <link rel="canonical" href="{{ content.promotion_content.get_absolute_url_online }}" />
+    {% endif %}
+{% endblock %}
+
 
 {% block opengraph %}
     {% include "tutorialv2/includes/opengraph.part.html" %}
@@ -81,10 +87,25 @@
 
 {% block content %}
 
-    {% if content.is_opinion and content.sha_public != content.sha_approved %}
-        <div class="alert-box warning">
-            {% trans "Ce billet n'a pas encore été validé par l'équipe du site." %}
-        </div>
+    {% if content.is_opinion %}
+        {% if content.sha_public != content.sha_approved %}
+            <div class="alert-box warning">
+                {% trans "Ce billet n'a pas encore été validé par l'équipe du site." %}
+            </div>
+        {% endif %}
+        {% if content.promotion_content %}
+            <div class="alert-box info">
+                {%  if content.promotion_content.get_absolute_url_online %}
+                    {% blocktrans with url_article=content.promotion_content.get_absolute_url_online %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a>.
+                    {% endblocktrans %}
+                {% elif is_staff %}
+                    {% blocktrans with url_article=content.promotion_content.get_absolute_url %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est validation.
+                    {% endblocktrans %}
+                {% endif %}
+            </div>
+        {% endif %}
     {% endif %}
 
     {% if content.has_extracts %}
@@ -202,13 +223,23 @@
                             {% crispy formRevokeValidation %}
                         </li>
                     {% else %}
-                        {% if content.sha_public != content.sha_approved and is_staff %}
-                            <li>
-                                <a href="#valid-opinion" class="ico-after open-modal tick green">
-                                    {% trans "Valider le billet" %}
-                                </a>
-                                {% crispy formValidOpinion %}
-                            </li>
+                        {% if is_staff %}
+                            {% if content.sha_public != content.sha_approved  %}
+                                <li>
+                                    <a href="#valid-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Valider le billet" %}
+                                    </a>
+                                    {% crispy formValidOpinion %}
+                                </li>
+                            {% endif %}
+                            {% if not content.promotion_content %}
+                                <li>
+                                    <a href="#promote-opinion" class="ico-after open-modal tick green">
+                                        {% trans "Promouvoir en article" %}
+                                    </a>
+                                    {% crispy formPromotion %}
+                                </li>
+                            {% endif %}
                         {% endif %}
                         <li>
                             <a href="#unpublish" class="ico-after open-modal cross blue">

@@ -15,13 +15,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
+from zds.gallery.models import UserGallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
-    CancelValidationForm, PublicationForm, OpinionValidationForm
+    CancelValidationForm, PublicationForm, OpinionValidationForm, PromoteOpinionToArticleForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
+from zds.tutorialv2.utils import init_new_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
@@ -725,3 +727,119 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             messages.info(request, _(u'Le contenu est maintenant marqué comme obsolète.'))
         content.save()
         return redirect(content.get_absolute_url_online())
+
+
+class PromoteOpinionToArticle(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    """Publish the content"""
+
+    form_class = PromoteOpinionToArticleForm
+
+    modal_form = True
+    prefetch_all = False
+    must_be_author = True
+    authorized_for_staff = True
+
+    def get(self, request, *args, **kwargs):
+        raise Http404(_(u"Promouvoir un billet n'est pas possible avec la méthode « GET »."))
+
+    def get_form_kwargs(self):
+        kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        # get database representation and validated version
+        db_object = self.object
+        versioned = self.versioned_object
+
+        # store data for later
+        authors = db_object.authors.all()
+        subcats = db_object.subcategory.all()
+        tags = db_object.tags.all()
+        gallery = db_object.gallery
+        opinion_url = db_object.get_absolute_url_online()
+        opinion = PublishableContent.objects.get(pk=db_object.pk)
+
+        # copy object and update article to opinion
+        # we set pk to None because next save will create a new object in database
+        db_object.pk = None
+        db_object.type = 'ARTICLE'
+        db_object.creation_date = datetime.now()
+        db_object.sha_public = None
+        db_object.public_version = None
+        db_object.save()
+
+        # add information of the promotion on the original opinion
+        opinion.promotion_content = db_object
+        opinion.save()
+
+        # add M2M objects
+        for author in authors:
+            db_object.authors.add(author)
+        for subcat in subcats:
+            db_object.subcategory.add(subcat)
+        for tag in tags:
+            db_object.tags.add(tag)
+
+        # create the repo
+        init_new_repo(db_object,
+                      versioned.get_introduction(),
+                      versioned.get_conclusion(),
+                      u'Promotion du billet en article')
+
+        # ask for validation
+        validation = Validation()
+        validation.content = db_object
+        validation.date_proposition = datetime.now()
+        validation.comment_authors = _(u'Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
+            opinion.title,
+            opinion.get_absolute_url_online(),
+            self.request.user.username,
+            self.request.user.profile.get_absolute_url()
+        ))
+        validation.version = db_object.sha_draft
+        validation.save()
+        db_object.sha_validation = validation.version
+
+        # creating the gallery
+        gal = gallery
+        gal.pk = None
+        gal.pubdate = datetime.now()
+        gal.save()
+
+        # creating relations between authors and gallery
+        for author in authors:
+            userg = UserGallery()
+            userg.gallery = gal
+            userg.mode = "W"  # write mode
+            userg.user = author
+            userg.save()
+        db_object.gal = gal
+
+        # save updates
+        db_object.save()
+
+        # send message to user
+        msg = render_to_string(
+            'tutorialv2/messages/opinion_promotion.md',
+            {
+                'content': versioned,
+                'url': opinion_url,
+            })
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        send_mp(
+            bot,
+            db_object.authors.all(),
+            _(u"Billet promu en article"),
+            versioned.title,
+            msg,
+            True,
+            direct=False
+        )
+
+        self.success_url = db_object.get_absolute_url()
+
+        messages.success(self.request, _(u'Le billet a bien été promu en article et est en attente de validation.'))
+
+        return super(PromoteOpinionToArticle, self).form_valid(form)
