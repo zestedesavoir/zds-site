@@ -64,6 +64,10 @@
                             {% trans "à l'article" %}
                         {% elif content.type == "TUTORIAL" %}
                             {% trans "au tutoriel" %}
+                        {% elif content.type == "OPINION" %}
+                            {% trans "au billet" %}
+                        {% else %}
+                            {% trans "au contenu" %}
                         {% endif %}
                         «&NonBreakingSpace;<a href="{{ content.get_absolute_url }}">{{ content.title }}</a>&NonBreakingSpace;».
                     </p>

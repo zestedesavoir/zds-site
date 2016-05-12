@@ -118,7 +118,7 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
 
         self.content.save()
 
-        # We need to save the tutorial before changing its author list since it's a many-to-many relationship
+        # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
 
         # Add subcategories on tutorial
