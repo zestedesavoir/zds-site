@@ -32,9 +32,10 @@ class Command(BaseCommand):
         for content in contents:
             categories = content.subcategory.all()
             for cat in categories:
+                cat_name = cat.title.strip().lower()
                 # do not add "autre" tag (useless)
-                if cat.strip() != 'autre':
-                    current_tag, created = Tag.objects.get_or_create(title=cat.lower())
+                if cat_name != 'autre':
+                    current_tag, created = Tag.objects.get_or_create(title=cat_name)
                     content.tags.add(current_tag)
                     if created:
                         self.stdout.write('[ZEP-25] : Tag "{}" added'.format(current_tag))
