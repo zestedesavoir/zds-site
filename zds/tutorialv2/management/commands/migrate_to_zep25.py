@@ -151,10 +151,9 @@ class Command(BaseCommand):
                   's** ont fait leur apparition et les catégories ont été revues afin de faciliter et d\'aléger cette' \
                   ' classification.\n\nLes anciennes catégories ont été transformées en tags et de nouvelles catégori' \
                   'es plus générales ont été ajoutés. L\'équipe de Zeste de Savoir va ou a déjà changé les catégories' \
-                  ' des contenus publiés.\n\nNous vous invitons à vérifier la catégorie de vos [articles](https://zes' \
-                  'tedesavoir.com/contenus/articles/{1}/) et [tutoriels](https://zestedesavoir.com/contenus/tutoriels' \
-                  '/{1}/) mais également la pertinence des tags et en ajouter si besoin.\n\n\nNous restons à votre di' \
-                  'sposition et votre écoute pour toutes suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'
+                  ' des contenus publiés.\n\nNous vous invitons à vérifier les catégories de vos articles et tutoriel' \
+                  's mais également la pertinence des tags et en ajouter si besoin.\n\n\nNous restons à votre disposi' \
+                  'tion et votre écoute pour toutes suggestions ou remarques,\n\nL\'équipe de Zeste de Savoir'
             send_mp(
                 bot,
                 [user],
