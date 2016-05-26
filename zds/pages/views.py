@@ -82,8 +82,8 @@ class AssocSubscribeView(FormView):
         context = {
             'full_name': data['full_name'],
             'email': data['email'],
-            'naissance': data['naissance'],
-            'adresse': data['adresse'],
+            'birthdate': data['birthdate'],
+            'address': data['address'],
             'justification': data['justification'],
             'username': user.username,
             'profile_url': ZDS_APP['site']['url'] + reverse('member-detail', kwargs={'user_name': user.username}),
