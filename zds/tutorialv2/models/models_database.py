@@ -527,7 +527,7 @@ class PublishableContent(models.Model):
         """
         for tag in tag_collection:
             try:
-                current_tag, created = Tag.objects.get_or_create(title=tag.lower())
+                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
                 logging.getLogger("zds.tutorialv2").warn(e)
