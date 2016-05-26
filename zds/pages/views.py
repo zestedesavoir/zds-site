@@ -5,7 +5,6 @@ import random
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group, User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
@@ -22,6 +21,9 @@ from zds.settings import BASE_DIR, ZDS_APP
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert
+
+from django.views.generic import ListView
+from zds.pages.models import GroupContact
 
 
 def home(request):
@@ -110,18 +112,14 @@ def association(request):
     return render(request, 'pages/association.html')
 
 
-def contact(request):
-    """Display contact page."""
-    staffs = User.objects.filter(
-        groups__in=Group.objects.filter(
-            name__contains='staff')).all()
-    devs = User.objects.filter(
-        groups__in=Group.objects.filter(
-            name__contains='dev')).all()
-    return render(request, 'pages/contact.html', {
-        'staffs': staffs,
-        'devs': devs
-    })
+class ContactView(ListView):
+    """
+    Display contact page.
+    """
+    model = GroupContact
+    queryset = GroupContact.objects.order_by('position').prefetch_related('group')
+    template_name = 'pages/contact.html'
+    context_object_name = 'groups'
 
 
 def eula(request):
