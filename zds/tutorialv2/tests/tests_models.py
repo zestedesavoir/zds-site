@@ -503,6 +503,18 @@ class ContentTests(TestCase):
                          'all tags are "{}"'.format('","'.join([str(t) for t in Tag.objects.all()])))
         self.assertEqual(tuto_tags_len, len(tuto.tags.all()))
 
+        # test space in tags (first and last space deleted)
+        tags = ['foo bar', ' azerty', 'qwerty ', ' another tag ']
+        tuto.add_tags(tags)
+        tuto_tags_list = [tag['title'] for tag in tuto.tags.values('title')]
+        self.assertIn('foo bar', tuto_tags_list)
+        self.assertNotIn(' azerty', tuto_tags_list)
+        self.assertIn('azerty', tuto_tags_list)
+        self.assertNotIn('qwerty ', tuto_tags_list)
+        self.assertIn('qwerty', tuto_tags_list)
+        self.assertNotIn(' another tag', tuto_tags_list)
+        self.assertIn('another tag', tuto_tags_list)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
