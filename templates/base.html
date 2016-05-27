@@ -35,6 +35,12 @@
     <meta http-equiv="content-language" content="fr">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0">
 
+    {# Color the browser elements. See https://developers.google.com/web/fundamentals/design-and-ui/browser-customization/theme-color?hl=en #}
+    <meta name="theme-color" content="#084561">
+    <meta name="msapplication-navbutton-color" content="#084561">
+    {# Fullsceen on iOS and enable bar customisation #}
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     {# Description #}
     {% captureas description %}
@@ -96,10 +102,6 @@
     <link rel="apple-touch-icon" sizes="57x57" href="{% static "images/apple-touch-icon-57x57-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon-precomposed.png" %}">
     <link rel="apple-touch-icon" href="{% static "images/apple-touch-icon.png" %}">
-
-
-    {# Fullsceen on iOS #}
-    <meta name="apple-mobile-web-app-capable" content="yes">
 
 
     {# RSS links #}
@@ -191,7 +193,7 @@
 
                                     <ul class="dropdown-list">
                                         {% with categories='TUTORIAL'|top_categories_content %}
-                                            {% for title, subcats in categories.items %}
+                                            {% for title, subcats in categories.categories.items %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
@@ -199,7 +201,7 @@
                                                         </li>
                                                         {% for subcat,slug in subcats %}
                                                             <li>
-                                                                <a href="{% url "tutorial:list" %}?tag={{ slug }}">
+                                                                <a href="{% url "tutorial:list" %}?category={{ slug }}">
                                                                     {{  subcat }}
                                                                 </a>
                                                             </li>
@@ -213,6 +215,19 @@
                                                     </li>
                                                 </ul>
                                             {% endfor %}
+                                            {% if categories.tags %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Tags les plus utilisés" %}
+                                                        </li>
+                                                        {% for tag in categories.tags %}
+                                                            <li><a href="{% url 'tutorial:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                        {% endfor %}
+                                                        <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                    </ul>
+                                                </li>
+                                            {% endif %}
                                         {% endwith %}
                                     </ul>
                                 </div>
@@ -221,6 +236,51 @@
                                 <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
                                     {% trans "Articles" %}
                                 </a>
+                                <div class="dropdown header-menu-dropdown">
+                                    <a href="{% url "article:list" %}" class="dropdown-link-all">
+                                        {% trans "Tous les articles" %}
+                                    </a>
+
+                                    <ul class="dropdown-list">
+                                        {% with categories='ARTICLE'|top_categories_content %}
+                                            {% for title, subcats in categories.categories.items %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {{ title }}
+                                                        </li>
+                                                        {% for subcat,slug in subcats %}
+                                                            <li>
+                                                                <a href="{% url "article:list" %}?category={{ slug }}">
+                                                                    {{  subcat }}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </li>
+                                            {% empty %}
+                                                <ul>
+                                                    <li class="dropdown-title">
+                                                        {% trans "Aucun article disponible." %}
+                                                    </li>
+                                                </ul>
+                                            {% endfor %}
+                                            {% if categories.tags %}
+                                                <li>
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Tags les plus utilisés" %}
+                                                        </li>
+                                                        {% for tag in categories.tags %}
+                                                            <li><a href="{% url 'article:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                        {% endfor %}
+                                                        <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                    </ul>
+                                                </li>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </ul>
+                                </div>
                             </li>
                             <li>
                                 <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
@@ -279,11 +339,11 @@
                                 {# MESSAGERIE PRIVEE #}
                                 <div>
                                     {% with topics=user|interventions_privatetopics %}
-                                    {% with unread_topics=topics.unread %}
-                                    {% with total_topics=topics.total %}
+                                    {% with notifications=topics.notifications %}
+                                    {% with total_notifications=topics.total %}
                                         <a href="{% url "mp-list" %}" class="ico-link">
-                                            {% if total_topics > 0 %}
-                                                <span class="notif-count">{{ total_topics }}</span>
+                                            {% if total_notifications > 0 %}
+                                                <span class="notif-count">{{ total_notifications }}</span>
                                             {% endif %}
                                             <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
                                         </a>
@@ -291,34 +351,27 @@
                                         <div class="dropdown">
                                             <span class="dropdown-title">{% trans "Messagerie privée" %}</span>
                                             <ul class="dropdown-list">
-                                                {% for topic in unread_topics %}
-                                                    {% with last_answer=topic.get_last_answer %}
-                                                    <li>
-                                                        {% if last_answer == None %}
-                                                            {% set topic.last_read_post as last_answer %}
-                                                        {% endif %}
-                                                        <a href="{{ topic.last_read_post.get_absolute_url }}">
-                                                            {% with p=last_answer.author.profile %}
-                                                                <img src="{{ p.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
-                                                            {% endwith %}
-                                                            <span class="username">{{ last_answer.author.username }}</span>
-                                                            <span class="date">{{ last_answer.pubdate|format_date:True|capfirst }}</span>
-                                                            <span class="topic">{{ topic.title }}</span>
-                                                        </a>
-                                                    </li>
-                                                    {% endwith %}
+                                                {% for notification in notifications %}
+                                                <li>
+                                                    <a href="{{ notification.url }}">
+                                                        <img src="{{ notification.sender.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
+                                                        <span class="username">{{ notification.sender.username }}</span>
+                                                        <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                                        <span class="topic">{{ notification.title }}</span>
+                                                    </a>
+                                                </li>
                                                 {% endfor %}
 
-                                                {% if total_topics == 0 %}
-                                                    <li class="dropdown-empty-message">
-                                                        {% trans "Aucun nouveau message" %}
-                                                    </li>
-                                                    {% endif %}
-                                                </ul>
-                                                <a href="{% url "mp-list" %}" class="dropdown-link-all">
-                                                    {% trans "Tous les messages" %}
-                                                </a>
-                                            </div>
+                                                {% if total_notifications == 0 %}
+                                                <li class="dropdown-empty-message">
+                                                    {% trans "Aucune nouvelle notification" %}
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                            <a href="{% url "mp-list" %}" class="dropdown-link-all">
+                                                {% trans "Toutes les notifications" %}
+                                            </a>
+                                        </div>
                                         {% endwith %}
                                     {% endwith %}
                                     {% endwith %}
@@ -341,9 +394,7 @@
                                                 {% for first_unread in unread_posts %}
                                                     <li>
                                                         <a href="{{ first_unread.url }}">
-                                                            {% with p=first_unread.author.profile %}
-                                                                <img src="{{ p.get_avatar_url|remove_url_protocole  }}" alt="" class="avatar">
-                                                            {% endwith %}
+                                                            <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
                                                             <span class="username">{{ first_unread.author.username }}</span>
                                                             <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
                                                             <span class="topic">{{ first_unread.title }}</span>
@@ -421,7 +472,7 @@
                                            data-active="open-my-account"
                                        {% endif %}
                                     >
-                                        <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                                        <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
                                         <span class="username label">{{ user.username }}</span>
                                     </a>
                                 {% endwith %}
@@ -572,7 +623,7 @@
                 </ul>
 
                 <ul class="links">
-                    <li><a href="{% url "django.swagger.base.view" %}">{% trans "API" %}</a></li>
+                    <li><a href="{% url "api:docs:django.swagger.base.view" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}

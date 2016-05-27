@@ -26,3 +26,43 @@
         }
     }
 }
+
+.content-tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    &:after {
+        content: '';
+        display: block;
+        flex: 20;
+    }
+}
+
+.content-tag {
+    margin: 0 5px 20px;
+    line-height: 1.4em;
+    white-space: nowrap;
+    flex: auto;
+
+    a {
+        color: #777;
+        display: block;
+        padding: 8px 15px;
+        text-decoration: none;
+        background-color: #EEE;
+        transition: all $transition-duration ease;
+        border: solid 1px #CCC;
+
+        &:hover, &:focus {
+            color: #EEE;
+            background-color: #777;
+            border-color: #777;
+            outline: none;
+        }
+
+        .tag-count {
+            color: #AAA;
+        }
+    }
+}

@@ -86,6 +86,25 @@ class AuthorForm(forms.Form):
         return super(AuthorForm, self).is_valid() and "users" in self.clean()
 
 
+class RemoveAuthorForm(AuthorForm):
+
+    def clean(self):
+        """Check every username and send it to the cleaned_data["user"] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(AuthorForm, self).clean()
+        users = []
+        for username in cleaned_data.get('username').split(","):
+            # we can remove all users (bots inclued)
+            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
+            if user is not None:
+                users.append(user.user)
+        if len(users) > 0:
+            cleaned_data["users"] = users
+        return cleaned_data
+
+
 class ContainerForm(FormWithTitle):
 
     introduction = forms.CharField(
@@ -149,6 +168,12 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
+    tags = forms.CharField(
+        label=_(u'Tag(s) séparés par une virgule (exemple: python,django,web)'),
+        max_length=64,
+        required=False,
+    )
+
     image = forms.ImageField(
         label=_(u'Sélectionnez le logo du contenu (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
@@ -165,11 +190,7 @@ class ContentForm(ContainerForm):
                 u"n'hésitez pas à en demander une nouvelle lors de la validation !"),
         queryset=SubCategory.objects.order_by("title").all(),
         required=True,
-        widget=forms.SelectMultiple(
-            attrs={
-                'required': 'required',
-            }
-        )
+        widget=forms.CheckboxSelectMultiple()
     )
 
     licence = forms.ModelChoiceField(
@@ -202,13 +223,14 @@ class ContentForm(ContainerForm):
         self.helper.layout = Layout(
             Field('title'),
             Field('description'),
+            Field('tags'),
             Field('type'),
             Field('image'),
             Field('introduction', css_class='md-editor'),
             Field('conclusion', css_class='md-editor'),
             Field('last_hash'),
             Field('licence'),
-            Field('subcategory'),
+            Field('subcategory', template='crispy/checkboxselectmultiple.html'),
             HTML(_(u"<p>Demander de l'aide à la communauté !<br>"
                    u"Si vous avez besoin d'un coup de main,"
                    u"sélectionnez une ou plusieurs catégories d'aide ci-dessous "

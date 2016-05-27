@@ -7,7 +7,7 @@
   },
   "scripts": {
     "gulp": "gulp",
-    "test": "gulp test",
+    "lint": "gulp lint",
     "travis": "gulp travis",
     "build": "gulp build",
     "clean": "gulp clean"

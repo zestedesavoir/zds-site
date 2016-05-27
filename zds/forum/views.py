@@ -21,14 +21,15 @@ from django.views.generic.detail import SingleObjectMixin
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 
+from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
-from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin
 from zds.member.decorator import can_write_and_read_now
+from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag, CommentDislike, CommentLike
+from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import paginator_range, ZdSPagingListView
 
@@ -139,16 +140,18 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
         })
-        reaction_ids = [post.pk for post in context['posts']]
-        context["user_dislike"] = CommentDislike.objects\
-            .select_related('comment')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
-        context["user_like"] = CommentLike.objects\
-            .select_related('comment')\
-            .filter(user__pk=self.request.user.pk, comments__pk__in=reaction_ids)\
-            .values_list('pk', flat=True)
+
+        votes = CommentVote.objects.filter(user_id=self.request.user.pk, comment__in=context['posts']).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+        context['isantispam'] = self.object.antispam()
+
+        if self.request.user.has_perm('forum.change_topic'):
+            context["user_can_modify"] = [post.pk for post in context['posts']]
+        else:
+            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+
         if self.request.user.is_authenticated():
             if never_read(self.object):
                 mark_read(self.object)
@@ -283,9 +286,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
         response = {}
         if 'follow' in request.POST:
-            response['follow'] = self.perform_follow(self.object, request.user)
+            response['follow'] = self.perform_follow(self.object, request.user).is_active
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:
             response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
         elif 'lock' in request.POST:
@@ -427,7 +430,7 @@ class PostNew(CreatePostView):
         return form
 
     def form_valid(self, form):
-        topic = send_post(self.request, self.object, self.request.user, form.data.get('text'), send_by_mail=True)
+        topic = send_post(self.request, self.object, self.request.user, form.data.get('text'))
         return redirect(topic.last_message.get_absolute_url())
 
     def get_object(self, queryset=None):
@@ -558,42 +561,6 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
             self.object.topic.forum.category.slug, self.object.topic.forum.slug]))
 
 
-class PostLike(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
-    @method_decorator(require_POST)
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object.topic.forum.can_read(request.user):
-            raise PermissionDenied
-        return super(PostLike, self).dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.perform_like_post(self.object, self.request.user)
-
-        if request.is_ajax():
-            resp = {
-                'upvotes': self.object.like,
-                'downvotes': self.object.dislike
-            }
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
-
-
-class PostDisLike(PostLike):
-    def post(self, request, *args, **kwargs):
-        self.perform_dislike_post(self.object, self.request.user)
-
-        if request.is_ajax():
-            resp = {
-                'upvotes': self.object.like,
-                'downvotes': self.object.dislike
-            }
-            return HttpResponse(json.dumps(resp), content_type='application/json')
-        return redirect(self.object.get_absolute_url())
-
-
 class FindPost(FindTopic):
 
     context_object_name = 'posts'
@@ -610,7 +577,7 @@ def followed_topics(request):
     Displays the followed topics for the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
     topics per page.
     """
-    topics_followed = request.user.profile.get_followed_topics()
+    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(request.user)
 
     # Paginator
 

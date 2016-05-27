@@ -25,7 +25,7 @@ Il se peut aussi que les modules aient leur propre gabarit de base, auquel cas c
 
 .. seealso::
    Pour en savoir plus, n'hésitez pas à la partie de la documentation de Django sur
-   `l'héritage des gabarits <https://docs.djangoproject.com/fr/1.7/topics/templates/#template-inheritance>`_ !
+   `l'héritage des gabarits <https://docs.djangoproject.com/fr/1.8/topics/templates/#template-inheritance>`_ !
 
 
 L'en-tête

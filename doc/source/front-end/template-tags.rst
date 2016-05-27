@@ -3,7 +3,7 @@ Elements de templates personnalisés
 ===================================
 
 Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres personnalisés pouvant être utilisés dans les gabarits (*templates*),
-`voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/1.7/howto/custom-template-tags/>`_.
+`voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/1.8/howto/custom-template-tags/>`_.
 
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
@@ -233,7 +233,7 @@ où ``period`` est un nombre au format attendu par ``humane_delta`` (entre 1 et 
 ``interventions_topics``
 ------------------------
 
-Ce filtre récupère la liste des messages du forum ainsi que des commentaires de tutoriels et articles qui sont non-lus:
+Ce filtre récupère la liste des notifications non lues sur des modèles notifiables excluant les messages privés:
 
 .. sourcecode:: html
 
@@ -373,22 +373,6 @@ où ``user_state`` peut alors valoir une des 4 chaines de caractères suivantes,
 
 Ce *templatetag* est employé pour l'affichage des badges. Vous trouverez plus d'informations `dans la documentation des membres <../back-end/member.html>`__ concernant les différents états dans lesquels peut se trouver un utilisateur et ce qu'ils signifient.
 
-``liked`` et ``disliked``
--------------------------
-
-Ces filtres récupèrent respectivement si le message a recu des "+1" (*liked*) ou des "-1" (*disliked*) de la part d'un utilisateur donné.
-
-Par exemple, le code suivant appliquera la classe "voted" si le message a reçu un "-1" de la part de l'utilisateur :
-
-.. sourcecode:: html
-
-    {% load profiles %}
-    <button class="{% if user|disliked:message.pk %}voted{% endif %}">
-        {{ message.dislike }}
-    </button>
-
-où ``user`` est l'utilisateur (objet ``User``) et ``message`` est un objet de type ``Post`` (qu'il s'agisse d'un *post* de forum, ou d'un commentaire dans un article ou tutoriel, dont les implémentations diffèrent légèrement). Ce *templatetag* est employé dans la partie affichant les réponses.
-
 Le module ``roman``
 ===================
 
@@ -460,7 +444,8 @@ Ce filtre récupère les forums, classés par catégorie.
 où,
 
 - ``top.categories`` est un dictionaire contenant le nom de la catégorie (ici ``title``) et la liste des forums situés dans cette catégorie (ici ``forums``), c'est-à-dire une liste d'objets de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__).
-- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__).
+- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type 
+``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
 
 
 ``top_categories_content``

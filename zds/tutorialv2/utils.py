@@ -1,5 +1,4 @@
 # coding: utf-8
-import os
 import shutil
 from collections import OrderedDict
 from datetime import datetime
@@ -7,7 +6,9 @@ from urllib import urlretrieve
 from urlparse import urlparse
 
 import cairosvg
+import os
 from PIL import Image as ImagePIL
+from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
@@ -15,7 +16,7 @@ from lxml import etree
 from uuslug import slugify
 
 from zds import settings
-from zds.member.models import User
+from zds.notification import signals
 from zds.tutorialv2 import REPLACE_IMAGE_PATTERN, VALID_SLUG
 from zds.utils import get_current_user
 from zds.utils import slugify as old_slugify
@@ -55,10 +56,10 @@ def search_container_or_404(base_content, kwargs_array):
             try:
                 container = base_content.children_dict[kwargs_array['parent_container_slug']]
             except KeyError:
-                raise Http404(_(u"Aucun conteneur trouvé."))
+                raise Http404(u"Aucun conteneur trouvé.")
             else:
                 if not isinstance(container, Container):
-                    raise Http404(_(u"Aucun conteneur trouvé."))
+                    raise Http404(u"Aucun conteneur trouvé.")
     else:
         container = base_content
 
@@ -67,15 +68,15 @@ def search_container_or_404(base_content, kwargs_array):
         try:
             container = container.children_dict[kwargs_array['container_slug']]
         except KeyError:
-            raise Http404(_(u"Aucun conteneur trouvé."))
+            raise Http404(u"Aucun conteneur trouvé.")
         else:
             if not isinstance(container, Container):
-                raise Http404(_(u"Aucun conteneur trouvé."))
+                raise Http404(u"Aucun conteneur trouvé.")
     elif container == base_content:
         # if we have no subcontainer, there is neither "container_slug" nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404(_(u"Aucun conteneur trouvé."))
+        raise Http404(u"Aucun conteneur trouvé.")
     return container
 
 
@@ -99,10 +100,10 @@ def search_extract_or_404(base_content, kwargs_array):
         try:
             extract = container.children_dict[kwargs_array['extract_slug']]
         except KeyError:
-            raise Http404(_(u"Aucun extrait trouvé."))
+            raise Http404(u"Aucun extrait trouvé.")
         else:
             if not isinstance(extract, Extract):
-                raise Http404(_(u"Aucun extrait trouvé."))
+                raise Http404(u"Aucun extrait trouvé.")
     return extract
 
 
@@ -164,6 +165,7 @@ def mark_read(content, user=None):
                 content=content,
                 user=user)
             a.save()
+            signals.content_read.send(sender=content.__class__, instance=content, user=user)
 
 
 class TooDeepContainerError(ValueError):

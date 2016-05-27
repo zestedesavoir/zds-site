@@ -78,7 +78,7 @@ Fichiers principaux
 
 Django étant basé sur une architecture de type Modèle-Vue-Template, on retrouve les modèles dans le fichier ``models.py`` et les contrôles associés à celles-ci dans ``views.py``. Ces dernières peuvent employer des classes formulaires qui sont définis dans ``forms.py``. Les URLs associées au module et permetant d'accéder aux vues sont définies dans ``urls.py``. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans ``feeds.py``.
 
-On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django <https://docs.djangoproject.com/fr/1.7/ref/validators/>`__).
+On retrouve également des validateurs dans le fichier ``commons.py`` (voir à ce sujet `la documentation de Django <https://docs.djangoproject.com/fr/1.8/ref/validators/>`__).
 
 Tests unitaires
 ---------------

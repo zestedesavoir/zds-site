@@ -411,6 +411,7 @@ suivante :
 + Les *hash* des différentes versions du tutoriel (``sha_draft``, ``sha_beta``, ``sha_public`` et ``sha_validation``) ;
 + Les auteurs du contenu ;
 + Les catégories auxquelles appartient le contenu ;
++ Les *tags* associés au contenu ;
 + La miniature ;
 + L'origine du contenu, s'il n'a pas été créé sur ZdS mais importé avec une licence compatible ;
 + L'utilisation ou pas de JSFiddle dans le contenu ;

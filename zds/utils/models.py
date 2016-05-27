@@ -4,6 +4,7 @@ import os
 import string
 import uuid
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
@@ -36,11 +37,11 @@ class Category(models.Model):
         verbose_name = 'Categorie'
         verbose_name_plural = 'Categories'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', unique=True, max_length=80)
     description = models.TextField('Description')
     position = models.IntegerField('Position', default=0)
 
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __unicode__(self):
         """Textual Category Form."""
@@ -54,7 +55,7 @@ class SubCategory(models.Model):
         verbose_name = 'Sous-categorie'
         verbose_name_plural = 'Sous-categories'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=80, unique=True)
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     image = models.ImageField(
@@ -62,7 +63,7 @@ class SubCategory(models.Model):
         blank=True,
         null=True)
 
-    slug = models.SlugField(max_length=80)
+    slug = models.SlugField(max_length=80, unique=True)
 
     def __unicode__(self):
         """Textual Category Form."""
@@ -77,6 +78,18 @@ class SubCategory(models.Model):
         url = reverse('article-index')
         url = url + '?tag={}'.format(self.slug)
         return url
+
+    def get_parent_category(self):
+        """
+        Get the parent of the category.
+
+        :return: the parent category.
+        :rtype: Category
+        """
+        try:
+            return CategorySubCategory.objects.filter(subcategory=self).last().category
+        except AttributeError:  # no CategorySubCategory
+            return None
 
 
 class CategorySubCategory(models.Model):
@@ -172,6 +185,46 @@ class Comment(models.Model):
         self.editor = user
         self.save()
 
+    def get_user_vote(self, user):
+        """ Get a user vote (like, dislike or neutral) """
+        if user.is_authenticated():
+            try:
+                user_vote = 'like' if CommentVote.objects.get(user=user,
+                                                              comment=self).positive else 'dislike'
+            except CommentVote.DoesNotExist:
+                user_vote = 'neutral'
+        else:
+            user_vote = 'neutral'
+
+        return user_vote
+
+    def set_user_vote(self, user, vote):
+        """ Set a user vote (like, dislike or neutral) """
+        if vote == 'neutral':
+            CommentVote.objects.filter(user=user, comment=self).delete()
+        else:
+            CommentVote.objects.update_or_create(user=user, comment=self,
+                                                 defaults={'positive': (vote == 'like')})
+
+        self.like = CommentVote.objects.filter(positive=True, comment=self).count()
+        self.dislike = CommentVote.objects.filter(positive=False, comment=self).count()
+
+    def get_votes(self, type=None):
+        """ Get the non-anonymous votes """
+        if not hasattr(self, 'votes'):
+            self.votes = CommentVote.objects.filter(comment=self,
+                                                    id__gt=settings.VOTES_ID_LIMIT).select_related('user').all()
+
+        return self.votes
+
+    def get_likers(self):
+        """ Get the list of the users that liked this Comment """
+        return [vote.user for vote in self.get_votes() if vote.positive]
+
+    def get_dislikers(self):
+        """ Get the list of the users that disliked this Comment """
+        return [vote.user for vote in self.get_votes() if not vote.positive]
+
     def __unicode__(self):
         return u'{0}'.format(self.text)
 
@@ -221,32 +274,17 @@ class Alert(models.Model):
         verbose_name_plural = 'Alertes'
 
 
-class CommentLike(models.Model):
+class CommentVote(models.Model):
 
-    """Set of like comments."""
+    """Set of comment votes."""
     class Meta:
-        verbose_name = 'Ce message est utile'
-        verbose_name_plural = 'Ces messages sont utiles'
+        verbose_name = 'Vote'
+        verbose_name_plural = 'Votes'
+        unique_together = ('user', 'comment')
 
-    comments = models.ForeignKey(Comment, db_index=True)
-    user = models.ForeignKey(User, related_name='post_liked', db_index=True)
-
-    def __unicode__(self):
-        return u'{0} like {1}'.format(self.user.username, self.comments.pk)
-
-
-class CommentDislike(models.Model):
-
-    """Set of dislike comments."""
-    class Meta:
-        verbose_name = 'Ce message est inutile'
-        verbose_name_plural = 'Ces messages sont inutiles'
-
-    comments = models.ForeignKey(Comment, db_index=True)
-    user = models.ForeignKey(User, related_name='post_disliked', db_index=True)
-
-    def __unicode__(self):
-        return u'{0} dislike {1}'.format(self.user.username, self.comments.pk)
+    comment = models.ForeignKey(Comment, db_index=True)
+    user = models.ForeignKey(User, db_index=True)
+    positive = models.BooleanField("Est un vote positif", default=True)
 
 
 class Tag(models.Model):
@@ -256,8 +294,9 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
-    title = models.CharField(max_length=20, verbose_name='Titre')
-    slug = models.SlugField(max_length=20)
+
+    title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
+    slug = models.SlugField('Slug', max_length=30)
 
     def __unicode__(self):
         """Textual Link Form."""
@@ -267,6 +306,8 @@ class Tag(models.Model):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
+        if not self.title.strip() or not slugify(self.title.strip().replace('-', '')):
+            raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)

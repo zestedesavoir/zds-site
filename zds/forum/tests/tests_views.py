@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory, TagFactory
-from zds.forum.models import TopicFollowed, Topic, Post
+from zds.forum.models import Topic, Post
+from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 
 
@@ -436,16 +437,12 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertIsNotNone(TopicFollowed.objects.get(topic=topic, user=profile.user))
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        try:
-            TopicFollowed.objects.get(topic=topic, user=profile.user)
-            self.fail()
-        except TopicFollowed.DoesNotExist:
-            pass
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
 
     def test_success_edit_topic_follow_email(self):
         profile = ProfileFactory()
@@ -460,16 +457,14 @@ class TopicEditTest(TestCase):
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertIsNotNone(TopicFollowed.objects.get(topic=topic, user=profile.user, email=True))
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            profile.user, topic, is_active=True, by_email=True))
 
         response = self.client.post(reverse('topic-edit'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        try:
-            TopicFollowed.objects.get(topic=topic, user=profile.user, email=True)
-            self.fail()
-        except TopicFollowed.DoesNotExist:
-            pass
+        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
+            profile.user, topic, is_active=True, by_email=False))
 
     def test_failure_edit_topic_solved_not_author(self):
         profile = ProfileFactory()
@@ -1432,83 +1427,6 @@ class PostUnreadTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.get(reverse('post-unread') + '?message={}'.format(post.pk), follow=False)
 
-        self.assertEqual(302, response.status_code)
-
-
-class PostLikeDisLikeTest(TestCase):
-    def test_failure_post_like_and_dislike_require_method_post(self):
-        response = self.client.get(reverse('post-like'), follow=False)
-        self.assertEqual(405, response.status_code)
-
-        response = self.client.get(reverse('post-dislike'), follow=False)
-        self.assertEqual(405, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_client_unauthenticated(self):
-        response = self.client.post(reverse('post-like'), follow=False)
-        self.assertEqual(302, response.status_code)
-
-        response = self.client.post(reverse('post-dislike'), follow=False)
-        self.assertEqual(302, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_sanctioned_user(self):
-        profile = ProfileFactory()
-        profile.can_read = False
-        profile.can_write = False
-        profile.save()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like'))
-        self.assertEqual(403, response.status_code)
-
-        response = self.client.post(reverse('post-dislike'))
-        self.assertEqual(403, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_wrong_message_pk(self):
-        profile = ProfileFactory()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message=abc', follow=False)
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message=abc', follow=False)
-        self.assertEqual(404, response.status_code)
-
-    def test_failure_post_like_and_dislike_with_a_message_not_found(self):
-        profile = ProfileFactory()
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message=99999', follow=False)
-        self.assertEqual(404, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message=99999', follow=False)
-        self.assertEqual(404, response.status_code)
-
-    def test_failure_post_like_and_dislike_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name="DummyGroup_1")
-
-        profile = ProfileFactory()
-        category, forum = create_category(group)
-        topic = add_topic_in_a_forum(forum, profile)
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message={}'.format(topic.last_message.pk))
-        self.assertEqual(403, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message={}'.format(topic.last_message.pk))
-        self.assertEqual(403, response.status_code)
-
-    def test_success_post_like_and_dislike(self):
-        profile = ProfileFactory()
-        category, forum = create_category()
-        topic = add_topic_in_a_forum(forum, profile)
-        another_profile = ProfileFactory()
-        post = PostFactory(topic=topic, author=another_profile.user, position=2)
-
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-like') + '?message={}'.format(post.pk), follow=False)
-        self.assertEqual(302, response.status_code)
-
-        response = self.client.post(reverse('post-dislike') + '?message={}'.format(post.pk), follow=False)
         self.assertEqual(302, response.status_code)
 
 

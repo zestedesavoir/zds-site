@@ -12,11 +12,12 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
+from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
     SingleOnlineContentFormViewMixin
-from zds.tutorialv2.models.models_database import Validation, PublishableContent, ContentRead
+from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
@@ -73,7 +74,7 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         except KeyError:
             pass
         except ValueError:
-            raise Http404(_(u"Format invalide pour le paramètre de la sous-catégorie."))
+            raise Http404(u"Format invalide pour le paramètre de la sous-catégorie.")
 
         return queryset.order_by("date_proposition").all()
 
@@ -257,6 +258,25 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.date_reserve = datetime.now()
             validation.status = "PENDING_V"
             validation.save()
+
+            versioned = validation.content.load_version(sha=validation.version)
+            msg = render_to_string(
+                'tutorialv2/messages/validation_reserve.md',
+                {
+                    'content': versioned,
+                    'url': versioned.get_absolute_url() + '?version=' + validation.version,
+                })
+
+            send_mp(
+                validation.validator,
+                validation.content.authors.all(),
+                _(u"Contenu réservé - {0}").format(validation.content.title),
+                validation.content.title,
+                msg,
+                True,
+                direct=False
+            )
+
             messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))
 
             return redirect(
@@ -355,7 +375,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
     modal_form = True
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Publier un contenu depuis la validation n'est pas disponible en GET."))
+        raise Http404(u"Publier un contenu depuis la validation n'est pas disponible en GET.")
 
     def get_form_kwargs(self):
         kwargs = super(AcceptValidation, self).get_form_kwargs()
@@ -404,13 +424,9 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             validation.status = "ACCEPT"
             validation.date_validation = datetime.now()
             validation.save()
-            for user in db_object.authors.all():
-                read = ContentRead.objects.filter(content__pk=db_object.pk, user__pk=user.pk).first()
-                if read is None:
-                    read = ContentRead()
-                    read.user = user
-                    read.content = db_object
-                    read.save()
+
+            # Follow
+            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
             if is_update:
                 msg = render_to_string(
@@ -508,7 +524,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             direct=False
         )
 
-        messages.success(self.request, _(u"Le tutoriel a bien été dépublié."))
+        messages.success(self.request, _(u"Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
 
         return super(RevokeValidation, self).form_valid(form)

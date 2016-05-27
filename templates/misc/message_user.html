@@ -1,27 +1,29 @@
 {% load profile %}
 {% load i18n %}
+{% load remove_url_protocole %}
 
 
 <div class="user">
     {% with profile=member|profile %}
         <a href="{{ member.get_absolute_url }}" class="avatar-link">
-            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+            <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
         </a>
 
         {% include 'misc/badge.part.html' %}
 
-        {% comment %}
-            {# TODO : properly display metadata (karma) #}
-            {% if perms.forum.change_post %}
-                <div class="user-metadata">
-                    {% if profile.karma < 0 %}
-                        <a href="{{ member.get_absolute_url }}" class="user-karma negative">{{ profile.karma }}</a>
-                    {% else %}
-                        <a href="{{ member.get_absolute_url }}" class="user-karma">{{ profile.karma }}</a>
-                    {% endif %}
-                    <a href="{{ member.get_absolute_url }}">IPs</a>
-                </div>
-            {% endif %}
-        {% endcomment %}
+        {% if perms.forum.change_post and profile.karma != 0 %}
+            <div class="user-metadata">
+                <a href="{{ member.get_absolute_url }}"
+                   class="user-karma
+                          {% if profile.karma < 0 %}
+                              negative
+                          {% elif profile.karma > 0 %}
+                              positive
+                          {% endif %}"
+                >
+                   {{ profile.karma }}
+                </a>
+            </div>
+        {% endif %}
     {% endwith %}
 </div>

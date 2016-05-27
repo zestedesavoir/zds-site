@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.settings import BASE_DIR
-from zds.forum.models import TopicFollowed
+from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
@@ -22,7 +22,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
-from zds.utils.models import CommentLike
+from zds.utils.models import CommentVote
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -53,6 +53,56 @@ class MemberTests(TestCase):
 
         self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         self.bot.save()
+
+    def test_karma(self):
+        to_be_karmated = ProfileFactory()
+        rand_member = ProfileFactory()
+        self.client.login(
+            username=rand_member.user.username,
+            password="hostel77"
+        )
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 42,
+            "warning": "warn"
+        })
+        self.assertEqual(403, r.status_code)
+        self.client.logout()
+        self.client.login(
+            username=self.staff.username,
+            password="hostel77"
+        )
+        # bad id
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": "poo",
+            "points": 42,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(404, r.status_code)
+        # good karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 42,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertIn("<strong>42</strong>", r.content.decode("utf-8"))
+        # more than 100 karma must unvalidate the karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 420,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertNotIn("<strong>420</strong>", r.content.decode("utf-8"))
+        # empty warning must unvalidate the karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 41,
+            "warning": ""
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertNotIn("<strong>41</strong>", r.content.decode("utf-8"))
 
     def test_list_members(self):
         """
@@ -266,8 +316,8 @@ class MemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 200)
 
-        # check a new email has been sent at the new user.
-        self.assertEquals(len(mail.outbox), 2)
+        # check a new email hasn't been sent at the new user.
+        self.assertEquals(len(mail.outbox), 1)
 
         # check if the new user is active.
         self.assertTrue(User.objects.get(username='firm1').is_active)
@@ -355,7 +405,7 @@ class MemberTests(TestCase):
         upvoted_answer = PostFactory(topic=answered_topic, author=user2.user, position=4)
         upvoted_answer.like += 1
         upvoted_answer.save()
-        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
+        CommentVote.objects.create(user=user.user, comment=upvoted_answer, positive=True)
 
         private_topic = PrivateTopicFactory(author=user.user)
         private_topic.participants.add(user2.user)
@@ -452,7 +502,7 @@ class MemberTests(TestCase):
         self.assertEquals(alone_gallery.get_linked_users().count(), 1)
         self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(CommentVote.objects.filter(user=user.user, positive=True).count(), 0)
         self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
         # zep 12, published contents and beta
@@ -744,11 +794,11 @@ class MemberTests(TestCase):
         self.assertTrue(tester.user.is_superuser)
 
         # Now our tester is going to follow one post in every forum (3)
-        TopicFollowed(topic=topic1, user=tester.user).save()
-        TopicFollowed(topic=topic2, user=tester.user).save()
-        TopicFollowed(topic=topic3, user=tester.user).save()
+        TopicAnswerSubscription.objects.toggle_follow(topic1, tester.user)
+        TopicAnswerSubscription.objects.toggle_follow(topic2, tester.user)
+        TopicAnswerSubscription.objects.toggle_follow(topic3, tester.user)
 
-        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 3)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 3)
 
         # retract all right, keep one group only and activate account
         result = self.client.post(
@@ -764,7 +814,7 @@ class MemberTests(TestCase):
         self.assertEqual(len(tester.user.groups.all()), 1)
         self.assertTrue(tester.user.is_active)
         self.assertFalse(tester.user.is_superuser)
-        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 2)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 2)
 
         # no groups specified
         result = self.client.post(
@@ -775,7 +825,7 @@ class MemberTests(TestCase):
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
-        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 1)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 1)
 
         # check that staff can't take away it's own super user rights
         result = self.client.post(
@@ -957,3 +1007,25 @@ class MemberTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
+
+    def test_errors_assign_tuto_sdz(self):
+        """
+        To test the errors of assigning a SdZ tutorial.
+        """
+        # we need staff right for assign a tutorial
+        self.client.logout()
+        self.client.login(username=self.staff.username, password="hostel77")
+
+        # without the parameter "profile_pk" and "id"
+        result = self.client.post(
+            reverse('member-add-oldtuto'),
+            {},
+            follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # without the parameter "profile_pk"
+        result = self.client.post(
+            reverse('member-add-oldtuto'),
+            {'id': '1'},
+            follow=False)
+        self.assertEqual(result.status_code, 404)

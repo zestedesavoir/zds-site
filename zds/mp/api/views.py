@@ -3,6 +3,7 @@
 from dry_rest_permissions.generics import DRYPermissions
 
 from django.http import QueryDict
+from django.contrib.contenttypes.models import ContentType
 
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
@@ -14,14 +15,13 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
-
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAuthor, IsNotAloneInPrivatePost
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
-    PrivatePostSerializer, PrivatePostUpdateSerializer, PrivatePostCreateSerializer
-from zds.mp.commons import LeavePrivateTopic, MarkPrivateTopicAsRead
-from zds.mp.models import PrivateTopic, PrivatePost
-from zds.utils.templatetags.interventions import interventions_privatetopics
+    PrivatePostSerializer, PrivatePostActionSerializer
+from zds.mp.commons import LeavePrivateTopic
+from zds.mp.models import PrivateTopic, PrivatePost, mark_read
+from zds.notification.models import Notification
 
 
 class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
@@ -297,7 +297,7 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
         return [permission() for permission in permission_classes]
 
 
-class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
+class PrivatePostListAPI(ListCreateAPIView):
     """
     Private post resource for an authenticated member.
     """
@@ -344,7 +344,8 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
               message: Not Found
         """
         response = self.list(request, *args, **kwargs)
-        self.perform_list(get_object_or_404(PrivateTopic, pk=(self.kwargs.get('pk_ptopic'))), self.request.user)
+        topic = get_object_or_404(PrivateTopic, pk=self.kwargs.get('pk_ptopic'))
+        mark_read(topic, self.request.user)
         return response
 
     def post(self, request, *args, **kwargs):
@@ -382,7 +383,7 @@ class PrivatePostListAPI(MarkPrivateTopicAsRead, ListCreateAPIView):
         if self.request.method == 'GET':
             return PrivatePostSerializer
         elif self.request.method == 'POST':
-            return PrivatePostCreateSerializer
+            return PrivatePostActionSerializer
 
     def get_queryset(self):
         return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))
@@ -455,7 +456,7 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
         if self.request.method == 'GET':
             return PrivatePostSerializer
         elif self.request.method == 'PUT':
-            return PrivatePostUpdateSerializer
+            return PrivatePostActionSerializer
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
@@ -520,4 +521,7 @@ class PrivateTopicReadAPI(ListAPIView):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return interventions_privatetopics(user=self.get_current_user())['unread']
+        notifications = Notification.objects \
+            .get_unread_notifications_of(self.get_current_user()) \
+            .filter(subscription__content_type=ContentType.objects.get_for_model(PrivateTopic))
+        return [notification.content_object.privatetopic for notification in notifications]

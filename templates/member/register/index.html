@@ -57,9 +57,13 @@
                 </div>
             </div>
         {% else %}
-            <p>
-                {% trans "Vous êtes déjà connecté" %}.
-            </p>
+            <div>
+                <p class="alert-box warning">
+                    <strong>
+                        {% trans "Vous êtes déjà inscrit." %}
+                    </strong>
+                </p>
+            </div>
         {% endif %}
 </div>
 {% endblock %}

@@ -17,10 +17,11 @@ class UserListSerializer(serializers.ModelSerializer):
     serializers.
     """
     avatar_url = serializers.CharField(source='profile.get_avatar_url')
+    html_url = serializers.CharField(source='get_absolute_url')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url')
+        fields = ('id', 'username', 'html_url', 'is_active', 'date_joined', 'avatar_url')
 
 
 class ProfileListSerializer(serializers.ModelSerializer):
@@ -30,6 +31,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
+    html_url = serializers.CharField(source='user.get_absolute_url')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
     avatar_url = serializers.CharField(source='get_avatar_url')
@@ -37,7 +39,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'is_active', 'date_joined', 'avatar_url', 'permissions')
+        fields = ('id', 'username', 'html_url', 'is_active', 'date_joined', 'avatar_url', 'permissions')
 
 
 class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
@@ -73,6 +75,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 
     id = serializers.ReadOnlyField(source='user.id')
     username = serializers.CharField(source='user.username')
+    html_url = serializers.CharField(source='user.get_absolute_url')
     email = serializers.EmailField(source='user.email')
     is_active = serializers.BooleanField(source='user.is_active')
     date_joined = serializers.DateTimeField(source='user.date_joined')
@@ -81,7 +84,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'username', 'email', 'is_active', 'date_joined',
+        fields = ('id', 'username', 'html_url', 'email', 'is_active', 'date_joined',
                   'site', 'avatar_url', 'biography', 'sign', 'show_email',
                   'show_sign', 'hover_or_click', 'allow_temp_visual_changes',
                   'email_for_answer', 'last_visit', 'permissions')

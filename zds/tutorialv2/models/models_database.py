@@ -11,6 +11,7 @@ except ImportError:
 
 from math import ceil
 import shutil
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -20,19 +21,22 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
+
 from git import Repo, BadObject
 from gitdb.exc import BadName
 import os
 from uuslug import uuslug
+
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
-from zds.utils.models import SubCategory, Licence, HelpWriting, Comment
+from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
@@ -42,7 +46,7 @@ class PublishableContent(models.Model):
 
     A PublishableContent retains metadata about a content in database, such as
 
-    - authors, description, source (if the content comes from another website), subcategory and licence ;
+    - authors, description, source (if the content comes from another website), subcategory, tags and licence ;
     - Thumbnail and gallery ;
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
@@ -63,6 +67,7 @@ class PublishableContent(models.Model):
                                          verbose_name='Sous-Catégorie',
                                          blank=True, db_index=True)
 
+    tags = models.ManyToManyField(Tag, verbose_name='Tags du contenu', blank=True, db_index=True)
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image,
                               verbose_name='Image du tutoriel',
@@ -290,9 +295,9 @@ class PublishableContent(models.Model):
         try:
             return self.load_version(sha, public)
         except (BadObject, BadName, IOError) as error:
-            raise Http404(_(
-                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}".format(
-                    str(error))))
+            raise Http404(
+                u"Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}".format(
+                    type(error), str(error)))
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -444,12 +449,13 @@ class PublishableContent(models.Model):
 
         return self.first_note()
 
-    def first_unread_note(self):
+    def first_unread_note(self, user=None):
         """
         :return: Return the first note the user has unread.
         :rtype: ContentReaction
         """
-        user = get_current_user()
+        if user is None:
+            user = get_current_user()
 
         if user and user.is_authenticated():
             try:
@@ -511,6 +517,22 @@ class PublishableContent(models.Model):
                 shutil.rmtree(self.public_version.get_prod_path())
 
         Validation.objects.filter(content=self).delete()
+
+    def add_tags(self, tag_collection):
+        """
+        Add all tags contained in `tag_collection` to this content.
+        If a tag is unknown, it is added to the system.
+        :param tag_collection: A collection of tags.
+        :type tag_collection: list
+        """
+        for tag in tag_collection:
+            try:
+                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
+                self.tags.add(current_tag)
+            except ValueError as e:
+                logging.getLogger("zds.tutorialv2").warn(e)
+
+        self.save()
 
 
 @receiver(pre_delete, sender=PublishableContent)

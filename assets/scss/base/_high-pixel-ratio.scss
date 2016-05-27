@@ -10,6 +10,8 @@
     }
     .ico,
     .ico-after:after,
+    .content-item .content-reactions,
+    .content-item .content-reactions::before,
     .breadcrumb ol li:not(:last-child):after {
         @include sprite-2x();
     }
@@ -19,6 +21,16 @@
         input[type=radio]:after,
         input[type=checkbox]:after {
             @include sprite-2x();
+        }
+    }
+
+    .home .home-search-box::before {
+        background-image: url('../images/home-clem@2x.png');
+
+        @at-root {
+            body.vc-clem-christmas.home .home-search-box::before {
+                background-image: url('../images/home-clem-christmas@2x.png');
+            }
         }
     }
 }
@@ -36,15 +48,5 @@
 
     .page-container .header-logo-link {
         background-image: url('../images/logo-mobile@2x.png') !important;
-    }
-
-    .home .home-search-box::before {
-        background-image: url('../images/home-clem@2x.png');
-
-        @at-root {
-            body.vc-clem-christmas.home .home-search-box::before {
-                background-image: url('../images/home-clem-christmas@2x.png');
-            }
-        }
     }
 }

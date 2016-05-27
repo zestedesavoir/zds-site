@@ -5,7 +5,7 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-
+{% load interventions %}
 
 
 {% block title %}
@@ -76,6 +76,10 @@
             {% url 'post-edit' %}?message={{ message.pk }}
         {% endcaptureas %}
 
+        {% captureas hide_link %}{{ edit_link }}{% endcaptureas %}
+        {% captureas show_link %}{{ edit_link }}{% endcaptureas %}
+        {% captureas alert_link %}{{ edit_link }}{% endcaptureas %}
+
         {% captureas cite_link %}
             {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
@@ -84,12 +88,8 @@
             {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% captureas upvote_link %}
-            {% url 'post-like' %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas downvote_link %}
-            {% url 'post-dislike' %}?message={{ message.pk }}
+        {% captureas karma_link %}
+            {% url 'api:forum:post-karma' message.pk %}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
@@ -128,6 +128,9 @@
 
 
 {% block new_btn %}
+    <a href="{{ topic.forum.get_absolute_url }}" class="new-btn ico-after arrow-left blue">
+        {% trans "Retour à la liste des sujets" %}
+    </a>
     <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
@@ -172,6 +175,7 @@
     {% endif %}
 
     <li>
+    {% with topic_is_followed=topic|is_followed %}
         <form action="{% url 'topic-edit' %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
@@ -180,25 +184,27 @@
             {% csrf_token %}
 
             <button
-                class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}"
+                class="follow ico-after star {% if topic_is_followed %}yellow{% else %}blue{% endif %}"
                 type="submit" data-ajax-input="follow-topic"
                 data-content-on-click="
-                    {% if topic.is_followed %}
+                    {% if topic_is_followed %}
                         {% trans "Suivre ce sujet" %}
                     {% else %}
                         {% trans "Ne plus suivre ce sujet" %}
                     {% endif %}
                 "
             >
-                {% if topic.is_followed %}
+                {% if topic_is_followed %}
                     {% trans "Ne plus suivre ce sujet" %}
                 {% else %}
                     {% trans "Suivre ce sujet" %}
                 {% endif %}
             </button>
         </form>
+    {% endwith %}
     </li>
     <li>
+    {% with topic_is_email_followed=topic|is_email_followed %}
         <form action="{% url 'topic-edit' %}" method="post">
             <input type="hidden" name="topic" value="{{ topic.pk }}">
             <input type="hidden" name="nb" value="{{ nb }}">
@@ -207,23 +213,24 @@
             {% csrf_token %}
 
             <button
-                class="email ico-after {% if not topic.is_email_followed %}blue{% endif %}"
+                class="email ico-after {% if not topic_is_email_followed %}blue{% endif %}"
                 type="submit" data-ajax-input="follow-topic-by-email"
                 data-content-on-click="
-                    {% if topic.is_email_followed %}
+                    {% if topic_is_email_followed %}
                         {% trans "Être notifié par courriel" %}
                     {% else %}
                         {% trans "Ne plus être notifié par courriel" %}
                     {% endif %}
                 "
             >
-                {% if topic.is_email_followed %}
+                {% if topic_is_email_followed %}
                     {% trans "Ne plus être notifié par courriel" %}
                 {% else %}
                     {% trans "Être notifié par courriel" %}
                 {% endif %}
             </button>
         </form>
+    {% endwith %}
     </li>
 {% endblock %}
 

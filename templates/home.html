@@ -49,48 +49,33 @@
             </section>
             <section class="home-description">
                 <div class="column">
-                    <h2>
-                        {% trans "La connaissance pour tous" %}
-                    </h2>
-                    <p>
+                    <h2>{% trans "La connaissance pour tous" %}</h2>
                     {% blocktrans with site_name=app.site.litteral_name %}
-                        {{site_name}} est un site de <strong>partage de connaissances</strong> sur lequel vous trouverez
-                        des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>, des
-                        <a href='{{url_articles}}'>articles</a> et des <a href='{{url_forums}}'>forums d'entraide</a>
-                        animés par et pour la communauté. Les sujets abordés sont, pour l'instant, l'informatique et les
-                        sciences, mais nous n'attendons que vous pour élargir les domaines présentés !
+                        <p>{{site_name}}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
+                            <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:</p>
+                        <ul>
+                            <li>des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>&nbsp;;</li>
+                            <li>des <a href='{{url_articles}}'>articles</a>&nbsp;;</li>
+                            <li>et des <a href='{{url_forums}}'>forums d'entraide</a>.</li>
+                        </ul>
+                        <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
                     {% endblocktrans %}
-                    </p>
                 </div>
                 <div class="column">
-                    <h2>
-                        {% trans "Partagez vos connaissances" %}
-                    </h2>
-                    <p>
+                    <h2>{% trans "Partagez vos savoirs…" %}</h2>
                     {% blocktrans %}
-                        Tous les membres peuvent écrire et <strong>publier des tutoriels et articles sur le site</strong>.
-                        Pour assurer la qualité et la pédagogie du contenu, l'équipe du site valide chaque cours avant
-                        publication.
+                        <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des contenus</strong>.</p>
+                        <p>Pour assurer la qualité, l'équipe du site valide chaque tutoriel et article.</p>
                     {% endblocktrans %}
-                    </p>
-                </div>
-                <div class="column">
-                    <h2>
-                        {% trans "Gratuit et sans publicité" %}
-                    </h2>
-                    <p>
-                    {% blocktrans %}
-                        Tout cela est <strong>entièrement gratuit et garanti sans publicité</strong>, le site est géré
-                        et financé par une <a href="{{url_association}}">association</a> à but non lucratif.
-                    {% endblocktrans %}
-                    </p>
-                    {% if app.site.contribute_link %}
-                    <p>
-                        <a class="home-description-button" href="{{ app.site.contribute_link }}">
-                            {% trans "Aider à développer la plateforme" %}
-                        </a>
-                    </p>
-                    {% endif %}
+                    <h2>{% trans "… sur une plate-forme libre" %}</h2>
+                        {% blocktrans %}
+                            <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
+                        {% endblocktrans %}
+                        {% if app.site.contribute_link %}
+                            {% blocktrans with contribute_link=app.site.contribute_link %}
+                                <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
+                            {% endblocktrans %}
+                        {% endif %}
                 </div>
             </section>
         {% endif %}
@@ -126,7 +111,7 @@
             </div>
         </section>
         <div class="home-row">
-           <section itemscope itemtype="http://schema.org/ItemList">
+            <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
                     <a href="{% url "tutorial:list" %}" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
@@ -136,17 +121,10 @@
 
                 <div class="content-item-list">
                     {% for tutorial in last_tutorials %}
-                        {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with public_tutorial=tutorial show_description=True item_class=forloop.first|yesno:", mini" %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=tutorial show_description=True %}
                     {% empty %}
                         <p>{% trans "Aucun tutoriel disponible." %}</p>
                     {% endfor %}
-                    <div class="content-item write-tutorial">
-                        <div class="write-tutorial-text">
-                            <p>{% blocktrans %}Il y a {{ tutorials_count }} tutoriels sur Zeste de Savoir.{% endblocktrans %}</p>
-                            <p class="lead">{% trans "Pourquoi pas le vôtre ?" %}</p>
-                        </div>
-                        <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Rédiger un tutoriel" %}</a>
-                    </div>
                 </div>
             </section>
 
@@ -160,10 +138,18 @@
 
                 <div class="content-item-list">
                     {% for article in last_articles %}
-                        {% include 'tutorialv2/includes/content_item_type_article.part.html' with public_article=article show_description=True %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=article show_description=True show_reactions=True %}
                     {% empty %}
                         <p>{% trans "Aucun article disponible." %}</p>
                     {% endfor %}
+
+                    <div class="content-item write-tutorial">
+                        <div class="write-tutorial-text">
+                            <p>{% blocktrans %}Il y a {{ contents_count }}&nbsp;publications sur&nbsp;Zeste&nbsp;de&nbsp;Savoir.{% endblocktrans %}</p>
+                            <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
+                        </div>
+                        <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
+                    </div>
                 </div>
             </section>
         </div>

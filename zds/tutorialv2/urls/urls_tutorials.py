@@ -4,8 +4,9 @@ from django.conf.urls import url
 from zds.tutorialv2.views.views_contents import RedirectOldBetaTuto
 
 from zds.tutorialv2.views.views_published import ListTutorials, DisplayOnlineTutorial, DisplayOnlineContainer, \
-    DownloadOnlineTutorial, RedirectContentSEO
+    DownloadOnlineTutorial, RedirectContentSEO, TagsListView
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
+
 
 urlpatterns = [
     # flux
@@ -40,5 +41,6 @@ urlpatterns = [
     url('^beta/(?P<pk>\d+)/(?P<slug>.+)', RedirectOldBetaTuto.as_view(), name="old-beta-url"),
 
     # Listing
-    url(r'^$', ListTutorials.as_view(), name='list')
+    url(r'^$', ListTutorials.as_view(), name='list'),
+    url(r'tags/$', TagsListView.as_view(displayed_types=["TUTORIAL"]), name="tags")
 ]

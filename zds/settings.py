@@ -2,7 +2,6 @@
 
 import os
 import sys
-from os.path import dirname
 from os.path import join
 
 from django.contrib.messages import constants as message_constants
@@ -94,7 +93,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z' # noqa
+SECRET_KEY = 'n!01nl+318#x75_%le8#s0=-*ysw&amp;y49uc#t=*wvi(9hnyii0z'  # noqa
 
 FILE_UPLOAD_HANDLERS = (
     "django.core.files.uploadhandler.MemoryFileUploadHandler",
@@ -147,7 +146,7 @@ TEMPLATES = [
                 'zds.utils.context_processor.git_version',
             ],
             'debug': DEBUG,
-            }
+        }
     },
 ]
 
@@ -186,6 +185,7 @@ INSTALLED_APPS = (
     'zds.member',
     'zds.featured',
     'zds.search',
+    'zds.notification',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -204,6 +204,8 @@ THUMBNAIL_ALIASES = {
         'help_illu': {'size': (48, 48), 'crop': True},
         'help_mini_illu': {'size': (26, 26), 'crop': True},
         'gallery': {'size': (120, 120), 'crop': True},
+        'featured': {'size': (228, 228), 'crop': True},
+        'gallery_illu': {'size': (480, 270), 'crop': True},
         'content': {'size': (960, 960), 'crop': False},
     },
 }
@@ -217,14 +219,14 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
-        #'rest_framework.parsers.XMLParser',
+        # 'rest_framework.parsers.XMLParser',
         'rest_framework_xml.parsers.XMLParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        #'rest_framework.renderers.XMLRenderer',
+        # 'rest_framework.renderers.XMLRenderer',
         'rest_framework_xml.renderers.XMLRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
@@ -246,6 +248,10 @@ REST_FRAMEWORK_EXTENSIONS = {
 }
 
 SWAGGER_SETTINGS = {
+    'exclude_namespaces': [
+        'content',
+        'forum'
+    ],
     'enabled_methods': [
         'get',
         'post',
@@ -363,7 +369,6 @@ GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 # Fake mails (in console)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-from django.contrib.messages import constants as message_constants
 MESSAGE_TAGS = {
     message_constants.DEBUG: 'debug',
     message_constants.INFO: 'info',
@@ -458,19 +463,20 @@ ZDS_APP = {
     },
     'gallery': {
         'image_max_size': 1024 * 1024,
+        'gallery_per_page': 21,
     },
     'article': {
-        'home_number': 4,
+        'home_number': 3,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
         'default_license_pk': 7,
-        'home_number': 5,
+        'home_number': 4,
         'helps_per_page': 20,
         'content_per_page': 42,
-        'feed_length': 5
+        'feed_length': 5,
     },
     'content': {
         'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
@@ -502,7 +508,10 @@ ZDS_APP = {
         'max_post_length': 1000000,
         'top_tag_max': 5,
         'home_number': 5,
-        'old_post_limit_days': 90
+        'old_post_limit_days': 90,
+        # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
+        # Be warned exclude too much tags can restrict performance
+        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
     },
     'topic': {
         'home_number': 6,
@@ -542,7 +551,7 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_FACEBOOK_KEY = ""
 SOCIAL_AUTH_FACEBOOK_SECRET = ""
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8" # noqa
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "mApWNh3stCsYHwsGuWdbZWP8"  # noqa
 
 # ReCaptcha stuff
 USE_CAPTCHA = False
@@ -551,6 +560,9 @@ RECAPTCHA_USE_SSL = True
 # keys (should be overriden in the settings_prod.py file)
 RECAPTCHA_PUBLIC_KEY = 'dummy'  # noqa
 RECAPTCHA_PRIVATE_KEY = 'dummy'  # noqa
+
+# Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
+VOTES_ID_LIMIT = 0
 
 # To remove a useless warning in Django 1.7.
 # See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
@@ -565,7 +577,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Load the production settings, overwrite the existing ones if needed
 try:
-    from settings_prod import *
+    from settings_prod import *  # noqa
 except ImportError:
     pass
-
