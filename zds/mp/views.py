@@ -4,8 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse
@@ -19,11 +18,11 @@ from django.views.generic.list import MultipleObjectMixin
 from zds.member.models import Profile
 from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.mp.decorator import is_participant
+from zds.mp.forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
+from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.utils.forums import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
-from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivatePost, mark_read
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -153,6 +152,7 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
 
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
+        mark_read(topic, self.request.user)
         self.perform_destroy(topic)
         messages.success(request, _(u'Vous avez quitté la conversation avec succès.'))
         return redirect(reverse('mp-list'))
