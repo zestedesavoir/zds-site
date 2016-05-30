@@ -85,7 +85,7 @@ def followed_topics(user):
     :return:
     """
     topics_followed = TopicAnswerSubscription.objects\
-        .prefetch_related("content_object", "content_object__last_message")\
+        .prefetch_related("content_object", "content_object__last_message", "last_notification")\
         .extra(
             select=dict(sort_date="last_notification__pubdate",
                         displayed_date="content_object__last_message__pubdate")
