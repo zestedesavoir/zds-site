@@ -86,14 +86,15 @@ def followed_topics(user):
     :return:
     """
     topics_followed = TopicAnswerSubscription.objects\
-                        .prefetch_related("content_object",
-                                          "content_object__last_message")\
-                        .extra(sort_date=F("last_notification__pubdate"))\
-                        .extra(displayed_date=F("content_object__last_message__pubdate"))\
-                        .filter(user=user,
-                                content_type__model='topic',
-                                is_active=True)\
-                        .order_by('-sort_date')[:10]
+        .prefetch_related("content_object", "content_object__last_message")\
+        .extra(
+            select=dict(sort_date=F("last_notification__pubdate"),
+                        displayed_date=F("content_object__last_message__pubdate"))
+        )\
+        .filter(user=user,
+                content_type__model='topic',
+                is_active=True)\
+        .order_by('-sort_date')[:10]
     # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
     # the number of days for which we can say we're still in the period
     # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
