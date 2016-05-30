@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.db.models.expressions import F
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, never_read as never_read_topic
@@ -78,10 +79,14 @@ def humane_delta(value):
 
 @register.filter('followed_topics')
 def followed_topics(user):
-    topics_followed = TopicAnswerSubscription.objects.filter(user=user,
-                                                             content_type__model='topic',
-                                                             is_active=True)\
-        .order_by('-last_notification__pubdate')[:10]
+    topics_followed = TopicAnswerSubscription.objects\
+                          .fetch_related("content_object", "content_object__last_message")\
+                          .extra(sort_date=F("last_notification__pubdate"))\
+                          .extra(displayed_date=F("content_object__last_message__pubdate"))\
+                          .filter(user=user,
+                                  content_type__model='topic',
+                                  is_active=True)\
+                          .order_by('-sort_date')[:10]
     # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
     # the number of days for which we can say we're still in the period
     # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
@@ -91,7 +96,7 @@ def followed_topics(user):
     topics = {}
     for topic_followed in topics_followed:
         for period in periods:
-            if topic_followed.content_object.last_message.pubdate.date() \
+            if topic_followed.displayed_date.date() \
                     >= (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
                 if period[0] in topics:
                     topics[period[0]].append(topic_followed.content_object)
