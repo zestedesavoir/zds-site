@@ -8,6 +8,7 @@ from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import Group, User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.encoding import smart_text
@@ -214,6 +215,7 @@ class Topic(models.Model):
     key = models.IntegerField('cle', null=True, blank=True)
 
     objects = TopicManager()
+    notifications = GenericRelation("zds.notification.Subscription", related_query_name="content_object")
 
     def __unicode__(self):
         return self.title

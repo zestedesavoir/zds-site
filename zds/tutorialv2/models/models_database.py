@@ -1,6 +1,9 @@
 # coding: utf-8
 
 from datetime import datetime
+
+from django.contrib.contenttypes.fields import GenericRelation
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -121,7 +124,7 @@ class PublishableContent(models.Model):
 
     public_version = models.ForeignKey(
         'PublishedContent', verbose_name=u'Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
-
+    notifications = GenericRelation("zds.notification.Subscription", related_query_name="content_object")
     objects = PublishableContentManager()
 
     def __unicode__(self):

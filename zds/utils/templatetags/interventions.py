@@ -7,7 +7,6 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.expressions import F
 from django.utils.translation import ugettext_lazy as _
-from lxml.html.builder import Q
 
 from zds.forum.models import Post, never_read as never_read_topic
 from zds.mp.models import PrivateTopic
@@ -87,8 +86,8 @@ def followed_topics(user):
     :return:
     """
     topics_followed = TopicAnswerSubscription.objects\
+        .prefetch_related("content_object")\
         .annotate(sort_date=F("last_notification__pubdate"),
-                  content_object=Q("content_object"),
                   displayed_date=F("content_object__last_message__pubdate")
         )\
         .filter(user=user,
