@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.expressions import F
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, never_read as never_read_topic
@@ -88,8 +87,8 @@ def followed_topics(user):
     topics_followed = TopicAnswerSubscription.objects\
         .prefetch_related("content_object", "content_object__last_message")\
         .extra(
-            select=dict(sort_date=F("last_notification__pubdate"),
-                        displayed_date=F("content_object__last_message__pubdate"))
+            select=dict(sort_date="last_notification__pubdate",
+                        displayed_date="content_object__last_message__pubdate")
         )\
         .filter(user=user,
                 content_type__model='topic',
