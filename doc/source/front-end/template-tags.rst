@@ -230,6 +230,10 @@ Ce filtre renvoit la liste des *topics* suivis par l'utilisateur, sous la forme 
 
 où ``period`` est un nombre au format attendu par ``humane_delta`` (entre 1 et 5, voir plus haut) et ``topics`` la liste des *topics* dont le dernier message est situé dans cette période de temps. Les *topics* sont des objets ``Topic`` (`voir le détail de son implémentation ici <../back-end-code/forum.html#zds.forum.models.Topic>`__).
 
+.. attention::
+    Lorsque vous touchez à cette fonction, vous risquez d'altérer les performances du site de manière importante.
+    N'hésitez pas à demander une relecture complémentaire si c'est le cas.
+
 ``interventions_topics``
 ------------------------
 
