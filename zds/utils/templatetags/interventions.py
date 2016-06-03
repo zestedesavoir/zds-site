@@ -86,10 +86,9 @@ def followed_topics(user):
     :return:
     """
     topics_followed = TopicAnswerSubscription.objects\
-        .prefetch_related("content_object")\
-        .annotate(sort_date=F("last_notification__pubdate"),
-                  displayed_date=F("content_object__last_message__pubdate")
-        )\
+        .select_related("content_object")\
+        .annotate(sort_date=F("last_notification__pubdate")
+                  )\
         .filter(user=user,
                 content_type__model='topic',
                 is_active=True)\

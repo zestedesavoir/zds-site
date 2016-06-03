@@ -19,7 +19,6 @@ from zds.settings import ZDS_APP
 from zds.utils import get_current_user
 from zds.utils import slugify
 from zds.utils.models import Comment, Tag
-import zds.notification.models
 
 
 def sub_tag(tag):
@@ -216,7 +215,6 @@ class Topic(models.Model):
     key = models.IntegerField('cle', null=True, blank=True)
 
     objects = TopicManager()
-    notifications = GenericRelation(zds.notification.models.Subscription, related_query_name="content_object")
 
     def __unicode__(self):
         return self.title
