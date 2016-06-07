@@ -7,7 +7,7 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.models import Post, never_read as never_read_topic
+from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewTopicSubscription
@@ -20,10 +20,7 @@ register = template.Library()
 
 @register.filter('is_read')
 def is_read(topic):
-    if never_read_topic(topic):
-        return False
-    else:
-        return True
+    return topic_is_read(topic)
 
 
 @register.filter('is_followed')

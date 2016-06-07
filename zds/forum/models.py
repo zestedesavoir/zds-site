@@ -480,21 +480,20 @@ def get_last_topics(user):
     return tops
 
 
-def never_read(topic, user=None):
+def is_read(topic, user=None):
     """
-    Check if the user has read the **last post** of the topic.
-    Note if the user has already read the topic but not the last post, it will consider it has never read the topic...
-    Technically this is done by check if there is a `TopicRead` for the topic, its last post and the user.
+    Checks if the user has read the **last post** of the topic.
+    Returns false if the user read the topic except its last post.
+    Technically this is done by checking if the user has a `TopicRead` object
+    for the last post of this topic.
     :param topic: A topic
     :param user: A user. If undefined, the current user is used.
     :return:
     """
-    # TODO: cette méthode est très mal nommée en plus d'avoir un nom "booléen négatif" !
     if user is None:
         user = get_current_user()
 
-    return not TopicRead.objects \
-        .filter(post=topic.last_message, topic=topic, user=user).exists()
+    return TopicRead.objects.filter(post=topic.last_message, topic=topic, user=user).exists()
 
 
 def mark_read(topic, user=None):

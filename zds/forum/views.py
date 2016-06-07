@@ -23,7 +23,7 @@ from haystack.query import SearchQuerySet
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
+from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
@@ -169,7 +169,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         if self.request.user.is_authenticated():
-            if never_read(self.object):
+            if not is_read(self.object):
                 mark_read(self.object)
         return context
 
