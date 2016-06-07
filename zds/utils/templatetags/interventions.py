@@ -60,7 +60,7 @@ def is_content_followed(content):
 @register.filter('humane_delta')
 def humane_delta(value):
     """
-    Mapping between label day and key
+    Associating a key to a named period
 
     :param int value:
     :return: string
@@ -82,12 +82,11 @@ def followed_topics(user):
                                                              content_type__model='topic',
                                                              is_active=True)\
         .order_by('-last_notification__pubdate')[:10]
-    # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
-    # the number of days for which we can say we're still in the period
-    # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
-    # to humane_delta, means if your pubdate hasn't exceeded one day, we are always at "Yesterday"
-    # Number is use for index for sort map easily
-    periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
+    # periods is a map associating a period (Today, Yesterday, Last n days)
+    # with its corresponding number of days: (humane_delta index, number of days).
+    # (3, 7) thus means that passing 3 to humane_delta would return "This week", for which
+    # we'd like pubdate not to exceed 7 days.
+    periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 365))
     topics = {}
     for topic_followed in topics_followed:
         for period in periods:
