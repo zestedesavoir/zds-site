@@ -10,6 +10,22 @@ class SubscriptionManager(models.Manager):
     Custom subscription manager
     """
 
+    def __create_lookup_args(self, user, content_object, is_active, by_email):
+        """
+        Generates QuerySet lookup parameters for use with get(), filter(), ...
+        """
+        content_type = ContentType.objects.get_for_model(content_object)
+        lookup = dict(
+            object_id=content_object.pk,
+            content_type__pk=content_type.pk,
+            user=user
+        )
+        if is_active is not None:
+            lookup['is_active'] = is_active
+        if by_email is not None:
+            lookup['by_email'] = by_email
+        return lookup
+
     def get_existing(self, user, content_object, is_active=None, by_email=None):
         """
         If exists, return the existing subscription for the given user and content object.
@@ -24,7 +40,7 @@ class SubscriptionManager(models.Manager):
         :type by_email: Boolean
         :return: subscription or None
         """
-        content_type = ContentType.objects.get_for_model(content_object)
+        lookup = self.__create_lookup_args(user, content_object, is_active, by_email)
         try:
             lookup = dict(
                 object_id=content_object.pk,
