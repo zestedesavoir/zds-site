@@ -42,19 +42,27 @@ class SubscriptionManager(models.Manager):
         """
         lookup = self.__create_lookup_args(user, content_object, is_active, by_email)
         try:
-            lookup = dict(
-                object_id=content_object.pk,
-                content_type__pk=content_type.pk,
-                user=user
-            )
-            if is_active is not None:
-                lookup['is_active'] = is_active
-            if by_email is not None:
-                lookup['by_email'] = by_email
             existing = self.get(**lookup)
         except ObjectDoesNotExist:
             existing = None
         return existing
+
+    def does_exist(self, user, content_object, is_active=None, by_email=None):
+        """
+        Check if there is a subscription for the given user and content object.
+
+        :param user: concerned user.
+        :type user: django.contrib.auth.models.User
+        :param content_object: Generic content concerned.
+        :type content_object: instance concerned by notifications
+        :param is_active: Boolean to know if we want a subscription active or not.
+        :type is_active: Boolean
+        :param by_email: Boolean to know if we want a subscription for email or not.
+        :type by_email: Boolean
+        :return: Boolean, whether this subscription exists or not
+        """
+        lookup = self.__create_lookup_args(user, content_object, is_active, by_email)
+        return self.filter(**lookup).exists()
 
     def get_or_create_active(self, user, content_object):
         """

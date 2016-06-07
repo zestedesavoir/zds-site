@@ -29,32 +29,32 @@ def is_read(topic):
 @register.filter('is_followed')
 def is_followed(topic):
     user = get_current_user()
-    return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True) is not None
+    return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True)
 
 
 @register.filter('is_email_followed')
 def is_email_followed(topic):
     user = get_current_user()
-    return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True, by_email=True) is not None
+    return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True, by_email=True)
 
 
 @register.filter('is_forum_followed')
 def is_forum_followed(forum):
     user = get_current_user()
-    return NewTopicSubscription.objects.get_existing(user, forum, is_active=True) is not None
+    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True)
 
 
 @register.filter('is_forum_email_followed')
 def is_forum_email_followed(forum):
     user = get_current_user()
-    return NewTopicSubscription.objects.get_existing(user, forum, is_active=True, by_email=True) is not None
+    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True, by_email=True)
 
 
 @register.filter('is_content_followed')
 def is_content_followed(content):
     user = get_current_user()
-    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.get_existing(
-        user, content, is_active=True) is not None
+    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
+        user, content, is_active=True)
 
 
 @register.filter('humane_delta')
