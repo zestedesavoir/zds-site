@@ -444,8 +444,8 @@ ZDS_APP = {
             'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
-            'name': u"OVH",
-            'address': u"2 rue Kellermann - 59100 Roubaix - France"
+            'name': u"GANDI SAS",
+            'address': u"63-65 boulevard Massena - 75013 Paris - France"
         },
         'social': {
             'facebook': u'https://www.facebook.com/ZesteDeSavoir',
