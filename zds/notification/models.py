@@ -137,6 +137,7 @@ class SingleNotificationMixin(object):
             notification.sender = sender
             notification.url = self.get_notification_url(content)
             notification.title = self.get_notification_title(content)
+            notification.pubdate = content.pubdate
             notification.is_read = False
             notification.save()
             self.set_last_notification(notification)
