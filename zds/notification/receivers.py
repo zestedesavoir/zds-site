@@ -232,6 +232,17 @@ def add_participant_topic_event(sender, **kwargs):
                     subscription.deactivate()
 
 
+@receiver(pre_delete, sender=PrivateTopic)
+def delete_private_topic_event(sender, instance, **kwargs):
+    """
+    A private topic is deleted when there is nobody in this private topic.
+    """
+    subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(content_object=instance, is_active=True)
+    for subscription in subscriptions:
+        subscription.mark_notification_read()
+        subscription.deactivate()
+
+
 @receiver(pre_delete, sender=User)
 def delete_notifications(sender, instance, **kwargs):
     """
