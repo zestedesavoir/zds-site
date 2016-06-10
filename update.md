@@ -569,6 +569,15 @@ Il faudra supprimer en SQL:
  
 S'il y a une erreur pour `article_article_subcategory` et `DROP TABLE tutorial_tutorial_subcategory;` c'est que les tables ont déjà été supprimées précédement (ZEP-25).
 
+Actions à faire pour mettre en prod la version 18.2
+===================================================
+
+Notifications
+-------------
+
+Lancez la commande `python manage.py migrate_email_subscription` pour migrer tous les sujets suivis par e-mail vers
+les nouveaux modèles de souscriptions.
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
