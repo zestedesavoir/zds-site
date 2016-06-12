@@ -517,3 +517,22 @@ class NotificationTest(TestCase):
         notifications = Notification.objects.filter(subscription__user=self.user1)
         self.assertEqual(1, len(notifications))
         self.assertIsNotNone(notifications.first())
+
+    def test_mark_all_notifications_as_read_when_toggle_follow(self):
+        """
+        When a user unsubscribe to a content, we mark as read all notifications about this content.
+        """
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+        PostFactory(topic=topic, author=self.user2, position=2)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.user1)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        TopicAnswerSubscription.objects.toggle_follow(topic, self.user1)
+
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
