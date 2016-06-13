@@ -451,17 +451,20 @@ class NotificationPrivateTopicTest(TestCase):
         self.assertIsNotNone(notifications.first())
         self.assertEqual(topic.last_message, notifications.first().content_object)
 
-        self.assertIsNotNone(
-            PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
 
+        send_message_mp(self.user2, topic, "Test")
         topic.participants.remove(self.user2)
         topic.save()
 
-        notifications = Notification.objects.get_unread_notifications_of(self.user2)
-        self.assertEqual(0, len(notifications))
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user2)))
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=False))
 
-        self.assertIsNotNone(
-            PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=False))
+        self.assertEqual(1, len(Notification.objects.get_unread_notifications_of(self.user1)))
+
+        response = self.client.post(reverse('mp-delete', args=[topic.pk, topic.slug]), follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
     def test_send_an_email_when_we_specify_it(self):
         """
