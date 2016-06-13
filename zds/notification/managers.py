@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from zds.forum.models import Topic
+from zds.notification import signals
 from zds.utils import get_current_user
 
 
@@ -136,6 +137,7 @@ class SubscriptionManager(models.Manager):
             if by_email:
                 subscription.activate_email()
             return subscription
+        signals.content_read.send(sender=content_object.__class__, instance=content_object, user=user)
         if by_email:
             existing.deactivate_email()
         else:
