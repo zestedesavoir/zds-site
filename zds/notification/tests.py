@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
@@ -234,6 +236,38 @@ class NotificationForumTest(TestCase):
 
         topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
         self.assertEqual(3, len(topics_followed))
+
+    def test_pubdate_on_notification_updated(self):
+        """
+        When we update a notification, we should update its pubdate too.
+        """
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(self.user1)
+        self.assertEqual(1, len(topics_followed))
+
+        post = PostFactory(topic=topic, author=self.user2, position=2)
+
+        old_notification = Notification.objects.get(subscription__user=self.user1, object_id=post.pk, is_read=False)
+        old_notification.pubdate = datetime.now() - timedelta(days=1)
+        old_notification.save()
+        self.assertEqual(old_notification.object_id, post.pk)
+        self.assertEqual(old_notification.subscription.object_id, topic.pk)
+
+        # read it.
+        old_notification.is_read = True
+        old_notification.save()
+
+        user3 = UserFactory()
+        post2 = PostFactory(topic=topic, author=user3, position=3)
+
+        new_notification = Notification.objects.get(subscription__user=self.user1, object_id=post2.pk, is_read=False)
+        self.assertEqual(new_notification.object_id, post2.pk)
+        self.assertEqual(new_notification.subscription.object_id, topic.pk)
+
+        # Check that the pubdate is well updated.
+        self.assertTrue(old_notification.pubdate < new_notification.pubdate)
 
 
 class NotificationPublishableContentTest(TestCase):
