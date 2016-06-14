@@ -575,7 +575,14 @@ Actions à faire pour mettre en prod la version 18.2
 Notifications
 -------------
 
+### Supprime les notifications inutiles
+
 Lancez la commande `python manage.py delete_useless_notif` pour supprimer toutes les notifications inutiles.
+
+### Migre les souscriptions par e-mail
+
+Lancez la commande `python manage.py migrate_email_subscription` pour migrer tous les sujets suivis par e-mail vers
+les nouveaux modèles de souscriptions.
 
 ---
 
