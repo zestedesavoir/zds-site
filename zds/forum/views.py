@@ -302,9 +302,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
         response = {}
         if 'follow' in request.POST:
-            response['follow'] = self.perform_follow(self.object, request.user)
+            response['follow'] = self.perform_follow(self.object, request.user).is_active
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:
             response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
         elif 'lock' in request.POST:

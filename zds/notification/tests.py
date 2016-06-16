@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
@@ -9,7 +11,7 @@ from zds import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
@@ -213,6 +215,59 @@ class NotificationForumTest(TestCase):
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
         self.assertEqual(1, len(notifications))
+
+    def test_topics_followed_by_a_user(self):
+        """
+        Check that we retrieve well topics followed by a user.
+        """
+        user = UserFactory()
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
+        self.assertEqual(0, len(topics_followed))
+
+        first = TopicFactory(forum=self.forum11, author=user)
+        second = TopicFactory(forum=self.forum11, author=user)
+        third = TopicFactory(forum=self.forum11, author=user)
+
+        # Subscribes to all topics.
+        TopicAnswerSubscription.objects.get_or_create_active(user, second)
+        TopicAnswerSubscription.objects.get_or_create_active(user, first)
+        TopicAnswerSubscription.objects.get_or_create_active(user, third)
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
+        self.assertEqual(3, len(topics_followed))
+
+    def test_pubdate_on_notification_updated(self):
+        """
+        When we update a notification, we should update its pubdate too.
+        """
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(self.user1)
+        self.assertEqual(1, len(topics_followed))
+
+        post = PostFactory(topic=topic, author=self.user2, position=2)
+
+        old_notification = Notification.objects.get(subscription__user=self.user1, object_id=post.pk, is_read=False)
+        old_notification.pubdate = datetime.now() - timedelta(days=1)
+        old_notification.save()
+        self.assertEqual(old_notification.object_id, post.pk)
+        self.assertEqual(old_notification.subscription.object_id, topic.pk)
+
+        # read it.
+        old_notification.is_read = True
+        old_notification.save()
+
+        user3 = UserFactory()
+        post2 = PostFactory(topic=topic, author=user3, position=3)
+
+        new_notification = Notification.objects.get(subscription__user=self.user1, object_id=post2.pk, is_read=False)
+        self.assertEqual(new_notification.object_id, post2.pk)
+        self.assertEqual(new_notification.subscription.object_id, topic.pk)
+
+        # Check that the pubdate is well updated.
+        self.assertTrue(old_notification.pubdate < new_notification.pubdate)
 
     def test_notifications_on_a_forum_subscribed(self):
         """
@@ -465,17 +520,20 @@ class NotificationPrivateTopicTest(TestCase):
         self.assertIsNotNone(notifications.first())
         self.assertEqual(topic.last_message, notifications.first().content_object)
 
-        self.assertIsNotNone(
-            PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
 
+        send_message_mp(self.user2, topic, "Test")
         topic.participants.remove(self.user2)
         topic.save()
 
-        notifications = Notification.objects.get_unread_notifications_of(self.user2)
-        self.assertEqual(0, len(notifications))
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user2)))
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=False))
 
-        self.assertIsNotNone(
-            PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=False))
+        self.assertEqual(1, len(Notification.objects.get_unread_notifications_of(self.user1)))
+
+        response = self.client.post(reverse('mp-delete', args=[topic.pk, topic.slug]), follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
     def test_send_an_email_when_we_specify_it(self):
         """
@@ -531,3 +589,22 @@ class NotificationTest(TestCase):
         notifications = Notification.objects.filter(subscription__user=self.user1)
         self.assertEqual(1, len(notifications))
         self.assertIsNotNone(notifications.first())
+
+    def test_mark_all_notifications_as_read_when_toggle_follow(self):
+        """
+        When a user unsubscribe to a content, we mark as read all notifications about this content.
+        """
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+        PostFactory(topic=topic, author=self.user2, position=2)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.user1)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        TopicAnswerSubscription.objects.toggle_follow(topic, self.user1)
+
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))

@@ -306,7 +306,7 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 - La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
   Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le `WHERE`):
   ```sql
-  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
+  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
   ```
   Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe):
   ```bash
@@ -475,11 +475,44 @@ _________
 Actions à faire pour mettre en prod la version 18
 =================================================
 
+Changements de configuration Nginx
+----------------------------------
+
+Une réécriture complète de la configuration Nginx a été faite en béta ; il faut donc refléter les changements en prod.
+
+**Ces changements sont relativement lourds, donc une sauvegarde de `/etc/nginx` avant de faire quoi que ce soit n'est pas de trop. Ces changements doivent être fait *avant* la mise en prod, et tous les changements peuvent être fait sans aucun downtime, puisque l'ancienne configuration reste active tant que nginx n'est pas `reload`**
+
+Créer un dossier `/opt/zdsenv/webroot`, et y symlink toutes les resources statiques:
+
+```sh
+mkdir /opt/zdsenv/webroot
+cd /opt/zdsenv/webroot
+ln -s ../ZesteDeSavoir/{static,media,errors,robots.txt} ./
+```
+
+**Aussi symlink toutes les autres resources qui doivent être accessibles, type les fichiers de vérification de Gandi/des Google Webmaster Tools**
+
+Ensuite, le fichier `dhparam.pem` a été déplacé de `/etc/nginx/dhparam.pem` à `/etc/ssl/dhparam.pem`. Il faut donc le faire en prod (ou regénérer les dhparam via `openssl dhparam -out /etc/ssl/dhparam.pem 4096` ; cette commande peut prendre 2-3min)
+
+Enfin, la localisation des certificats a été modifiée pour qu'elle soit la même en beta et en prod. En beta, les fichiers ont été symlink, il faut donc faire de même en prod (ou les déplacer/copier), en mettant la chaine de certificat dans `/etc/ssl/certs/zds-live.crt` et la clé dans `/etc/ssl/private/zds-live.key`. **Voir la configuration nginx actuelle pour voir de quel fichiers il s'agit.**
+
+Une fois que ces changements sont fait, il faut copier la nouvelle configuration nginx dans `/etc/nginx`. Elle se trouve dans le dépot dans `doc/source/install/nginx/`.
+
+Les anciens fichier dans `sites-{enabled,available}/` et dans `conf.d/` peuvent être virés s'il y en a ; les autres fichiers qui sont la "par défaut" doivent rester la (même si `mimes.types` semble être le seul fichier indispensable)
+
+Symlink le fichier `zestedesavoir`: `ln -s ../sites-enabled/zestedesavoir /etc/nginx/sites-available/`
+
+Enfin, **en prod uniquement**, symlink le fichier `prod-redirect`: `ln -s ../sites-enabled/prod-redirect /etc/nginx/sites-available/`
+
+Tester la configuration avant de la recharger: (en root) `nginx -t`. S'il n'y a aucune erreur, recharger nginx via `systemctl reload nginx.service`
+
 Notifications
 -------------
 
 1. Lors de l'application des migrations `python manage.py migrate`, Django va vous demander s'il doit supprimer la table topicfollowed. Renseignez oui.
 2. Exécuter la commande `python manage.py migrate_subscriptions` pour migrer les anciennes notifications vers les nouvelles.
+
+Si vous constatez des problèmes de performance, lancez la commande suivante : `mysqloptimize -uroot -p zdsdb`
 
 Liste des tags exclus
 ---------------------
@@ -490,7 +523,14 @@ la clé dans le fichier de configuration de production.
 ZEP-25
 ------
 
-Avant toute chose il faut avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. En cas de contenus non-migrés automatiquement il y aura un message à la fin ainsi que des `[WARNING]` dans les logs. **La commande peut être assez longue.**
+Il faut dans un premier temps supprimer les restes des tables des articles et tutoriels avant la ZEP-12 :
+
+```sql
+DROP TABLE article_article_subcategory;
+DROP TABLE tutorial_tutorial_subcategory;
+```
+
+Avant de continuer il faut s'assurer d'avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. **La commande peut être assez longue.** Pensez à modifier manuellement (via l'interface d'admin si besoin) les contenus publiés après la date spécifiés à la fin de la commande).
 
 Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
 
@@ -507,6 +547,43 @@ SELECT max(id) FROM utils_commentvote;
 
 Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
 
+Supprimer toute trace des tables pré-zep-12
+-------------------------------------------
+
+Il faudra supprimer en SQL:
+
+- `SET FOREIGN_KEY_CHECKS=0;`
+- `UPDATE tutorial_tutorial SET last_note_id=NULL;`
+- `UPDATE article_article SET last_reaction_id=NULL;`
+- `DROP TABLE tutorial_tutorial_subcategory;`
+- `DROP TABLE tutorial_tutorial_authors;`
+- `DROP TABLE tutorial_note;`
+- `DROP TABLE tutorial_tutorialread;`
+- `DROP TABLE tutorial_tutorial;`
+- `DROP TABLE article_article_subcategory;`
+- `DROP TABLE article_article_authors;`
+- `DROP TABLE article_reaction;`
+- `DROP TABLE article_articleread;`
+- `DROP TABLE article_article;`
+- `SET FOREIGN_KEY_CHECKS=1;`
+ 
+S'il y a une erreur pour `article_article_subcategory` et `DROP TABLE tutorial_tutorial_subcategory;` c'est que les tables ont déjà été supprimées précédement (ZEP-25).
+
+Actions à faire pour mettre en prod la version 18.2
+===================================================
+
+Notifications
+-------------
+
+### Supprime les notifications inutiles
+
+Lancez la commande `python manage.py delete_useless_notif` pour supprimer toutes les notifications inutiles.
+
+### Migre les souscriptions par e-mail
+
+Lancez la commande `python manage.py migrate_email_subscription` pour migrer tous les sujets suivis par e-mail vers
+les nouveaux modèles de souscriptions.
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
@@ -516,3 +593,4 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+

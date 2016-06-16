@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             'UNION SELECT DISTINCT t2.comments_id as comment_id, t2.user_id as user_id, 0 as positive '
             'FROM utils_commentdislike t2'
             ') AS t3;'
-            ), reverse_sql=(
+        ), reverse_sql=(
             'INSERT INTO utils_commentlike (comments_id, user_id) '
             'SELECT vote.comment_id as comments_id, vote.user_id as user_id '
             'FROM utils_commentvote vote '
@@ -50,11 +50,6 @@ class Migration(migrations.Migration):
             'FROM utils_commentvote vote '
             'WHERE vote.positive = 0')
         ),
-        migrations.RunSQL((
-            'UPDATE utils_comment '
-            'SET `like` = (SELECT COUNT(*) FROM utils_commentvote votes WHERE votes.comment_id = utils_comment.id AND votes.positive = 1), '
-            '`dislike` = (SELECT COUNT(*) FROM utils_commentvote votes WHERE votes.comment_id = utils_comment.id AND votes.positive = 0);'
-        ), reverse_sql=""),
         migrations.RemoveField(
             model_name='commentdislike',
             name='comments',

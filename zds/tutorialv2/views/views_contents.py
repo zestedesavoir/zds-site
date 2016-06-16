@@ -21,7 +21,6 @@ from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_text
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView, RedirectView
@@ -48,7 +47,7 @@ from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
 from zds.utils.models import Licence
-from zds.utils.models import Tag, HelpWriting
+from zds.utils.models import HelpWriting
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
 
@@ -1286,26 +1285,16 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     action = None
 
     def _get_all_tags(self):
-        all_tags = []
-        categories = self.object.subcategory.all()
-        names = [smart_text(category.title).lower() for category in categories]
-        existing_tags = Tag.objects.filter(title__in=names).all()
-        existing_tags_names = [tag.title for tag in existing_tags]
-        unexisting_tags = list(set(names) - set(existing_tags_names))
-        for tag in unexisting_tags:
-            new_tag = Tag()
-            new_tag.title = tag[:20]
-            new_tag.save()
-            all_tags.append(new_tag)
-        all_tags += existing_tags
-        return all_tags
+        return list(self.object.tags.all())
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
-        tags = "[beta][{}]".format(_type)
+        _tags = "[beta][{}]".format(_type)
         i = 0
-        while len(topic_title) + len(tags) + len(tags[i]) + 2 < Topic._meta.get_field("title").max_length:
-            tags += '[{}]'.format(tags[i])
+        max_len = Topic._meta.get_field("title").max_length
+
+        while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i].title) + 2 < max_len:
+            _tags += '[{}]'.format(tags[i])
             i += 1
         forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
         topic = create_topic(request=self.request,

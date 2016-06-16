@@ -30,7 +30,7 @@ class Subscription(models.Model):
     is_active = models.BooleanField(_(u'Actif'), default=True, db_index=True)
     by_email = models.BooleanField(_(u'Recevoir un email'), default=False)
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
     last_notification = models.ForeignKey(u'Notification', related_name="last_notification", null=True, default=None)
 
@@ -137,6 +137,7 @@ class SingleNotificationMixin(object):
             notification.sender = sender
             notification.url = self.get_notification_url(content)
             notification.title = self.get_notification_title(content)
+            notification.pubdate = content.pubdate
             notification.is_read = False
             notification.save()
             self.set_last_notification(notification)
@@ -289,7 +290,7 @@ class Notification(models.Model):
     subscription = models.ForeignKey(Subscription, related_name='subscription', db_index=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
     is_read = models.BooleanField(_(u'Lue'), default=False, db_index=True)
     url = models.CharField('URL', max_length=255)

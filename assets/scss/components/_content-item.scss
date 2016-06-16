@@ -150,6 +150,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         font-size: 15px;
         font-size: 1.5rem;
         line-height: 26px;
+        height: 26px;
         color: #999;
         margin-bottom: 2px;
 
@@ -179,7 +180,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             display: none;
         }
 
-        & > a {
+        & a {
             color: darken($color-secondary, 10%);
 
             &:hover, &:focus {
@@ -302,38 +303,6 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     .fill {
         flex: 1 1 400px;
         margin: 0 10px;
-    }
-}
-
-@media only screen and #{$media-wide} {
-    .content-item {
-        &.mini {
-            flex-basis: 200px;
-            .content-description {
-                display: none;
-            }
-
-            .content-title {
-                white-space: normal;
-                font-size: 14px;
-                line-height: 15px;
-                height: 45px; // 3 lines
-            }
-
-            .content-meta {
-                padding-top: 1px;
-
-                &:not(.inline) {
-                    .content-pubdate {
-                        display: none;
-                    }
-
-                    & > * {
-                        display: block;
-                    }
-                }
-            }
-        }
     }
 }
 

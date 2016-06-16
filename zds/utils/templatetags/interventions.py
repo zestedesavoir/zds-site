@@ -75,24 +75,21 @@ def humane_delta(value):
 
 @register.filter('followed_topics')
 def followed_topics(user):
-    topics_followed = TopicAnswerSubscription.objects.filter(user=user,
-                                                             content_type__model='topic',
-                                                             is_active=True)\
-        .order_by('-last_notification__pubdate')[:10]
+    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)[:10]
     # periods is a map associating a period (Today, Yesterday, Last n days)
     # with its corresponding number of days: (humane_delta index, number of days).
     # (3, 7) thus means that passing 3 to humane_delta would return "This week", for which
     # we'd like pubdate not to exceed 7 days.
     periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 365))
     topics = {}
-    for topic_followed in topics_followed:
+    for topic in topics_followed:
         for period in periods:
-            if topic_followed.content_object.last_message.pubdate.date() \
-                    >= (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
+            if topic.last_message.pubdate.date() >= \
+                    (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
                 if period[0] in topics:
-                    topics[period[0]].append(topic_followed.content_object)
+                    topics[period[0]].append(topic)
                 else:
-                    topics[period[0]] = [topic_followed.content_object]
+                    topics[period[0]] = [topic]
                 break
     return topics
 

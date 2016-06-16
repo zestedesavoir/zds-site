@@ -13,9 +13,13 @@ class LikesSerializer(ModelSerializer):
         fields = ('count', 'users')
 
 
-class DislikesSerializer(LikesSerializer):
+class DislikesSerializer(ModelSerializer):
     count = IntegerField(source='dislike', read_only=True)
     users = UserListSerializer(source='get_dislikers', many=True, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('count', 'users')
 
 
 class KarmaSerializer(ModelSerializer):

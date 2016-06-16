@@ -17,7 +17,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import Http404
-from django.utils.encoding import smart_text
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, post_delete
@@ -37,6 +36,7 @@ from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
@@ -526,13 +526,12 @@ class PublishableContent(models.Model):
         :type tag_collection: list
         """
         for tag in tag_collection:
-            tag_title = smart_text(tag.strip().lower())
-            current_tag = Tag.objects.filter(title=tag_title).first()
-            if current_tag is None:
-                current_tag = Tag(title=tag_title)
-                current_tag.save()
+            try:
+                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
+                self.tags.add(current_tag)
+            except ValueError as e:
+                logging.getLogger("zds.tutorialv2").warn(e)
 
-            self.tags.add(current_tag)
         self.save()
 
 

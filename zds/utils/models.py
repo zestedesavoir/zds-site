@@ -294,8 +294,9 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Tag'
         verbose_name_plural = 'Tags'
-    title = models.CharField(max_length=20, verbose_name='Titre')
-    slug = models.SlugField(max_length=20)
+
+    title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
+    slug = models.SlugField('Slug', max_length=30)
 
     def __unicode__(self):
         """Textual Link Form."""
@@ -305,6 +306,8 @@ class Tag(models.Model):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
+        if not self.title.strip() or not slugify(self.title.strip().replace('-', '')):
+            raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)

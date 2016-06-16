@@ -48,7 +48,7 @@ def home(request):
         'last_articles': articles,
         'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
-        'tutorials_count': PublishedContent.objects.get_tutorials_count(),
+        'contents_count': PublishedContent.objects.get_contents_count(),
         'quote': quote.replace('\n', ''),
         'suggestions': suggestions,
     })

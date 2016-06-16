@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
@@ -299,8 +298,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
             queryset = queryset.filter(content__subcategory__in=[self.category])
         if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(Tag, slug=self.request.GET.get('tag'))
-            queryset = queryset.filter(content__tags__in=[self.tag])
+            self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
+            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
+            # slug such as C/C#/C++, as a first version we get all of them
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
@@ -312,6 +312,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
         context['category'] = self.category
+        context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
@@ -672,11 +673,7 @@ class TagsListView(ListView):
     model = Tag
     template_name = "tutorialv2/view/tags.html"
     context_object_name = 'tags'
+    displayed_types = ["TUTORIAL", "ARTICLE"]
 
     def get_queryset(self):
-        tags_pk = [tag['content__tags'] for tag in PublishedContent.objects.values('content__tags').distinct()]
-        queryset = Tag.objects\
-            .filter(pk__in=tags_pk)\
-            .annotate(num_content=Count('publishablecontent__publishedcontent'))\
-            .order_by('-num_content', 'title')
-        return queryset
+        return PublishedContent.objects.get_top_tags(self.displayed_types)
