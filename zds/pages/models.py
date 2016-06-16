@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 class GroupContact(models.Model):
     """
-    Groups displayed in contact page and there informations.
+    Groups displayed in contact page and their informations.
     """
 
     class Meta:
