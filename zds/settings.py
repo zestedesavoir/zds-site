@@ -409,7 +409,8 @@ ZDS_APP = {
             'name': u"Zeste de Savoir",
             'fee': u"20 €",
             'email': u"zestedesavoir@gmail.com",
-            'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
+            'email_ca': u"ca-zeste-de-savoir@googlegroups.com",
+            'forum_ca_pk': 25
         },
         'licenses': {
             'logo': {

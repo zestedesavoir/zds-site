@@ -2,7 +2,7 @@
 
 from django.conf.urls import url
 
-from zds.pages.views import about, association, contact, eula, alerts, cookies, assoc_subscribe, index
+from zds.pages.views import about, association, contact, eula, alerts, cookies, index, AssocSubscribeView
 
 
 urlpatterns = [
@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^cgu/$', eula, name='pages-eula'),
     url(r'^alertes/$', alerts, name='pages-alerts'),
     url(r'^cookies/$', cookies, name='pages-cookies'),
-    url(r'^association/inscription/$', assoc_subscribe, name='pages-assoc-subscribe'),
+    url(r'^association/inscription/$', AssocSubscribeView.as_view(), name='pages-assoc-subscribe'),
 
     # index
     url(r'^$', index, name='pages-index'),

@@ -24,12 +24,12 @@ class AssocSubscribeForm(forms.Form):
         required=True,
     )
 
-    naissance = forms.CharField(
+    birthdate = forms.CharField(
         label=_(u'Date de naissance'),
         required=True,
     )
 
-    adresse = forms.CharField(
+    address = forms.CharField(
         label=_(u'Adresse'),
         required=True,
         widget=forms.Textarea(
@@ -45,7 +45,8 @@ class AssocSubscribeForm(forms.Form):
         max_length=3000,
         widget=forms.Textarea(
             attrs={
-                'placeholder': _(u'Décrivez ici la raison de votre demande d\'adhésion à l\'association.')
+                'placeholder': _(u'Décrivez ici la raison de votre demande d\'adhésion à l\'association (3000 caractère'
+                                 u's maximum).')
             }
         )
     )
@@ -59,18 +60,10 @@ class AssocSubscribeForm(forms.Form):
         self.helper.layout = Layout(
             Field('full_name'),
             Field('email'),
-            Field('naissance'),
-            Field('adresse'),
+            Field('birthdate'),
+            Field('address'),
             Field('justification'),
             ButtonHolder(
                 StrictButton(_('Valider'), type='submit'),
             )
         )
-
-    def clean(self):
-        cleaned_data = super(AssocSubscribeForm, self).clean()
-        justification = cleaned_data.get('justification')
-
-        if justification is not None and len(justification) > 3000:
-            self._errors['justification'] = self.error_class(
-                [_(u'Ce message est trop long, il ne doit pas dépasser 3000 caractères')])
