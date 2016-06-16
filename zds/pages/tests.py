@@ -71,7 +71,7 @@ class PagesMemberTests(TestCase):
         forum_category = CategoryFactory(position=1)
         forum = ForumFactory(category=forum_category, position_in_category=1)
 
-        # override the settings to avoid 404 if forum do not exist
+        # overrides the settings to avoid 404 if forum does not exist
         settings.ZDS_APP['site']['association']['forum_ca_pk'] = forum.pk
 
         # send form
