@@ -1,7 +1,9 @@
-<ul class="validation_history">
-{% for validation in validations %}
-    <li class="{% if validation.status == "REJECT" or validation.status == "CANCEL" %}validation-reject
-               {% elif validation.status == "ACCEPT" %}validation-accept
-               {%  endif %}"></li>
-{% endfor %}
-</ul>
+{% if validations %}
+    <ul class="validation_history">
+    {% for validation in validations %}
+        <li class="{% if validation.status == "REJECT" or validation.status == "CANCEL" %}validation-reject
+                   {% elif validation.status == "ACCEPT" %}validation-accept
+                   {%  endif %}"></li>
+    {% endfor %}
+    </ul>
+{% endif %}
