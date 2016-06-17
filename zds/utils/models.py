@@ -312,6 +312,13 @@ class Tag(models.Model):
         self.slug = slugify(self.title)
         super(Tag, self).save(*args, **kwargs)
 
+    @staticmethod
+    def has_read_permission(request):
+        return True
+
+    def has_object_read_permission(self, request):
+        return True
+
 
 class HelpWriting(models.Model):
 

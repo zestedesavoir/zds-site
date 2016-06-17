@@ -1,7 +1,15 @@
 from django.contrib.auth.models import AnonymousUser
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, IntegerField, ChoiceField
-from zds.utils.models import Comment
+from zds.utils.models import Comment, Tag
 from zds.member.api.serializers import UserListSerializer
+from dry_rest_permissions.generics import DRYPermissions
+
+
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'title')
+        permissions_classes = DRYPermissions
 
 
 class LikesSerializer(ModelSerializer):
