@@ -172,9 +172,12 @@ class ContentForm(ContainerForm):
         label=_(u'Tag(s) séparés par une virgule (exemple: python,django,web)'),
         max_length=64,
         required=False,
-        widget=forms.TextInput(
+       widget=forms.TextInput(
             attrs={
-                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'}))
+                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
+            }
+        )
+    )
 
     image = forms.ImageField(
         label=_(u'Sélectionnez le logo du contenu (max. {} Ko).').format(
