@@ -56,8 +56,8 @@ Zeste de Savoir tourne sous l'utilisateur **zds** et le groupe **root**.
 Installation des outils
 -----------------------
 
--  python,
--  virtualenv (dans /opt/zdsenv/),
+-  python
+-  virtualenv (dans /opt/zdsenv/)
 -  git
 
 Clone du repo et configuration de prod
@@ -99,6 +99,7 @@ Suivre `l'installation complète sous Linux <backend-linux-install.html>`__ en t
 -  Installer `les outils front <frontend-install.md>`__
 -  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
 -  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
+-  Installer les dépendances de production avec ``pip install --upgrade -r requirements-prod.txt``
 
 Outils spécifiques à un serveur de run
 --------------------------------------
