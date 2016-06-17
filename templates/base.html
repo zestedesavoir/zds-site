@@ -367,12 +367,12 @@
 
                                                 {% if total_notifications == 0 %}
                                                 <li class="dropdown-empty-message">
-                                                    {% trans "Toutes les conversations" %}
+                                                    {% trans "Aucun nouveau message" %}
                                                 </li>
                                                 {% endif %}
                                             </ul>
                                             <a href="{% url "mp-list" %}" class="dropdown-link-all">
-                                                {% trans "Toutes les notifications" %}
+                                                {% trans "Toutes les conversations" %}
                                             </a>
                                         </div>
                                         {% endwith %}
