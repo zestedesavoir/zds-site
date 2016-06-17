@@ -151,7 +151,6 @@
 
         updateCache: function(data) {
             for (var i = 0; i < data.length; i++) {
-                console.log(this.cache[data[i]]);
                 this.cache[data[i][this.options.fieldname]] = data[i];
             }
         },
