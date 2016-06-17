@@ -1,8 +1,10 @@
 {% extends "pages/base.html" %}
+
+
 {% load email_obfuscator %}
+{% load emarkdown %}
 {% load i18n %}
 {% load set %}
-
 
 
 {% block title %}
@@ -24,57 +26,38 @@
 
 
 {% block content %}
-    {% set app.site.litteral_name as site_name %}
-    <h3>{% trans "L'équipe de communication" %}</h3>
-    <p>
-        {% blocktrans with email_contact=app.site.email_contact|obfuscate_mailto_top_subject:"Contact communication" %}
-            Vous pouvez à tout moment joindre l'équipe de communication de {{ site_name }} par courriel via {{ email_contact }}.
-        {% endblocktrans %}
-    </p>
-    {% if app.site.association %}
-        <h3>{% trans "L'association" %}</h3>
+    {% for contact_group in groups %}
+        <h3>{{ contact_group.name }}</h3>
+        {% if contact_group.description %}
+            <p>{{ contact_group.description|emarkdown }}</p>
+        {% endif %}
+        {% if contact_group.email %}
+            <p>
+                {% blocktrans with group_name=contact_group.name|lower group_email=contact_group.email|obfuscate_mailto_top_subject:"Contact" %}
+                    Vous pouvez joindre {{ group_name }} par courriel via {{ group_email }}.
+                {% endblocktrans %}
+            </p>
+        {% endif %}
+        {% if contact_group.person_in_charge %}
+            <p>{% trans "La personne responsable du groupe est" %} : {% include "misc/member_item.part.html" with avatar=True member=contact_group.person_in_charge %}.</p>
+        {% endif %}
+        {% with users=contact_group.group.user_set.all %}
+            {% if users %}
+                <p>{% trans "Les membres sont les suivants" %} :</p>
+                <div class="authors">
+                    <ul>
+                        {% for member in users %}
+                            <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% empty %}
         <p>
-            {% blocktrans with email_association=app.site.association.email|obfuscate_mailto_top_subject:"Contact association" %}
-                Vous pouvez joindre l'association par courriel via {{ email_association }}.
+            {% blocktrans with email_contact=app.site.email_contact|obfuscate_mailto_top_subject:"Contact" %}
+                Vous pouvez nous joindre par courriel via {{ email_contact }}.
             {% endblocktrans %}
         </p>
-    {% endif %}
-
-    <h3>{% trans "Le staff" %}</h3>
-    <p>
-        {% blocktrans %}
-            Le staff est constitué de certains membres du site dont le but est de contrôler le contenu publié sur {{ site_name }}. Ils sont en charge de la modération des messages sur les forums et commentaires, ainsi que de la validation et publication d'articles et/ou de tutoriels de {{ site_name }}.
-            Les membres faisant partie du Staff sont les suivants :
-        {% endblocktrans %}
-    </p>
-    <div class="authors">
-        <ul>
-            {% if staffs %}
-                {% for member in staffs %}
-                    <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
-                {% endfor %}
-            {% else %}
-                {% trans "Il n'y a pas de membre dans ce groupe." %}
-            {% endif %}
-        </ul>
-    </div>
-
-    <h3>{% trans "L'équipe technique" %}</h3>
-    <p>
-        {% blocktrans with repository=app.site.repository %}
-            L'équipe technique est constituée de certains membres du site dont le but est d'une part de s'assurer que le site reste toujours disponible en ligne, et d'autre part de corriger les bogues rencontrés sur le site ainsi que d'ajouter de nouvelles fonctionnalités.
-            Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du <a href="{{ repository }}">dépôt officiel du projet</a>. Les membres faisant partie de l'équipe technique sont les suivants :
-        {% endblocktrans %}
-    </p>
-    <div class="authors">
-        <ul>
-            {% if devs %}
-                {% for member in devs %}
-                    <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
-                {% endfor %}
-            {% else %}
-                {% trans "Il n'y a pas de membre dans ce groupe." %}
-            {% endif %}
-        </ul>
-    </div>
+    {% endfor %}
 {% endblock %}

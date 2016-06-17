@@ -584,6 +584,45 @@ Lancez la commande `python manage.py delete_useless_notif` pour supprimer toutes
 Lancez la commande `python manage.py migrate_email_subscription` pour migrer tous les sujets suivis par e-mail vers
 les nouveaux modèles de souscriptions.
 
+Actions à faire pour mettre en prod la version 19
+=================================================
+
+Page de contact
+---------------
+
+**À faire après la mise en production par une personne ayant les droits admin**.
+
+Il faut ajouter les différents groupes de la page de contact via l'administration Django. Les informations pour les créer sont ci dessous : :
+
+```
+L'équipe de communication
+    Email : communication@zestedesavoir.com
+    Description : 
+    Responsable : ShigeruM
+    groupe : Communication
+
+L'association
+    Email : zestedesavoir@gmail.com
+    Description : 
+    Responsable : Kje
+    groupe : bureau (à créer) ou CA (j'ai pas l'info au moment de la PR, voir avec Kje)
+
+Le staff
+    Email :
+    Description :  Le staff est constitué de certains membres du site dont le but est de contrôler le contenu publié sur Zeste de Savoir. Ils sont en charge de la modération des messages sur les forums et commentaires, ainsi que de la validation et publication d'articles et/ou de tutoriels de Zeste de Savoir.
+    Responsable : Thunderseb
+    groupe : staffs
+
+L'équipe technique
+    Email :
+    Description : L'équipe technique est constituée de certains membres du site dont le but est d'une part de s'assurer que le site reste toujours disponible en ligne, et d'autre part de corriger les bogues rencontrés sur le site ainsi que d'ajouter de nouvelles fonctionnalités. Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du dépôt officiel du projet.
+    Responsable : Andr0
+    groupe : devs
+
+```
+
+Ces descriptions peuvent être modifiées via l'administration Django après la mise en production.
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
