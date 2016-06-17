@@ -5,25 +5,25 @@ import random
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import ListView
 from django.views.generic.edit import FormView
 
 from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.models import Forum, Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.forms import AssocSubscribeForm
+from zds.pages.models import GroupContact
 from zds.settings import BASE_DIR, ZDS_APP
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.forums import create_topic
 from zds.utils.models import Alert
-
-from django.views.generic import ListView
-from zds.pages.models import GroupContact
 
 
 def home(request):
