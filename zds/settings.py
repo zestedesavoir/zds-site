@@ -484,7 +484,7 @@ ZDS_APP = {
         'extra_content_watchdog_dir': os.path.join(BASE_DIR, "watchdog-build"),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
-        'content_per_page': 50,
+        'content_per_page': 60,
         'notes_per_page': 25,
         'helps_per_page': 20,
         'commits_per_page': 20,
