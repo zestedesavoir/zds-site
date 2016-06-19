@@ -87,10 +87,8 @@ class MemberDetail(DetailView):
         context['topics'] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user))
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
-        context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
-        context['form'] = OldTutoForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         return context
 
