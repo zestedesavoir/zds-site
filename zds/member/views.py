@@ -21,7 +21,6 @@ from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
-from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
