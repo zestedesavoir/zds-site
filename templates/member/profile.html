@@ -165,40 +165,6 @@
             </figure>
         </section>
     {% endif %}
-
-
-    {% if old_tutos and perms.member.change_profile %}
-        <hr class="clearfix" />
-        <section class="full-content-wrapper without-margin">
-            <h2 id="anciens-tutoriels-sdz">{% trans "Anciens tutoriels SdZ" %}</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>{% trans "Tutoriel" %}</th>
-                        <th>{% trans "Actions" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for id, titre in old_tutos %}
-                        <tr>
-                            <td>{{ titre }}</td>
-                            <td>
-                                <a href="#delete-old-tutorial-{{ id }}" class="btn btn-submit open-modal">{% trans "Supprimer" %}</a>
-                                <div class="modal modal-flex" id="delete-old-tutorial-{{ id }}">
-                                    <p>
-                                        {% blocktrans with tutotitle=titre%}
-                                            Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ tutotitle }}</em>".
-                                        {% endblocktrans %}
-                                    </p>
-                                    <a href="{% url "member-remove-oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">{% trans "Confirmer" %}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    {% endif %}
 {% endblock %}
 
 
