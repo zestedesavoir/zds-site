@@ -65,10 +65,11 @@ class TagValidator(object):
     """"
     validate tags
     """"
+
     @staticmethod
     def validate_raw_string(raw_string):
         return TagValidator.validate_string_list(raw_string.split(","))
 
     @staticmethod
     def validate_string_list(string_list):
-        return all(len(_) <= Tag._meta.get_field("title").max_length for _ in string_list])
+        return all([len(_) <= Tag._meta.get_field("title").max_length for _ in string_list])
