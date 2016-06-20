@@ -200,14 +200,6 @@
                             </a>
                         </li>
                     {% endif %}
-                    {% if perms.member.change_profile %}
-                        <li>
-                            <a href="#link-tuto-modal" class="open-modal ico-after tick green">
-                                {% trans "Attribuer un tuto SdZ" %}
-                            </a>
-                            {% crispy form %}
-                        </li>
-                    {% endif %}
                     {% if profile.is_private and not perms.member.change_profile %}
                         <li class="inactive mobile-menu-link">
                             <span>{% trans "Aucune action possible" %}</span>
