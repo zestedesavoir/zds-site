@@ -3,6 +3,7 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
 from django.utils.translation import ugettext_lazy as _
+from zds.utils.models import Tag
 
 
 class CommonLayoutEditor(Layout):
@@ -58,3 +59,16 @@ class CommonLayoutModalText(Layout):
             Field('text'),
             *args, **kwargs
         )
+
+
+class TagValidator(object):
+    """"
+    validate tags
+    """"
+    @staticmethod
+    def validate_raw_string(raw_string):
+        return TagValidator.validate_string_list(raw_string.split(","))
+
+    @staticmethod
+    def validate_string_list(string_list):
+        return all(len(_) <= Tag._meta.get_field("title").max_length for _ in string_list])
