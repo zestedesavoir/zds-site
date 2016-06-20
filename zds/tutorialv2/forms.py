@@ -15,6 +15,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
+from zds.utils.forms import TagValidator
 
 
 class FormWithTitle(forms.Form):
@@ -264,7 +265,8 @@ class ContentForm(ContainerForm):
             self._errors['image'] = self.error_class(
                 [_(u'Votre logo est trop lourd, la limite autorisée est de {} Ko')
                  .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
-
+        if not TagValidator.validate_raw_string(cleaned_data.get("tags")):
+            self._errors['image'] = self.error_class([_(u'Vous avez entré un tag trop long.')])
         return cleaned_data
 
 
