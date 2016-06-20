@@ -1007,25 +1007,3 @@ class MemberTests(TestCase):
             shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-    def test_errors_assign_tuto_sdz(self):
-        """
-        To test the errors of assigning a SdZ tutorial.
-        """
-        # we need staff right for assign a tutorial
-        self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
-
-        # without the parameter "profile_pk" and "id"
-        result = self.client.post(
-            reverse('member-add-oldtuto'),
-            {},
-            follow=False)
-        self.assertEqual(result.status_code, 404)
-
-        # without the parameter "profile_pk"
-        result = self.client.post(
-            reverse('member-add-oldtuto'),
-            {'id': '1'},
-            follow=False)
-        self.assertEqual(result.status_code, 404)

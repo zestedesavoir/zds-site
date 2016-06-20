@@ -21,7 +21,6 @@ from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
-from django.utils.datastructures import MultiValueDictKeyError
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView
 
@@ -33,7 +32,7 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    OldTutoForm, PromoteMemberForm, KarmaForm, UsernameAndEmailForm
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
@@ -87,10 +86,8 @@ class MemberDetail(DetailView):
         context['topics'] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user))
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
-        context['old_tutos'] = Profile.objects.all_old_tutos_from_site_du_zero(profile)
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
-        context['form'] = OldTutoForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         return context
 
@@ -892,67 +889,6 @@ def date_to_chart(posts):
         timestamp = post.pubdate.timetuple()
         lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] = lst[timestamp.tm_hour][(timestamp.tm_wday + 1) % 7] + 1
     return lst
-
-
-@login_required
-@require_POST
-def add_oldtuto(request):
-    try:
-        identifier = request.POST["id"]
-        profile_pk = request.POST["profile_pk"]
-    except MultiValueDictKeyError:
-        raise Http404
-
-    profile = get_object_or_404(Profile, pk=profile_pk)
-    if profile.sdz_tutorial:
-        olds = profile.sdz_tutorial.strip().split(":")
-    else:
-        olds = []
-    last = str(identifier)
-    for old in olds:
-        last += ":{0}".format(old)
-    profile.sdz_tutorial = last
-    profile.save()
-    messages.success(request,
-                     _(u'Le tutoriel a bien été lié au '
-                       u'membre {0}.').format(profile.user.username))
-    return redirect(reverse("member-detail",
-                            args=[profile.user.username]))
-
-
-@login_required
-def remove_oldtuto(request):
-    if "id" in request.GET:
-        identifier = request.GET["id"]
-    else:
-        raise Http404
-
-    if "profile" in request.GET:
-        profile_pk = request.GET["profile"]
-    else:
-        raise Http404
-
-    profile = get_object_or_404(Profile, pk=profile_pk)
-    if profile.sdz_tutorial \
-            or not request.user.has_perm("member.change_profile"):
-        olds = profile.sdz_tutorial.strip().split(":")
-        olds.remove(str(identifier))
-    else:
-        raise PermissionDenied
-
-    last = ""
-    for i in range(len(olds)):
-        if i > 0:
-            last += ":"
-        last += "{0}".format(str(olds[i]))
-    profile.sdz_tutorial = last
-    profile.save()
-
-    messages.success(request,
-                     _(u'Le tutoriel a bien été retiré '
-                       u'au membre {0}.').format(profile.user.username))
-    return redirect(reverse("member-detail",
-                            args=[profile.user.username]))
 
 
 @login_required

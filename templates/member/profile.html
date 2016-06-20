@@ -165,40 +165,6 @@
             </figure>
         </section>
     {% endif %}
-
-
-    {% if old_tutos and perms.member.change_profile %}
-        <hr class="clearfix" />
-        <section class="full-content-wrapper without-margin">
-            <h2 id="anciens-tutoriels-sdz">{% trans "Anciens tutoriels SdZ" %}</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>{% trans "Tutoriel" %}</th>
-                        <th>{% trans "Actions" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for id, titre in old_tutos %}
-                        <tr>
-                            <td>{{ titre }}</td>
-                            <td>
-                                <a href="#delete-old-tutorial-{{ id }}" class="btn btn-submit open-modal">{% trans "Supprimer" %}</a>
-                                <div class="modal modal-flex" id="delete-old-tutorial-{{ id }}">
-                                    <p>
-                                        {% blocktrans with tutotitle=titre%}
-                                            Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ tutotitle }}</em>".
-                                        {% endblocktrans %}
-                                    </p>
-                                    <a href="{% url "member-remove-oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">{% trans "Confirmer" %}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </section>
-    {% endif %}
 {% endblock %}
 
 
@@ -232,14 +198,6 @@
                             <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
                             </a>
-                        </li>
-                    {% endif %}
-                    {% if perms.member.change_profile %}
-                        <li>
-                            <a href="#link-tuto-modal" class="open-modal ico-after tick green">
-                                {% trans "Attribuer un tuto SdZ" %}
-                            </a>
-                            {% crispy form %}
                         </li>
                     {% endif %}
                     {% if profile.is_private and not perms.member.change_profile %}
@@ -292,13 +250,6 @@
                 <li>
                     <a href="#biographie">
                         {% trans "Biographie" %}
-                    </a>
-                </li>
-            {% endif %}
-            {% if old_tutos and perms.member.change_profile %}
-                <li>
-                    <a href="#anciens-tutoriels-sdz">
-                        {% trans "Anciens tutoriels SdZ" %}
                     </a>
                 </li>
             {% endif %}
