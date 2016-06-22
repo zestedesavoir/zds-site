@@ -5,7 +5,7 @@ from zds.settings import ZDS_APP
 register = template.Library()
 
 
-@register.tag("nb_word_to_icontime")
+@register.filter(name="nb_word_to_icontime")
 def nb_word_to_icontime(nb_word):
     """
     Gets the icon for this time to read the content
@@ -20,6 +20,6 @@ def nb_word_to_icontime(nb_word):
         return association[-1]
 
 
-@register.tag("nb_word_to_time")
+@register.filter("nb_word_to_time")
 def nb_word_to_time(nb_word):
     return nb_word // ZDS_APP["content"]["word_per_minute"]
