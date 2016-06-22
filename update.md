@@ -633,3 +633,11 @@ Le déploiement doit être autonome. Ce qui implique que :
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
 
+
+Actions à faire pour mettre en prod la v20
+==========================================
+
+Temps de lecture
+----------------
+
+À faire après la migration db : `python manage.py adjust_nb_words`

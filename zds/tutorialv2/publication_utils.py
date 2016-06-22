@@ -296,6 +296,7 @@ class NumberOfWordPublicator(Publicator):
             if current_content:
                 current_content.nb_word = nb_of_words
             logging.info("%s has %d words", base_name, nb_of_words)
+            current_content.save()
         except OSError as e:
             logging.warning("could not get file %s to compute nb word", md_file_path)
 
