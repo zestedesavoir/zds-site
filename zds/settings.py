@@ -493,7 +493,8 @@ ZDS_APP = {
         'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
-        'maximum_slug_size': 150
+        'maximum_slug_size': 150,
+        "word_per_minute": 250  # see https://fr.wikipedia.org/wiki/Mot_par_minute
     },
     'forum': {
         'posts_per_page': 21,
