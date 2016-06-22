@@ -478,25 +478,25 @@
     }
 }
 
-.small-content-title{
+.small-content-title {
     // here front guys can manage how small content (i.e article or one page tutorial) title
     // are displayed in validation list
 }
 
-.medium-content-title{
+.medium-content-title {
     // here front guys can manage how medium content (i.e 1 hierarchy level tutorials) title
     // are displayed in validation list
     font-weight: bold;
 }
 
-.big-content-title{
+.big-content-title {
     // here front guys can manage how big content (i.e multi-part tutorial) title
     // are displayed in validation list
     font-weight: bold;
     font-style: italic;
 }
 
-.my-validation-content-title{
+.my-validation-content-title {
     // how validation row are handled when current validator is current user
     background-color: $color-my-validation;
 }
