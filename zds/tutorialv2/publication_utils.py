@@ -298,7 +298,7 @@ class NumberOfWordPublicator(Publicator):
             logging.info("%s has %d words", base_name, nb_of_words)
             current_content.save()
         except OSError as e:
-            logging.warning("could not get file %s to compute nb word", md_file_path)
+            logging.warning("could not get file %s to compute nb word (error=%s)", md_file_path, e)
 
 
 @PublicatorRegistery.register("watchdog", settings.ZDS_APP['content']['extra_content_watchdog_dir'])
