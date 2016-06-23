@@ -62,9 +62,9 @@ class CommonLayoutModalText(Layout):
 
 
 class TagValidator(object):
-    """"
+    """
     validate tags
-    """"
+    """
 
     @staticmethod
     def validate_raw_string(raw_string):
