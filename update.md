@@ -566,7 +566,7 @@ Il faudra supprimer en SQL:
 - `DROP TABLE article_articleread;`
 - `DROP TABLE article_article;`
 - `SET FOREIGN_KEY_CHECKS=1;`
- 
+
 S'il y a une erreur pour `article_article_subcategory` et `DROP TABLE tutorial_tutorial_subcategory;` c'est que les tables ont déjà été supprimées précédement (ZEP-25).
 
 Actions à faire pour mettre en prod la version 18.2
@@ -597,13 +597,13 @@ Il faut ajouter les différents groupes de la page de contact via l'administrati
 ```
 L'équipe de communication
     Email : communication@zestedesavoir.com
-    Description : 
+    Description :
     Responsable : ShigeruM
     groupe : Communication
 
 L'association
     Email : zestedesavoir@gmail.com
-    Description : 
+    Description :
     Responsable : Kje
     groupe : bureau (à créer) ou CA (j'ai pas l'info au moment de la PR, voir avec Kje)
 
@@ -623,6 +623,16 @@ L'équipe technique
 
 Ces descriptions peuvent être modifiées via l'administration Django après la mise en production.
 
+Actions à faire pour mettre en prod la version 20
+=================================================
+
+Notifications
+-------------
+
+### **(pré-migration)** Rendre unique les subscriptions
+
+Lancer la commande `python manage.py uniquify_subscriptions` pour supprimer les duplicates.
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
@@ -632,4 +642,3 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
-
