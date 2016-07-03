@@ -35,6 +35,8 @@
             $form = $(this).parents("form:first"),
             $email = $(this).parents("li:first").next().find("[data-ajax-input='follow-topic-by-email']");
 
+        $email.prop("disabled", true);
+
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             topic = $form.find("input[name=topic]").val(),
             follow = $form.find("input[name=follow]").val(),
@@ -68,6 +70,9 @@
                 $act.toggleClass("blue yellow");
 
                 synchText();
+            },
+            complete: function(){
+              $email.prop("disabled", false);
             }
         });
 
@@ -76,12 +81,14 @@
     });
 
     /**
-     * Be notify by email
+     * Be notified by email
      */
     $(".sidebar").on("click", "[data-ajax-input='follow-topic-by-email']", function(e){
         var $act = $(this),
             $follow = $(this).parents("li:first").prev().find("[data-ajax-input='follow-topic']"),
             $form = $(this).parents("form:first");
+
+        $follow.prop("disabled", true);
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             topic = $form.find("input[name=topic]").val(),
@@ -117,6 +124,9 @@
                 $act.toggleClass("blue");
 
                 synchText();
+            },
+            complete: function(){
+              $follow.prop("disabled", false);
             }
         });
         e.stopPropagation();
