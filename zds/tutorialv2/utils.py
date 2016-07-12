@@ -731,7 +731,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         os.makedirs(path, mode=0o777)
 
     # init repo:
-    Repo.init(path, bare=False)
+    Repo.init(path, bare=False, template="")
 
     # create object
     versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)
