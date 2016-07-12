@@ -46,7 +46,7 @@ before_script:
   - mysql -e "SHOW VARIABLES LIKE 'wait_timeout';"
   # database services
   - mysql -e 'create database zds_test;'
-  - mv zds/settings_test.py zds/settings_prod.py
+  - mv zds/settings_test_travis.py zds/settings_prod.py
 
 install:
   - |
@@ -104,4 +104,3 @@ after_success:
       # Run script
       ./scripts/push_front.sh $TRAVIS_TAG
     fi
-

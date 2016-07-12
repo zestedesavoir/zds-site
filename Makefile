@@ -46,7 +46,7 @@ run-back:
 
 test-back:
 	make clean-back && \
-	python manage.py test
+	python manage.py test --settings zds.settings_test_local
 
 # front
 ## front-utils

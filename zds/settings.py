@@ -578,7 +578,7 @@ try:
 except ImportError:
     pass
 
-# MUST BE after settings_prog import
+# MUST BE after settings_prod import
 if DEBUG:
     INSTALLED_APPS += (
         'debug_toolbar',
