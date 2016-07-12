@@ -1,6 +1,12 @@
 # www.robotstxt.org
 
 Sitemap: http://zestedesavoir.com/sitemap.xml
+Sitemap: https://zestedesavoir.com/sitemap-articles.xml
+Sitemap: https://zestedesavoir.com/sitemap-categories.xml
+Sitemap: https://zestedesavoir.com/sitemap-forums.xml
+Sitemap: https://zestedesavoir.com/sitemap-tags.xml
+Sitemap: https://zestedesavoir.com/sitemap-topics.xml
+Sitemap: https://zestedesavoir.com/sitemap-tutos.xml
 
 User-agent: *
 Disallow: /mp/
