@@ -429,36 +429,6 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             # Follow
             signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
 
-            if is_update:
-                msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_update.md',
-                    {
-                        'content': versioned,
-                        'url': published.get_absolute_url_online(),
-                        'validator': validation.validator,
-                        'message_validation': quote_for_mp(validation.comment_validator)
-                    })
-            else:
-                msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_content.md',
-                    {
-                        'content': versioned,
-                        'url': published.get_absolute_url_online(),
-                        'validator': validation.validator,
-                        'message_validation': quote_for_mp(validation.comment_validator)
-                    })
-
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            send_mp(
-                bot,
-                db_object.authors.all(),
-                _(u"Publication acceptée"),
-                versioned.title,
-                msg,
-                True,
-                direct=False
-            )
-
             messages.success(self.request, _(u'Le contenu a bien été validé.'))
             self.success_url = published.get_absolute_url_online()
 

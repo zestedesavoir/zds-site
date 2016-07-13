@@ -188,12 +188,12 @@ def content_published_event(sender, **kwargs):
 
     for user in content.authors.all():
         ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
+        if not NewPublicationSubscription.objects.does_exist(user, user, is_active=True):
+            NewPublicationSubscription.objects.toggle_follow(user, user, by_email=False)
 
-        subscription_list = NewPublicationSubscription.objects.get_subscriptions(user)
-        for subscription in subscription_list:
-            if subscription.user != user:
-                by_email = subscription.by_email and subscription.user.profile.email_for_answer
-                subscription.send_notification(content=content, sender=user, send_email=by_email)
+        for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
+            by_email = subscription.by_email and subscription.user.profile.email_for_answer
+            subscription.send_notification(content=content, sender=user, send_email=by_email)
 
 
 @receiver(new_content, sender=PrivatePost)
