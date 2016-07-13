@@ -16,6 +16,7 @@ from django.views.generic import RedirectView, FormView, ListView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
+from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
@@ -126,6 +127,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
 
+        signals.content_read.send(
+            sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)

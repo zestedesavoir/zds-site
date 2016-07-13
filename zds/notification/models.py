@@ -291,7 +291,7 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
             .format(self.user.username, self.object_id)
 
     def get_notification_url(self, content):
-        return content.get_absolute_url()
+        return content.get_absolute_url_online()
 
     def get_notification_title(self, content):
         return content.title

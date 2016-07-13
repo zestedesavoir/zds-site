@@ -18,6 +18,7 @@ from zds.notification.models import Notification, TopicAnswerSubscription, Conte
     PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
     SubCategoryFactory
+from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
 from zds.utils.mps import send_mp, send_message_mp
@@ -417,6 +418,30 @@ class NotificationPublishableContentTest(TestCase):
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
         self.assertTrue(subscription.is_active)
         self.assertTrue(subscription.by_email)
+
+    def test_notification_generated_when_a_tuto_is_published(self):
+        """
+        When a user subscribe to new publications from a user, a notification is generated when a publication is
+        published.
+        """
+        subscription = NewPublicationSubscription.objects.toggle_follow(self.user1, self.user2)
+
+        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+
+        notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        signals.content_read.send(sender=self.tuto.__class__, instance=self.tuto, user=self.user2,
+                                  target=ContentReaction)
+
+        notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        signals.content_read.send(sender=self.tuto.__class__, instance=self.tuto, user=self.user2,
+                                  target=PublishableContent)
+
+        notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
+        self.assertEqual(0, len(notifications))
 
 
 class NotificationPrivateTopicTest(TestCase):
