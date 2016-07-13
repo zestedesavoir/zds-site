@@ -96,7 +96,7 @@ Installation de l'application de base
 
 Suivre `l'installation complète sous Linux <backend-linux-install.html>`__ en tenant compte des subtilités suivantes :
 
--  Installer `les outils front <frontend-install.md>`__
+-  Installer `les outils front <frontend-install.html>`__
 -  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
 -  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
 -  Installer les dépendances de production avec ``pip install --upgrade -r requirements-prod.txt``
