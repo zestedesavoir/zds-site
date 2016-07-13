@@ -75,10 +75,9 @@
                                 {% endif %}">
                                 <td>
                                     <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}"
-                                       class="
-                                        {% if validation.versioned_content.get_tree_depth == 0 %}
+                                       class="{% if validation.versioned_content.has_extracts %}
                                             small-content-title
-                                        {% elif validation.versioned_content.get_tree_depth == 1 %}
+                                        {% elif not validation.versioned_content.has_chapters %}
                                             medium-content-title
                                         {% else %}
                                             big-content-title
