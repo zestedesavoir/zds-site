@@ -270,13 +270,31 @@ class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
 
     def __unicode__(self):
         return _(u'<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\
-            .format(self.profile, self.content_type, self.object_id)
+            .format(self.user.username, self.content_type, self.object_id)
 
     def get_notification_url(self, topic):
         return topic.get_absolute_url()
 
     def get_notification_title(self, topic):
         return topic.title
+
+
+class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
+    """
+    Subscription to new publications from a user.
+    """
+    module = _(u'Contenu')
+    objects = SubscriptionManager()
+
+    def __unicode__(self):
+        return _(u'<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>') \
+            .format(self.user.username, self.object_id)
+
+    def get_notification_url(self, content):
+        return content.get_absolute_url()
+
+    def get_notification_title(self, content):
+        return content.title
 
 
 class Notification(models.Model):

@@ -16,7 +16,7 @@ from django.views.generic import RedirectView, FormView, ListView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
-from zds.notification.models import ContentReactionAnswerSubscription
+from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
@@ -655,7 +655,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         return redirect(note.get_absolute_url())
 
 
-class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
+class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -666,6 +666,40 @@ class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, F
         if self.request.is_ajax():
             return HttpResponse(json_writer.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
+
+
+class FollowNewContent(LoggedWithReadWriteHability, FormView):
+
+    @staticmethod
+    def perform_follow(user_to_follow, user):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user).is_active
+
+    @staticmethod
+    def perform_follow_by_email(user_to_follow, user):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user, True).is_active
+
+    @method_decorator(transaction.atomic)
+    def post(self, request, *args, **kwargs):
+        response = {}
+
+        # get user to follow
+        try:
+            user_to_follow = User.objects.get(pk=kwargs['pk'])
+        except User.DoesNotExist:
+            raise Http404
+
+        # follow content if user != user_to_follow only
+        if user_to_follow == request.user:
+            raise PermissionDenied
+
+        if 'follow' in request.POST:
+            response['follow'] = self.perform_follow(user_to_follow, request.user)
+        elif 'email' in request.POST:
+            response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
+
+        if request.is_ajax():
+            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 class TagsListView(ListView):

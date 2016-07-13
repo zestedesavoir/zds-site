@@ -109,7 +109,7 @@
     {% if user.is_authenticated %}
     <li>
     {% with content_is_followed=object|is_content_followed %}
-        <form action="{% url "content:follow" object.pk %}" method="post">
+        <form action="{% url "content:follow-reactions" object.pk %}" method="post">
             <input type="hidden" name="follow" value="1">
             {% csrf_token %}
 

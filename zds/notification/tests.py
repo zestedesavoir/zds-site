@@ -15,7 +15,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.mp.models import mark_read
 from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, NewTopicSubscription
+    PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
     SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
@@ -350,7 +350,7 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse('content:follow', args=[self.tuto.pk]), {'follow': 1})
+        result = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'follow': 1})
         self.assertEqual(result.status_code, 302)
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
@@ -390,6 +390,33 @@ class NotificationPublishableContentTest(TestCase):
 
         notification = Notification.objects.get(subscription__user=self.user1)
         self.assertTrue(notification.is_read)
+
+    def test_subscription_to_new_publications_from_user(self):
+        """
+        Any user may subscribe to new publications from a user.
+        """
+        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'), True)
+
+        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), {
+            'follow': 1
+        }, follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
+        self.assertTrue(subscription.is_active)
+
+        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), {
+            'email': 1
+        }, follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
+        self.assertTrue(subscription.is_active)
+        self.assertTrue(subscription.by_email)
 
 
 class NotificationPrivateTopicTest(TestCase):
