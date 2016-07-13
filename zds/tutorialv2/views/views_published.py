@@ -127,8 +127,9 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
 
-        signals.content_read.send(
-            sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
+        if self.request.user.is_authenticated():
+            signals.content_read.send(
+                sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)

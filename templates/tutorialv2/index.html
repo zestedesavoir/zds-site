@@ -114,7 +114,7 @@
 {% endblock %}
 
 {% block sidebar_actions %}
-    {% if usr != request.user %}
+    {% if usr != request.user and request.user.is_authenticated %}
         <li>
             {% with content_is_followed=usr|is_new_publication_followed %}
                 {% url 'content:follow' usr.pk as link_follow %}
