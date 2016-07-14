@@ -321,12 +321,14 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
     def get_object(self, queryset=None):
         try:
-            topic_pk = int(self.request.POST.get('topic'))
+            if 'topic' in self.request.GET:
+                topic_pk = int(self.request.GET['topic'])
+            elif 'topic' in self.request.POST:
+                topic_pk = int(self.request.POST['topic'])
+            else:
+                raise Http404(u'Impossible de trouver votre sujet.')
         except (KeyError, ValueError, TypeError):
-            try:
-                topic_pk = int(self.request.GET.get('topic'))
-            except (KeyError, ValueError, TypeError):
-                raise Http404
+            raise Http404
         return get_object_or_404(Topic, pk=topic_pk)
 
     def create_form(self, form_class, **kwargs):
