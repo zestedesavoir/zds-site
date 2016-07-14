@@ -9,8 +9,8 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
 from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, FollowContentReaction, \
-    FollowNewContent
+    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, \
+    FollowContentReaction, FollowNewContent
 
 from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 

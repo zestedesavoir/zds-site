@@ -1,5 +1,7 @@
 # coding: utf-8
+import logging
 from datetime import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -11,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
+
 from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
@@ -21,8 +24,6 @@ from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
-from zds.utils.templatetags.quote_for_mp import quote_for_mp
-import logging
 
 
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
