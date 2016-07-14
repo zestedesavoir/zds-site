@@ -200,6 +200,11 @@
                                 {% trans "Envoyer un message privé" %}
                             </a>
                         </li>
+                    {% endif %}
+                        <li class="inactive">
+                            {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+                        </li>
+                    {% if usr != user and not profile.is_private %}
                         <li>
                             {% with content_is_followed=usr|is_new_publication_followed %}
                                 {% url 'content:follow' usr.pk as link_follow %}

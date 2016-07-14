@@ -106,6 +106,9 @@
 {% endblock %}
 
 {% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
     {% if user.is_authenticated %}
     <li>
     {% with content_is_followed=object|is_content_followed %}

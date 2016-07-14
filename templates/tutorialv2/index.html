@@ -114,7 +114,10 @@
 {% endblock %}
 
 {% block sidebar_actions %}
-    {% if usr != user and request.user.is_authenticated %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
+    {% if usr != user and user.is_authenticated %}
         <li>
             {% with content_is_followed=usr|is_new_publication_followed %}
                 {% url 'content:follow' usr.pk as link_follow %}

@@ -103,6 +103,9 @@
 
 
 {% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
     <li>
     {% with forum_is_followed=forum|is_forum_followed %}
         {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
