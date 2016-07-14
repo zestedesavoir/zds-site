@@ -195,6 +195,15 @@ class NotificationManager(models.Manager):
     Custom notification manager.
     """
 
+    def get_notifications_of(self, user):
+        """
+        Gets all notifications of a user.
+
+        :param user: user object.
+        :return: a queryset of notifications.
+        """
+        return self.filter(subscription__user=user).select_related('sender')
+
     def get_unread_notifications_of(self, user):
         """
         Gets all notifications for a user whose user is passed as argument.

@@ -387,7 +387,7 @@
                                 {# NOTIFICATIONS #}
                                 <div>
                                     {% with unread_posts=user|interventions_topics %}
-                                        <a href="{% url "forum-followed-topics" %}" class="ico-link">
+                                        <a href="{% url 'notification-list' %}" class="ico-link">
                                             {% if unread_posts|length > 0 %}
                                                 <span class="notif-count">{{ unread_posts|length }}</span>
                                             {% endif %}
@@ -415,7 +415,7 @@
                                                     </li>
                                                 {% endif %}
                                             </ul>
-                                            <a href="{% url "forum-followed-topics" %}" class="dropdown-link-all">
+                                            <a href="{% url 'notification-list' %}" class="dropdown-link-all">
                                                 {% trans "Toutes les notifications" %}
                                             </a>
                                         </div>
