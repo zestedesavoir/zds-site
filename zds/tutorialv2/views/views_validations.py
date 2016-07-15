@@ -275,6 +275,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 validation.content.title,
                 msg,
                 True,
+                leave=False,
                 direct=False
             )
 

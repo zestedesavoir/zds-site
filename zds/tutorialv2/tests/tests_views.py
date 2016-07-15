@@ -1949,7 +1949,6 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
@@ -2126,7 +2125,7 @@ class ContentTests(TestCase):
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
         # Note : a PM is sent when the content is reserved by a validator
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
@@ -2196,7 +2195,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 6)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 3)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         # so, reserve it
@@ -2232,7 +2231,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'CANCEL')  # the validation got canceled
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 6)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
 
     def test_delete_while_validating(self):
@@ -2317,7 +2316,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
         self.assertEqual(Validation.objects.count(), 0)  # no more validation objects
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 1)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
     def test_js_fiddle_activation(self):
