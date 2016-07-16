@@ -106,31 +106,21 @@
 {% endblock %}
 
 {% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
     {% if user.is_authenticated %}
     <li>
     {% with content_is_followed=object|is_content_followed %}
-        <form action="{% url "content:follow" object.pk %}" method="post">
-            <input type="hidden" name="follow" value="1">
-            {% csrf_token %}
-
-            <button
-                class="follow ico-after star {% if content_is_followed %}yellow{% else %}blue{% endif %}"
-                type="submit" data-ajax-input="follow-topic"
-                data-content-on-click="
-                    {% if content_is_followed %}
-                        {% trans "Suivre ce contenu" %}
-                    {% else %}
-                        {% trans "Ne plus suivre ce contenu" %}
-                    {% endif %}
-                "
-            >
-                {% if content_is_followed %}
-                    {% trans "Ne plus suivre ce contenu" %}
-                {% else %}
-                    {% trans "Suivre ce contenu" %}
-                {% endif %}
-            </button>
-        </form>
+        {% url 'content:follow-reactions' object.pk as link_follow %}
+        {% if content_is_followed %}
+            {% trans "Suivre ce contenu" as data_onclick %}
+            {% trans "Ne plus suivre ce contenu" as button_text %}
+        {% else %}
+            {% trans "Suivre ce contenu" as button_text %}
+            {% trans "Ne plus suivre ce contenu" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
     {% endwith %}
     </li>
     {% if not user in content.authors.all %}

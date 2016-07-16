@@ -19,7 +19,8 @@ from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
+    NewPublicationSubscription, Notification
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
@@ -2126,9 +2127,10 @@ class ContentTests(TestCase):
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
-        # Note : a PM is sent when the content is reserved by a validator
-        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
+        subscription = NewPublicationSubscription.objects.get_existing(user=self.user_author,
+                                                                       content_object=self.user_author)
+        self.assertTrue(subscription.is_active)
+        self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=False).count())
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
         published = PublishedContent.objects.filter(content=tuto).first()
@@ -2196,7 +2198,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 6)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         # so, reserve it

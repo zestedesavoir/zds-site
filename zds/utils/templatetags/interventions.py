@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewTopicSubscription
+    NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
@@ -52,6 +52,20 @@ def is_content_followed(content):
     user = get_current_user()
     return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
         user, content, is_active=True)
+
+
+@register.filter('is_new_publication_followed')
+def is_new_publication_followed(user_to_follow):
+    user = get_current_user()
+    return user.is_authenticated() and NewPublicationSubscription.objects.does_exist(
+        user, user_to_follow, is_active=True)
+
+
+@register.filter('is_new_publication_email_followed')
+def is_new_publication_email_followed(user_to_follow):
+    user = get_current_user()
+    return user.is_authenticated() and NewPublicationSubscription.objects.does_exist(
+        user, user_to_follow, is_active=True, by_email=True)
 
 
 @register.filter('humane_delta')
