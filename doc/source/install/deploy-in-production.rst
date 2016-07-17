@@ -34,7 +34,7 @@ Paramètres spécifiques
 +================+=============================+=============================+
 | Nom            | beta.zestedesavoir.com      | zestedesavoir.com           |
 +----------------+-----------------------------+-----------------------------+
-| IPv4           | ``46.105.246.77``           | ``149.202.54.142``          |
+| IPv4           | ``176.31.187.88``           | ``92.243.26.160``          |
 +----------------+-----------------------------+-----------------------------+
 | IPv6           | x                           | Pas encore disponible…      |
 +----------------+-----------------------------+-----------------------------+
@@ -204,6 +204,8 @@ Configuration ZdS
 
 Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.socket`` permet de lancer le serveur applicatif de Zeste de Savoir (Gunicorn) à l'aide de ``systemctl start zds.{service,socket}`` et l'arrêter avec ``systemctl stop zds.{service,socket}``.
 
+``zds.service`` nécessite la création manuelle de ``/run/gunicorn`` appartenant à ``zds`` : ``sudo mkdir /run/gunicorn && sudo chown zds /run/gunicorn``.
+
 .. code:: text
 
     [Unit]
@@ -216,8 +218,7 @@ Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.
     User=zds
     Group=zds
     WorkingDirectory=/opt/zdsenv
-    # ExecStart=/opt/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zdsenv/gunicorn_config.py zds.wsgi
-    ExecStart=/opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
+    ExecStart=/opt/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zdsenv/gunicorn_config.py zds.wsgi
     ExecReload=/bin/kill -s HUP $MAINPID
     ExecStop=/bin/kill -s TERM $MAINPID
     PrivateTmp=true
