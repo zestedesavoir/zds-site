@@ -676,17 +676,21 @@ class CreateGitHubIssue(UpdateView):
             .format(request.POST['body'],
                     settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
                     settings.ZDS_APP['site']['litteral_name'])
-        response = requests.post(
-            settings.ZDS_APP['site']['repository']['api'] + '/issues',
-            headers={
-                'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
-            json={
-                'title': request.POST['title'],
-                'body': body,
-                'labels': tags
-            }
-        )
-        if response.status_code is not 201:
+        try:
+            response = requests.post(
+                settings.ZDS_APP['site']['repository']['api'] + '/issues',
+                timeout=10,
+                headers={
+                    'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
+                json={
+                    'title': request.POST['title'],
+                    'body': body,
+                    'labels': tags
+                }
+            )
+            if response.status_code != 201:
+                raise Exception
+        except Exception:
             messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub'))
 
         if request.is_ajax():
