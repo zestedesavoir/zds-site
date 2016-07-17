@@ -683,7 +683,7 @@ class CreateGitHubIssue(UpdateView):
             tags.append(request.POST['tag-evolution'])
         body = "{}\n\nSujet: {}\n*Envoyé depuis Zeste de Savoir*"\
             .format(request.POST['body'], settings.ZDS_APP['site']['url'] + self.object.get_absolute_url())
-        response = requests.post('https://api.github.com/repos/zestedesavoir/zds-site/issues',
+        response = requests.post(settings.ZDS_APP['site']['repository']['api'] + '/issues',
                                  headers={
                                      'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
                                  json={
