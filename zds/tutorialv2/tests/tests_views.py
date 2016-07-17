@@ -2197,7 +2197,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         # so, reserve it
