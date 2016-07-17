@@ -366,7 +366,7 @@ class Profile(models.Model):
         """
         Check if the user is in a group named dev.
         """
-        return self.user.groups.filter(name='dev').count()
+        return self.user.groups.filter(name='devs').count()
 
     @staticmethod
     def has_read_permission(request):
