@@ -50,7 +50,7 @@ before_script:
   - mysql -e "SET GLOBAL wait_timeout = 36000;"
   - mysql -e "SET GLOBAL max_allowed_packet = 134209536;"
   # database services
-  - mysql -e 'create database zds_test;'
+  - mysql -e 'CREATE DATABASE zds_test CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;"
   - mv zds/settings_test_travis.py zds/settings_prod.py
 
 install:
