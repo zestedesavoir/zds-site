@@ -36,7 +36,7 @@ from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterFo
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
-from zds.notification.models import TopicAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.decorators import https_required
 from zds.utils.models import Comment, CommentVote
@@ -89,6 +89,7 @@ class MemberDetail(DetailView):
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
         context['karmaform'] = KarmaForm(profile)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
+        context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
         return context
 
 

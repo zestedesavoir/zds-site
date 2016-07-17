@@ -33,7 +33,7 @@ from zds.forum.models import Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
-from zds.notification.models import TopicAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
@@ -1877,6 +1877,7 @@ class ContentOfAuthor(ZdSPagingListView):
         context['filters'] = []
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
+        context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
 
         context['usr'] = self.user
         for sort in self.sorts.keys():

@@ -151,6 +151,7 @@ def mark_read(content, user=None):
     """
 
     from zds.tutorialv2.models.models_database import ContentRead
+    from zds.tutorialv2.models.models_database import ContentReaction
 
     if not user:
         user = get_current_user()
@@ -165,7 +166,7 @@ def mark_read(content, user=None):
                 content=content,
                 user=user)
             a.save()
-            signals.content_read.send(sender=content.__class__, instance=content, user=user)
+            signals.content_read.send(sender=content.__class__, instance=content, user=user, target=ContentReaction)
 
 
 class TooDeepContainerError(ValueError):
