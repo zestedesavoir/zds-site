@@ -671,17 +671,7 @@ class CreateGitHubIssue(UpdateView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
-        tags = []
-        if 'tag-back' in request.POST:
-            tags.append(request.POST['tag-back'])
-        if 'tag-front' in request.POST:
-            tags.append(request.POST['tag-front'])
-        if 'tag-regression' in request.POST:
-            tags.append(request.POST['tag-regression'])
-        if 'tag-bug' in request.POST:
-            tags.append(request.POST['tag-bug'])
-        if 'tag-evolution' in request.POST:
-            tags.append(request.POST['tag-evolution'])
+        tags = [value.strip() for key, value in request.POST.items() if key.startswith("tag-")]
         body = _("{}\n\nSujet: {}\n*Envoyé depuis {}*")\
             .format(request.POST['body'],
                     settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
