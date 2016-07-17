@@ -236,6 +236,16 @@ class MiniProfileForm(forms.Form):
         )
     )
 
+    github = forms.CharField(
+        label='Token GitHub',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _(u'Permet de communiquer avec la plateforme GitHub.')
+            }
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         super(MiniProfileForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -299,20 +309,20 @@ class ProfileForm(MiniProfileForm):
         if 'email_for_answer' in initial and initial['email_for_answer']:
             self.fields['options'].initial += 'email_for_answer'
 
-        self.helper.layout = Layout(
+        layout = Layout(
             Field('biography'),
             Field('site'),
             Field('avatar_url'),
-            HTML(u"""
-                <p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
-                   Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
-                   Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>
-            """),
+            HTML(u"""<p><a href="{% url 'gallery-list' %}">Choisir un avatar dans une galerie</a><br/>
+            Naviguez vers l'image voulue et cliquez sur le bouton "<em>Choisir comme avatar</em>".<br/>
+            Créez une galerie et importez votre avatar si ce n'est pas déjà fait !</p>"""),
             Field('sign'),
             Field('options'),
-            ButtonHolder(
-                StrictButton(_(u'Enregistrer'), type='submit'),
-            ))
+            ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
+        )
+        if initial.get('is_dev'):
+            layout.fields.insert(5, Field('github'))
+        self.helper.layout = layout
 
 
 class ChangeUserForm(forms.Form, ProfileUsernameValidator, ProfileEmailValidator):

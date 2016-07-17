@@ -211,6 +211,37 @@
             {% endwith %}
         {% endwith %}
     </li>
+    {% if is_dev %}
+        <li>
+            <a href="#create-issue" class="open-modal ico-after github blue">Envoyer au bugtracker</a>
+            <form action="{% url 'create-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
+                {% csrf_token %}
+                <p>
+                    {% trans 'Si vous voulez modifier un poil ce qui sera envoyé à GitHub. Editez ce formulaire.' %}
+                </p>
+                <input type="text" name="title" data-autocomplete="{ 'type': 'single' }" value="{{ topic.title }}">
+                <textarea name="body" class="textarea" cols="40">
+                    {{ topic.first_post.text }}
+                </textarea>
+                <label for="tag-bug">
+                    Bug <input type="checkbox" name="tag-bug" value="BUG" id="tag-bug">
+                </label>
+                <label for="tag-evolution">
+                    Evolution <input type="checkbox" name="tag-evolution" value="Evolution" id="tag-evolution">
+                </label>
+                <label for="tag-regression">
+                    Regression <input type="checkbox" name="tag-regression" value="Régression" id="tag-regression">
+                </label>
+                <label for="tag-back">
+                    Back <input type="checkbox" name="tag-back" value="Back" id="tag-back">
+                </label>
+                <label for="tag-front">
+                    Front <input type="checkbox" name="tag-front" value="Front" id="tag-front">
+                </label>
+                <button type="submit">{% trans 'Envoyer' %}</button>
+            </form>
+        </li>
+    {% endif %}
 {% endblock %}
 
 
