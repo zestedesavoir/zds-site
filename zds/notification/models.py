@@ -24,6 +24,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = _(u'Abonnement')
         verbose_name_plural = _(u'Abonnements')
+        unique_together = (('user', 'content_type', 'object_id'),)
 
     user = models.ForeignKey(User, related_name='subscriber', db_index=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
