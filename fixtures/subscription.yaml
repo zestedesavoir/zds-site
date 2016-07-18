@@ -1,0 +1,54 @@
+-   model: notification.Subscription
+    pk: 1
+    fields:
+        pubdate: 2016-07-03T22:07:48.392
+        is_active: true
+        object_id: 4
+        by_email: false
+        content_type: 37
+        last_notification: null
+        user: 2
+-   model: notification.AnswerSubscription
+    pk: 1
+    fields:
+      subscription_ptr_id: 1
+-   model: notification.TopicAnswerSubscription
+    pk: 1
+    fields:
+      answersubscription_ptr_id: 1
+-   model: notification.Subscription
+    pk: 2
+    fields:
+        pubdate: 2016-07-03T22:08:48.392
+        is_active: true
+        object_id: 4
+        by_email: false
+        content_type: 37
+        last_notification: null
+        user: 2
+-   model: notification.AnswerSubscription
+    pk: 2
+    fields:
+      subscription_ptr_id: 1
+-   model: notification.TopicAnswerSubscription
+    pk: 2
+    fields:
+      answersubscription_ptr_id: 1
+-   model: notification.Subscription
+    pk: 3
+    fields:
+        pubdate: 2016-07-03T22:09:48.392
+        is_active: true
+        object_id: 4
+        by_email: false
+        content_type: 37
+        last_notification: null
+        user: 2
+-   model: notification.AnswerSubscription
+    pk: 3
+    fields:
+      subscription_ptr_id: 1
+-   model: notification.TopicAnswerSubscription
+    pk: 3
+    fields:
+      answersubscription_ptr_id: 1

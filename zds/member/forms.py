@@ -241,7 +241,7 @@ class MiniProfileForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'Permet de communiquer avec la plateforme GitHub.')
+                'placeholder': _(u'Token qui permet de communiquer avec la plateforme GitHub.')
             }
         )
     )

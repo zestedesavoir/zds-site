@@ -413,7 +413,10 @@ ZDS_APP = {
         'repository': {
             'url': u'https://github.com/zestedesavoir/zds-site',
             'bugtracker': u'https://github.com/zestedesavoir/zds-site/issues',
-            'api': u'https://api.github.com/repos/zestedesavoir/zds-site'
+            'api': u'https://api.github.com/repos/GerardPaligot/zds-site',
+            'tags': [
+                'Back', 'Front', 'Bug', 'Régression', 'Évolution'
+            ]
         },
         'licenses': {
             'logo': {

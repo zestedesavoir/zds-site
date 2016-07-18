@@ -166,6 +166,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, 'profile'):
             context['is_dev'] = self.request.user.profile.is_dev()
+            context['tags'] = settings.ZDS_APP['site']['repository']['tags']
 
         if self.request.user.has_perm('forum.change_topic'):
             context["user_can_modify"] = [post.pk for post in context['posts']]
