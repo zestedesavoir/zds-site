@@ -65,8 +65,9 @@ Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets s
    -  statut:Bug
    -  statut:Régression
    -  statut:Zombie
--  Difficulté
+-  Autres
    -  Facile
+   -  Feedback
 
 Explications
 ------------
@@ -74,7 +75,8 @@ Explications
 -  Compétence : Quelle(s) partie(s) du système est/sont impactée(s) ? Permet notamment aux développeurs de choisir de se concentrer uniquement sur le front, aux admins de s'occuper de l'infra, …
 -  Priorité : Un **bug** ou une **régression** est **bloquant**e si ça empêche une utilisation correcte du site (impossible de rédiger un article, forte atteinte aux performances, etc). Il s'agit d'un problème critique. Les autres tickets ou PR peuvent être de **Haute** ou **Basse** priorité, ces étiquettes étant facultatives. Par exemple, une ZEP aura rarement une priorité attribuée, par contre si elle touche à sa fin mais nécessite une petite évolution pour pouvoir être mergée, la PR de cette petite évolution pourrait à l'approche de la release se voir attribuer une haute priorité.
 -  Statut : **Régression** ou **Bug** ? : Une régression est un retour en arrière en terme de qualité. Il s'agit d'un bug, mais on le différencie parce que ce bug vient d'être introduit dans une partie du code qui auparavant fonctionnait comme voulu. Un problème qui n'est pas une régression est indiqué *Bug*. Il s'agit par exemple d'un problème impactant une nouvelle fonctionnalité. Les tickets sous le tag **Zombie** sont des bugs mineurs n'ayant pas donnés signe de vie depuis longtemps. Ils sont donc non-résolus mais fermés et placés sous cette étiquette pour garder propre la pile des tickets actifs. Dans l'idéal il faudrait les rouvrir pour les résoudre un jour…
--  Le tag **Facile** : Ce tag est facultatif. Il est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
+-  Le tag **Facile** : Ce tag est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
+-  Le tag **Feedback** : Ce tag indique les tickets sur lesquels l'auteur souhaite recevoir un retour, discuter une approche, proposer quelque chose, ouvrir le débat.
 
 La priorité est mise sur ce qui est Bloquant, puis Haut. Les autres tickets ou PRs n'ont pas de priorité particulière. La basse priorité vient en dernier. Chacun est invité à choisir ce sur quoi concentrer ses efforts en fonction de ces priorités ou de ses intérêts.
 
