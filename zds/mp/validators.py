@@ -20,7 +20,7 @@ class ParticipantsUserValidator(Validator):
                     if not Profile.objects.contactable_members().filter(pk=current.pk).exists():
                         msg = _(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
                 except Http404:
-                    msg = _(u'Un des participants saisi est introuvable')
+                    msg = _(u'Un des participants saisi est introuvable ({0}).'.format(participant))
         else:
             msg = _(u'Vous devez spécifier des participants.')
         if msg is not None:
@@ -48,7 +48,7 @@ class ParticipantsStringValidator(Validator):
             participants = value.strip()
             if participants != '':
                 if len(participants) == 1 and participants[0].strip() == ',':
-                    msg = _(u'Vous devez spécfier des participants valides')
+                    msg = _(u'Vous devez spécfier des participants valides.')
                 for participant in participants.split(','):
                     participant = participant.strip()
                     if participant == '':
@@ -60,9 +60,9 @@ class ParticipantsStringValidator(Validator):
                         if not Profile.objects.contactable_members().filter(pk=current.pk).exists():
                             msg = _(u'Vous avez tenté d\'ajouter un utilisateur injoignable.')
                     except Http404:
-                        msg = _(u'Un des participants saisi est introuvable')
+                        msg = _(u'Un des participants saisi est introuvable ({0}).'.format(participant))
             else:
-                msg = _(u'Le champ participants ne peut être vide')
+                msg = _(u'Le champ participants ne peut être vide.')
             if msg is not None:
                 self.throw_error('participants', msg)
         return value
@@ -83,7 +83,7 @@ class TitleValidator(Validator):
         msg = None
         if value:
             if value.strip() == '':
-                msg = _(u'Le champ titre ne peut être vide')
+                msg = _(u'Le champ titre ne peut être vide.')
             if msg is not None:
                 self.throw_error('title', msg)
         return value
@@ -104,7 +104,7 @@ class TextValidator(Validator):
         msg = None
         if value:
             if value.strip() == '':
-                msg = _(u'Le champ text ne peut être vide')
+                msg = _(u'Le champ text ne peut être vide.')
             if msg is not None:
                 self.throw_error('text', msg)
         return value
