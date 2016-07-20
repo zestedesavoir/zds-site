@@ -306,7 +306,8 @@ class Tag(models.Model):
         return reverse('topic-tag-find', kwargs={'tag_pk': self.pk, 'tag_slug': self.slug})
 
     def save(self, *args, **kwargs):
-        if not self.title.strip() or not slugify(self.title.strip().replace('-', '')):
+        self.title = self.title.strip()
+        if not self.title or not slugify(self.title.replace('-', '')):
             raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
         self.slug = slugify(self.title)
