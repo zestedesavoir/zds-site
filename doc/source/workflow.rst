@@ -50,21 +50,21 @@ Stratégie de *tagging* des tickets
 
 Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en 4 catégories (seuls les niveaux 2 représentent les tags utilisables) :
 
--  Compétence
-   -  part:Back
-   -  part:Front
-   -  part:API
-   -  part:Documentation
-   -  part:Infra
--  Priorité
-   -  prio:Bloquant
-   -  prio:Haute
-   -  prio:Basse
--  Statut
-   -  statut:Evolution
-   -  statut:Bug
-   -  statut:Régression
-   -  statut:Zombie
+-  C: Compétence
+   -  C-Back
+   -  C-Front
+   -  C-API
+   -  C-Documentation
+   -  C-Infra
+-  P: Priorité
+   -  P-Bloquant
+   -  P-Haute
+   -  P-Basse
+-  S: Statut
+   -  S-Evolution
+   -  S-Bug
+   -  S-Régression
+   -  S-Zombie
 -  Autres
    -  Facile
    -  Feedback
