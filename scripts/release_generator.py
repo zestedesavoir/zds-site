@@ -91,11 +91,11 @@ def parse_issues(req):
         elif issue['state'] == 'closed':
             labels = []
             for l in issue['labels']:
-                labels.append(l['name'].lower())
+                labels.append(l['name'])
 
-            if 'bug' in labels or u'régression' in labels:
+            if 'S-BUG' in labels or u'S-Régression' in labels:
                 closed_bug.append(issue)
-            elif 'evolution' in labels:
+            elif u'S-Évolution' in labels:
                 closed_evo.append(issue)
             else:
                 closed_unk.append(issue)
