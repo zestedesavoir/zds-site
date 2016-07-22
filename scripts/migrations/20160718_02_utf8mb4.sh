@@ -10,7 +10,7 @@ function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4
 
 if [ $(version $MYSQL_VERSION) -lt $(version $MIN_MYSQL_VERSION) ]; then
     echo "This script will only work with MySQL >= 5.6" >&2
-    echo "Please update MySQL" >&2
+    echo "Please update MySQL. See update.md." >&2
     exit 1
 fi
 
@@ -28,7 +28,6 @@ fi
 
 
 mysql -u zds -p zdsdb << EOF
-    SET foreign_key_checks = 0;
     ### Convert each table to ROW_FORMAT=DYNAMIC, the newest MySQL default
     ALTER TABLE \`article_validation\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`auth_group\` ROW_FORMAT=DYNAMIC;
@@ -119,7 +118,7 @@ mysql -u zds -p zdsdb << EOF
     ALTER TABLE \`utils_subcategory\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`utils_tag\` ROW_FORMAT=DYNAMIC;
 
-    ########
+    # Next, ALTER these tables to the utf8mb4 charset and collation
 
     ALTER TABLE \`article_validation\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`auth_group\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -209,7 +208,6 @@ mysql -u zds -p zdsdb << EOF
     ALTER TABLE \`utils_licence\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`utils_subcategory\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`utils_tag\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    SET foreign_key_checks = 1;
 EOF
 
 if [ $? -eq 0 ]; then
@@ -221,8 +219,7 @@ fi
 
 
 mysql -u zds -p zdsdb << EOF
-    SET foreign_key_checks = 0;
-    ### Convert each field
+    ### Convert each text field (*text, varchar) to utf8mb4 charset and collation
 
     # article_validation
     ALTER TABLE \`article_validation\` CHANGE version version VARCHAR(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL;
@@ -511,7 +508,6 @@ mysql -u zds -p zdsdb << EOF
     # utils_tag
     ALTER TABLE \`utils_tag\` CHANGE title title VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
     ALTER TABLE \`utils_tag\` CHANGE slug slug VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
-    SET foreign_key_checks = 1;
 EOF
 
 if [ $? -eq 0 ]; then
