@@ -43,8 +43,8 @@ class NotificationListAPITest(APITestCase):
 
     def test_apply_filter_on_notifications(self):
         """
-        Subscribe to a private topic, and get the list of notifications with a correct
-        filter, with a filter unappropriated and with an unknown filter.
+        Subscribe to a private topic, and gets the list of notifications with a proper
+        filter, with an unsuitable filter and with an unknown filter.
         """
         self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
         response = self.client.get(reverse('api:notification:list') + '?type=privatetopic')

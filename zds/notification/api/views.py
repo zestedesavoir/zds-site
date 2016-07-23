@@ -61,7 +61,7 @@ class NotificationListAPI(ListAPIView):
               description: Sorts the results. You can order by (-)pubdate or (-)title.
               paramType: query
             - name: type
-              description: Filter the type of the notification.
+              description: Filters by subscription type.
               paramType: query
             - name: expand
               description: Returns an object instead of an identifier representing the given field.
