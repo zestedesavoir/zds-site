@@ -21,7 +21,8 @@ class Command(BaseCommand):
             pks = Subscription.objects.filter(**sub).order_by('-pubdate') \
                                       .values_list('id', flat=True)[1:]
             count = count + len(pks)
-            # Delete them
-            Subscription.objects.filter(pk__in=pks).delete()
+            # Delete each of them
+            for pk in pks:
+                Subscription.objects.filter(pk=pk).delete()
 
         self.stdout.write(u'Deleted {} duplicates'.format(count))
