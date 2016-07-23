@@ -26,6 +26,8 @@ class ModelNameNode(template.Node):
             app_label = self.app_label.resolve(context)
             model_name = self.model_name.resolve(context)
             plural = self.plural.resolve(context)
+            # gasche: the access below seems to be incompatible
+            # with MODEL_NAMES actual structure, is this dead code?
             return MODEL_NAMES[app_label][model_name][plural]
         except template.VariableDoesNotExist:
             return ''
