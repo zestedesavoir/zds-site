@@ -1,8 +1,8 @@
 # coding: utf-8
 
 from django import template
-
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from zds.member.models import Profile
 
@@ -28,6 +28,30 @@ def user(user_pk):
     except User.DoesNotExist:
         current_user = None
     return current_user
+
+
+@register.filter(name='groups')
+def user_groups(user):
+    if user.pk is None:
+        user_identifier = 'unauthenticated'
+    else:
+        user_identifier = user.pk
+
+    key = 'user_pk={}_groups'.format(user_identifier)
+    groups = cache.get(key)
+
+    if groups is None:
+        try:
+            current_user_groups = User.objects.filter(pk=user.pk)\
+                                      .prefetch_related('groups').values_list('groups', flat=True)
+        except User.DoesNotExist:
+            current_user_groups = ['none']
+        groups = '{}-{}'.format(
+            'groups',
+            '-'.join(str(current_user_groups))
+        )
+        cache.set(key, groups, 4 * 60 * 60)
+    return groups
 
 
 @register.filter('state')
