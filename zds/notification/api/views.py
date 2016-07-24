@@ -61,6 +61,9 @@ class NotificationListAPI(ListAPIView):
               description: Sorts the results. You can order by (-)pubdate or (-)title.
               paramType: query
             - name: type
+              description: Filters by notification type.
+              paramType: query
+            - name: subscription_type
               description: Filters by subscription type.
               paramType: query
             - name: expand
@@ -77,7 +80,10 @@ class NotificationListAPI(ListAPIView):
 
     def get_queryset(self):
         queryset = Notification.objects.get_unread_notifications_of(self.request.user)
+        subscription_type = self.request.query_params.get('subscription_type', None)
+        if subscription_type:
+            queryset = queryset.filter(subscription__content_type__model=subscription_type)
         _type = self.request.query_params.get('type', None)
         if _type:
-            queryset = queryset.filter(subscription__content_type__model=_type)
+            queryset = queryset.filter(content_type__model=_type)
         return queryset

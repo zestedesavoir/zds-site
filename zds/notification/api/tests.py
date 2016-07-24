@@ -38,22 +38,23 @@ class NotificationListAPITest(APITestCase):
         """
         self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
         response = self.client.get(reverse('api:notification:list'))
+        print response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
 
     def test_apply_filter_on_notifications(self):
         """
-        Subscribe to a private topic, and gets the list of notifications with a proper
-        filter, with an unsuitable filter and with an unknown filter.
+        Subscribe to a private topic, and gets the list of notifications with a subscription filter,
+        with a notification filter and with an unknown filter.
         """
         self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
-        response = self.client.get(reverse('api:notification:list') + '?type=privatetopic')
+        response = self.client.get(reverse('api:notification:list') + '?subscription_type=privatetopic')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
 
         response = self.client.get(reverse('api:notification:list') + '?type=privatepost')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('count'), 0)
+        self.assertEqual(response.data.get('count'), 1)
 
         response = self.client.get(reverse('api:notification:list') + '?type=xyz')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
