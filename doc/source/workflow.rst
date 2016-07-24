@@ -45,27 +45,51 @@ C'est s'assurer que le code fait ce qu'il devrait sans passer des heures à re-t
 -  la vérification que des tests correspondants à la fonctionnalité ou à la correction sont présents, cohérents et passent;
 -  des tests manuels dans le cas de fonctionnalités ou corrections complexes et/ou critiques (au cas par cas).
 
+Milestones
+==========
+
+Pour avoir une vue d'ensemble des modifications inclues ou à inclure dans chaque release, nous utilisons des *milestones*. Il existe une *milestone* par release majeure (e.g. une pour v19, aucune pour v19.1), les PRs mergées dans une version mineure appartenant à la *milestone* de la version majeure correspondante.
+
+Les *milestones* sont également utilisées par le script de génération de rapport de release, rapport contenant quelques détails sur la release en question.
+
+Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le DTC à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
+
+* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
+* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
+
+La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
+
+Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
+
+
 Stratégie de *tagging* des tickets
 ==================================
 
 Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en 4 catégories (seuls les niveaux 2 représentent les tags utilisables) :
 
 -  C: Compétence
+
    -  C-Back
    -  C-Front
    -  C-API
    -  C-Documentation
    -  C-Infra
+
 -  P: Priorité
+
    -  P-Bloquant
    -  P-Haute
    -  P-Basse
+
 -  S: Statut
+
    -  S-Evolution
    -  S-Bug
    -  S-Régression
    -  S-Zombie
+
 -  Autres
+
    -  Facile
    -  Feedback
 
@@ -153,13 +177,16 @@ Le Sysadmin (administrateur système et réseau)
 ----------------------------------------------
 
   - Roles
+
     - Gérer et monitorer l'infra (configuration des logiciels, logs, sécurité) [pré]prod'
     - Assister/remplacer le DTC sur les histoires de migration prod -> préprod quand nécessaire
     - Donner un avis sur les contraintes de changement de serveur (ou prévenir sur les limites de l'actuel quand nécessaire, cf. premier point)
     - Suivre les tickets "infra" sur GH et faire les actions nécessaires
     - Gérer les personnes ayant accès au serveur [pré]prod'
     - Maintenir de la doc. sur les actions pour faire un suivi et assurer la relève/remplacement quand c'est nécessaire (maladie, vacances…)
+
   - Responsabilités
+
     - **Confidentialité** vis-a-vis des données privées présente sur les serveurs (email, contenu de MP…)
     - Si possible, toujours tester en preprod' avant de reproduire en prod'
     - **Professionnalisme**, "si on sait pas on fait pas" pour ne pas mettre la production en péril (sauf en preprod entre les releases)
