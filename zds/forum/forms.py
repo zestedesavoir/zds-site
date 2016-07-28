@@ -5,6 +5,7 @@ import re
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.html import strip_tags
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Field, Hidden
@@ -12,6 +13,7 @@ from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic, sub_tag, Tag
 from zds.utils.forms import CommonLayoutEditor
 from django.utils.translation import ugettext_lazy as _
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 class TopicForm(forms.Form):
@@ -139,7 +141,7 @@ class PostForm(forms.Form):
 
         text = cleaned_data.get('text')
 
-        if text is None or text.strip() == '':
+        if text is None or text.strip() == '' or strip_tags(emarkdown(text)).strip() == '':
             self._errors['text'] = self.error_class(
                 [_(u'Vous devez écrire une réponse !')])
 

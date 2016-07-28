@@ -287,6 +287,18 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 404)
 
+        # mathjax backdoor don't work
+        result = self.client.post(
+            reverse('zds.forum.views.answer') + '?sujet=' + str(topic1.pk),
+            {
+                'last_post': topic1.last_message.pk,
+                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(result.request["PATH_INFO"], reverse('zds.forum.views.answer'))
+
     def test_edit_main_post(self):
         """To test all aspects of the edition of main post by member."""
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
