@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Votre compte a été banni" %}
+{% endblock %}
+
+
+{# No sidebar on this page #}
+{% block body_class %}{% trans "no-sidebar" %}{% endblock %}
+{% block sidebar %}{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Compte banni" %}</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="content-wrapper">
+        <h2>Votre compte à été banni</h2>
+
+        <p>{% trans "Vous n'êtes pas autorisé à vous connecter sur le site car vous avez été banni par un modérateur." %}</p>
+
+        <a href="/">{% trans "Retour à l'accueil" %}</a>
+    </section>
+{% endblock %}
