@@ -631,7 +631,16 @@ Notifications
 
 ### **(pré-migration)** Rendre unique les subscriptions
 
-Lancer la commande `python manage.py uniquify_subscriptions` pour supprimer les duplicates.
+1. Lancer la commande `python manage.py uniquify_subscriptions >> mep_v20.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
+Tags
+----
+
+### **(pré-migration)** Nettoyer les tags existants
+
+1. Lancer la commande `python manage.py clean_tags >> mep_v20.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
 
 ---
 
