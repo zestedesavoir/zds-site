@@ -102,7 +102,7 @@ class CategorySubCategory(models.Model):
 
     category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True)
     subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True)
-    is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
+    is_main = models.BooleanField('Est la catégorie principale', default=True)
 
     def __unicode__(self):
         """Textual Link Form."""

@@ -28,7 +28,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, related_name='subscriber', db_index=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    is_active = models.BooleanField(_(u'Actif'), default=True, db_index=True)
+    is_active = models.BooleanField(_(u'Actif'), default=True)
     by_email = models.BooleanField(_(u'Recevoir un email'), default=False)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
@@ -311,7 +311,7 @@ class Notification(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
-    is_read = models.BooleanField(_(u'Lue'), default=False, db_index=True)
+    is_read = models.BooleanField(_(u'Lue'), default=False)
     url = models.CharField('URL', max_length=255)
     sender = models.ForeignKey(User, related_name='sender', db_index=True)
     title = models.CharField('Titre', max_length=200)
@@ -335,7 +335,7 @@ class TopicFollowed(models.Model):
 
     topic = models.ForeignKey(Topic, db_index=True)
     user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
-    email = models.BooleanField('Notification par courriel', default=False, db_index=True)
+    email = models.BooleanField('Notification par courriel', default=False)
     objects = TopicFollowedManager()
 
     def __unicode__(self):
