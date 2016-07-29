@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import datetime
+from django.core.cache import cache
+from django.db.models.signals import post_save, post_delete
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework import status
@@ -9,7 +12,7 @@ from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
-from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
+from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 
 from zds.member.api.serializers import ProfileListSerializer, ProfileCreateSerializer, \
     ProfileDetailSerializer, ProfileValidatorSerializer
@@ -27,6 +30,7 @@ class PagingSearchListKeyConstructor(DefaultKeyConstructor):
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_profile')
 
 
 class DetailKeyConstructor(DefaultKeyConstructor):
@@ -35,12 +39,22 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_profile')
 
 
 class MyDetailKeyConstructor(DefaultKeyConstructor):
     format = bits.FormatKeyBit()
     language = bits.LanguageKeyBit()
     user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_profile')
+
+
+def change_api_profile_updated_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_profile', datetime.datetime.utcnow())
+
+
+post_save.connect(receiver=change_api_profile_updated_at, sender=Profile)
+post_delete.connect(receiver=change_api_profile_updated_at, sender=Profile)
 
 
 class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
