@@ -5,10 +5,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
+from django.core.urlresolvers import reverse
 
+from zds.forum.models import Category, Forum, Topic, Tag
 from zds.pages.views import home as home_view
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.forum.models import Category, Forum, Topic, Tag
 
 from . import settings
 
@@ -41,6 +42,18 @@ class ArticleSitemap(Sitemap):
     def location(self, article):
         return article.get_absolute_url_online()
 
+
+class PageSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        return ['pages-about', 'pages-association', 'pages-contact', 'pages-eula',
+                'pages-alerts', 'pages-cookies', 'pages-assoc-subscribe', 'pages-index']
+
+    def location(self, item):
+        return reverse(item)
+
 sitemaps = {
     'tutos': TutoSitemap,
     'articles': ArticleSitemap,
@@ -65,6 +78,7 @@ sitemaps = {
     'tags': GenericSitemap(
         {'queryset': Tag.objects.all()}
     ),
+    'pages': PageSitemap,
 }
 
 
