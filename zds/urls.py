@@ -8,7 +8,6 @@ from django.contrib.sitemaps.views import index as index_view, sitemap as sitema
 from django.core.urlresolvers import get_resolver, reverse
 
 from zds.forum.models import Category, Forum, Topic, Tag
-from zds.pages import urls as pages_urls
 from zds.pages.views import home as home_view
 from zds.tutorialv2.models.models_database import PublishedContent
 
