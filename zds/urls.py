@@ -5,9 +5,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import get_resolver, reverse
 
 from zds.forum.models import Category, Forum, Topic, Tag
+from zds.pages import urls as pages_urls
 from zds.pages.views import home as home_view
 from zds.tutorialv2.models.models_database import PublishedContent
 
@@ -48,8 +49,8 @@ class PageSitemap(Sitemap):
     priority = 0.5
 
     def items(self):
-        return ['pages-about', 'pages-association', 'pages-contact', 'pages-eula',
-                'pages-alerts', 'pages-cookies', 'pages-assoc-subscribe', 'pages-index']
+        urls = get_resolver(None).reverse_dict.keys()
+        return [url for url in urls if 'pages-' in str(url)]
 
     def location(self, item):
         return reverse(item)
