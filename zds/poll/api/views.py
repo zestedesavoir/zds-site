@@ -8,5 +8,6 @@ from zds.poll.models import Poll
 
 
 class PollDetailAPIView(RetrieveAPIView):
+
     serializer_class = PollDetailSerializer
     queryset = Poll.objects.all()
