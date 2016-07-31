@@ -131,6 +131,12 @@ class Choice(models.Model):
         count = self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll).count()
         return count
 
+    def set_user_vote(self, user):
+        if self.poll.type_vote == 'u':
+            UniqueVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
+        elif self.poll.type_vote == 'm':
+            MultipleVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
+
 
 class Vote(models.Model):
 
