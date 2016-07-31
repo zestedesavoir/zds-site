@@ -8,7 +8,7 @@ import zds.notification.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0007_auto_20160121_2343'),
+        ('notification', '0008_auto_20160507_1504'),
     ]
 
     operations = [

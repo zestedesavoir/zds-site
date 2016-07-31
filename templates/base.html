@@ -1,14 +1,14 @@
-{% load staticfiles %}
-{% load profile %}
-{% load interventions %}
-{% load topbar %}
+{% load cache %}
 {% load captureas %}
 {% load date %}
-{% load set %}
-{% load captureas %}
-{% load thumbnail %}
 {% load i18n %}
+{% load interventions %}
+{% load profile %}
 {% load remove_url_protocole %}
+{% load set %}
+{% load staticfiles %}
+{% load thumbnail %}
+{% load topbar %}
 
 
 <!DOCTYPE html>
@@ -181,108 +181,156 @@
                             {% endwith %}
                         {% endif %}
                     >
-                        <ul class="header-menu-list">
-                            <li>
-                                <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
-                                    {% trans "Tutoriels" %}
-                                </a>
-                                <div class="dropdown header-menu-dropdown">
-                                    <a href="{% url "tutorial:list" %}" class="dropdown-link-all">
-                                        {% trans "Tous les tutoriels" %}
-                                    </a>
 
-                                    <ul class="dropdown-list">
-                                        {% with categories='TUTORIAL'|top_categories_content %}
-                                            {% for title, subcats in categories.categories.items %}
-                                                <li>
+                        {% cache 1800 menu user.pk|default_if_none:"0" %}
+                            <ul class="header-menu-list">
+                                <li>
+                                    <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                        {% trans "Tutoriels" %}
+                                    </a>
+                                    <div class="dropdown header-menu-dropdown">
+                                        <a href="{% url "tutorial:list" %}" class="dropdown-link-all">
+                                            {% trans "Tous les tutoriels" %}
+                                        </a>
+
+                                        <ul class="dropdown-list">
+                                            {% with categories='TUTORIAL'|top_categories_content %}
+                                                {% for title, subcats in categories.categories.items %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {{ title }}
+                                                            </li>
+                                                            {% for subcat,slug in subcats %}
+                                                                <li>
+                                                                    <a href="{% url "tutorial:list" %}?category={{ slug }}">
+                                                                        {{  subcat }}
+                                                                    </a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                {% empty %}
                                                     <ul>
                                                         <li class="dropdown-title">
-                                                            {{ title }}
+                                                            {% trans "Aucun tutoriel disponible." %}
                                                         </li>
-                                                        {% for subcat,slug in subcats %}
-                                                            <li>
-                                                                <a href="{% url "tutorial:list" %}?category={{ slug }}">
-                                                                    {{  subcat }}
-                                                                </a>
-                                                            </li>
-                                                        {% endfor %}
                                                     </ul>
-                                                </li>
-                                            {% empty %}
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {% trans "Aucun tutoriel disponible." %}
+                                                {% endfor %}
+                                                {% if categories.tags %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {% trans "Tags les plus utilisés" %}
+                                                            </li>
+                                                            {% for tag in categories.tags %}
+                                                                <li><a href="{% url 'tutorial:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                            {% endfor %}
+                                                            <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                        </ul>
                                                     </li>
-                                                </ul>
-                                            {% endfor %}
-                                            {% if categories.tags %}
+                                                {% endif %}
+                                            {% endwith %}
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
+                                        {% trans "Articles" %}
+                                    </a>
+                                    <div class="dropdown header-menu-dropdown">
+                                        <a href="{% url "article:list" %}" class="dropdown-link-all">
+                                            {% trans "Tous les articles" %}
+                                        </a>
+
+                                        <ul class="dropdown-list">
+                                            {% with categories='ARTICLE'|top_categories_content %}
+                                                {% for title, subcats in categories.categories.items %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {{ title }}
+                                                            </li>
+                                                            {% for subcat,slug in subcats %}
+                                                                <li>
+                                                                    <a href="{% url "article:list" %}?category={{ slug }}">
+                                                                        {{  subcat }}
+                                                                    </a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                {% empty %}
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Aucun article disponible." %}
+                                                        </li>
+                                                    </ul>
+                                                {% endfor %}
+                                                {% if categories.tags %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {% trans "Tags les plus utilisés" %}
+                                                            </li>
+                                                            {% for tag in categories.tags %}
+                                                                <li><a href="{% url 'article:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                            {% endfor %}
+                                                            <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
+                                                        </ul>
+                                                    </li>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li>
+                                    <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
+                                        {% trans "Forums" %}
+                                    </a>
+                                    <div class="dropdown header-menu-dropdown">
+                                        <a href="{% url "cats-forums-list" %}" class="dropdown-link-all">
+                                            {% trans "Tous les forums" %}
+                                        </a>
+
+                                        <ul class="dropdown-list">
+                                            {% with top=user|top_categories %}
+                                                {% for title, forums in top.categories.items %}
+                                                    <li>
+                                                        <ul>
+                                                            <li class="dropdown-title">
+                                                                {{ title }}
+                                                            </li>
+                                                            {% for forum in forums %}
+                                                                <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                {% empty %}
+                                                    <ul>
+                                                        <li class="dropdown-title">
+                                                            {% trans "Aucun forum disponible." %}
+                                                        </li>
+                                                    </ul>
+                                                {% endfor %}
+                                                {% if top.tags %}
                                                 <li>
                                                     <ul>
                                                         <li class="dropdown-title">
                                                             {% trans "Tags les plus utilisés" %}
                                                         </li>
-                                                        {% for tag in categories.tags %}
-                                                            <li><a href="{% url 'tutorial:list' %}?tag={{ tag.slug }}">{{ tag }}</a></li>
-                                                        {% endfor %}
-                                                        <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
-                                                    </ul>
-                                                </li>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </ul>
-                                </div>
-                            </li>
-                            <li>
-                                <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
-                                    {% trans "Articles" %}
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
-                                    {% trans "Forums" %}
-                                </a>
-                                <div class="dropdown header-menu-dropdown">
-                                    <a href="{% url "cats-forums-list" %}" class="dropdown-link-all">
-                                        {% trans "Tous les forums" %}
-                                    </a>
-
-                                    <ul class="dropdown-list">
-                                        {% with top=user|top_categories %}
-                                            {% for title, forums in top.categories.items %}
-                                                <li>
-                                                    <ul>
-                                                        <li class="dropdown-title">
-                                                            {{ title }}
-                                                        </li>
-                                                        {% for forum in forums %}
-                                                            <li><a href="{{ forum.get_absolute_url }}">{{ forum.title }}</a></li>
+                                                        {% for tag in top.tags %}
+                                                            <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
                                                         {% endfor %}
                                                     </ul>
                                                 </li>
-                                            {% empty %}
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {% trans "Aucun forum disponible." %}
-                                                    </li>
-                                                </ul>
-                                            {% endfor %}
-                                            {% if top.tags %}
-                                            <li>
-                                                <ul>
-                                                    <li class="dropdown-title">
-                                                        {% trans "Tags les plus utilisés" %}
-                                                    </li>
-                                                    {% for tag in top.tags %}
-                                                        <li><a href="{{ tag.get_absolute_url }}">{{ tag.title }}</a></li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </li>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </ul>
-                                </div>
-                            </li>
-                        </ul>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        {% endcache %}
                     </nav>
 
 
@@ -319,12 +367,12 @@
 
                                                 {% if total_notifications == 0 %}
                                                 <li class="dropdown-empty-message">
-                                                    {% trans "Aucune nouvelle notification" %}
+                                                    {% trans "Aucun nouveau message" %}
                                                 </li>
                                                 {% endif %}
                                             </ul>
                                             <a href="{% url "mp-list" %}" class="dropdown-link-all">
-                                                {% trans "Toutes les notifications" %}
+                                                {% trans "Toutes les conversations" %}
                                             </a>
                                         </div>
                                         {% endwith %}

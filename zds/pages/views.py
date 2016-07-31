@@ -2,25 +2,28 @@
 
 import os.path
 import random
+
 from django.contrib import messages
-
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMultiAlternatives
 from django.core.urlresolvers import reverse
+from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
-from django.shortcuts import render
-from zds import settings
-
-from zds.forum.models import Topic
-from zds.member.decorator import can_write_and_read_now
-from zds.featured.models import FeaturedResource, FeaturedMessage
-from zds.pages.forms import AssocSubscribeForm
-from zds.settings import BASE_DIR
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
-from zds.utils.models import Alert
+from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import ListView
+from django.views.generic.edit import FormView
+
+from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.forum.models import Forum, Topic
+from zds.member.decorator import can_write_and_read_now
+from zds.pages.forms import AssocSubscribeForm
+from zds.pages.models import GroupContact
+from zds.settings import BASE_DIR, ZDS_APP
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
+from zds.utils.forums import create_topic
+from zds.utils.models import Alert
 
 
 def home(request):
@@ -33,7 +36,7 @@ def home(request):
         with open(os.path.join(BASE_DIR, 'quotes.txt'), 'r') as quotes_file:
             quote = random.choice(quotes_file.readlines())
     except IOError:
-        quote = settings.ZDS_APP['site']['slogan']
+        quote = ZDS_APP['site']['slogan']
 
     try:
         with open(os.path.join(BASE_DIR, 'suggestions.txt'), 'r') as suggestions_file:
@@ -47,7 +50,7 @@ def home(request):
         'last_articles': articles,
         'last_featured_resources': FeaturedResource.objects.get_last_featured(),
         'last_topics': Topic.objects.get_last_topics(),
-        'tutorials_count': PublishedContent.objects.get_tutorials_count(),
+        'contents_count': PublishedContent.objects.get_contents_count(),
         'quote': quote.replace('\n', ''),
         'suggestions': suggestions,
     })
@@ -62,53 +65,46 @@ def about(request):
     return render(request, 'pages/about.html')
 
 
-@can_write_and_read_now
-@login_required
-def assoc_subscribe(request):
-    if request.method == "POST":
-        form = AssocSubscribeForm(request.POST)
-        if form.is_valid():
-            user = request.user
-            data = form.data
+class AssocSubscribeView(FormView):
 
-            # Send email
-            subject = _(u"Demande d'adhésion de {}").format(user.username)
-            from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                          settings.ZDS_APP['site']['email_noreply'])
-            context = {
-                'full_name': data['full_name'],
-                'email': data['email'],
-                'naissance': data['naissance'],
-                'adresse': data['adresse'],
-                'justification': data['justification'],
-                'username': user.username,
-                'profile_url': settings.ZDS_APP['site']['url'] + reverse('member-detail',
-                                                                         kwargs={'user_name': user.username}),
-                'bot_name': settings.ZDS_APP['member']['bot_account'],
-                'asso_name': settings.ZDS_APP['site']['association']['name']
-            }
-            message_html = render_to_string("email/pages/assoc_subscribe.html", context)
-            message_txt = render_to_string("email/pages/assoc_subscribe.txt", context)
+    template_name = 'pages/assoc_subscribe.html'
+    form_class = AssocSubscribeForm
 
-            msg = EmailMultiAlternatives(
-                subject,
-                message_txt,
-                from_email,
-                [settings.ZDS_APP['site']['association']['email_ca']])
-            msg.attach_alternative(message_html, "text/html")
-            try:
-                msg.send()
-                messages.success(request, _(u"Votre demande d'adhésion a bien été envoyée et va être étudiée."))
-            except:
-                msg = None
-                messages.error(request, _(u"Une erreur est survenue."))
+    def form_valid(self, form):
+        user = self.request.user
+        data = form.data
 
-            # reset the form after successfull validation
-            form = AssocSubscribeForm()
-        return render(request, "pages/assoc_subscribe.html", {"form": form})
+        bot = get_object_or_404(User, username=ZDS_APP['member']['bot_account'])
+        forum = get_object_or_404(Forum, pk=ZDS_APP['site']['association']['forum_ca_pk'])
 
-    form = AssocSubscribeForm(initial={'email': request.user.email})
-    return render(request, "pages/assoc_subscribe.html", {"form": form})
+        # create the topic
+        title = _(u'Demande d\'adhésion de {}').format(user.username)
+        subtitle = _(u'Sujet créé automatiquement pour la demande d\'adhésion à l\'association du membre {} via le form'
+                     u'ulaire du site').format(user.username)
+        context = {
+            'full_name': data['full_name'],
+            'email': data['email'],
+            'birthdate': data['birthdate'],
+            'address': data['address'],
+            'justification': data['justification'],
+            'username': user.username,
+            'profile_url': ZDS_APP['site']['url'] + reverse('member-detail', kwargs={'user_name': user.username}),
+
+        }
+        text = render_to_string('pages/messages/association_subscribre.md', context)
+        create_topic(self.request, bot, forum, title, subtitle, text)
+
+        messages.success(self.request, _(u'Votre demande d\'adhésion a bien été envoyée et va être étudiée.'))
+
+        return super(AssocSubscribeView, self).form_valid(form)
+
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, *args, **kwargs):
+        return super(AssocSubscribeView, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('pages-assoc-subscribe')
 
 
 def association(request):
@@ -116,18 +112,14 @@ def association(request):
     return render(request, 'pages/association.html')
 
 
-def contact(request):
-    """Display contact page."""
-    staffs = User.objects.filter(
-        groups__in=Group.objects.filter(
-            name__contains='staff')).all()
-    devs = User.objects.filter(
-        groups__in=Group.objects.filter(
-            name__contains='dev')).all()
-    return render(request, 'pages/contact.html', {
-        'staffs': staffs,
-        'devs': devs
-    })
+class ContactView(ListView):
+    """
+    Display contact page.
+    """
+    model = GroupContact
+    queryset = GroupContact.objects.order_by('position').prefetch_related('group')
+    template_name = 'pages/contact.html'
+    context_object_name = 'groups'
 
 
 def eula(request):

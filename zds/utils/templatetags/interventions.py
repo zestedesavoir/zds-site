@@ -7,10 +7,10 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.models import Post, never_read as never_read_topic
+from zds.forum.models import Post, is_read as topic_is_read
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewTopicSubscription
+    NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import ContentReaction
 from zds.utils import get_current_user
 from zds.utils.models import Alert
@@ -20,47 +20,58 @@ register = template.Library()
 
 @register.filter('is_read')
 def is_read(topic):
-    if never_read_topic(topic):
-        return False
-    else:
-        return True
+    return topic_is_read(topic)
 
 
 @register.filter('is_followed')
 def is_followed(topic):
     user = get_current_user()
-    return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True) is not None
+    return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True)
 
 
 @register.filter('is_email_followed')
 def is_email_followed(topic):
     user = get_current_user()
-    return TopicAnswerSubscription.objects.get_existing(user, topic, is_active=True, by_email=True) is not None
+    return TopicAnswerSubscription.objects.does_exist(user, topic, is_active=True, by_email=True)
 
 
 @register.filter('is_forum_followed')
 def is_forum_followed(forum):
     user = get_current_user()
-    return NewTopicSubscription.objects.get_existing(user, forum, is_active=True) is not None
+    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True)
 
 
 @register.filter('is_forum_email_followed')
 def is_forum_email_followed(forum):
     user = get_current_user()
-    return NewTopicSubscription.objects.get_existing(user, forum, is_active=True, by_email=True) is not None
+    return NewTopicSubscription.objects.does_exist(user, forum, is_active=True, by_email=True)
 
 
 @register.filter('is_content_followed')
 def is_content_followed(content):
     user = get_current_user()
-    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.get_existing(
-        user, content, is_active=True) is not None
+    return user.is_authenticated() and ContentReactionAnswerSubscription.objects.does_exist(
+        user, content, is_active=True)
+
+
+@register.filter('is_new_publication_followed')
+def is_new_publication_followed(user_to_follow):
+    user = get_current_user()
+    return user.is_authenticated() and NewPublicationSubscription.objects.does_exist(
+        user, user_to_follow, is_active=True)
+
+
+@register.filter('is_new_publication_email_followed')
+def is_new_publication_email_followed(user_to_follow):
+    user = get_current_user()
+    return user.is_authenticated() and NewPublicationSubscription.objects.does_exist(
+        user, user_to_follow, is_active=True, by_email=True)
 
 
 @register.filter('humane_delta')
 def humane_delta(value):
     """
-    Mapping between label day and key
+    Associating a key to a named period
 
     :param int value:
     :return: string
@@ -78,25 +89,21 @@ def humane_delta(value):
 
 @register.filter('followed_topics')
 def followed_topics(user):
-    topics_followed = TopicAnswerSubscription.objects.filter(user=user,
-                                                             content_type__model='topic',
-                                                             is_active=True)\
-        .order_by('-last_notification__pubdate')[:10]
-    # This period is a map for link a moment (Today, yesterday, this week, this month, etc.) with
-    # the number of days for which we can say we're still in the period
-    # for exemple, the tuple (2, 1) means for the period "2" corresponding to "Yesterday" according
-    # to humane_delta, means if your pubdate hasn't exceeded one day, we are always at "Yesterday"
-    # Number is use for index for sort map easily
-    periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 360))
+    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)[:10]
+    # periods is a map associating a period (Today, Yesterday, Last n days)
+    # with its corresponding number of days: (humane_delta index, number of days).
+    # (3, 7) thus means that passing 3 to humane_delta would return "This week", for which
+    # we'd like pubdate not to exceed 7 days.
+    periods = ((1, 0), (2, 1), (3, 7), (4, 30), (5, 365))
     topics = {}
-    for topic_followed in topics_followed:
+    for topic in topics_followed:
         for period in periods:
-            if topic_followed.content_object.last_message.pubdate.date() \
-                    >= (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
+            if topic.last_message.pubdate.date() >= \
+                    (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
                 if period[0] in topics:
-                    topics[period[0]].append(topic_followed.content_object)
+                    topics[period[0]].append(topic)
                 else:
-                    topics[period[0]] = [topic_followed.content_object]
+                    topics[period[0]] = [topic]
                 break
     return topics
 

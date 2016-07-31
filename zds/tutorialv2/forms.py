@@ -15,6 +15,7 @@ from zds.tutorialv2.models.models_database import PublishableContent
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
+from zds.utils.forms import TagValidator
 
 
 class FormWithTitle(forms.Form):
@@ -67,19 +68,21 @@ class AuthorForm(forms.Form):
             )
         )
 
-    def clean(self):
+    def clean_username(self):
         """Check every username and send it to the cleaned_data["user"] list
 
         :return: a dictionary of all treated data with the users key added
         """
         cleaned_data = super(AuthorForm, self).clean()
         users = []
-        for username in cleaned_data.get('username').split(","):
-            user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                users.append(user.user)
-        if len(users) > 0:
-            cleaned_data["users"] = users
+        if cleaned_data.get('username'):
+            for username in cleaned_data.get('username').split(","):
+                user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
+                    .first()
+                if user is not None:
+                    users.append(user.user)
+            if len(users) > 0:
+                cleaned_data["users"] = users
         return cleaned_data
 
     def is_valid(self):
@@ -88,7 +91,7 @@ class AuthorForm(forms.Form):
 
 class RemoveAuthorForm(AuthorForm):
 
-    def clean(self):
+    def clean_username(self):
         """Check every username and send it to the cleaned_data["user"] list
 
         :return: a dictionary of all treated data with the users key added
@@ -172,6 +175,11 @@ class ContentForm(ContainerForm):
         label=_(u'Tag(s) séparés par une virgule (exemple: python,django,web)'),
         max_length=64,
         required=False,
+        widget=forms.TextInput(
+            attrs={
+                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
+            }
+        )
     )
 
     image = forms.ImageField(
@@ -257,7 +265,8 @@ class ContentForm(ContainerForm):
             self._errors['image'] = self.error_class(
                 [_(u'Votre logo est trop lourd, la limite autorisée est de {} Ko')
                  .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
-
+        if not TagValidator.validate_raw_string(cleaned_data.get("tags")):
+            self._errors['tags'] = self.error_class([_(u'Vous avez entré un tag trop long.')])
         return cleaned_data
 
 

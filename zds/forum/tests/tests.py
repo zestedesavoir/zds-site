@@ -10,8 +10,7 @@ from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
-from zds.forum.models import Forum, TopicRead
-from zds.forum.models import Post, Topic
+from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
@@ -1272,3 +1271,15 @@ class ManagerTests(TestCase):
             TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
             self.assertEqual(1, len(TopicRead.objects.list_read_topic_pk(self.staff.user)))
             self.assertEqual(0, len(TopicRead.objects.list_read_topic_pk(author.user)))
+
+        def test_is_read(self):
+            author = ProfileFactory()
+            reader = ProfileFactory()
+            topic = TopicFactory(author=author.user, forum=self.forum1)
+            post = PostFactory(topic=topic, position=1, author=author.user)
+            topic.last_post = post
+            topic.save()
+            TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
+            self.assertFalse(is_read(topic, author.user))
+            self.assertTrue(is_read(topic, self.staff.user))
+            self.assertFalse(is_read(topic, reader.user))

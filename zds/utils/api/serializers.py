@@ -1,7 +1,15 @@
 from django.contrib.auth.models import AnonymousUser
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, IntegerField, ChoiceField
-from zds.utils.models import Comment
+from zds.utils.models import Comment, Tag
 from zds.member.api.serializers import UserListSerializer
+from dry_rest_permissions.generics import DRYPermissions
+
+
+class TagSerializer(ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('id', 'title')
+        permissions_classes = DRYPermissions
 
 
 class LikesSerializer(ModelSerializer):
@@ -13,9 +21,13 @@ class LikesSerializer(ModelSerializer):
         fields = ('count', 'users')
 
 
-class DislikesSerializer(LikesSerializer):
+class DislikesSerializer(ModelSerializer):
     count = IntegerField(source='dislike', read_only=True)
     users = UserListSerializer(source='get_dislikers', many=True, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('count', 'users')
 
 
 class KarmaSerializer(ModelSerializer):

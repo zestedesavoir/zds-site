@@ -23,9 +23,9 @@ from haystack.query import SearchQuerySet
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import Category, Forum, Topic, Post, never_read, mark_read, TopicRead
+from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
-from zds.notification.models import TopicAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, NewTopicSubscription, ContentReactionAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -102,7 +102,8 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         context.update({
             'forum': self.object,
             'sticky_topics': sticky,
-            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'] + sticky)
+            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'] + sticky),
+            'subscriber_count': NewTopicSubscription.objects.get_subscriptions(self.object).count(),
         })
         return context
 
@@ -162,6 +163,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
         context['isantispam'] = self.object.antispam()
+        context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
 
         if self.request.user.has_perm('forum.change_topic'):
             context["user_can_modify"] = [post.pk for post in context['posts']]
@@ -169,7 +171,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         if self.request.user.is_authenticated():
-            if never_read(self.object):
+            if not is_read(self.object):
                 mark_read(self.object)
         return context
 
@@ -302,9 +304,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
         response = {}
         if 'follow' in request.POST:
-            response['follow'] = self.perform_follow(self.object, request.user)
+            response['follow'] = self.perform_follow(self.object, request.user).is_active
         elif 'email' in request.POST:
-            response['email'] = self.perform_follow_by_email(self.object, request.user)
+            response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:
             response['solved'] = self.perform_solve_or_unsolve(self.request.user, self.object)
         elif 'lock' in request.POST:
@@ -321,12 +323,14 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
     def get_object(self, queryset=None):
         try:
-            topic_pk = int(self.request.POST.get('topic'))
+            if 'topic' in self.request.GET:
+                topic_pk = int(self.request.GET['topic'])
+            elif 'topic' in self.request.POST:
+                topic_pk = int(self.request.POST['topic'])
+            else:
+                raise Http404(u'Impossible de trouver votre sujet.')
         except (KeyError, ValueError, TypeError):
-            try:
-                topic_pk = int(self.request.GET.get('topic'))
-            except (KeyError, ValueError, TypeError):
-                raise Http404
+            raise Http404
         return get_object_or_404(Topic, pk=topic_pk)
 
     def create_form(self, form_class, **kwargs):

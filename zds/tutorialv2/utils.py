@@ -151,6 +151,7 @@ def mark_read(content, user=None):
     """
 
     from zds.tutorialv2.models.models_database import ContentRead
+    from zds.tutorialv2.models.models_database import ContentReaction
 
     if not user:
         user = get_current_user()
@@ -165,7 +166,7 @@ def mark_read(content, user=None):
                 content=content,
                 user=user)
             a.save()
-            signals.content_read.send(sender=content.__class__, instance=content, user=user)
+            signals.content_read.send(sender=content.__class__, instance=content, user=user, target=ContentReaction)
 
 
 class TooDeepContainerError(ValueError):
@@ -731,7 +732,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         os.makedirs(path, mode=0o777)
 
     # init repo:
-    Repo.init(path, bare=False)
+    Repo.init(path, bare=False, template="")
 
     # create object
     versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)

@@ -181,8 +181,7 @@ def load_tags(cli, size, fake):
     tps1 = time.time()
     for i in range(0, nb_tags):
         title = fake.word()
-        tag = Tag(title=title, slug=slugify(title))
-        tag.save()
+        tag, created = Tag.objects.get_or_create(title=title.lower())
         sys.stdout.write(" Tag {}/{}  \r".format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()

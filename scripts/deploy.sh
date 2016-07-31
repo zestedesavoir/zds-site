@@ -29,9 +29,7 @@ fi
 cd /opt/zdsenv/ZesteDeSavoir/
 
 # Maintenance mode
-sudo rm /etc/nginx/sites-enabled/zestedesavoir
-sudo ln -s /etc/nginx/sites-available/zds-maintenance /etc/nginx/sites-enabled/zds-maintenance
-sudo service nginx reload
+sudo ln -s errors/maintenance.html /opt/zdsenv/webroot/
 
 # Delete old branch if exists
 git checkout prod
@@ -50,6 +48,7 @@ git checkout -b $1
 # Update application data
 source ../bin/activate
 pip install --upgrade -r requirements.txt
+pip install --upgrade -r requirements-prod.txt
 python manage.py migrate
 python manage.py compilemessages
 # Collect all staticfiles from dist/ and python packages to static/
@@ -60,9 +59,7 @@ deactivate
 sudo systemctl restart zds.{service,socket}
 
 # Exit maintenance mode
-sudo rm /etc/nginx/sites-enabled/zds-maintenance
-sudo ln -s /etc/nginx/sites-available/zestedesavoir /etc/nginx/sites-enabled/zestedesavoir
-sudo systemctl reload nginx.service
+sudo rm /opt/zdsenv/webroot/maintenance.html
 
 # Display current branch and commit
 git status

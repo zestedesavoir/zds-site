@@ -17,7 +17,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.http import Http404
-from django.utils.encoding import smart_text
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import pre_delete, post_delete
@@ -37,6 +36,7 @@ from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
 
@@ -60,7 +60,7 @@ class PublishableContent(models.Model):
     title = models.CharField('Titre', max_length=80)
     slug = models.CharField('Slug', max_length=80)
     description = models.CharField('Description', max_length=200)
-    source = models.CharField('Source', max_length=200)
+    source = models.CharField('Source', max_length=200, blank=True, null=True)
     authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
@@ -93,17 +93,14 @@ class PublishableContent(models.Model):
                                       blank=True, null=True, max_length=80, db_index=True)
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
-    beta_topic = models.ForeignKey(Topic,
-                                   verbose_name='Contenu associé',
-                                   default=None,
-                                   null=True)
+    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True)
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
-    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', db_index=True)
+    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
 
     relative_images_path = models.CharField(
         'chemin relatif images',
@@ -526,13 +523,12 @@ class PublishableContent(models.Model):
         :type tag_collection: list
         """
         for tag in tag_collection:
-            tag_title = smart_text(tag.strip().lower())
-            current_tag = Tag.objects.filter(title=tag_title).first()
-            if current_tag is None:
-                current_tag = Tag(title=tag_title)
-                current_tag.save()
+            try:
+                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
+                self.tags.add(current_tag)
+            except ValueError as e:
+                logging.getLogger("zds.tutorialv2").warn(e)
 
-            self.tags.add(current_tag)
         self.save()
 
 

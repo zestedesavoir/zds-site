@@ -2,6 +2,8 @@
 
 from django.conf import settings
 from django.db import models
+from zds.utils.models import Tag
+from django.db.models import Count
 
 
 class PublishedContentManager(models.Manager):
@@ -36,12 +38,26 @@ class PublishedContentManager(models.Manager):
     def last_articles_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type='ARTICLE')
 
-    def get_tutorials_count(self):
+    def get_contents_count(self):
         """
         :rtype: int
         """
-        return self.filter(content_type="TUTORIAL", must_redirect=False)\
+        return self.filter(must_redirect=False)\
                    .count()
+
+    def get_top_tags(self, displayed_types, limit=-1):
+        published = self.filter(
+            must_redirect=False,
+            content__type__in=displayed_types).values('content__tags').distinct()
+        tags_pk = [tag['content__tags'] for tag in published]
+        queryset = Tag.objects\
+            .filter(pk__in=tags_pk, publishablecontent__public_version__isnull=False,
+                    publishablecontent__type__in=displayed_types)\
+            .annotate(num_content=Count('publishablecontent'))\
+            .order_by('-num_content', 'title')
+        if limit > 0:
+            queryset = queryset[:limit]
+        return queryset
 
 
 class PublishableContentManager(models.Manager):

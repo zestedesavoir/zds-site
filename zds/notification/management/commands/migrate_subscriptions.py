@@ -1,12 +1,12 @@
 # coding: utf-8
 from django.core.management import BaseCommand
 from django.db.models import F, Q
-from zds.forum.models import TopicRead
+from zds.forum.models import TopicRead, Topic
 from zds.member.models import Profile
 from zds.mp.models import PrivateTopicRead, PrivateTopic
 from zds.notification.models import TopicFollowed, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription
-from zds.tutorialv2.models.models_database import ContentReaction, ContentRead
+from zds.tutorialv2.models.models_database import ContentReaction, ContentRead, PublishableContent
 
 
 class Command(BaseCommand):
@@ -24,12 +24,17 @@ class Command(BaseCommand):
                 .select_related("topic")\
                 .exclude(post=F('topic__last_message')).all()
 
+            # Migrate subscriptions.
+            for topic_followed in TopicFollowed.objects \
+                    .filter(user=profile.user).values_list('topic', flat=True).distinct().all():
+                content_object = Topic.objects.get(id=topic_followed)
+                TopicAnswerSubscription.objects.get_or_create_active(user=profile.user, content_object=content_object)
+
             for topic_never_read in topics_never_read:
                 content = topic_never_read.topic.first_unread_post(profile.user)
                 if content is None:
                     content = topic_never_read.topic.last_message
 
-                # Migrate subscriptions.
                 content_object = topic_never_read.topic
                 subscription = TopicAnswerSubscription.objects.get_or_create_active(
                     user=profile.user, content_object=content_object)
@@ -53,6 +58,16 @@ class Command(BaseCommand):
             for tnr in topics_never_read:
                 tnrs.append(tnr.privatetopic.pk)
 
+            # Migrate subscriptions.
+            private_topics = PrivateTopic.objects \
+                .filter(Q(author=profile.user) | Q(participants__in=[profile.user])) \
+                .order_by("-pubdate") \
+                .distinct()
+
+            for private_topic in private_topics:
+                PrivateTopicAnswerSubscription.objects.get_or_create_active(
+                    user=profile.user, content_object=private_topic)
+
             private_topics_unread = PrivateTopic.objects \
                 .filter(Q(author=profile.user) | Q(participants__in=[profile.user])) \
                 .exclude(pk__in=tnrs) \
@@ -64,7 +79,6 @@ class Command(BaseCommand):
                 if answer is None:
                     answer = private_topic_unread.get_last_answer()
 
-                # Migrate subscriptions.
                 subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(
                     user=profile.user, content_object=private_topic_unread)
 
@@ -79,6 +93,16 @@ class Command(BaseCommand):
 
             # Contents.
             self.stdout.write(u'Starting migration with contents...')
+            # Migrate subscriptions.
+            contents_followed = ContentReaction.objects \
+                .filter(author=profile.user, related_content__public_version__isnull=False) \
+                .values_list('related_content', flat=True)
+
+            for content_followed in contents_followed:
+                content_object = PublishableContent.objects.get(id=content_followed)
+                ContentReactionAnswerSubscription.objects.get_or_create_active(
+                    user=profile.user, content_object=content_object)
+
             content_followed_pk = ContentReaction.objects\
                 .filter(author=profile.user, related_content__public_version__isnull=False)\
                 .values_list('related_content__pk', flat=True)
@@ -101,7 +125,6 @@ class Command(BaseCommand):
                 if reaction is None:
                     continue
 
-                # Migrate subscriptions.
                 content_object = reaction.related_content
                 subscription = ContentReactionAnswerSubscription.objects.get_or_create_active(
                     user=profile.user, content_object=content_object)

@@ -1,11 +1,7 @@
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'zds_test',
-        'USER': 'travis',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '',
-        'CONN_MAX_AGE': 600,
-    }
-}
+DEBUG = False
+TEMPLATE_DEBUG = False
+
+PASSWORD_HASHERS = (
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+)

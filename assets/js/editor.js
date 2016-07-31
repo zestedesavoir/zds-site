@@ -151,6 +151,7 @@
 
         isExecuted: false,
         selection: null,
+        currentElemPopup: null,
 
         addEvent: function(elem, evt, listener) {
             if (elem.addEventListener) {
@@ -230,6 +231,7 @@
         setup: function(textareaId) {
             var elemTexta = document.getElementById(textareaId);
             var elemTools = document.createElement("ul");
+            var self = this;
             elemTools.className = "zform-toolbar hide-for-small";
 
             elemTexta.parentNode.insertBefore(elemTools, elemTexta);
@@ -247,6 +249,7 @@
                     while (menus[i]) {
                         if (menus[i].getAttribute("data-zform-info") !== "dontclose" || event.target.nodeName.toLowerCase() === "textarea") {
                             menus[i].style.display = "none";
+                            self.currentElemPopup = (menus[i] == self.currentElemPopup) ? null: self.currentElemPopup;
                         }
                         i++;
                     }
@@ -288,13 +291,25 @@
             if (currentButton.hasOwnProperty("image")) elemButton.innerHTML = '<img src="' + currentButton.image +  '" alt="' + currentButton.title + '" />';
 
             if (currentButton.action) { // Button with a submenu
+                var self = this;
                 elemButton.style.position = "relative";
-
+                if (this.currentElemPopup){
+                    elemButton.removeChild(this.currentElemPopup);
+                    this.currentElemPopup = null;
+                }
                 this.addEvent(elemButton, "click", function(event, elemPopup) {
                     event.preventDefault();
 
                     if (elemPopup = this.getElementsByTagName("div")[0]) {
                         elemPopup.style.display = "block";
+                        if(self.currentElemPopup){
+                            self.currentElemPopup.style.display = "none";
+                        }
+                        if(self.currentElemPopup == elemPopup){
+                            self.currentElemPopup = null;
+                        }else{
+                            self.currentElemPopup = elemPopup;
+                        }
                     }
                 });
 
@@ -307,6 +322,7 @@
                 elemPopup.style.whiteSpace = "nowrap";
                 elemPopup.style.textAlign = "left";
                 elemPopup = this[currentButton.action](elemPopup, currentButton, opts.textarea);
+
             } else {
                 this.addEvent(elemButton, "click", (function(_button, _textareaId, _this, _tagtype, _extraoption) {
                     return function(event) {

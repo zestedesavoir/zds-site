@@ -12,7 +12,7 @@ from django.dispatch import receiver
 from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription
+    PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription
 from zds.notification.signals import answer_unread, content_read, new_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
@@ -76,16 +76,24 @@ def mark_topic_notifications_read(sender, **kwargs):
 def mark_content_reactions_read(sender, **kwargs):
     """
     :param kwargs:  contains
-        - instance : the content marked as read
-        - user : the user reading the content
+        - instance: the content marked as read
+        - user: the user reading the content
+        - target: the published content or the content reaction.
     Marks as read the notifications of the AnswerSubscription of the user to the publishable content.
     """
-    content_reaction = kwargs.get('instance')
+    content = kwargs.get('instance')
     user = kwargs.get('user')
+    target = kwargs.get('target')
 
-    subscription = ContentReactionAnswerSubscription.objects.get_existing(user, content_reaction, is_active=True)
-    if subscription:
-        subscription.mark_notification_read()
+    if target == ContentReaction:
+        subscription = ContentReactionAnswerSubscription.objects.get_existing(user, content, is_active=True)
+        if subscription:
+            subscription.mark_notification_read()
+    elif target == PublishableContent:
+        for author in content.authors.all():
+            subscription = NewPublicationSubscription.objects.get_existing(user, author, is_active=True)
+            if subscription:
+                subscription.mark_notification_read(content=content)
 
 
 @receiver(content_read, sender=PrivateTopic)
@@ -180,6 +188,12 @@ def content_published_event(sender, **kwargs):
 
     for user in content.authors.all():
         ContentReactionAnswerSubscription.objects.toggle_follow(content, user, by_email=by_email)
+        if not NewPublicationSubscription.objects.does_exist(user, user, is_active=True):
+            NewPublicationSubscription.objects.toggle_follow(user, user, by_email=False)
+
+        for subscription in NewPublicationSubscription.objects.get_subscriptions(user):
+            by_email = subscription.by_email and subscription.user.profile.email_for_answer
+            subscription.send_notification(content=content, sender=user, send_email=by_email)
 
 
 @receiver(new_content, sender=PrivatePost)
@@ -252,6 +266,17 @@ def add_participant_topic_event(sender, **kwargs):
                         and subscription.user != private_topic.author:
                     subscription.mark_notification_read()
                     subscription.deactivate()
+
+
+@receiver(pre_delete, sender=PrivateTopic)
+def delete_private_topic_event(sender, instance, **kwargs):
+    """
+    A private topic is deleted when there is nobody in this private topic.
+    """
+    subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(content_object=instance, is_active=True)
+    for subscription in subscriptions:
+        subscription.mark_notification_read()
+        subscription.deactivate()
 
 
 @receiver(pre_delete, sender=User)

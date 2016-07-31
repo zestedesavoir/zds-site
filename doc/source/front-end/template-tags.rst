@@ -307,18 +307,6 @@ Permet d'afficher une période en lettres. Fait le lien entre le label d'un jour
        <h4>{{ period|humane_delta }}</h4>
     {% endfor %}
 
-Le module ``model_name``
-========================
-
-Ce module défini l'élément ``model_name``. À partir des résultats d'une recherche, il permet de renvoyer de quel élément il s'agit (topic, post, article, ...).
-
-.. sourcecode:: html
-
-    {% load model_name %}
-    {% model_name result.app_label result.model_name False %}
-
-où ``result`` est le résultat d'une recherche, un objet de type ``SearchQuery`` (`voir la documentation de haystack à ce sujet (en) <http://django-haystack.readthedocs.org/en/latest/architecture_overview.html#searchquery>`__).
-
 Le module ``profiles``
 ======================
 
@@ -444,7 +432,7 @@ Ce filtre récupère les forums, classés par catégorie.
 où,
 
 - ``top.categories`` est un dictionaire contenant le nom de la catégorie (ici ``title``) et la liste des forums situés dans cette catégorie (ici ``forums``), c'est-à-dire une liste d'objets de type ``Forum`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/forum.html#zds.forum.models.Forum>`__).
-- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type 
+- ``top.tags`` contient une liste des 5 *tags* les plus utilisés, qui sont des objets de type
 ``Tag`` (`voir le détail de l'implémentation de cet objet ici <../back-end-code/utils.html#zds.utils.models.Tag>`__). Certains tags peuvent être exclus de cette liste. Pour exclure un tag, vous devez l'ajouter dans la configuration (top_tag_exclu dans le settings.py).
 
 

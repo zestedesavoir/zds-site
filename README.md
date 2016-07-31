@@ -78,7 +78,7 @@ Cela va créer plusieurs entitées :
 * 1 message privé (MP) avec 3 participants
 * 3 catégories et 2 sous-catégories
 * 4 aides pour l'écriture des tutoriels
-* 5 unes misent en avant sur la page d'accueil
+* 5 unes mises en avant sur la page d'accueil
 
 Pour en savoir plus sur cette commande, [consulter la documentation](http://zds-site.readthedocs.org/fr/latest/utils/fixture_loaders.html).
 

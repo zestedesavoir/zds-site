@@ -431,15 +431,14 @@ class TopicEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
-            'follow': '',
-            'topic': topic.pk
+            'follow': '1'
         }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
@@ -451,16 +450,15 @@ class TopicEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         data = {
-            'email': '',
-            'topic': topic.pk
+            'email': '1'
         }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
             profile.user, topic, is_active=True, by_email=True))
 
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(

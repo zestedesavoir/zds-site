@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from haystack.generic_views import SearchView
 
 from zds import settings
-from zds.search.form import CustomSearchForm
+from zds.search.forms import CustomSearchForm
 from zds.utils.paginator import paginator_range
 
 

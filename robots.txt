@@ -1,16 +1,22 @@
 # www.robotstxt.org
 
 Sitemap: http://zestedesavoir.com/sitemap.xml
+Sitemap: https://zestedesavoir.com/sitemap-articles.xml
+Sitemap: https://zestedesavoir.com/sitemap-categories.xml
+Sitemap: https://zestedesavoir.com/sitemap-forums.xml
+Sitemap: https://zestedesavoir.com/sitemap-tags.xml
+Sitemap: https://zestedesavoir.com/sitemap-topics.xml
+Sitemap: https://zestedesavoir.com/sitemap-tutos.xml
 
 User-agent: *
-Disallow: /mp/
-
-Disallow: /contenus/
-Disallow: /tutoriels/html/
-Disallow: /tutoriels/zip/
-Disallow: /tutoriels/md/
 Disallow: /articles/html/
-Disallow: /articles/zip/
 Disallow: /articles/md/
-Disallow: /oldtutoriels/
+Disallow: /articles/zip/
+Disallow: /contenus/
+Disallow: /mp/
 Disallow: /oldarticles/
+Disallow: /oldtutoriels/
+Disallow: /rechercher/
+Disallow: /tutoriels/html/
+Disallow: /tutoriels/md/
+Disallow: /tutoriels/zip/

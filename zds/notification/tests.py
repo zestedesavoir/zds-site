@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
+
+from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.db import IntegrityError
 
 from zds import settings
 from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, NewTopicSubscription
+    PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
     SubCategoryFactory
+from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
 from zds.utils.mps import send_mp, send_message_mp
@@ -34,7 +38,7 @@ class NotificationForumTest(TestCase):
 
     def test_creation_topic(self):
         """
-        When we create a topic, the author follow it.
+        When we create a topic, the author follows it.
         """
         result = self.client.post(
             reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
@@ -56,9 +60,9 @@ class NotificationForumTest(TestCase):
 
     def test_mark_read_a_topic_from_view_list_posts(self):
         """
-        Check that we can subscribe to a topic, we generate a new notification when
-        another user post a message and if we display list of messages, the notification
-        is marked as read.
+        To ensure we can subscribe to a topic, we first generate a new notification when
+        another user posts a message, then mark the notification as read after displaying
+        the list of messages.
         """
         topic = TopicFactory(forum=self.forum11, author=self.user2)
         PostFactory(topic=topic, author=self.user2, position=1)
@@ -86,7 +90,7 @@ class NotificationForumTest(TestCase):
 
     def test_answer_topic(self):
         """
-        When a user post on a topic, a subscription to the topic concerned is created
+        When a user posts on a topic, a subscription to the said topic is created
         for this user.
         """
         topic1 = TopicFactory(forum=self.forum11, author=self.user2)
@@ -118,8 +122,8 @@ class NotificationForumTest(TestCase):
 
     def test_notification_read(self):
         """
-        When we post on a topic, a notification is created for each subscribers. We can
-        read a notification when we display list of messages of the topic concerned.
+        When we post on a topic, a notification is created for each subscriber. We can
+        read a notification when we display the list of messages of the said topic.
         """
         topic1 = TopicFactory(forum=self.forum11, author=self.user2)
         PostFactory(topic=topic1, author=self.user2, position=1)
@@ -148,8 +152,8 @@ class NotificationForumTest(TestCase):
 
     def test_subscription_deactivated_and_notification_read_when_topic_moved(self):
         """
-        When a topic is moved in a forum where subscribers can't read it, the subscription
-        should be deactivated and notifications read.
+        When a topic is moved to a forum where subscribers can't read it, the subscriptions
+        should be deactivated and notifications marked as read.
         """
         topic = TopicFactory(forum=self.forum11, author=self.user1)
         PostFactory(topic=topic, author=self.user1, position=1)
@@ -192,7 +196,7 @@ class NotificationForumTest(TestCase):
 
     def test_hide_post_mark_notification_as_read(self):
         """
-        Check if notification is deleted if post is hide.
+        Ensure a notification gets deleted when the corresponding post is hidden.
         """
         topic = TopicFactory(forum=self.forum11, author=self.user1)
         PostFactory(topic=topic, author=self.user1, position=1)
@@ -214,9 +218,62 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
         self.assertEqual(1, len(notifications))
 
+    def test_topics_followed_by_a_user(self):
+        """
+        Check that we correctly retrieve all topics followed by a user.
+        """
+        user = UserFactory()
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
+        self.assertEqual(0, len(topics_followed))
+
+        first = TopicFactory(forum=self.forum11, author=user)
+        second = TopicFactory(forum=self.forum11, author=user)
+        third = TopicFactory(forum=self.forum11, author=user)
+
+        # Subscribes to all topics.
+        TopicAnswerSubscription.objects.get_or_create_active(user, second)
+        TopicAnswerSubscription.objects.get_or_create_active(user, first)
+        TopicAnswerSubscription.objects.get_or_create_active(user, third)
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
+        self.assertEqual(3, len(topics_followed))
+
+    def test_pubdate_on_notification_updated(self):
+        """
+        When we update a notification, we should update its pubdate too.
+        """
+        topic = TopicFactory(forum=self.forum11, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+
+        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(self.user1)
+        self.assertEqual(1, len(topics_followed))
+
+        post = PostFactory(topic=topic, author=self.user2, position=2)
+
+        old_notification = Notification.objects.get(subscription__user=self.user1, object_id=post.pk, is_read=False)
+        old_notification.pubdate = datetime.now() - timedelta(days=1)
+        old_notification.save()
+        self.assertEqual(old_notification.object_id, post.pk)
+        self.assertEqual(old_notification.subscription.object_id, topic.pk)
+
+        # read it.
+        old_notification.is_read = True
+        old_notification.save()
+
+        user3 = UserFactory()
+        post2 = PostFactory(topic=topic, author=user3, position=3)
+
+        new_notification = Notification.objects.get(subscription__user=self.user1, object_id=post2.pk, is_read=False)
+        self.assertEqual(new_notification.object_id, post2.pk)
+        self.assertEqual(new_notification.subscription.object_id, topic.pk)
+
+        # Check that the pubdate is well updated.
+        self.assertTrue(old_notification.pubdate < new_notification.pubdate)
+
     def test_notifications_on_a_forum_subscribed(self):
         """
-        When a user subscribes to a forum, he receive a notification for each topic created.
+        When a user subscribes to a forum, they receive a notification for each topic created.
         """
         # Subscribe.
         NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
@@ -234,7 +291,7 @@ class NotificationForumTest(TestCase):
 
     def test_mark_read_a_topic_of_a_forum_subscribed(self):
         """
-        When a user have a notification on a topic, the notification should be marked as read.
+        When a user has a notification on a topic, the notification should be marked as read.
         """
         NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
 
@@ -277,7 +334,7 @@ class NotificationPublishableContentTest(TestCase):
 
     def test_follow_content_at_publication(self):
         """
-        When a content is published, authors follow it.
+        When a content is published, authors automatically follow it.
         """
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
@@ -290,12 +347,12 @@ class NotificationPublishableContentTest(TestCase):
 
     def test_follow_content_from_view(self):
         """
-        Allows a user to follow (or not), a content from the view.
+        Allows a user to follow (or not) a content from the view.
         """
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse('content:follow', args=[self.tuto.pk]), {'follow': 1})
+        result = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'follow': 1})
         self.assertEqual(result.status_code, 302)
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
@@ -303,7 +360,7 @@ class NotificationPublishableContentTest(TestCase):
 
     def test_answer_subscription(self):
         """
-        When a user post on a publishable content, a subscription is created for this user.
+        When a user posts on a publishable content, the user gets subscribed.
         """
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
@@ -319,8 +376,8 @@ class NotificationPublishableContentTest(TestCase):
 
     def test_notification_read(self):
         """
-        When we have a notification a reaction, this notification is marked as read
-        when we display it at the user.
+        When the notification is a reaction, it is marked as read
+        when the corresponding content is displayed to the user.
         """
         ContentReactionFactory(related_content=self.tuto, author=self.user1, position=1)
         last_note = ContentReactionFactory(related_content=self.tuto, author=self.user2, position=2)
@@ -336,6 +393,57 @@ class NotificationPublishableContentTest(TestCase):
         notification = Notification.objects.get(subscription__user=self.user1)
         self.assertTrue(notification.is_read)
 
+    def test_subscription_to_new_publications_from_user(self):
+        """
+        Any user may subscribe to new publications from a user.
+        """
+        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), follow=False)
+        self.assertEqual(result.status_code, 403)
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'), True)
+
+        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), {
+            'follow': 1
+        }, follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
+        self.assertTrue(subscription.is_active)
+
+        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), {
+            'email': 1
+        }, follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(result.status_code, 200)
+
+        subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
+        self.assertTrue(subscription.is_active)
+        self.assertTrue(subscription.by_email)
+
+    def test_notification_generated_when_a_tuto_is_published(self):
+        """
+        When a user subscribe to new publications from a user, a notification is generated when a publication is
+        published.
+        """
+        subscription = NewPublicationSubscription.objects.toggle_follow(self.user1, self.user2)
+
+        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+
+        notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        signals.content_read.send(sender=self.tuto.__class__, instance=self.tuto, user=self.user2,
+                                  target=ContentReaction)
+
+        notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
+        self.assertEqual(1, len(notifications))
+
+        signals.content_read.send(sender=self.tuto.__class__, instance=self.tuto, user=self.user2,
+                                  target=PublishableContent)
+
+        notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
 
 class NotificationPrivateTopicTest(TestCase):
     def setUp(self):
@@ -347,7 +455,7 @@ class NotificationPrivateTopicTest(TestCase):
 
     def test_creation_private_topic(self):
         """
-        When we create a topic, the author follow it.
+        When we create a topic, its author follows it.
         """
         topic = send_mp(author=self.user1, users=[], title="Testing", subtitle="", text="", leave=False)
 
@@ -359,7 +467,7 @@ class NotificationPrivateTopicTest(TestCase):
 
     def test_generate_a_notification_for_all_participants(self):
         """
-        When we create a topic, all participants have a notification to the last message.
+        When we create a topic, all participants have a notification for the last message.
         """
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
         self.assertEqual(0, len(subscriptions))
@@ -389,7 +497,7 @@ class NotificationPrivateTopicTest(TestCase):
 
     def test_mark_read_a_notification(self):
         """
-        When we mark as read a private topic, we mark as read its notification.
+        When we mark a private topic as read, we mark its notification as read.
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2, self.user3],
@@ -407,7 +515,7 @@ class NotificationPrivateTopicTest(TestCase):
 
     def test_generate_a_notification_after_new_post(self):
         """
-        When a user post on a private topic, we generate a notification for all participants.
+        When a user posts on a private topic, we generate a notification for all participants.
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2, self.user3],
@@ -432,7 +540,8 @@ class NotificationPrivateTopicTest(TestCase):
 
     def test_generate_a_notification_when_add_a_participant(self):
         """
-        When we add a user in a private topic, we generate a notification for this user at the last message.
+        When we add a user to a private topic, we generate a notification for this user
+        at the last message.
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2],
@@ -454,7 +563,8 @@ class NotificationPrivateTopicTest(TestCase):
 
     def test_remove_notifications_when_a_user_leave_private_topic(self):
         """
-        When a user leave a private topic, we mark read the current notification if exist.
+        When a user leaves a private topic, we mark the current notification as read
+        if it exists.
         """
         topic = send_mp(author=self.user1,
                         users=[self.user2],
@@ -465,21 +575,25 @@ class NotificationPrivateTopicTest(TestCase):
         self.assertIsNotNone(notifications.first())
         self.assertEqual(topic.last_message, notifications.first().content_object)
 
-        self.assertIsNotNone(
-            PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
 
+        send_message_mp(self.user2, topic, "Test")
         topic.participants.remove(self.user2)
         topic.save()
 
-        notifications = Notification.objects.get_unread_notifications_of(self.user2)
-        self.assertEqual(0, len(notifications))
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user2)))
+        self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=False))
 
-        self.assertIsNotNone(
-            PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=False))
+        self.assertEqual(1, len(Notification.objects.get_unread_notifications_of(self.user1)))
+
+        response = self.client.post(reverse('mp-delete', args=[topic.pk, topic.slug]), follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
     def test_send_an_email_when_we_specify_it(self):
         """
-        When we ask at the back-end than we want send an email at the creation of a topic, we send it.
+        When the user asked to be notified via email, we actually send the email
+        when a topic is created.
         """
         settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
         self.assertEquals(0, len(mail.outbox))
@@ -514,7 +628,7 @@ class NotificationTest(TestCase):
 
     def test_reuse_old_notification(self):
         """
-        When there is already a notification marked read for a given content, we reuse it.
+        When there already is a read notification for a given content, we reuse it.
         """
         topic = send_mp(author=self.user1, users=[self.user2], title="Testing", subtitle="", text="", leave=False)
         send_message_mp(self.user2, topic, "", send_by_mail=True)
@@ -531,3 +645,36 @@ class NotificationTest(TestCase):
         notifications = Notification.objects.filter(subscription__user=self.user1)
         self.assertEqual(1, len(notifications))
         self.assertIsNotNone(notifications.first())
+
+    def test_mark_all_notifications_as_read_when_toggle_follow(self):
+        """
+        When a user unsubscribes from a content, we mark all notifications for
+        this content as read.
+        """
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=self.user1)
+        PostFactory(topic=topic, author=self.user1, position=1)
+        PostFactory(topic=topic, author=self.user2, position=2)
+
+        notifications = Notification.objects.get_unread_notifications_of(self.user1)
+        self.assertEqual(1, len(notifications))
+        self.assertIsNotNone(notifications.first())
+        self.assertEqual(topic.last_message, notifications.first().content_object)
+
+        TopicAnswerSubscription.objects.toggle_follow(topic, self.user1)
+
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
+
+    def test_no_duplicate_subscription(self):
+        """
+        Creating two same subscriptions is rejected by the database.
+        """
+        category = CategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=self.user1)
+        TopicAnswerSubscription.objects.toggle_follow(topic, self.user1, True)
+
+        subscription = TopicAnswerSubscription(user=self.user1, content_object=topic)
+        with self.assertRaises(IntegrityError):
+            subscription.save()

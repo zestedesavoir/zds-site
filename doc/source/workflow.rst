@@ -2,21 +2,21 @@
 *Workflow* et détails pratiques
 ===============================
 
-Cette page détaille le *workflow* utilisé sur Zeste de Savoir. La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement. Ici sera aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
+Cette page détaille le *workflow* utilisé lors du développement de Zeste de Savoir. La `page de contribution <https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md>`__ devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur Github (*tagging* et priorité).
 
-Ce *workflow* est très fortement fondé sur le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`__.
+Ce *workflow* est très fortement basé sur le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`__.
 
 *Workflow* général
 ==================
 
 L'idée générale est très simple :
 
--  Le développement se fait sur la branche ``dev`` ;
--  La branche ``prod`` contient la version en production ;
--  Lorsqu'on juge qu'on a assez de matière pour un nouveau déploiement, on crée une branche dédiée (par exemple ``release-v1.7``) que l'on teste en pré-production (les bugs trouvés seront corrigés sur cette branche) ;
--  En cas de bug ultra-urgent à corriger en production, on crée une branche spéciale.
+-  Le développement se fait sur la branche ``dev``;
+-  La branche ``prod`` contient la version en production;
+-  Lorsqu'on juge qu'on a assez de matière pour un nouveau déploiement, on crée une branche dédiée (par exemple ``release-v1.7``) que l'on teste en pré-production (les bugs trouvés seront corrigés sur cette branche);
+-  En cas de bug ultra-urgent à corriger en production, on crée une branche spéciale (`hotfix <http://nvie.com/posts/a-successful-git-branching-model/#hotfix-branches>`__).
 
-La pré-production (ou béta) est disponible via `ce lien <https://beta.zestedesavoir.com>`_. Vous pouvez y accéder avec le nom d'utilisateur "clementine" et le mot de passe "orange".
+La pré-production (ou bêta) est disponible sur `beta.zestedesavoir.com <https://beta.zestedesavoir.com>`_.
 
 *Workflow* de développement
 ===========================
@@ -25,7 +25,7 @@ Description
 -----------
 
 1. Les fonctionnalités et corrections de bugs se font via des *Pull Requests* (PR) depuis des *forks* via `GitHub <https://github.com/zestedesavoir.com/zds-site>`_.
-2. Ces PR sont unitaires. Aucune PR qui corrige plusieurs problèmes ou apporte plusieurs fonctionnalité ne sera acceptée ; la règle est : une fonctionnalité ou une correction = une PR.
+2. Ces PR sont unitaires. Aucune PR qui corrige plusieurs problèmes ou apporte plusieurs fonctionnalité ne sera acceptée; la règle est : une PR = une fonctionnalité ou une correction.
 3. Ces PR sont mergées dans la branche ``dev`` (appelée ``develop`` dans le git flow standard), après une *Quality Assurance* (QA) légère.
 4. La branche ``prod`` (appelée ``master`` dans le git flow standard) contient exclusivement le code en production, pas la peine d'essayer de faire le moindre *commit* dessus !
 5. Les branches du dépôt principal (``dev``, ``prod`` et la branche de release) ne devraient contenir que des merge de PR, aucun commit direct.
@@ -41,39 +41,68 @@ Tous ces détails sont `dans la page de contribution <https://github.com/zestede
 
 C'est s'assurer que le code fait ce qu'il devrait sans passer des heures à re-tester l'intégralité du site. Concrètement, cela implique :
 
--  une revue de code ;
--  la vérification que des tests correspondants à la fonctionnalité ou à la correction sont présents, cohérents et passent ;
+-  une revue de code (*Code Review* (CR));
+-  la vérification que des tests correspondants à la fonctionnalité ou à la correction sont présents, cohérents et passent;
 -  des tests manuels dans le cas de fonctionnalités ou corrections complexes et/ou critiques (au cas par cas).
+
+Milestones
+==========
+
+Pour avoir une vue d'ensemble des modifications inclues ou à inclure dans chaque release, nous utilisons des *milestones*. Il existe une *milestone* par release majeure (e.g. une pour v19, aucune pour v19.1), les PRs mergées dans une version mineure appartenant à la *milestone* de la version majeure correspondante.
+
+Les *milestones* sont également utilisées par le script de génération de rapport de release, rapport contenant quelques détails sur la release en question.
+
+Toute PR se voit attribuer une *milestone*. Elle est attribuée au plus tôt par le DTC à l'ouverture de la PR si cette PR doit impérativement passer dans la prochaine release, au plus tard par la personne qui merge la PR lors de son merge. Bien qu'une PR doit généralement être atomique, il arrive - notamment dans le cas des ZEP - qu'elle ait pour effet secondaire de régler plusieurs bugs, d'introduire plusieurs fonctionnalités. Dans ces rares cas, chaque ticket fermé par effet secondaire d'une PR peut également recevoir une *milestone*.
+
+* Toute PR mergée dans dev doit porter la *milestone* « Version de développement »
+* Toute PR mergée ailleurs (la branche de release si c'est une correction de bêta, prod en cas de hotfix) doit porter la *milestone* « Version N »
+
+La *milestone* « Version de développement » s'appelle comme ça parce qu'elle contient les modifications apportées depuis la dernière release. Cette *milestone* étant largement la plus utilisée, son nom a l'avantage qu'on voit immédiatement si on attribue ou non la bonne *milestone*, sans avoir à réfléchir au numéro de version.
+
+Lors de la clôture de chaque release, la *milestone* « Version de développement » est renommée « Version N » et une nouvelle *milestone* « Version de développement » est créée.
+
 
 Stratégie de *tagging* des tickets
 ==================================
 
-Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en différentes catégories (seuls les niveaux 2 représentent les tags utilisables) :
+Les étiquettes (ou *labels* ou *tags*) utilisées pour classifier les tickets sont classées en 4 catégories (seuls les niveaux 2 représentent les tags utilisables) :
 
--  Compétences
-   -  Back
-   -  Front
-   -  API
-   -  Documentation
-   -  Infra
--  Priorité
-   -  Bloquant
--  Statut
-   -  Evolution
-   -  Bug
-   -  Régression
-   -  Zombie
--  Difficulté
+-  C: Compétence
+
+   -  C-Back
+   -  C-Front
+   -  C-API
+   -  C-Documentation
+   -  C-Infra
+
+-  P: Priorité
+
+   -  P-Bloquant
+   -  P-Haute
+   -  P-Basse
+
+-  S: Statut
+
+   -  S-Evolution
+   -  S-Bug
+   -  S-Régression
+   -  S-Zombie
+
+-  Autres
+
    -  Facile
+   -  Feedback
 
-Certains de ces tags possèdent cependant quelques règles d'applications :
+Explications
+------------
 
--  Le tag **Facile** : Ce tag est facultatif. Il est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
--  Le tag **Bloquant** : Il ne concerne que les tickets désignant un **bug** ou une **régression** qui empêchent une utilisation correcte du site (connexion impossible, forte atteinte aux performances, etc).
--  **Régression** ou **Bug** ? : Une régression *est* un bug. La différence est temporelle. Un bug peut apparaitre suite à la mise en place d'une nouvelle fonctionnalité. Une régression quant à elle est un bug apparu suite à une correction incomplète, ratée ou encore si une nouvelle fonctionnalité altère un comportement antérieur.
--  **Zombie** : Les tickets sous ce tag sont des évolutions ou bugs mineurs n'ayant pas donnée signe de vie depuis longtemps. Ils sont donc non-résolu mais fermé et placé sous cette étiquette pour garder propre la pile des tickets actifs. Dans l'idéal il faudrait les résoudre un jour...
+-  Compétence : Quelle(s) partie(s) du système est/sont impactée(s) ? Permet notamment aux développeurs de choisir de se concentrer uniquement sur le front, aux admins de s'occuper de l'infra, …
+-  Priorité : Un **bug** ou une **régression** est **bloquant**e si ça empêche une utilisation correcte du site (impossible de rédiger un article, forte atteinte aux performances, etc). Il s'agit d'un problème critique. Les autres tickets ou PR peuvent être de **Haute** ou **Basse** priorité, ces étiquettes étant facultatives. Par exemple, une ZEP aura rarement une priorité attribuée, par contre si elle touche à sa fin mais nécessite une petite évolution pour pouvoir être mergée, la PR de cette petite évolution pourrait à l'approche de la release se voir attribuer une haute priorité.
+-  Statut : **Régression** ou **Bug** ? : Une régression est un retour en arrière en terme de qualité. Il s'agit d'un bug, mais on le différencie parce que ce bug vient d'être introduit dans une partie du code qui auparavant fonctionnait comme voulu. Un problème qui n'est pas une régression est indiqué *Bug*. Il s'agit par exemple d'un problème impactant une nouvelle fonctionnalité. Les tickets sous le tag **Zombie** sont des bugs mineurs n'ayant pas donnés signe de vie depuis longtemps. Ils sont donc non-résolus mais fermés et placés sous cette étiquette pour garder propre la pile des tickets actifs. Dans l'idéal il faudrait les rouvrir pour les résoudre un jour…
+-  Le tag **Facile** : Ce tag est là uniquement pour guider les nouveaux contributeurs vers des tâches accessibles. Pour pouvoir utiliser cette étiquette, une proposition de solution doit être écrite dans le ticket.
+-  Le tag **Feedback** : Ce tag indique les tickets sur lesquels l'auteur souhaite recevoir un retour, discuter une approche, proposer quelque chose, ouvrir le débat.
 
-Dans un monde parfait, les priorités de développement devraient être les suivantes : Bloquant > Régression > Bug > Évolution > Zombie.
+La priorité est mise sur ce qui est Bloquant, puis Haut. Les autres tickets ou PRs n'ont pas de priorité particulière. La basse priorité vient en dernier. Chacun est invité à choisir ce sur quoi concentrer ses efforts en fonction de ces priorités ou de ses intérêts.
 
 *Workflow* de mise en production
 ================================
@@ -118,7 +147,7 @@ Vous l'avez lu : les corrections de ``master`` **ne sont pas remontées sur** ``
    2. Les merges de PR sur ``dev`` qui impliquent un risque même vague de conflit sont bloqués.
    3. S'il y a quand même un conflit (à cause d'une PR mergée sur ``dev`` avant la détection du problème), la personne qui règle le problème fournit 2 correctifs : un pour la branche de *release* et un pour la branche de de ``dev``.
 
-Ceci fonctionne bien si les développements sont de bonne qualité, donc avec peu de correctifs sur la branche de *release* (idéalement aucun !)... les codes approximatifs et non testés seront donc refusés sans la moindre pitié !
+Ceci fonctionne bien si les développements sont de bonne qualité, donc avec peu de correctifs sur la branche de *release* (idéalement aucun !)… les codes approximatifs et non testés seront donc refusés.
 
 Rôles et Responsabilités
 ========================
@@ -148,13 +177,16 @@ Le Sysadmin (administrateur système et réseau)
 ----------------------------------------------
 
   - Roles
+
     - Gérer et monitorer l'infra (configuration des logiciels, logs, sécurité) [pré]prod'
     - Assister/remplacer le DTC sur les histoires de migration prod -> préprod quand nécessaire
     - Donner un avis sur les contraintes de changement de serveur (ou prévenir sur les limites de l'actuel quand nécessaire, cf. premier point)
     - Suivre les tickets "infra" sur GH et faire les actions nécessaires
     - Gérer les personnes ayant accès au serveur [pré]prod'
     - Maintenir de la doc. sur les actions pour faire un suivi et assurer la relève/remplacement quand c'est nécessaire (maladie, vacances…)
+
   - Responsabilités
+
     - **Confidentialité** vis-a-vis des données privées présente sur les serveurs (email, contenu de MP…)
     - Si possible, toujours tester en preprod' avant de reproduire en prod'
     - **Professionnalisme**, "si on sait pas on fait pas" pour ne pas mettre la production en péril (sauf en preprod entre les releases)
@@ -167,3 +199,4 @@ Glossaire
 -  **MEP** : Mise En Production
 -  **PR** : *Pull Request* (proposition d'une modification de code à un projet)
 -  **QA** : *Quality Assurance* (`Assurance Qualité <https://fr.wikipedia.org/wiki/Assurance_qualit%C3%A9>`_)
+-  **CR** : *Code Review* (`Revue de code <https://fr.wikipedia.org/wiki/Revue_de_code>`_)

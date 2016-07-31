@@ -11,7 +11,6 @@ from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.encoding import smart_text
 
 from zds.forum.factories import ForumFactory, CategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
@@ -20,14 +19,15 @@ from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic
-from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
+    NewPublicationSubscription, Notification
 from zds.settings import BASE_DIR
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.models_database import PublishableContent, Validation, PublishedContent, ContentReaction, \
     ContentRead
 from zds.tutorialv2.publication_utils import publish_content, Publicator, PublicatorRegistery
-from zds.utils.models import HelpWriting, Alert
+from zds.utils.models import HelpWriting, Alert, Tag
 from zds.utils.factories import HelpWritingFactory
 from zds.utils.templatetags.interventions import interventions_topics
 
@@ -582,7 +582,9 @@ class ContentTests(TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-
+        sometag = Tag(title="randomizeit")
+        sometag.save()
+        self.tuto.tags.add(sometag)
         # create second author and add to tuto
         second_author = ProfileFactory().user
         self.tuto.authors.add(second_author)
@@ -608,7 +610,7 @@ class ContentTests(TestCase):
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user_author, beta_topic, is_active=True))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
-        self.assertEqual(beta_topic.tags.first().title, smart_text(self.subcategory.title).lower()[:20])
+        self.assertEqual(beta_topic.tags.first().title, sometag.title)
 
         # test if second author follow the topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(second_author, beta_topic, is_active=True))
@@ -1948,7 +1950,6 @@ class ContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, 'PENDING_V')
@@ -2125,9 +2126,10 @@ class ContentTests(TestCase):
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 5)
-        # Note : a PM is sent when the content is reserved by a validator
-        self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
+        subscription = NewPublicationSubscription.objects.get_existing(user=self.user_author,
+                                                                       content_object=self.user_author)
+        self.assertTrue(subscription.is_active)
+        self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=False).count())
 
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 1)
         published = PublishedContent.objects.filter(content=tuto).first()
@@ -2195,7 +2197,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishedContent.objects.filter(content=tuto).count(), 0)
         self.assertFalse(os.path.exists(published.get_prod_path()))
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 6)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_author)  # author has received another PM
 
         # so, reserve it
@@ -2231,7 +2233,7 @@ class ContentTests(TestCase):
         validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, 'CANCEL')  # the validation got canceled
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 6)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
 
     def test_delete_while_validating(self):
@@ -2316,7 +2318,7 @@ class ContentTests(TestCase):
         self.assertEqual(PublishableContent.objects.filter(pk=tuto.pk).count(), 0)  # BOOM, deleted !
         self.assertEqual(Validation.objects.count(), 0)  # no more validation objects
 
-        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 1)
+        self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 2)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
     def test_js_fiddle_activation(self):

@@ -103,58 +103,33 @@
 
 
 {% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
     <li>
     {% with forum_is_followed=forum|is_forum_followed %}
-        <form action="{% url 'forum-topics-list' forum.category.slug forum.slug %}" method="post">
-            <input type="hidden" name="forum" value="{{ forum.pk }}">
-            <input type="hidden" name="follow" value="1">
-            {% csrf_token %}
-
-            <button
-                class="follow ico-after star {% if forum_is_followed %}yellow{% else %}blue{% endif %}"
-                type="submit" data-ajax-input="follow-forum"
-                data-content-on-click="
-                    {% if forum_is_followed %}
-                        {% trans "Suivre ce forum" %}
-                    {% else %}
-                        {% trans "Ne plus suivre ce forum" %}
-                    {% endif %}
-                "
-            >
-                {% if forum_is_followed %}
-                    {% trans "Ne plus suivre ce forum" %}
-                {% else %}
-                    {% trans "Suivre ce forum" %}
-                {% endif %}
-            </button>
-        </form>
+        {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
+        {% if forum_is_followed %}
+            {% trans "Suivre ce forum" as data_onclick %}
+            {% trans "Ne plus suivre ce forum" as button_text %}
+        {% else %}
+            {% trans "Suivre ce forum" as button_text %}
+            {% trans "Ne plus suivre ce forum" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_template.html' with link=link_follow is_followed=forum_is_followed data_onclick=data_onclick button_text=button_text %}
     {% endwith %}
     </li>
     <li>
     {% with forum_is_email_followed=forum|is_forum_email_followed %}
-        <form action="{% url 'forum-topics-list' forum.category.slug forum.slug %}" method="post">
-            <input type="hidden" name="topic" value="{{ topic.pk }}">
-            <input type="hidden" name="email" value="1">
-            {% csrf_token %}
-
-            <button
-                class="email ico-after {% if not forum_is_email_followed %}blue{% endif %}"
-                type="submit" data-ajax-input="follow-topic-by-email"
-                data-content-on-click="
-                    {% if forum_is_email_followed %}
-                        {% trans "Être notifié par courriel" %}
-                    {% else %}
-                        {% trans "Ne plus être notifié par courriel" %}
-                    {% endif %}
-                "
-            >
-                {% if forum_is_email_followed %}
-                    {% trans "Ne plus être notifié par courriel" %}
-                {% else %}
-                    {% trans "Être notifié par courriel" %}
-                {% endif %}
-            </button>
-        </form>
+        {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
+        {% if forum_is_email_followed %}
+            {% trans "Être notifié par courriel" as data_onclick %}
+            {% trans "Ne plus être notifié par courriel" as button_text %}
+        {% else %}
+            {% trans "Être notifié par courriel" as button_text %}
+            {% trans "Ne plus être notifié par courriel" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=forum_is_email_followed data_onclick=data_onclick button_text=button_text %}
     {% endwith %}
     </li>
 {% endblock %}

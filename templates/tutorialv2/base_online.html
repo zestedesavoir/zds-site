@@ -36,6 +36,8 @@
                 href="{% url "article:list" %}"
             {% elif current_content_type == "TUTORIAL" %}
                 href="{% url "tutorial:list" %}"
+            {% elif current_content_type == None %}
+                href="{% url "content:list" %}"
             {% endif %}
             itemprop="url">
             <span itemprop="title">{{ verbose_type_name_plural|title }}</span>

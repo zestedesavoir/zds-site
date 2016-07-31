@@ -285,11 +285,6 @@ CORS_EXPOSE_HEADERS = (
     'link'
 )
 
-if DEBUG:
-    INSTALLED_APPS += (
-        'debug_toolbar',
-    )
-
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -415,7 +410,8 @@ ZDS_APP = {
             'name': u"Zeste de Savoir",
             'fee': u"20 €",
             'email': u"zestedesavoir@gmail.com",
-            'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
+            'email_ca': u"ca-zeste-de-savoir@googlegroups.com",
+            'forum_ca_pk': 25
         },
         'licenses': {
             'logo': {
@@ -445,8 +441,8 @@ ZDS_APP = {
             'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
         },
         'hosting': {
-            'name': u"OVH",
-            'address': u"2 rue Kellermann - 59100 Roubaix - France"
+            'name': u"GANDI SAS",
+            'address': u"63-65 boulevard Massena - 75013 Paris - France"
         },
         'social': {
             'facebook': u'https://www.facebook.com/ZesteDeSavoir',
@@ -467,14 +463,14 @@ ZDS_APP = {
         'gallery_per_page': 21,
     },
     'article': {
-        'home_number': 4,
+        'home_number': 3,
         'repo_path': os.path.join(BASE_DIR, 'articles-data')
     },
     'tutorial': {
         'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
         'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
         'default_license_pk': 7,
-        'home_number': 5,
+        'home_number': 4,
         'helps_per_page': 20,
         'content_per_page': 42,
         'feed_length': 5,
@@ -489,7 +485,7 @@ ZDS_APP = {
         'extra_content_watchdog_dir': os.path.join(BASE_DIR, "watchdog-build"),
         'max_tree_depth': 3,
         'default_licence_pk': 7,
-        'content_per_page': 50,
+        'content_per_page': 60,
         'notes_per_page': 25,
         'helps_per_page': 20,
         'commits_per_page': 20,
@@ -585,3 +581,9 @@ try:
     from settings_prod import *  # noqa
 except ImportError:
     pass
+
+# MUST BE after settings_prod import
+if DEBUG:
+    INSTALLED_APPS += (
+        'debug_toolbar',
+    )

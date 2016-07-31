@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.db.models import Count
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
@@ -17,7 +16,8 @@ from django.views.generic import RedirectView, FormView, ListView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
-from zds.notification.models import ContentReactionAnswerSubscription
+from zds.notification import signals
+from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
@@ -126,7 +126,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
 
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
+        context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
 
+        if self.request.user.is_authenticated():
+            signals.content_read.send(
+                sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
@@ -299,8 +303,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
             queryset = queryset.filter(content__subcategory__in=[self.category])
         if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(Tag, slug=self.request.GET.get('tag'))
-            queryset = queryset.filter(content__tags__in=[self.tag])
+            self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
+            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
+            # slug such as C/C#/C++, as a first version we get all of them
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
@@ -312,6 +317,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
         context['category'] = self.category
+        context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
         return context
@@ -654,7 +660,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         return redirect(note.get_absolute_url())
 
 
-class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
+class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
 
     def post(self, request, *args, **kwargs):
         response = {}
@@ -667,16 +673,46 @@ class FollowContent(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, F
         return redirect(self.get_object().get_absolute_url())
 
 
+class FollowNewContent(LoggedWithReadWriteHability, FormView):
+
+    @staticmethod
+    def perform_follow(user_to_follow, user):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user).is_active
+
+    @staticmethod
+    def perform_follow_by_email(user_to_follow, user):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user, True).is_active
+
+    @method_decorator(transaction.atomic)
+    def post(self, request, *args, **kwargs):
+        response = {}
+
+        # get user to follow
+        try:
+            user_to_follow = User.objects.get(pk=kwargs['pk'])
+        except User.DoesNotExist:
+            raise Http404
+
+        # follow content if user != user_to_follow only
+        if user_to_follow == request.user:
+            raise PermissionDenied
+
+        if 'follow' in request.POST:
+            response['follow'] = self.perform_follow(user_to_follow, request.user)
+        elif 'email' in request.POST:
+            response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
+
+        if request.is_ajax():
+            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+        return redirect(request.META.get('HTTP_REFERER'))
+
+
 class TagsListView(ListView):
 
     model = Tag
     template_name = "tutorialv2/view/tags.html"
     context_object_name = 'tags'
+    displayed_types = ["TUTORIAL", "ARTICLE"]
 
     def get_queryset(self):
-        tags_pk = [tag['content__tags'] for tag in PublishedContent.objects.values('content__tags').distinct()]
-        queryset = Tag.objects\
-            .filter(pk__in=tags_pk)\
-            .annotate(num_content=Count('publishablecontent__publishedcontent'))\
-            .order_by('-num_content', 'title')
-        return queryset
+        return PublishedContent.objects.get_top_tags(self.displayed_types)
