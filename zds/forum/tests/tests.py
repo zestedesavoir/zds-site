@@ -106,10 +106,10 @@ class ForumMemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
         topic = Topic.objects.first()
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 1)
         post = Post.objects.first()
 
@@ -133,7 +133,7 @@ class ForumMemberTests(TestCase):
         # Check view
         response = self.client.get(topic.get_absolute_url())
         self.assertContains(response, self.category1.title)
-        self.assertContains(response, self.forum11.title)
+        self.assertContains(response, self.forum12.title)
         self.assertContains(response, topic.title)
         self.assertContains(response, topic.subtitle)
 
@@ -194,9 +194,9 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 200)
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
-        # check post's number (should be 3 for the moment)
+        # check posts count (should be 3 for the moment)
         self.assertEqual(Post.objects.all().count(), 3)
 
         # now check what happen if everything is fine
@@ -211,10 +211,10 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEquals(len(mail.outbox), 2)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 4)
 
         # check topic and post
@@ -310,10 +310,10 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 3)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
         # check topic and post
@@ -389,10 +389,10 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
         # check topic and post
@@ -919,9 +919,9 @@ class ForumGuestTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 0)
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 0)
 
     def test_answer(self):
@@ -942,10 +942,10 @@ class ForumGuestTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
     def test_tag_parsing(self):

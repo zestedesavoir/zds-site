@@ -182,12 +182,13 @@
                         {% endif %}
                     >
 
-                        {% cache 1800 menu user.pk|default_if_none:"0" %}
-                            <ul class="header-menu-list">
-                                <li>
-                                    <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
-                                        {% trans "Tutoriels" %}
-                                    </a>
+
+                        <ul class="header-menu-list">
+                            <li>
+                                <a href="{% url "tutorial:list" %}" class="mobile-menu-link {% block menu_tutorial %}{% endblock %}">
+                                    {% trans "Tutoriels" %}
+                                </a>
+                                {% cache 1800 menu_tutorial user|groups %}
                                     <div class="dropdown header-menu-dropdown">
                                         <a href="{% url "tutorial:list" %}" class="dropdown-link-all">
                                             {% trans "Tous les tutoriels" %}
@@ -233,16 +234,17 @@
                                             {% endwith %}
                                         </ul>
                                     </div>
-                                </li>
-                                <li>
-                                    <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
-                                        {% trans "Articles" %}
-                                    </a>
+                                {% endcache %}
+                            </li>
+                            <li>
+                                <a href="{% url "article:list" %}" class="mobile-menu-link {% block menu_article %}{% endblock %}">
+                                    {% trans "Articles" %}
+                                </a>
+                                {% cache 1800 menu_article user|groups %}
                                     <div class="dropdown header-menu-dropdown">
                                         <a href="{% url "article:list" %}" class="dropdown-link-all">
                                             {% trans "Tous les articles" %}
                                         </a>
-
                                         <ul class="dropdown-list">
                                             {% with categories='ARTICLE'|top_categories_content %}
                                                 {% for title, subcats in categories.categories.items %}
@@ -283,11 +285,13 @@
                                             {% endwith %}
                                         </ul>
                                     </div>
-                                </li>
-                                <li>
-                                    <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
-                                        {% trans "Forums" %}
-                                    </a>
+                                {% endcache %}
+                            </li>
+                            <li>
+                                <a href="{% url "cats-forums-list" %}" class="mobile-menu-link {% block menu_forum %}{% endblock %}">
+                                    {% trans "Forums" %}
+                                </a>
+                                {% cache 1800 menu_forum user|groups %}
                                     <div class="dropdown header-menu-dropdown">
                                         <a href="{% url "cats-forums-list" %}" class="dropdown-link-all">
                                             {% trans "Tous les forums" %}
@@ -328,9 +332,9 @@
                                             {% endwith %}
                                         </ul>
                                     </div>
-                                </li>
-                            </ul>
-                        {% endcache %}
+                                {% endcache %}
+                            </li>
+                        </ul>
                     </nav>
 
 
