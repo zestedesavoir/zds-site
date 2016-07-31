@@ -218,7 +218,7 @@
                 {% if has_token %}
                     {% csrf_token %}
                     <p>
-                        {% trans 'Si vous voulez modifier un poil ce qui sera envoyé à GitHub, éditez ce formulaire.' %}
+                        {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
                     </p>
                     <input type="text" name="title" data-autocomplete="{ 'type': 'single' }" value="{{ topic.title }}">
                     <textarea name="body" class="textarea" cols="40">
