@@ -362,7 +362,7 @@ def unregister(request):
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
     for content in request.user.profile.get_contents():
-        # we delete content only if not published with only one author
+        # only unpublished contents which have a single author will be deleted
         if not content.in_public() and content.authors.count() == 1:
             if content.in_beta() and content.beta_topic:
                 beta_topic = content.beta_topic

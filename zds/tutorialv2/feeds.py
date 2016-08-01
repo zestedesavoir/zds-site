@@ -92,10 +92,10 @@ class LastOpinionsFeedRSS(LastContentFeedRSS):
     """
     Redefinition of `LastContentFeedRSS` for opinions only
     """
-    content_type = "OPIJION"
-    link = "/tribunes-libres/"
-    title = u"Tribunes libres sur {}".format(settings.ZDS_APP['site']['litteral_name'])
-    description = u"Les derniers billets des tribunes libres parus sur {}.".format(
+    content_type = "OPINION"
+    link = "/tribunes/"
+    title = u"Tribunes sur {}".format(settings.ZDS_APP['site']['litteral_name'])
+    description = u"Les derniers billets des tribunes parus sur {}.".format(
         settings.ZDS_APP['site']['litteral_name'])
 
 
