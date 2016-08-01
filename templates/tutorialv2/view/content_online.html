@@ -101,7 +101,7 @@
                     {% endblocktrans %}
                 {% elif is_staff %}
                     {% blocktrans with url_article=content.promotion_content.get_absolute_url %}
-                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est validation.
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a> qui est en cours de validation.
                     {% endblocktrans %}
                 {% endif %}
             </div>
@@ -183,6 +183,17 @@
     </li>
     {% endif %}
     {% endif %}
+
+    {% for author in content.public_version.authors.all %}
+        <li>
+            <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                {% blocktrans %}
+                    Voir la tribune de {{ author }}
+                {% endblocktrans %}
+            </a>
+        </li>
+    {% endfor %}
+
 {% endblock %}
 
 {% block sidebar_blocks %}
