@@ -14,6 +14,8 @@ register = template.Library()
 
 @register.filter('top_categories')
 def top_categories(user):
+    max_tags = settings.ZDS_APP['forum']['top_tag_max']
+
     forums_pub = Forum.objects.filter(group__isnull=True).select_related('category').distinct().all()
     if user and user.is_authenticated():
         forums_private = Forum\
@@ -30,16 +32,18 @@ def top_categories(user):
 
     tags_by_popularity = list(
         Topic.objects
-        .exclude(tags__title__in=settings.ZDS_APP['forum']['top_tag_exclu'])
-        .values_list('tags__pk', flat=True)
+        .values('tags__pk', 'tags__title')
         .distinct()
         .filter(forum__in=forums, tags__isnull=False)
         .annotate(nb_tags=Count('tags'))
         .order_by('-nb_tags')
-        [:settings.ZDS_APP['forum']['top_tag_max']])
+        [:max_tags + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
 
-    tags = Tag.objects.filter(pk__in=list(tags_by_popularity))
-    tags = sorted(tags, key=lambda tag: tags_by_popularity.index(tag.pk))
+    tags_not_excluded = [tag['tags__pk'] for tag in tags_by_popularity
+                         if tag['tags__title'] not in settings.ZDS_APP['forum']['top_tag_exclu']][:max_tags]
+
+    tags = Tag.objects.filter(pk__in=tags_not_excluded)
+    tags = sorted(tags, key=lambda tag: tags_not_excluded.index(tag.pk))
 
     return {'tags': tags, 'categories': cats}
 
