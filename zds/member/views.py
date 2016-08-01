@@ -359,7 +359,7 @@ def unregister(request):
     external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
     current = request.user
     for content in request.user.profile.get_contents():
-        # we delete content only if not published with only one author
+        # only unpublished contents which have a single author will be deleted
         if not content.in_public() and content.authors.count() == 1:
             if content.in_beta() and content.beta_topic:
                 beta_topic = content.beta_topic

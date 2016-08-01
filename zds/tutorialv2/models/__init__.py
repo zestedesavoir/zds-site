@@ -8,9 +8,8 @@ CONTENT_TYPES = (
     # name                : the ID of content (unique and uppercase)
     # verbose_name        : name of content
     # verbose_name_plural : plural name of content
-    # parent_name         : the name of category who contain this content
-    # validation_before   : True or False ; True in content must be validate before publication (and if JsFiddle is
-    #                       available)
+    # parent_name         : the category name which contains this content
+    # validation_before   : Boolean; whether this content has to be validated before publication
     # single_container    : True or False ; True if the content is a single container
     # beta                : True or False ; True if the content can be in beta
     {
@@ -35,20 +34,20 @@ CONTENT_TYPES = (
         'name': 'OPINION',
         'verbose_name': 'billet',
         'verbose_name_plural': 'billets',
-        'parent_name': 'tribune libre',
+        'parent_name': 'tribune',
         'validation_before': False,
         'single_container': True,
         'beta': False,
     },
 )
 
-# a list of contents they need a validation before publication
+# a list of contents which have to be validated before publication
 CONTENT_TYPES_VALIDATION_BEFORE = [content['name'] for content in CONTENT_TYPES if content['validation_before']]
 
-# a list of contents they only have one big container which contain small containers
+# a list of contents which have one big container containing at least one small container
 SINGLE_CONTAINER = [content['name'] for content in CONTENT_TYPES if content['single_container']]
 
-# a list of content they can be in beta
+# a list of contents which can be in beta
 CONTENT_TYPES_BETA = [content['name'] for content in CONTENT_TYPES if content['beta']]
 
 
