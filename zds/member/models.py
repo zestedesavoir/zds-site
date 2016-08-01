@@ -364,7 +364,7 @@ class Profile(models.Model):
 
     def is_dev(self):
         """
-        Check if the user is in a group contained in settings.ZDS_APP['member']['dev_group'].
+        Checks whether user is part of group `settings.ZDS_APP['member']['dev_group']`.
         """
         return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).count()
 
