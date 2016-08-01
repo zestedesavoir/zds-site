@@ -74,7 +74,7 @@
                                 my-validation-content-title
                                 {% endif %}">
                                 <td>
-                                    <a href="{% url "content:view" validation.content.pk validation.content.slug %}?version={{ validation.version }}"
+                                    <a href="{% url 'content:view' validation.content.pk validation.content.slug %}?version={{ validation.version }}"
                                        class="{% if validation.versioned_content.has_extracts %}
                                             small-content-title
                                         {% elif not validation.versioned_content.has_chapters %}
@@ -101,9 +101,9 @@
                                 </td>
                                 <td>
                                     {% if validation.content.type == "ARTICLE" %}
-                                        <a href="{% url "validation:list" %}?type=article">Article</a>
+                                        <a href="{% url 'validation:list' %}?type=article">Article</a>
                                     {% else %}
-                                        <a href="{% url "validation:list" %}?type=tuto">Tutoriel</a>
+                                        <a href="{% url 'validation:list' %}?type=tuto">Tutoriel</a>
                                     {% endif %}
                                 </td>
                                 <td>
