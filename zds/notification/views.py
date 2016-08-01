@@ -16,7 +16,7 @@ class NotificationList(ZdSPagingListView):
 
     context_object_name = 'notifications'
     paginate_by = settings.ZDS_APP['notification']['per_page']
-    template_name = 'forum/topic/followed.html'
+    template_name = 'notification/followed.html'
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
