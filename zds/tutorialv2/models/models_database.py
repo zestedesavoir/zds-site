@@ -97,7 +97,7 @@ class PublishableContent(models.Model):
     sha_draft = models.CharField('Sha1 de la version de rédaction',
                                  blank=True, null=True, max_length=80, db_index=True)
     sha_approved = models.CharField('Sha1 de la version approuvée (contenus avec publication sans validation)',
-                                blank=True, null=True, max_length=80, db_index=True)
+                                    blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
@@ -430,7 +430,6 @@ class PublishableContent(models.Model):
 
     def first_note(self):
         """
-
         :return: the first post of a topic, written by topic's author, if any.
         :rtype: ContentReaction
         """
@@ -443,7 +442,6 @@ class PublishableContent(models.Model):
 
     def last_read_note(self):
         """
-
         :return: the last post the user has read.
         :rtype: ContentReaction
         """
@@ -556,7 +554,7 @@ class PublishableContent(models.Model):
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.
 
-        :return: True if required a validation before publication, False else.
+        :return: Whether validation is required before publication.
         :rtype: bool
         """
         return self.type in CONTENT_TYPES_VALIDATION_BEFORE
@@ -633,7 +631,6 @@ class PublishedContent(models.Model):
 
     def get_absolute_url_online(self):
         """
-
         :return: the URL of the published content
         :rtype: str
         """
@@ -660,7 +657,6 @@ class PublishedContent(models.Model):
 
     def is_article(self):
         """
-
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
@@ -668,7 +664,6 @@ class PublishedContent(models.Model):
 
     def is_tutorial(self):
         """
-
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
@@ -676,7 +671,6 @@ class PublishedContent(models.Model):
 
     def is_opinion(self):
         """
-
         :return: ``True`` if it is an opinion, ``False`` otherwise.
         :rtype: bool
         """

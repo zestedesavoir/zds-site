@@ -757,7 +757,7 @@ class Container:
         """
         Check if content can be in beta.
 
-        :return: True if content can be in beta, False else.
+        :return: Whether content is in beta.
         :rtype: bool
         """
         return self.type in CONTENT_TYPES_BETA
@@ -767,7 +767,7 @@ class Container:
         Check if content required a validation before publication.
         Used to check if JsFiddle is available too.
 
-        :return: True if required a validation before publication, False else.
+        :return: Whether validation is required before publication.
         :rtype: bool
         """
         return self.type in CONTENT_TYPES_VALIDATION_BEFORE

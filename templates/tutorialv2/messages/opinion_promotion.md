@@ -6,7 +6,7 @@ Félicitations !
 
 Je viens de promouvoir le billet « [{{ title }}]({{ url }}) » en article !
 
-Il est en validation et sera examié prochainement.
+Il est en validation et sera examiné prochainement.
 
 À bientôt !
 {% endblocktrans %}

@@ -148,7 +148,8 @@ class PublishableContentManager(models.Manager):
                            .prefetch_related('authors__profile')\
                            .select_related('last_note')\
                            .select_related('public_version')\
-                           .prefetch_related('subcategory')\
+                           .prefetch_related('subcategory') \
+                           .prefetch_related('tags') \
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:
@@ -179,7 +180,8 @@ class PublishableContentManager(models.Manager):
                            .prefetch_related('authors__profile')\
                            .select_related('last_note')\
                            .select_related('public_version')\
-                           .prefetch_related('subcategory')\
+                           .prefetch_related('subcategory') \
+                           .prefetch_related('tags') \
                            .extra(select={'count_note': sub_query})\
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
@@ -191,21 +193,19 @@ class PublishableContentManager(models.Manager):
     def get_last_opinions(self):
         """
         This depends on settings.ZDS_APP['opinions']['home_number'] parameter.
-        Displey only published, approuved and with a +n vote ratio opinions
-        (where n = settings.ZDS_APP['opinions']['home_ratio']).
 
-        :return: lit of last opinions
+        :return: list of last opinions
         :rtype: list
         """
         home_number = settings.ZDS_APP['opinions']['home_number']
-        # TODO : add votes filter when available in this query
-        all_contents = self.filter(type="OPINION") \
+        all_contents = self.filter(type='OPINION') \
                            .filter(public_version__isnull=False, sha_approved=F('sha_public')) \
-                           .prefetch_related("authors") \
-                           .prefetch_related("authors__profile") \
-                           .select_related("last_note") \
-                           .select_related("public_version") \
-                           .prefetch_related("subcategory") \
+                           .prefetch_related('authors') \
+                           .prefetch_related('authors__profile') \
+                           .select_related('last_note') \
+                           .select_related('public_version') \
+                           .prefetch_related('subcategory') \
+                           .prefetch_related('tags') \
                            .order_by('-public_version__publication_date')[:home_number]
         published = []
         for content in all_contents:
