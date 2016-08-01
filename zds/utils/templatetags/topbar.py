@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 from django import template
 from django.conf import settings
 
@@ -14,43 +14,34 @@ register = template.Library()
 
 @register.filter('top_categories')
 def top_categories(user):
-    cats = {}
-
-    forums_pub = Forum.objects.filter(group__isnull=True).select_related("category").distinct().all()
+    forums_pub = Forum.objects.filter(group__isnull=True).select_related('category').distinct().all()
     if user and user.is_authenticated():
-        forums_prv = Forum\
+        forums_private = Forum\
             .objects\
             .filter(group__isnull=False, group__in=user.groups.all())\
-            .select_related("category").distinct().all()
-        forums = list(forums_pub | forums_prv)
+            .select_related('category').distinct().all()
+        forums = list(forums_pub | forums_private)
     else:
         forums = list(forums_pub)
 
+    cats = defaultdict(list)
     for forum in forums:
-        key = forum.category.title
-        if key in cats:
-            cats[key].append(forum)
-        else:
-            cats[key] = [forum]
+        cats[forum.category.title].append(forum)
 
-    tmp_tags = (Topic.objects
-                .values_list('tags__pk', flat=True)
-                .distinct()
-                .filter(forum__in=forums, tags__isnull=False)
-                .annotate(nb_tags=Count("tags"))
-                .order_by("-nb_tags")
-                [:settings.ZDS_APP['forum']['top_tag_max'] + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
+    tags_by_popularity = list(
+        Topic.objects
+        .exclude(tags__title__in=settings.ZDS_APP['forum']['top_tag_exclu'])
+        .values_list('tags__pk', flat=True)
+        .distinct()
+        .filter(forum__in=forums, tags__isnull=False)
+        .annotate(nb_tags=Count('tags'))
+        .order_by('-nb_tags')
+        [:settings.ZDS_APP['forum']['top_tag_max']])
 
-    tags_not_filtered = Tag.objects.filter(pk__in=[pk for pk in tmp_tags])
+    tags = Tag.objects.filter(pk__in=list(tags_by_popularity))
+    tags = sorted(tags, key=lambda tag: tags_by_popularity.index(tag.pk))
 
-    # Select tags that are not in the excluded list
-    tags = []
-    for tag in tags_not_filtered:
-        if tag.title not in settings.ZDS_APP['forum']['top_tag_exclu'] \
-                and len(tags) <= settings.ZDS_APP['forum']['top_tag_max']:
-            tags.append(tag)
-
-    return {"tags": tags, "categories": cats}
+    return {'tags': tags, 'categories': cats}
 
 
 @register.filter('top_categories_content')
