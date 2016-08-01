@@ -12,7 +12,7 @@ Voici les fonctionnalités les plus importantes pour profiter du site :
 
 - les [tutoriels]({{ tutorials_url }}) pour apprendre de nouveaux savoirs ;
 - les [articles]({{ articles_url }}), pour découvrir de nouveaux sujets ;
-- les [tribunes libres]({{ opinions_url }}), pour partager des opinions ou faire des retours d'expérience ;
+- les [tribunes]({{ opinions_url }}), pour partager des opinions ou faire des retours d'expérience ;
 - les [forums]({{ forums_url }}), pour discuter avec [la communauté]({{ members_url }}) et demander de l'aide.
 
 Pour que les autres membres puissent t'aider au mieux, merci de respecter les règles suivantes sur le forum.

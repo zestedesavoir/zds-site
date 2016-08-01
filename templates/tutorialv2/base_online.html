@@ -45,7 +45,7 @@
                 href="{% url "opinion:list" %}"
             {% else %}
                 href="{% url "content:list" %}"
-            {% elif current_content_type == None %}
+            {% endif %}
             itemprop="url">
             <span itemprop="title">{{ verbose_type_name_plural|title }}</span>
         </a>
