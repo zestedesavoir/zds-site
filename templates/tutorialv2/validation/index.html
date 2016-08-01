@@ -70,7 +70,7 @@
                     </thead>
                     <tbody>
                         {% for validation in validations %}
-                            <tr class="{% if validation.validator and validation.validator.username == user.username %}
+                            <tr class="{% if validation.validator and validation.validator.pk == user.pk %}
                                 my-validation-content-title
                                 {% endif %}">
                                 <td>
