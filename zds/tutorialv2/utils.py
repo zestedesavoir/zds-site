@@ -512,8 +512,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         # then, fill container with children
         fill_containers_from_json(json, versioned)
     else:
-        # MINIMUM (!) fallback for version 1.0
-        # only support of ARTICLE and TUTORIAL
+        # minimal support for deprecated manifest version 1
+        # supported content types are exclusively ARTICLE and TUTORIAL
 
         if 'type' in json:
             if json['type'] == 'article':

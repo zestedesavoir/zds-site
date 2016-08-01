@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^articles/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='ARTICLE', context_object_name='articles'),
         name='find-article'),
-    url(r'^tribunes-libres/(?P<pk>\d+)/$',
+    url(r'^tribunes/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='OPINION', context_object_name='opinions'),
         name='find-opinion'),
     url(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),

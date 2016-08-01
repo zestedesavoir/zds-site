@@ -325,7 +325,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.tags.clear()
         publishable.add_tags(form.cleaned_data['tags'].split(','))
 
-        # help only for content with validation before
+        # help can only be obtained on contents requiring validation before publication
         if versioned.required_validation_before():
             publishable.helps.clear()
             for help_ in form.cleaned_data['helps']:
@@ -1590,9 +1590,9 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
     http_method_names = ['post']
 
     def form_valid(self, form):
-        """Change the js fiddle support of content and redirect to the view page """
+        """Change the js fiddle support of content and redirect to the view page"""
         content = get_object_or_404(PublishableContent, pk=form.cleaned_data['pk'])
-        # forbiden for content without a validation before publication
+        # forbidden for content without a validation before publication
         if not content.load_version().required_validation_before():
             raise PermissionDenied
         content.js_support = form.cleaned_data['js_support']

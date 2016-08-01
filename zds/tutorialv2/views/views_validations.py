@@ -540,7 +540,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
 
 
 class Publish(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
-    """Publish the content (only no validation before content)"""
+    """Publish the content (only content without preliminary validation)"""
 
     form_class = PublicationForm
 
@@ -562,7 +562,6 @@ class Publish(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
         db_object = self.object
         versioned = self.versioned_object
         self.success_url = versioned.get_absolute_url()
-        is_update = db_object.sha_public
         try:
             published = publish_content(db_object, versioned, is_major_update=False)
         except FailureDuringPublication as e:
@@ -575,34 +574,6 @@ class Publish(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
 
             db_object.public_version = published
             db_object.save()
-
-            if is_update:
-                msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_update.md',
-                    {
-                        'content': versioned,
-                        'url': published.get_absolute_url_online(),
-                        'validator': None
-                    })
-            else:
-                msg = render_to_string(
-                    'tutorialv2/messages/validation_accept_content.md',
-                    {
-                        'content': versioned,
-                        'url': published.get_absolute_url_online(),
-                        'validator': None
-                    })
-
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            send_mp(
-                bot,
-                db_object.authors.all(),
-                _(u"Contenu publié"),
-                versioned.title,
-                msg,
-                True,
-                direct=False
-            )
 
             messages.success(self.request, _(u'Le contenu a bien été publié.'))
             self.success_url = published.get_absolute_url_online()

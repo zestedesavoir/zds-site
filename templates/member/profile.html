@@ -495,8 +495,8 @@
                             </a>
                         </li>
                     {% endif %}
-                    {% if profile.user == user %}
-                        {% if opinions_draft_count > 0 %}
+                    {% if opinions_draft_count > 0 %}
+                        {% if profile.user == user %}
                             <li>
                                 <a href="{% url "content:find-opinion" usr.pk %}?filter=redaction"
                                    class="mobile-menu-link mobile-menu-sublink"
@@ -505,9 +505,7 @@
                                     {% trans "En rédaction" %}
                                 </a>
                             </li>
-                         {% endif %}
-                    {% else %}
-                        {% if opinions_draft_count > 0 %}
+                        {% else %}
                             <li class="inactive mobile-menu-link mobile-menu-sublink">
                                 <span>
                                     <span class="count">{{ opinions_draft_count }}</span>

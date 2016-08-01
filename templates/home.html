@@ -54,13 +54,15 @@
                     <div class="column">
                         <h2>{% trans "La connaissance pour tous" %}</h2>
                         {% blocktrans with site_name=app.site.litteral_name %}
-                            <p>{{site_name}}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
-                                <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:</p>
+                            <p>
+                                {{ site_name }}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
+                                <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:
+                            </p>
                             <ul>
-                                <li>des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>&nbsp;;</li>
-                                <li>des <a href='{{url_articles}}'>articles</a>&nbsp;;</li>
-                                <li>des <a href="{{ url_opinions }}">tribunes libres</a>&nbsp;;</li>
-                                <li>et des <a href='{{url_forums}}'>forums d'entraide</a>.</li>
+                                <li>des <a href="{{ url_tutorials }}">tutoriels de tous niveaux</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_articles }}">articles</a>&nbsp;;</li>
+                                <li>des <a href="{{ url_opinions }}">tribunes</a>&nbsp;;</li>
+                                <li>et des <a href="{{ url_forums }}">forums d'entraide</a>.</li>
                             </ul>
                             <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
                         {% endblocktrans %}
