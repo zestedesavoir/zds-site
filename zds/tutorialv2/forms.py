@@ -1041,7 +1041,7 @@ class WarnTypoForm(forms.Form):
 class PublicationForm(forms.Form):
 
     """
-    The publication form (used for content without validation before).
+    The publication form (used only for content without preliminary validation).
     """
 
     source = forms.CharField(

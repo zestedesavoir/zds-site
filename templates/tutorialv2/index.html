@@ -14,7 +14,7 @@
     {% elif articles != None %}
         {% trans "Articles de" %} {{ usr.username }}
     {% elif opinions != None %}
-        {% trans "Tribune libre de" %} {{ usr.username }}
+        {% trans "Tribune de" %} {{ usr.username }}
     {% endif %}
 {% endblock %}
 
@@ -43,8 +43,8 @@
         <li><a href="{% url "article:list" %}">{% trans "Articles" %}</a></li>
         <li><a href="{% url "content:find-article" usr.pk %}">{% trans "Articles de" %} {{ usr.username }}</a></li>
     {% elif opinions != None %}
-        <li><a href="{% url "opinion:list" %}">{% trans "Tribunes libres" %}</a></li>
-        <li><a href="{% url "content:find-opinion" usr.pk %}">{% trans "Tribune libre de" %} {{ usr.username }}</a></li>
+        <li><a href="{% url "opinion:list" %}">{% trans "Tribunes" %}</a></li>
+        <li><a href="{% url "content:find-opinion" usr.pk %}">{% trans "Tribune de" %} {{ usr.username }}</a></li>
     {% endif %}
 {% endblock %}
 
@@ -61,7 +61,7 @@
                 {% elif articles != None %}
                     {% trans "Articles de" %} {{ usr.username }}
                 {% elif opinions != None %}
-                    {% trans "Tribune libre de" %} {{ usr.username }}
+                    {% trans "Tribune de" %} {{ usr.username }}
                 {% endif %}
             {% endblock %}
         </h2>
@@ -181,12 +181,12 @@
                 {% for current_filter in filters %}
 
                         {% if tutorials != None %}
-                            <li><a href="{% url "content:find-tutorial" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                            <li><a href="{% url 'content:find-tutorial' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                         {% elif articles != None %}
-                            <li><a href="{% url "content:find-article" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                            <li><a href="{% url 'content:find-article' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                         {% elif opinions != None %}
                             {% if current_filter.key != 'validation' and current_filter.key != 'beta' %}
-                                <li><a href="{% url "content:find-opinion" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                                <li><a href="{% url 'content:find-opinion' usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
                             {% endif %}
                         {% endif %}
                 {% endfor %}
