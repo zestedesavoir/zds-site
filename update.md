@@ -629,7 +629,11 @@ Actions à faire pour mettre en prod la version 20
 **(pré-migration)** Rendre unique les subscriptions
 ---------------------------------------------------
 
-1. Lancer la commande `python manage.py uniquify_subscriptions >> mep_v20.log`
+1. Lancer les 2 migrations suivantes :
+  * `python manage.py migrate forum 0006_auto_20160720_2259`
+  * `python manage.py migrate notification 0010_newpublicationsubscription`
+1. Lancer la commande suivante :
+  * `python manage.py uniquify_subscriptions >> mep_v20.log`
 1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
 
 **(pré-migration)** Nettoyer les tags existants
@@ -655,19 +659,21 @@ Actions à faire pour mettre en prod la version 20
 
     mysqldump --lock-all-tables -u zds -p --all-databases > ~/mysql-5.5-backup/database/dump.sql
 
-    sudo apt-get remove mysql-server
+    sudo apt-get remove mysql-server-5.5 mysql-server-core-5.5 mysql-client-5.5
     sudo apt-get autoremove
 
     # check that the innodb transactions files are gone (ibdata1, ib_logfile0 and ib_logfile1
     mkdir ~/mysql-5.5-backup/innodb
     sudo ls /var/lib/mysql/ | grep -e '^ib'
     # if they are still there, move them as root
-    sudo mv /var/lib/mysql/ib* /home/zds/mysql-5.5-backup/innodb
+    sudo sh -c 'mv /var/lib/mysql/ib* /home/zds/mysql-5.5-backup/innodb'
     sudo ls /var/lib/mysql/ | grep -e '^ib'
     # shouldn't show anything
 
     sudo aptitude -t jessie-backports install mysql-server mysql-client
-    # if there's a conflict because of mysql-client-5.5, accept the fix removing mysql-client-5.5
+    # if apt complains that mysql-server-5.6 wasn't configured, run the following:
+    # sudo dpkg-reconfigure mysql-server-5.6
+    # if there's a conflict because of mysql-client-5.5, accept the fix which suggests removing mysql-client-5.5
 
     sudo systemctl restart mysql
 
@@ -739,6 +745,8 @@ Issue 3620
 ----------
 
 Dans le `settings_prod.py` : ajouter `ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'`
+
+(Ne pas oublier de lancer les migrations en terminant cette MEP !)
 
 ---
 

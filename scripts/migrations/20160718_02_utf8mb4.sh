@@ -518,6 +518,7 @@ else
 fi
 
 echo "Database updated successfully."
+echo "This script is over, here are some instructions (also available in update.md):"
 echo "Next steps are:"
 echo
 echo "1. Add the following to the MySQL config block in your Django settings:"
@@ -542,9 +543,5 @@ echo "    character-set-server = utf8mb4"
 echo "    collation-server = utf8mb4_unicode_ci"
 echo
 read -p "Done? "
-echo
-echo "Almost there."
-echo "* Restart mysql"
-echo "* Restart django"
 echo
 echo "Enjoy your funky emojis."
