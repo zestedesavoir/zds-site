@@ -642,6 +642,11 @@ Tags
 1. Lancer la commande `python manage.py clean_tags >> mep_v20.log`
 1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
 
+Issue 3620
+----------
+
+Dans le `settings_prod.py` : ajouter `ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'`
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
@@ -651,3 +656,4 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
