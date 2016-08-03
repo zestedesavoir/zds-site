@@ -500,7 +500,6 @@ ZDS_APP = {
         'topics_per_page': 21,
         'spam_limit_seconds': 60 * 15,
         'spam_limit_participant': 2,
-        'followed_topics_per_page': 21,
         'beta_forum_id': 1,
         'max_post_length': 1000000,
         'top_tag_max': 5,
@@ -516,6 +515,9 @@ ZDS_APP = {
     'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
+    },
+    'notification': {
+        'per_page': 50,
     },
     'paginator': {
         'folding_limit': 4

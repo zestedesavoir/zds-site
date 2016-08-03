@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
@@ -25,13 +24,13 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
-from zds.notification.models import TopicAnswerSubscription, NewTopicSubscription, ContentReactionAnswerSubscription
+from zds.notification.models import NewTopicSubscription, ContentReactionAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.mps import send_mp
-from zds.utils.paginator import paginator_range, ZdSPagingListView
+from zds.utils.paginator import ZdSPagingListView
 
 
 class CategoriesForumsListView(ListView):
@@ -589,36 +588,6 @@ class FindPost(FindTopic):
 
     def get_queryset(self):
         return Post.objects.get_all_messages_of_a_user(self.request.user, self.object)
-
-
-@login_required
-def followed_topics(request):
-    """
-    Displays the followed topics for the current user, with `settings.ZDS_APP['forum']['followed_topics_per_page']`
-    topics per page.
-    """
-    topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(request.user)
-
-    # Paginator
-
-    paginator = Paginator(topics_followed, settings.ZDS_APP['forum']['followed_topics_per_page'])
-    page = request.GET.get("page")
-    try:
-        shown_topics = paginator.page(page)
-        page = int(page)
-    except PageNotAnInteger:
-        shown_topics = paginator.page(1)
-        page = 1
-    except EmptyPage:
-        shown_topics = paginator.page(paginator.num_pages)
-        page = paginator.num_pages
-    topic_read = TopicRead.objects.list_read_topic_pk(request.user, shown_topics)
-    return render(request, "forum/topic/followed.html",
-                           {"followed_topics": shown_topics,
-                            "topic_read": topic_read,
-                            "pages": paginator_range(page,
-                                                     paginator.num_pages),
-                            "nb": page})
 
 
 @can_write_and_read_now
