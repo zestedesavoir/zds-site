@@ -366,7 +366,7 @@ class Profile(models.Model):
         """
         Checks whether user is part of group `settings.ZDS_APP['member']['dev_group']`.
         """
-        return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).count()
+        return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).exists()
 
     @staticmethod
     def has_read_permission(request):
