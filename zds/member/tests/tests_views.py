@@ -1000,6 +1000,40 @@ class MemberTests(TestCase):
         self.assertEqual(len(notes), 1)
         self.assertTrue(old_pseudo in notes[0].comment and 'dummy' in notes[0].comment)
 
+    def test_ban_member_is_not_contactable(self):
+        """
+        When a member is ban, we hide the button to send a PM.
+        """
+        user_ban = ProfileFactory()
+        user_ban.can_read = False
+        user_ban.can_write = False
+        user_ban.save()
+        user_1 = ProfileFactory()
+        user_2 = ProfileFactory()
+
+        phrase = "Envoyer un message privé"
+
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
+        self.assertNotContains(result, phrase)
+
+        result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
+        self.assertNotContains(result, phrase)
+
+        self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
+        self.client.logout()
+        self.assertContains(result, phrase)
+
+        self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+        result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
+        self.client.logout()
+        self.assertNotContains(result, phrase)
+
+        self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
+        self.client.logout()
+        self.assertNotContains(result, phrase)
+
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
             shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
