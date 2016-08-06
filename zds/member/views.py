@@ -118,7 +118,7 @@ class UpdateMember(UpdateView):
             'allow_temp_visual_changes': profile.allow_temp_visual_changes,
             'email_for_answer': profile.email_for_answer,
             'sign': profile.sign,
-            'github': profile.github_token,
+            'github_token': profile.github_token,
             'is_dev': profile.is_dev(),
         })
 
@@ -150,8 +150,8 @@ class UpdateMember(UpdateView):
         profile.email_for_answer = 'email_for_answer' in cleaned_data_options
         profile.avatar_url = form.data['avatar_url']
         profile.sign = form.data['sign']
-        if 'github' in form.data:
-            profile.github_token = form.data['github']
+        if 'github_token' in form.data:
+            profile.github_token = form.data['github_token']
 
     def get_success_url(self):
         return reverse('update-member')

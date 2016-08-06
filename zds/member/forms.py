@@ -236,7 +236,7 @@ class MiniProfileForm(forms.Form):
         )
     )
 
-    github = forms.CharField(
+    github_token = forms.CharField(
         label='Token GitHub',
         required=False,
         widget=forms.TextInput(
@@ -321,7 +321,7 @@ class ProfileForm(MiniProfileForm):
             ButtonHolder(StrictButton(_(u'Enregistrer'), type='submit'),)
         )
         if initial.get('is_dev'):
-            layout.fields.insert(5, Field('github'))
+            layout.fields.insert(5, Field('github_token'))
         self.helper.layout = layout
 
 
