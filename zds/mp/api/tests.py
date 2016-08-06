@@ -363,6 +363,30 @@ class PrivateTopicListAPITest(APITestCase):
         response = self.client.delete(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_cache_invalided_when_new_private_topic(self):
+        """
+        When we create a new topic, the api cache is invalided and returns the private topic.
+        """
+        count = self.client.get(reverse('api:mp:list')).data.get('count')
+
+        self.create_multiple_private_topics_for_member(self.profile.user, 1)
+
+        response = self.client.get(reverse('api:mp:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), count + 1)
+
+        private_topics = self.create_multiple_private_topics_for_member(self.profile.user, 1)
+
+        response = self.client.get(reverse('api:mp:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), count + 2)
+
+        private_topics[0].delete()
+
+        response = self.client.get(reverse('api:mp:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), count + 1)
+
     def create_multiple_private_topics_for_member(self, user, number_of_users=REST_PAGE_SIZE):
         return [PrivateTopicFactory(author=user) for private_topic in xrange(0, number_of_users)]
 
