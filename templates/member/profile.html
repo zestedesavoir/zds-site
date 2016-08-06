@@ -194,7 +194,7 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
                 <h3>{% trans "Actions" %}</h3>
                 <ul>
-                    {% if usr != user and not profile.is_private %}
+                    {% if usr != user and not profile.is_private and profile.can_read_now %}
                         <li>
                             <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
