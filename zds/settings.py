@@ -415,7 +415,8 @@ ZDS_APP = {
             'bugtracker': u'https://github.com/zestedesavoir/zds-site/issues',
             'api': u'https://api.github.com/repos/zestedesavoir/zds-site',
             'tags': [
-                u'C-Back', u'C-Front', u'C-Documentation', u'C-Infra', u'S-Bug', u'S-Régression', u'S-Évolution'
+                u'C-Back', u'C-Front', u'C-API', u'C-Documentation', u'C-Infra', u'S-Bug', u'S-Régression',
+                u'S-Évolution'
             ]
         },
         'licenses': {
