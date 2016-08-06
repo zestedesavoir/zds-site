@@ -1365,6 +1365,43 @@ class PostUsefulTest(TestCase):
         self.assertTrue(Post.objects.get(pk=topic.last_message.pk).is_useful)
 
 
+class MessageActionTest(TestCase):
+    def test_alert(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_profile = ProfileFactory()
+        PostFactory(topic=topic, author=another_profile.user, position=2)
+
+        # unauthenticated, no 'Alert' button
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, 'Signaler')
+
+        # authenticated, two 'Alert' buttons because we have two messages
+        self.client.login(username=profile.user.username, password='hostel77')
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        alerts = [word for word in response.content.split() if word == 'alert']
+        self.assertEqual(len(alerts), 2)
+
+        # staff hides a message
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        text_hidden_expected = u'Bad guy!'
+        data = {
+            'delete_message': '',
+            'text_hidden': text_hidden_expected
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        # authenticated, user can still alert both messages
+        self.client.login(username=profile.user.username, password='hostel77')
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        alerts = [word for word in response.content.split() if word == 'alert']
+        self.assertEqual(len(alerts), 2)
+
+
 class PostUnreadTest(TestCase):
     def test_failure_post_unread_require_method_get(self):
         response = self.client.post(reverse('post-unread'), follow=False)
