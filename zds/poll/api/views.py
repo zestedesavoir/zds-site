@@ -5,14 +5,21 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.generics import RetrieveAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
-from zds.poll.api.serializers import PollDetailSerializer, VoteSerializer
-from zds.poll.models import Poll, UniqueVote, MultipleVote
+from zds.poll.api.serializers import PollDetailSerializer, UsersSerializer, VoteSerializer
+from zds.poll.models import Poll, Choice, UniqueVote, MultipleVote
+from zds.poll.api.permissions import AccessUsersPermission
 
 
 class PollDetailAPIView(RetrieveAPIView):
 
     serializer_class = PollDetailSerializer
     queryset = Poll.objects.all()
+
+class UsersDetailAPIView(RetrieveAPIView):
+
+    permissions_classes = (AccessUsersPermission,)
+    queryset = Choice.objects.all()
+    serializer_class = UsersSerializer
 
 
 class VoteAPIView(RetrieveUpdateDestroyAPIView):

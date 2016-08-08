@@ -131,6 +131,13 @@ class Choice(models.Model):
         count = self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll).count()
         return count
 
+    def get_users(self):
+        """
+        :return: Users
+        :rtype: a list
+        """
+        return [Vote.user for Vote in self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll)]
+
     def set_user_vote(self, user):
         if self.poll.type_vote == 'u':
             UniqueVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
