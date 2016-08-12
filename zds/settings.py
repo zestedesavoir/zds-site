@@ -393,6 +393,7 @@ ZDS_APP = {
         'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
         'abbr': u"zds",
         'url': u"http://127.0.0.1:8000",
+        'secure_url': u"https://127.0.0.1:8000",
         'dns': u"zestedesavoir.com",
         'email_contact': u"zestedesavoir@gmail.com",
         'email_noreply': u"noreply@zestedesavoir.com",

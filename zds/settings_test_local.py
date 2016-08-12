@@ -8,3 +8,9 @@ CACHES = {
         'LOCATION': '/tmp/django_cache',
     }
 }
+
+ZDS_APP = {
+    'site': {
+        'secure_url': u"http://127.0.0.1:8000"
+    }
+}
