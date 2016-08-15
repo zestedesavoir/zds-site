@@ -153,34 +153,29 @@ Installer nginx. La configuration nginx de Zeste de Savoir est séparée en plus
   :language: nginx
   :caption: :download:`nginx/sites-available/prod-redirect`
 
-.. literalinclude:: nginx/sites-enabled/zestedesavoir
+.. literalinclude:: nginx/sites-available/zestedesavoir
   :language: nginx
-  :caption: :download:`nginx/sites-enabled/zestedesavoir`
+  :caption: :download:`nginx/sites-available/zestedesavoir`
 
 .. literalinclude:: nginx/snippets/antispam.conf
   :language: nginx
   :caption: :download:`nginx/snippets/antispam.conf`
 
-
 .. literalinclude:: nginx/snippets/gzip.conf
   :language: nginx
   :caption: :download:`nginx/snippets/gzip.conf`
-
 
 .. literalinclude:: nginx/snippets/headers.conf
   :language: nginx
   :caption: :download:`nginx/snippets/headers.conf`
 
-
 .. literalinclude:: nginx/snippets/proxy.conf
   :language: nginx
   :caption: :download:`nginx/snippets/proxy.conf`
 
-
 .. literalinclude:: nginx/snippets/ssl.conf
   :language: nginx
   :caption: :download:`nginx/snippets/ssl.conf`
-
 
 .. literalinclude:: nginx/snippets/static-cache.conf
   :language: nginx
