@@ -5,7 +5,7 @@ from django.conf.urls import url
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, CategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostUseful, PostUnread, PostLike, PostDisLike, FindPost, followed_topics, solve_alert, complete_topic
+    PostUseful, PostUnread, FindPost, solve_alert, complete_topic
 
 
 urlpatterns = [
@@ -19,9 +19,6 @@ urlpatterns = [
 
     # Developers warning: if you update something here, check and update help_text
     # on Category slug field
-
-    # Followed topics
-    url(r'^notifications/$', followed_topics, name='forum-followed-topics'),
 
     # Moderation
     url(r'^resolution_alerte/$', solve_alert, name='forum-solve-alert'),
@@ -39,8 +36,6 @@ urlpatterns = [
     url(r'^message/editer/$', PostEdit.as_view(), name='post-edit'),
     url(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
     url(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
-    url(r'^message/like/$', PostLike.as_view(), name='post-like'),
-    url(r'^message/dislike/$', PostDisLike.as_view(), name='post-dislike'),
     url(r'^messages/(?P<user_pk>\d+)/$', FindPost.as_view(), name='post-find'),
 
     # Categories and forums list.

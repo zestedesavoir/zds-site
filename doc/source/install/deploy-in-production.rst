@@ -34,7 +34,7 @@ Paramètres spécifiques
 +================+=============================+=============================+
 | Nom            | beta.zestedesavoir.com      | zestedesavoir.com           |
 +----------------+-----------------------------+-----------------------------+
-| IPv4           | ``46.105.246.77``           | ``149.202.54.142``          |
+| IPv4           | ``176.31.187.88``           | ``92.243.26.160``          |
 +----------------+-----------------------------+-----------------------------+
 | IPv6           | x                           | Pas encore disponible…      |
 +----------------+-----------------------------+-----------------------------+
@@ -56,8 +56,8 @@ Zeste de Savoir tourne sous l'utilisateur **zds** et le groupe **root**.
 Installation des outils
 -----------------------
 
--  python,
--  virtualenv (dans /opt/zdsenv/),
+-  python
+-  virtualenv (dans /opt/zdsenv/)
 -  git
 
 Clone du repo et configuration de prod
@@ -96,9 +96,10 @@ Installation de l'application de base
 
 Suivre `l'installation complète sous Linux <backend-linux-install.html>`__ en tenant compte des subtilités suivantes :
 
--  Installer `les outils front <frontend-install.md>`__
+-  Installer `les outils front <frontend-install.html>`__
 -  Ne pas lancer le serveur à la fin de l'étape *"Lancer ZdS"*
 -  Installer toutes les dépendances requises à l'étape *"Aller plus loin"*
+-  Installer les dépendances de production avec ``pip install --upgrade -r requirements-prod.txt``
 
 Outils spécifiques à un serveur de run
 --------------------------------------
@@ -126,286 +127,64 @@ Dans ``/opt/zdsenv/gunicorn_config.py`` :
 Nginx
 ~~~~~
 
-Installer nginx. Sous Debian, la configuration est splittée par site. Pour Zeste de Savoir, elle se fait dans ``/etc/nginx/sites-available/zestedesavoir`` :
+Installer nginx. La configuration nginx de Zeste de Savoir est séparée en plusieurs fichiers, en plus des quelques fichiers de configuration par défaut de nginx:
 
 .. code:: text
 
-    upstream zdsappserver {
-         server unix:/opt/zdsenv/bin/gunicorn.sock fail_timeout=0;
-    }
-    server {
-        listen [::]:80;
-        listen [::]:443;
-        listen 80;
-        listen 443 ssl;
-        ssl_certificate /etc/ssl/certs/zds/ssl_2015_unified.crt;
-        ssl_certificate_key /etc/ssl/certs/zds/ssl_2015.key;
-    #    ssl_certificate /etc/ssl/certs/zds/selfgenerated.pem;
-    #    ssl_certificate_key /etc/ssl/certs/zds/selfgenerated.key;
-        ssl_session_timeout 1d;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK';
-        ssl_prefer_server_ciphers on;
-        ssl_session_cache shared:SSL:50m;
-        ssl_dhparam /etc/nginx/dhparam.pem;
-
-        server_name www.zestedesavoir.com;
-        rewrite ^(.*) $scheme://zestedesavoir.com$1 permanent;
-    }
-    server {
-        listen [::]:80 ipv6only=on;
-        listen [::]:443 ssl ipv6only=on;
-        listen 80;
-        listen 443 ssl;
-        ssl_certificate /etc/ssl/certs/zds/ssl_2015_unified.crt;
-        ssl_certificate_key /etc/ssl/certs/zds/ssl_2015.key;
-    #    ssl_certificate /etc/ssl/certs/zds/selfgenerated.pem;
-    #    ssl_certificate_key /etc/ssl/certs/zds/selfgenerated.key;
-        ssl_session_timeout 1d;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK';
-        ssl_prefer_server_ciphers on;
-        ssl_session_cache shared:SSL:50m;
-        ssl_dhparam /etc/nginx/dhparam.pem;
-
-        server_name zestedesavoir.com;
-        gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
-        server_tokens off;
-        access_log /opt/zdsenv/logs/nginx-access.log;
-        error_log /opt/zdsenv/logs/nginx-error.log;
-
-        location /author-files/ {
-            index index.html index.php;
-            alias /home/zds/tutos_sdzv3/script/;
-            #include php.fast.conf;
-        }
-
-        location = /robots.txt {
-            alias /opt/zdsenv/ZesteDeSavoir/robots.txt;
-        }
-        # Gandi
-        location = /D6BA7D30872A8A72ED225D5601248024.txt {
-            alias /opt/zdsenv/ZesteDeSavoir/D6BA7D30872A8A72ED225D5601248024.txt;
-        }
-
-        location /static/ {
-            alias /opt/zdsenv/ZesteDeSavoir/static/;
-            expires 1y;
-            add_header Pragma public;
-            add_header Cache-Control "public, must-revalidate, proxy-revalidate";
-        }
-
-        location /media/ {
-            alias /opt/zdsenv/ZesteDeSavoir/media/;
-            expires 1y;
-            add_header Pragma public;
-            add_header Cache-Control "public, must-revalidate, proxy-revalidate";
-        }
-
-        location / {
-                if ($uri !~ \. ){
-                    rewrite ^(.*[^/])$ $1/ permanent;
-                }
-                rewrite ^/teasing/$ / permanent;
-                client_max_body_size 100M;
-                sendfile        on;
-                keepalive_timeout  0;
-                proxy_read_timeout 1000s;
-                proxy_connect_timeout 1000s;
-                proxy_redirect     off;
-                proxy_set_header   Host              $host;
-                proxy_set_header   X-Real-IP         $remote_addr;
-                proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
-                proxy_set_header   X-Forwarded-Proto $scheme;
-                proxy_intercept_errors on;
-
-                add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
-                add_header Strict-Transport-Security max-age=15768000;
-                add_header Access-Control-Allow-Origin *;
-                add_header X-Clacks-Overhead "GNU Terry Pratchett";
-
-                if (!-f $request_filename) {
-                    proxy_pass http://zdsappserver;
-                    break;
-                }
-
-          }
-        # Error pages
-        error_page 500 502 503 504 /errors/500.html;
-        #location = /500.html {
-        #    root /opt/zdsenv/ZesteDeSavoir/templates/;
-        #}
-        location /errors/ {
-            alias /opt/zdsenv/ZesteDeSavoir/errors/;
-        }
+    /etc/nginx
+    |- nginx.conf # Fichier de configuration principal
+    |- sites-available/
+    |  |- prod-redirect # Redirection de www.zestedesavoir.com -> zestedesavoir.com en prod
+    |  \- zestedesavoir # Configuration propre au site
+    \- snippets/ # Dossier contenant des configurations incluses dans différents fichiers
+       |- antispam.conf # Incluse dans zestedesavoir
+       |- headers.conf # Headers type HSTS, CSP (et X-Robots-Tags sur la beta)
+       |- ssl.conf # Définition des protocoles SSL à utiliser + conf. des certificats
+       |- gzip.conf # Configuration pour la compression
+       |- proxy.conf # Headers à passer au proxy (gunicorn)
+       \- static-cache.conf # Headers à rajouter pour les contenus statiques (cache)
 
 
-        # Conf anti-exploit, source : https://www.howtoforge.com/nginx-how-to-block-exploits-sql-injections-file-injections-spam-user-agents-etc
-        ## Block SQL injections
-        set $block_sql_injections 0;
-        if ($query_string ~ "union.*select.*\(") {
-            set $block_sql_injections 1;
-        }
-        if ($query_string ~ "union.*all.*select.*") {
-            set $block_sql_injections 1;
-        }
-        if ($query_string ~ "concat.*\(") {
-            set $block_sql_injections 1;
-        }
-        if ($block_sql_injections = 1) {
-            return 403;
-        }
+.. literalinclude:: nginx/nginx.conf
+  :language: nginx
+  :caption: :download:`nginx/nginx.conf`
 
-        ## Block file injections
-        set $block_file_injections 0;
-        if ($query_string ~ "[a-zA-Z0-9_]=http://") {
-            set $block_file_injections 1;
-        }
-        if ($query_string ~ "[a-zA-Z0-9_]=(\.\.//?)+") {
-            set $block_file_injections 1;
-        }
-        if ($query_string ~ "[a-zA-Z0-9_]=/([a-z0-9_.]//?)+") {
-            set $block_file_injections 1;
-        }
-        if ($block_file_injections = 1) {
-            return 403;
-        }
+.. literalinclude:: nginx/sites-available/prod-redirect
+  :language: nginx
+  :caption: :download:`nginx/sites-available/prod-redirect`
 
-        ## Block common exploits
-        set $block_common_exploits 0;
-        if ($query_string ~ "(<|%3C).*script.*(>|%3E)") {
-            set $block_common_exploits 1;
-        }
-        if ($query_string ~ "GLOBALS(=|\[|\%[0-9A-Z]{0,2})") {
-            set $block_common_exploits 1;
-        }
-        if ($query_string ~ "_REQUEST(=|\[|\%[0-9A-Z]{0,2})") {
-            set $block_common_exploits 1;
-        }
-        if ($query_string ~ "proc/self/environ") {
-            set $block_common_exploits 1;
-        }
-        if ($query_string ~ "mosConfig_[a-zA-Z_]{1,21}(=|\%3D)") {
-            set $block_common_exploits 1;
-        }
-        if ($query_string ~ "base64_(en|de)code\(.*\)") {
-            set $block_common_exploits 1;
-        }
-        if ($block_common_exploits = 1) {
-            return 403;
-        }
+.. literalinclude:: nginx/sites-enabled/zestedesavoir
+  :language: nginx
+  :caption: :download:`nginx/sites-enabled/zestedesavoir`
 
-        ## Block spam
-        set $block_spam 0;
-        if ($query_string ~ "\b(ultram|unicauca|valium|viagra|vicodin|xanax|ypxaieo)\b") {
-            set $block_spam 1;
-        }
-        if ($query_string ~ "\b(erections|hoodia|huronriveracres|impotence|levitra|libido)\b") {
-            set $block_spam 1;
-        }
-        if ($query_string ~ "\b(ambien|blue\spill|cialis|cocaine|ejaculation|erectile)\b") {
-            set $block_spam 1;
-        }
-        if ($query_string ~ "\b(lipitor|phentermin|pro[sz]ac|sandyauer|tramadol|troyhamby)\b") {
-            set $block_spam 1;
-        }
-        if ($block_spam = 1) {
-            return 403;
-        }
-
-        ## Block user agents
-        set $block_user_agents 0;
-
-        # Don't disable wget if you need it to run cron jobs!
-        #if ($http_user_agent ~ "Wget") {
-        #    set $block_user_agents 1;
-        #}
-
-        # Disable Akeeba Remote Control 2.5 and earlier
-        if ($http_user_agent ~ "Indy Library") {
-            set $block_user_agents 1;
-        }
-
-        # Common bandwidth hoggers and hacking tools.
-        if ($http_user_agent ~ "libwww-perl") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "GetRight") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "GetWeb!") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "Go!Zilla") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "Download Demon") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "Go-Ahead-Got-It") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "TurnitinBot") {
-            set $block_user_agents 1;
-        }
-        if ($http_user_agent ~ "GrabNet") {
-            set $block_user_agents 1;
-        }
-        # SpaceFox: adds HTTrack
-        if ($http_user_agent ~ "HTTrack") {
-            set $block_user_agents 1;
-        }
+.. literalinclude:: nginx/snippets/antispam.conf
+  :language: nginx
+  :caption: :download:`nginx/snippets/antispam.conf`
 
 
-        if ($block_user_agents = 1) {
-            return 403;
-        }
-
-    }
-
-    server{
-        server_name uploads.zestedesavoir.com;
-        root /home/zds/tutos_sdzv3/images_distantes;
-        index index.html index.htm;
-    }
+.. literalinclude:: nginx/snippets/gzip.conf
+  :language: nginx
+  :caption: :download:`nginx/snippets/gzip.conf`
 
 
-La configuration de la page de maintenance, quant à elle, se fait dans ``/etc/nginx/sites-available/zds-maintenance`` :
+.. literalinclude:: nginx/snippets/headers.conf
+  :language: nginx
+  :caption: :download:`nginx/snippets/headers.conf`
 
-.. code:: text
 
-    server {
-        listen [::]:80 ipv6only=on;
-        listen [::]:443 ssl ipv6only=on;
-        listen 80;
-        listen 443 ssl;
-        ssl_certificate /etc/ssl/certs/zds/ssl_2015_unified.crt;
-        ssl_certificate_key /etc/ssl/certs/zds/ssl_2015.key;
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers HIGH:!aNULL:!MD5;
+.. literalinclude:: nginx/snippets/proxy.conf
+  :language: nginx
+  :caption: :download:`nginx/snippets/proxy.conf`
 
-            server_name zestedesavoir.com www.zestedesavoir.com;
-            gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
-            access_log off;
-            access_log /opt/zdsenv/logs/nginx-access.log;
-            error_log /opt/zdsenv/logs/nginx-error.log;
-            root /opt/zdsenv/ZesteDeSavoir;
 
-            location /errors/css {
-            }
+.. literalinclude:: nginx/snippets/ssl.conf
+  :language: nginx
+  :caption: :download:`nginx/snippets/ssl.conf`
 
-            location /errors/images {
-            }
 
-            location / {
-                    return 503;
-            }
-
-            error_page 503 @maintenance;
-            location @maintenance  {
-                    rewrite ^.*$ /errors/maintenance.html break;
-            }
-    }
+.. literalinclude:: nginx/snippets/static-cache.conf
+  :language: nginx
+  :caption: :download:`nginx/snippets/static-cache.conf`
 
 
 Solr
@@ -425,6 +204,8 @@ Configuration ZdS
 
 Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.socket`` permet de lancer le serveur applicatif de Zeste de Savoir (Gunicorn) à l'aide de ``systemctl start zds.{service,socket}`` et l'arrêter avec ``systemctl stop zds.{service,socket}``.
 
+``zds.service`` nécessite la création manuelle de ``/run/gunicorn`` appartenant à ``zds`` : ``sudo mkdir /run/gunicorn && sudo chown zds /run/gunicorn``.
+
 .. code:: text
 
     [Unit]
@@ -437,8 +218,7 @@ Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.
     User=zds
     Group=zds
     WorkingDirectory=/opt/zdsenv
-    # ExecStart=/opt/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zdsenv/gunicorn_config.py zds.wsgi
-    ExecStart=/opt/zdsenv/bin/gunicorn -c /opt/zdsenv/gunicorn_config.py zds.wsgi
+    ExecStart=/opt/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zdsenv/gunicorn_config.py zds.wsgi
     ExecReload=/bin/kill -s HUP $MAINPID
     ExecStop=/bin/kill -s TERM $MAINPID
     PrivateTmp=true
@@ -681,7 +461,6 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
             'topics_per_page': 21,
             'spam_limit_seconds': 60 * 15,
             'spam_limit_participant': 2,
-            'followed_topics_per_page': 21,
             'beta_forum_id': 1,
             'max_post_length': 1000000,
             'top_tag_max': 5,
@@ -694,6 +473,9 @@ Il est possible de personnaliser ZdS pour n'importe quel site communautaire de p
         'featured_resource': {
             'featured_per_page': 100,
             'home_number': 5,
+        },
+        'notification': {
+            'per_page': 21,
         },
         'paginator': {
             'folding_limit': 4

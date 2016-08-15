@@ -28,89 +28,14 @@
     }
 
     /**
-     * Karma of the messages
-     */
-    $(".topic-message").on("click", "button.upvote, button.downvote", function(e){
-        var $thumb = $(this),
-            $form = $(this).parents("form:first"),
-            $karma = $thumb.parents(".message-karma:first"),
-            $upvote = $karma.find(".upvote"),
-            $downvote = $karma.find(".downvote"),
-            $otherThumb = $thumb.hasClass("downvote") ? $upvote : $downvote;
-
-        var message = $form.find("input[name=message]").val(),
-            csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val();
-
-        $.ajax({
-            url: $form.attr("action"),
-            type: "POST",
-            dataType: "json",
-            data: {
-                "message": message,
-                "csrfmiddlewaretoken": csrfmiddlewaretoken
-            },
-            success: function(data){
-                var title = "";
-                // Update upvotes
-                if(data.upvotes > 0){
-                    $upvote.addClass("has-vote").text("+" + data.upvotes);
-                    title = "Ce message est utile (" + data.upvotes + " personne";
-                    if(data.upvotes > 1)
-                        title += "s ont";
-                    else
-                        title += " a";
-                    title += " trouvé ce message utile)";
-                    $upvote.attr("title",  title);
-                } else {
-                    $upvote.removeClass("has-vote").empty();
-                    $upvote.attr("title", "Ce message est utile");
-                }
-                // Update downvotes
-                if(data.downvotes > 0){
-                    $downvote.addClass("has-vote").text("-" + data.downvotes);
-                    title = "Ce message n'est pas utile (" + data.downvotes + " personne";
-                    if(data.downvotes > 1)
-                        title += "s n'ont";
-                    else
-                        title += " n'a";
-                    title += " pas trouvé ce message utile)";
-                    $downvote.attr("title",  title);
-                } else {
-                    $downvote.removeClass("has-vote").empty();
-                    $downvote.attr("title", "Ce message n'est pas utile");
-                }
-
-                // Show to the user what thumb is voted
-                $thumb.toggleClass("voted");
-                $otherThumb.removeClass("voted");
-
-                // Show to the user what thumb is the more voted
-                if(data.upvotes > data.downvotes) {
-                    $upvote.addClass("more-voted");
-                } else {
-                    $upvote.removeClass("more-voted");
-                }
-                if(data.downvotes > data.upvotes) {
-                    $downvote.addClass("more-voted");
-                } else {
-                    $downvote.removeClass("more-voted");
-                }
-
-                $thumb.blur();
-            }
-        });
-
-        e.stopPropagation();
-        e.preventDefault();
-    });
-
-    /**
      * Follow a topic
      */
     $(".sidebar").on("click", "[data-ajax-input='follow-topic']", function(e){
         var $act = $(this),
             $form = $(this).parents("form:first"),
             $email = $(this).parents("li:first").next().find("[data-ajax-input='follow-topic-by-email']");
+
+        $email.prop("disabled", true);
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             topic = $form.find("input[name=topic]").val(),
@@ -145,6 +70,9 @@
                 $act.toggleClass("blue yellow");
 
                 synchText();
+            },
+            complete: function(){
+              $email.prop("disabled", false);
             }
         });
 
@@ -153,12 +81,14 @@
     });
 
     /**
-     * Be notify by email
+     * Be notified by email
      */
     $(".sidebar").on("click", "[data-ajax-input='follow-topic-by-email']", function(e){
         var $act = $(this),
             $follow = $(this).parents("li:first").prev().find("[data-ajax-input='follow-topic']"),
             $form = $(this).parents("form:first");
+
+        $follow.prop("disabled", true);
 
         var csrfmiddlewaretoken = $form.find("input[name=csrfmiddlewaretoken]").val(),
             topic = $form.find("input[name=topic]").val(),
@@ -194,6 +124,9 @@
                 $act.toggleClass("blue");
 
                 synchText();
+            },
+            complete: function(){
+              $follow.prop("disabled", false);
             }
         });
         e.stopPropagation();

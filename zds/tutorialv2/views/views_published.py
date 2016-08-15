@@ -6,22 +6,24 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse
+from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import RedirectView, FormView
+from django.views.generic import RedirectView, FormView, ListView
 import os
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
+from zds.notification import signals
+from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
-from zds.tutorialv2.utils import search_container_or_404, mark_read, last_participation_is_old
-from zds.utils.models import CommentDislike, CommentLike, SubCategory, Alert
+from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
+from zds.utils.models import CommentVote, SubCategory, Alert, Tag
 from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
@@ -35,7 +37,7 @@ class RedirectContentSEO(RedirectView):
         """Redirects the user to the new url"""
         obj = get_object_or_404(PublishableContent, old_pk=int(kwargs.get('pk')), type='TUTORIAL')
         if not obj.in_public():
-            raise Http404(_(u"Aucun contenu public n'est disponible avec cet identifiant."))
+            raise Http404(u"Aucun contenu public n'est disponible avec cet identifiant.")
         kwargs["parent_container_slug"] = str(kwargs["p2"]) + "_" + kwargs["parent_container_slug"]
         kwargs["container_slug"] = str(kwargs["p3"]) + "_" + kwargs["container_slug"]
         obj = search_container_or_404(obj.load_version(public=True), kwargs)
@@ -112,29 +114,26 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             context["is_js"] = False
 
         # optimize requests:
-
-        context["user_dislike"] = CommentDislike.objects\
-            .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
-            .values_list('comments__pk', flat=True)
-        context["user_like"] = CommentLike.objects\
-            .select_related('note')\
-            .filter(user__pk=self.request.user.pk, comments__in=context['reactions'])\
-            .values_list('comments__pk', flat=True)
+        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
 
         if self.request.user.has_perm('tutorialv2.change_contentreaction'):
-            context["user_can_modify"] = [reaction.pk for reaction in context['reactions']]
+            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions]
         else:
-            queryset_reactions_user = ContentReaction.objects\
-                .filter(author__pk=self.request.user.pk, related_content__pk=self.object.pk)\
-                .values_list('id', flat=True)
-            context["user_can_modify"] = queryset_reactions_user
+            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions
+                                          if reaction.author == self.request.user]
 
         context['isantispam'] = self.object.antispam()
+        context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
+        context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
 
+        if self.request.user.is_authenticated():
+            signals.content_read.send(
+                sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         # handle reactions:
         if last_participation_is_old(self.object, self.request.user):
-            mark_read(self.object)
+            mark_read(self.object, self.request.user)
 
         return context
 
@@ -184,15 +183,15 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
         # check that type is ok
         if self.requested_file not in self.allowed_types:
-            raise Http404(_(u"Le type du fichier n'est pas permis."))
+            raise Http404(u"Le type du fichier n'est pas permis.")
 
         # check existence
         if not self.public_content_object.have_type(self.requested_file):
-            raise Http404(_(u"Le type n'existe pas."))
+            raise Http404(u"Le type n'existe pas.")
 
         if self.requested_file == 'md' and not self.is_author and not self.is_staff:
             # download markdown is only for staff and author
-            raise Http404(_(u"Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu."))
+            raise Http404(u"Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu.")
 
         # set mimetype accordingly
         self.mimetype = self.mimetypes[self.requested_file]
@@ -211,7 +210,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         try:
             response = open(path, 'rb').read()
         except IOError:
-            raise Http404(_(u"Le fichier n'existe pas."))
+            raise Http404(u"Le fichier n'existe pas.")
 
         return response
 
@@ -237,6 +236,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         context['container'] = container
+        context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
 
         context['formWarnTypo'] = WarnTypoForm(
             self.versioned_object, container, initial={'target': container.get_path(relative=True)})
@@ -266,11 +266,13 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
     context_object_name = 'public_contents'
     paginate_by = settings.ZDS_APP['content']['content_per_page']
     template_name = 'tutorialv2/index_online.html'
+    category = None
     tag = None
+    current_content_type = None
 
     def get_queryset(self):
         """Filter the contents to obtain the list of given type.
-        If tag parameter is provided, only contents which have this category will be listed.
+        If category parameter is provided, only contents which have this category will be listed.
 
         :return: list of contents with the good type
         :rtype: list of zds.tutorialv2.models.models_database.PublishedContent
@@ -281,7 +283,9 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             "tutorialv2_contentreaction.related_content_id",
             r"`tutorialv2_publishablecontent`.`id`"
         )
-        queryset = PublishedContent.objects.filter(content_type=self.current_content_type, must_redirect=False)
+        queryset = PublishedContent.objects.filter(must_redirect=False)
+        if self.current_content_type:
+            queryset = queryset.filter(content_type=self.current_content_type)
 
         # prefetch:
         queryset = queryset\
@@ -295,9 +299,13 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             .select_related('content__last_note__related_content__public_version')\
             .filter(pk=F('content__public_version__pk'))
 
+        if 'category' in self.request.GET:
+            self.category = get_object_or_404(SubCategory, slug=self.request.GET.get('category'))
+            queryset = queryset.filter(content__subcategory__in=[self.category])
         if 'tag' in self.request.GET:
-            self.tag = get_object_or_404(SubCategory, slug=self.request.GET.get('tag'))
-            queryset = queryset.filter(content__subcategory__in=[self.tag])
+            self.tag = get_object_or_404(Tag, title=self.request.GET.get('tag').lower().strip())
+            queryset = queryset.filter(content__tags__in=[self.tag])  # different tags can have same
+            # slug such as C/C#/C++, as a first version we get all of them
         queryset = queryset.extra(select={"count_note": sub_query})
         return queryset.order_by('-publication_date')
 
@@ -308,6 +316,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
                 public_content.content.last_note.related_content = public_content.content
                 public_content.content.public_version = public_content
                 public_content.content.count_note = public_content.count_note
+        context['category'] = self.category
         context['tag'] = self.tag
         context['top_categories'] = top_categories_content(self.current_content_type)
 
@@ -389,7 +398,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             try:
                 cited_pk = int(self.request.GET["cite"])
             except ValueError:
-                raise Http404(_(u'L\'argument `cite` doit être un entier.'))
+                raise Http404(u'L\'argument `cite` doit être un entier.')
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
@@ -408,7 +417,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             return super(SendNoteFormView, self).get(request, *args, **kwargs)
         except MustRedirect:  # if someone changed the pk arguments, and reached a "must redirect" public
             # object
-            raise Http404(_(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get("pk", 0))))
+            raise Http404(u"Aucun contenu public trouvé avec l'identifiant " + str(self.request.GET.get("pk", 0)))
 
     def post(self, request, *args, **kwargs):
 
@@ -454,7 +463,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if is_new:  # we first need to save the reaction
             self.object.last_note = self.reaction
             self.object.save()
-            mark_read(self.object)
 
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
@@ -473,14 +481,13 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if not self.reaction:
-                raise Http404(_(u"Aucun commentaire : " + self.request.GET["message"]))
+                raise Http404(u"Aucun commentaire : " + self.request.GET["message"])
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
             kwargs['reaction'] = self.reaction
         else:
-            raise Http404(_(u"Le paramètre 'message' doit être un digit."))
-
+            raise Http404(u"Le paramètre 'message' doit être un digit.")
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -509,7 +516,7 @@ class UpdateNoteView(SendNoteFormView):
                 .filter(pk=int(self.request.GET["message"]))\
                 .first()
             if self.reaction is None:
-                raise Http404(_(u"Il n'y a aucun commentaire."))
+                raise Http404(u"Il n'y a aucun commentaire.")
             if self.reaction.author != self.request.user:
                 if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
                     raise PermissionDenied
@@ -518,76 +525,6 @@ class UpdateNoteView(SendNoteFormView):
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)
-
-
-class UpvoteReaction(LoginRequiredMixin, FormView):
-
-    add_class = CommentLike
-    """
-    :var add_class: The model class where the vote will be added
-    """
-
-    remove_class = CommentDislike
-    """
-    :var remove_class: The model class where the vote will be removed if exists
-    """
-
-    add_like = 1
-    """
-    :var add_like: The value that will be added to like total
-    """
-
-    add_dislike = 0
-    """
-    :var add_dislike: The value that will be added to the dislike total
-    """
-
-    def post(self, request, *args, **kwargs):
-        if "message" not in self.request.GET or not self.request.GET["message"].isdigit():
-            raise Http404(_(u"Le paramètre 'message' doit être un digit."))
-        note_pk = int(self.request.GET["message"])
-        note = get_object_or_404(ContentReaction, pk=note_pk)
-        resp = {}
-        user = self.request.user
-        if note.author.pk != user.pk:
-
-            # Making sure the user is allowed to do that
-
-            if self.add_class.objects.filter(user__pk=user.pk,
-                                             comments__pk=note_pk).count() == 0:
-                like = self.add_class()
-                like.user = user
-                like.comments = note
-                note.like += self.add_like
-                note.dislike += self.add_dislike
-                note.save()
-                like.save()
-                if self.remove_class.objects.filter(user__pk=user.pk,
-                                                    comments__pk=note_pk).count() > 0:
-                    self.remove_class.objects.filter(
-                        user__pk=user.pk,
-                        comments__pk=note_pk).all().delete()
-                    note.dislike = note.dislike - self.add_like
-                    note.like = note.like - self.add_dislike
-                    note.save()
-            else:
-                self.add_class.objects.filter(user__pk=user.pk,
-                                              comments__pk=note_pk).all().delete()
-                note.like = note.like - self.add_like
-                note.dislike = note.dislike - self.add_dislike
-                note.save()
-        resp["upvotes"] = note.like
-        resp["downvotes"] = note.dislike
-        if self.request.is_ajax():
-            return StreamingHttpResponse(json_writer.dumps(resp))
-        return redirect(note.get_absolute_url())
-
-
-class DownvoteReaction(UpvoteReaction):
-    add_class = CommentDislike
-    remove_class = CommentLike
-    add_like = 0
-    add_dislike = 1
 
 
 class HideReaction(FormView, LoginRequiredMixin):
@@ -611,7 +548,7 @@ class HideReaction(FormView, LoginRequiredMixin):
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(_(u"Vous ne pouvez pas cacher cette réaction."))
+            raise Http404(u"Vous ne pouvez pas cacher cette réaction.")
 
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
@@ -633,7 +570,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             return redirect(reaction.get_absolute_url())
 
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404(_(u"Aucune réaction trouvée."))
+            raise Http404(u"Aucune réaction trouvée.")
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
@@ -647,7 +584,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         try:
             note_pk = int(self.kwargs["pk"])
         except (KeyError, ValueError):
-            raise Http404(_(u"Impossible de convertir l'identifiant en entier."))
+            raise Http404(u"Impossible de convertir l'identifiant en entier.")
         note = get_object_or_404(ContentReaction, pk=note_pk)
         alert = Alert()
         alert.author = request.user
@@ -711,7 +648,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
             alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
             note = ContentReaction.objects.get(pk=alert.comment.id)
         except (KeyError, ValueError):
-            raise Http404(_(u"L'alerte n'existe pas."))
+            raise Http404(u"L'alerte n'existe pas.")
 
         text = ''
         if "text" in request.POST and request.POST["text"] != "":
@@ -721,3 +658,61 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
 
         messages.success(self.request, _(u"L'alerte a bien été résolue."))
         return redirect(note.get_absolute_url())
+
+
+class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentViewMixin, FormView):
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        self.public_content_object = self.get_public_object()
+        if 'follow' in request.POST:
+            response['follow'] = ContentReactionAnswerSubscription.objects. \
+                toggle_follow(self.get_object(), self.request.user).is_active
+        if self.request.is_ajax():
+            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+        return redirect(self.get_object().get_absolute_url())
+
+
+class FollowNewContent(LoggedWithReadWriteHability, FormView):
+
+    @staticmethod
+    def perform_follow(user_to_follow, user):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user).is_active
+
+    @staticmethod
+    def perform_follow_by_email(user_to_follow, user):
+        return NewPublicationSubscription.objects.toggle_follow(user_to_follow, user, True).is_active
+
+    @method_decorator(transaction.atomic)
+    def post(self, request, *args, **kwargs):
+        response = {}
+
+        # get user to follow
+        try:
+            user_to_follow = User.objects.get(pk=kwargs['pk'])
+        except User.DoesNotExist:
+            raise Http404
+
+        # follow content if user != user_to_follow only
+        if user_to_follow == request.user:
+            raise PermissionDenied
+
+        if 'follow' in request.POST:
+            response['follow'] = self.perform_follow(user_to_follow, request.user)
+        elif 'email' in request.POST:
+            response['email'] = self.perform_follow_by_email(user_to_follow, request.user)
+
+        if request.is_ajax():
+            return HttpResponse(json_writer.dumps(response), content_type='application/json')
+        return redirect(request.META.get('HTTP_REFERER'))
+
+
+class TagsListView(ListView):
+
+    model = Tag
+    template_name = "tutorialv2/view/tags.html"
+    context_object_name = 'tags'
+    displayed_types = ["TUTORIAL", "ARTICLE"]
+
+    def get_queryset(self):
+        return PublishedContent.objects.get_top_tags(self.displayed_types)

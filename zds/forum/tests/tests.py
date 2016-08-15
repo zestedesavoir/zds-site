@@ -1,23 +1,22 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.test import TestCase
-
-from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse
-from zds.utils import slugify
-
 from datetime import datetime, timedelta
+
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
+from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentLike, CommentDislike, Alert, Tag
-from django.core import mail
-
-from zds.forum.models import Post, Topic, TopicFollowed, TopicRead
+from zds.notification.models import TopicAnswerSubscription
+from zds.utils import slugify
 from zds.utils.forums import get_tag_by_title
-from zds.forum.models import Forum
+from zds.utils.models import Alert, Tag
+from zds import settings as zds_settings
 
 
 class ForumMemberTests(TestCase):
@@ -107,10 +106,10 @@ class ForumMemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
         topic = Topic.objects.first()
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 1)
         post = Post.objects.first()
 
@@ -134,7 +133,7 @@ class ForumMemberTests(TestCase):
         # Check view
         response = self.client.get(topic.get_absolute_url())
         self.assertContains(response, self.category1.title)
-        self.assertContains(response, self.forum11.title)
+        self.assertContains(response, self.forum12.title)
         self.assertContains(response, topic.title)
         self.assertContains(response, topic.subtitle)
 
@@ -182,9 +181,9 @@ class ForumMemberTests(TestCase):
         TopicRead(topic=topic1, user=user1, post=post3).save()
         TopicRead(topic=topic1, user=user2, post=post3).save()
         TopicRead(topic=topic1, user=self.user, post=post3).save()
-        TopicFollowed(topic=topic1, user=user1, email=True).save()
-        TopicFollowed(topic=topic1, user=user2, email=True).save()
-        TopicFollowed(topic=topic1, user=self.user, email=True).save()
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user1, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user2, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, self.user, True)
 
         # check if we send ane empty text
         result = self.client.post(
@@ -195,9 +194,9 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 200)
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
-        # check post's number (should be 3 for the moment)
+        # check posts count (should be 3 for the moment)
         self.assertEqual(Post.objects.all().count(), 3)
 
         # now check what happen if everything is fine
@@ -212,10 +211,10 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEquals(len(mail.outbox), 2)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 4)
 
         # check topic and post
@@ -251,9 +250,9 @@ class ForumMemberTests(TestCase):
         TopicRead(topic=topic1, user=user1, post=post3).save()
         TopicRead(topic=topic1, user=user2, post=post3).save()
         TopicRead(topic=topic1, user=self.user, post=post3).save()
-        TopicFollowed(topic=topic1, user=user1, email=True).save()
-        TopicFollowed(topic=topic1, user=user2, email=True).save()
-        TopicFollowed(topic=topic1, user=self.user, email=True).save()
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user1, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, user2, True)
+        TopicAnswerSubscription.objects.toggle_follow(topic1, self.user, True)
 
         # missing parameter
         result = self.client.post(
@@ -311,10 +310,10 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 3)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
         # check topic and post
@@ -390,10 +389,10 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
         # check topic and post
@@ -547,150 +546,6 @@ class ForumMemberTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 0)
-
-    def test_like_post(self):
-        """Test when a member like any post."""
-        user1 = ProfileFactory().user
-        topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        post1 = PostFactory(topic=topic1, author=self.user, position=1)
-        post2 = PostFactory(topic=topic1, author=user1, position=2)
-        post3 = PostFactory(topic=topic1, author=self.user, position=3)
-
-        result = self.client.post(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
-
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.all().count(), 1)
-        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
-        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
-        self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post1.pk).all().count(),
-            0)
-        self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post2.pk).all().count(),
-            1)
-        self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post3.pk).all().count(),
-            0)
-
-        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
-
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentLike.objects.all().count(), 1)
-        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).like, 1)
-        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
-        self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post1.pk).all().count(),
-            0)
-        self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post2.pk).all().count(),
-            1)
-        self.assertEqual(
-            CommentLike.objects.filter(
-                comments__pk=post3.pk).all().count(),
-            0)
-
-    def test_failing_like_post(self):
-        """Test failing cases when a member like any post."""
-
-        # parameter is missing
-        result = self.client.post(reverse('post-like'), follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-        # parameter is weird
-        result = self.client.post(reverse('post-like') + '?message=' + 'abc', follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-        # pk doesn't (yet) exist
-        result = self.client.post(reverse('post-like') + '?message=' + '424242', follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-    def test_dislike_post(self):
-        """Test when a member dislike any post."""
-        user1 = ProfileFactory().user
-        topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        post1 = PostFactory(topic=topic1, author=self.user, position=1)
-        post2 = PostFactory(topic=topic1, author=user1, position=2)
-        post3 = PostFactory(topic=topic1, author=self.user, position=3)
-
-        result = self.client.post(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
-
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.all().count(), 1)
-        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 1)
-        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
-        self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post1.pk).all().count(),
-            0)
-        self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post2.pk).all().count(),
-            1)
-        self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post3.pk).all().count(),
-            0)
-
-        result = self.client.post(reverse('post-like') + '?message={0}'.format(post1.pk), follow=False)
-
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(CommentDislike.objects.all().count(), 1)
-        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 1)
-        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
-        self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post1.pk).all().count(),
-            0)
-        self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post2.pk).all().count(),
-            1)
-        self.assertEqual(
-            CommentDislike.objects.filter(
-                comments__pk=post3.pk).all().count(),
-            0)
-
-    def test_failing_dislike_post(self):
-        """Test failing cases when a member dislike any post."""
-
-        # parameter is missing
-        result = self.client.post(reverse('post-dislike'), follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-        # parameter is weird
-        result = self.client.post(reverse('post-dislike') + '?message=' + 'abc', follow=False)
-
-        self.assertEqual(result.status_code, 404)
-
-        # pk doesn't (yet) exist
-        result = self.client.post(reverse('post-dislike') + '?message=' + '424242', follow=False)
-
-        self.assertEqual(result.status_code, 404)
 
     def test_useful_post(self):
         """To test when a member mark a post is usefull."""
@@ -964,6 +819,24 @@ class ForumMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 404)
 
+    def test_frontend_alert_existence_other_pages(self):
+        forum = self.forum11
+        profiles = [ProfileFactory(), ProfileFactory()]
+        topic = TopicFactory(forum=forum, author=profiles[1].user)
+        expected = u"<strong>Attention</strong>, vous n'êtes pas sur la dernière page de "
+        expected += u"ce sujet, assurez-vous de l'avoir lu dans son intégralité avant d'y"
+        expected += u" répondre."
+
+        for i in range(zds_settings.ZDS_APP['forum']['posts_per_page'] + 2):
+            PostFactory(topic=topic, author=profiles[i % 2].user, position=i + 2)
+        self.client.login(username=profiles[1].user.username, password="hostel77")
+
+        templateResponse = self.client.get(topic.get_absolute_url())
+        self.assertIn(expected, templateResponse.content.decode('utf-8'))
+
+        templateResponse = self.client.get(topic.get_absolute_url() + "?page=2")
+        self.assertNotIn(expected, templateResponse.content.decode('utf-8'))
+
 
 class ForumGuestTests(TestCase):
 
@@ -1046,9 +919,9 @@ class ForumGuestTests(TestCase):
             follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 0)
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 0)
 
     def test_answer(self):
@@ -1069,10 +942,10 @@ class ForumGuestTests(TestCase):
 
         self.assertEqual(result.status_code, 302)
 
-        # check topic's number
+        # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
 
-        # check post's number
+        # check posts count
         self.assertEqual(Post.objects.all().count(), 3)
 
     def test_tag_parsing(self):
@@ -1190,44 +1063,6 @@ class ForumGuestTests(TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Alert.objects.all().count(), 0)
         self.assertEqual(Alert.objects.filter(author=self.user).count(), 0)
-
-    def test_like_post(self):
-        """Test when a member like any post."""
-        user1 = ProfileFactory().user
-        topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        post1 = PostFactory(topic=topic1, author=self.user, position=1)
-        post2 = PostFactory(topic=topic1, author=user1, position=2)
-        post3 = PostFactory(topic=topic1, author=self.user, position=3)
-
-        result = self.client.get(reverse('post-like') + '?message={0}'.format(post2.pk), follow=False)
-
-        self.assertEqual(result.status_code, 405)
-        self.assertEqual(CommentLike.objects.all().count(), 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
-
-    def test_dislike_post(self):
-        """Test when a member dislike any post."""
-        user1 = ProfileFactory().user
-        topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        post1 = PostFactory(topic=topic1, author=self.user, position=1)
-        post2 = PostFactory(topic=topic1, author=user1, position=2)
-        post3 = PostFactory(topic=topic1, author=self.user, position=3)
-
-        result = self.client.get(reverse('post-dislike') + '?message={0}'.format(post2.pk), follow=False)
-
-        self.assertEqual(result.status_code, 405)
-        self.assertEqual(CommentDislike.objects.all().count(), 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).like, 0)
-        self.assertEqual(Post.objects.get(pk=post1.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post2.pk).dislike, 0)
-        self.assertEqual(Post.objects.get(pk=post3.pk).dislike, 0)
 
     def test_useful_post(self):
         """To test when a guest mark a post is usefull."""
@@ -1436,3 +1271,15 @@ class ManagerTests(TestCase):
             TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
             self.assertEqual(1, len(TopicRead.objects.list_read_topic_pk(self.staff.user)))
             self.assertEqual(0, len(TopicRead.objects.list_read_topic_pk(author.user)))
+
+        def test_is_read(self):
+            author = ProfileFactory()
+            reader = ProfileFactory()
+            topic = TopicFactory(author=author.user, forum=self.forum1)
+            post = PostFactory(topic=topic, position=1, author=author.user)
+            topic.last_post = post
+            topic.save()
+            TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
+            self.assertFalse(is_read(topic, author.user))
+            self.assertTrue(is_read(topic, self.staff.user))
+            self.assertFalse(is_read(topic, reader.user))

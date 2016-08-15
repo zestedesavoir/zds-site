@@ -5,7 +5,7 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-
+{% load interventions %}
 
 
 {% block title %}
@@ -76,6 +76,10 @@
             {% url 'post-edit' %}?message={{ message.pk }}
         {% endcaptureas %}
 
+        {% captureas hide_link %}{{ edit_link }}{% endcaptureas %}
+        {% captureas show_link %}{{ edit_link }}{% endcaptureas %}
+        {% captureas alert_link %}{{ edit_link }}{% endcaptureas %}
+
         {% captureas cite_link %}
             {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
@@ -84,12 +88,8 @@
             {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}
 
-        {% captureas upvote_link %}
-            {% url 'post-like' %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas downvote_link %}
-            {% url 'post-dislike' %}?message={{ message.pk }}
+        {% captureas karma_link %}
+            {% url 'api:forum:post-karma' message.pk %}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
@@ -174,59 +174,42 @@
         </li>
     {% endif %}
 
-    <li>
-        <form action="{% url 'topic-edit' %}" method="post">
-            <input type="hidden" name="topic" value="{{ topic.pk }}">
-            <input type="hidden" name="nb" value="{{ nb }}">
-            <input type="hidden" name="page" value="{{ nb }}">
-            <input type="hidden" name="follow" value="1">
-            {% csrf_token %}
-
-            <button
-                class="follow ico-after star {% if topic.is_followed %}yellow{% else %}blue{% endif %}"
-                type="submit" data-ajax-input="follow-topic"
-                data-content-on-click="
-                    {% if topic.is_followed %}
-                        {% trans "Suivre ce sujet" %}
-                    {% else %}
-                        {% trans "Ne plus suivre ce sujet" %}
-                    {% endif %}
-                "
-            >
-                {% if topic.is_followed %}
-                    {% trans "Ne plus suivre ce sujet" %}
-                {% else %}
-                    {% trans "Suivre ce sujet" %}
-                {% endif %}
-            </button>
-        </form>
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
     </li>
     <li>
-        <form action="{% url 'topic-edit' %}" method="post">
-            <input type="hidden" name="topic" value="{{ topic.pk }}">
-            <input type="hidden" name="nb" value="{{ nb }}">
-            <input type="hidden" name="page" value="{{ nb }}">
-            <input type="hidden" name="email" value="1">
-            {% csrf_token %}
-
-            <button
-                class="email ico-after {% if not topic.is_email_followed %}blue{% endif %}"
-                type="submit" data-ajax-input="follow-topic-by-email"
-                data-content-on-click="
-                    {% if topic.is_email_followed %}
-                        {% trans "Être notifié par courriel" %}
+        {% with topic_is_followed=topic|is_followed %}
+            {% url 'topic-edit' as link_follow_without_parameter %}
+            {% with topic_id=topic.pk|stringformat:"s" %}
+                {% with link_follow=link_follow_without_parameter|add:'?topic='|add:topic_id %}
+                    {% if topic_is_followed %}
+                        {% trans "Suivre ce sujet" as data_onclick %}
+                        {% trans "Ne plus suivre ce sujet" as button_text %}
                     {% else %}
-                        {% trans "Ne plus être notifié par courriel" %}
+                        {% trans "Suivre ce sujet" as button_text %}
+                        {% trans "Ne plus suivre ce sujet" as data_onclick %}
                     {% endif %}
-                "
-            >
-                {% if topic.is_email_followed %}
-                    {% trans "Ne plus être notifié par courriel" %}
-                {% else %}
-                    {% trans "Être notifié par courriel" %}
-                {% endif %}
-            </button>
-        </form>
+                    {% include 'notification/follow_template.html' with link=link_follow is_followed=topic_is_followed data_onclick=data_onclick button_text=button_text %}
+                {% endwith %}
+            {% endwith %}
+        {% endwith %}
+    </li>
+    <li>
+        {% with topic_is_email_followed=topic|is_email_followed %}
+            {% url 'topic-edit' as link_follow_without_parameter %}
+            {% with topic_id=topic.pk|stringformat:"s" %}
+                {% with link_follow=link_follow_without_parameter|add:'?topic='|add:topic_id %}
+                    {% if topic_is_email_followed %}
+                        {% trans "Être notifié par courriel" as data_onclick %}
+                        {% trans "Ne plus être notifié par courriel" as button_text %}
+                    {% else %}
+                        {% trans "Être notifié par courriel" as button_text %}
+                        {% trans "Ne plus être notifié par courriel" as data_onclick %}
+                    {% endif %}
+                    {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=topic_is_email_followed data_onclick=data_onclick button_text=button_text %}
+                {% endwith %}
+            {% endwith %}
+        {% endwith %}
     </li>
 {% endblock %}
 

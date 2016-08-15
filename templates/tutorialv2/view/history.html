@@ -55,6 +55,8 @@
         <button class="btn btn-grey" type="submit">{% trans "Comparer les versions sélectionnées" %}</button>
     </form>
 
+    {% include "misc/paginator.html" with position="top" %}
+
     <table class="fullwidth commits-list">
         <thead>
             <tr>
@@ -115,12 +117,12 @@
                         </a>
                     </td>
                     <td>
-                        {% if not forloop.last %}
+                        {% if forloop.last and not page_obj.has_next %}
+                            {{ commit.hexsha|truncatechars:8 }}
+                        {% else %}
                             <a href="{% url "content:diff" content.pk content.slug %}?from={{ commit.parents.0.hexsha|default:empty_sha }}&amp;to={{ commit.hexsha }}" >
                                 {{ commit.hexsha|truncatechars:8 }}
                             </a>
-                        {% else %}
-                            {{ commit.hexsha|truncatechars:8 }}
                         {% endif %}
                     </td>
                     <td>
@@ -173,4 +175,6 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}

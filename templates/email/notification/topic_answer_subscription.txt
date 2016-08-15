@@ -1,0 +1,12 @@
+{% extends "email/base_from_staff.txt" %}
+{% load i18n %}
+
+{% block content_from_staff %}
+{% blocktrans %}
+{{ author }} a répondu au sujet « {{ title }} » que vous suivez sur {{ site_name }}.
+{% endblocktrans %}
+
+{% blocktrans %}
+Pour le lire, cliquez ou recopiez l'url suivante : {{ url }}
+{% endblocktrans %}
+{% endblock %}

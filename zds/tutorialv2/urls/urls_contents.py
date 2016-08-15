@@ -8,10 +8,17 @@ from zds.tutorialv2.views.views_contents import DisplayContent, CreateContent, E
     DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
     RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
 
-from zds.tutorialv2.views.views_published import SendNoteFormView, UpvoteReaction, DownvoteReaction, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert
+from zds.tutorialv2.views.views_published import SendNoteFormView, UpdateNoteView, \
+    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, ListOnlineContents, \
+    FollowContentReaction, FollowNewContent
+
+from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
 urlpatterns = [
+    # Flux
+    url(r'^flux/rss/$', LastContentFeedRSS(), name='feed-rss'),
+    url(r'^flux/atom/$', LastContentFeedATOM(), name='feed-atom'),
+
     url(r'^tutoriels/(?P<pk>\d+)/$',
         ContentOfAuthor.as_view(type='TUTORIAL', context_object_name='tutorials'),
         name="find-tutorial"),
@@ -46,12 +53,14 @@ urlpatterns = [
     # reactions:
     url(r'^reactions/ajouter/$', SendNoteFormView.as_view(redirection_is_needed=False), name="add-reaction"),
     url(r'^reactions/editer/$', UpdateNoteView.as_view(redirection_is_needed=False), name="update-reaction"),
-    url(r'^reactions/upvote/$', UpvoteReaction.as_view(), name="up-vote"),
-    url(r'^reactions/downvote/$', DownvoteReaction.as_view(), name="down-vote"),
     url(r'^reactions/cacher/(?P<pk>\d+)/$', HideReaction.as_view(), name="hide-reaction"),
     url(r'^reactions/afficher/(?P<pk>\d+)/$', ShowReaction.as_view(), name="show-reaction"),
     url(r'^reactions/alerter/(?P<pk>\d+)/$', SendNoteAlert.as_view(), name="alert-reaction"),
     url(r'^reactions/resoudre/$', SolveNoteAlert.as_view(), name="resolve-reaction"),
+
+    # follow:
+    url(r'^suivre/(?P<pk>\d+)/reactions/$', FollowContentReaction.as_view(), name="follow-reactions"),
+    url(r'^suivre/membres/(?P<pk>\d+)/$', FollowNewContent.as_view(), name="follow"),
 
     # typo:
     url(r'^reactions/typo/$', WarnTypo.as_view(), name="warn-typo"),
@@ -131,5 +140,10 @@ urlpatterns = [
 
     # markdown import
     url(r'^importer/archive/nouveau/$', CreateContentFromArchive.as_view(), name="import-new"),
-    url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import")
+    url(r'^importer/(?P<pk>\d+)/(?P<slug>.+)/$', UpdateContentWithArchive.as_view(), name="import"),
+
+    # tags
+    url(r'^tags/$', TagsListView.as_view(), name='tags'),
+
+    url(r'^$', ListOnlineContents.as_view(), name='list'),
 ]

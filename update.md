@@ -276,7 +276,7 @@ La recherche est maintenant en français:
   - Arrêter Solr : `supervisorctl stop solr`
   - Regénérer le schema.xml : `python manage.py build_solr_schema > /votre/path/vers/solr-4.9.1/example/solr/collection1/conf/schema.xml`
   - Vérifier que les fichiers contractions_fr.txt et stopwords_fr.txt dans le dossier d'installation de Solr/example/solr/collection1/conf/lang/ sont pertinent.
-  - Si les fichiers contractions_fr.txt et stopwords_fr.txt ne sont pas pertinent. Télécharger et remplacer les fichiers par ceux contenu dans [ce drive](https:// drive.google.com/folderview?id=0B5ux7uNoD6owfklUNnpOVWhuaTFkVjltSzR0UER2bWcwT1VQdUQ1WW5telU5TWFGLXFqM0U&usp=sharing). 
+  - Si les fichiers contractions_fr.txt et stopwords_fr.txt ne sont pas pertinent. Télécharger et remplacer les fichiers par ceux contenu dans [ce drive](https:// drive.google.com/folderview?id=0B5ux7uNoD6owfklUNnpOVWhuaTFkVjltSzR0UER2bWcwT1VQdUQ1WW5telU5TWFGLXFqM0U&usp=sharing).
   - Redémarrer Solr : `supervisorctl start solr`
   - Lancer l'indexation : `python manage.py rebuild_index`
 
@@ -290,7 +290,7 @@ ZEP-12 aka Apocalypse
 
 **Étapes préliminaires**
 
-Il vous faut *absolument* faire une sauvegarde de secours de la base de données et du dossier `media/`. 
+Il vous faut *absolument* faire une sauvegarde de secours de la base de données et du dossier `media/`.
 
 Il est fortement conseillé de détecter les tutoriels et articles dont le dépot GIT est cassé via les commandes suivantes ([testées sur la bêta ici](https://github.com/artragis/zds-site/issues/238#issuecomment-131577950)) :
 
@@ -306,9 +306,9 @@ et de les écarter temporairement (en les déplacant dans un autre dossier), afi
 - La recherche nécessite que les données dans la base soit encodées avec un charset "utf8_general_ci" mais tout type de charset utf8 semble correspondre.
   Pour vérifier que la base de données et les tables sont encodées avec un charset UTF-8, vous pouvez saisir la commande suivante (ne pas oublier de remplir le nom de la base de données dans le `WHERE`):
   ```sql
-  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
+  SELECT T.table_name, CCSA.character_set_name FROM information_schema.`TABLES` T, information_schema.`COLLATION_CHARACTER_SET_APPLICABILITY` CCSA WHERE CCSA.collation_name = T.table_collation AND T.table_schema ="REMPLACER PAR LE NOM DE LA BASE DE DONNEES";
   ```
-  Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe): 
+  Si dans la deuxième colonne, il apparait autre chose que le mot "utf8_general_ci", appliquez la commande suivante (remplacez les mots `dbname`, `dbusername` et `dbpassword` par respectivement le nom de la base, le nom de l'utilisateur qui a les droits de modifier la base et son mot de passe):
   ```bash
   DB="dbname";USER="dbusername";PASS="dbusername";mysql "$DB" --host=127.0.0.1 -e "SHOW TABLES" --batch --skip-column-names -u $USER -p=$PASS| xargs -I{} echo 'ALTER TABLE '{}' CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;'  | mysql "$DB" --host=127.0.0.1  -u $USER -p=$PASS
   ```
@@ -371,7 +371,7 @@ Actions à faire pour mettre en prod la version 16
 Réparer la table HS
 -------------------
 
-**Avant déploiement :** 
+**Avant déploiement :**
 
 1. Se connecter au serveur MySQL : `mysql -u root -p`
 2. Se mettre sur la base de ZdS : `use zdsdb;`
@@ -379,7 +379,7 @@ Réparer la table HS
 4. Si cette table contient une colonne nommée `skip_authorization`, la supprimer : `alter table oauth2_provider_accesstoken drop column skip_authorization;`
 5. Quitter MySQL
 
-Mise à jours de la version de Haystack à la 4.1 
+Mise à jours de la version de Haystack à la 4.1
 -----------------------------------------------
 
 Pour mettre à jours la librairie, il vous faut lancer la commande `pip install --upgrade -r requirements.txt`
@@ -442,24 +442,15 @@ Repasser à l'ancienne version de `python-slugify` et sauver les contenus (#3383
 4. Si pour certains contenus la commande échoue, il faut retrouver le dossier correspondant dans `/contents-private/` et donner à ce contenu le même slug ;
 5. Quitter la maintenance.
 
-
---------------------------------
-
-**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
-
-Le déploiement doit être autonome. Ce qui implique que :
-
-1. La mise à jour de dépendances est automatique et systématique,
-2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
-3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
-
 Actions à faire pour mettre en prod la version 17
 =================================================
 
 CORS
 ----
 
-Supprimer les informations CORS de nginx.
+Observer le fichier `/etc/nginx/conf.d/zds_headers.conf` et si une ligne au moins portant la mension `add_header Access-Control-Allow-Origin *;` existe (via, par exemple un `grep "add_header Access-Control-Allow-Origin" /etc/nginx/conf.d/zds_headers.conf`) supprimer toutes les lignes de cette forme.
+
+Un redémarrage de nginx sera nécessaire en fin de procédure (`service nginx restart`).
 
 TEMPLATE
 --------
@@ -470,3 +461,199 @@ REST_FRAMEWORK
 --------------
 
 Vérifier qu'on ne surcharge pas la variable `REST_FRAMEWORK` dans le `settings_prod.py`. Si c'est le cas l'adapter en fonction du `settings.py`.
+
+MIGRATION
+_________
+
+1. Rendez-vous dans les migrations de l'app `django_app` de la dépendance `python-social-auth`:
+
+~/.virtualenvs/zdsenv/lib/python2.7/site-packages/lib/python2.7/site-packages/social/apps/django_app/default/migrations/
+
+2. Vérifiez qu'il n'y a que 3 fichiers de migration. S'il y en a plus, supprimez les migrations générées automatiquement (dispose du mot clé "auto" dans le nom).
+
+
+Actions à faire pour mettre en prod la version 18
+=================================================
+
+Changements de configuration Nginx
+----------------------------------
+
+Une réécriture complète de la configuration Nginx a été faite en béta ; il faut donc refléter les changements en prod.
+
+**Ces changements sont relativement lourds, donc une sauvegarde de `/etc/nginx` avant de faire quoi que ce soit n'est pas de trop. Ces changements doivent être fait *avant* la mise en prod, et tous les changements peuvent être fait sans aucun downtime, puisque l'ancienne configuration reste active tant que nginx n'est pas `reload`**
+
+Créer un dossier `/opt/zdsenv/webroot`, et y symlink toutes les resources statiques:
+
+```sh
+mkdir /opt/zdsenv/webroot
+cd /opt/zdsenv/webroot
+ln -s ../ZesteDeSavoir/{static,media,errors,robots.txt} ./
+```
+
+**Aussi symlink toutes les autres resources qui doivent être accessibles, type les fichiers de vérification de Gandi/des Google Webmaster Tools**
+
+Ensuite, le fichier `dhparam.pem` a été déplacé de `/etc/nginx/dhparam.pem` à `/etc/ssl/dhparam.pem`. Il faut donc le faire en prod (ou regénérer les dhparam via `openssl dhparam -out /etc/ssl/dhparam.pem 4096` ; cette commande peut prendre 2-3min)
+
+Enfin, la localisation des certificats a été modifiée pour qu'elle soit la même en beta et en prod. En beta, les fichiers ont été symlink, il faut donc faire de même en prod (ou les déplacer/copier), en mettant la chaine de certificat dans `/etc/ssl/certs/zds-live.crt` et la clé dans `/etc/ssl/private/zds-live.key`. **Voir la configuration nginx actuelle pour voir de quel fichiers il s'agit.**
+
+Une fois que ces changements sont fait, il faut copier la nouvelle configuration nginx dans `/etc/nginx`. Elle se trouve dans le dépot dans `doc/source/install/nginx/`.
+
+Les anciens fichier dans `sites-{enabled,available}/` et dans `conf.d/` peuvent être virés s'il y en a ; les autres fichiers qui sont la "par défaut" doivent rester la (même si `mimes.types` semble être le seul fichier indispensable)
+
+Symlink le fichier `zestedesavoir`: `ln -s ../sites-enabled/zestedesavoir /etc/nginx/sites-available/`
+
+Enfin, **en prod uniquement**, symlink le fichier `prod-redirect`: `ln -s ../sites-enabled/prod-redirect /etc/nginx/sites-available/`
+
+Tester la configuration avant de la recharger: (en root) `nginx -t`. S'il n'y a aucune erreur, recharger nginx via `systemctl reload nginx.service`
+
+Notifications
+-------------
+
+1. Lors de l'application des migrations `python manage.py migrate`, Django va vous demander s'il doit supprimer la table topicfollowed. Renseignez oui.
+2. Exécuter la commande `python manage.py migrate_subscriptions` pour migrer les anciennes notifications vers les nouvelles.
+
+Si vous constatez des problèmes de performance, lancez la commande suivante : `mysqloptimize -uroot -p zdsdb`
+
+Liste des tags exclus
+---------------------
+
+Dans le fichier settings.py, une nouvelle clé s'appelle top_tag_exclu (dans ZDS_APP -> forum -> top_tag_exclu), elle représente la liste des tags exclus des top tags. Vous pouvez ajouter des tags supplémentaire si la liste ne vous parait pas pertinente en surchargant
+la clé dans le fichier de configuration de production.
+
+ZEP-25
+------
+
+Il faut dans un premier temps supprimer les restes des tables des articles et tutoriels avant la ZEP-12 :
+
+```sql
+DROP TABLE article_article_subcategory;
+DROP TABLE tutorial_tutorial_subcategory;
+```
+
+Avant de continuer il faut s'assurer d'avoir lancé les migrations. La commande `python manage.py migrate_to_zep25` permet de migrer automatiquement les contenus et de notifier les auteurs. Les logs sont très détaillés. **La commande peut être assez longue.** Pensez à modifier manuellement (via l'interface d'admin si besoin) les contenus publiés après la date spécifiés à la fin de la commande).
+
+Les contenus non migrés automatiquement doivent l'être fait à la main, par les auteurs ou les validateurs. Seuls les contenus publiés sont migrés automatiquement.
+
+Identifier les pk des votes pour la limite de désanonymisation - #1851
+---------------------------------------------------------------------------
+
+Lors de la migration, Django va éventuellement demander s'il faut supprimer les anciennes tables des votes. Il faut simplement répondre oui, dans ce cas.
+
+La politique du site étant devenu de désanonymiser les votes +/-1 tout en gardant les anciens votes anonymes, il faut rechercher le PK du dernier vote afin de l'enregistrer dans le `settings_prod.py`. Voici la requète à executer pour obtenir ces informations (à faire après la migration) :
+
+```sql
+SELECT max(id) FROM utils_commentvote;
+```
+
+Le résultat de la requète doit être placé dans le paramètre `VOTES_ID_LIMIT` dans le fichier `settings_prod.py`. Dorénavant tout les nouveaux +/-1 ne seront plus anonymes.
+
+Supprimer toute trace des tables pré-zep-12
+-------------------------------------------
+
+Il faudra supprimer en SQL:
+
+- `SET FOREIGN_KEY_CHECKS=0;`
+- `UPDATE tutorial_tutorial SET last_note_id=NULL;`
+- `UPDATE article_article SET last_reaction_id=NULL;`
+- `DROP TABLE tutorial_tutorial_subcategory;`
+- `DROP TABLE tutorial_tutorial_authors;`
+- `DROP TABLE tutorial_note;`
+- `DROP TABLE tutorial_tutorialread;`
+- `DROP TABLE tutorial_tutorial;`
+- `DROP TABLE article_article_subcategory;`
+- `DROP TABLE article_article_authors;`
+- `DROP TABLE article_reaction;`
+- `DROP TABLE article_articleread;`
+- `DROP TABLE article_article;`
+- `SET FOREIGN_KEY_CHECKS=1;`
+
+S'il y a une erreur pour `article_article_subcategory` et `DROP TABLE tutorial_tutorial_subcategory;` c'est que les tables ont déjà été supprimées précédement (ZEP-25).
+
+Actions à faire pour mettre en prod la version 18.2
+===================================================
+
+Notifications
+-------------
+
+### Supprime les notifications inutiles
+
+Lancez la commande `python manage.py delete_useless_notif` pour supprimer toutes les notifications inutiles.
+
+### Migre les souscriptions par e-mail
+
+Lancez la commande `python manage.py migrate_email_subscription` pour migrer tous les sujets suivis par e-mail vers
+les nouveaux modèles de souscriptions.
+
+Actions à faire pour mettre en prod la version 19
+=================================================
+
+Page de contact
+---------------
+
+**À faire après la mise en production par une personne ayant les droits admin**.
+
+Il faut ajouter les différents groupes de la page de contact via l'administration Django. Les informations pour les créer sont ci dessous : :
+
+```
+L'équipe de communication
+    Email : communication@zestedesavoir.com
+    Description :
+    Responsable : ShigeruM
+    groupe : Communication
+
+L'association
+    Email : zestedesavoir@gmail.com
+    Description :
+    Responsable : Kje
+    groupe : bureau (à créer) ou CA (j'ai pas l'info au moment de la PR, voir avec Kje)
+
+Le staff
+    Email :
+    Description :  Le staff est constitué de certains membres du site dont le but est de contrôler le contenu publié sur Zeste de Savoir. Ils sont en charge de la modération des messages sur les forums et commentaires, ainsi que de la validation et publication d'articles et/ou de tutoriels de Zeste de Savoir.
+    Responsable : Thunderseb
+    groupe : staffs
+
+L'équipe technique
+    Email :
+    Description : L'équipe technique est constituée de certains membres du site dont le but est d'une part de s'assurer que le site reste toujours disponible en ligne, et d'autre part de corriger les bogues rencontrés sur le site ainsi que d'ajouter de nouvelles fonctionnalités. Des administrateurs systèmes, jusqu'aux designeurs, en passant par les développeurs back-end et intégrateurs front-end, ils s'occupent aussi de la maintenance du dépôt officiel du projet.
+    Responsable : Andr0
+    groupe : devs
+
+```
+
+Ces descriptions peuvent être modifiées via l'administration Django après la mise en production.
+
+Actions à faire pour mettre en prod la version 20
+=================================================
+
+Notifications
+-------------
+
+### **(pré-migration)** Rendre unique les subscriptions
+
+1. Lancer la commande `python manage.py uniquify_subscriptions >> mep_v20.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
+Tags
+----
+
+### **(pré-migration)** Nettoyer les tags existants
+
+1. Lancer la commande `python manage.py clean_tags >> mep_v20.log`
+1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
+Issue 3620
+----------
+
+Dans le `settings_prod.py` : ajouter `ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'`
+
+---
+
+**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
+
+Le déploiement doit être autonome. Ce qui implique que :
+
+1. La mise à jour de dépendances est automatique et systématique,
+2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
+3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+

@@ -4,10 +4,10 @@
 {% load set %}
 {% load displayable_authors %}
 
-{% if content.subcategory.all|length > 0 %}
+{% if publishablecontent.tags.all|length > 0 %}
     <ul class="taglist" itemprop="keywords">
-        {% for catofsubcat in content.subcategory.all %}
-            <li><a href="{{ catofsubcat|category_url:content }}">{{ catofsubcat.title }}</a></li>
+        {% for tag in publishablecontent.tags.all %}
+            <li><a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">{{ tag.title }}</a></li>
         {% endfor %}
     </ul>
 {% endif %}
@@ -54,5 +54,14 @@
                 </a>
             </li>
         {% endif %}
+    </ul>
+    <br/>
+    <span class="authors-label">
+        {% trans "Catégorie" %}{{ content.subcategory.all|pluralize }} :
+    </span>
+    <ul>
+        {% for category in content.subcategory.all %}
+            {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %} <a href="{% url 'content:list' %}?category={{ category.slug }}">{{ category.title }}</a>
+        {% endfor %}
     </ul>
 </div>

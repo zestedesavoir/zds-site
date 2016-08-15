@@ -8,6 +8,8 @@
 {% block title %}
     {% if tag %}
         {{ tag }}
+    {% elif category %}
+        {{ category }}
     {% else %}
         {% trans "Tous les" %} {{ verbose_type_name_plural }}
     {% endif %}
@@ -19,6 +21,10 @@
     {% if tag %}
         {% blocktrans %}
             Découvrez tous nos {{ verbose_type_name_plural }} sur {{ tag }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
+        {% endblocktrans %}
+    {% elif category %}
+        {% blocktrans %}
+            Découvrez tous nos {{ verbose_type_name_plural }} sur {{ category }}. Vous pourrez également découvrir divers sujets tous plus intéressants les uns que les autres !
         {% endblocktrans %}
     {% else %}
         {% blocktrans %}
@@ -32,6 +38,8 @@
 {% block breadcrumb %}
     {% if tag %}
         <li>{{ tag }}</li>
+    {% elif category %}
+        <li>{{ category }}</li>
     {% else %}
         <li>{% trans "Tous les" %} {{ verbose_type_name_plural }}</li>
     {% endif %}
@@ -41,10 +49,12 @@
 
 {% block content_out %}
     <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
-        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% endif %}" itemprop="name">
+        <h1 class="ico-after ico-{% if current_content_type == "TUTORIAL" %}tutorials{% elif current_content_type == "ARTICLE" %}articles{% else %}articles{% endif %}" itemprop="name">
             {% block headline %}
                 {% if tag %}
-                    {{ verbose_type_name_plural|title }} : {{ tag }}
+                    {{ verbose_type_name_plural|title }} : {{ tag.title }}
+                {% elif category %}
+                    {{ verbose_type_name_plural|title }} : {{ category }}
                 {% else %}
                     {% trans "Tous les" %} {{ verbose_type_name_plural }}
                 {% endif %}
@@ -57,13 +67,15 @@
 
         {% if public_contents %}
             <div class="content-item-list">
-                {% for public_content in public_contents %}
-                    {% if public_content.content_type == "TUTORIAL" %}
-                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with public_tutorial=public_content online=True show_description=True %}
-                    {% elif public_content.content_type == "ARTICLE" %}
-                        {% include "tutorialv2/includes/content_item_type_article.part.html" with public_article=public_content show_description=True %}
-                    {% endif %}
-                {% endfor %}
+                {% if current_content_type == "ARTICLE" %}
+                    {% for public_content in public_contents %}
+                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
+                    {% endfor %}
+                {% else %}
+                    {% for public_content in public_contents %}
+                        {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
+                    {% endfor %}
+                {% endif %}
                 <div class="fill"></div>
                 <div class="fill"></div>
                 <div class="fill"></div>
@@ -98,6 +110,18 @@
             <a href="{% url 'content:helps' %}?type=article" class="new-btn ico-after help blue">
                 {% trans "Aider les auteurs" %}
             </a>
+        {% elif current_content_type == None %}
+            <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+                {% trans "Nouvel article" %}
+            </a>
+
+            <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+                {% trans "Nouveau tutoriel" %}
+            </a>
+
+            <a href="{% url 'content:helps' %}" class="new-btn ico-after help blue">
+                {% trans "Aider les auteurs" %}
+            </a>
         {% endif %}
 
         <h3>{% blocktrans %} Catégories <span class="wide">des {{ verbose_type_name_plural }}</span> {% endblocktrans %}</h3>
@@ -107,15 +131,17 @@
                 {% url "article:list" %}
             {% elif current_content_type == "TUTORIAL" %}
                 {% url "tutorial:list" %}
+            {% elif current_content_type == None %}
+                {% url "content:list" %}
             {% endif %}
         {% endcaptureas %}
 
-        {% for title, subcats in top_categories.items %}
+        {% for title, subcats in top_categories.categories.items %}
             <h4 class="mobile-menu-link">{{ title }}</h4>
             <ul>
                 {% for subcat,slug in subcats %}
                     <li>
-                        <a href="{{ content_list_url }}?tag={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
+                        <a href="{{ content_list_url }}?category={{ slug }}" class="mobile-menu-link mobile-menu-sublink">
                             {{  subcat }}
                         </a>
                     </li>
@@ -138,6 +164,8 @@
                             href="{% url "article:feed-rss" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-rss" %}"
+                        {% elif current_content_type == None %}
+                            href="{% url "content:feed-rss" %}"
                         {% endif %}
                     class="ico-after rss blue">
                         {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (RSS) {% endblocktrans %}
@@ -149,6 +177,8 @@
                             href="{% url "article:feed-atom" %}"
                         {% elif current_content_type == "TUTORIAL" %}
                             href="{% url "tutorial:feed-atom" %}"
+                        {% elif current_content_type == None %}
+                            href="{% url "content:feed-atom" %}"
                         {% endif %}
                     class="ico-after rss blue">
                         {% blocktrans %} Nouveaux {{ verbose_type_name_plural }} (ATOM) {% endblocktrans %}

@@ -6,6 +6,7 @@
 {% load thumbnail %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load interventions %}
 
 
 {% block title %}
@@ -104,6 +105,38 @@
 
 {% endblock %}
 
+{% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
+    {% if user.is_authenticated %}
+    <li>
+    {% with content_is_followed=object|is_content_followed %}
+        {% url 'content:follow-reactions' object.pk as link_follow %}
+        {% if content_is_followed %}
+            {% trans "Suivre ce contenu" as data_onclick %}
+            {% trans "Ne plus suivre ce contenu" as button_text %}
+        {% else %}
+            {% trans "Suivre ce contenu" as button_text %}
+            {% trans "Ne plus suivre ce contenu" as data_onclick %}
+        {% endif %}
+        {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+    {% endwith %}
+    </li>
+    {% if not user in content.authors.all %}
+    <li>
+        <a href="{{ pm_link }}" class="ico-after cite blue">
+        {% blocktrans count counter=content.authors.all|length %}
+            Contacter l'auteur par MP
+        {% plural %}
+            Contacter les auteurs par MP
+        {% endblocktrans %}
+        </a>
+    </li>
+    {% endif %}
+    {% endif %}
+{% endblock %}
+
 {% block sidebar_blocks %}
     {% include "tutorialv2/includes/summary.part.html" with online=True %}
 
@@ -151,7 +184,6 @@
 
     {% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
 
-    {% set perms.tutorialv2.change_contentreaction as perms_change %}
     {% for message in reactions %}
 
         {% captureas edit_link %}
@@ -162,12 +194,8 @@
             {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
         {% endcaptureas %}
 
-        {% captureas upvote_link %}
-            {% url "content:up-vote" %}?message={{ message.pk }}
-        {% endcaptureas %}
-
-        {% captureas downvote_link %}
-            {% url "content:down-vote" %}?message={{ message.pk }}
+        {% captureas karma_link %}
+            {% url "api:content:reaction-karma" message.pk %}
         {% endcaptureas %}
 
         {% captureas alert_solve_link %}
@@ -190,13 +218,7 @@
             {% set False as is_repeated_message %}
         {% endif %}
 
-        {% if message.pk in user_can_modify %}
-            {% set True as can_edit %}
-        {% else %}
-            {% set False as can_edit %}
-        {% endif %}
-
-        {% include "tutorialv2/includes/reaction_message.part.html" with topic=object %}
+        {% include "misc/message.part.html" with perms_change=perms.tutorialv2.change_contentreaction topic=object %}
     {% endfor %}
 
 

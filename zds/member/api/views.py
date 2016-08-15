@@ -48,10 +48,17 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     Profile resource to list and register.
     """
 
-    queryset = Profile.objects.all_members_ordered_by_date_joined()
     filter_backends = (filters.SearchFilter,)
     search_fields = ('user__username',)
     list_key_func = PagingSearchListKeyConstructor()
+
+    def get_queryset(self):
+        contactable = self.request.query_params.get('contactable', None)
+        if contactable is not None:
+            queryset = Profile.objects.contactable_members()
+        else:
+            queryset = Profile.objects.all_members_ordered_by_date_joined()
+        return queryset
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)

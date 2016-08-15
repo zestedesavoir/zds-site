@@ -5,10 +5,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
+from django.core.urlresolvers import get_resolver, reverse
 
+from zds.forum.models import Category, Forum, Topic, Tag
 from zds.pages.views import home as home_view
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.forum.models import Category, Forum, Topic, Tag
 
 from . import settings
 
@@ -22,7 +23,7 @@ class TutoSitemap(Sitemap):
         return PublishedContent.objects.filter(must_redirect=False, content_type="TUTORIAL").prefetch_related('content')
 
     def lastmod(self, tuto):
-        return tuto.content.update_date or tuto.publication_date
+        return tuto.update_date or tuto.publication_date
 
     def location(self, tuto):
         return tuto.get_absolute_url_online()
@@ -36,10 +37,22 @@ class ArticleSitemap(Sitemap):
         return PublishedContent.objects.filter(must_redirect=False, content_type="ARTICLE").prefetch_related('content')
 
     def lastmod(self, article):
-        return article.content.update_date or article.publication_date
+        return article.update_date or article.publication_date
 
     def location(self, article):
         return article.get_absolute_url_online()
+
+
+class PageSitemap(Sitemap):
+    changefreq = 'weekly'
+    priority = 0.5
+
+    def items(self):
+        urls = get_resolver(None).reverse_dict.keys()
+        return [url for url in urls if 'pages-' in str(url)]
+
+    def location(self, item):
+        return reverse(item)
 
 sitemaps = {
     'tutos': TutoSitemap,
@@ -65,6 +78,7 @@ sitemaps = {
     'tags': GenericSitemap(
         {'queryset': Tag.objects.all()}
     ),
+    'pages': PageSitemap,
 }
 
 
@@ -82,6 +96,7 @@ urlpatterns = [
     url(r'^rechercher/', include('zds.search.urls')),
     url(r'^munin/', include('zds.munin.urls')),
     url(r'^mise-en-avant/', include('zds.featured.urls')),
+    url(r'^notifications/', include('zds.notification.urls')),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url('', include('django.contrib.auth.urls', namespace='auth')),
 
@@ -89,16 +104,10 @@ urlpatterns = [
 
     url(r'^$', home_view, name='homepage'),
 
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    url(r'^api/', include('zds.api.urls', namespace='api')),
+    url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 
-# API
-urlpatterns += \
-    [
-        url(r'^api/', include('rest_framework_swagger.urls')),
-        url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-        url(r'^api/membres/', include('zds.member.api.urls')),
-        url(r'^api/mps/', include('zds.mp.api.urls')),
-    ]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # SiteMap URLs
 urlpatterns += [

@@ -103,27 +103,7 @@ class PrivateTopicUpdateSerializer(serializers.ModelSerializer, TitleValidator, 
         raise serializers.ValidationError(message)
 
 
-class PrivatePostUpdateSerializer(serializers.ModelSerializer, TextValidator, UpdatePrivatePost):
-    """
-    Serializer to update the last private post of a private topic.
-    """
-    permissions = DRYPermissionsField()
-
-    class Meta:
-        model = PrivatePost
-        fields = ('id', 'privatetopic', 'author', 'text', 'text_html', 'pubdate', 'update', 'position_in_topic',
-                  'permissions')
-        read_only_fields = ('id', 'privatetopic', 'author', 'text_html', 'pubdate', 'update', 'position_in_topic',
-                            'permissions')
-
-    def update(self, instance, validated_data):
-        return self.perform_update(instance, validated_data)
-
-    def throw_error(self, key=None, message=None):
-        raise serializers.ValidationError(message)
-
-
-class PrivatePostCreateSerializer(serializers.ModelSerializer, TextValidator):
+class PrivatePostActionSerializer(serializers.ModelSerializer, TextValidator, UpdatePrivatePost):
     """
     Serializer to update the last private post of a private topic.
     """
@@ -147,6 +127,9 @@ class PrivatePostCreateSerializer(serializers.ModelSerializer, TextValidator):
         # Send post in mp
         send_message_mp(author, topic, self.validated_data.get('text'), True, False)
         return topic.last_message
+
+    def update(self, instance, validated_data):
+        return self.perform_update(instance, validated_data)
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)

@@ -3,13 +3,17 @@ Installation du backend sous Linux
 ==================================
 
 Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.
-Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
-Certaines des commandes d'installation (débutant par ``apt-get``) sont données ici pour Debian et ses dérivés, pour lesquels il est sûr qu'elles fonctionnent. Néanmoins, si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré. Les autres commandes sont génériques et indépendantes de la distribution utilisée.
+- Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
+- Si vous voulez savoir ce qui se cache derrière une commande ``make``, ouvrez le fichier nommé ``Makefile`` présent à la racine du projet.
+- Si une erreur s'est glissée dans la doc, ou si la doc a glissé vers l'obscolescence, ouvrez `un ticket sur notre repo github <https://github.com/zestedesavoir/zds-site/issues/new>`_
+- Si malgré tout vous ne parvenez pas à installer ZdS, n'hésitez pas à ouvrir `un sujet sur le forum <https://zestedesavoir.com/forums/sujet/nouveau/?forum=2>`_
+
+Certaines des commandes d'installation (débutant par ``apt-get``) sont données ici pour Debian et ses dérivés, pour lesquels il est sûr qu'elles fonctionnent. Si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n'hésitez dès lors pas à employer la fonction "recherche" de votre gestionnaire de paquet préféré. Les autres commandes sont génériques et indépendantes de la distribution utilisée.
 
 **NB** : il est impératif que la locale fr_FR.UTF-8 soit installée sur votre distribution.
 
-Assurez-vous que les dépendances suivantes soient résolues :
+ZdS a besoin des dépendances suivantes, installables manuellement ou à l'aide d'un Makefile (voir plus bas) :
 
 - git : ``apt-get install git``
 - python2.7
@@ -23,26 +27,32 @@ Assurez-vous que les dépendances suivantes soient résolues :
 - libz-dev (peut être libz1g-dev sur système 64bits)
 - python-sqlparse
 - libffi : ``apt-get install libffi-dev``
-- libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev``
+- libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev : ``apt-get install libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev`` (peut être appelée libjpeg8 et libjpeg8-dev sur  certains OS comme Ubuntu)
 
-Ou, en une ligne :
+Ou à l'aide du Makefile (``sudo`` sera appelé automatiquement, ne l'ajoutez jamais si on ne le précise pas) :
+
+Pour Debian.
+
+.. sourcecode:: bash
+
+    make install-debian
 
 Pour Ubuntu.
 
 .. sourcecode:: bash
 
-    sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+    make install-ubuntu
 
 Pour Fedora.
 
 .. sourcecode:: bash
 
-    sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox
+    make install-fedora
 
 Installation et configuration de `virtualenv`
 =============================================
 
-(cette étape n'est pas obligatoire, mais fortement conseillée ; ne tapez PAS les commandes en étant sudo)
+(cette étape n'est pas obligatoire mais fortement conseillée; ne tapez PAS les commandes en root donc pas avec ``sudo``)
 
 .. sourcecode:: bash
 
@@ -57,7 +67,7 @@ Installation et configuration de `virtualenv`
     source zdsenv/bin/activate # PAS sudo
 
 
-Pour sortir de votre environnement : ``deactivate``
+Pour sortir de votre environnement, tapez ``deactivate``
 
 Une documentation plus complète de cet outil `est disponible ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.
 
@@ -73,9 +83,10 @@ Une fois dans votre environnement python (``source ../bin/activate`` si vous uti
 
 .. sourcecode:: bash
 
-    pip install --upgrade -r requirements.txt -r requirements-dev.txt # Dépendances Python
-    python manage.py migrate # Cf. "migrate" de Django
-    python manage.py runserver # Démarre l'instance de ZdS
+
+    make install-back # Dépendances Python
+    make migrate # Cf. "migrate" de Django
+    make run-back # Démarre l'instance de ZdS
 
 
 Aller plus loin
@@ -94,4 +105,3 @@ Ce qui revient à lancer les commmandes suivantes :
     cabal install pandoc
 
 Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.
-

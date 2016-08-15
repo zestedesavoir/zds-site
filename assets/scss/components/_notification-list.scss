@@ -1,0 +1,159 @@
+.notification-list {
+    margin-top: 50px !important;
+    margin-bottom: 50px !important;
+
+    .notification {
+        position: relative;
+        line-height: 25px;
+        border-top: 1px solid #FFF;
+        border-bottom: 1px solid #CCC;
+        overflow: hidden;
+        border-left: 1px solid transparent;
+        clear: both;
+
+        &:first-child {
+            border-top: 1px solid #CCC;
+        }
+
+        &:before {
+            content: " ";
+            display: block;
+            position: absolute;
+            background: transparent;
+            height: 100%;
+            width: 2px;
+        }
+        &.unread:before {
+            background: lighten($color-primary, 20%);
+        }
+
+        &:nth-child(2n){
+            background: none;
+        }
+
+        &.unread {
+            .notification-description .notification-title {
+                font-weight: bold;
+            }
+            background: #FFF;
+        }
+
+        &:hover,
+        &.active {
+            &:before {
+                width: 5px;
+                background: lighten($color-primary, 20%);
+            }
+        }
+
+        &.selected {
+            background-color: lighten($color-primary, 75%);
+        }
+    }
+    a {
+        text-decoration: none;
+        color: lighten($color-primary, 15%);
+
+        &:hover,
+        &:focus {
+            color: lighten($color-primary, 15%);
+            text-decoration: underline;
+            outline: none;
+        }
+    }
+
+    .notification-infos,
+    .notification-description,
+    .notification-last-answer {
+        display: block;
+        float: left;
+        padding: 4px 0;
+        margin: 0;
+    }
+
+    .notification-infos {
+        width: 5%;
+
+        .ico-after {
+            display: block;
+            text-indent: -9999px;
+
+            &:after {
+                margin: 4px 0 0 15px;
+            }
+        }
+    }
+
+    .notification-description {
+        position: relative;
+        width: 60%;
+
+        .notification-title-link {
+            display: block;
+
+            &:hover,
+            &:focus {
+                text-decoration: none;
+
+                .topic-title {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .notification-title {
+            display: block;
+            margin: 0 !important;
+            padding: 0;
+            font-size: 16px;
+            font-size: 1.6rem;
+            font-weight: normal;
+        }
+    }
+    .notification-last-answer {
+        width: 35%;
+    }
+}
+
+@media only screen and #{$media-wide} {
+    .notification-list {
+        .notification-last-answer-short-date {
+            display: none;
+        }
+    }
+}
+
+@media only screen and #{$media-mobile-tablet} {
+    .notification-list {
+        .notification {
+            background: none !important;
+
+            .notification-last-answer {
+                width: 30%;
+                text-align: right;
+
+                .notification-last-answer-short-date {
+                    font-size: 1.3rem;
+                }
+                .notification-last-answer-long-date {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+@media only screen and #{$media-mobile} {
+    .notification-list {
+        .notification-infos .ico-after:after {
+            margin: 4px 0 0 2px;
+        }
+        .notification {
+            background: none !important;
+
+            .notification-last-answer {
+                width: 20%;
+            }
+        }
+    }
+}

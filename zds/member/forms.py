@@ -14,7 +14,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden, Div
 
-from zds.member.models import Profile, listing, KarmaNote
+from zds.member.models import Profile, KarmaNote
 from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
 from zds.utils.forms import CommonLayoutModalText
 
@@ -23,34 +23,6 @@ from zds.utils.forms import CommonLayoutModalText
 MAX_PASSWORD_LENGTH = 76
 # Min password length for the user.
 MIN_PASSWORD_LENGTH = 6
-
-
-class OldTutoForm(forms.Form):
-    """
-    This form to attributes "Old" tutorials to the current user.
-    """
-    id = forms.ChoiceField(
-        label=_(u'Ancien Tutoriel'),
-        required=True,
-        choices=listing(),
-    )
-
-    def __init__(self, profile, *args, **kwargs):
-        super(OldTutoForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_class = 'modal modal-flex'
-        self.helper.form_id = 'link-tuto-modal'
-        self.helper.form_method = 'post'
-        self.helper.form_action = reverse('member-add-oldtuto')
-
-        self.helper.layout = Layout(
-            HTML(_(u'<p>Choisissez un tutoriel du SdZ à attribuer au membre</p>')),
-            Field('id'),
-            Hidden('profile_pk', '{{ profile.pk }}'),
-            ButtonHolder(
-                StrictButton(_(u'Attribuer'), type='submit'),
-            ),
-        )
 
 
 class LoginForm(forms.Form):
@@ -652,7 +624,8 @@ class KarmaForm(forms.Form):
         max_length=KarmaNote._meta.get_field('comment').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': u'Commentaire sur le comportement de ce membre'
+                'placeholder': u'Commentaire sur le comportement de ce membre',
+                'required': u'required'
             }),
         required=True,
     )

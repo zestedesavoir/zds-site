@@ -6,7 +6,8 @@
 {% load profile %}
 {% load crispy_forms_tags %}
 {% load i18n %}
-
+{% load remove_url_protocole %}
+{% load interventions %}
 
 
 {% block title %}
@@ -33,7 +34,7 @@
 
         <div class="member-card">
             <div class="member-avatar">
-                <img src="{{ profile.get_avatar_url }}" alt="" class="avatar">
+                <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar">
 
                 {% include 'misc/badge.part.html' with member=usr %}
             </div>
@@ -125,7 +126,7 @@
             <h2 class="ico-after ico-tutorials" id="derniers-tutoriels">{% trans "Derniers tutoriels" %}</h2>
             <div class="content-item-list">
                 {% for public_tutorial in tutorials %}
-                    {% include 'tutorialv2/includes/content_item_type_tutoriel.part.html' with show_description=True %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_tutorial %}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>
@@ -138,7 +139,7 @@
             <h2 class="ico-after ico-articles" id="derniers-articles">{% trans "Derniers articles" %}</h2>
             <div class="content-item-list">
                 {% for public_article in articles %}
-                    {% include 'tutorialv2/includes/content_item_type_article.part.html' with show_description=True %}
+                    {% include 'tutorialv2/includes/content_item.part.html' with show_description=True public_content=public_article show_reactions=True %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -150,7 +151,11 @@
         <hr class="clearfix" />
         <section class="full-content-wrapper without-margin article-content">
             <h2 id="biographie">{% trans "Biographie" %}</h2>
-            {{ profile.biography|emarkdown }}
+            {% if not profile.end_ban_read and not profile.can_read %}
+                <em>{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</em>
+            {% else %}
+                {{ profile.biography|emarkdown }}
+            {% endif %}
         </section>
     {% endif %}
 
@@ -163,40 +168,6 @@
                     {{stats_filename}}
                 {% endautoescape %}
             </figure>
-        </section>
-    {% endif %}
-
-
-    {% if old_tutos and perms.member.change_profile %}
-        <hr class="clearfix" />
-        <section class="full-content-wrapper without-margin">
-            <h2 id="anciens-tutoriels-sdz">{% trans "Anciens tutoriels SdZ" %}</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>{% trans "Tutoriel" %}</th>
-                        <th>{% trans "Actions" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for id, titre in old_tutos %}
-                        <tr>
-                            <td>{{ titre }}</td>
-                            <td>
-                                <a href="#delete-old-tutorial-{{ id }}" class="btn btn-submit open-modal">{% trans "Supprimer" %}</a>
-                                <div class="modal modal-flex" id="delete-old-tutorial-{{ id }}">
-                                    <p>
-                                        {% blocktrans with tutotitle=titre%}
-                                            Attention ! Vous êtes sur le point de supprimer le tutoriel "<em>{{ tutotitle }}</em>".
-                                        {% endblocktrans %}
-                                    </p>
-                                    <a href="{% url "member-remove-oldtuto" %}?id={{ id }}&profile={{ profile.pk }}" class="btn btn-submit">{% trans "Confirmer" %}</a>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
         </section>
     {% endif %}
 {% endblock %}
@@ -227,19 +198,42 @@
             <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
                 <h3>{% trans "Actions" %}</h3>
                 <ul>
-                    {% if usr != user and not profile.is_private %}
+                    {% if usr != user and not profile.is_private and profile.can_read_now %}
                         <li>
                             <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
                                 {% trans "Envoyer un message privé" %}
                             </a>
                         </li>
                     {% endif %}
-                    {% if perms.member.change_profile %}
+                        <li class="inactive">
+                            {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+                        </li>
+                    {% if usr != user and not profile.is_private %}
                         <li>
-                            <a href="#link-tuto-modal" class="open-modal ico-after tick green">
-                                {% trans "Attribuer un tuto SdZ" %}
-                            </a>
-                            {% crispy form %}
+                            {% with content_is_followed=usr|is_new_publication_followed %}
+                                {% url 'content:follow' usr.pk as link_follow %}
+                                {% if content_is_followed %}
+                                    {% trans "Suivre ses publications" as data_onclick %}
+                                    {% trans "Désinscription à ses publications" as button_text %}
+                                {% else %}
+                                    {% trans "Suivre ses publications" as button_text %}
+                                    {% trans "Désinscription à ses publications" as data_onclick %}
+                                {% endif %}
+                                {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+                            {% endwith %}
+                        </li>
+                        <li>
+                            {% with content_is_followed=usr|is_new_publication_email_followed %}
+                                {% url 'content:follow' usr.pk as link_follow %}
+                                {% if content_is_followed %}
+                                    {% trans "Suivre ses publications par courriel" as data_onclick %}
+                                    {% trans "Ne plus être notifié par courriel" as button_text %}
+                                {% else %}
+                                    {% trans "Suivre ses publications par courriel" as button_text %}
+                                    {% trans "Ne plus être notifié par courriel" as data_onclick %}
+                                {% endif %}
+                                {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+                            {% endwith %}
                         </li>
                     {% endif %}
                     {% if profile.is_private and not perms.member.change_profile %}
@@ -292,13 +286,6 @@
                 <li>
                     <a href="#biographie">
                         {% trans "Biographie" %}
-                    </a>
-                </li>
-            {% endif %}
-            {% if old_tutos and perms.member.change_profile %}
-                <li>
-                    <a href="#anciens-tutoriels-sdz">
-                        {% trans "Anciens tutoriels SdZ" %}
                     </a>
                 </li>
             {% endif %}

@@ -41,22 +41,22 @@
 
         {% if user.is_authenticated %}
             <ul class="message-actions">
-                {% if message.is_visible != False %}
+                {% if message.is_visible %}
                     {% if edit_link %}
-                        {% if can_unread == True %}
+                        {% if can_unread %}
                             <li>
                                 <a class="ico-after unread" href="{{ unread_link|safe }}">
                                     {% trans "Non-lu" %}
                                 </a>
                             </li>
                         {% endif %}
-                        {% if message.author == user or perms_change %}
-                            {% if can_hide != False %}
+                        {% if message.pk in user_can_modify %}
+                            {% if can_hide %}
                                 <li>
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         {% trans "Masquer" %}
                                     </a>
-                                    <form action="{{ edit_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
+                                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
                                         {% csrf_token %}
                                         {% if perms_change %}
                                             <p>
@@ -75,39 +75,16 @@
                                     </form>
                                 </li>
                             {% endif %}
-                        {% endif %}
 
-                        {% if message.author == user or perms_change %}
-                            {% if can_edit != False %}
-                                <li>
-                                    <a href="{{ edit_link|safe }}" class="ico-after edit">
-                                        {% trans "Éditer" %}
-                                    </a>
-                                </li>
-                            {% endif %}
-                        {% endif %}
-
-                        {% if can_hide != False %}
                             <li>
-                                <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
-                                    {% trans "Signaler" %}
+                                <a href="{{ edit_link|safe }}" class="ico-after edit">
+                                    {% trans "Éditer" %}
                                 </a>
-                                <form action="{{ edit_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
-                                    {% csrf_token %}
-                                    <label for="signal-message-{{ message.id }}-field">
-                                        {% trans "Pour quelle raison signalez-vous ce message" %} ?
-                                    </label>
-                                    <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
-
-                                    <button type="submit" name="signal_message">
-                                        {% trans "Signaler" %}
-                                    </button>
-                                </form>
                             </li>
                         {% endif %}
                     {% endif %}
 
-                    {% if cite_link and not topic.is_locked and not topic.antispam %}
+                    {% if cite_link and not topic.is_locked and not isantispam %}
                         <li>
                             <a href="{{ cite_link|safe }}" class="ico-after cite" data-ajax-input="cite-message">
                                 {% trans "Citer" %}
@@ -124,7 +101,7 @@
                         <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                             {% trans "Démasquer" %}
                         </a>
-                        <form action="{{ edit_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
+                        <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
                                 {% blocktrans with editor=message.editor %}
@@ -138,6 +115,22 @@
                         </form>
                     </li>
                 {% endif %}
+                <li>
+                    <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
+                        {% trans "Signaler" %}
+                    </a>
+                    <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
+                        {% csrf_token %}
+                        <label for="signal-message-{{ message.id }}-field">
+                            {% trans "Pour quelle raison signalez-vous ce message" %} ?
+                        </label>
+                        <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, ..." pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
+
+                        <button type="submit" name="signal_message">
+                            {% trans "Signaler" %}
+                        </button>
+                    </form>
+                </li>
             </ul>
         {% endif %}
 
@@ -171,7 +164,7 @@
                 {% trans "Cette réponse a aidé l'auteur du sujet" %}
             </p>
 
-            {% if message.is_visible != False %}
+            {% if message.is_visible %}
                 <div itemprop="text">
                     {{ message.text_html|safe }}
                 </div>
@@ -220,7 +213,7 @@
             {% endfor %}
         {% endif %}
 
-        {% if message.is_visible != False %}
+        {% if message.is_visible %}
             <div class="message-bottom">
                 {% with profile=message.author|profile %}
                     {% if profile.sign %}
@@ -240,8 +233,8 @@
                     {% endif %}
                 {% endwith %}
 
-                {% if upvote_link %}
-                    <div class="message-karma">
+                {% if karma_link %}
+                    <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
                         {% if user.is_authenticated and helpful_link and not is_author %}
                             {% if message.author != user or perms_change %}
                                 {% if topic.author == user or perms_change %}
@@ -270,35 +263,29 @@
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
-                            <form action="{{ upvote_link }}" method="post">
-                                {% csrf_token %}
-                                <button
-                                    type="submit"
-                                    title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
-                                    class="upvote
-                                           ico-after
-                                           {% if message.like > message.dislike %}more-voted{% endif %}
-                                           {% if message.like > 0 %}has-vote{% endif %}
-                                           {% if user|liked:message.pk %}voted{% endif %}"
-                                >
-                                    +{{ message.like }}
-                                </button>
-                            </form>
+                            <button
+                                value="{% if message.pk in user_like %}neutral{% else %}like{% endif %}"
+                                title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
+                                class="upvote
+                                       ico-after
+                                       {% if message.like > message.dislike %}more-voted{% endif %}
+                                       {% if message.like > 0 %}has-vote{% endif %}
+                                       {% if message.pk in user_like %}voted{% endif %}"
+                            >
+                                +{{ message.like }}
+                            </button>
 
-                            <form action="{{ downvote_link }}" method="post">
-                                {% csrf_token %}
-                                <button
-                                    type="submit"
-                                    title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
-                                    class="downvote
-                                           ico-after
-                                           {% if message.like < message.dislike %}more-voted{% endif %}
-                                           {% if message.dislike > 0 %}has-vote{% endif %}
-                                           {% if user|disliked:message.pk %}voted{% endif %}"
-                                >
-                                    -{{ message.dislike }}
-                                </button>
-                            </form>
+                            <button
+                                value="{% if message.pk in user_dislike %}neutral{% else %}dislike{% endif %}"
+                                title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
+                                class="downvote
+                                       ico-after
+                                       {% if message.like < message.dislike %}more-voted{% endif %}
+                                       {% if message.dislike > 0 %}has-vote{% endif %}
+                                       {% if message.pk in user_dislike %}voted{% endif %}"
+                            >
+                                -{{ message.dislike }}
+                            </button>
                         {% else %}
                             <span
                                 class="upvote
@@ -309,9 +296,7 @@
                                     title="{{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile"
                                 {% endif %}
                             >
-                                +<span itemprop="upvoteCount">
-                                    {{ message.like }}
-                                </span>
+                                +{{ message.like }}
                             </span>
                             <span
                                 class="downvote
@@ -322,9 +307,7 @@
                                     title="{{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile"
                                 {% endif %}
                             >
-                                -<span itemprop="downvoteCount">
-                                    {{ message.dislike }}
-                                </span>
+                                -{{ message.dislike }}
                             </span>
                         {% endif %}
                     </div>

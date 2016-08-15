@@ -70,7 +70,7 @@ Pour utiliser les factories, il vous faudra vous référer à la documentation d
 - les champs personnalisés qui sont faits pour indiquer des comportements complémentaires à la commande
   par exemple, avec la zds.utils.HelpWrittingFactory, utiliser ``fixture_image_path`` vous permettra de renseigner le chemin relatif de l'image dans le dossier ``fixtures`` plutôt que le chemin absolu.
 
-Bien que ce module soit optionnel, si vous désirez qu'il soit possible de demander de l'aide sur les tutoriels et articles, 
+Bien que ce module soit optionnel, si vous désirez qu'il soit possible de demander de l'aide sur les tutoriels et articles,
 il vous faudra utiliser ``python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml``.
 
 Tester sur un jeu de données massif
@@ -88,6 +88,7 @@ Pour l'utiliser il suffit de lancer ``python manage.py load_fixtures size=SIZE t
 .. note::
     Vous pouvez remplacer ``size`` par ``sizes``, ``taille`` ou ``level``.
     Vous pouvez remplacer ``type`` par ``types``.
+    Vous pouvez ajouter ``racine`` qui permet de changer la base pour le nommage des utilisateurs (« user » par défaut).
 
 Les types à charger sont en fait les modèles de données qui seront créés.
 
@@ -105,11 +106,11 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 |staff                            |Profile (avec droit de staff)      |3                            |
 +---------------------------------+-----------------------------------+-----------------------------+
-|gallery                          |Gallery/UserGallery (au hasard)    |3 (par user)                 |
+|gallery                          |Gallery/UserGallery (au hasard)    |1 (par user)                 |
 |                                 +-----------------------------------+-----------------------------+
-|                                 |Image                              |5 (par gallery)              |
+|                                 |Image                              |3 (par gallery)              |
 +---------------------------------+-----------------------------------+-----------------------------+
-|category_forum                   |forum.Category                     |8                            |
+|category_forum                   |forum.Category                     |4                            |
 +---------------------------------+-----------------------------------+-----------------------------+
 |category_content                 |Licence                            | Plusieurs [#lic]_           |
 |                                 +-----------------------------------+-----------------------------+
@@ -119,15 +120,15 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 |forum                            |utils.Forum                        |8                            |
 +---------------------------------+-----------------------------------+-----------------------------+
-|tag                              |Tag                                |50                           |
+|tag                              |Tag                                |30                           |
 +---------------------------------+-----------------------------------+-----------------------------+
-|topic                            |Topic (dont *sticky* et *locked*)  |20                           |
+|topic                            |Topic (dont *sticky* et *locked*)  |10                           |
 +---------------------------------+-----------------------------------+-----------------------------+
-|post                             |Post                               |10 (par topic) [#moy]_       |
+|post                             |Post                               |20 (par topic) [#moy]_       |
 +---------------------------------+-----------------------------------+-----------------------------+
-|comment                          |ContentReaction                    |10 (par contenu) [#moy]_     |
+|comment                          |ContentReaction                    |20 (par contenu) [#moy]_     |
 +---------------------------------+-----------------------------------+-----------------------------+
-|tutorial2 et article2            |PublishableContent [#cv2]_         |10                           |
+|tutorial et article              |PublishableContent [#cv2]_         |10                           |
 +---------------------------------+-----------------------------------+-----------------------------+
 
 

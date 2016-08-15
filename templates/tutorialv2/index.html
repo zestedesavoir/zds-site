@@ -3,6 +3,7 @@
 {% load date %}
 {% load i18n %}
 {% load captureas %}
+{% load interventions %}
 
 
 {% block title %}
@@ -59,10 +60,10 @@
             <div class="content-item-list clearfix">
                 {% for tutorial in tutorials %}
                     {% if filter == 'public' %}
-                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with show_description=True public_tutorial=tutorial.public_version %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=tutorial.public_version content=tutorial%}
                     {% else %}
                         {% captureas type %}{% if filter == "beta" %}beta{% endif %}{% endcaptureas %}
-                        {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with show_description=True type=type %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True type=type content=tutorial%}
                     {% endif %}
                 {% endfor %}
                 <div class="fill"></div>
@@ -73,10 +74,10 @@
             <div class="content-item-list clearfix">
                 {% for article in articles %}
                     {% if filter == 'public' %}
-                        {% include "tutorialv2/includes/content_item_type_article.part.html" with show_description=True public_article=article.public_version %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=article.public_version content=article show_reactions=True %}
                     {% else %}
                         {% captureas type %}{% if filter == "beta" %}beta{% endif %}{% endcaptureas %}
-                        {% include "tutorialv2/includes/content_item_type_article.part.html" with show_description=True type=type %}
+                        {% include "tutorialv2/includes/content_item.part.html" with show_description=True type=type content=article %}
                     {% endif %}
                 {% endfor %}
                 <div class="fill"></div>
@@ -112,13 +113,51 @@
     </a>
 {% endblock %}
 
+{% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+    </li>
+    {% if usr != user and user.is_authenticated %}
+        <li>
+            {% with content_is_followed=usr|is_new_publication_followed %}
+                {% url 'content:follow' usr.pk as link_follow %}
+                {% if content_is_followed %}
+                    {% trans "Suivre ses publications" as data_onclick %}
+                    {% trans "Désinscription à ses publications" as button_text %}
+                {% else %}
+                    {% trans "Suivre ses publications" as button_text %}
+                    {% trans "Désinscription à ses publications" as data_onclick %}
+                {% endif %}
+                {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+            {% endwith %}
+        </li>
+        <li>
+            {% with content_is_followed=usr|is_new_publication_email_followed %}
+                {% url 'content:follow' usr.pk as link_follow %}
+                {% if content_is_followed %}
+                    {% trans "Suivre ses publications par courriel" as data_onclick %}
+                    {% trans "Ne plus être notifié par courriel" as button_text %}
+                {% else %}
+                    {% trans "Suivre ses publications par courriel" as button_text %}
+                    {% trans "Ne plus être notifié par courriel" as data_onclick %}
+                {% endif %}
+                {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+            {% endwith %}
+        </li>
+    {% endif %}
+{% endblock %}
+
 {% block sidebar_blocks %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
         <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
             <h3>Filtrer</h3>
             <ul>
                 {% for current_filter in filters %}
-                    <li><a href="{% append_to_get filter=current_filter.key %}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                    {% if tutorials != None %}
+                        <li><a href="{% url "content:find-tutorial" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                    {% elif articles != None %}
+                        <li><a href="{% url "content:find-article" usr.pk %}?filter={{ current_filter.key }}" class="ico-after {{ current_filter.icon }} {% if filter == current_filter.key %}selected{% endif %}">{{ current_filter.text }}</a> </li>
+                    {% endif %}
                 {% endfor %}
             </ul>
         </div>

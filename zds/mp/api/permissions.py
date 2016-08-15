@@ -24,14 +24,14 @@ class IsParticipantFromPrivatePost(permissions.BasePermission):
         return private_topic.is_participant(request.user)
 
 
-class IsAloneInPrivatePost(permissions.BasePermission):
+class IsNotAloneInPrivatePost(permissions.BasePermission):
     """
     Custom permission to know if a member is the only participant in a private topic.
     """
 
     def has_permission(self, request, view):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
-        return private_topic.participants.count() == 0
+        return not private_topic.alone()
 
 
 class IsLastPrivatePostOfCurrentUser(permissions.BasePermission):

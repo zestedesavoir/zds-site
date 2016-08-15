@@ -1,12 +1,14 @@
 # coding: utf-8
-from datetime import datetime
+import logging
 import json as json_reader
-import zipfile
+import os
+import re
 import shutil
 import tempfile
 import time
+import zipfile
+from datetime import datetime
 
-import re
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
@@ -19,20 +21,22 @@ from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_text
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import string_concat
+from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, DeleteView, RedirectView
 from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
-import os
-from zds.forum.models import Forum
+from uuslug import slugify
+
+from zds.forum.models import Forum, mark_read
+from zds.forum.models import Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.models import Profile
+from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
-    ExtractForm, BetaForm, MoveElementForm, AuthorForm, CancelValidationForm
+    ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -41,13 +45,11 @@ from zds.tutorialv2.models.models_versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
-from uuslug import slugify
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-from zds.forum.models import Topic, follow, mark_read
-from zds.utils.models import Tag, HelpWriting
-from zds.utils.mps import send_mp
-from zds.utils.paginator import ZdSPagingListView
 from zds.utils.models import Licence
+from zds.utils.models import HelpWriting
+from zds.utils.mps import send_mp
+from zds.utils.paginator import ZdSPagingListView, make_pagination
 
 
 class RedirectOldBetaTuto(RedirectView):
@@ -59,7 +61,7 @@ class RedirectOldBetaTuto(RedirectView):
     def get_redirect_url(self, **kwargs):
         tutorial = PublishableContent.objects.filter(type="TUTORIAL", old_pk=kwargs["pk"]).first()
         if tutorial is None or tutorial.sha_beta is None or tutorial.sha_beta == "":
-            raise Http404(_(u"Aucun contenu en bêta trouvé avec cet ancien identifiant."))
+            raise Http404(u"Aucun contenu en bêta trouvé avec cet ancien identifiant.")
         return tutorial.get_absolute_url_beta()
 
 
@@ -124,6 +126,9 @@ class CreateContent(LoggedWithReadWriteHability, FormView):
         # Add helps if needed
         for helpwriting in form.cleaned_data["helps"]:
             self.content.helps.add(helpwriting)
+
+        # Add tags
+        self.content.add_tags(form.cleaned_data["tags"].split(','))
 
         self.content.save()
 
@@ -202,7 +207,7 @@ class DisplayBetaContent(DisplayContent):
         obj = super(DisplayBetaContent, self).get_object(queryset)
 
         if not obj.sha_beta or obj.sha_beta == '':
-            raise Http404(_(u"Aucune bêta n'existe pour ce contenu."))
+            raise Http404(u"Aucune bêta n'existe pour ce contenu.")
 
         else:
             self.sha = obj.sha_beta
@@ -231,6 +236,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         initial['conclusion'] = versioned.get_conclusion()
         initial['licence'] = versioned.licence
         initial['subcategory'] = self.object.subcategory.all()
+        initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         initial['helps'] = self.object.helps.all()
 
         initial['last_hash'] = versioned.compute_hash()
@@ -300,6 +306,9 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         publishable.subcategory.clear()
         for subcat in form.cleaned_data["subcategory"]:
             publishable.subcategory.add(subcat)
+
+        publishable.tags.clear()
+        publishable.add_tags(form.cleaned_data['tags'].split(','))
 
         publishable.helps.clear()
         for help in form.cleaned_data["helps"]:
@@ -616,7 +625,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.pubdate = datetime.now()
             pic.save()
 
-            translation_dic[image_path] = settings.ZDS_APP['site']['url'] + pic.physical.url
+            translation_dic[image_path] = settings.ZDS_APP['site']['secure_url'] + pic.physical.url
 
             # finally, remove image
             if os.path.exists(temp_image_path):
@@ -989,7 +998,7 @@ class DisplayBetaContainer(DisplayContainer):
         obj = super(DisplayBetaContainer, self).get_object(queryset)
 
         if not obj.sha_beta or obj.sha_beta == '':
-            raise Http404(_(u"Aucune bêta n'existe pour ce contenu."))
+            raise Http404(u"Aucune bêta n'existe pour ce contenu.")
 
         else:
             self.sha = obj.sha_beta
@@ -1174,7 +1183,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
             try:
                 to_delete = parent.children_dict[self.kwargs['object_slug']]
             except KeyError:
-                raise Http404(_(u"Impossible de récupérer le contenu pour le supprimer."))
+                raise Http404(u"Impossible de récupérer le contenu pour le supprimer.")
 
         sha = to_delete.repo_delete()
 
@@ -1199,7 +1208,15 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         context = super(DisplayHistory, self).get_context_data(**kwargs)
 
         repo = self.versioned_object.repository
-        context['commits'] = objects.commit.Commit.iter_items(repo, 'HEAD')
+        commits = list(objects.commit.Commit.iter_items(repo, 'HEAD'))
+
+        # Pagination of commits
+        make_pagination(
+            context,
+            self.request,
+            commits,
+            settings.ZDS_APP['content']['commits_per_page'],
+            context_list_name="commits")
 
         # Git empty tree is 4b825dc642cb6eb9a060e54bf8d69288fbee4904, see
         # http://stackoverflow.com/questions/9765453/gits-semi-secret-empty-tree
@@ -1223,7 +1240,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
         context = super(DisplayDiff, self).get_context_data(**kwargs)
 
         if 'from' not in self.request.GET:
-            raise Http404(_(u"Paramètre GET 'from' manquant."))
+            raise Http404(u"Paramètre GET 'from' manquant.")
         if 'to' not in self.request.GET:
             raise Http404(u"Paramètre GET 'to' manquant.")
 
@@ -1235,8 +1252,13 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
             commit_to = repo.commit(self.request.GET['to'])
             # commit_to.diff raises GitErrorCommand if 00..00 SHA for instance
             tdiff = commit_to.diff(commit_from, R=True)
-        except (GitCommandError, BadName, BadObject):
-            raise Http404
+        except (GitCommandError, BadName, BadObject) as git_error:
+            logging.getLogger("zds.tutorialv2").warn(git_error)
+            raise Http404(u'En traitant le contenu {} git a lancé une erreur de type {}:{}'.format(
+                self.object.title,
+                type(git_error),
+                str(git_error)
+            ))
 
         context['commit_from'] = commit_from
         context['commit_to'] = commit_to
@@ -1263,26 +1285,16 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     action = None
 
     def _get_all_tags(self):
-        all_tags = []
-        categories = self.object.subcategory.all()
-        names = [smart_text(category.title).lower() for category in categories]
-        existing_tags = Tag.objects.filter(title__in=names).all()
-        existing_tags_names = [tag.title for tag in existing_tags]
-        unexisting_tags = list(set(names) - set(existing_tags_names))
-        for tag in unexisting_tags:
-            new_tag = Tag()
-            new_tag.title = tag[:20]
-            new_tag.save()
-            all_tags.append(new_tag)
-        all_tags += existing_tags
-        return all_tags
+        return list(self.object.tags.all())
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
-        tags = "[beta][{}]".format(_type)
+        _tags = "[beta][{}]".format(_type)
         i = 0
-        while len(topic_title) + len(tags) + len(tags[i]) + 2 < Topic._meta.get_field("title").max_length:
-            tags += '[{}]'.format(tags[i])
+        max_len = Topic._meta.get_field("title").max_length
+
+        while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i].title) + 2 < max_len:
+            _tags += '[{}]'.format(tags[i])
             i += 1
         forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
         topic = create_topic(request=self.request,
@@ -1295,8 +1307,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         topic.save()
         # make all authors follow the topic:
         for author in self.object.authors.all():
-            if not topic.is_followed(author):
-                follow(topic, author)
+            TopicAnswerSubscription.objects.get_or_create_active(author, topic)
             mark_read(topic, author)
 
         return topic
@@ -1397,9 +1408,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
                     # make sure that all authors follow the topic:
                     for author in self.object.authors.all():
-                        if not topic.is_followed(author):
-                            follow(topic, author)
-                            mark_read(topic, author)
+                        TopicAnswerSubscription.objects.get_or_create_active(author, topic)
+                        mark_read(topic, author)
 
             # finally set the tags on the topic
             if topic:
@@ -1463,7 +1473,7 @@ class WarnTypo(SingleContentFormViewMixin):
         if form.content.is_public:
             is_public = True
         elif not form.content.is_beta:
-            raise Http404(_(u"Le contenu n'est ni public, ni en bêta."))
+            raise Http404(u"Le contenu n'est ni public, ni en bêta.")
 
         if len(authors) == 0:
             if self.object.authors.count() > 1:
@@ -1577,10 +1587,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         child_slug = form.data['child_slug']
 
         if base_container_slug == '':
-            raise Http404(_(u"Le slug du container de base est vide."))
+            raise Http404(u"Le slug du container de base est vide.")
 
         if child_slug == '':
-            raise Http404(_(u"Le slug du container enfant est vide."))
+            raise Http404(u"Le slug du container enfant est vide.")
 
         if base_container_slug == versioned.slug:
             parent = versioned
@@ -1598,8 +1608,12 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             child = parent.children_dict[child_slug]
             if form.data['moving_method'] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
+                logging.getLogger("zds.tutorialv2").debug("{} was moved up in tutorial id:{}".format(child_slug,
+                                                                                                     content.pk))
             elif form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
+                logging.getLogger("zds.tutorialv2").debug("{} was moved down in tutorial id:{}".format(child_slug,
+                                                                                                       content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
                 if not parent.has_child_with_path(target):
@@ -1609,7 +1623,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
                         if target.split("/")[-1] not in target_parent.children_dict:
-                            raise Http404(_(u"La cible n'est pas un enfant du parent."))
+                            raise Http404(u"La cible n'est pas un enfant du parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
@@ -1618,6 +1632,9 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_after(child_slug, target.split("/")[-1])
+                logging.getLogger("zds.tutorialv2").debug("{} was moved after {} in tutorial id:{}".format(child_slug,
+                                                                                                           target,
+                                                                                                           content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
                 if not parent.has_child_with_path(target):
@@ -1627,7 +1644,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                         target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
                         if target.split("/")[-1] not in target_parent.children_dict:
-                            raise Http404(_(u"La cible n'est pas un enfant du parent."))
+                            raise Http404(u"La cible n'est pas un enfant du parent.")
                     child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
@@ -1635,9 +1652,11 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
+                logging.getLogger("zds.tutorialv2").debug("{} was moved before {} in tutorial id:{}".format(child_slug,
+                                                                                                            target,
+                                                                                                            content.pk))
             versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
-
             parent.repo_update(parent.title,
                                parent.get_introduction(),
                                parent.get_conclusion(),
@@ -1653,9 +1672,11 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             messages.warning(self.request, _(u"Vous n'avez pas complètement rempli le formulaire,"
                                              u"ou bien il est impossible de déplacer cet élément."))
         except ValueError as e:
-            raise Http404(_(u"L'arbre spécifié n'est pas valide." + str(e)))
+            raise Http404(u"L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
             messages.warning(self.request, _(u"L'élément se situe déjà à la place souhaitée."))
+            logging.getLogger("zds.tutorialv2").debug(u"L'élément {} se situe déjà à la place souhaitée."
+                                                      .format(child_slug))
         except TypeError:
             messages.error(self.request, _(u"L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:
@@ -1716,6 +1737,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
 class RemoveAuthorFromContent(AddAuthorToContent):
 
+    form_class = RemoveAuthorForm
+
     @staticmethod
     def remove_author(content, user):
         """Remove an user from the authors and ensure that he is access to the content's gallery is also removed.
@@ -1771,10 +1794,10 @@ class RemoveAuthorFromContent(AddAuthorToContent):
 
         if not current_user:  # if the removed author is not current user
             messages.success(
-                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de « {} ».').format(authors_list, _type))
+                self.request, _(u'Vous avez enlevé {} de la liste des auteurs de {}.').format(authors_list, _type))
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
-            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de « {} ».').format(_type))
+            messages.success(self.request, _(u'Vous avez bien quitté la rédaction de {}.').format(_type))
             self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
         self.already_finished = True  # this one is kind of tricky : because of inheritance we used to force redirection
         # to the content itself. This does not please me but I think it is better to do that like that instead of
@@ -1814,14 +1837,14 @@ class ContentOfAuthor(ZdSPagingListView):
                 if not self.authorized_filters[filter_][2]:
                     raise PermissionDenied
             else:
-                raise Http404(_(u"Le filtre n'est pas autorisé."))
+                raise Http404(u"Le filtre n'est pas autorisé.")
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         if self.type in TYPE_CHOICES_DICT.keys():
             queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
         else:
-            raise Http404(_(u"Ce type de contenu est inconnu dans le système."))
+            raise Http404(u"Ce type de contenu est inconnu dans le système.")
 
         # prefetch:
         queryset = queryset\
@@ -1834,7 +1857,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if 'filter' in self.request.GET:
             self.filter = self.request.GET['filter'].lower()
             if self.filter not in self.authorized_filters:
-                raise Http404(_(u"Le filtre n'est pas autorisé."))
+                raise Http404(u"Le filtre n'est pas autorisé.")
         elif self.user != self.request.user:
             self.filter = 'public'
         if self.filter != '':
@@ -1854,6 +1877,7 @@ class ContentOfAuthor(ZdSPagingListView):
         context['filters'] = []
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
+        context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
 
         context['usr'] = self.user
         for sort in self.sorts.keys():

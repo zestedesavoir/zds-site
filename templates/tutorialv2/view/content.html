@@ -50,11 +50,11 @@
             {% if validation.version == content.current_version %}
                 {% if validation.is_pending %}
                     <p class="content-wrapper alert-box alert">
-                        {% trans "Ce tutoriel est en attente d'un validateur" %}
+                        {% trans "Ce contenu est en attente d'un validateur." %}
                     </p>
                 {% elif validation.is_pending_valid %}
                     <p class="content-wrapper alert-box info">
-                        {% trans "Le tutoriel est en cours de validation par" %}
+                        {% trans "Ce contenu est en cours de validation par" %}
                         {% include "misc/member_item.part.html" with member=validation.validator %}
                     </p>
                 {% endif %}
@@ -73,13 +73,15 @@
                 {% if validation.is_pending %}
                     <p class="content-wrapper alert-box alert">
                         <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
-                            {% trans "Une autre version de ce tutoriel" %}</a>
+                            {% trans "Une autre version de ce contenu" %}
+                        </a>
                         {% trans "est en attente d'un validateur" %}
                     </p>
                 {% elif validation.is_pending_valid %}
                     <p class="content-wrapper alert-box info">
                         <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
-                            {% trans "Une autre version de ce tutoriel" %}</a>
+                            {% trans "Une autre version de ce contenu" %}
+                        </a>
                         {% trans "est en cours de validation par" %}
                         {% include "misc/member_item.part.html" with member=validation.validator %}
                     </p>
@@ -131,12 +133,7 @@
         {%  include "tutorialv2/includes/child.part.html" with child=child %}
     {% empty %}
         <p class="ico-after warning">
-            {% if content.is_article %}
-                {% trans "Cet article" %}
-            {% else %}
-                {% trans "Ce tutoriel" %}
-            {% endif %}
-            {% trans " est actuellement vide" %}.
+            {% trans "Ce contenu est actuellement vide" %}.
         </p>
     {% endfor %}
 
@@ -249,7 +246,7 @@
                     <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                     <p>
                         {% blocktrans with content_title=content.title %}
-                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta du tutoriel
+                        Êtes-vous certain de vouloir <strong>activer</strong> la bêta de ce contenu
                         "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                         {% endblocktrans %}
                     </p>
@@ -276,7 +273,7 @@
                         <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                         <p>
                             {% blocktrans with content_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta du tutoriel
+                            Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta de ce contenu
                             "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                             {% endblocktrans %}
                         </p>
@@ -306,7 +303,7 @@
                     <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
                     <p>
                         {% blocktrans with content_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta du tutoriel "<em>{{ content_title }}</em>" ?
+                        Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta de ce contenu "<em>{{ content_title }}</em>" ?
                         {% endblocktrans %}
                     </p>
                     <button type="submit">
@@ -460,7 +457,9 @@
                                 <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-flex" id="unreservation">
                                     {% csrf_token %}
                                     <p>
-                                        {% trans "La validation de ce tutoriel est actuellement réservée par" %} {% include "misc/member_item.part.html" with member=validation.validator %}. {% trans "Êtes-vous certain de vouloir le retirer" %} ?
+                                        {% trans "La validation de ce contenu est actuellement réservée par" %}
+                                        {% include "misc/member_item.part.html" with member=validation.validator %}.
+                                        {% trans "Êtes-vous certain de vouloir le retirer" %} ?
                                     </p>
                                     <button type="submit">
                                         {% trans "Confirmer" %}

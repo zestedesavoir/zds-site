@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
+from zds.notification import signals
+
 from zds.utils import get_current_user, slugify
 
 
@@ -320,7 +322,7 @@ def never_privateread(privatetopic, user=None):
     if user is None:
         user = get_current_user()
 
-    return PrivateTopicRead.objects\
+    return PrivateTopicRead.objects \
         .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user) \
         .count() == 0
 
@@ -340,7 +342,14 @@ def mark_read(privatetopic, user=None):
     if user is None:
         user = get_current_user()
 
-    # Delete the old PrivateTopic and add the new as the last read
-    PrivateTopicRead.objects.filter(privatetopic=privatetopic, user=user).delete()
-    topic = PrivateTopicRead(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)
+    # Fetch the privateTopicRead concerning the given privateTopic and given (or current) user
+    # Set the last read post as the current last post and save
+    try:
+        topic = PrivateTopicRead.objects.filter(privatetopic=privatetopic, user=user).get()
+        topic.privatepost = privatetopic.last_message
+    # Or create it if it does not exists yet
+    except PrivateTopicRead.DoesNotExist:
+        topic = PrivateTopicRead(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)
+
     topic.save()
+    signals.content_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)

@@ -1,20 +1,17 @@
 # coding: utf-8
 
 import json
-
 from datetime import datetime
-from django.core.mail import EmailMultiAlternatives
+
 from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render, render_to_response
-from django.template.loader import render_to_string
-from django.utils.translation import ugettext as _
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 
-from zds import settings
-from zds.forum.models import Topic, Post, follow, TopicRead
+from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
 from zds.utils.mixins import QuoteMixin
+from zds.utils.models import CommentVote
 
 
 def get_tag_by_title(title):
@@ -98,7 +95,7 @@ def create_topic(
     return n_topic
 
 
-def send_post(request, topic, author, text, send_by_mail=False,):
+def send_post(request, topic, author, text,):
     post = Post()
     post.topic = topic
     post.author = author
@@ -113,41 +110,6 @@ def send_post(request, topic, author, text, send_by_mail=False,):
 
     topic.last_message = post
     topic.save()
-
-    # Send mail
-    if send_by_mail:
-        subject = u"{} - {} : {}".format(settings.ZDS_APP['site']['litteral_name'], _(u'Forum'), topic.title)
-        from_email = "{} <{}>".format(settings.ZDS_APP['site']['litteral_name'],
-                                      settings.ZDS_APP['site']['email_noreply'])
-
-        followers = topic.get_followers_by_email()
-        for follower in followers:
-            receiver = follower.user
-            if receiver == post.author:
-                continue
-            last_read = TopicRead.objects.filter(
-                topic=topic,
-                post__position=post.position - 1,
-                user=receiver).count()
-            if last_read > 0:
-                context = {
-                    'username': receiver.username,
-                    'title': topic.title,
-                    'url': settings.ZDS_APP['site']['url'] + post.get_absolute_url(),
-                    'author': post.author.username,
-                    'site_name': settings.ZDS_APP['site']['litteral_name']
-                }
-                message_html = render_to_string('email/forum/new_post.html', context)
-                message_txt = render_to_string('email/forum/new_post.txt', context)
-
-                msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
-                msg.attach_alternative(message_html, "text/html")
-                msg.send()
-
-    # Follow topic on answering
-    if not topic.is_followed(user=post.author):
-        follow(topic)
-
     return topic
 
 
@@ -177,12 +139,28 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
                 return HttpResponse(json.dumps({'text': text}), content_type='application/json')
 
         form = self.create_forum(self.form_class, **{'text': text})
-        return render(request, self.template_name, {
+        context = {
             'topic': self.object,
-            'posts': self.posts,
+            'posts': list(self.posts),
             'last_post_pk': self.object.last_message.pk,
             'form': form,
-        })
+        }
+
+        votes = CommentVote.objects.filter(user_id=self.request.user.pk,
+                                           comment_id__in=[p.pk for p in context['posts']]).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
+        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+
+        if hasattr(self.object, 'antispam'):
+            context['isantispam'] = self.object.antispam()
+
+        if self.request.user.has_perm('forum.change_topic'):
+            context["user_can_modify"] = [post.pk for post in context['posts']]
+        else:
+            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)

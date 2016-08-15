@@ -3,7 +3,7 @@
 from django.conf.urls import url
 
 from zds.member.views import MemberList, MemberDetail, UpdateMember, UpdateAvatarMember, UpdatePasswordMember, \
-    UpdateUsernameEmailMember, RegisterView, SendValidationEmailView, add_oldtuto, remove_oldtuto, modify_karma, \
+    UpdateUsernameEmailMember, RegisterView, SendValidationEmailView, modify_karma, \
     modify_profile, settings_mini_profile, member_from_ip, tutorials, articles, settings_promote, login_view, \
     logout_view, forgot_password, new_password, active_account, generate_token_account, unregister, warning_unregister
 
@@ -19,10 +19,6 @@ urlpatterns = [
     url(r'^parametres/profil/maj_avatar/$', UpdateAvatarMember.as_view(), name='update-avatar-member'),
     url(r'^parametres/compte/$', UpdatePasswordMember.as_view(), name='update-password-member'),
     url(r'^parametres/user/$', UpdateUsernameEmailMember.as_view(), name='update-username-email-member'),
-
-    # old tuto
-    url(r'^profil/lier/$', add_oldtuto, name='member-add-oldtuto'),
-    url(r'^profil/delier/$', remove_oldtuto, name='member-remove-oldtuto'),
 
     # moderation
     url(r'^profil/karmatiser/$', modify_karma, name='member-modify-karma'),

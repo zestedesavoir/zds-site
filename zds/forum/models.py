@@ -1,21 +1,22 @@
 # coding: utf-8
 
-from django.conf import settings
-from django.db import models
-from zds.settings import ZDS_APP
-from zds.utils import slugify
-from math import ceil
 import os
 import string
 import uuid
-
-from django.contrib.auth.models import Group, User
 from datetime import datetime, timedelta
+from math import ceil
+
+from django.conf import settings
+from django.contrib.auth.models import Group, User
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.utils.encoding import smart_text
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
+from zds.notification import signals
+from zds.settings import ZDS_APP
 from zds.utils import get_current_user
+from zds.utils import slugify
 from zds.utils.models import Comment, Tag
 
 
@@ -183,7 +184,8 @@ class Topic(models.Model):
         verbose_name_plural = 'Sujets'
 
     title = models.CharField('Titre', max_length=80)
-    subtitle = models.CharField('Sous-titre', max_length=200)
+    subtitle = models.CharField('Sous-titre', max_length=200, null=True,
+                                blank=True)
 
     forum = models.ForeignKey(Forum, verbose_name='Forum', db_index=True)
     author = models.ForeignKey(User, verbose_name='Auteur',
@@ -277,12 +279,6 @@ class Topic(models.Model):
             self.tags.add(current_tag)
         self.save()
 
-    def get_followers_by_email(self):
-        """
-        :return: the set of users that follows this topic by email.
-        """
-        return TopicFollowed.objects.filter(topic=self, email=True).select_related("user")
-
     def last_read_post(self):
         """
         Returns the last post the current user has read in this topic.
@@ -354,7 +350,7 @@ class Topic(models.Model):
             self.get_absolute_url(),
             pk['pk'])
 
-    def first_unread_post(self):
+    def first_unread_post(self, user=None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
         this topic.\
@@ -364,9 +360,12 @@ class Topic(models.Model):
         """
         # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
+            if user is None:
+                user = get_current_user()
+
             last_post = TopicRead.objects \
                                  .filter(topic__pk=self.pk,
-                                         user__pk=get_current_user().pk) \
+                                         user__pk=user.pk) \
                                  .latest('post__position').post
 
             next_post = Post.objects.filter(topic__pk=self.pk,
@@ -375,32 +374,6 @@ class Topic(models.Model):
             return next_post
         except (TopicRead.DoesNotExist, Post.DoesNotExist):
             return self.first_post()
-
-    def is_followed(self, user=None):
-        """
-        Checks if the user follows this topic.
-        :param user: An user. If undefined, the current user is used.
-        :return: `True` if the user follows this topic, `False` otherwise.
-        """
-        if user is None:
-            user = get_current_user()
-
-        return TopicFollowed.objects.filter(topic=self, user=user).exists()
-
-    def is_email_followed(self, user=None):
-        """
-        Checks if the user follows this topic by email.
-        :param user: An user. If undefined, the current user is used.
-        :return: `True` if the user follows this topic by email, `False` otherwise.
-        """
-        if user is None:
-            user = get_current_user()
-
-        try:
-            TopicFollowed.objects.get(topic=self, user=user, email=True)
-        except TopicFollowed.DoesNotExist:
-            return False
-        return True
 
     def antispam(self, user=None):
         """
@@ -442,9 +415,6 @@ class Topic(models.Model):
                 return True
 
         return False
-
-    def never_read(self):
-        return never_read(self)
 
 
 class Post(Comment):
@@ -495,40 +465,36 @@ class TopicRead(models.Model):
                                                         self.post.pk)
 
 
-class TopicFollowed(models.Model):
+def get_last_topics(user):
+    """Returns the 5 very last topics."""
+    # TODO semble inutilisé (et peu efficace dans la manière de faire)
+    topics = Topic.objects.all().order_by('-last_message__pubdate')
+
+    tops = []
+    cpt = 1
+    for topic in topics:
+        if topic.forum.can_read(user):
+            tops.append(topic)
+            cpt += 1
+        if cpt > 5:
+            break
+    return tops
+
+
+def is_read(topic, user=None):
     """
-    This model tracks which user follows which topic.
-    It serves only to manual topic following.
-    This model also indicates if the topic is followed by email.
-    """
-    class Meta:
-        verbose_name = 'Sujet suivi'
-        verbose_name_plural = 'Sujets suivis'
-
-    topic = models.ForeignKey(Topic, db_index=True)
-    user = models.ForeignKey(User, related_name='topics_followed', db_index=True)
-    email = models.BooleanField('Notification par courriel', default=False, db_index=True)
-
-    def __unicode__(self):
-        return u'<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
-                                                     self.user.username)
-
-
-def never_read(topic, user=None):
-    """
-    Check if the user has read the **last post** of the topic.
-    Note if the user has already read the topic but not the last post, it will consider it has never read the topic...
-    Technically this is done by check if there is a `TopicRead` for the topic, its last post and the user.
+    Checks if the user has read the **last post** of the topic.
+    Returns false if the user read the topic except its last post.
+    Technically this is done by checking if the user has a `TopicRead` object
+    for the last post of this topic.
     :param topic: A topic
     :param user: A user. If undefined, the current user is used.
     :return:
     """
-    # TODO: cette méthode est très mal nommée en plus d'avoir un nom "booléen négatif" !
     if user is None:
         user = get_current_user()
 
-    return not TopicRead.objects\
-        .filter(post=topic.last_message, topic=topic, user=user).exists()
+    return TopicRead.objects.filter(post=topic.last_message, topic=topic, user=user).exists()
 
 
 def mark_read(topic, user=None):
@@ -547,69 +513,4 @@ def mark_read(topic, user=None):
         else:
             current_topic_read.post = topic.last_message
         current_topic_read.save()
-
-
-def follow(topic, user=None):
-    """
-    Toggle following of a topic for an user.
-    :param topic: A topic.
-    :param user: A user. If undefined, the current user is used.
-    :return: `True` if the topic is now followed, `False` if is has been un-followed.
-    """
-    if user is None:
-        user = get_current_user()
-    try:
-        existing = TopicFollowed.objects.get(topic=topic, user=user)
-    except TopicFollowed.DoesNotExist:
-        existing = None
-
-    if not existing:
-        # Make the user follow the topic
-        topic_followed = TopicFollowed(topic=topic, user=user)
-        topic_followed.save()
-        return True
-
-    # If user is already following the topic, we make him don't anymore
-    existing.delete()
-    return False
-
-
-def follow_by_email(topic, user=None):
-    """
-    Toggle following by email of a topic for an user.
-    :param topic: A topic.
-    :param user: A user. If undefined, the current user is used.
-    :return: `True` if the topic is now followed, `False` if is has been un-followed.
-    """
-    if user is None:
-        user = get_current_user()
-    try:
-        existing = TopicFollowed.objects.get(topic=topic, user=user)
-    except TopicFollowed.DoesNotExist:
-        existing = None
-
-    if not existing:
-        # Make the user follow the topic
-        topic_followed = TopicFollowed(topic=topic, user=user, email=True)
-        topic_followed.save()
-        return True
-
-    existing.email = not existing.email
-    existing.save()
-    return existing.email
-
-
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
-
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
+        signals.content_read.send(sender=topic.__class__, instance=topic, user=user)

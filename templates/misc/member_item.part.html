@@ -1,6 +1,6 @@
 {% load profile %}
 {% load i18n %}
-
+{% load remove_url_protocole %}
 
 {% with profile=member|profile %}
     <a
@@ -13,7 +13,7 @@
         {% endif %}
     >{% spaceless %}
         {% if avatar %}
-            <img src="{{ profile.get_avatar_url }}" alt="" class="avatar" itemprop="image">
+            <img src="{{ profile.get_avatar_url|remove_url_protocole }}" alt="" class="avatar" itemprop="image">
         {% endif %}
 
         <span itemprop="name">{{ member.username }}</span>

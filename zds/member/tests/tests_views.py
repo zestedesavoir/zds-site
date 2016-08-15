@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from zds.settings import BASE_DIR
-from zds.forum.models import TopicFollowed
+from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory, NonAsciiProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
@@ -22,7 +22,7 @@ from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, Pos
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
-from zds.utils.models import CommentLike
+from zds.utils.models import CommentVote
 
 
 overrided_zds_app = settings.ZDS_APP
@@ -53,6 +53,56 @@ class MemberTests(TestCase):
 
         self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         self.bot.save()
+
+    def test_karma(self):
+        to_be_karmated = ProfileFactory()
+        rand_member = ProfileFactory()
+        self.client.login(
+            username=rand_member.user.username,
+            password="hostel77"
+        )
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 42,
+            "warning": "warn"
+        })
+        self.assertEqual(403, r.status_code)
+        self.client.logout()
+        self.client.login(
+            username=self.staff.username,
+            password="hostel77"
+        )
+        # bad id
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": "poo",
+            "points": 42,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(404, r.status_code)
+        # good karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 42,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertIn("<strong>42</strong>", r.content.decode("utf-8"))
+        # more than 100 karma must unvalidate the karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 420,
+            "warning": "warn"
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertNotIn("<strong>420</strong>", r.content.decode("utf-8"))
+        # empty warning must unvalidate the karma
+        r = self.client.post(reverse("member-modify-karma"), {
+            "profile_pk": to_be_karmated.pk,
+            "points": 41,
+            "warning": ""
+        }, follow=True)
+        self.assertEqual(200, r.status_code)
+        self.assertNotIn("<strong>41</strong>", r.content.decode("utf-8"))
 
     def test_list_members(self):
         """
@@ -355,7 +405,7 @@ class MemberTests(TestCase):
         upvoted_answer = PostFactory(topic=answered_topic, author=user2.user, position=4)
         upvoted_answer.like += 1
         upvoted_answer.save()
-        CommentLike.objects.create(user=user.user, comments=upvoted_answer)
+        CommentVote.objects.create(user=user.user, comment=upvoted_answer, positive=True)
 
         private_topic = PrivateTopicFactory(author=user.user)
         private_topic.participants.add(user2.user)
@@ -452,7 +502,7 @@ class MemberTests(TestCase):
         self.assertEquals(alone_gallery.get_linked_users().count(), 1)
         self.assertEquals(shared_gallery.get_linked_users().count(), 1)
         self.assertEquals(UserGallery.objects.filter(user=user.user).count(), 0)
-        self.assertEquals(CommentLike.objects.filter(user=user.user).count(), 0)
+        self.assertEquals(CommentVote.objects.filter(user=user.user, positive=True).count(), 0)
         self.assertEquals(Post.objects.filter(pk=upvoted_answer.id).first().like, 0)
 
         # zep 12, published contents and beta
@@ -744,11 +794,11 @@ class MemberTests(TestCase):
         self.assertTrue(tester.user.is_superuser)
 
         # Now our tester is going to follow one post in every forum (3)
-        TopicFollowed(topic=topic1, user=tester.user).save()
-        TopicFollowed(topic=topic2, user=tester.user).save()
-        TopicFollowed(topic=topic3, user=tester.user).save()
+        TopicAnswerSubscription.objects.toggle_follow(topic1, tester.user)
+        TopicAnswerSubscription.objects.toggle_follow(topic2, tester.user)
+        TopicAnswerSubscription.objects.toggle_follow(topic3, tester.user)
 
-        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 3)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 3)
 
         # retract all right, keep one group only and activate account
         result = self.client.post(
@@ -764,7 +814,7 @@ class MemberTests(TestCase):
         self.assertEqual(len(tester.user.groups.all()), 1)
         self.assertTrue(tester.user.is_active)
         self.assertFalse(tester.user.is_superuser)
-        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 2)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 2)
 
         # no groups specified
         result = self.client.post(
@@ -775,7 +825,7 @@ class MemberTests(TestCase):
             }, follow=False)
         self.assertEqual(result.status_code, 302)
         tester = Profile.objects.get(id=tester.id)  # refresh
-        self.assertEqual(TopicFollowed.objects.filter(user=tester.user).count(), 1)
+        self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 1)
 
         # check that staff can't take away it's own super user rights
         result = self.client.post(
@@ -949,6 +999,40 @@ class MemberTests(TestCase):
         notes = KarmaNote.objects.filter(user=tester.user).all()
         self.assertEqual(len(notes), 1)
         self.assertTrue(old_pseudo in notes[0].comment and 'dummy' in notes[0].comment)
+
+    def test_ban_member_is_not_contactable(self):
+        """
+        When a member is ban, we hide the button to send a PM.
+        """
+        user_ban = ProfileFactory()
+        user_ban.can_read = False
+        user_ban.can_write = False
+        user_ban.save()
+        user_1 = ProfileFactory()
+        user_2 = ProfileFactory()
+
+        phrase = "Envoyer un message privé"
+
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
+        self.assertNotContains(result, phrase)
+
+        result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
+        self.assertNotContains(result, phrase)
+
+        self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
+        self.client.logout()
+        self.assertContains(result, phrase)
+
+        self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+        result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
+        self.client.logout()
+        self.assertNotContains(result, phrase)
+
+        self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
+        self.client.logout()
+        self.assertNotContains(result, phrase)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

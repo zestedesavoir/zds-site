@@ -34,14 +34,14 @@ class PrivateTopicListAPITest(APITestCase):
         Gets list of private topics with an unauthenticated client.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.get(reverse('api-mp-list'))
+        response = client_unauthenticated.get(reverse('api:mp:list'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_list_of_private_topics_empty(self):
         """
         Gets empty list of private topics of a member.
         """
-        response = self.client.get(reverse('api-mp-list'))
+        response = self.client.get(reverse('api:mp:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
         self.assertEqual(response.data.get('results'), [])
@@ -54,7 +54,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user)
 
-        response = self.client.get(reverse('api-mp-list'))
+        response = self.client.get(reverse('api:mp:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
@@ -67,14 +67,14 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user, REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse('api-mp-list'))
+        response = self.client.get(reverse('api:mp:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNotNone(response.data.get('next'))
         self.assertIsNone(response.data.get('previous'))
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
 
-        response = self.client.get(reverse('api-mp-list') + '?page=2')
+        response = self.client.get(reverse('api:mp:list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNone(response.data.get('next'))
@@ -87,7 +87,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user, REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse('api-mp-list') + '?page=2')
+        response = self.client.get(reverse('api:mp:list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 11)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -98,7 +98,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         Gets an error when the user asks a wrong page.
         """
-        response = self.client.get(reverse('api-mp-list') + '?page=2')
+        response = self.client.get(reverse('api:mp:list') + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_of_private_topics_with_a_custom_page_size(self):
@@ -109,7 +109,7 @@ class PrivateTopicListAPITest(APITestCase):
         self.create_multiple_private_topics_for_member(self.profile.user, REST_PAGE_SIZE * 2)
 
         page_size = 'page_size'
-        response = self.client.get(reverse('api-mp-list') + '?{}=20'.format(page_size))
+        response = self.client.get(reverse('api:mp:list') + '?{}=20'.format(page_size))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 20)
         self.assertEqual(len(response.data.get('results')), 20)
@@ -125,7 +125,7 @@ class PrivateTopicListAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_private_topics_for_member(self.profile.user, page_size_value)
 
-        response = self.client.get(reverse('api-mp-list') + '?page_size={}'.format(page_size_value))
+        response = self.client.get(reverse('api:mp:list') + '?page_size={}'.format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
@@ -138,7 +138,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user)
 
-        response = self.client.get(reverse('api-mp-list') + '?search=Mon Sujet')
+        response = self.client.get(reverse('api:mp:list') + '?search=Mon Sujet')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('count') > 0)
 
@@ -149,7 +149,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user)
 
-        response = self.client.get(reverse('api-mp-list') + '?search=Tacos')
+        response = self.client.get(reverse('api:mp:list') + '?search=Tacos')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
         self.assertIsNone(response.data.get('next'))
@@ -161,7 +161,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user)
 
-        response = self.client.get(reverse('api-mp-list') + '?ordering=pubdate')
+        response = self.client.get(reverse('api:mp:list') + '?ordering=pubdate')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
@@ -173,7 +173,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user)
 
-        response = self.client.get(reverse('api-mp-list') + '?ordering=last_message')
+        response = self.client.get(reverse('api:mp:list') + '?ordering=last_message')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
@@ -185,7 +185,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user)
 
-        response = self.client.get(reverse('api-mp-list') + '?ordering=title')
+        response = self.client.get(reverse('api:mp:list') + '?ordering=title')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
@@ -197,7 +197,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user, 1)
 
-        response = self.client.get(reverse('api-mp-list'))
+        response = self.client.get(reverse('api:mp:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         author = response.data.get('results')[0].get('author')
         self.assertEqual(author, self.profile.user.id)
@@ -208,7 +208,7 @@ class PrivateTopicListAPITest(APITestCase):
         """
         self.create_multiple_private_topics_for_member(self.profile.user, 1)
 
-        response = self.client.get(reverse('api-mp-list') + '?expand=author')
+        response = self.client.get(reverse('api:mp:list') + '?expand=author')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         author = response.data.get('results')[0].get('author')
         self.assertIsInstance(author, OrderedDict)
@@ -220,7 +220,7 @@ class PrivateTopicListAPITest(APITestCase):
         Creates a private topic with an unauthenticated client must fail.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.post(reverse('api-mp-list'), {})
+        response = client_unauthenticated.post(reverse('api:mp:list'), {})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_of_private_topics(self):
@@ -234,7 +234,7 @@ class PrivateTopicListAPITest(APITestCase):
             'participants': [another_profile.user.id],
             'text': 'Welcome to this private topic!'
         }
-        response = self.client.post(reverse('api-mp-list'), data)
+        response = self.client.post(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
         self.assertEqual(1, len(private_topics))
@@ -256,7 +256,7 @@ class PrivateTopicListAPITest(APITestCase):
             'participants': [another_profile.user.id],
             'text': 'Welcome to this private topic!'
         }
-        response = self.client.post(reverse('api-mp-list'), data)
+        response = self.client.post(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
         self.assertEqual(1, len(private_topics))
@@ -278,7 +278,7 @@ class PrivateTopicListAPITest(APITestCase):
             'participants': [another_profile.user.id],
             'text': 'Welcome to this private topic!'
         }
-        response = self.client.post(reverse('api-mp-list'), data)
+        response = self.client.post(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
         self.assertEqual(0, len(private_topics))
@@ -292,7 +292,7 @@ class PrivateTopicListAPITest(APITestCase):
             'subtitle': 'Come eat one with me.',
             'text': 'Welcome to this private topic!'
         }
-        response = self.client.post(reverse('api-mp-list'), data)
+        response = self.client.post(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
         self.assertEqual(0, len(private_topics))
@@ -307,7 +307,7 @@ class PrivateTopicListAPITest(APITestCase):
             'subtitle': 'Come eat one with me.',
             'participants': [another_profile.user.id],
         }
-        response = self.client.post(reverse('api-mp-list'), data)
+        response = self.client.post(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         private_topics = PrivateTopic.objects.get_private_topics_of_user(self.profile.user.id)
         self.assertEqual(0, len(private_topics))
@@ -324,7 +324,7 @@ class PrivateTopicListAPITest(APITestCase):
             'subtitle': 'Come eat one with me.',
             'participants': [anonymous_user.id],
         }
-        response = self.client.post(reverse('api-mp-list'), data)
+        response = self.client.post(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         private_topics = PrivateTopic.objects.get_private_topics_of_user(anonymous_user.id)
         self.assertEqual(0, len(private_topics))
@@ -334,7 +334,7 @@ class PrivateTopicListAPITest(APITestCase):
         Leaves a private topic with an unauthenticated client must fail.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.delete(reverse('api-mp-list'), {})
+        response = client_unauthenticated.delete(reverse('api:mp:list'), {})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_leave_private_topics(self):
@@ -346,7 +346,7 @@ class PrivateTopicListAPITest(APITestCase):
         data = {
             'pk': private_topics[0].id
         }
-        response = self.client.delete(reverse('api-mp-list'), data)
+        response = self.client.delete(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(0, PrivateTopic.objects.filter(pk=private_topics[0].id).count())
 
@@ -360,7 +360,7 @@ class PrivateTopicListAPITest(APITestCase):
         data = {
             'pk': private_topics[0].id
         }
-        response = self.client.delete(reverse('api-mp-list'), data)
+        response = self.client.delete(reverse('api:mp:list'), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def create_multiple_private_topics_for_member(self, user, number_of_users=REST_PAGE_SIZE):
@@ -388,14 +388,14 @@ class PrivateTopicDetailAPITest(APITestCase):
         Gets details about a private topic with an unauthenticated client.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = client_unauthenticated.get(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_detail_of_a_member(self):
         """
         Gets all information about a private topic.
         """
-        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.get(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.private_topic.id, response.data.get('id'))
         self.assertEqual(self.private_topic.title, response.data.get('title'))
@@ -409,7 +409,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         """
         Gets an error 404 when the private topic isn't present in the database.
         """
-        response = self.client.get(reverse('api-mp-detail', args=[42]))
+        response = self.client.get(reverse('api:mp:detail', args=[42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_detail_of_private_topic_not_in_participants(self):
@@ -419,14 +419,14 @@ class PrivateTopicDetailAPITest(APITestCase):
         another_profile = ProfileFactory()
         another_private_topic = PrivateTopicFactory(author=another_profile.user)
 
-        response = self.client.get(reverse('api-mp-detail', args=[another_private_topic.id]))
+        response = self.client.get(reverse('api:mp:detail', args=[another_private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_mp_details_without_any_change(self):
         """
         Updates a MP but without any changes.
         """
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), {})
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), {})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.private_topic.title, response.data.get('title'))
@@ -440,7 +440,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         data = {
             'title': 'Do you love Tacos?'
         }
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('title'), data.get('title'))
@@ -452,7 +452,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         data = {
             'subtitle': 'If you don\'t love Tacos, you are weird!'
         }
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('subtitle'), data.get('subtitle'))
@@ -465,7 +465,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         data = {
             'participants': [another_profile.user.id]
         }
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('participants')[0], data.get('participants')[0])
@@ -475,14 +475,14 @@ class PrivateTopicDetailAPITest(APITestCase):
         Updates a private topic with an unauthenticated client must fail.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.put(reverse('api-mp-detail', args=[self.private_topic.id]), {})
+        response = client_unauthenticated.put(reverse('api:mp:detail', args=[self.private_topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_a_private_topic_not_present(self):
         """
         Gets an error 404 when the private topic isn't present in the database.
         """
-        response = self.client.put(reverse('api-mp-detail', args=[42]), {})
+        response = self.client.put(reverse('api:mp:detail', args=[42]), {})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_private_topic_not_in_participants(self):
@@ -492,7 +492,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         another_profile = ProfileFactory()
         another_private_topic = PrivateTopicFactory(author=another_profile.user)
 
-        response = self.client.put(reverse('api-mp-detail', args=[another_private_topic.id]), {})
+        response = self.client.put(reverse('api:mp:detail', args=[another_private_topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_private_topic_with_unreachable_user(self):
@@ -505,7 +505,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         data = {
             'participants': [anonymous_user.id]
         }
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotEqual(response.data.get('participants')[0], data.get('participants'))
 
@@ -523,7 +523,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         data = {
             'title': 'Good title',
         }
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_add_participant_with_an_user_not_author_of_private_topic(self):
@@ -542,7 +542,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         data = {
             'participants': [third_profile.user.id]
         }
-        response = self.client.put(reverse('api-mp-detail', args=[self.private_topic.id]), data)
+        response = self.client.put(reverse('api:mp:detail', args=[self.private_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_delete_mp_with_client_unauthenticated(self):
@@ -550,14 +550,14 @@ class PrivateTopicDetailAPITest(APITestCase):
         Leaves a private topic with an unauthenticated client must fail.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.delete(reverse('api-mp-detail', args=[self.private_topic.id]), {})
+        response = client_unauthenticated.delete(reverse('api:mp:detail', args=[self.private_topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_fail_leave_topic_no_exist(self):
         """
         Gets an error 404 when the private topic isn't present in the database.
         """
-        response = self.client.delete(reverse('api-mp-detail', args=[42]), {})
+        response = self.client.delete(reverse('api:mp:detail', args=[42]), {})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_private_topic_not_in_participants(self):
@@ -567,7 +567,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         another_profile = ProfileFactory()
         another_private_topic = PrivateTopicFactory(author=another_profile.user)
 
-        response = self.client.delete(reverse('api-mp-detail', args=[another_private_topic.id]), {})
+        response = self.client.delete(reverse('api:mp:detail', args=[another_private_topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_success_leave_topic_as_author_no_participants(self):
@@ -577,7 +577,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.private_topic.participants.clear()
         self.private_topic.save()
 
-        response = self.client.delete(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.delete(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(0, PrivateTopic.objects.filter(pk=self.private_topic.id).count())
 
@@ -588,7 +588,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         another_profile = ProfileFactory()
         self.private_topic.participants.add(another_profile.user)
 
-        response = self.client.delete(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.delete(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(1, PrivateTopic.objects.filter(pk=self.private_topic.id).count())
         self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=self.private_topic.id).author)
@@ -605,7 +605,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).author)
         self.assertIn(self.profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).participants.all())
 
-        response = self.client.delete(reverse('api-mp-detail', args=[another_private_topic.id]))
+        response = self.client.delete(reverse('api:mp:detail', args=[another_private_topic.id]))
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(another_profile.user, PrivateTopic.objects.get(pk=another_private_topic.id).author)
@@ -620,6 +620,7 @@ class PrivatePostListAPI(APITestCase):
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
         self.private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.private_topic.participants.add(ProfileFactory().user)
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -628,7 +629,7 @@ class PrivatePostListAPI(APITestCase):
         Gets list of private posts of a private topic given with an unauthenticated client.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.get(reverse('api-mp-message-list', args=[0]))
+        response = client_unauthenticated.get(reverse('api:mp:message-list', args=[0]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_list_of_private_posts(self):
@@ -638,7 +639,7 @@ class PrivatePostListAPI(APITestCase):
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]))
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertEqual(len(response.data.get('results')), REST_PAGE_SIZE)
@@ -653,7 +654,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
                                                       REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]))
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE + 1)
         self.assertIsNotNone(response.data.get('next'))
@@ -667,7 +668,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
                                                       REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?page=2')
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]) + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 11)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -678,7 +679,7 @@ class PrivatePostListAPI(APITestCase):
         """
         Gets an error when the user asks a wrong page.
         """
-        response = self.client.get(reverse('api-mp-message-list', args=[42]) + '?page=2')
+        response = self.client.get(reverse('api:mp:message-list', args=[42]) + '?page=2')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_of_private_posts_with_a_custom_page_size(self):
@@ -691,7 +692,7 @@ class PrivatePostListAPI(APITestCase):
                                                       REST_PAGE_SIZE * 2)
 
         page_size = 'page_size'
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?{}=20'.format(page_size))
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]) + '?{}=20'.format(page_size))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 20)
         self.assertEqual(len(response.data.get('results')), 20)
@@ -709,7 +710,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic, page_size_value)
 
         response = self.client.get(
-            reverse('api-mp-message-list', args=[private_topic.id]) + '?page_size={}'.format(page_size_value))
+            reverse('api:mp:message-list', args=[private_topic.id]) + '?page_size={}'.format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), page_size_value)
         self.assertIsNotNone(response.data.get('next'))
@@ -723,7 +724,7 @@ class PrivatePostListAPI(APITestCase):
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic, 1)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]),
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]),
                                    **{'HTTP_X_DATA_FORMAT': 'Html'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(response.data.get('results')[0].get('text_html'))
@@ -736,7 +737,7 @@ class PrivatePostListAPI(APITestCase):
         private_topic = PrivateTopicFactory(author=self.profile.user)
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic, 1)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]),
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]),
                                    **{'HTTP_X_DATA_FORMAT': 'Markdown'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(response.data.get('results')[0].get('text'))
@@ -750,7 +751,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
                                                       REST_PAGE_SIZE)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) +
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]) +
                                    '?ordering=position_in_topic')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
@@ -765,7 +766,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
                                                       REST_PAGE_SIZE)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?ordering=pubdate')
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]) + '?ordering=pubdate')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
@@ -779,7 +780,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic,
                                                       REST_PAGE_SIZE)
 
-        response = self.client.get(reverse('api-mp-message-list', args=[private_topic.id]) + '?ordering=update')
+        response = self.client.get(reverse('api:mp:message-list', args=[private_topic.id]) + '?ordering=update')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), REST_PAGE_SIZE)
         self.assertIsNone(response.data.get('next'))
@@ -798,7 +799,7 @@ class PrivatePostListAPI(APITestCase):
         """
         Creates a post in a topic but not with according field.
         """
-        response = self.client.post(reverse('api-mp-message-list', args=[self.private_topic.id]), {})
+        response = self.client.post(reverse('api:mp:message-list', args=[self.private_topic.id]), {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_post_unauthenticated(self):
@@ -806,7 +807,7 @@ class PrivatePostListAPI(APITestCase):
         Creates a post in a topic with unauthenticated client.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.post(reverse('api-mp-message-list', args=[0]), {})
+        response = client_unauthenticated.post(reverse('api:mp:message-list', args=[0]), {})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_post_not_in_participants(self):
@@ -819,7 +820,7 @@ class PrivatePostListAPI(APITestCase):
         data = {
             'text': 'Welcome to this private post!'
         }
-        response = self.client.post(reverse('api-mp-message-list', args=[another_topic.id]), data)
+        response = self.client.post(reverse('api:mp:message-list', args=[another_topic.id]), data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_post_with_bad_topic_id(self):
@@ -829,18 +830,34 @@ class PrivatePostListAPI(APITestCase):
         data = {
             'text': 'Welcome to this private post!'
         }
-        response = self.client.post(reverse('api-mp-message-list', args=[99999]), data)
+        response = self.client.post(reverse('api:mp:message-list', args=[99999]), data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_create_post(self):
+    def test_create_post_in_a_private_topic_with_messages(self):
         """
-        Creates a post in a topic
+        Creates a post in a private topic with existing messages.
+        """
+        PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1)
+        participant = ProfileFactory()
+        self.private_topic.participants.add(participant.user)
+        PrivatePostFactory(author=participant.user, privatetopic=self.private_topic, position_in_topic=2)
+
+        data = {
+            'text': 'Welcome to this private post!'
+        }
+        response = self.client.post(reverse('api:mp:message-list', args=[self.private_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_post_without_any_participant(self):
+        """
+        Creates a post in a topic without any participant.
         """
         data = {
             'text': 'Welcome to this private post!'
         }
-        response = self.client.post(reverse('api-mp-message-list', args=[self.private_topic.id]), data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        private_topic = PrivateTopicFactory(author=self.profile.user)
+        response = self.client.post(reverse('api:mp:message-list', args=[private_topic.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivatePostDetailAPI(APITestCase):
@@ -861,7 +878,7 @@ class PrivatePostDetailAPI(APITestCase):
         """
         client_unauthenticated = APIClient()
         response = client_unauthenticated.get(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+            reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_detail_private_post_with_wrong_identifiers(self):
@@ -870,14 +887,14 @@ class PrivatePostDetailAPI(APITestCase):
         """
         another_private_topic = PrivateTopicFactory(author=self.profile.user)
         response = self.client.get(
-            reverse('api-mp-message-detail', args=[another_private_topic.id, self.private_post.id]))
+            reverse('api:mp:message-detail', args=[another_private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_detail_private_post_of_a_member(self):
         """
         Gets all information about a private post.
         """
-        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        response = self.client.get(reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.private_post.id, response.data.get('id'))
         self.assertIsNotNone(response.data.get('text'))
@@ -892,7 +909,7 @@ class PrivatePostDetailAPI(APITestCase):
         """
         Gets an error 404 when the private post isn't present in the database.
         """
-        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, 42]))
+        response = self.client.get(reverse('api:mp:message-detail', args=[self.private_topic.id, 42]))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_detail_of_private_post_not_in_participants(self):
@@ -905,7 +922,7 @@ class PrivatePostDetailAPI(APITestCase):
                                                   position_in_topic=1)
 
         response = self.client.get(
-            reverse('api-mp-message-detail', args=[another_private_topic.id, another_private_post.id]))
+            reverse('api:mp:message-detail', args=[another_private_topic.id, another_private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_private_post_with_client_unauthenticated(self):
@@ -914,7 +931,7 @@ class PrivatePostDetailAPI(APITestCase):
         """
         client_unauthenticated = APIClient()
         response = client_unauthenticated.put(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+            reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_of_private_post_not_in_participants(self):
@@ -927,7 +944,7 @@ class PrivatePostDetailAPI(APITestCase):
                                                   position_in_topic=1)
 
         response = self.client.put(
-            reverse('api-mp-message-detail', args=[another_private_topic.id, another_private_post.id]))
+            reverse('api:mp:message-detail', args=[another_private_topic.id, another_private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_of_private_post_not_last_one(self):
@@ -937,7 +954,7 @@ class PrivatePostDetailAPI(APITestCase):
         PrivatePostFactory(author=self.profile.user, privatetopic=self.private_topic, position_in_topic=2)
 
         response = self.client.put(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+            reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_of_private_post_last_one_but_not_the_author(self):
@@ -949,7 +966,7 @@ class PrivatePostDetailAPI(APITestCase):
                                                   position_in_topic=2)
 
         response = self.client.put(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, another_private_post.id]))
+            reverse('api:mp:message-detail', args=[self.private_topic.id, another_private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_update_of_private_post_without_text(self):
@@ -957,7 +974,7 @@ class PrivatePostDetailAPI(APITestCase):
         Tries to update the last message without a new text.
         """
         response = self.client.put(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+            reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_of_private_post_success(self):
@@ -968,7 +985,7 @@ class PrivatePostDetailAPI(APITestCase):
             'text': 'A new text'
         }
         response = self.client.put(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]), data)
+            reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
 
@@ -980,7 +997,7 @@ class PrivatePostDetailAPI(APITestCase):
             'text': 'éèîïà|ç&$*?!æ'
         }
         response = self.client.put(
-            reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]), data)
+            reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('text'), data.get('text'))
 
@@ -1009,14 +1026,14 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         Gets list of private topics unread with an unauthenticated client.
         """
         client_unauthenticated = APIClient()
-        response = client_unauthenticated.get(reverse('api-mp-list-unread'))
+        response = client_unauthenticated.get(reverse('api:mp:list-unread'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_list_of_private_topics_unread_empty(self):
         """
         Gets empty list of private topics unread of a member.
         """
-        response = self.client.get(reverse('api-mp-list-unread'))
+        response = self.client.get(reverse('api:mp:list-unread'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
         self.assertEqual(response.data.get('results'), [])
@@ -1028,10 +1045,11 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         Gets list of private topics unread of a member.
         """
         private_topic = PrivateTopicFactory(author=self.another_profile.user)
+        PrivatePostFactory(author=self.another_profile.user, privatetopic=private_topic, position_in_topic=1)
         private_topic.participants.add(self.profile.user)
         private_topic.save()
 
-        response = self.client.get(reverse('api-mp-list-unread'))
+        response = self.client.get(reverse('api:mp:list-unread'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
         self.assertEqual(len(response.data.get('results')), 1)
@@ -1053,7 +1071,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have permission to read PM.
         """
-        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.get(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('read'))
 
@@ -1061,7 +1079,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have permission to write PM.
         """
-        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.get(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('write'))
 
@@ -1069,7 +1087,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have permission to update PM.
         """
-        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.get(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('update'))
 
@@ -1082,7 +1100,7 @@ class PermissionMemberAPITest(APITestCase):
 
         authenticate_client(self.client, create_oauth2_client(another_profile.user),
                             another_profile.user.username, 'hostel77')
-        response = self.client.get(reverse('api-mp-detail', args=[self.private_topic.id]))
+        response = self.client.get(reverse('api:mp:detail', args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('update'))
 
@@ -1090,7 +1108,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have permission to read messages of PM.
         """
-        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        response = self.client.get(reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('read'))
 
@@ -1098,7 +1116,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have permission to write messages of PM.
         """
-        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        response = self.client.get(reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('write'))
 
@@ -1106,7 +1124,7 @@ class PermissionMemberAPITest(APITestCase):
         """
         Authenticated users have permission to update messages of PM.
         """
-        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        response = self.client.get(reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get('permissions').get('update'))
 
@@ -1119,6 +1137,6 @@ class PermissionMemberAPITest(APITestCase):
 
         authenticate_client(self.client, create_oauth2_client(another_profile.user),
                             another_profile.user.username, 'hostel77')
-        response = self.client.get(reverse('api-mp-message-detail', args=[self.private_topic.id, self.private_post.id]))
+        response = self.client.get(reverse('api:mp:message-detail', args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get('permissions').get('update'))

@@ -4,15 +4,18 @@
 {% load i18n %}
 
 {% block title_base %}
-    &bull; {% trans "Validation" %}
+    {% trans "Validation" %}
 {% endblock %}
 
 {% block title %}
-    {% trans "Validation" %}
     {% if request.GET.type == "reserved" %}
-        / {% trans "Réservés" %}
+        {% trans "Reservés" %} &bull;
     {% elif request.GET.type == "orphan" %}
-        / {% trans "Non-réservés" %}
+        {% trans "Non-reservés" %} &bull;
+    {% elif request.GET.type == "article" %}
+        {% trans "Articles" %} &bull;
+    {% elif request.GET.type == "tuto" %}
+        {% trans "Tutoriels" %} &bull;
     {% endif %}
 {% endblock %}
 
@@ -60,7 +63,8 @@
                             <th>{% trans "Titre" %}</th>
                             <th width="5%">{% trans "Type" %}</th>
                             <th width="15%">{% trans "Auteur(s)" %}</th>
-                            <th width="10%">{% trans "Propos" %}é</th>
+                            <th width="10%">{% trans "Proposé le" %}</th>
+                            <th width="10%">{% trans "Statut historique" %}</th>
                             <th width="24%">{% trans "Statut" %}</th>
                         </tr>
                     </thead>
@@ -100,6 +104,13 @@
                                 </td>
                                 <td>
                                     <span>{{ validation.date_proposition|format_date:True|capfirst }}</span>
+                                </td>
+                                <td class="{% if not validation.content.in_public %}new_content{% else %}update_content{% endif %}">
+                                    {% if not validation.content.in_public %}
+                                        {% trans "Nouveau" %}
+                                    {% else %}
+                                        {% trans "Mise à jour" %}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {% captureas reservation_url %}
