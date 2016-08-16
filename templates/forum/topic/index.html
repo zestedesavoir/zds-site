@@ -213,7 +213,7 @@
     </li>
     {% if is_dev %}
         <li>
-            <a href="#create-issue" class="open-modal ico-after github blue">Envoyer au bugtracker</a>
+            <a href="#create-issue" class="open-modal ico-after github blue">{% trans 'Envoyer au bugtracker' %}</a>
             <form action="{% url 'create-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
                 {% if has_token %}
                     {% csrf_token %}
