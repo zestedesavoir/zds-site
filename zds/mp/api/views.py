@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from dry_rest_permissions.generics import DRYPermissions
-
-from django.http import QueryDict
+import datetime
 from django.contrib.contenttypes.models import ContentType
-
+from django.core.cache import cache
+from django.db.models.signals import post_save, post_delete
+from django.http import QueryDict
+from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, exceptions, filters
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
     get_object_or_404, RetrieveUpdateAPIView, ListAPIView
@@ -14,7 +14,8 @@ from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
-from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
+
+from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
     IsAuthor, IsNotAloneInPrivatePost
 from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
@@ -30,12 +31,23 @@ class PagingPrivateTopicListKeyConstructor(DefaultKeyConstructor):
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_topic')
 
 
-class PagingPrivateTopicUnreadListKeyConstructor(DefaultKeyConstructor):
+class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
+    pagination = DJRF3xPaginationKeyBit()
+    search = bits.QueryParamsKeyBit(['ordering'])
+    list_sql_query = bits.ListSqlQueryKeyBit()
+    unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_post')
+
+
+class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_notification')
 
 
 class DetailKeyConstructor(DefaultKeyConstructor):
@@ -46,12 +58,31 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     user = bits.UserKeyBit()
 
 
-class PagingPrivatePostListKeyConstructor(DefaultKeyConstructor):
-    pagination = DJRF3xPaginationKeyBit()
-    search = bits.QueryParamsKeyBit(['ordering'])
-    list_sql_query = bits.ListSqlQueryKeyBit()
-    unique_view_id = bits.UniqueViewIdKeyBit()
-    user = bits.UserKeyBit()
+class PrivateTopicDetailKeyConstructor(DetailKeyConstructor):
+    updated_at = UpdatedAtKeyBit('api_updated_topic')
+
+
+class PrivatePostDetailKeyConstructor(DetailKeyConstructor):
+    updated_at = UpdatedAtKeyBit('api_updated_post')
+
+
+def change_api_private_topic_updated_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_topic', datetime.datetime.utcnow())
+
+
+def change_api_private_post_updated_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_post', datetime.datetime.utcnow())
+
+
+def change_api_notification_updated_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_notification', datetime.datetime.utcnow())
+
+
+for model, func in [(PrivateTopic, change_api_private_topic_updated_at),
+                    (PrivatePost, change_api_private_post_updated_at),
+                    (Notification, change_api_notification_updated_at)]:
+    post_save.connect(receiver=func, sender=model)
+    post_delete.connect(receiver=func, sender=model)
 
 
 class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
@@ -193,7 +224,7 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
     """
 
     queryset = PrivateTopic.objects.all()
-    obj_key_func = DetailKeyConstructor()
+    obj_key_func = PrivateTopicDetailKeyConstructor()
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -395,7 +426,7 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
     """
 
     queryset = PrivatePost.objects.all()
-    obj_key_func = DetailKeyConstructor()
+    obj_key_func = PrivatePostDetailKeyConstructor()
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -477,7 +508,7 @@ class PrivateTopicReadAPI(ListAPIView):
     """
 
     serializer_class = PrivateTopicSerializer
-    list_key_func = PagingPrivateTopicUnreadListKeyConstructor()
+    list_key_func = PagingNotificationListKeyConstructor()
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
