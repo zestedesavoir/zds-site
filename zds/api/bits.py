@@ -34,6 +34,12 @@ class DJRF3xPaginationKeyBit(QueryParamsKeyBit):
 
 
 class UpdatedAtKeyBit(KeyBitBase):
+    """
+    A custom key to allow invalidation of a cache.
+
+    See official documentation to know more about the usage of this class:
+    http://chibisov.github.io/drf-extensions/docs/#custom-key-bit
+    """
     update_key = None
 
     def __init__(self, update_key, params=None):
