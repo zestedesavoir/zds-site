@@ -110,6 +110,13 @@ class Subscription(models.Model):
         except SMTPException:
             pass
 
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_read_permission(self, request):
+        return Subscription.has_read_permission(request) and self.user == request.user
+
 
 class SingleNotificationMixin(object):
     """
@@ -320,6 +327,13 @@ class Notification(models.Model):
     def __unicode__(self):
         return _(u'Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
             .format(self.subscription.user, self.content_type, self.content_object.pk, self.subscription)
+
+    @staticmethod
+    def has_read_permission(request):
+        return request.user.is_authenticated()
+
+    def has_object_read_permission(self, request):
+        return Notification.has_read_permission(request) and self.subscription.user == request.user
 
 
 class TopicFollowed(models.Model):
