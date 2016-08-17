@@ -22,6 +22,7 @@ from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetai
     SingleOnlineContentFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
+from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
 
@@ -419,6 +420,17 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
             if form.cleaned_data['is_major'] or not is_update or db_object.pubdate is None:
                 db_object.pubdate = datetime.now()
+
+            # close beta if is an article
+            if db_object.type == 'ARTICLE':
+                db_object.sha_beta = None
+                topic = db_object.beta_topic
+                if topic is not None:
+                    msg_post = render_to_string(
+                        'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
+                    )
+                    send_post(self.request, topic, self.request.user, msg_post)
+                    lock_topic(topic)
 
             db_object.save()
 

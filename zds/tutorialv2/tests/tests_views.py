@@ -5230,3 +5230,73 @@ class PublishedContentTests(TestCase):
 
         # re-active PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
+
+    def test_beta_article_closed_when_published(self):
+        """Test that the beta of an article is locked when the content is published"""
+
+        text_validation = u'Valide moi ce truc !'
+        text_publication = u'Validation faite !'
+
+        article = PublishableContentFactory(type='ARTICLE')
+        article.authors.add(self.user_author)
+        article.save()
+        article_draft = article.load_version()
+
+        # login with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # set beta
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # reserve the article
+        validation = Validation.objects.filter(content=article).last()
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # publish the article
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
+        self.assertIsNotNone(beta_topic)
+        self.assertTrue(beta_topic.is_locked)
