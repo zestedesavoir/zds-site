@@ -127,10 +127,15 @@
 
 
 
-{% block new_btn %}
+{% block return_btn %}
     <a href="{{ topic.forum.get_absolute_url }}" class="new-btn ico-after arrow-left blue">
         {% trans "Retour à la liste des sujets" %}
     </a>
+{% endblock %}    
+
+
+
+{% block new_btn %}
     <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
