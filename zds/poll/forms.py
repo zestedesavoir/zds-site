@@ -5,17 +5,13 @@ import datetime
 
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
+from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, ButtonHolder
 
 from zds.poll.models import Poll, Choice
-
-
-#############################
-# Poll
-#############################
 
 
 class PollForm(forms.ModelForm):
@@ -47,7 +43,7 @@ class PollForm(forms.ModelForm):
 
         if title and title.strip() == '':
             self._errors['title'] = self.error_class(
-                ['Le champ titre ne peut être vide'])
+                [_(u'Le champ titre ne peut être vide')])
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
@@ -55,7 +51,7 @@ class PollForm(forms.ModelForm):
 
         if enddate is not None and enddate < datetime.datetime.today():
             self._errors['enddate'] = self.error_class(
-                ['La date ne peut pas être antérieure à aujourd\'hui'])
+                [_(u'La date ne peut pas être antérieure à aujourd\'hui')])
             if 'enddate' in cleaned_data:
                 del cleaned_data['enddate']
 
@@ -80,13 +76,9 @@ class UpdatePollForm(forms.ModelForm):
             Field('enddate'),
             Field('activate'),
             ButtonHolder(
-                StrictButton("Editer", type='submit'),
+                StrictButton('Editer', type='submit'),
             ),
         )
-
-#############################
-# Choices
-#############################
 
 
 class ChoiceForm(forms.ModelForm):
@@ -101,7 +93,7 @@ class ChoiceForm(forms.ModelForm):
 
         if choice and choice.strip() == '':
             self._errors['choice'] = self.error_class(
-                ['Le champ choix ne peut être vide'])
+                [_(u'Le champ choix ne peut être vide')])
             if 'title' in cleaned_data:
                 del cleaned_data['choice']
 

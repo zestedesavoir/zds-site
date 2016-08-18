@@ -17,19 +17,19 @@ MULTIPLE_VOTE_KEY = 'm'
 class Poll(models.Model):
 
     class Meta:
-        verbose_name = 'Sondage'
-        verbose_name_plural = 'Sondages'
+        verbose_name = _(u'Sondage')
+        verbose_name_plural = _(u'Sondages')
         ordering = ['-pubdate']
 
     TYPE_VOTE_CHOICES = (
-        (UNIQUE_VOTE_KEY, 'Vote unique'),
-        (MULTIPLE_VOTE_KEY, 'Vote multiple'),
+        (UNIQUE_VOTE_KEY, _(u'Vote unique')),
+        (MULTIPLE_VOTE_KEY, _(u'Vote multiple')),
     )
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField(_(u'Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               related_name='polls', db_index=True)
+    author = models.ForeignKey(User, verbose_name=_(u'Auteur'),
+                               related_name=_(u'polls'), db_index=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
     enddate = models.DateTimeField(_(u'Date de fin'), null=True, blank=True)
 
@@ -109,11 +109,11 @@ class Poll(models.Model):
 class Choice(models.Model):
 
     class Meta:
-        verbose_name = 'Choix'
-        verbose_name_plural = 'Choix'
+        verbose_name = _(u'Choix')
+        verbose_name_plural = _(u'Choix')
 
-    choice = models.CharField('Choix', max_length=200)
-    poll = models.ForeignKey(Poll, related_name='choices', null=False, blank=False)
+    choice = models.CharField(_(u'Choix'), max_length=200)
+    poll = models.ForeignKey(Poll, related_name='choices', null=False, blank=False, verbose_name=_(u'sondage'))
 
     def __unicode__(self):
         """Human-readable representation of the Choice model.
@@ -148,8 +148,8 @@ class Choice(models.Model):
 class Vote(models.Model):
 
     class Meta:
-        verbose_name = 'Vote'
-        verbose_name_plural = 'Votes'
+        verbose_name = _(u'Vote')
+        verbose_name_plural = _(u'Votes')
         unique_together = ('user', 'choice')
         abstract = True
 
@@ -164,8 +164,8 @@ class UniqueVote(Vote):
     """
 
     class Meta:
-        verbose_name = 'Vote unique'
-        verbose_name_plural = 'Votes uniques'
+        verbose_name = _(u'Vote unique')
+        verbose_name_plural = _(u'Votes uniques')
         unique_together = (('user', 'choice'), ('user', 'poll'))
 
 
@@ -175,6 +175,6 @@ class MultipleVote(Vote):
     """
 
     class Meta:
-        verbose_name = 'Votes multiple'
-        verbose_name_plural = 'Multiple Votes'
+        verbose_name = _(u'Votes multiple')
+        verbose_name_plural = _(u'Multiple Votes')
         unique_together = ('user', 'choice', 'poll')

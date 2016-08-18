@@ -1,17 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.views.generic import CreateView, DeleteView, UpdateView
 from django.views.generic.detail import DetailView
 
 from zds import settings
-from zds.poll.forms import (PollForm, PollInlineFormSet,
-    ChoiceFormSetHelper, UpdatePollForm)
-from zds.poll.models import Poll
 from zds.member.decorator import LoginRequiredMixin
+from zds.poll.forms import PollForm, PollInlineFormSet, ChoiceFormSetHelper, UpdatePollForm
+from zds.poll.models import Poll
 from zds.utils import slugify
 from zds.utils.paginator import ZdSPagingListView
 
@@ -52,10 +51,9 @@ class NewPoll(LoginRequiredMixin, CreateView):
         if formset.is_valid():
             poll.save()
             formset.save()
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+            return redirect('poll-details', pk=poll.pk)
 
-        return redirect('poll-details', pk=poll.pk)
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class DetailsPoll(DetailView):

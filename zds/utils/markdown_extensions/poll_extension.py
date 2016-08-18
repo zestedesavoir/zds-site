@@ -5,9 +5,11 @@ from markdown.inlinepatterns import Pattern
 from markdown.util import etree
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.template.loader import get_template
 from django.template import Context
+from django.template.loader import get_template
+
 from zds.poll.models import Poll
+
 
 # !(sondage:2)
 POLL_LINK_RE = r'(^|\n)!\(sondage\:(?P<poll_pk>\d+)\)'
@@ -22,7 +24,7 @@ class PollExtension(Extension):
             self.config[key][0] = value
 
     def extendMarkdown(self, md, md_globals):
-        md.inlinePatterns.add('polls', PollPattern(POLL_LINK_RE), "<linebreak")
+        md.inlinePatterns.add('polls', PollPattern(POLL_LINK_RE), '<linebreak')
 
 
 class PollPattern(Pattern):
@@ -40,7 +42,7 @@ class PollPattern(Pattern):
             poll = None
 
         template = get_template('markdown_extensions/poll.html')
-        context = Context({"poll": poll})
+        context = Context({'poll': poll})
 
         el = etree.fromstring(str(template.render(context)))
         return el

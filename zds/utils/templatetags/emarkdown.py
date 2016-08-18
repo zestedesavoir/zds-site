@@ -9,8 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 from markdown import Markdown
 from markdown.extensions.zds import ZdsExtension
 
-from zds.utils.templatetags.smileysDef import smileys
 from zds.utils.markdown_extensions.poll_extension import PollExtension
+from zds.utils.templatetags.smileysDef import smileys
 
 register = template.Library()
 

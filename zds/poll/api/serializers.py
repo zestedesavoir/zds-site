@@ -1,9 +1,7 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 from rest_framework import serializers
 
-from zds.member.api.serializers import UserListSerializer
 from zds.poll.models import Poll, Choice
 
 
@@ -23,4 +21,3 @@ class PollDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poll
         fields = ('pk', 'title', 'anonymous_vote', 'type_vote', 'pubdate', 'enddate', 'choices')
-
