@@ -8,6 +8,9 @@
 # - This script must be run by zds user
 # - This script has exactly 1 parameter: the tag name to deploy
 
+ENV_PATH="/opt/zds/zdsenv"
+REPO_PATH="/opt/zds/zds-site"
+
 if [ "$(whoami)" != "zds" ]; then
 	echo "This script must be run by zds user" >&2
 	exit 1
@@ -26,10 +29,10 @@ then
 	exit 1
 fi
 
-cd /opt/zdsenv/ZesteDeSavoir/
+cd $REPO_PATH
 
 # Maintenance mode
-sudo ln -s errors/maintenance.html /opt/zdsenv/webroot/
+sudo ln -s errors/maintenance.html $ENV_PATH/webroot/
 
 # Delete old branch if exists
 git checkout prod
@@ -46,7 +49,7 @@ git checkout $1-build
 git checkout -b $1
 
 # Update application data
-source ../bin/activate
+source $ENV_PATH/bin/activate
 pip install --upgrade -r requirements.txt
 pip install --upgrade -r requirements-prod.txt
 python manage.py migrate
@@ -59,8 +62,9 @@ deactivate
 sudo systemctl restart zds.{service,socket}
 
 # Exit maintenance mode
-sudo rm /opt/zdsenv/webroot/maintenance.html
+sudo rm $ENV_PATH/webroot/maintenance.html
 
 # Display current branch and commit
 git status
 echo "Deployed commit: `git rev-parse HEAD`"
+echo "Dont forget to run specific tasks for this version as described in update.md"
