@@ -182,7 +182,7 @@
             var validateButton = document.createElement("a");
             validateButton.className = "btn btn-submit";
             validateButton.innerHTML = "Valider";
-            validateButton.href = "#";
+            validateButton.href = "javascript:;";
 
             function buildButton(type) {
                 var btn = validateButton.cloneNode(true);
