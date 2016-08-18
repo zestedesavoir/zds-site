@@ -3,6 +3,8 @@
 import uuid
 from datetime import datetime, timedelta
 
+from oauth2_provider.models import AccessToken
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -431,6 +433,10 @@ def unregister(request):
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
         gallery.delete()
+
+    # remove API access (tokens + applications)
+    for token in AccessToken.objects.filter(user=current):
+        token.revoke()
 
     logout(request)
     User.objects.filter(pk=current.pk).delete()
