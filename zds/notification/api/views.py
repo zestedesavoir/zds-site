@@ -8,7 +8,7 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.api.DJRF3xPaginationKeyBit import DJRF3xPaginationKeyBit
+from zds.api.bits import DJRF3xPaginationKeyBit
 from zds.notification.api.serializers import NotificationSerializer
 from zds.notification.models import Notification
 
