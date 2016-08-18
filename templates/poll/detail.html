@@ -1,4 +1,5 @@
-{% extends "poll/base.html" %}
+{% extends "goll/base.html" %}
+
 {% load crispy_forms_tags %}
 {% load profile %}
 {% load captureas %}
@@ -25,11 +26,11 @@
 
 
 {% block content %}
-    {{ poll.title }} - {{ poll.get_count_user }} participants
+    {{ poll.title }} ({{ poll.get_count_user }} {% blocktrans %} participant {% endblocktrans %}{{ poll.get_count_user|pluralize }})
 
     <ul>
         {% for choice in poll.choices.all %}
-            <li>{{ choice }} ({{ choice.get_count_votes }} votes)</li>
+            <li>{{ choice }} ({{ choice.get_count_votes }} {% blocktrans %} vote {% endblocktrans %}{{ choice.get_count_votes|pluralize }})</li>
         {% endfor %}
     </ul>
 
@@ -42,7 +43,7 @@
 
 {% block sidebar_actions %}
     {% if user == poll.author %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title={% trans "Actions" %}>
             <h3>{% trans "Actions" %}</h3>
             <ul>
                 <li>

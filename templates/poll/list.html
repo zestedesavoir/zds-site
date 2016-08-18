@@ -1,4 +1,5 @@
 {% extends "poll/base.html" %}
+
 {% load i18n %}
 {% load date %}
 
@@ -28,7 +29,7 @@
                         {% trans "Par" %}
                         <strong>
                             <a href="{{ poll.author.get_absolute_url }}" title="{% trans "Profil de" %} {{ poll.author.username }}">
-                                {{poll.author.username}}
+                                {{ poll.author.username }}
                             </a>
                         </strong>
                         -
@@ -55,7 +56,7 @@
             </article>
         {% endfor %}
     {% else %}
-        <p>Aucun sondage.</p>
+        <p>{% trans "Aucun sondage." %}</p>
     {% endif %}
 
     {% include "misc/pagination.part.html" with position="bottom" %}
