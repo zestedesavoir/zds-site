@@ -24,23 +24,3 @@ class PollDetailSerializer(serializers.ModelSerializer):
         model = Poll
         fields = ('pk', 'title', 'anonymous_vote', 'type_vote', 'pubdate', 'enddate', 'choices')
 
-
-class UsersSerializer(serializers.ModelSerializer):
-
-    users = UserListSerializer(source='get_users', many=True, read_only=True)
-
-    class Meta:
-        model = Choice
-        fields = ('users',)
-
-
-class VoteSerializer(serializers.Serializer):
-
-    def update(self, instance, validated_data):
-        request = self.context.get('request', None)
-        choice_pk = request.data['choice']
-        choice = Choice.objects.get(pk=choice_pk)
-        choice.set_user_vote(request.user)
-
-        instance.save()
-        return instance
