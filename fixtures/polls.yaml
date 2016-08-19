@@ -1,0 +1,157 @@
+- model: poll.Poll
+  pk: 1
+  fields:
+    title: Nancy ou Metz ?
+    author: 3
+    pubdate: 2016-07-14T13:20:00+00:00
+    anonymous_vote: True
+    type_vote: u
+
+- model: poll.Choice
+  pk: 1
+  fields:
+    choice: Nancy
+    poll: 1
+- model: poll.Choice
+  pk: 2
+  fields:
+    choice: Metz
+    poll: 1
+
+- model: poll.UniqueVote
+  pk: 1
+  fields:
+    poll: 1
+    choice: 1
+    user: 1
+- model: poll.UniqueVote
+  pk: 2
+  fields:
+    poll: 1
+    choice: 1
+    user: 2
+- model: poll.UniqueVote
+  pk: 3
+  fields:
+    poll: 1
+    choice: 1
+    user: 3
+- model: poll.UniqueVote
+  pk: 4
+  fields:
+    poll: 1
+    choice: 1
+    user: 4 
+- model: poll.UniqueVote
+  pk: 5
+  fields:
+    poll: 1
+    choice: 1
+    user: 5
+- model: poll.UniqueVote
+  pk: 6
+  fields:
+    poll: 1
+    choice: 1
+    user: 6
+- model: poll.UniqueVote
+  pk: 7
+  fields:
+    poll: 1
+    choice: 2
+    user: 7
+
+
+- model: poll.Poll
+  pk: 2
+  fields:
+    title: Python, Perl ou Ruby ?
+    author: 1
+    pubdate: 2016-09-14T12:00:00+00:00
+    enddate: 2016-12-21T12:00:00+00:00
+    anonymous_vote: False
+    type_vote: m
+
+- model: poll.Choice
+  pk: 3
+  fields:
+    choice: Python
+    poll: 2
+- model: poll.Choice
+  pk: 4
+  fields:
+    choice: Perl
+    poll: 2
+- model: poll.Choice
+  pk: 5
+  fields:
+    choice: Ruby
+    poll: 2
+
+- model: poll.MultipleVote
+  pk: 8
+  fields:
+    poll: 2
+    choice: 3
+    user: 1
+- model: poll.MultipleVote
+  pk: 9
+  fields:
+    poll: 2
+    choice: 5
+    user: 1
+- model: poll.MultipleVote
+  pk: 10
+  fields:
+    poll: 2
+    choice: 4
+    user: 2
+- model: poll.MultipleVote
+  pk: 11
+  fields:
+    poll: 2
+    choice: 4
+    user: 3
+- model: poll.MultipleVote
+  pk: 12
+  fields:
+    poll: 2
+    choice: 5
+    user: 3
+- model: poll.MultipleVote
+  pk: 13
+  fields:
+    poll: 2
+    choice: 3
+    user: 4
+- model: poll.MultipleVote
+  pk: 14
+  fields:
+    poll: 2
+    choice: 4
+    user: 4
+- model: poll.MultipleVote
+  pk: 15
+  fields:
+    poll: 2
+    choice: 5
+    user: 5
+- model: poll.MultipleVote
+  pk: 16
+  fields:
+    poll: 2
+    choice: 3
+    user: 6
+- model: poll.MultipleVote
+  pk: 17
+  fields:
+    poll: 2
+    choice: 4
+    user: 6
+- model: poll.MultipleVote
+  pk: 18
+  fields:
+    poll: 2
+    choice: 3
+    user: 7
+
