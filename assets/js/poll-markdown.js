@@ -47,6 +47,5 @@
 
     $(document).ready(function() {
         $(".reaction-poll").poll();
-
     });
 })(jQuery);

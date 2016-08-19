@@ -70,7 +70,7 @@ class UpdatePoll(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         poll = super(UpdatePoll, self).get_object()
-        if not poll.author == self.request.user:
+        if poll.author != self.request.user:
             raise PermissionDenied
         return poll
 
@@ -85,6 +85,6 @@ class DeletePoll(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         poll = super(DeletePoll, self).get_object()
-        if not poll.author == self.request.user:
+        if poll.author != self.request.user:
             raise PermissionDenied
         return poll

@@ -39,8 +39,8 @@ class Poll(models.Model):
     type_vote = models.CharField('Type de vote', max_length=1, choices=TYPE_VOTE_CHOICES, default=UNIQUE_VOTE_KEY)
 
     def __unicode__(self):
-        """Human-readable representation of the Poll model.
-
+        """
+        Human-readable representation of the Poll model.
         :return: Poll title
         :rtype: unicode
         """
@@ -116,8 +116,8 @@ class Choice(models.Model):
     poll = models.ForeignKey(Poll, related_name='choices', null=False, blank=False, verbose_name=_(u'sondage'))
 
     def __unicode__(self):
-        """Human-readable representation of the Choice model.
-
+        """
+        Human-readable representation of the Choice model.
         :return: Choice
         :rtype: unicode
         """
@@ -139,9 +139,9 @@ class Choice(models.Model):
         return [Vote.user for Vote in self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll)]
 
     def set_user_vote(self, user):
-        if self.poll.type_vote == 'u':
+        if self.poll.type_vote == UNIQUE_VOTE_KEY:
             UniqueVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
-        elif self.poll.type_vote == 'm':
+        elif self.poll.type_vote == MULTIPLE_VOTE_KEY:
             MultipleVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
 
 

@@ -523,7 +523,7 @@ ZDS_APP = {
     },
     'visual_changes': [],
     'poll': {
-        'poll_per_page': 10
+        'poll_per_page': 10,
     }
 }
 

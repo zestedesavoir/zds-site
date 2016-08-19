@@ -1,4 +1,4 @@
-{% extends "goll/base.html" %}
+{% extends "poll/base.html" %}
 
 {% load crispy_forms_tags %}
 {% load profile %}
@@ -26,11 +26,11 @@
 
 
 {% block content %}
-    {{ poll.title }} ({{ poll.get_count_user }} {% blocktrans %} participant {% endblocktrans %}{{ poll.get_count_user|pluralize }})
+    {{ poll.title }} ({{ poll.get_count_user }} {% blocktrans with plural=poll.get_count_user|pluralize %} participant{{ plural }} {% endblocktrans %})
 
     <ul>
         {% for choice in poll.choices.all %}
-            <li>{{ choice }} ({{ choice.get_count_votes }} {% blocktrans %} vote {% endblocktrans %}{{ choice.get_count_votes|pluralize }})</li>
+            <li>{{ choice }} ({{ choice.get_count_votes }} {% blocktrans with plural=choice.get_count_votes|pluralize %} vote{{ plural }} {% endblocktrans %})</li>
         {% endfor %}
     </ul>
 
@@ -48,7 +48,7 @@
             <ul>
                 <li>
                     <a href="{% url 'poll-update' poll.pk %}" class="ico-after pen">
-                        {% trans "Editer le sondage" %}
+                        {% trans "Éditer le sondage" %}
                     </a>
                 </li>
 

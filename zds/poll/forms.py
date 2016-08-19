@@ -76,7 +76,7 @@ class UpdatePollForm(forms.ModelForm):
             Field('enddate'),
             Field('activate'),
             ButtonHolder(
-                StrictButton('Editer', type='submit'),
+                StrictButton_(u'Éditer', type='submit'),
             ),
         )
 
