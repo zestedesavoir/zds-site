@@ -24,6 +24,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 - Messages privés
 - Galeries d'images
 - Recherche
+- Sondages
 
 
 ## Fonctionnalités à venir
