@@ -41,7 +41,7 @@
 
         {% if user.is_authenticated %}
             <ul class="message-actions">
-                {% if message.is_visible %}
+                {% if message.is_visible != False %}
                     {% if edit_link %}
                         {% if can_unread %}
                             <li>
@@ -164,7 +164,7 @@
                 {% trans "Cette réponse a aidé l'auteur du sujet" %}
             </p>
 
-            {% if message.is_visible %}
+            {% if message.is_visible != False %}
                 <div itemprop="text">
                     {{ message.text_html|safe }}
                 </div>
@@ -213,7 +213,7 @@
             {% endfor %}
         {% endif %}
 
-        {% if message.is_visible %}
+        {% if message.is_visible != False %}
             <div class="message-bottom">
                 {% with profile=message.author|profile %}
                     {% if profile.sign %}
