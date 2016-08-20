@@ -626,26 +626,127 @@ Ces descriptions peuvent être modifiées via l'administration Django après la 
 Actions à faire pour mettre en prod la version 20
 =================================================
 
-Notifications
--------------
+**(pré-migration)** Rendre unique les subscriptions
+---------------------------------------------------
 
-### **(pré-migration)** Rendre unique les subscriptions
-
-1. Lancer la commande `python manage.py uniquify_subscriptions >> mep_v20.log`
+1. Lancer les 2 migrations suivantes :
+  * `python manage.py migrate forum 0006_auto_20160720_2259`
+  * `python manage.py migrate notification 0010_newpublicationsubscription`
+1. Lancer la commande suivante :
+  * `python manage.py uniquify_subscriptions >> mep_v20.log`
 1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
 
-Tags
-----
-
-### **(pré-migration)** Nettoyer les tags existants
+**(pré-migration)** Nettoyer les tags existants
+-----------------------------------------------
 
 1. Lancer la commande `python manage.py clean_tags >> mep_v20.log`
 1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
+**(pré-migration)** Base de donnée
+----------------------------------
+
+(utilisateur `zds`)
+
+1. Upgrade MySQL
+
+    ```bash
+    sudo aptitude update
+
+    mkdir ~/mysql-5.5-backup
+    sudo cp -r /etc/mysql ~/mysql-5.5-backup/etc_mysql
+
+    mkdir ~/mysql-5.5-backup/database
+
+    mysqldump --lock-all-tables -u zds -p --all-databases > ~/mysql-5.5-backup/database/dump.sql
+
+    sudo apt-get remove mysql-server-5.5 mysql-server-core-5.5 mysql-client-5.5
+    sudo apt-get autoremove
+
+    # check that the innodb transactions files are gone (ibdata1, ib_logfile0 and ib_logfile1
+    mkdir ~/mysql-5.5-backup/innodb
+    sudo ls /var/lib/mysql/ | grep -e '^ib'
+    # if they are still there, move them as root
+    sudo sh -c 'mv /var/lib/mysql/ib* /home/zds/mysql-5.5-backup/innodb'
+    sudo ls /var/lib/mysql/ | grep -e '^ib'
+    # shouldn't show anything
+
+    sudo aptitude -t jessie-backports install mysql-server mysql-client
+    # if apt complains that mysql-server-5.6 wasn't configured, run the following:
+    # sudo dpkg-reconfigure mysql-server-5.6
+    # if there's a conflict because of mysql-client-5.5, accept the fix which suggests removing mysql-client-5.5
+
+    sudo systemctl restart mysql
+
+    # create missing innodb tables
+    mysql -u zds -p mysql <  ./scripts/migrations/20160718_01_mysql-5.6-innodb-tables.sql
+
+    sudo systemctl restart mysql
+
+    mysql -u zds -p < ~/mysql-5.5-backup/database/dump.sql
+    ```
+
+1. Modifier le fichier `/etc/mysql/my.cnf`, ajouter la ligne suivante dans la section `[mysqld]`, près des autres configs innodb:
+
+    ```diff
+    # * InnoDB
+    #
+    # InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
+    # Read the manual for more InnoDB related options. There are many!
+    #
+    +innodb_file_per_table=on
+    +innodb_file_format=barracuda
+    +innodb_large_prefix=on
+    ```
+
+1. Relancer les services
+
+    ```bash
+    sudo systemctl restart mysql
+    sudo systemctl restart zds.{service,socket}
+    sudo systemctl restart solr
+    sudo systemctl restart zds-index-solr.service
+    # this one takes ages
+    ```
+
+1. (sans sudo,) lancer le script de migration: `./scripts/migrations/20160718_02_utf8mb4.sh`
+1. En cas d'erreur MySQL dans le script, le script va s'arrêter pour qu'on corrige les erreurs. Relancer le script ne pose aucun problème, il peut tourner autant de fois que nécessaire jusqu'à ce qu'il termine avec succès une fois toutes les erreurs corrigées.
+1. Ajouter la bonne option à `settings_prod.py` :
+
+    ```diff
+    DATABASES = {
+        'default': {
+    [...]
+            'CONN_MAX_AGE': 600,
+    +       'OPTIONS': {'charset': 'utf8mb4'},
+        }
+    }
+    ```
+
+1. Modifier le `/etc/mysql/my.cnf` pour que les sections correspondantes contiennent bien les infos suivantes :
+
+    ```
+    [client]
+    default-character-set=utf8mb4
+
+    [mysql]
+    default-character-set=utf8mb4
+
+    [mysqld]
+    character-set-client-handshake=false
+    character-set-server=utf8mb4
+    collation-server=utf8mb4_unicode_ci
+    ```
+
+1. Relancer MySQL
+
+    `sudo systemctl restart mysql`
 
 Issue 3620
 ----------
 
 Dans le `settings_prod.py` : ajouter `ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'`
+
+(Ne pas oublier de lancer les migrations en terminant cette MEP !)
 
 ---
 
@@ -656,4 +757,3 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
-

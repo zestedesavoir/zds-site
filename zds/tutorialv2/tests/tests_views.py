@@ -4853,22 +4853,22 @@ class PublishedContentTests(TestCase):
 
     def test_cant_edit_not_owned_note(self):
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
-        newUser = ProfileFactory().user
-        newReaction = ContentReaction(related_content=article, position=1)
-        newReaction.update_content("I will find you. And I will Kill you.")
-        newReaction.author = self.user_guest
+        new_user = ProfileFactory().user
+        new_reaction = ContentReaction(related_content=article, position=1)
+        new_reaction.update_content("I will find you. And I will Kill you.")
+        new_reaction.author = self.user_guest
 
-        newReaction.save()
+        new_reaction.save()
         self.assertEqual(
             self.client.login(
-                username=newUser.username,
+                username=new_user.username,
                 password='hostel77'),
             True)
         resp = self.client.get(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk))
+            reverse('content:update-reaction') + "?message={}&pk={}".format(new_reaction.pk, article.pk))
         self.assertEqual(403, resp.status_code)
         resp = self.client.post(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk),
+            reverse('content:update-reaction') + "?message={}&pk={}".format(new_reaction.pk, article.pk),
             {
                 'text': "I edited it"
             })
