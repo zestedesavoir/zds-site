@@ -6,8 +6,10 @@ import os
 import shutil
 import subprocess
 import zipfile
+from collections import Counter
 from datetime import datetime
 
+import re
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
@@ -16,6 +18,7 @@ from os.path import isdir, dirname
 from zds import settings
 from zds.search.models import SearchIndexContent
 from zds.settings import ZDS_APP
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.tutorialv2.utils import retrieve_and_update_images_links
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -274,6 +277,28 @@ class PandocPublicator(Publicator):
                 shell=True,
                 cwd=change_dir)
             self.__logger.info("Finished {} generation".format(base_name + "." + self.format))
+
+
+class NumberOfWordPublicator(Publicator):
+    """
+    Compute the number of words for a given content
+    """
+    def __init__(self):
+        pass
+
+    def publish(self, md_file_path, base_name, silently_pass=True, **kwargs):
+        try:
+            with open(md_file_path, "rb") as md_file:
+                content = md_file.read().decode("utf-8")
+            words = re.findall(r'\w+', content)
+            nb_of_words = sum(Counter(words).values())
+            current_content = PublishedContent.objects.find(slug=base_name, redirect=False).first()
+            if current_content:
+                current_content.nb_word = nb_of_words
+            logging.info("%s has %d words", base_name, nb_of_words)
+            current_content.save()
+        except OSError as e:
+            logging.warning("could not get file %s to compute nb word (error=%s)", md_file_path, e)
 
 
 @PublicatorRegistery.register("watchdog", settings.ZDS_APP['content']['extra_content_watchdog_dir'])

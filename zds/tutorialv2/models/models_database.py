@@ -562,6 +562,7 @@ class PublishedContent(models.Model):
     content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
     content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
     content_pk = models.IntegerField('Pk du contenu publié', db_index=True)
+    nb_word = models.IntegerField('Nombre de mots du contenu', db_index=False, null=True, blank=True, default=None)
 
     publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
     update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)

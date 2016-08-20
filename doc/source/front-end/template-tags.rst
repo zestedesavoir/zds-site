@@ -553,3 +553,8 @@ Exemple :
     {% for authors in content|displayable_authors:False %}
        <!-- here display all author for draft version -->
     {% endfor %}
+
+Le module ``nb_word_to_time``
+=============================
+
+Ce module permet d'avoir une indication du temps qu'il faut pour lire le contenu.

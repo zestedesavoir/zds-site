@@ -7,6 +7,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load interventions %}
+{% load nb_word_to_time %}
 
 
 {% block title %}
@@ -49,7 +50,9 @@
             {{ content.licence }}
         </span>
     {% endif %}
-
+    {% if content.nb_word and content.is_article %}
+        <img class="{{ content.nb_word|nb_word_to_icontime }}" alt="{% trans "temps de lecture estimé : {{ content.nb_word|nb_word_to_time }}" %}"/>
+    {% endif %}
     <h1 {% if content.image %}class="illu"{% endif %} itemprop="name">
         {% if content.image %}
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
