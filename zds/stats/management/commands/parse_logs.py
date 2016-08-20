@@ -10,8 +10,7 @@ import pygeoip
 from django.conf import settings
 from urlparse import urlparse
 from hashlib import md5
-from zds.tutorial.models import Tutorial
-from zds.tutorialv2.models_database import PublishedContent
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.stats.models import Log, Source, Device, Browser, Country, City, OS
 
 class ContentParsing(object):
@@ -25,12 +24,12 @@ class ContentParsing(object):
                 "pattern": re.compile(rg["regxp"]),
                 "regxp": rg["regxp"],
                 "unique_group": rg["unique_group"],
-                "mapped_app": rg["mapped_app"],
-                "mapped_model": rg["mapped_model"],
-                "mapped_class": rg["mapped_class"],
-                "mapped_column": rg["mapped_column"],
+                "mapped_app": "tutorialv2",
+                "mapped_model": "models.models_database",
+                "mapped_class": "PublishedContent",
+                "mapped_column": "pk",
                 })
-            self.type_content = rg["mapped_class"].lower()
+            self.type_content = rg["type_content"].lower()
 
     def match_content(self, url_path):
         for rg in self.recognize_patterns:
@@ -78,6 +77,9 @@ class Command(BaseCommand):
 
     def is_treatable(self, dict_result):
         if dict_result["verb"] not in self.verbs or dict_result["status"] != 200:
+            return False
+
+        if dict_result["is_bot"]:
             return False
 
         for content_path in self.content_paths:
@@ -185,49 +187,24 @@ class Command(BaseCommand):
         pattern_log = re.compile(regx, re.VERBOSE)
         content_parsing = []
         
-
-        reg_chapter= [{
-            "regxp": "^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/(?P<label_part>[\S][^\/]+)\/(?P<label_chapter>[\S][^\/]+)\/",
-            "unique_group": "label_chapter",
-            "mapped_app": "tutorialv2",
-            "mapped_model": "models_database",
-            "mapped_class": "Chapter",
-            "mapped_column": "content_public_slug",
-            }]
-        reg_part= [{
-            "regxp": "^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/(?P<label_part>[\S][^\/]+)",
-            "unique_group": "label_part",
-            "mapped_app": "tutorialv2",
-            "mapped_model": "models_database",
-            "mapped_class": "Part",
-            "mapped_column": "content_public_slug",
-            }]
         reg_tuto= [{
             "regxp": "^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/",
             "unique_group": "id_tuto",
-            "mapped_app": "tutorialv2",
-            "mapped_model": "models_database",
-            "mapped_class": "PublishedContent",
-            "mapped_column": "pk",
+            "type_content": "tutorial"
             }]
         reg_article= [{
             "regxp": "^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/",
             "unique_group": "id_article",
-            "mapped_app": "tutorialv2",
-            "mapped_model": "models_database",
-            "mapped_class": "PublishedContent",
-            "mapped_column": "pk",
+            "type_content": "article"
             }]
         
-        content_parsing.append(ContentParsing(reg_chapter))
-        content_parsing.append(ContentParsing(reg_part))
         content_parsing.append(ContentParsing(reg_tuto))
         content_parsing.append(ContentParsing(reg_article))
-
 
         for line in source:
             match = pattern_log.match(line)
             if match is not None:
+                user_agent = parse(match.group("http_user_agent"))
                 res = {}
                 res["hash"] = md5(line.encode("utf-8")).hexdigest()
                 res["remote_addr"] = match.group("remote_addr")
@@ -239,25 +216,23 @@ class Command(BaseCommand):
                 res["status"] = int(match.group("status"))
                 res["body_bytes_sent"] = int(match.group("body_bytes_sent"))
                 res["dns_referal"] = urlparse(match.group("http_referer")).netloc
-                user_agent = parse(match.group("http_user_agent"))
                 res["os_family"] = user_agent.os.family
                 res["os_version"] = user_agent.os.version_string
                 res["browser_family"] = user_agent.browser.family
                 res["browser_version"] = user_agent.browser.version_string
                 res["device_family"] = user_agent.device.family
                 res["request_time"] = float(match.group("request_time"))
+                res["is_bot"] = user_agent.is_bot
 
-                if not self.is_treatable(res):
-                    continue
-
-                # treat
-                for p_content in content_parsing:
-                    id_zds = p_content.get_real_id_of_content(res["path"])
-                    if id_zds is not None:
-                        res_content = res.copy()
-                        res_content["type"] = p_content.type_content
-                        res_content["id_zds"] = id_zds
-                        self.datas.append(res_content)
+                if self.is_treatable(res):
+                    # treat
+                    for p_content in content_parsing:
+                        id_zds = p_content.get_real_id_of_content(res["path"])
+                        if id_zds is not None:
+                            res_content = res.copy()
+                            res_content["type"] = p_content.type_content
+                            res_content["id_zds"] = id_zds
+                            self.datas.append(res_content)
 
         print("---> total : {}".format(len(self.datas)))
         source.close()

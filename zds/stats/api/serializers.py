@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from zds.tutorial.models import Tutorial, Chapter, Part
-from zds.article.models import Article
+from zds.tutorialv2.models.models_database import PublishedContent
 from zds.stats.models import Source, Device, OS, Browser, Country, City
 
 
@@ -14,6 +13,13 @@ class StatContentSerializer(serializers.ModelSerializer):
     Serializer of a generic content statistic object.
     """
 
+    class Meta:
+        model = PublishedContent
+        fields = ('id', 'title', 'slug', 'pubdate', 'update', 'total_visits', 'unique_visits', 'avg_load_speed', 'min_load_speed', 'max_load_speed', 'avg_size_page', 'min_size_page', 'max_size_page', 'description', 'sources', 'countrys', 'cities')
+
+    slug = serializers.CharField(source='content_public_slug')
+    pubdate = serializers.CharField(source='publication_date')
+    update = serializers.CharField(source='update_date')
     total_visits = serializers.IntegerField(source='get_total_visits')
     unique_visits = serializers.IntegerField(source='get_unique_visits')
     avg_load_speed = serializers.IntegerField(source='get_avg_load_speed')
@@ -37,53 +43,6 @@ class StatDimSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('code', 'total_visits', 'unique_visits', 'avg_load_speed', 'avg_size_page')
-
-class StatSectionSerializer(StatContentSerializer):
-    """
-    Serializer of a section statistic object.
-    A section can be tutorial or article
-    """
-    class Meta:
-        fields = ('id', 'title', 'slug', 'total_visits', 'unique_visits', 'avg_load_speed', 'min_load_speed', 'max_load_speed', 'avg_size_page', 'min_size_page', 'max_size_page', 'description', 'pubdate', 'update', 'sources', 'countrys', 'cities')
-
-class StatSubSectionSerializer(StatContentSerializer):
-    """
-    Serializer of a subsection statistic object.
-    A subsection can be part or chapter
-    """
-    class Meta:
-        fields = ('id', 'title', 'slug', 'total_visits', 'unique_visits', 'avg_load_speed', 'min_load_speed', 'max_load_speed', 'avg_size_page', 'min_size_page', 'max_size_page', 'sources', 'countrys', 'cities')
-
-
-class StatTutorialSerializer(StatSectionSerializer):
-    """
-    Serializer of a tutorial statistic object.
-    """
-    class Meta:
-        model = Tutorial
-
-class StatArticleSerializer(StatSectionSerializer):
-    """
-    Serializer of an article statistic object.
-    """
-    class Meta:
-        model = Article
-
-
-class StatChapterSerializer(StatSubSectionSerializer):
-    """
-    Serializer of a chapter statistic object.
-    """
-    class Meta:
-        model = Chapter
-
-
-class StatPartSerializer(StatSubSectionSerializer):
-    """
-    Serializer of a part statistic object.
-    """
-    class Meta:
-        model = Part
 
 class StatSourceContentSerializer(StatDimSerializer):
     """

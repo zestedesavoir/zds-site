@@ -5,16 +5,10 @@ from django.db.models import Avg, Min, Max, Count
 
 
 class Dimension:
-    """
-    TODO
-    """
-
-    code_name = ""
-    code_value = ""
 
     def __init__(self, *args, **kwargs):
         self.code_name = "id_zds"
-        super(Logable, self).__init__()
+        super(Dimension, self).__init__()
         self.code_value = self.pk
 
     def get_total_visits(self):
@@ -39,9 +33,6 @@ class Dimension:
         return u"{}".format(self.code)
 
 class Logable(Dimension):
-    """
-    TODO
-    """
 
     def __init__(self, *args, **kwargs):
         self.code_name = "id_zds"

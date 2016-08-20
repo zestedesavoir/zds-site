@@ -1,8 +1,6 @@
 # coding: utf-8
 
 from faker import Factory
-from zds.tutorial.models import Tutorial, Chapter, Part
-from zds.article.models import Article
 from zds.tutorialv2.models.models_database import PublishedContent
 
 class LogRandomFactory():
@@ -32,7 +30,7 @@ class LogRandomFactory():
         
         fake_content = fake.random_element(elements=pub_full)
         print(fake_content)
-        if fake_content is None:
+        if not fake_content:
         	fake_url = "/"
         else:
         	fake_url = fake_content.get_absolute_url_online()
@@ -76,7 +74,7 @@ class LogFactory():
     upstream_response_time = ""
     pipe = ""
 
-    def __init__(self, pk, content=None, source=None, uagent=None, ip=None):
+    def __init__(self, pk, type_content=None, source=None, uagent=None, ip=None):
         fake = Factory.create(locale="fr_FR")
         if source is None:
             source = "/"
@@ -87,14 +85,8 @@ class LogFactory():
         self.remote_addr = ip
         self.remote_user = fake.user_name()
         self.time_local = "{}:{} {}".format(fake.date(pattern="%d/%b/%Y"), fake.time(pattern="%H:%M:%S"), fake.timezone())
-        if content == "article":
-            fake_content = Article.objects.filter(pk=pk).first()
-        elif content == "tutorial":
-            fake_content = Tutorial.objects.filter(pk=pk).first()
-        elif content == "part":
-            fake_content = Part.objects.filter(pk=pk).first()
-        elif content == "chapter":
-            fake_content = Chapter.objects.filter(pk=pk).first()
+        if type_content:
+            fake_content = PublishedContent.objects.filter(pk=pk, content_type=type_content).first()
         else:
             fake_content = None
 
