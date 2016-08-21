@@ -1,0 +1,13 @@
+[Unit]
+Description=ZdS Gunicorn socket
+
+[Socket]
+#ListenStream=/run/gunicorn/socket
+ListenStream=/opt/zds/zdsenv/bin/gunicorn.sock
+ListenStream=0.0.0.0:9000
+ListenStream=[::]:8000
+
+[Install]
+WantedBy=sockets.target
+
+

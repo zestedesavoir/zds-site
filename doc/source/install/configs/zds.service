@@ -1,0 +1,20 @@
+[Unit]
+Description=Zeste de Savoir
+Requires=zds.socket
+After=network.target
+
+[Service]
+PIDFile=/run/gunicorn/pid
+User=zds
+Group=zds
+WorkingDirectory=/opt/zds/zdsenv
+ExecStart=/opt/zds/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zds/gunicorn_config.py zds.wsgi
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
+
+
