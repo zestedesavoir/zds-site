@@ -32,7 +32,7 @@ class PollForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field('title'),
             Field('anonymous_vote'),
-            Field('unique_vote'),
+            Field('multiple_vote'),
             Field('end_date')
         )
 
@@ -76,7 +76,7 @@ class UpdatePollForm(forms.ModelForm):
             Field('end_date'),
             Field('activate'),
             ButtonHolder(
-                StrictButton_(u'Éditer', type='submit'),
+                StrictButton(_(u'Éditer'), type='submit'),
             ),
         )
 
