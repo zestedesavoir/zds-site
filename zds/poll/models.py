@@ -10,21 +10,12 @@ from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 
 
-UNIQUE_VOTE_KEY = 'u'
-MULTIPLE_VOTE_KEY = 'm'
-
-
 class Poll(models.Model):
 
     class Meta:
         verbose_name = _(u'Sondage')
         verbose_name_plural = _(u'Sondages')
         ordering = ['-pubdate']
-
-    TYPE_VOTE_CHOICES = (
-        (UNIQUE_VOTE_KEY, _(u'Vote unique')),
-        (MULTIPLE_VOTE_KEY, _(u'Vote multiple')),
-    )
 
     title = models.CharField(_(u'Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
@@ -36,7 +27,7 @@ class Poll(models.Model):
     activate = models.BooleanField(default=True)
     anonymous_vote = models.BooleanField(_(u'Vote anonyme'), default=True)
 
-    type_vote = models.CharField('Type de vote', max_length=1, choices=TYPE_VOTE_CHOICES, default=UNIQUE_VOTE_KEY)
+    multiple_vote = models.BooleanField(_(u'Vote multiple'), default=False)
 
     def __unicode__(self):
         """
@@ -99,9 +90,9 @@ class Poll(models.Model):
             return False
 
     def get_vote_class(self):
-        if self.type_vote == MULTIPLE_VOTE_KEY:
+        if self.multiple_vote:
             return MultipleVote
-        elif self.type_vote == UNIQUE_VOTE_KEY:
+        elif not self.multiple_vote:
             return UniqueVote
         raise TypeError
 
@@ -139,9 +130,9 @@ class Choice(models.Model):
         return [Vote.user for Vote in self.poll.get_vote_class().objects.filter(choice=self, poll=self.poll)]
 
     def set_user_vote(self, user):
-        if self.poll.type_vote == UNIQUE_VOTE_KEY:
+        if self.poll.multiple_vote:
             UniqueVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
-        elif self.poll.type_vote == MULTIPLE_VOTE_KEY:
+        elif not self.poll.multiple_vote:
             MultipleVote.objects.update_or_create(user=user, choice=self, poll=self.poll)
 
 

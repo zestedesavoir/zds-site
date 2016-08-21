@@ -18,7 +18,7 @@ class PollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ['title', 'anonymous_vote', 'end_date', 'type_vote']
+        fields = ['title', 'anonymous_vote', 'end_date', 'multiple_vote']
         widgets = {
             'title': forms.TextInput(attrs={'required': 'required'}),
             'end_date': SelectDateWidget()

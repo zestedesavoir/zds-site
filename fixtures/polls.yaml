@@ -5,7 +5,7 @@
     author: 3
     pubdate: 2016-07-14T13:20:00+00:00
     anonymous_vote: True
-    type_vote: u
+    multiple_vote: False
 
 - model: poll.Choice
   pk: 1
@@ -70,7 +70,7 @@
     pubdate: 2016-09-14T12:00:00+00:00
     end_date: 2016-12-21T12:00:00+00:00
     anonymous_vote: False
-    type_vote: m
+    multiple_vote: True
 
 - model: poll.Choice
   pk: 3
