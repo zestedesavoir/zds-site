@@ -31,7 +31,7 @@ class Poll(models.Model):
     author = models.ForeignKey(User, verbose_name=_(u'Auteur'),
                                related_name=_(u'polls'), db_index=True)
     pubdate = models.DateTimeField(_(u'Date de création'), auto_now_add=True, db_index=True)
-    enddate = models.DateTimeField(_(u'Date de fin'), null=True, blank=True)
+    end_date = models.DateTimeField(_(u'Date de fin'), null=True, blank=True)
 
     activate = models.BooleanField(default=True)
     anonymous_vote = models.BooleanField(_(u'Vote anonyme'), default=True)
@@ -93,8 +93,8 @@ class Poll(models.Model):
         """
         Is date past ?
         """
-        if self.enddate:
-            return self.enddate < datetime.datetime.now()
+        if self.end_date:
+            return self.end_date < datetime.datetime.now()
         else:
             return False
 

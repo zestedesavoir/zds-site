@@ -18,10 +18,10 @@ class PollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ['title', 'anonymous_vote', 'enddate', 'type_vote']
+        fields = ['title', 'anonymous_vote', 'end_date', 'type_vote']
         widgets = {
             'title': forms.TextInput(attrs={'required': 'required'}),
-            'enddate': SelectDateWidget()
+            'end_date': SelectDateWidget()
         }
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +33,7 @@ class PollForm(forms.ModelForm):
             Field('title'),
             Field('anonymous_vote'),
             Field('unique_vote'),
-            Field('enddate')
+            Field('end_date')
         )
 
     def clean(self):
@@ -47,13 +47,13 @@ class PollForm(forms.ModelForm):
             if 'title' in cleaned_data:
                 del cleaned_data['title']
 
-        enddate = cleaned_data.get('enddate')
+        end_date = cleaned_data.get('end_date')
 
-        if enddate is not None and enddate < datetime.datetime.today():
-            self._errors['enddate'] = self.error_class(
+        if end_date is not None and end_date < datetime.datetime.today():
+            self._errors['end_date'] = self.error_class(
                 [_(u'La date ne peut pas être antérieure à aujourd\'hui')])
-            if 'enddate' in cleaned_data:
-                del cleaned_data['enddate']
+            if 'end_date' in cleaned_data:
+                del cleaned_data['end_date']
 
         return cleaned_data
 
@@ -62,9 +62,9 @@ class UpdatePollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ('activate', 'enddate')
+        fields = ('activate', 'end_date')
         widgets = {
-            'enddate': SelectDateWidget()
+            'end_date': SelectDateWidget()
         }
 
     def __init__(self, *args, **kwargs):
@@ -73,7 +73,7 @@ class UpdatePollForm(forms.ModelForm):
         self.helper = FormHelper()
 
         self.helper.layout = Layout(
-            Field('enddate'),
+            Field('end_date'),
             Field('activate'),
             ButtonHolder(
                 StrictButton_(u'Éditer', type='submit'),
