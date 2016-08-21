@@ -34,7 +34,7 @@ Paramètres spécifiques
 +================+=============================+=============================+
 | Nom            | beta.zestedesavoir.com      | zestedesavoir.com           |
 +----------------+-----------------------------+-----------------------------+
-| IPv4           | ``176.31.187.88``           | ``92.243.26.160``          |
+| IPv4           | ``176.31.187.88``           | ``92.243.26.160``           |
 +----------------+-----------------------------+-----------------------------+
 | IPv6           | x                           | Pas encore disponible…      |
 +----------------+-----------------------------+-----------------------------+
@@ -46,7 +46,7 @@ Paramètres spécifiques
 Premier déploiement
 ===================
 
-Toute la procédure suppose un déploiement dans ``/opt/zdsenv``.
+Toute la procédure suppose un déploiement dans ``/opt/zds``.
 
 Utilisateur local
 -----------------
@@ -57,39 +57,30 @@ Installation des outils
 -----------------------
 
 -  python
--  virtualenv (dans /opt/zdsenv/)
+-  virtualenv (dans /opt/zds/zdsenv/)
 -  git
 
 Clone du repo et configuration de prod
 --------------------------------------
 
 -  ``git clone https://github.com/zestedesavoir/zds-site.git``
+-  ``cd zds-site``
 -  ``mkdir tutoriels-private``
 -  ``mkdir tutoriels-public``
 -  ``mkdir articles-data``
 -  ``vim zds/settings_prod.py``
 
-On édite le fichier de manière à rajouter les infos spécifiques au serveur courant. Par exemple :
+Dans ``settings_prod.py``, remplacez toutes les valeurs ``to-fill``:
 
-.. code:: python
+.. literalinclude:: configs/settings_prod.py
+  :language: python
+  :caption: :download:`configs/settings_prod.py`
 
-    DEBUG = False
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'zdsdb',
-            'USER': 'zds',
-            'PASSWORD': 'mot_de_passe',
-            'HOST': 'localhost',
-            'PORT': '',
-        }
-    }
-
-    EMAIL_HOST = 'mail.geoffreycreation.com'
-    EMAIL_HOST_USER = 'zds@geoffreycreation.com'
-    EMAIL_HOST_PASSWORD = 'mot_de_passe'
-    EMAIL_PORT = 25
+Il est possible de personnaliser ZdS pour n'importe quel site communautaire de
+partage. Un ensemble de paramètres est disponible dans le fichier
+``settings.py`` via le dictionnaire ``ZDS_APP``. Vous pourrez donc écraser ces
+variables par défaut dans votre fichier ``settings_prod.py``, comme illustré
+dans le fichier ci-dessus.
 
 Installation de l'application de base
 -------------------------------------
@@ -107,22 +98,9 @@ Outils spécifiques à un serveur de run
 Gunicorn
 ~~~~~~~~
 
-Installer Gunicorn dans le virtualenv.
-
-Dans ``/opt/zdsenv/gunicorn_config.py`` :
-
-.. code:: python
-
-    command = '/opt/zdsenv/bin/gunicorn'
-    pythonpath = '/opt/zdsenv/ZesteDeSavoir'
-    bind = 'unix:/opt/zdsenv/bin/gunicorn.sock'
-    workers = 7
-    user = 'zds'
-    group = 'zds'
-    errorlog = '/opt/zdsenv/logs/gunicorn_error.log'
-    loglevel = 'info'
-    pid = '/opt/zdsenv/gunicorn.pid'
-
+.. literalinclude:: configs/gunicorn_config.py
+  :language: python
+  :caption: :download:`configs/gunicorn_config.py`
 
 Nginx
 ~~~~~
@@ -145,47 +123,71 @@ Installer nginx. La configuration nginx de Zeste de Savoir est séparée en plus
        \- static-cache.conf # Headers à rajouter pour les contenus statiques (cache)
 
 
-.. literalinclude:: nginx/nginx.conf
+.. literalinclude:: configs/nginx/nginx.conf
   :language: nginx
-  :caption: :download:`nginx/nginx.conf`
+  :caption: :download:`configs/nginx/nginx.conf`
 
-.. literalinclude:: nginx/sites-available/prod-redirect
+.. literalinclude:: configs/nginx/sites-available/prod-redirect
   :language: nginx
-  :caption: :download:`nginx/sites-available/prod-redirect`
+  :caption: :download:`configs/nginx/sites-available/prod-redirect`
 
-.. literalinclude:: nginx/sites-available/zestedesavoir
+.. literalinclude:: configs/nginx/sites-available/zestedesavoir
   :language: nginx
-  :caption: :download:`nginx/sites-available/zestedesavoir`
+  :caption: :download:`configs/nginx/sites-available/zestedesavoir`
 
-.. literalinclude:: nginx/snippets/antispam.conf
+.. literalinclude:: configs/nginx/snippets/antispam.conf
   :language: nginx
-  :caption: :download:`nginx/snippets/antispam.conf`
+  :caption: :download:`configs/nginx/snippets/antispam.conf`
 
-.. literalinclude:: nginx/snippets/gzip.conf
+.. literalinclude:: configs/nginx/snippets/gzip.conf
   :language: nginx
-  :caption: :download:`nginx/snippets/gzip.conf`
+  :caption: :download:`configs/nginx/snippets/gzip.conf`
 
-.. literalinclude:: nginx/snippets/headers.conf
+.. literalinclude:: configs/nginx/snippets/headers.conf
   :language: nginx
-  :caption: :download:`nginx/snippets/headers.conf`
+  :caption: :download:`configs/nginx/snippets/headers.conf`
 
-.. literalinclude:: nginx/snippets/proxy.conf
+.. literalinclude:: configs/nginx/snippets/proxy.conf
   :language: nginx
-  :caption: :download:`nginx/snippets/proxy.conf`
+  :caption: :download:`configs/nginx/snippets/proxy.conf`
 
-.. literalinclude:: nginx/snippets/ssl.conf
+.. literalinclude:: configs/nginx/snippets/ssl.conf
   :language: nginx
-  :caption: :download:`nginx/snippets/ssl.conf`
+  :caption: :download:`configs/nginx/snippets/ssl.conf`
 
-.. literalinclude:: nginx/snippets/static-cache.conf
+.. literalinclude:: configs/nginx/snippets/static-cache.conf
   :language: nginx
-  :caption: :download:`nginx/snippets/static-cache.conf`
+  :caption: :download:`configs/nginx/snippets/static-cache.conf`
 
+
+TLS : Let's Encrypt
+~~~~~~~~~~~~~~~~~~~
+
+Le site est servi en https avec un certificat Let's Encrypt install avec
+`certbot <https://certbot.eff.org>`_.
+
+- Installer ``certbot``:
+    - ``sudo apt-get install certbot -t jessie-backports``
+- Générer le nécessaire:
+    - ``certbot certonly --webroot -w /opt/zds/zdsenv/webroot -d zestedesavoir.com -d www.zestedesavoir.com``
+- Mettre un cron pour régénérer les certificats, avec l'utilisateur root:
+    - ``23 */2 * * * certbot renew --quiet --post-hook "service nginx reload"``
 
 Solr
 ~~~~
 
 `Voir la documentation de Solr <install-solr.html>`.
+
+MySQL
+~~~~~
+
+Zeste de Savoir nécessite MySQL 5.5. Voici la configuration de production :
+
+.. literalinclude:: configs/my.cnf
+  :language: text
+  :caption: :download:`configs/my.cnf`
+
+
 
 Supervisor
 ~~~~~~~~~~
@@ -197,68 +199,29 @@ Créer deux configurations :
 Configuration ZdS
 ^^^^^^^^^^^^^^^^^
 
-Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.socket`` permet de lancer le serveur applicatif de Zeste de Savoir (Gunicorn) à l'aide de ``systemctl start zds.{service,socket}`` et l'arrêter avec ``systemctl stop zds.{service,socket}``.
+Les confs dans ``/etc/systemd/system/zds.service`` et ``/etc/systemd/system/zds.socket``
+permettent de lancer le serveur applicatif de Zeste de Savoir (Gunicorn) à l'aide
+de ``systemctl start zds.{service,socket}`` et l'arrêter avec ``systemctl stop zds.{service,socket}``.
 
 ``zds.service`` nécessite la création manuelle de ``/run/gunicorn`` appartenant à ``zds`` : ``sudo mkdir /run/gunicorn && sudo chown zds /run/gunicorn``.
 
-.. code:: text
+.. literalinclude:: configs/zds.service
+  :language: bash
+  :caption: :download:`configs/zds.service`
 
-    [Unit]
-    Description=Zeste de Savoir
-    Requires=zds.socket
-    After=network.target
-
-    [Service]
-    PIDFile=/run/gunicorn/pid
-    User=zds
-    Group=zds
-    WorkingDirectory=/opt/zdsenv
-    ExecStart=/opt/zdsenv/bin/gunicorn --pid /run/gunicorn/pid -c /opt/zdsenv/gunicorn_config.py zds.wsgi
-    ExecReload=/bin/kill -s HUP $MAINPID
-    ExecStop=/bin/kill -s TERM $MAINPID
-    PrivateTmp=true
-
-    [Install]
-    WantedBy=multi-user.target
-
-
-.. code:: text
-
-    [Unit]
-    Description=ZdS Gunicorn socket
-
-    [Socket]
-    #ListenStream=/run/gunicorn/socket
-    ListenStream=/opt/zdsenv/bin/gunicorn.sock
-    ListenStream=0.0.0.0:9000
-    ListenStream=[::]:8000
-
-    [Install]
-    WantedBy=sockets.target
+.. literalinclude:: configs/zds.socket
+  :language: bash
+  :caption: :download:`configs/zds.socket`
 
 Configuration Solr
 ^^^^^^^^^^^^^^^^^^
 
-La conf dans ``/etc/systemd/system/solr.service`` permet de lancer Solr à l'aide de ``systemctl start solr`` et l'arrêter avec ``systemctl stop solr``.
+La conf dans ``/etc/systemd/system/solr.service`` permet de lancer Solr à l'aide
+de ``systemctl start solr`` et l'arrêter avec ``systemctl stop solr``.
 
-.. code:: text
-
-    [Unit]
-    Description=SolR ZdS
-    After=syslog.target network.target remote-fs.target nss-lookup.target
-
-    [Service]
-    PIDFile=/run/solrzds/pid
-    WorkingDirectory=/opt/zdsenv/apache-solr/example/
-    ExecStart=/usr/bin/java -jar start.jar
-    User=zds
-    Group=zds
-    ExecReload=/bin/kill -s HUP $MAINPID
-    ExecStop=/bin/kill -s QUIT $MAINPID
-    PrivateTmp=true
-
-    [Install]
-    WantedBy=multi-user.target
+.. literalinclude:: configs/solr.service
+  :language: bash
+  :caption: :download:`configs/solr.service`
 
 Munin
 ~~~~~
@@ -341,138 +304,4 @@ Ajouter les métriques suivantes au fichier ``/etc/munin/plugin-conf.d/munin-nod
 Mise à jour d'une instance existante
 ====================================
 
-`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/update_and_deploy.sh>` ! ;) (lequel appelle `le véritable script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/deploy.sh>`).
-
-Personnalisation d'une instance
-===============================
-
-Il est possible de personnaliser ZdS pour n'importe quel site communautaire de partage. Un ensemble de paramètres est disponible dans le fichier ``settings.py`` via un dictionnaire. Vous pourrez donc écraser ces variables par défaut dans votre fichier ``settings_prod.py``. Le dictionnaire de variables relatives au site est donc le suivant :
-
-.. sourcecode:: python
-
-    ZDS_APP = {
-        'site': {
-            'name': u"ZesteDeSavoir",
-            'litteral_name': u"Zeste de Savoir",
-            'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
-            'abbr': u"zds",
-            'url': u"http://127.0.0.1:8000",
-            'dns': u"zestedesavoir.com",
-            'email_contact': u"communication@zestedesavoir.com",
-            'email_noreply': u"noreply@zestedesavoir.com",
-            'repository': u"https://github.com/zestedesavoir/zds-site",
-            'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
-            'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
-            'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
-            'short_description': u"",
-            'long_description': u"Zeste de Savoir est un site de partage de connaissances "
-                                u"sur lequel vous trouverez des tutoriels de tous niveaux, "
-                                u"des articles et des forums d'entraide animés par et pour "
-                                u"la communauté.",
-            'association': {
-                'name': u"Zeste de Savoir",
-                'fee': u"20 €",
-                'email': u"association@zestedesavoir.com",
-                'email_ca': u"ca-zeste-de-savoir@googlegroups.com"
-            },
-            'licenses': {
-                'logo': {
-                    'code': u"CC-BY",
-                    'title': u"Creative Commons License",
-                    'description': u"Licence Creative Commons Attribution - Pas d’Utilisation Commerciale - "
-                                   u"Partage dans les Mêmes Conditions 4.0 International.",
-                    'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
-                    'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/",
-                    'author': u"MaxRoyo"
-                },
-                'cookies': {
-                    'code': u"CC-BY",
-                    'title': u"Licence Creative Commons",
-                    'description': u"licence Creative Commons Attribution 4.0 International",
-                    'url_image': u"http://i.creativecommons.org/l/by-nc-sa/4.0/80x15.png",
-                    'url_license': u"http://creativecommons.org/licenses/by-nc-sa/4.0/"
-                },
-                'source': {
-                    'code': u"GPL v3",
-                    'url_license': u"http://www.gnu.org/licenses/gpl-3.0.html",
-                    'provider_name': u"Progdupeupl",
-                    'provider_url': u"http://pdp.microjoe.org",
-                },
-                'licence_info_title': u'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
-                                      u'ences-sur-zeste-de-savoir/',
-                'licence_info_link': u'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
-            },
-            'hosting': {
-                'name': u"OVH",
-                'address': u"2 rue Kellermann - 59100 Roubaix - France"
-            },
-            'social': {
-                'facebook': u'https://www.facebook.com/ZesteDeSavoir',
-                'twitter': u'https://twitter.com/ZesteDeSavoir',
-                'googleplus': u'https://plus.google.com/u/0/107033688356682807298'
-            },
-            'cnil': u"1771020",
-        },
-        'member': {
-            'bot_account': u"admin",
-            'anonymous_account': u"anonymous",
-            'external_account': u"external",
-            'bot_group': u'bot',
-            'members_per_page': 100,
-        },
-        'gallery': {
-            'image_max_size': 1024 * 1024,
-        },
-        'article': {
-            'home_number': 4,
-            'repo_path': os.path.join(BASE_DIR, 'articles-data')
-        },
-        'tutorial': {
-            'repo_path': os.path.join(BASE_DIR, 'tutoriels-private'),
-            'repo_public_path': os.path.join(BASE_DIR, 'tutoriels-public'),
-            'default_license_pk': 7,
-            'home_number': 5,
-            'helps_per_page': 20,
-            'content_per_page': 50,
-            'feed_length': 5
-        },
-        'content': {
-            'repo_private_path': os.path.join(BASE_DIR, 'contents-private'),
-            'repo_public_path': os.path.join(BASE_DIR, 'contents-public'),
-            'extra_contents_dirname': 'extra_contents',
-            'max_tree_depth': 3,
-            'default_license_pk': 7,
-            'content_per_page': 50,
-            'notes_per_page': 25,
-            'helps_per_page': 20,
-            'feed_length': 5,
-            'user_page_number': 5,
-            'default_image': os.path.join(BASE_DIR, "fixtures", "noir_black.png"),
-            'import_image_prefix': 'archive',
-            'build_pdf_when_published': True
-        },
-        'forum': {
-            'posts_per_page': 21,
-            'topics_per_page': 21,
-            'spam_limit_seconds': 60 * 15,
-            'spam_limit_participant': 2,
-            'beta_forum_id': 1,
-            'max_post_length': 1000000,
-            'top_tag_max': 5,
-            'home_number': 5,
-            'old_post_limit_days': 90
-        },
-        'topic': {
-            'home_number': 6,
-        },
-        'featured_resource': {
-            'featured_per_page': 100,
-            'home_number': 5,
-        },
-        'notification': {
-            'per_page': 21,
-        },
-        'paginator': {
-            'folding_limit': 4
-        }
-    }
+`Allez jeter un coup d'oeil à notre script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/update_and_deploy.sh>`__ ! ;) (lequel appelle `le véritable script de déploiement <https://github.com/zestedesavoir/zds-site/blob/dev/scripts/deploy.sh>`__).

@@ -21,8 +21,8 @@ server {
 	server_tokens off;
 	client_max_body_size 100M;
 
-	ssl_certificate /etc/ssl/certs/zds-live.crt;
-	ssl_certificate_key /etc/ssl/private/zds-live.key;
+	ssl_certificate /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/zestedesavoir.com/privkey.pem;
 
 	# Logging
 	access_log /var/log/zds/nginx-access.log;
@@ -32,6 +32,10 @@ server {
 	rewrite ^/teasing/$ / permanent;
 
 	root /opt/zds/zdsenv/webroot;
+
+	location ~ /.well-known {
+		allow all;
+	}
 
 	location @proxy {
 		# 503 si la maintenance est active
@@ -64,3 +68,4 @@ server {
 	include snippets/headers.conf;
 	include snippets/antispam.conf;
 }
+
