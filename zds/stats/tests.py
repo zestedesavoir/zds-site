@@ -48,7 +48,9 @@ def create_public_big_tutorial(client, type_content, author, licence, validator)
 
     return bigtuto
 
-def generate_public_content(client, type_content, number, author, licence, validator, sources=None, uagents=None, ips=None):
+
+def generate_public_content(client, type_content, number, author, licence, validator, sources=None, uagents=None,
+                            ips=None):
     f = tempfile.NamedTemporaryFile()
     for i in range(number):
         source = None
@@ -60,7 +62,8 @@ def generate_public_content(client, type_content, number, author, licence, valid
             uagent = uagents[i % len(uagents)]
         if ips is not None:
             ip = ips[i % len(ips)]
-        bigtuto = create_public_big_tutorial(client=client, type_content=type_content, author=author, licence=licence, validator=validator)
+        bigtuto = create_public_big_tutorial(client=client, type_content=type_content, author=author, licence=licence,
+                                             validator=validator)
         log = LogFactory(type_content=type_content, pk=bigtuto.pk, source=source, uagent=uagent, ip=ip)
         f.write("{}\n".format(log))
 
@@ -68,7 +71,6 @@ def generate_public_content(client, type_content, number, author, licence, valid
     opts = {}
     call_command('parse_logs', f.name, **opts)
     f.close()
-
 
 
 @override_settings(REST_FRAMEWORK=overrided_drf)
@@ -112,22 +114,23 @@ class ContentListAPITest(APITestCase):
         self.licence = LicenceFactory()
         self.author = ProfileFactory().user
         self.validator = StaffProfileFactory().user
-        self.sources_data = ["http://www.google.fr","http://www.zestedesavoir.com"]
-        self.uagents_data = ["Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:42.0) Gecko/20100101 Firefox/42.0", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13"]
-        self.ips_data = ["81.7.15.115","142.4.213.25"] # first : None, Germany | second : Montréal, Canada
+        self.sources_data = ["http://www.google.fr", "http://www.zestedesavoir.com"]
+        self.uagents_data = ["Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:42.0) Gecko/20100101 Firefox/42.0",
+                             "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) "
+                             "Chrome/0.2.149.27 Safari/525.13"]
+        self.ips_data = ["81.7.15.115", "142.4.213.25"]  # first : None, Germany | second : Montréal, Canada
 
         for type_c in ["TUTORIAL", "ARTICLE"]:
             generate_public_content(client=self.client,
-                type_content=type_c,
-                licence=self.licence,
-                author=self.author,
-                validator=self.validator,
-                number = overrided_drf["PAGINATE_BY"],
-                sources = self.sources_data,
-                uagents = self.uagents_data,
-                ips = self.ips_data
-                )
-        
+                                    type_content=type_c,
+                                    licence=self.licence,
+                                    author=self.author,
+                                    validator=self.validator,
+                                    number=overrided_drf["PAGINATE_BY"],
+                                    sources=self.sources_data,
+                                    uagents=self.uagents_data,
+                                    ips=self.ips_data
+                                    )
 
     def test_list_of_contents(self):
 
@@ -144,7 +147,7 @@ class ContentListAPITest(APITestCase):
             response = self.client.get(reverse('api:stats:list-source-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), len(self.sources_data))
-            self.assertEqual(len(response.data.get('results')), len(self.sources_data)) 
+            self.assertEqual(len(response.data.get('results')), len(self.sources_data))
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
             # list of tutotials city

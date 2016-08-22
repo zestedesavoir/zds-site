@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from rest_framework import status, exceptions, filters
-from django.http import Http404
-from rest_framework.generics import RetrieveAPIView, DestroyAPIView, ListCreateAPIView, \
-    get_object_or_404, RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import exceptions, filters
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -13,8 +10,9 @@ from rest_framework_extensions.key_constructor.constructors import DefaultKeyCon
 
 from zds.tutorialv2.models.models_database import PublishedContent
 
-from zds.stats.models import Log, Source, Device , OS, Browser, City, Country
-from zds.stats.api.serializers import StatContentSerializer, StatSourceContentSerializer, StatDeviceContentSerializer, StatBrowserContentSerializer, StatCountryContentSerializer, StatCityContentSerializer, StatOSContentSerializer
+from zds.stats.models import Log, Source, Device, OS, Browser, City, Country
+from zds.stats.api.serializers import StatContentSerializer, StatSourceContentSerializer
+
 
 class PagingStatContentListKeyConstructor(DefaultKeyConstructor):
     pagination = bits.PaginationKeyBit()
@@ -22,6 +20,7 @@ class PagingStatContentListKeyConstructor(DefaultKeyConstructor):
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
+
 
 class DetailKeyConstructor(DefaultKeyConstructor):
     format = bits.FormatKeyBit()
@@ -44,9 +43,9 @@ class StatContentListAPI(ListCreateAPIView):
 
     def get_queryset(self):
         if self.kwargs.get("content_type") == 'tutoriel':
-            return PublishedContent.objects.all().filter(content_type = "TUTORIAL")
+            return PublishedContent.objects.all().filter(content_type="TUTORIAL")
         elif self.kwargs.get("content_type") == 'article':
-            return PublishedContent.objects.all().filter(content_type = "ARTICLE")
+            return PublishedContent.objects.all().filter(content_type="ARTICLE")
         else:
             return PublishedContent.objects.all()
 
@@ -72,14 +71,12 @@ class StatContentListAPI(ListCreateAPIView):
         """
         return self.list(request, *args, **kwargs)
 
+
 class StatContentDetailAPI(RetrieveAPIView):
     """
     Statistic resource to content stats details.
     """
     obj_key_func = DetailKeyConstructor()
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -88,9 +85,15 @@ class StatContentDetailAPI(RetrieveAPIView):
     def get_object(self):
 
         if self.kwargs.get("content_type") == 'tutoriel':
-            return PublishedContent.objects.all().filter(id=self.kwargs.get("content_id"), content_type = "TUTORIAL", sha_public__isnull=False).first()
+            return PublishedContent.objects.all().filter(
+                id=self.kwargs.get("content_id"),
+                content_type="TUTORIAL",
+                sha_public__isnull=False).first()
         elif self.kwargs.get("content_type") == 'article':
-            return PublishedContent.objects.all().filter(id=self.kwargs.get("content_id"), content_type = "ARTICLE", sha_public__isnull=False).first()
+            return PublishedContent.objects.all().filter(
+                id=self.kwargs.get("content_id"),
+                content_type="ARTICLE",
+                sha_public__isnull=False).first()
         else:
             raise exceptions.NotFound()
 
@@ -113,13 +116,15 @@ class StatContentDetailAPI(RetrieveAPIView):
         serializer = self.get_serializer(self.get_object())
         return Response(serializer.data)
 
+
 def get_app_from_content_type(content_type):
-    if content_type=="tutoriel":
+    if content_type == "tutoriel":
         return "tutorial"
-    elif content_type=="article":
+    elif content_type == "article":
         return "article"
     else:
         return None
+
 
 class StatSubListAPI(ListCreateAPIView):
     map_attr = ''
@@ -168,25 +173,31 @@ class StatSubListAPI(ListCreateAPIView):
         """
         return self.list(request, *args, **kwargs)
 
+
 class StatSourceContentListAPI(StatSubListAPI):
     map_attr = 'dns_referal'
     map_query_set = Source.objects.all()
+
 
 class StatDeviceContentListAPI(StatSubListAPI):
     map_attr = 'device_family'
     map_query_set = Device.objects.all()
 
+
 class StatBrowserContentListAPI(StatSubListAPI):
     map_attr = 'browser_family'
     map_query_set = Browser.objects.all()
+
 
 class StatCountryContentListAPI(StatSubListAPI):
     map_attr = 'country'
     map_query_set = Country.objects.all()
 
+
 class StatCityContentListAPI(StatSubListAPI):
     map_attr = 'city'
     map_query_set = City.objects.all()
+
 
 class StatOSContentListAPI(StatSubListAPI):
     map_attr = 'os_family'

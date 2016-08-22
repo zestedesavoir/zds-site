@@ -562,10 +562,8 @@ class PublishedContent(models.Model, Logable):
         self.code_name = "id_zds"
         super(PublishedContent, self).__init__(*args, **kwargs)
         self.code_value = self.pk
-    
 
     content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
-
     content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
     content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
     content_pk = models.IntegerField('Pk du contenu publié', db_index=True)

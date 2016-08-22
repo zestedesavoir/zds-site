@@ -45,6 +45,7 @@ class PublishedContentManager(models.Manager):
         """
         return self.filter(must_redirect=False)\
                    .count()
+
     def get_contents_count_views(self, pk):
         """
         :rtype: int

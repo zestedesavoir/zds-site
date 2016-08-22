@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from zds.tutorialv2.models.models_database import PublishedContent
@@ -15,7 +13,9 @@ class StatContentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PublishedContent
-        fields = ('id', 'title', 'slug', 'pubdate', 'update', 'total_visits', 'unique_visits', 'avg_load_speed', 'min_load_speed', 'max_load_speed', 'avg_size_page', 'min_size_page', 'max_size_page', 'description', 'sources', 'countrys', 'cities')
+        fields = ('id', 'title', 'slug', 'pubdate', 'update', 'total_visits', 'unique_visits', 'avg_load_speed',
+                  'min_load_speed', 'max_load_speed', 'avg_size_page', 'min_size_page', 'max_size_page', 'description',
+                  'sources', 'countrys', 'cities')
 
     slug = serializers.CharField(source='content_public_slug')
     pubdate = serializers.CharField(source='publication_date')
@@ -32,6 +32,7 @@ class StatContentSerializer(serializers.ModelSerializer):
     countrys = serializers.ListField(source='get_countrys', child=serializers.DictField(child=serializers.CharField()))
     cities = serializers.ListField(source='get_cities', child=serializers.DictField(child=serializers.CharField()))
 
+
 class StatDimSerializer(serializers.ModelSerializer):
     """
     Serializer of dimension statistic object.
@@ -44,12 +45,14 @@ class StatDimSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('code', 'total_visits', 'unique_visits', 'avg_load_speed', 'avg_size_page')
 
+
 class StatSourceContentSerializer(StatDimSerializer):
     """
     Serializer of source statistic object.
     """
     class Meta:
         model = Source
+
 
 class StatDeviceContentSerializer(StatDimSerializer):
     """
@@ -58,12 +61,14 @@ class StatDeviceContentSerializer(StatDimSerializer):
     class Meta:
         model = Device
 
+
 class StatBrowserContentSerializer(StatDimSerializer):
     """
     Serializer of a browser statistic object.
     """
     class Meta:
         model = Browser
+
 
 class StatCountryContentSerializer(StatDimSerializer):
     """
@@ -72,12 +77,14 @@ class StatCountryContentSerializer(StatDimSerializer):
     class Meta:
         model = Country
 
+
 class StatCityContentSerializer(StatDimSerializer):
     """
     Serializer of city statistic object.
     """
     class Meta:
         model = City
+
 
 class StatOSContentSerializer(StatDimSerializer):
     """

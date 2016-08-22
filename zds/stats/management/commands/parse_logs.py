@@ -14,6 +14,7 @@ from zds.stats.models import Log
 
 logger = logging.getLogger(__name__)
 
+
 class ContentParsing(object):
     recognize_patterns = []
     type_content = ""
@@ -21,15 +22,17 @@ class ContentParsing(object):
     def __init__(self, regxps):
         self.recognize_patterns = []
         for rg in regxps:
-            self.recognize_patterns.append({
-                "pattern": re.compile(rg["regxp"]),
-                "regxp": rg["regxp"],
-                "unique_group": rg["unique_group"],
-                "mapped_app": "tutorialv2",
-                "mapped_model": "models.models_database",
-                "mapped_class": "PublishedContent",
-                "mapped_column": "pk",
-                })
+            self.recognize_patterns.append(
+                {
+                    "pattern": re.compile(rg["regxp"]),
+                    "regxp": rg["regxp"],
+                    "unique_group": rg["unique_group"],
+                    "mapped_app": "tutorialv2",
+                    "mapped_model": "models.models_database",
+                    "mapped_class": "PublishedContent",
+                    "mapped_column": "pk",
+                }
+            )
             self.type_content = rg["type_content"].lower()
 
     def match_content(self, url_path):
@@ -94,12 +97,11 @@ class Command(BaseCommand):
         obj = __import__(module, globals(), locals(), [class_name])
         cls = getattr(obj, class_name)
         data_existants = cls.objects.values_list(field_in_class, flat=True)
-        data_for_save = list(set(list_of_datas)-set(data_existants))
+        data_for_save = list(set(list_of_datas) - set(data_existants))
 
         for my_data in data_for_save:
             create_arg = {field_in_class: my_data}
             cls.objects.create(**create_arg)
-
 
     @transaction.atomic
     def flush_data_in_database(self):
@@ -110,38 +112,40 @@ class Command(BaseCommand):
         my_cities = []
         my_countries = []
         for data in self.datas:
-            existant = Log.objects.filter(hash_code=data["hash"], timestamp=data["timestamp"], content_type=data["type"]).first()
+            existant = Log.objects.filter(hash_code=data["hash"],
+                                          timestamp=data["timestamp"],
+                                          content_type=data["type"]).first()
             if existant is None:
                 logger.debug(u"Traitement de la log du {} de type {}".format(data["timestamp"], data["type"]))
                 existant = Log(id_zds=data["id_zds"],
-                    content_type=data["type"],
-                    remote_addr=data["remote_addr"],
-                    hash_code=data["hash"],
-                    body_bytes_sent=data["body_bytes_sent"],
-                    timestamp=data["timestamp"],
-                    dns_referal=data["dns_referal"],
-                    os_family=data["os_family"],
-                    os_version=data["os_version"],
-                    browser_family=data["browser_family"],
-                    browser_version=data["browser_version"],
-                    device_family=data["device_family"],
-                    request_time=data["request_time"],
-                    country=data["country"],
-                    city=data["city"])
+                               content_type=data["type"],
+                               remote_addr=data["remote_addr"],
+                               hash_code=data["hash"],
+                               body_bytes_sent=data["body_bytes_sent"],
+                               timestamp=data["timestamp"],
+                               dns_referal=data["dns_referal"],
+                               os_family=data["os_family"],
+                               os_version=data["os_version"],
+                               browser_family=data["browser_family"],
+                               browser_version=data["browser_version"],
+                               device_family=data["device_family"],
+                               request_time=data["request_time"],
+                               country=data["country"],
+                               city=data["city"])
             else:
                 logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["type"]))
                 existant.id_zds = data["id_zds"]
                 existant.remote_addr = data["remote_addr"]
-                existant.body_bytes_sent=data["body_bytes_sent"]
-                existant.dns_referal=data["dns_referal"]
-                existant.os_family=data["os_family"]
-                existant.os_version=data["os_version"]
-                existant.browser_family=data["browser_family"]
-                existant.browser_version=data["browser_version"]
-                existant.device_family=data["device_family"]
-                existant.request_time=data["request_time"]
-                existant.country=data["country"]
-                existant.city=data["city"]
+                existant.body_bytes_sent = data["body_bytes_sent"]
+                existant.dns_referal = data["dns_referal"]
+                existant.os_family = data["os_family"]
+                existant.os_version = data["os_version"]
+                existant.browser_family = data["browser_family"]
+                existant.browser_version = data["browser_version"]
+                existant.device_family = data["device_family"]
+                existant.request_time = data["request_time"]
+                existant.country = data["country"]
+                existant.city = data["city"]
 
             existant.save()
             my_sources.append(data["dns_referal"])
@@ -158,8 +162,6 @@ class Command(BaseCommand):
         self.flush_denormalize("City", "code", "city", my_cities)
         self.flush_denormalize("Browser", "code", "browser_family", my_browsers)
 
-
-
     def handle(self, *args, **options):
         if len(args) != 1:
             logger.error(u"Chemin du fichier à parser absent")
@@ -169,7 +171,6 @@ class Command(BaseCommand):
             raise CommandError("Veuillez préciser un chemin de fichier")
         else:
             logger.info(u"Début du parsing du fichier {}".format(args[0]))
-
 
         regx = r'''
                 ^(?P<remote_addr>\S+)\s-\s              # Remote address
@@ -193,18 +194,22 @@ class Command(BaseCommand):
         source = open(args[0], "r")
         pattern_log = re.compile(regx, re.VERBOSE)
         content_parsing = []
-        
-        reg_tuto= [{
-            "regxp": "^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/",
-            "unique_group": "id_tuto",
-            "type_content": "tutorial"
-            }]
-        reg_article= [{
-            "regxp": "^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/",
-            "unique_group": "id_article",
-            "type_content": "article"
-            }]
-        
+
+        reg_tuto = [
+            {
+                "regxp": "^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/",
+                "unique_group": "id_tuto",
+                "type_content": "tutorial"
+            }
+        ]
+        reg_article = [
+            {
+                "regxp": "^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/",
+                "unique_group": "id_article",
+                "type_content": "article"
+            }
+        ]
+
         content_parsing.append(ContentParsing(reg_tuto))
         content_parsing.append(ContentParsing(reg_article))
 

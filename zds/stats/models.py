@@ -32,13 +32,13 @@ class Dimension:
     def __unicode__(self):
         return u"{}".format(self.code)
 
+
 class Logable(Dimension):
 
     def __init__(self, *args, **kwargs):
         self.code_name = "id_zds"
         super(Logable, self).__init__()
         self.code_value = self.pk
-
 
     def get_min_load_speed(self):
         args = {self.code_name: self.code_value}
@@ -61,18 +61,24 @@ class Logable(Dimension):
         return req_result['max_size_page']
 
     def get_sources(self):
-    	return list(Log.objects.filter(id_zds=self.pk).values('dns_referal').annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
+        return list(Log.objects.filter(id_zds=self.pk)
+                    .values('dns_referal')
+                    .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
     def get_countrys(self):
-    	return list(Log.objects.filter(id_zds=self.pk).values('country').annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
+        return list(Log.objects.filter(id_zds=self.pk)
+                    .values('country')
+                    .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
     def get_cities(self):
-    	return list(Log.objects.filter(id_zds=self.pk).values('city').annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
+        return list(Log.objects.filter(id_zds=self.pk)
+                    .values('city')
+                    .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
 
 class Source(models.Model, Dimension):
     """
-    TODO
+    Source model
     """
     class Meta:
         verbose_name = 'Stats Source'
@@ -85,9 +91,10 @@ class Source(models.Model, Dimension):
 
     code = models.CharField(u'Source', max_length=80, null=True)
 
+
 class Country(models.Model, Dimension):
     """
-    TODO
+    Country model
     """
     class Meta:
         verbose_name = 'Stats Pays'
@@ -119,7 +126,7 @@ class City(models.Model, Dimension):
 
 class OS(models.Model, Dimension):
     """
-    TODO
+    Operating System model
     """
     class Meta:
         verbose_name = 'Stats OS'
@@ -134,7 +141,7 @@ class OS(models.Model, Dimension):
 
 class Browser(models.Model, Dimension):
     """
-    TODO
+    Browser model
     """
     class Meta:
         verbose_name = 'Stats navigateur'
@@ -149,7 +156,7 @@ class Browser(models.Model, Dimension):
 
 class Device(models.Model, Dimension):
     """
-    TODO
+    Device model
     """
     class Meta:
         verbose_name = 'Stats Device'
@@ -164,12 +171,11 @@ class Device(models.Model, Dimension):
 
 class Log(models.Model):
     """
-    TODO
+    Log model
     """
     class Meta:
         verbose_name = 'Log web'
         verbose_name_plural = 'Logs web'
-
 
     id_zds = models.IntegerField('Identifiant sur ZdS')
     content_type = models.CharField('Type de contenu', max_length=80)
