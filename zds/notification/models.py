@@ -293,6 +293,7 @@ class Notification(models.Model):
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey('content_type', 'object_id')
     is_read = models.BooleanField(_(u'Lue'), default=False, db_index=True)
+    is_dead = models.BooleanField(_(u'Morte'), default=False)
     url = models.CharField('URL', max_length=255)
     sender = models.ForeignKey(User, related_name='sender', db_index=True)
     title = models.CharField('Titre', max_length=200)
