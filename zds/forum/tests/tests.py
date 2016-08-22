@@ -185,7 +185,7 @@ class ForumMemberTests(TestCase):
         TopicAnswerSubscription.objects.toggle_follow(topic1, user2, True)
         TopicAnswerSubscription.objects.toggle_follow(topic1, self.user, True)
 
-        # check if we send ane empty text
+        # check if we send an empty text
         result = self.client.post(
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
@@ -199,17 +199,18 @@ class ForumMemberTests(TestCase):
         # check posts count (should be 3 for the moment)
         self.assertEqual(Post.objects.all().count(), 3)
 
-        # now check what happen if everything is fine
+        # now check a valid post containing utf8mb4 characters
+        post_content = u'Une famille 👩‍👩‍👦 mangeant un gratin d\'🍆🍆 ne blesse pas les innocents 🐙🐙🐙.'
         result = self.client.post(
             reverse('post-new') + '?sujet={0}'.format(topic1.pk),
             {
                 'last_post': topic1.last_message.pk,
-                'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                'text': post_content
             },
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEquals(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 2)
 
         # check topics count
         self.assertEqual(Topic.objects.all().count(), 1)
@@ -227,9 +228,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(post_final.topic, topic1)
         self.assertEqual(post_final.position, 4)
         self.assertEqual(post_final.editor, None)
-        self.assertEqual(
-            post_final.text,
-            u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ')
+        self.assertEqual(post_final.text, post_content)
 
         # test antispam return 403
         result = self.client.post(
@@ -831,11 +830,11 @@ class ForumMemberTests(TestCase):
             PostFactory(topic=topic, author=profiles[i % 2].user, position=i + 2)
         self.client.login(username=profiles[1].user.username, password="hostel77")
 
-        templateResponse = self.client.get(topic.get_absolute_url())
-        self.assertIn(expected, templateResponse.content.decode('utf-8'))
+        template_response = self.client.get(topic.get_absolute_url())
+        self.assertIn(expected, template_response.content.decode('utf-8'))
 
-        templateResponse = self.client.get(topic.get_absolute_url() + "?page=2")
-        self.assertNotIn(expected, templateResponse.content.decode('utf-8'))
+        template_response = self.client.get(topic.get_absolute_url() + "?page=2")
+        self.assertNotIn(expected, template_response.content.decode('utf-8'))
 
 
 class ForumGuestTests(TestCase):

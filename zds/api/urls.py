@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^membres/', include('zds.member.api.urls', namespace='member')),
     url(r'^mps/', include('zds.mp.api.urls', namespace='mp')),
     url(r'^tags/', include('zds.utils.api.urls', namespace='tag')),
+    url(r'^notifications/', include('zds.notification.api.urls', namespace='notification')),
 ]

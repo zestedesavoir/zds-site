@@ -151,7 +151,11 @@
         <hr class="clearfix" />
         <section class="full-content-wrapper without-margin article-content">
             <h2 id="biographie">{% trans "Biographie" %}</h2>
-            {{ profile.biography|emarkdown }}
+            {% if not profile.end_ban_read and not profile.can_read %}
+                <em>{% trans "La biographie de ce membre est masquée car il a été banni définitivement." %}</em>
+            {% else %}
+                {{ profile.biography|emarkdown }}
+            {% endif %}
         </section>
     {% endif %}
 

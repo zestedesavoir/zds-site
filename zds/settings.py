@@ -393,11 +393,10 @@ ZDS_APP = {
         'slogan': u"Zeste de Savoir, la connaissance pour tous et sans pépins",
         'abbr': u"zds",
         'url': u"http://127.0.0.1:8000",
+        'secure_url': u"https://127.0.0.1:8000",
         'dns': u"zestedesavoir.com",
         'email_contact': u"zestedesavoir@gmail.com",
         'email_noreply': u"noreply@zestedesavoir.com",
-        'repository': u"https://github.com/zestedesavoir/zds-site",
-        'bugtracker': u"https://github.com/zestedesavoir/zds-site/issues",
         'forum_feedback_users': u"/forums/communaute/bug-suggestions/",
         'contribute_link': u"https://github.com/zestedesavoir/zds-site/blob/dev/CONTRIBUTING.md",
         'short_description': u"",
@@ -411,6 +410,15 @@ ZDS_APP = {
             'email': u"zestedesavoir@gmail.com",
             'email_ca': u"ca-zeste-de-savoir@googlegroups.com",
             'forum_ca_pk': 25
+        },
+        'repository': {
+            'url': u'https://github.com/zestedesavoir/zds-site',
+            'bugtracker': u'https://github.com/zestedesavoir/zds-site/issues',
+            'api': u'https://api.github.com/repos/zestedesavoir/zds-site',
+            'tags': [
+                u'C-Back', u'C-Front', u'C-API', u'C-Documentation', u'C-Infra', u'S-Bug', u'S-Régression',
+                u'S-Évolution'
+            ]
         },
         'licenses': {
             'logo': {
@@ -455,6 +463,7 @@ ZDS_APP = {
         'anonymous_account': u"anonymous",
         'external_account': u"external",
         'bot_group': u'bot',
+        'dev_group': u'devs',
         'members_per_page': 100,
     },
     'gallery': {

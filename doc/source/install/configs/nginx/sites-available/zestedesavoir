@@ -1,5 +1,5 @@
 upstream zdsappserver {
-	server unix:/opt/zdsenv/bin/gunicorn.sock fail_timeout=0;
+	server unix:/opt/zds/zdsenv/bin/gunicorn.sock fail_timeout=0;
 }
 
 # Active le header X-Robots-Tag sur la beta pour éviter d'indexer la beta
@@ -15,21 +15,27 @@ server {
 	listen 443 ssl spdy default_server;
 	listen [::]:443 ssl spdy default_server;
 
+	server_name zestedesavoir.com;
+
 	try_files $uri @proxy;
 	server_tokens off;
 	client_max_body_size 100M;
 
-	ssl_certificate /etc/ssl/certs/zds-live.crt;
-	ssl_certificate_key /etc/ssl/private/zds-live.key;
+	ssl_certificate /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/zestedesavoir.com/privkey.pem;
 
 	# Logging
-	access_log /opt/zdsenv/logs/nginx-access.log;
-	error_log /opt/zdsenv/logs/nginx-error.log;
+	access_log /var/log/zds/nginx-access.log;
+	error_log /var/log/zds/nginx-error.log;
 
 	# Rewrite de l'ancienne page de teasing
 	rewrite ^/teasing/$ / permanent;
 
-	root /opt/zdsenv/webroot;
+	root /opt/zds/zdsenv/webroot;
+
+	location ~ /.well-known {
+		allow all;
+	}
 
 	location @proxy {
 		# 503 si la maintenance est active
@@ -51,7 +57,7 @@ server {
 	}
 
 	# Cache headers on static resources
-	location ~* /(static|media|errors)/ {
+	location ~* ^/(static|media|errors)/ {
 		include snippets/static-cache.conf;
 	}
 
@@ -62,3 +68,4 @@ server {
 	include snippets/headers.conf;
 	include snippets/antispam.conf;
 }
+

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -163,6 +164,10 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
         context['isantispam'] = self.object.antispam()
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        if hasattr(self.request.user, 'profile'):
+            context['is_dev'] = self.request.user.profile.is_dev()
+            context['tags'] = settings.ZDS_APP['site']['repository']['tags']
+            context['has_token'] = self.request.user.profile.github_token != ''
 
         if self.request.user.has_perm('forum.change_topic'):
             context["user_can_modify"] = [post.pk for post in context['posts']]
@@ -652,3 +657,44 @@ def complete_topic(request):
     the_data = json.dumps(suggestions)
 
     return HttpResponse(the_data, content_type='application/json')
+
+
+class CreateGitHubIssue(UpdateView):
+    queryset = Topic.objects.all()
+
+    @method_decorator(require_POST)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.profile.is_dev():
+            raise PermissionDenied
+        return super(CreateGitHubIssue, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        tags = [value.strip() for key, value in request.POST.items() if key.startswith("tag-")]
+        body = _("{}\n\nSujet: {}\n*Envoyé depuis {}*")\
+            .format(request.POST['body'],
+                    settings.ZDS_APP['site']['url'] + self.object.get_absolute_url(),
+                    settings.ZDS_APP['site']['litteral_name'])
+        try:
+            response = requests.post(
+                settings.ZDS_APP['site']['repository']['api'] + '/issues',
+                timeout=10,
+                headers={
+                    'Authorization': 'Token {}'.format(self.request.user.profile.github_token)},
+                json={
+                    'title': request.POST['title'],
+                    'body': body,
+                    'labels': tags
+                }
+            )
+            if response.status_code != 201:
+                raise Exception
+        except Exception:
+            messages.error(request, _('Un problème est survenu lors de l\'envoi sur GitHub'))
+
+        if request.is_ajax():
+            return HttpResponse(json.dumps(self.object), content_type='application/json')
+        return redirect(self.object.get_absolute_url())

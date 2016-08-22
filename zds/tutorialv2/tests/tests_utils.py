@@ -425,22 +425,22 @@ class UtilsTests(TestCase):
 
     def test_last_participation_is_old(self):
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
-        newUser = ProfileFactory().user
+        new_user = ProfileFactory().user
         reac = ContentReaction(author=self.user_author, position=1, related_content=article)
         reac.update_content("I will find you. And I Will Kill you.")
         reac.save()
         article.last_note = reac
         article.save()
 
-        self.assertFalse(last_participation_is_old(article, newUser))
+        self.assertFalse(last_participation_is_old(article, new_user))
         ContentRead(user=self.user_author, note=reac, content=article).save()
-        reac = ContentReaction(author=newUser, position=2, related_content=article)
+        reac = ContentReaction(author=new_user, position=2, related_content=article)
         reac.update_content("I will find you. And I Will Kill you.")
         reac.save()
         article.last_note = reac
         article.save()
-        ContentRead(user=newUser, note=reac, content=article).save()
-        self.assertFalse(last_participation_is_old(article, newUser))
+        ContentRead(user=new_user, note=reac, content=article).save()
+        self.assertFalse(last_participation_is_old(article, new_user))
         self.assertTrue(last_participation_is_old(article, self.user_author))
 
     def testParseBadManifest(self):

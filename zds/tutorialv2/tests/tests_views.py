@@ -1696,7 +1696,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_article.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
 
         # import into first article (that will only change the images)
         result = self.client.post(
@@ -1723,7 +1723,7 @@ class ContentTests(TestCase):
         # check links:
         text = versioned.children[0].get_text()
         for img in Image.objects.filter(gallery=new_version.gallery).all():
-            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['url'] + img.physical.url) in text)
+            self.assertTrue('![]({})'.format(settings.ZDS_APP['site']['secure_url'] + img.physical.url) in text)
 
         # clean up
         os.remove(draft_zip_path)
@@ -4853,22 +4853,22 @@ class PublishedContentTests(TestCase):
 
     def test_cant_edit_not_owned_note(self):
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
-        newUser = ProfileFactory().user
-        newReaction = ContentReaction(related_content=article, position=1)
-        newReaction.update_content("I will find you. And I will Kill you.")
-        newReaction.author = self.user_guest
+        new_user = ProfileFactory().user
+        new_reaction = ContentReaction(related_content=article, position=1)
+        new_reaction.update_content("I will find you. And I will Kill you.")
+        new_reaction.author = self.user_guest
 
-        newReaction.save()
+        new_reaction.save()
         self.assertEqual(
             self.client.login(
-                username=newUser.username,
+                username=new_user.username,
                 password='hostel77'),
             True)
         resp = self.client.get(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk))
+            reverse('content:update-reaction') + "?message={}&pk={}".format(new_reaction.pk, article.pk))
         self.assertEqual(403, resp.status_code)
         resp = self.client.post(
-            reverse('content:update-reaction') + "?message={}&pk={}".format(newReaction.pk, article.pk),
+            reverse('content:update-reaction') + "?message={}&pk={}".format(new_reaction.pk, article.pk),
             {
                 'text': "I edited it"
             })
@@ -5230,3 +5230,73 @@ class PublishedContentTests(TestCase):
 
         # re-active PDF build
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
+
+    def test_beta_article_closed_when_published(self):
+        """Test that the beta of an article is locked when the content is published"""
+
+        text_validation = u'Valide moi ce truc !'
+        text_publication = u'Validation faite !'
+
+        article = PublishableContentFactory(type='ARTICLE')
+        article.authors.add(self.user_author)
+        article.save()
+        article_draft = article.load_version()
+
+        # login with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # set beta
+        result = self.client.post(
+            reverse('content:set-beta', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # reserve the article
+        validation = Validation.objects.filter(content=article).last()
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # publish the article
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
+        self.assertIsNotNone(beta_topic)
+        self.assertTrue(beta_topic.is_locked)

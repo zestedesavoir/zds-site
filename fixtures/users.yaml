@@ -20,6 +20,10 @@
     pk: 2
     fields:
         name : bot
+-   model: auth.group
+    pk: 3
+    fields:
+        name: devs
 
 -   model: auth.user
     pk: 1
@@ -86,6 +90,17 @@
         username: decal
         password: pbkdf2_sha256$15000$SaXZhZxZQ83e$SYz/pK0z9ZcuKhttYksJxjAn2zy6UOng4bWbWd7XF/g=
         is_superuser: False
+-   model: auth.user
+    pk: 8
+    fields:
+        first_name: dev
+        last_name: User
+        username: dev
+        password: pbkdf2_sha256$20000$JDIYMDQusKug$k9gJBXge+eyQ01M6iH5ymM4nV6gzylzYQETRrLvvVQc=
+        is_superuser: False
+        groups:
+            - 3
+
 -   model: member.Profile
     pk: 1
     fields:
@@ -120,4 +135,9 @@
     pk: 20
     fields:
         user: 7
+        last_ip_address: 192.168.0.1
+-   model: member.Profile
+    pk: 8
+    fields:
+        user: 8
         last_ip_address: 192.168.0.1

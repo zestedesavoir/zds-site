@@ -1141,6 +1141,30 @@ class CacheMemberAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(another_profile.user.username, response.data.get('username'))
 
+    def test_cache_invalided_when_new_member(self):
+        """
+        When we create a new member, the api cache is invalided and returns the new member.
+        """
+        count = self.client.get(reverse('api:member:list')).data.get('count')
+
+        ProfileFactory()
+
+        response = self.client.get(reverse('api:member:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), count + 1)
+
+        second = ProfileFactory()
+
+        response = self.client.get(reverse('api:member:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), count + 2)
+
+        second.delete()
+
+        response = self.client.get(reverse('api:member:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), count + 1)
+
 
 def create_oauth2_client(user):
     client = Application.objects.create(user=user,

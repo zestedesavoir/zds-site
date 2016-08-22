@@ -61,6 +61,8 @@ class Profile(models.Model):
 
     sign = models.TextField('Signature', max_length=500, blank=True)
 
+    github_token = models.TextField('GitHub', blank=True)
+
     show_sign = models.BooleanField('Voir les signatures', default=True)
 
     # TODO: Change this name. This is a boolean: "true" is "hover" or "click" ?!
@@ -359,6 +361,12 @@ class Profile(models.Model):
         """
         return Topic.objects.filter(topicfollowed__user=self.user)\
             .order_by('-last_message__pubdate')
+
+    def is_dev(self):
+        """
+        Checks whether user is part of group `settings.ZDS_APP['member']['dev_group']`.
+        """
+        return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).exists()
 
     @staticmethod
     def has_read_permission(request):
