@@ -15,7 +15,7 @@ class StatContentSerializer(serializers.ModelSerializer):
         model = PublishedContent
         fields = ('id', 'title', 'slug', 'pubdate', 'update', 'total_visits', 'unique_visits', 'avg_load_speed',
                   'min_load_speed', 'max_load_speed', 'avg_size_page', 'min_size_page', 'max_size_page', 'description',
-                  'sources', 'countrys', 'cities')
+                  'sources', 'countries', 'cities')
 
     slug = serializers.CharField(source='content_public_slug')
     pubdate = serializers.CharField(source='publication_date')
@@ -29,7 +29,7 @@ class StatContentSerializer(serializers.ModelSerializer):
     min_size_page = serializers.IntegerField(source='get_min_size_page')
     max_size_page = serializers.IntegerField(source='get_max_size_page')
     sources = serializers.ListField(source='get_sources', child=serializers.DictField(child=serializers.CharField()))
-    countrys = serializers.ListField(source='get_countrys', child=serializers.DictField(child=serializers.CharField()))
+    countries = serializers.ListField(source='get_countries', child=serializers.DictField(child=serializers.CharField()))
     cities = serializers.ListField(source='get_cities', child=serializers.DictField(child=serializers.CharField()))
 
 

@@ -28,11 +28,11 @@ class Dimension:
         return u"{}".format(self.code)
 
 
-class Logable(Dimension):
+class Loggable(Dimension):
 
     def __init__(self, *args, **kwargs):
         self.code_name = "id_zds"
-        super(Logable, self).__init__()
+        super(Loggable, self).__init__()
         self.code_value = self.pk
 
     def get_min_load_speed(self):
@@ -60,7 +60,7 @@ class Logable(Dimension):
                     .values('dns_referal')
                     .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
-    def get_countrys(self):
+    def get_countries(self):
         return list(Log.objects.filter(id_zds=self.pk)
                     .values('country')
                     .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
