@@ -6,11 +6,6 @@ from django.db.models import Avg, Min, Max, Count
 
 class Dimension:
 
-    def __init__(self, *args, **kwargs):
-        self.code_name = "id_zds"
-        super(Dimension, self).__init__()
-        self.code_value = self.pk
-
     def get_total_visits(self):
         args = {self.code_name: self.code_value}
         return Log.objects.filter(**args).count()
