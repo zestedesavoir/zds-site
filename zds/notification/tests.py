@@ -306,6 +306,67 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
+    def test_move_topic_from_forum_to_another_one(self):
+        NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        PostFactory(topic=topic, author=self.user2, position=1)
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
+
+        # Move the topic in another forum.
+        self.client.logout()
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'move': '',
+            'forum': self.forum12.pk,
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertEqual(self.forum12, topic.forum)
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=True).all()))
+
+    def test_move_topic_from_forum_followed_to_forum_followed_too(self):
+        NewTopicSubscription.objects.toggle_follow(self.forum11, self.user1)
+        NewTopicSubscription.objects.toggle_follow(self.forum12, self.user1)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        PostFactory(topic=topic, author=self.user2, position=1)
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
+
+        # Move the topic in another forum.
+        self.client.logout()
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        data = {
+            'move': '',
+            'forum': self.forum12.pk,
+            'topic': topic.pk
+        }
+        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertEqual(self.forum12, topic.forum)
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=False).all()))
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=False).all()))
+
 
 class NotificationPublishableContentTest(TestCase):
     def setUp(self):

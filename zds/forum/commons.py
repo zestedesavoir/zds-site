@@ -76,12 +76,10 @@ class TopicEditMixin(object):
             forum = get_object_or_404(Forum, pk=forum_pk)
             topic.forum = forum
 
-            # If the topic is moved in a restricted forum, users that cannot read this topic any more un-follow it.
-            # This avoids unreachable notifications.
-            TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
-
             # Save topic to update update_index_date
             topic.save()
+
+            signals.edit_content.send(sender=topic.__class__, instance=topic, action='move')
 
             messages.success(request,
                              _(u"Le sujet « {0} » a bien été déplacé dans « {1} ».").format(topic.title, forum.title))

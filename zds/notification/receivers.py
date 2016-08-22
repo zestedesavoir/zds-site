@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 try:
     from functools import wraps
@@ -13,7 +14,7 @@ from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription
-from zds.notification.signals import answer_unread, content_read, new_content
+from zds.notification.signals import answer_unread, content_read, new_content, edit_content
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
 
@@ -71,6 +72,14 @@ def mark_topic_notifications_read(sender, **kwargs):
     if subscription:
         subscription.mark_notification_read(content=topic)
 
+    content_type = ContentType.objects.get_for_model(topic)
+    notifications = Notification.objects.filter(subscription__user=user, object_id=topic.pk,
+                                                content_type__pk=content_type.pk, is_read=False,
+                                                is_dead=True)
+    for notification in notifications:
+        notification.is_read = True
+        notification.save()
+
 
 @receiver(content_read, sender=PublishableContent)
 def mark_content_reactions_read(sender, **kwargs):
@@ -111,6 +120,36 @@ def mark_pm_reactions_read(sender, **kwargs):
     subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_topic, is_active=True)
     if subscription:
         subscription.mark_notification_read()
+
+
+@receiver(edit_content, sender=Topic)
+def edit_topic_event(sender, **kwargs):
+    """
+    :param kwargs: contains
+        - instance: the topic edited.
+        - action: action of the edit.
+    """
+    if kwargs.get('action') == 'move':
+        topic = kwargs.get('instance')
+
+        # If the topic is moved in a restricted forum, users that cannot read this topic any more un-follow it.
+        # This avoids unreachable notifications.
+        TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
+
+        # If the topic is moved in a forum followed by the user, we update the subscription of the notification.
+        # Otherwise, we update the notification has dead.
+        content_type = ContentType.objects.get_for_model(topic)
+        notifications = Notification.objects \
+            .filter(object_id=topic.pk, content_type__pk=content_type.pk, is_read=False).all()
+        for notification in notifications:
+            subscription = NewTopicSubscription.objects \
+                .get_existing(notification.subscription.user, topic.forum, is_active=True)
+            if subscription:
+                notification.subscription = subscription
+                notification.save()
+            elif notification.subscription.content_object != notification.content_object.forum:
+                notification.is_dead = True
+                notification.save()
 
 
 @receiver(post_save, sender=Topic)
