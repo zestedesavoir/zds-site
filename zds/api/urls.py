@@ -10,5 +10,5 @@ urlpatterns = [
     url(r'^mps/', include('zds.mp.api.urls', namespace='mp')),
     url(r'^tags/', include('zds.utils.api.urls', namespace='tag')),
     url(r'^notifications/', include('zds.notification.api.urls', namespace='notification')),
-    url(r'^stats/contenus/', include('zds.stats.api.urls', namespace='stats')),
+    url(r'^stats/', include('zds.stats.api.urls', namespace='stats')),
 ]

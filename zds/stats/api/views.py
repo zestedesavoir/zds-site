@@ -21,38 +21,61 @@ class PagingStatContentListKeyConstructor(DefaultKeyConstructor):
     search = bits.QueryParamsKeyBit(['search', 'ordering'])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
+    user = bits.UserKeyBit()
 
 class DetailKeyConstructor(DefaultKeyConstructor):
     format = bits.FormatKeyBit()
     language = bits.LanguageKeyBit()
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
-
-
-def get_content_serialiser(content_type):
-    if content_type in ['tutoriel', 'article']:
-        return StatContentSerializer
-    else:
-        raise exceptions.NotFound()
+    user = bits.UserKeyBit()
 
 
 class StatContentListAPI(ListCreateAPIView):
+    """
+    Statistic resource to list all content stats.
+    """
     filter_backends = (filters.OrderingFilter, filters.OrderingFilter)
     list_key_func = PagingStatContentListKeyConstructor()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return get_content_serialiser(self.kwargs.get("content_type"))
+            return StatContentSerializer
 
     def get_queryset(self):
         if self.kwargs.get("content_type") == 'tutoriel':
-            return PublishedContent.objects.all().filter(sha_public__isnull=False, content_type = "TUTORIAL")
+            return PublishedContent.objects.all().filter(content_type = "TUTORIAL")
         elif self.kwargs.get("content_type") == 'article':
-            return PublishedContent.objects.all().filter(sha_public__isnull=False, content_type = "ARTICLE")
+            return PublishedContent.objects.all().filter(content_type = "ARTICLE")
         else:
-            raise exceptions.NotFound()
+            return PublishedContent.objects.all()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Lists all content stats in the system.
+        ---
+
+        parameters:
+            - name: page
+              description: Restricts output to the given page number.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets the number of contents stats per page.
+              required: false
+              paramType: query
+        responseMessages:
+            - code: 404
+              message: Not Found
+        """
+        return self.list(request, *args, **kwargs)
 
 class StatContentDetailAPI(RetrieveAPIView):
+    """
+    Statistic resource to content stats details.
+    """
     obj_key_func = DetailKeyConstructor()
 
     def get(self, request, *args, **kwargs):
@@ -60,7 +83,7 @@ class StatContentDetailAPI(RetrieveAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return get_content_serialiser(self.kwargs.get("content_type"))
+            return StatContentSerializer
 
     def get_object(self):
 
@@ -70,6 +93,25 @@ class StatContentDetailAPI(RetrieveAPIView):
             return PublishedContent.objects.all().filter(id=self.kwargs.get("content_id"), content_type = "ARTICLE", sha_public__isnull=False).first()
         else:
             raise exceptions.NotFound()
+
+    @etag(obj_key_func)
+    @cache_response(key_func=obj_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Gets information for content stats.
+        ---
+
+        parameters:
+            - name: Authorization
+              description: Bearer token to make an authenticated request.
+              required: false
+              paramType: header
+        responseMessages:
+            - code: 401
+              message: Not Authenticated
+        """
+        serializer = self.get_serializer(self.get_object())
+        return Response(serializer.data)
 
 def get_app_from_content_type(content_type):
     if content_type=="tutoriel":
@@ -103,6 +145,28 @@ class StatSubListAPI(ListCreateAPIView):
             return self.map_query_set.filter(code__in=type_logs)
 
         raise exceptions.NotFound()
+
+    @etag(list_key_func)
+    @cache_response(key_func=list_key_func)
+    def get(self, request, *args, **kwargs):
+        """
+        Lists all dimensions stats in the system.
+        ---
+
+        parameters:
+            - name: page
+              description: Restricts output to the given page number.
+              required: false
+              paramType: query
+            - name: page_size
+              description: Sets the number of dimension per page.
+              required: false
+              paramType: query
+        responseMessages:
+            - code: 404
+              message: Not Found
+        """
+        return self.list(request, *args, **kwargs)
 
 class StatSourceContentListAPI(StatSubListAPI):
     map_attr = 'dns_referal'

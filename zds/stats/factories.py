@@ -29,12 +29,10 @@ class LogRandomFactory():
         pub_full = [pub_content1, pub_content2] + pub_content3.get_container_children()
         
         fake_content = fake.random_element(elements=pub_full)
-        print(fake_content)
         if not fake_content:
         	fake_url = "/"
         else:
         	fake_url = fake_content.get_absolute_url_online()
-        print(fake_url)
 
         self.request = "{} {} {}".format(fake.random_element(elements=('GET', 'POST')), fake_url , fake.random_element(elements=('HTTP/1.0', 'HTTP/1.1')))
         self.status = fake.random_element(elements=('404', '200', '403'))

@@ -3,20 +3,16 @@ from datetime import datetime, timedelta
 
 from django.core.management import call_command
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core import mail
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
-from oauth2_provider.models import Application, AccessToken
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
 
 from zds.stats.factories import LogFactory
-from zds.stats.models import Log, Source, City, Country, Device, Browser, OS
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, LicenceFactory
-from zds.gallery.factories import UserGalleryFactory, ImageFactory, GalleryFactory
+from zds.gallery.factories import UserGalleryFactory, GalleryFactory
 import tempfile
 import os
 import shutil

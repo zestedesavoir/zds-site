@@ -5,6 +5,7 @@ import os
 import re
 from datetime import datetime
 from user_agents import parse
+from optparse import make_option
 import pygeoip
 from django.conf import settings
 from urlparse import urlparse
@@ -15,6 +16,15 @@ from zds.stats.factories import LogRandomFactory
 class Command(BaseCommand):
     args = '--path=<path_to_file> --lines=<number_of_log_lines>'
     help = 'Genrate access logs for test'
+    option_list = BaseCommand.option_list + (
+        make_option('--path',
+                    default="test-log.log",
+                    help='Log path to generate'),
+    ) + (
+        make_option('--lines',
+                    default=100,
+                    help='Lines number to generate'),
+    )
 
     def handle(self, *args, **options):
         if "path" not in options:

@@ -1,17 +1,18 @@
 # coding: utf-8
-
-from django.core.management.base import BaseCommand, CommandError
 import os
 import re
 from datetime import datetime
 from user_agents import parse
-from django.db import transaction
 import pygeoip
-from django.conf import settings
 from urlparse import urlparse
 from hashlib import md5
-from zds.tutorialv2.models.models_database import PublishedContent
-from zds.stats.models import Log, Source, Device, Browser, Country, City, OS
+import logging
+from django.db import transaction
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
+from zds.stats.models import Log
+
+logger = logging.getLogger(__name__)
 
 class ContentParsing(object):
     recognize_patterns = []
@@ -111,6 +112,7 @@ class Command(BaseCommand):
         for data in self.datas:
             existant = Log.objects.filter(hash_code=data["hash"], timestamp=data["timestamp"], content_type=data["type"]).first()
             if existant is None:
+                logger.debug(u"Traitement de la log du {} de type {}".format(data["timestamp"], data["type"]))
                 existant = Log(id_zds=data["id_zds"],
                     content_type=data["type"],
                     remote_addr=data["remote_addr"],
@@ -127,6 +129,7 @@ class Command(BaseCommand):
                     country=data["country"],
                     city=data["city"])
             else:
+                logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["type"]))
                 existant.id_zds = data["id_zds"]
                 existant.remote_addr = data["remote_addr"]
                 existant.body_bytes_sent=data["body_bytes_sent"]
@@ -159,20 +162,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if len(args) != 1:
+            logger.error(u"Chemin du fichier à parser absent")
             raise CommandError("Veuillez préciser le chemin du fichier")
         elif not os.path.isfile(args[0]):
+            logger.error(u"Le paramètre passé en argument n'est pas un fichier")
             raise CommandError("Veuillez préciser un chemin de fichier")
+        else:
+            logger.info(u"Début du parsing du fichier {}".format(args[0]))
 
 
         regx = r'''
                 ^(?P<remote_addr>\S+)\s-\s              # Remote address
                 (?P<remote_user>\S+)\s                  # Remote user
-                \[(?P<timestamp>.*?)\s(.*)\]\s                # Local time
+                \[(?P<timestamp>.*?)\s(.*)\]\s          # Local time
                 "                                       # Request
                 (?P<verb>[A-Z]+)\s                      # HTTP verb (GET, POST, PUT, ...)
                 (?P<path>[^?]+)                         # Request path
                 (?:\?.+)?                               # Query string
-                \sHTTP\/(?:[\d.]+)                       # HTTP/x.x protocol
+                \sHTTP\/(?:[\d.]+)                      # HTTP/x.x protocol
                 "\s                                     # /Request
                 (?P<status>\d+?)\s                      # Response status code
                 (?P<body_bytes_sent>\d+?)\s             # Body size in bytes
@@ -225,7 +232,6 @@ class Command(BaseCommand):
                 res["is_bot"] = user_agent.is_bot
 
                 if self.is_treatable(res):
-                    # treat
                     for p_content in content_parsing:
                         id_zds = p_content.get_real_id_of_content(res["path"])
                         if id_zds is not None:
@@ -234,7 +240,6 @@ class Command(BaseCommand):
                             res_content["id_zds"] = id_zds
                             self.datas.append(res_content)
 
-        print("---> total : {}".format(len(self.datas)))
+        logger.info(u"Nombre de logs traitées : {}".format(len(self.datas)))
         source.close()
         self.flush_data_in_database()
-        

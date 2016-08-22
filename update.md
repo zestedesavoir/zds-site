@@ -803,3 +803,61 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+
+ZEP-11
+------
+
+Les taches suivantes sont a executer après la MEP.
+
+### Modification du format de log nginx
+
+Ajouter la ligne ci-dessous dans le fichier `nginx.conf` pour modifier le format des logs
+
+
+    http {
+        log_format combined '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" $request_time $upstream_response_time $pipe';
+
+        ...
+    }
+
+Redemarrez ensuite le service nginx `service nginx restart`
+
+### Mise en place de rotation des logs
+
+Installer logrotate
+
+```bash
+sudo apt-get install logrotate
+```
+
+Si aucune rotation de log n'a été mise en place sur les access log nginx, il faudra créer le fichier ``/etc/logrotate.d/nginx.conf`` sinon, il suffira de modifier la configuration nginx existante.
+
+Le contenu doit être le suivant :
+
+```bash
+/var/log/nginx/access.log {
+    daily
+    rotate 90
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 644 zds zds
+}
+```
+
+Cette configuration permet d'effectuer une rotation tous les jours des access log de nginx, avec 90 jours de rétention. Les logs >= 2 jours seront compressés, ce qui permet au batch zds-stats de s'executer sur la log d'il y'a un jour et non compressée.
+
+Redemarrez ensuite le service logrotate `service logrotate restart`
+
+
+### Mise en place de l'ordonnancement de batchs via crontab
+
+Rajouter cette ligne dans la crontab
+
+```bash
+    30 0 * * * /opt/zds/zdsenv/bin/python2.7 /opt/zds/zds-site/manage.py parse_logs /var/log/nginx/access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+```
+
+Le batch sera donc lancé tous les soirs à 00h 30

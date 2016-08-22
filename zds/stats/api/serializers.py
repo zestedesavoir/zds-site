@@ -10,7 +10,7 @@ from zds.stats.models import Source, Device, OS, Browser, Country, City
 
 class StatContentSerializer(serializers.ModelSerializer):
     """
-    Serializer of a generic content statistic object.
+    Serializer of generic content statistic object.
     """
 
     class Meta:
@@ -34,7 +34,7 @@ class StatContentSerializer(serializers.ModelSerializer):
 
 class StatDimSerializer(serializers.ModelSerializer):
     """
-    Serializer of a tutorial statistic object.
+    Serializer of dimension statistic object.
     """
     total_visits = serializers.IntegerField(source='get_total_visits')
     unique_visits = serializers.IntegerField(source='get_unique_visits')
@@ -46,14 +46,14 @@ class StatDimSerializer(serializers.ModelSerializer):
 
 class StatSourceContentSerializer(StatDimSerializer):
     """
-    Serializer of a source statistic object.
+    Serializer of source statistic object.
     """
     class Meta:
         model = Source
 
 class StatDeviceContentSerializer(StatDimSerializer):
     """
-    Serializer of a devices statistic object.
+    Serializer of device statistic object.
     """
     class Meta:
         model = Device
@@ -67,21 +67,21 @@ class StatBrowserContentSerializer(StatDimSerializer):
 
 class StatCountryContentSerializer(StatDimSerializer):
     """
-    Serializer of a countries statistic object.
+    Serializer of a country statistic object.
     """
     class Meta:
         model = Country
 
 class StatCityContentSerializer(StatDimSerializer):
     """
-    Serializer of a cities statistic object.
+    Serializer of city statistic object.
     """
     class Meta:
         model = City
 
 class StatOSContentSerializer(StatDimSerializer):
     """
-    Serializer of a operating system statistic object.
+    Serializer of operating system statistic object.
     """
     class Meta:
         model = OS

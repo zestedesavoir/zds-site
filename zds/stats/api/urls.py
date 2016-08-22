@@ -5,6 +5,7 @@ from django.conf.urls import patterns, url
 from zds.stats.api.views import StatContentListAPI, StatContentDetailAPI, StatSourceContentListAPI, StatDeviceContentListAPI, StatBrowserContentListAPI, StatCountryContentListAPI, StatCityContentListAPI, StatOSContentListAPI
 
 urlpatterns = patterns('',
+                        url(r'^$', StatContentListAPI.as_view(), name='list'),
                         url(r'^(?P<content_type>.+)/(?P<content_id>[0-9]+)/visites/$', StatContentDetailAPI.as_view(), name='details-content-visits'),
                         url(r'^(?P<content_type>.+)/visites/$', StatContentListAPI.as_view(), name='list-content-visits'),
                         url(r'^(?P<content_type>.+)/(?P<content_id>[0-9]+)/visites/sources/$', StatSourceContentListAPI.as_view(), name='details-source-content-visits'),

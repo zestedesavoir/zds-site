@@ -107,6 +107,11 @@
 {% endblock %}
 
 {% block sidebar_actions %}
+    <li class="inactive">
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
+        <span class="disabled mobile-menu-link"> {% trans "Vu" %} <strong>{{ count_views }}</strong> {% trans "fois" %}</span>
+    </li>
+
     {% if user.is_authenticated %}
     <li>
     {% with content_is_followed=object|is_content_followed %}

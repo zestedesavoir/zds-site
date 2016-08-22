@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import models
 from zds.utils.models import Tag
+from zds.stats.models import Log
 from django.db.models import Count
 
 
@@ -44,6 +45,11 @@ class PublishedContentManager(models.Manager):
         """
         return self.filter(must_redirect=False)\
                    .count()
+    def get_contents_count_views(self, pk):
+        """
+        :rtype: int
+        """
+        return Log.objects.filter(id_zds=pk).count()
 
     def get_top_tags(self, displayed_types, limit=-1):
         published = self.filter(
