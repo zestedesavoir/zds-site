@@ -29,7 +29,8 @@ class StatContentSerializer(serializers.ModelSerializer):
     min_size_page = serializers.IntegerField(source='get_min_size_page')
     max_size_page = serializers.IntegerField(source='get_max_size_page')
     sources = serializers.ListField(source='get_sources', child=serializers.DictField(child=serializers.CharField()))
-    countries = serializers.ListField(source='get_countries', child=serializers.DictField(child=serializers.CharField()))
+    countries = serializers.ListField(source='get_countries',
+                                      child=serializers.DictField(child=serializers.CharField()))
     cities = serializers.ListField(source='get_cities', child=serializers.DictField(child=serializers.CharField()))
 
 

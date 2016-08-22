@@ -111,43 +111,24 @@ class Command(BaseCommand):
         my_devices = []
         my_cities = []
         my_countries = []
+        new_logs = []
+        keys = ['id_zds', 'content_type', 'remote_addr', 'hash_code', 'body_bytes_sent', 'timestamp',
+                'dns_referal', 'os_family', 'os_version', 'browser_family', 'browser_version',
+                'device_family', 'request_time', 'country', 'city']
         for data in self.datas:
-            existant = Log.objects.filter(hash_code=data["hash"],
+            existant = Log.objects.filter(hash_code=data["hash_code"],
                                           timestamp=data["timestamp"],
-                                          content_type=data["type"]).first()
+                                          content_type=data["content_type"]).first()
+            log_data = {key: data[key] for key in keys}
+            new_log = Log(**log_data)
             if existant is None:
-                logger.debug(u"Traitement de la log du {} de type {}".format(data["timestamp"], data["type"]))
-                existant = Log(id_zds=data["id_zds"],
-                               content_type=data["type"],
-                               remote_addr=data["remote_addr"],
-                               hash_code=data["hash"],
-                               body_bytes_sent=data["body_bytes_sent"],
-                               timestamp=data["timestamp"],
-                               dns_referal=data["dns_referal"],
-                               os_family=data["os_family"],
-                               os_version=data["os_version"],
-                               browser_family=data["browser_family"],
-                               browser_version=data["browser_version"],
-                               device_family=data["device_family"],
-                               request_time=data["request_time"],
-                               country=data["country"],
-                               city=data["city"])
+                logger.debug(u"Traitement de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
+                new_logs.append(new_log)
             else:
-                logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["type"]))
-                existant.id_zds = data["id_zds"]
-                existant.remote_addr = data["remote_addr"]
-                existant.body_bytes_sent = data["body_bytes_sent"]
-                existant.dns_referal = data["dns_referal"]
-                existant.os_family = data["os_family"]
-                existant.os_version = data["os_version"]
-                existant.browser_family = data["browser_family"]
-                existant.browser_version = data["browser_version"]
-                existant.device_family = data["device_family"]
-                existant.request_time = data["request_time"]
-                existant.country = data["country"]
-                existant.city = data["city"]
+                logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
+                existant = new_log
+                existant.save()
 
-            existant.save()
             my_sources.append(data["dns_referal"])
             my_os.append(data["os_family"])
             my_cities.append(data["city"])
@@ -155,6 +136,8 @@ class Command(BaseCommand):
             my_devices.append(data["device_family"])
             my_browsers.append(data["browser_family"])
 
+        if new_logs:
+            Log.objects.bulk_create(new_logs)
         self.flush_denormalize("Source", "code", "dns_referal", my_sources)
         self.flush_denormalize("OS", "code", "os_family", my_os)
         self.flush_denormalize("Device", "code", "device_family", my_devices)
@@ -218,7 +201,7 @@ class Command(BaseCommand):
             if match is not None:
                 user_agent = parse(match.group("http_user_agent"))
                 res = {}
-                res["hash"] = md5(line.encode("utf-8")).hexdigest()
+                res["hash_code"] = md5(line.encode("utf-8")).hexdigest()
                 res["remote_addr"] = match.group("remote_addr")
                 (res["city"], res["country"]) = self.get_geo_details(res["remote_addr"])
                 res["remote_user"] = match.group("remote_user")
@@ -241,7 +224,7 @@ class Command(BaseCommand):
                         id_zds = p_content.get_real_id_of_content(res["path"])
                         if id_zds is not None:
                             res_content = res.copy()
-                            res_content["type"] = p_content.type_content
+                            res_content["content_type"] = p_content.type_content
                             res_content["id_zds"] = id_zds
                             self.datas.append(res_content)
 
