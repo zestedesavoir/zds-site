@@ -1,10 +1,14 @@
 # coding: utf-8
+import tempfile
+import os
+import shutil
 from datetime import datetime, timedelta
 
-from django.core.management import call_command
 from django.conf import settings
-from django.test.utils import override_settings
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
@@ -13,14 +17,11 @@ from zds.stats.factories import LogFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, LicenceFactory
 from zds.gallery.factories import UserGalleryFactory, GalleryFactory
-import tempfile
-import os
-import shutil
 from zds.settings import BASE_DIR
 
 
-overrided_drf = settings.REST_FRAMEWORK
-overrided_drf["PAGINATE_BY"] = 3
+overridden_drf = settings.REST_FRAMEWORK
+overridden_drf['PAGINATE_BY'] = 3
 
 overrided_zds_app = settings.ZDS_APP
 overrided_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
@@ -31,7 +32,6 @@ type_content_article = "article"
 
 
 def create_public_big_tutorial(client, type_content, author, licence, validator):
-
     pubdate = datetime.now() - timedelta(days=1)
     bigtuto = PublishedContentFactory(type=type_content, author_list=[author])
     public_version = bigtuto.public_version
@@ -73,7 +73,7 @@ def generate_public_content(client, type_content, number, author, licence, valid
     f.close()
 
 
-@override_settings(REST_FRAMEWORK=overrided_drf)
+@override_settings(REST_FRAMEWORK=overridden_drf)
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentEmptyListAPITest(APITestCase):
@@ -83,8 +83,8 @@ class ContentEmptyListAPITest(APITestCase):
         settings.ZDS_APP['content']['build_pdf_when_published'] = False
 
     def test_list_of_contents_empty(self):
-        all_type = [type_content_tutorial, type_content_article]
-        for type_c in all_type:
+        all_types = [type_content_tutorial, type_content_article]
+        for type_c in all_types:
             response = self.client.get(reverse('api:stats:list-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), 0)
@@ -103,7 +103,7 @@ class ContentEmptyListAPITest(APITestCase):
         settings.ZDS_APP['content']['build_pdf_when_published'] = True
 
 
-@override_settings(REST_FRAMEWORK=overrided_drf)
+@override_settings(REST_FRAMEWORK=overridden_drf)
 @override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
 @override_settings(ZDS_APP=overrided_zds_app)
 class ContentListAPITest(APITestCase):
@@ -114,35 +114,36 @@ class ContentListAPITest(APITestCase):
         self.licence = LicenceFactory()
         self.author = ProfileFactory().user
         self.validator = StaffProfileFactory().user
-        self.sources_data = ["http://www.google.fr", "http://www.zestedesavoir.com"]
-        self.uagents_data = ["Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:42.0) Gecko/20100101 Firefox/42.0",
-                             "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) "
-                             "Chrome/0.2.149.27 Safari/525.13"]
-        self.ips_data = ["81.7.15.115", "142.4.213.25"]  # first : None, Germany | second : Montréal, Canada
+        self.sources_data = ['http://www.google.fr', 'http://www.zestedesavoir.com']
+        self.uagents_data = ['Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:42.0) Gecko/20100101 Firefox/42.0',
+                             'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) '
+                             'Chrome/0.2.149.27 Safari/525.13']
+        #                None, Germany  Montréal, Canada
+        self.ips_data = ['81.7.15.115', '142.4.213.25']
 
-        for type_c in ["TUTORIAL", "ARTICLE"]:
+        for type_c in ['TUTORIAL', 'ARTICLE']:
             generate_public_content(client=self.client,
                                     type_content=type_c,
                                     licence=self.licence,
                                     author=self.author,
                                     validator=self.validator,
-                                    number=overrided_drf["PAGINATE_BY"],
+                                    number=overridden_drf['PAGINATE_BY'],
                                     sources=self.sources_data,
                                     uagents=self.uagents_data,
                                     ips=self.ips_data
                                     )
 
     def test_list_of_contents(self):
-
-        all_type = [type_content_tutorial, type_content_article]
-        for type_c in all_type:
+        all_types = [type_content_tutorial, type_content_article]
+        for type_c in all_types:
             # list of contents visits
             response = self.client.get(reverse('api:stats:list-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), overrided_drf["PAGINATE_BY"])
-            self.assertEqual(len(response.data.get('results')), overrided_drf["PAGINATE_BY"])
+            self.assertEqual(response.data.get('count'), overridden_drf["PAGINATE_BY"])
+            self.assertEqual(len(response.data.get('results')), overridden_drf["PAGINATE_BY"])
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
+
             # list of contents source visits
             response = self.client.get(reverse('api:stats:list-source-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -150,35 +151,40 @@ class ContentListAPITest(APITestCase):
             self.assertEqual(len(response.data.get('results')), len(self.sources_data))
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
-            # list of tutotials city
+
+            # list of tutorials city
             response = self.client.get(reverse('api:stats:list-city-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), 1)
             self.assertEqual(len(response.data.get('results')), 1)
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
-            # list of tutotials country
+
+            # list of tutorials country
             response = self.client.get(reverse('api:stats:list-country-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), 2)
             self.assertEqual(len(response.data.get('results')), 2)
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
-            # list of tutotials device
+
+            # list of tutorials device
             response = self.client.get(reverse('api:stats:list-device-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), 1)
             self.assertEqual(len(response.data.get('results')), 1)
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
-            # list of tutotials os
+
+            # list of tutorials os
             response = self.client.get(reverse('api:stats:list-os-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), 2)
             self.assertEqual(len(response.data.get('results')), 2)
             self.assertIsNone(response.data.get('next'))
             self.assertIsNone(response.data.get('previous'))
-            # list of tutotials browser
+
+            # list of tutorials browser
             response = self.client.get(reverse('api:stats:list-browser-content-visits', args=[type_c]))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(response.data.get('count'), 2)
@@ -188,8 +194,8 @@ class ContentListAPITest(APITestCase):
 
     def test_logs_generate(self):
         f = tempfile.NamedTemporaryFile()
-        opts = {"lines": 10, "path": f.name}
-        call_command('generate_logs', "", **opts)
+        opts = {'lines': 10, 'path': f.name}
+        call_command('generate_logs', '', **opts)
 
     def tearDown(self):
         if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):

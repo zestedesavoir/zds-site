@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
 from django.conf import settings
 from django.db import models
+from django.db.models import Count
+
 from zds.utils.models import Tag
 from zds.stats.models import Log
-from django.db.models import Count
 
 
 class PublishedContentManager(models.Manager):

@@ -17,27 +17,27 @@ logger = logging.getLogger(__name__)
 
 class ContentParsing(object):
     recognize_patterns = []
-    type_content = ""
+    type_content = ''
 
     def __init__(self, regxps):
         self.recognize_patterns = []
         for rg in regxps:
             self.recognize_patterns.append(
                 {
-                    "pattern": re.compile(rg["regxp"]),
-                    "regxp": rg["regxp"],
-                    "unique_group": rg["unique_group"],
-                    "mapped_app": "tutorialv2",
-                    "mapped_model": "models.models_database",
-                    "mapped_class": "PublishedContent",
-                    "mapped_column": "pk",
+                    'pattern': re.compile(rg['regxp']),
+                    'regxp': rg['regxp'],
+                    'unique_group': rg['unique_group'],
+                    'mapped_app': 'tutorialv2',
+                    'mapped_model': 'models.models_database',
+                    'mapped_class': 'PublishedContent',
+                    'mapped_column': 'pk',
                 }
             )
-            self.type_content = rg["type_content"].lower()
+            self.type_content = rg['type_content'].lower()
 
     def match_content(self, url_path):
         for rg in self.recognize_patterns:
-            match_content = rg["pattern"].match(url_path)
+            match_content = rg['pattern'].match(url_path)
             if match_content is not None:
                 return (rg, match_content)
         return (None, None)
@@ -45,15 +45,15 @@ class ContentParsing(object):
     def get_real_id_of_content(self, url_path):
         (reco, result) = self.match_content(url_path)
         if reco is not None:
-            module = "zds.{}.{}".format(reco["mapped_app"], reco["mapped_model"])
-            obj = __import__(module, globals(), locals(), [reco["mapped_class"]])
-            cls = getattr(obj, reco["mapped_class"])
-            args = {reco["mapped_column"]: result.group(reco["unique_group"])}
+            module = 'zds.{}.{}'.format(reco['mapped_app'], reco['mapped_model'])
+            obj = __import__(module, globals(), locals(), [reco['mapped_class']])
+            cls = getattr(obj, reco['mapped_class'])
+            args = {reco['mapped_column']: result.group(reco['unique_group'])}
             ident = cls.objects.filter(**args).first()
             if ident is not None:
                 return ident.pk
             else:
-                return result.group(reco["unique_group"])
+                return result.group(reco['unique_group'])
 
         return None
 
@@ -65,8 +65,8 @@ class Command(BaseCommand):
     args = 'path'
     help = 'Parse, filter and save logs into database'
     datas = []
-    verbs = ["GET"]
-    content_paths = ["/articles", "/tutoriels"]
+    verbs = ['GET']
+    content_paths = ['/articles', '/tutoriels']
 
     def get_geo_details(self, ip_adress):
         if len(ip_adress) <= 16:
@@ -80,20 +80,20 @@ class Command(BaseCommand):
         return (None, None)
 
     def is_treatable(self, dict_result):
-        if dict_result["verb"] not in self.verbs or dict_result["status"] != 200:
+        if dict_result['verb'] not in self.verbs or dict_result['status'] != 200:
             return False
 
-        if dict_result["is_bot"]:
+        if dict_result['is_bot']:
             return False
 
         for content_path in self.content_paths:
-            if dict_result["path"].startswith(content_path):
+            if dict_result['path'].startswith(content_path):
                 return True
 
         return False
 
     def flush_denormalize(self, class_name, field_in_class, field_in_log, list_of_datas):
-        module = "zds.stats.models"
+        module = 'zds.stats.models'
         obj = __import__(module, globals(), locals(), [class_name])
         cls = getattr(obj, class_name)
         data_existants = cls.objects.values_list(field_in_class, flat=True)
@@ -116,43 +116,43 @@ class Command(BaseCommand):
                 'dns_referal', 'os_family', 'os_version', 'browser_family', 'browser_version',
                 'device_family', 'request_time', 'country', 'city']
         for data in self.datas:
-            existant = Log.objects.filter(hash_code=data["hash_code"],
-                                          timestamp=data["timestamp"],
-                                          content_type=data["content_type"]).first()
+            existant = Log.objects.filter(hash_code=data['hash_code'],
+                                          timestamp=data['timestamp'],
+                                          content_type=data['content_type']).first()
             log_data = {key: data[key] for key in keys}
             if existant is None:
                 new_log = Log(**log_data)
-                logger.debug(u"Traitement de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
+                logger.debug(u'Traitement de la log du {} de type {}'.format(data['timestamp'], data['content_type']))
                 new_logs.append(new_log)
             else:
-                logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
+                logger.debug(u'Mise à jour de la log du {} de type {}'.format(data['timestamp'], data['content_type']))
                 existant = Log(**log_data)
                 existant.save()
-            my_sources.append(data["dns_referal"])
-            my_os.append(data["os_family"])
-            my_cities.append(data["city"])
-            my_countries.append(data["country"])
-            my_devices.append(data["device_family"])
-            my_browsers.append(data["browser_family"])
+            my_sources.append(data['dns_referal'])
+            my_os.append(data['os_family'])
+            my_cities.append(data['city'])
+            my_countries.append(data['country'])
+            my_devices.append(data['device_family'])
+            my_browsers.append(data['browser_family'])
 
         if new_logs:
             Log.objects.bulk_create(new_logs)
-        self.flush_denormalize("Source", "code", "dns_referal", my_sources)
-        self.flush_denormalize("OS", "code", "os_family", my_os)
-        self.flush_denormalize("Device", "code", "device_family", my_devices)
-        self.flush_denormalize("Country", "code", "country", my_countries)
-        self.flush_denormalize("City", "code", "city", my_cities)
-        self.flush_denormalize("Browser", "code", "browser_family", my_browsers)
+        self.flush_denormalize('Source', 'code', 'dns_referal', my_sources)
+        self.flush_denormalize('OS', 'code', 'os_family', my_os)
+        self.flush_denormalize('Device', 'code', 'device_family', my_devices)
+        self.flush_denormalize('Country', 'code', 'country', my_countries)
+        self.flush_denormalize('City', 'code', 'city', my_cities)
+        self.flush_denormalize('Browser', 'code', 'browser_family', my_browsers)
 
     def handle(self, *args, **options):
         if len(args) != 1:
-            logger.error(u"Chemin du fichier à parser absent")
-            raise CommandError("Veuillez préciser le chemin du fichier")
+            logger.error(u'Chemin du fichier à parser absent')
+            raise CommandError('Veuillez préciser le chemin du fichier')
         elif not os.path.isfile(args[0]):
-            logger.error(u"Le paramètre passé en argument n'est pas un fichier")
-            raise CommandError("Veuillez préciser un chemin de fichier")
+            logger.error(u'Le paramètre passé en argument n\'est pas un fichier')
+            raise CommandError('Veuillez préciser un chemin de fichier')
         else:
-            logger.info(u"Début du parsing du fichier {}".format(args[0]))
+            logger.info(u'Début du parsing du fichier {}'.format(args[0]))
 
         regx = r'''
                 ^(?P<remote_addr>\S+)\s-\s              # Remote address
@@ -173,22 +173,22 @@ class Command(BaseCommand):
                 (?P<upstream_response_time>[\d\.]+)?\s?  # Upstream response time
                 (?P<pipe>\S+)?$                         # Pipelined request
                 '''
-        source = open(args[0], "r")
+        source = open(args[0], 'r')
         pattern_log = re.compile(regx, re.VERBOSE)
         content_parsing = []
 
         reg_tuto = [
             {
-                "regxp": "^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/",
-                "unique_group": "id_tuto",
-                "type_content": "tutorial"
+                'regxp': '^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/',
+                'unique_group': 'id_tuto',
+                'type_content': 'tutorial'
             }
         ]
         reg_article = [
             {
-                "regxp": "^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/",
-                "unique_group": "id_article",
-                "type_content": "article"
+                'regxp': '^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/',
+                'unique_group': 'id_article',
+                'type_content': 'article'
             }
         ]
 
@@ -198,37 +198,37 @@ class Command(BaseCommand):
         for line in source:
             match = pattern_log.match(line)
             if match is not None:
-                user_agent = parse(match.group("http_user_agent"))
+                user_agent = parse(match.group('http_user_agent'))
                 res = {}
-                res["hash_code"] = md5(line.encode("utf-8")).hexdigest()
-                res["remote_addr"] = match.group("remote_addr")
-                (res["city"], res["country"]) = self.get_geo_details(res["remote_addr"])
-                res["remote_user"] = match.group("remote_user")
-                res["timestamp"] = datetime.strptime(match.group("timestamp"), "%d/%b/%Y:%H:%M:%S")
-                res["verb"] = match.group("verb")
-                res["path"] = match.group("path")
-                res["status"] = int(match.group("status"))
-                res["body_bytes_sent"] = int(match.group("body_bytes_sent"))
-                res["dns_referal"] = urlparse(match.group("http_referer")).netloc
-                res["os_family"] = user_agent.os.family
-                res["os_version"] = user_agent.os.version_string
-                res["browser_family"] = user_agent.browser.family
-                res["browser_version"] = user_agent.browser.version_string
-                res["device_family"] = user_agent.device.family
-                res["is_bot"] = user_agent.is_bot
-                request_time_result = match.group("request_time")
+                res['hash_code'] = md5(line.encode('utf-8')).hexdigest()
+                res['remote_addr'] = match.group('remote_addr')
+                (res['city'], res['country']) = self.get_geo_details(res['remote_addr'])
+                res['remote_user'] = match.group('remote_user')
+                res['timestamp'] = datetime.strptime(match.group('timestamp'), '%d/%b/%Y:%H:%M:%S')
+                res['verb'] = match.group('verb')
+                res['path'] = match.group('path')
+                res['status'] = int(match.group('status'))
+                res['body_bytes_sent'] = int(match.group('body_bytes_sent'))
+                res['dns_referal'] = urlparse(match.group('http_referer')).netloc
+                res['os_family'] = user_agent.os.family
+                res['os_version'] = user_agent.os.version_string
+                res['browser_family'] = user_agent.browser.family
+                res['browser_version'] = user_agent.browser.version_string
+                res['device_family'] = user_agent.device.family
+                res['is_bot'] = user_agent.is_bot
+                request_time_result = match.group('request_time')
                 if(request_time_result is not None):
-                    res["request_time"] = float(request_time_result)
+                    res['request_time'] = float(request_time_result)
 
                 if self.is_treatable(res):
                     for p_content in content_parsing:
-                        id_zds = p_content.get_real_id_of_content(res["path"])
+                        id_zds = p_content.get_real_id_of_content(res['path'])
                         if id_zds is not None:
                             res_content = res.copy()
-                            res_content["content_type"] = p_content.type_content
-                            res_content["id_zds"] = id_zds
+                            res_content['content_type'] = p_content.type_content
+                            res_content['id_zds'] = id_zds
                             self.datas.append(res_content)
                 cpt += 1
-        logger.info(u"Nombre de logs traitées : {}".format(len(self.datas)))
+        logger.info(u'Nombre de logs traitées : {}'.format(len(self.datas)))
         source.close()
         self.flush_data_in_database()

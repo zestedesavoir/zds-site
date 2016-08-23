@@ -27,13 +27,13 @@ class Dimension:
         return req_result['avg_size_page']
 
     def __str__(self):
-        return u"{}".format(self.code)
+        return u'{}'.format(self.code)
 
 
 class Loggable(Dimension):
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "id_zds"
+        self.code_name = 'id_zds'
         super(Loggable, self).__init__()
         self.code_value = self.pk
 
@@ -82,7 +82,7 @@ class Source(models.Model, Dimension):
         verbose_name_plural = 'Stats Sources'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "dns_referal"
+        self.code_name = 'dns_referal'
         super(Source, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
@@ -98,7 +98,7 @@ class Country(models.Model, Dimension):
         verbose_name_plural = 'Stats Pays'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "country"
+        self.code_name = 'country'
         super(Country, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
@@ -114,7 +114,7 @@ class City(models.Model, Dimension):
         verbose_name_plural = 'Stats Villes'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "city"
+        self.code_name = 'city'
         super(City, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
@@ -129,7 +129,7 @@ class OS(models.Model, Dimension):
         verbose_name = 'Stats OS'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "os_family"
+        self.code_name = 'os_family'
         super(OS, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
@@ -144,7 +144,7 @@ class Browser(models.Model, Dimension):
         verbose_name = 'Stats navigateur'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "browser_family"
+        self.code_name = 'browser_family'
         super(Browser, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
@@ -159,7 +159,7 @@ class Device(models.Model, Dimension):
         verbose_name = 'Stats Device'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = "device_family"
+        self.code_name = 'device_family'
         super(Device, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
@@ -182,8 +182,8 @@ class Log(models.Model):
     remote_addr = models.CharField('Adresse IP', max_length=39, null=True, db_index=True)
     body_bytes_sent = models.IntegerField('Taille de la page')
     dns_referal = models.CharField('Source', max_length=80, null=True)
-    os_family = models.CharField('Famille de systeme d\exploitation', max_length=40, null=True)
-    os_version = models.CharField('Version du systeme d\exploitation', max_length=5, null=True)
+    os_family = models.CharField('Famille de systeme d\'exploitation', max_length=40, null=True)
+    os_version = models.CharField('Version du systeme d\'exploitation', max_length=5, null=True)
     browser_family = models.CharField('Famille du navigateur', max_length=40, null=True)
     browser_version = models.CharField('Version du navigateur', max_length=5, null=True)
     device_family = models.CharField('Famille de device', max_length=20, null=True)
@@ -192,4 +192,4 @@ class Log(models.Model):
     city = models.CharField('Ville', max_length=80, null=True)
 
     def __str__(self):
-        return "{}-{}|{}".format(self.id_zds, self.content_type, self.hash_code)
+        return '{}-{}|{}'.format(self.id_zds, self.content_type, self.hash_code)

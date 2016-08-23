@@ -8,10 +8,9 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.tutorialv2.models.models_database import PublishedContent
-
 from zds.stats.models import Log, Source, Device, OS, Browser, City, Country
 from zds.stats.api.serializers import StatContentSerializer, StatSourceContentSerializer
+from zds.tutorialv2.models.models_database import PublishedContent
 
 
 class PagingStatContentListKeyConstructor(DefaultKeyConstructor):
@@ -39,10 +38,10 @@ class StatContentListAPI(ListAPIView):
     serializer_class = StatContentSerializer
 
     def get_queryset(self):
-        if self.kwargs.get("content_type") == 'tutoriel':
-            return PublishedContent.objects.all().filter(content_type="TUTORIAL")
-        elif self.kwargs.get("content_type") == 'article':
-            return PublishedContent.objects.all().filter(content_type="ARTICLE")
+        if self.kwargs.get('content_type') == 'tutoriel':
+            return PublishedContent.objects.all().filter(content_type='TUTORIAL')
+        elif self.kwargs.get('content_type') == 'article':
+            return PublishedContent.objects.all().filter(content_type='ARTICLE')
         else:
             return PublishedContent.objects.all()
 
@@ -82,15 +81,15 @@ class StatContentDetailAPI(RetrieveAPIView):
 
     def get_object(self):
 
-        if self.kwargs.get("content_type") == 'tutoriel':
+        if self.kwargs.get('content_type') == 'tutoriel':
             return PublishedContent.objects.all().filter(
-                id=self.kwargs.get("content_id"),
-                content_type="TUTORIAL",
+                id=self.kwargs.get('content_id'),
+                content_type='TUTORIAL',
                 sha_public__isnull=False).first()
-        elif self.kwargs.get("content_type") == 'article':
+        elif self.kwargs.get('content_type') == 'article':
             return PublishedContent.objects.all().filter(
-                id=self.kwargs.get("content_id"),
-                content_type="ARTICLE",
+                id=self.kwargs.get('content_id'),
+                content_type='ARTICLE',
                 sha_public__isnull=False).first()
         else:
             raise exceptions.NotFound()
@@ -116,10 +115,10 @@ class StatContentDetailAPI(RetrieveAPIView):
 
 
 def get_app_from_content_type(content_type):
-    if content_type == "tutoriel":
-        return "tutorial"
-    elif content_type == "article":
-        return "article"
+    if content_type == 'tutoriel':
+        return 'tutorial'
+    elif content_type == 'article':
+        return 'article'
     else:
         return None
 
@@ -132,9 +131,9 @@ class StatSubListAPI(ListAPIView):
     serializer_class = StatSourceContentSerializer
 
     def get_queryset(self):
-        content_type = self.kwargs.get("content_type")
+        content_type = self.kwargs.get('content_type')
         app_name = get_app_from_content_type(content_type)
-        app_id = self.kwargs.get("content_id")
+        app_id = self.kwargs.get('content_id')
 
         if app_name is not None and app_id is not None:
             type_logs = Log.objects.filter(content_type=app_name, id_zds=app_id).values_list(self.map_attr, flat=True)
@@ -149,7 +148,7 @@ class StatSubListAPI(ListAPIView):
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
     def get(self, request, *args, **kwargs):
-        """
+        """"
         Lists all dimensions stats in the system.
         ---
 

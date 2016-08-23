@@ -756,6 +756,7 @@ Issue 3762
 
 (Ne pas oublier de lancer les migrations en terminant cette MEP !)
 
+<<<<<<< HEAD
 HTTP/2
 ------
 
@@ -805,15 +806,16 @@ Le déploiement doit être autonome. Ce qui implique que :
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
 
 
+=======
+>>>>>>> Quote fix, relecture doc
 ZEP-11
 ------
 
-Les taches suivantes sont a executer après la MEP (idéalement avant de lever la maintenance).
+Les tâches suivantes sont à exécuter après la MEP (idéalement avant de lever la maintenance).
 
 ### Modification du format de log nginx
 
-Ajouter la ligne ci-dessous dans le fichier `nginx.conf` pour modifier le format des logs
-
+Ajouter la ligne ci-dessous dans le fichier `nginx.conf` pour modifier le format des logs:
 
     http {
         log_format combined '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" $request_time $upstream_response_time $pipe';
@@ -821,11 +823,11 @@ Ajouter la ligne ci-dessous dans le fichier `nginx.conf` pour modifier le format
         ...
     }
 
-Redemarrez ensuite le service nginx `service nginx restart`
+Redémarrez ensuite le service nginx `service nginx restart`
 
 ### Mise en place de rotation des logs
 
-Modifier la configuration logrotate nginx existante de manière à donner les droits de lecture de la log à l'utilisateur zds.
+Modifier la configuration logrotate nginx existante de manière à donner les droits de lecture des logs à l'utilisateur zds.
 
 Le contenu du fichier `/etc/logrotate.d/nginx-zds` doit être le suivant :
 
@@ -851,14 +853,14 @@ Le contenu du fichier `/etc/logrotate.d/nginx-zds` doit être le suivant :
 }
 ```
 
-Cette configuration permet d'effectuer une rotation tous les jours des access log de nginx, avec 90 jours de rétention. Les logs >= 2 jours seront compressés, ce qui permet au batch zds-stats de s'executer sur la log d'il y'a un jour et non compressée.
+Cette configuration permet d'effectuer une rotation tous les jours des accèss log de nginx, avec 90 jours de rétention. Les logs >= 2 jours seront compressés, ce qui permet au batch zds-stats de s'exécuter sur les logs non compressés d'il y'a un jour.
 
-Redemarrez ensuite le service logrotate `service logrotate restart`
+Redémarrez ensuite le service logrotate `service logrotate restart`
 
 
-### Mise en place de l'ordonnancement de batchs 
+### Mise en place de l'ordonnancement de batchs
 
-On peut ordonnancer les bactch via l'un des système ci-dessous :
+On peut ordonnancer les batch via l'un des systèmes ci-dessous :
 
 #### via systemd
 
@@ -868,7 +870,7 @@ un fichier `/etc/systemd/system/zds-stats.timer`
 
 ```bash
 [Unit]
-Description=ZDZ Stats Timer
+Description=ZdS Stats Timer
 
 [Timer]
 OnCalendar=00:15:00
@@ -882,7 +884,7 @@ un fichier `/etc/systemd/system/zds-stats.service`
 
 ```bash
 [Unit]
-Description=ZDZ Stats Service
+Description=ZdS Stats Service
 
 [Service]
 Type=oneshot
@@ -899,4 +901,14 @@ Rajouter cette ligne dans la crontab
     15 0 * * * /opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/zds/nginx-access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
 ```
 
-Le batch sera donc lancé tous les soirs à 00h 15
+Le batch sera donc lancé tous les soirs à 00h15
+
+---
+
+**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
+
+Le déploiement doit être autonome. Ce qui implique que :
+
+1. La mise à jour de dépendances est automatique et systématique,
+2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
+3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
