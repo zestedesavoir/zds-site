@@ -825,25 +825,29 @@ Redemarrez ensuite le service nginx `service nginx restart`
 
 ### Mise en place de rotation des logs
 
-Installer logrotate
+Modifier la configuration logrotate nginx existante de manière à donner les droits de lecture de la log à l'utilisateur zds.
+
+Le contenu du fichier `/etc/logrotate.d/nginx-zds` doit être le suivant :
 
 ```bash
-sudo apt-get install logrotate
-```
-
-Si aucune rotation de log n'a été mise en place sur les access log nginx, il faudra créer le fichier ``/etc/logrotate.d/nginx.conf`` sinon, il suffira de modifier la configuration nginx existante.
-
-Le contenu doit être le suivant :
-
-```bash
-/var/log/nginx/access.log {
-    daily
-    rotate 90
-    compress
-    delaycompress
-    missingok
-    notifempty
-    create 644 zds zds
+/var/log/zds/nginx-*.log {
+        daily
+        dateext
+        missingok
+        rotate 30
+        compress
+        delaycompress
+        notifempty
+        create 0644 www-data adm
+        sharedscripts
+        prerotate
+            if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+                run-parts /etc/logrotate.d/httpd-prerotate; \
+            fi \
+        endscript
+        postrotate
+            invoke-rc.d nginx rotate >/dev/null 2>&1
+        endscript
 }
 ```
 
@@ -884,7 +888,7 @@ Description=ZDZ Stats Service
 Type=oneshot
 User=zds
 Group=zds
-ExecStart=/opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/nginx/access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+ExecStart=/opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/zds/nginx-access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
 ```
 
 #### via crontab
@@ -892,7 +896,7 @@ ExecStart=/opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /va
 Rajouter cette ligne dans la crontab
 
 ```bash
-    15 0 * * * /opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/nginx/access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+    15 0 * * * /opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/zds/nginx-access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
 ```
 
 Le batch sera donc lancé tous les soirs à 00h 15
