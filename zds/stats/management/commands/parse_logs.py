@@ -128,7 +128,6 @@ class Command(BaseCommand):
                 logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
                 existant = new_log
                 existant.save()
-
             my_sources.append(data["dns_referal"])
             my_os.append(data["os_family"])
             my_cities.append(data["city"])
@@ -168,10 +167,10 @@ class Command(BaseCommand):
                 (?P<status>\d+?)\s                      # Response status code
                 (?P<body_bytes_sent>\d+?)\s             # Body size in bytes
                 "(?P<http_referer>[^"]+?)"\s            # Referer header
-                "(?P<http_user_agent>[^"]+?)"\s         # User-Agent header
-                "(?P<http_x_forwarded_for>[^"]+?)"\s    # X-Forwarded-For header
-                (?P<request_time>[\d\.]+)\s             # Request time
-                (?P<upstream_response_time>[\d\.]+)\s?  # Upstream response time
+                "(?P<http_user_agent>[^"]+?)"\s?         # User-Agent header
+                "?(?P<http_x_forwarded_for>[^"]+?)?"?\s?    # X-Forwarded-For header
+                (?P<request_time>[\d\.]+)?\s?             # Request time
+                (?P<upstream_response_time>[\d\.]+)?\s?  # Upstream response time
                 (?P<pipe>\S+)?$                         # Pipelined request
                 '''
         source = open(args[0], "r")
@@ -195,7 +194,7 @@ class Command(BaseCommand):
 
         content_parsing.append(ContentParsing(reg_tuto))
         content_parsing.append(ContentParsing(reg_article))
-
+        cpt = 0
         for line in source:
             match = pattern_log.match(line)
             if match is not None:
@@ -216,8 +215,10 @@ class Command(BaseCommand):
                 res["browser_family"] = user_agent.browser.family
                 res["browser_version"] = user_agent.browser.version_string
                 res["device_family"] = user_agent.device.family
-                res["request_time"] = float(match.group("request_time"))
                 res["is_bot"] = user_agent.is_bot
+                request_time_result = match.group("request_time")
+                if(request_time_result is not None):
+                    res["request_time"] = float(request_time_result)
 
                 if self.is_treatable(res):
                     for p_content in content_parsing:
@@ -227,7 +228,7 @@ class Command(BaseCommand):
                             res_content["content_type"] = p_content.type_content
                             res_content["id_zds"] = id_zds
                             self.datas.append(res_content)
-
+                cpt += 1
         logger.info(u"Nombre de logs traitées : {}".format(len(self.datas)))
         source.close()
         self.flush_data_in_database()

@@ -808,7 +808,7 @@ Le déploiement doit être autonome. Ce qui implique que :
 ZEP-11
 ------
 
-Les taches suivantes sont a executer après la MEP.
+Les taches suivantes sont a executer après la MEP (idéalement avant de lever la maintenance).
 
 ### Modification du format de log nginx
 

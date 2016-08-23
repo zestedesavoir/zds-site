@@ -6,8 +6,8 @@ Le module de statistique permet, à partir des logs générés par le serveur we
 Le module va donc exposer le contenu de ces données stockées à travers une API afin d'être utilisée par le site web pour l'afficher à coté d'un contenu, et utilisée par toute personne qui souhaiterait exploiter les statistiques sur le contenu.
 
 
-.. DANGER::
-    La comptabilisation des visites commencera à la date de la première mise en production du module de statistiques. Ainsi visites sur les contenus publiés avant cette date ne pouront pas être comptabilisés.
+.. note::
+    Les visites sur les contenus publiés avant la date de MEP pouront être comptabilisés.
 
 Le schema ci-dessous décrit l'architecture du module de statistique dans l'application zds.
 
