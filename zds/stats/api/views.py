@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from rest_framework import exceptions, filters
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -30,16 +30,13 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     user = bits.UserKeyBit()
 
 
-class StatContentListAPI(ListCreateAPIView):
+class StatContentListAPI(ListAPIView):
     """
     Statistic resource to list all content stats.
     """
     filter_backends = (filters.OrderingFilter, filters.OrderingFilter)
     list_key_func = PagingStatContentListKeyConstructor()
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return StatContentSerializer
+    serializer_class = StatContentSerializer
 
     def get_queryset(self):
         if self.kwargs.get("content_type") == 'tutoriel':
@@ -77,6 +74,7 @@ class StatContentDetailAPI(RetrieveAPIView):
     Statistic resource to content stats details.
     """
     obj_key_func = DetailKeyConstructor()
+    serializer_class = StatContentSerializer
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -126,15 +124,12 @@ def get_app_from_content_type(content_type):
         return None
 
 
-class StatSubListAPI(ListCreateAPIView):
+class StatSubListAPI(ListAPIView):
     map_attr = ''
     map_query_set = None
     filter_backends = (filters.OrderingFilter, filters.OrderingFilter)
     list_key_func = PagingStatContentListKeyConstructor()
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return StatSourceContentSerializer
+    serializer_class = StatSourceContentSerializer
 
     def get_queryset(self):
         content_type = self.kwargs.get("content_type")
