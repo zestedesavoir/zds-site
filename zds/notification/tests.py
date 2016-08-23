@@ -313,7 +313,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic, author=self.user2, position=1)
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
 
-        # Move the topic in another forum.
+        # Move the topic to another forum.
         self.client.logout()
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
@@ -344,7 +344,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic, author=self.user2, position=1)
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
 
-        # Move the topic in another forum.
+        # Move the topic to another forum.
         self.client.logout()
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))

@@ -746,6 +746,14 @@ Issue 3620
 
 Dans le `settings_prod.py` : ajouter `ZDS_APP['site']['secure_url'] = 'https://zestedesavoir.com'`
 
+Issue 3762
+----------
+
+1. Après avoir lancé les migrations, lancer la commande :
+
+    1. `python manage.py fix_persistent_notifications >> mep_v20.log`
+    1. Jeter un oeil aux logs pour s'assurer que tout s'est bien passé.
+
 (Ne pas oublier de lancer les migrations en terminant cette MEP !)
 
 ---
