@@ -852,12 +852,47 @@ Cette configuration permet d'effectuer une rotation tous les jours des access lo
 Redemarrez ensuite le service logrotate `service logrotate restart`
 
 
-### Mise en place de l'ordonnancement de batchs via crontab
+### Mise en place de l'ordonnancement de batchs 
+
+On peut ordonnancer les bactch via l'un des système ci-dessous :
+
+#### via systemd
+
+Pour ça, il faut (avec des droits root) créer deux fichiers:
+
+un fichier `/etc/systemd/system/zds-stats.timer`
+
+```bash
+[Unit]
+Description=ZDZ Stats Timer
+
+[Timer]
+OnCalendar=00:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+un fichier `/etc/systemd/system/zds-stats.service`
+
+```bash
+[Unit]
+Description=ZDZ Stats Service
+
+[Service]
+Type=oneshot
+User=zds
+Group=zds
+ExecStart=/opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/nginx/access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+```
+
+#### via crontab
 
 Rajouter cette ligne dans la crontab
 
 ```bash
-    30 0 * * * /opt/zds/zdsenv/bin/python2.7 /opt/zds/zds-site/manage.py parse_logs /var/log/nginx/access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+    15 0 * * * /opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/nginx/access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
 ```
 
-Le batch sera donc lancé tous les soirs à 00h 30
+Le batch sera donc lancé tous les soirs à 00h 15

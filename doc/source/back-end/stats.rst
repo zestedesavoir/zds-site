@@ -72,10 +72,8 @@ Mise en place de l'ordonnancement de batchs via crontab
 Le batch de parsing des logs doit tourner sur un fichier de log qui n'est pas en cours d'écriture par un autre processus.
 Donc on preferera faire tourner le service sur la log du jour J-1 après que logrotate soit passé.
 
-Ce qui revient à inscrire cette ligne dans la crontab (en prennant la peine de remplacer par les bon chemins).
+Ce qui revient à inscrire cette ligne dans notre système d'ordonnancement (en prennant la peine de remplacer par les bon chemins).
 
 .. code:: bash
 
-    30 0 * * * /path/to/python2.7 /path/to/zds-site/manage.py parse_logs /path/to/log/nginx-access.log.1 >> /path/to/log/zds-stats.log 2>> /path/to/log/zds-stats-error.log
-
-Le batch sera donc lancé tous les soirs à 00h 30
+    /path/to/python2.7 /path/to/zds-site/manage.py parse_logs /path/to/log/nginx-access.log.1 >> /path/to/log/zds-stats.log 2>> /path/to/log/zds-stats-error.log
