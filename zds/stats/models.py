@@ -2,8 +2,10 @@
 
 from django.db import models
 from django.db.models import Avg, Min, Max, Count
+from django.utils.encoding import python_2_unicode_compatible
 
 
+@python_2_unicode_compatible
 class Dimension:
 
     def get_total_visits(self):
@@ -24,7 +26,7 @@ class Dimension:
         req_result = Log.objects.filter(**args).aggregate(avg_size_page=Max('body_bytes_sent'))
         return req_result['avg_size_page']
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{}".format(self.code)
 
 
@@ -164,6 +166,7 @@ class Device(models.Model, Dimension):
     code = models.CharField(u'Device', max_length=80, null=True)
 
 
+@python_2_unicode_compatible
 class Log(models.Model):
     """
     Log model
@@ -188,5 +191,5 @@ class Log(models.Model):
     country = models.CharField('Pays', max_length=80, null=True)
     city = models.CharField('Ville', max_length=80, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "{}-{}|{}".format(self.id_zds, self.content_type, self.hash_code)

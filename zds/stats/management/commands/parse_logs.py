@@ -120,13 +120,13 @@ class Command(BaseCommand):
                                           timestamp=data["timestamp"],
                                           content_type=data["content_type"]).first()
             log_data = {key: data[key] for key in keys}
-            new_log = Log(**log_data)
             if existant is None:
+                new_log = Log(**log_data)
                 logger.debug(u"Traitement de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
                 new_logs.append(new_log)
             else:
                 logger.debug(u"Mise à jour de la log du {} de type {}".format(data["timestamp"], data["content_type"]))
-                existant = new_log
+                existant = Log(**log_data)
                 existant.save()
             my_sources.append(data["dns_referal"])
             my_os.append(data["os_family"])
