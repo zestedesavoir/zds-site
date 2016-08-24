@@ -175,21 +175,21 @@ class Log(models.Model):
         verbose_name = 'Log web'
         verbose_name_plural = 'Logs web'
 
-    id_zds = models.IntegerField('Identifiant sur ZdS')
-    content_type = models.CharField('Type de contenu', max_length=80)
-    hash_code = models.CharField('Hash code de la ligne de log', max_length=80, null=True)
+    id_zds = models.IntegerField('Identifiant sur ZdS', db_index=True)
+    content_type = models.CharField('Type de contenu', max_length=80, db_index=True)
+    hash_code = models.CharField('Hash code de la ligne de log', max_length=80, null=True, db_index=True)
     timestamp = models.DateTimeField('Timestamp', db_index=True)
     remote_addr = models.CharField('Adresse IP', max_length=39, null=True, db_index=True)
     body_bytes_sent = models.IntegerField('Taille de la page')
-    dns_referal = models.CharField('Source', max_length=80, null=True)
-    os_family = models.CharField('Famille de systeme d\'exploitation', max_length=40, null=True)
-    os_version = models.CharField('Version du systeme d\'exploitation', max_length=5, null=True)
-    browser_family = models.CharField('Famille du navigateur', max_length=40, null=True)
-    browser_version = models.CharField('Version du navigateur', max_length=5, null=True)
-    device_family = models.CharField('Famille de device', max_length=20, null=True)
+    dns_referal = models.CharField('Source', max_length=80, null=True, db_index=True)
+    os_family = models.CharField('Famille de systeme d\'exploitation', max_length=40, null=True, db_index=True)
+    os_version = models.CharField('Version du systeme d\'exploitation', max_length=15, null=True)
+    browser_family = models.CharField('Famille du navigateur', max_length=40, null=True, db_index=True)
+    browser_version = models.CharField('Version du navigateur', max_length=15, null=True)
+    device_family = models.CharField('Famille de device', max_length=20, null=True, db_index=True)
     request_time = models.IntegerField('Temps de chargement de la page')
-    country = models.CharField('Pays', max_length=80, null=True)
-    city = models.CharField('Ville', max_length=80, null=True)
+    country = models.CharField('Pays', max_length=80, null=True, db_index=True)
+    city = models.CharField('Ville', max_length=80, null=True, db_index=True)
 
     def __str__(self):
         return '{}-{}|{}'.format(self.id_zds, self.content_type, self.hash_code)
