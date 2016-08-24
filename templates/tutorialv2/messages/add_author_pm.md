@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans with title=content.title|safe type=type|safe %}
+{% blocktrans with title=content.title|safe type=type|safe user=user|safe %}
 Bonjour {{ user }},
 
 Vous avez été intégré à la rédaction du contenu « [{{ title }}]({{ url }}) ». 
