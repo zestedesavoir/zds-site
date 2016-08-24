@@ -194,7 +194,6 @@ class Command(BaseCommand):
 
         content_parsing.append(ContentParsing(reg_tuto))
         content_parsing.append(ContentParsing(reg_article))
-        cpt = 0
         for line in source:
             match = pattern_log.match(line)
             if match is not None:
@@ -219,7 +218,6 @@ class Command(BaseCommand):
                 request_time_result = match.group('request_time')
                 if(request_time_result is not None):
                     res['request_time'] = float(request_time_result)
-
                 if self.is_treatable(res):
                     for p_content in content_parsing:
                         id_zds = p_content.get_real_id_of_content(res['path'])
@@ -228,7 +226,6 @@ class Command(BaseCommand):
                             res_content['content_type'] = p_content.type_content
                             res_content['id_zds'] = id_zds
                             self.datas.append(res_content)
-                cpt += 1
         logger.info(u'Nombre de logs traitées : {}'.format(len(self.datas)))
         source.close()
         self.flush_data_in_database()

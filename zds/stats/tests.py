@@ -138,59 +138,66 @@ class ContentListAPITest(APITestCase):
         for type_c in all_types:
             # list of contents visits
             response = self.client.get(reverse('api:stats:list-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), overridden_drf["PAGINATE_BY"])
-            self.assertEqual(len(response.data.get('results')), overridden_drf["PAGINATE_BY"])
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), overridden_drf["PAGINATE_BY"])
+            self.assertEqual(len(data.get('results')), overridden_drf["PAGINATE_BY"])
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
             # list of contents source visits
             response = self.client.get(reverse('api:stats:list-source-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), len(self.sources_data))
-            self.assertEqual(len(response.data.get('results')), len(self.sources_data))
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), len(self.sources_data))
+            self.assertEqual(len(data.get('results')), len(self.sources_data))
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
             # list of tutorials city
             response = self.client.get(reverse('api:stats:list-city-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), 1)
-            self.assertEqual(len(response.data.get('results')), 1)
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), 1)
+            self.assertEqual(len(data.get('results')), 1)
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
             # list of tutorials country
             response = self.client.get(reverse('api:stats:list-country-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), 2)
-            self.assertEqual(len(response.data.get('results')), 2)
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), 2)
+            self.assertEqual(len(data.get('results')), 2)
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
             # list of tutorials device
             response = self.client.get(reverse('api:stats:list-device-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), 1)
-            self.assertEqual(len(response.data.get('results')), 1)
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), 1)
+            self.assertEqual(len(data.get('results')), 1)
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
             # list of tutorials os
             response = self.client.get(reverse('api:stats:list-os-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), 2)
-            self.assertEqual(len(response.data.get('results')), 2)
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), 2)
+            self.assertEqual(len(data.get('results')), 2)
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
             # list of tutorials browser
             response = self.client.get(reverse('api:stats:list-browser-content-visits', args=[type_c]))
+            data = response.data
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(response.data.get('count'), 2)
-            self.assertEqual(len(response.data.get('results')), 2)
-            self.assertIsNone(response.data.get('next'))
-            self.assertIsNone(response.data.get('previous'))
+            self.assertEqual(data.get('count'), 2)
+            self.assertEqual(len(data.get('results')), 2)
+            self.assertIsNone(data.get('next'))
+            self.assertIsNone(data.get('previous'))
 
     def test_logs_generate(self):
         f = tempfile.NamedTemporaryFile()

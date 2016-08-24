@@ -52,7 +52,7 @@ class LogRandomFactory():
         self.pipe = fake.random_element(elements=('.', 'P'))
 
     def __str__(self):
-        return u'{0} - {1} [{2}] \'{3}\' {4} {5} \'{6}\' \'{7}\' \'{8}\' {9} {10} {11}'. format(
+        return u'{0} - {1} [{2}] \"{3}\" {4} {5} \"{6}\" \"{7}\" \"{8}\" {9} {10} {11}'. format(
             self.remote_addr,
             self.remote_user,
             self.time_local,
@@ -115,7 +115,7 @@ class LogFactory():
         self.pipe = 'P'
 
     def __str__(self):
-        return u'{0} - {1} [{2}] \'{3}\' {4} {5} \'{6}\' \'{7}\' \'{8}\' {9} {10} {11}'. format(
+        return u'{0} - {1} [{2}] \"{3}\" {4} {5} \"{6}\" \"{7}\" \"{8}\" {9} {10} {11}'. format(
             self.remote_addr,
             self.remote_user,
             self.time_local,
