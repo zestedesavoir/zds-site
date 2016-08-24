@@ -14,7 +14,8 @@ from crispy_forms.layout import HTML, Layout, \
     Submit, Field, ButtonHolder, Hidden, Div
 
 from zds.member.models import Profile, KarmaNote
-from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_zds_password
+from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
+    validate_zds_password
 from zds.utils.forms import CommonLayoutModalText
 
 # Max password length for the user.
@@ -93,7 +94,8 @@ class RegisterForm(forms.Form):
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
+        validators=[validate_zds_password],
     )
 
     password_confirm = forms.CharField(
@@ -101,7 +103,8 @@ class RegisterForm(forms.Form):
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
+        validators=[validate_zds_password],
     )
 
     def __init__(self, *args, **kwargs):
@@ -135,7 +138,7 @@ class RegisterForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(RegisterForm, self).clean()
-        return validate_zds_password(cleaned_data)
+        return validate_passwords(cleaned_data)
 
     def throw_error(self, key=None, message=None):
         self._errors[key] = self.error_class([message])
@@ -334,6 +337,7 @@ class ChangePasswordForm(forms.Form):
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
+        validators=[validate_zds_password],
     )
 
     password_confirm = forms.CharField(
@@ -341,6 +345,7 @@ class ChangePasswordForm(forms.Form):
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
+        validators=[validate_zds_password],
     )
 
     def __init__(self, user, *args, **kwargs):
@@ -374,7 +379,7 @@ class ChangePasswordForm(forms.Form):
                 if 'password_old' in cleaned_data:
                     del cleaned_data['password_old']
 
-        return validate_zds_password(cleaned_data, password_label='password_new')
+        return validate_passwords(cleaned_data, password_label='password_new')
 
 
 class UsernameAndEmailForm(forms.Form):
@@ -470,13 +475,15 @@ class NewPasswordForm(forms.Form):
         label=_(u'Mot de passe'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
+        validators=[validate_zds_password],
     )
     password_confirm = forms.CharField(
         label=_(u'Confirmation'),
         max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
-        widget=forms.PasswordInput
+        widget=forms.PasswordInput,
+        validators=[validate_zds_password],
     )
 
     def __init__(self, identifier, *args, **kwargs):
@@ -496,7 +503,7 @@ class NewPasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(NewPasswordForm, self).clean()
-        return validate_zds_password(cleaned_data)
+        return validate_passwords(cleaned_data)
 
 
 class PromoteMemberForm(forms.Form):

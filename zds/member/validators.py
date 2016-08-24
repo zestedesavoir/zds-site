@@ -8,6 +8,7 @@ from django.core.validators import EmailValidator
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
+from zds.utils.misc import contains_utf8mb4
 from zds.settings import BASE_DIR
 
 
@@ -42,7 +43,7 @@ class ZdSEmailValidator(EmailValidator):
 
         user_part, domain_part = value.rsplit('@', 1)
 
-        if not self.user_regex.match(user_part):
+        if not self.user_regex.match(user_part) or contains_utf8mb4(user_part):
             raise ValidationError(self.message, code=self.code)
 
         # check if provider is blacklisted
@@ -86,6 +87,8 @@ def validate_zds_username(value, check_dont_exists=True):
         msg = _(u'Le nom d\'utilisateur ne peut contenir de virgules')
     elif value != value.strip():
         msg = _(u'Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
+    elif contains_utf8mb4(value):
+        msg = _(u'Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
     elif check_dont_exists and user_count > 0:
         msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
     elif not check_dont_exists and user_count == 0:
@@ -94,7 +97,17 @@ def validate_zds_username(value, check_dont_exists=True):
         raise ValidationError(msg)
 
 
-def validate_zds_password(cleaned_data, password_label='password', password_confirm_label='password_confirm'):
+def validate_zds_password(value):
+    """
+
+    :param value:
+    :return:
+    """
+    if contains_utf8mb4(value):
+        raise ValidationError(_(u'Le mot de passe ne peut pas contenir des caractères utf8mb4'))
+
+
+def validate_passwords(cleaned_data, password_label='password', password_confirm_label='password_confirm'):
     """
     Chek if cleaned_data['password'] == cleaned_data['password_confirm'] and password is not username.
     :param cleaned_data:
