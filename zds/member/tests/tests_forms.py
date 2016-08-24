@@ -2,10 +2,8 @@
 from django.test import TestCase
 
 from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
-from zds.member.forms import LoginForm, RegisterForm, \
-    MiniProfileForm, ProfileForm, ChangeUserForm, \
-    ChangePasswordForm, NewPasswordForm, \
-    KarmaForm, UsernameAndEmailForm
+from zds.member.forms import LoginForm, RegisterForm, MiniProfileForm, ProfileForm, ChangeUserForm, ChangePasswordForm,\
+    NewPasswordForm, KarmaForm, ForgotPasswordForm
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
 stringof251chars = u'abcdefghijklmnopqrstuvwxyabcdefghijklmnopqrstuvwxy' \
@@ -81,7 +79,7 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_empty_pseudo_register_form(self):
+    def test_empty_username_register_form(self):
         data = {
             'email': 'test@gmail.com',
             'username': '',
@@ -91,7 +89,7 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_empty_spaces_pseudo_register_form(self):
+    def test_empty_spaces_username_register_form(self):
         data = {
             'email': 'test@gmail.com',
             'username': '   ',
@@ -141,7 +139,7 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_password_match_pseudo_password_register_form(self):
+    def test_password_match_username_password_register_form(self):
         data = {
             'email': 'test@gmail.com',
             'username': 'ZeTester',
@@ -151,7 +149,7 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_pseudo_exist_register_form(self):
+    def test_username_exist_register_form(self):
         testuser = ProfileFactory()
         data = {
             'email': 'test@gmail.com',
@@ -173,7 +171,7 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_pseudo_espaces_register_form(self):
+    def test_username_spaces_register_form(self):
         ProfileFactory()
         data = {
             'email': 'test@gmail.com',
@@ -184,7 +182,7 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_pseudo_coma_register_form(self):
+    def test_username_coma_register_form(self):
         ProfileFactory()
         data = {
             'email': 'test@gmail.com',
@@ -260,13 +258,13 @@ class ProfileFormTest(TestCase):
 
 class ChangeUserFormTest(TestCase):
     """
-    Check the user pseudo/email.
+    Check the user username/email.
     """
 
     def setUp(self):
         self.user1 = ProfileFactory()
 
-    def test_valid_change_pseudo_user_form(self):
+    def test_valid_change_username_user_form(self):
         data = {
             'username': "MyNewPseudo",
             'email': ''
@@ -342,7 +340,7 @@ class ChangeUserFormTest(TestCase):
         form = ChangeUserForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_pseudo_espaces_register_form(self):
+    def test_username_spaces_register_form(self):
         ProfileFactory()
         data = {
             'username': '  ZeTester  ',
@@ -351,7 +349,7 @@ class ChangeUserFormTest(TestCase):
         form = ChangeUserForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_pseudo_coma_register_form(self):
+    def test_username_coma_register_form(self):
         ProfileFactory()
         data = {
             'username': 'Ze,Tester',
@@ -417,7 +415,7 @@ class ChangePasswordFormTest(TestCase):
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
-    def test_match_pseudo_change_password_form(self):
+    def test_match_username_change_password_form(self):
         self.user1.user.username = "LongName"
         data = {
             'password_old': self.oldpassword,
@@ -442,7 +440,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': self.user1.user.username,
             'email': ''
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_non_valid_non_ascii_forgot_password_form(self):
@@ -450,7 +448,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': self.userNonAscii.user.username,
             'email': ''
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_non_valid_non_ascii_email_forgot_password_form(self):
@@ -458,7 +456,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': '',
             'email': self.userNonAscii.user.email
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_valid_email_forgot_password_form(self):
@@ -466,7 +464,7 @@ class ForgotPasswordFormTest(TestCase):
             'email': self.user1.user.email,
             'username': ''
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_empty_name_forgot_password_form(self):
@@ -474,7 +472,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': '',
             'email': ''
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_full_forgot_password_form(self):
@@ -482,7 +480,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': 'John Doe',
             'email': 'john.doe@gmail.com'
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_username_forgot_password_form(self):
@@ -490,7 +488,7 @@ class ForgotPasswordFormTest(TestCase):
             'username': 'John Doe',
             'email': ''
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertFalse(form.is_valid())
 
     def test_unknow_email_forgot_password_form(self):
@@ -498,7 +496,7 @@ class ForgotPasswordFormTest(TestCase):
             'email': 'john.doe@gmail.com',
             'username': ''
         }
-        form = UsernameAndEmailForm(data=data)
+        form = ForgotPasswordForm(data=data)
         self.assertFalse(form.is_valid())
 
 
