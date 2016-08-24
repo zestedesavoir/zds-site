@@ -29,9 +29,7 @@ class LogRandomFactory():
                                                        sha_public__isnull=False).order_by('?').first()
         pub_content2 = PublishedContent.objects.filter(content_type='TUTORIAL',
                                                        sha_public__isnull=False).order_by('?').first()
-        pub_content2.load_public_version()
-        pub_content3 = pub_content2.versioned_model
-        pub_full = [pub_content1, pub_content2] + pub_content3.get_container_children()
+        pub_full = [pub_content1, pub_content2]
 
         fake_content = fake.random_element(elements=pub_full)
         if not fake_content:
@@ -94,8 +92,9 @@ class LogFactory():
         self.time_local = '{}:{} {}'.format(fake.date(pattern='%d/%b/%Y'),
                                             fake.time(pattern='%H:%M:%S'),
                                             fake.timezone())
+
         if type_content:
-            fake_content = PublishedContent.objects.filter(pk=pk, content_type=type_content).first()
+            fake_content = PublishedContent.objects.filter(content_pk=pk, content_type=type_content).first()
         else:
             fake_content = None
 
