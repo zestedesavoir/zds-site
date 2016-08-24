@@ -1401,6 +1401,76 @@ class MessageActionTest(TestCase):
         alerts = [word for word in response.content.split() if word == 'alert']
         self.assertEqual(len(alerts), 2)
 
+    def test_hide(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+        another_profile = ProfileFactory()
+        PostFactory(topic=topic, author=another_profile.user, position=2)
+
+        # two posts are displayed
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        posts = [word for word in response.content.split() if word == 'm\'appelle']
+        self.assertEqual(len(posts), 2)
+
+        # unauthenticated, no 'Hide' button
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, 'Masquer')
+
+        # authenticated, only one 'Hide' buttons because our user only posted one of them
+        self.client.login(username=profile.user.username, password='hostel77')
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        hide_buttons = [word for word in response.content.split() if word == 'hide']
+        self.assertEqual(len(hide_buttons), 1)
+
+        # staff hides a message
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        text_hidden_expected = u'Bad guy!'
+        data = {
+            'delete_message': '',
+            'text_hidden': text_hidden_expected
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        # unauthenticated
+        # only one post is displayed, visitor can see hide reason and cannot show or re-enable
+        self.client.logout()
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        posts = [word for word in response.content.split() if word == 'm\'appelle']
+        self.assertEqual(len(posts), 1)
+        self.assertNotContains(response, '#show-message-hidden-')
+        self.assertNotContains(response, 'Démasquer')
+        self.assertContains(response, 'Bad guy!')
+
+        # user cannot show or re-enable their message
+        self.client.login(username=profile.user.username, password='hostel77')
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, '#show-message-hidden-')
+        self.assertNotContains(response, 'Démasquer')
+        self.assertContains(response, 'Bad guy!')
+
+        # staff can show or re-enable
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertContains(response, 'show-message-hidden-')
+        self.assertContains(response, 'Démasquer')
+        text_hidden_expected = u'Bad guy!'
+        data = {
+            'show_message': '',
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        # two posts are displayed again
+        self.client.logout()
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        posts = [word for word in response.content.split() if word == 'm\'appelle']
+        self.assertEqual(len(posts), 2)
+
 
 class PostUnreadTest(TestCase):
     def test_failure_post_unread_require_method_get(self):
