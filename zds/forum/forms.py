@@ -7,10 +7,10 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Field, Hidden
+from crispy_forms.layout import Layout, Field, Hidden
 from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic, sub_tag, Tag
-from zds.utils.forms import CommonLayoutEditor
+from zds.utils.forms import CommonLayoutEditor, TagValidator
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -20,7 +20,7 @@ class TopicForm(forms.Form):
         max_length=Topic._meta.get_field('title').max_length,
         widget=forms.TextInput(
             attrs={
-                'placeholder': _(u'[Tag 1][Tag 2] Titre de mon sujet'),
+                'placeholder': _(u'Titre de mon sujet'),
                 'required': 'required',
             }
         )
@@ -30,6 +30,17 @@ class TopicForm(forms.Form):
         label=_('Sous-titre'),
         max_length=Topic._meta.get_field('subtitle').max_length,
         required=False,
+    )
+
+    tags = forms.CharField(
+        label=_(u'Tag(s) séparés par une virgule (exemple: python,django,web)'),
+        max_length=64,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
+            }
+        )
     )
 
     text = forms.CharField(
@@ -50,8 +61,8 @@ class TopicForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('title', autocomplete='off'),
-            HTML('<div id="results" ><table id="tb-results" class="topics-entries"></table></div>'),
             Field('subtitle', autocomplete='off'),
+            Field('tags'),
             CommonLayoutEditor(),
         )
 
@@ -95,6 +106,8 @@ class TopicForm(forms.Form):
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
                    u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
+        if not TagValidator.validate_raw_string(cleaned_data.get("tags")):
+            self._errors['tags'] = self.error_class([_(u'Vous avez entré un tag trop long.')])
         return cleaned_data
 
 
