@@ -107,7 +107,7 @@ class Country(models.Model, Dimension):
 
 class City(models.Model, Dimension):
     """
-    TODO
+    City model
     """
     class Meta:
         verbose_name = 'Stats Ville'

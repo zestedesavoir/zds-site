@@ -38,10 +38,10 @@ class StatContentListAPI(ListAPIView):
     serializer_class = StatContentSerializer
 
     def get_queryset(self):
-        if self.kwargs.get('content_type') == 'tutoriel':
-            return PublishedContent.objects.all().filter(content_type='TUTORIAL')
-        elif self.kwargs.get('content_type') == 'article':
-            return PublishedContent.objects.all().filter(content_type='ARTICLE')
+        content_type = self.kwargs.get('content_type')
+        if content_type:
+            attr_name = get_name_in_model_content_database(content_type)
+            return PublishedContent.objects.all().filter(content_type=attr_name)
         else:
             return PublishedContent.objects.all()
 
@@ -80,19 +80,12 @@ class StatContentDetailAPI(RetrieveAPIView):
             return StatContentSerializer
 
     def get_object(self):
-
-        if self.kwargs.get('content_type') == 'tutoriel':
-            return PublishedContent.objects.all().filter(
-                id=self.kwargs.get('content_id'),
-                content_type='TUTORIAL',
-                sha_public__isnull=False).first()
-        elif self.kwargs.get('content_type') == 'article':
-            return PublishedContent.objects.all().filter(
-                id=self.kwargs.get('content_id'),
-                content_type='ARTICLE',
-                sha_public__isnull=False).first()
-        else:
-            raise exceptions.NotFound()
+        content_type = self.kwargs.get('content_type')
+        attr_name = get_name_in_model_content_database(content_type)
+        return PublishedContent.objects.all().filter(
+            id=self.kwargs.get('content_id'),
+            content_type=attr_name,
+            sha_public__isnull=False).first()
 
     @etag(obj_key_func)
     @cache_response(key_func=obj_key_func)
@@ -115,12 +108,29 @@ class StatContentDetailAPI(RetrieveAPIView):
 
 
 def get_app_from_content_type(content_type):
+    """receives a literal content type and return his key as stored in the Log model
+
+    :return: Log key associated with the content type
+    """
     if content_type == 'tutoriel':
         return 'tutorial'
     elif content_type == 'article':
         return 'article'
     else:
-        return None
+        raise exceptions.NotFound()
+
+
+def get_name_in_model_content_database(content_type):
+    """receives a literal content type and return his key as stored in the PublishedContent model
+
+    :return: PublishedContent key associated with the content type
+    """
+    if content_type == 'tutoriel':
+        return 'TUTORIAL'
+    elif content_type == 'article':
+        return 'ARTICLE'
+    else:
+        raise exceptions.NotFound()
 
 
 class StatSubListAPI(ListAPIView):
@@ -135,15 +145,12 @@ class StatSubListAPI(ListAPIView):
         app_name = get_app_from_content_type(content_type)
         app_id = self.kwargs.get('content_id')
 
-        if app_name is not None and app_id is not None:
+        if app_id:
             type_logs = Log.objects.filter(content_type=app_name, id_zds=app_id).values_list(self.map_attr, flat=True)
-            return self.map_query_set.filter(code__in=type_logs)
-
-        if app_name is not None:
+        else:
             type_logs = Log.objects.filter(content_type=app_name).values_list(self.map_attr, flat=True)
-            return self.map_query_set.filter(code__in=type_logs)
 
-        raise exceptions.NotFound()
+        return self.map_query_set.filter(code__in=type_logs)
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)

@@ -1,6 +1,7 @@
 # coding: utf-8
 import os
 import re
+import codecs
 from datetime import datetime
 from user_agents import parse
 import pygeoip
@@ -77,7 +78,7 @@ class Command(BaseCommand):
         if geo is not None:
             return (geo['city'], geo['country_name'])
 
-        return (None, None)
+        return None, None
 
     def is_treatable(self, dict_result):
         if dict_result['verb'] not in self.verbs or dict_result['status'] != 200:
@@ -167,65 +168,66 @@ class Command(BaseCommand):
                 (?P<status>\d+?)\s                      # Response status code
                 (?P<body_bytes_sent>\d+?)\s             # Body size in bytes
                 "(?P<http_referer>[^"]+?)"\s            # Referer header
-                "(?P<http_user_agent>[^"]+?)"\s?         # User-Agent header
+                "(?P<http_user_agent>[^"]+?)"\s?        # User-Agent header
                 "?(?P<http_x_forwarded_for>[^"]+?)?"?\s?    # X-Forwarded-For header
-                (?P<request_time>[\d\.]+)?\s?             # Request time
-                (?P<upstream_response_time>[\d\.]+)?\s?  # Upstream response time
+                (?P<request_time>[\d\.]+)?\s?           # Request time
+                (?P<upstream_response_time>[\d\.]+)?\s? # Upstream response time
                 (?P<pipe>\S+)?$                         # Pipelined request
                 '''
-        source = open(args[0], 'r')
-        pattern_log = re.compile(regx, re.VERBOSE)
-        content_parsing = []
 
-        reg_tuto = [
-            {
-                'regxp': '^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/',
-                'unique_group': 'id_tuto',
-                'type_content': 'tutorial'
-            }
-        ]
-        reg_article = [
-            {
-                'regxp': '^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/',
-                'unique_group': 'id_article',
-                'type_content': 'article'
-            }
-        ]
+        with codecs.open(args[0], "r", "utf-8") as source:
+            pattern_log = re.compile(regx, re.VERBOSE)
+            content_parsing = []
 
-        content_parsing.append(ContentParsing(reg_tuto))
-        content_parsing.append(ContentParsing(reg_article))
-        for line in source:
-            match = pattern_log.match(line)
-            if match is not None:
-                user_agent = parse(match.group('http_user_agent'))
-                res = {}
-                res['hash_code'] = md5(line.encode('utf-8')).hexdigest()
-                res['remote_addr'] = match.group('remote_addr')
-                (res['city'], res['country']) = self.get_geo_details(res['remote_addr'])
-                res['remote_user'] = match.group('remote_user')
-                res['timestamp'] = datetime.strptime(match.group('timestamp'), '%d/%b/%Y:%H:%M:%S')
-                res['verb'] = match.group('verb')
-                res['path'] = match.group('path')
-                res['status'] = int(match.group('status'))
-                res['body_bytes_sent'] = int(match.group('body_bytes_sent'))
-                res['dns_referal'] = urlparse(match.group('http_referer')).netloc
-                res['os_family'] = user_agent.os.family
-                res['os_version'] = user_agent.os.version_string
-                res['browser_family'] = user_agent.browser.family
-                res['browser_version'] = user_agent.browser.version_string
-                res['device_family'] = user_agent.device.family
-                res['is_bot'] = user_agent.is_bot
-                request_time_result = match.group('request_time')
-                if(request_time_result is not None):
-                    res['request_time'] = float(request_time_result)
-                if self.is_treatable(res):
-                    for p_content in content_parsing:
-                        id_zds = p_content.get_real_id_of_content(res['path'])
-                        if id_zds is not None:
-                            res_content = res.copy()
-                            res_content['content_type'] = p_content.type_content
-                            res_content['id_zds'] = id_zds
-                            self.datas.append(res_content)
-        logger.info(u'Nombre de logs traitées : {}'.format(len(self.datas)))
-        source.close()
-        self.flush_data_in_database()
+            reg_tuto = [
+                {
+                    'regxp': '^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/',
+                    'unique_group': 'id_tuto',
+                    'type_content': 'tutorial'
+                }
+            ]
+            reg_article = [
+                {
+                    'regxp': '^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/',
+                    'unique_group': 'id_article',
+                    'type_content': 'article'
+                }
+            ]
+
+            content_parsing.append(ContentParsing(reg_tuto))
+            content_parsing.append(ContentParsing(reg_article))
+            for line in source:
+                match = pattern_log.match(line)
+                if match is not None:
+                    user_agent = parse(match.group('http_user_agent'))
+                    res = {}
+                    res['hash_code'] = md5(line.encode('utf-8')).hexdigest()
+                    res['remote_addr'] = match.group('remote_addr')
+                    (res['city'], res['country']) = self.get_geo_details(res['remote_addr'])
+                    res['remote_user'] = match.group('remote_user')
+                    res['timestamp'] = datetime.strptime(match.group('timestamp'), '%d/%b/%Y:%H:%M:%S')
+                    res['verb'] = match.group('verb')
+                    res['path'] = match.group('path')
+                    res['status'] = int(match.group('status'))
+                    res['body_bytes_sent'] = int(match.group('body_bytes_sent'))
+                    res['dns_referal'] = urlparse(match.group('http_referer')).netloc
+                    res['os_family'] = user_agent.os.family
+                    res['os_version'] = user_agent.os.version_string
+                    res['browser_family'] = user_agent.browser.family
+                    res['browser_version'] = user_agent.browser.version_string
+                    res['device_family'] = user_agent.device.family
+                    res['is_bot'] = user_agent.is_bot
+                    request_time_result = match.group('request_time')
+                    if(request_time_result is not None):
+                        res['request_time'] = float(request_time_result)
+                    if self.is_treatable(res):
+                        for p_content in content_parsing:
+                            id_zds = p_content.get_real_id_of_content(res['path'])
+                            if id_zds is not None:
+                                res_content = res.copy()
+                                res_content['content_type'] = p_content.type_content
+                                res_content['id_zds'] = id_zds
+                                self.datas.append(res_content)
+            logger.info(u'Nombre de logs traitées : {}'.format(len(self.datas)))
+            source.close()
+            self.flush_data_in_database()

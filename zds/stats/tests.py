@@ -199,6 +199,36 @@ class ContentListAPITest(APITestCase):
             self.assertIsNone(data.get('next'))
             self.assertIsNone(data.get('previous'))
 
+    def test_not_found_url(self):
+        all_types = ["tuto", "art"]
+        for type_c in all_types:
+            # list of contents visits
+            response = self.client.get(reverse('api:stats:list-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+            # list of contents source visits
+            response = self.client.get(reverse('api:stats:list-source-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+            # list of tutorials city
+            response = self.client.get(reverse('api:stats:list-city-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+            # list of tutorials country
+            response = self.client.get(reverse('api:stats:list-country-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+            # list of tutorials device
+            response = self.client.get(reverse('api:stats:list-device-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+            # list of tutorials os
+            response = self.client.get(reverse('api:stats:list-os-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+            # list of tutorials browser
+            response = self.client.get(reverse('api:stats:list-browser-content-visits', args=[type_c]))
+            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_logs_generate(self):
         f = tempfile.NamedTemporaryFile()
         opts = {'lines': 10, 'path': f.name}
