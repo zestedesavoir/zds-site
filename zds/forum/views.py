@@ -148,7 +148,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
-        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
 
         context.update({
             'topic': self.object,
@@ -159,9 +159,9 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         })
 
         votes = CommentVote.objects.filter(user_id=self.request.user.pk, comment__in=context['posts']).all()
-        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
-        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
-        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+        context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
+        context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
+        context['is_staff'] = self.request.user.has_perm('forum.change_topic')
         context['isantispam'] = self.object.antispam()
         context['subscriber_count'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, 'profile'):
@@ -170,9 +170,9 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
             context['has_token'] = self.request.user.profile.github_token != ''
 
         if self.request.user.has_perm('forum.change_topic'):
-            context["user_can_modify"] = [post.pk for post in context['posts']]
+            context['user_can_modify'] = [post.pk for post in context['posts']]
         else:
-            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+            context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         if self.request.user.is_authenticated():
             if not is_read(self.object):
