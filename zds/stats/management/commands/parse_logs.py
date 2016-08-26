@@ -11,9 +11,9 @@ import logging
 from django.db import transaction
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from zds.stats.models import Log
+from zds.stats.models import Log, Source, Device, OS, Country, City, Browser
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('zds')
 
 
 class ContentParsing(object):
@@ -93,57 +93,50 @@ class Command(BaseCommand):
 
         return False
 
-    def flush_denormalize(self, class_name, field_in_class, field_in_log, list_of_datas):
-        module = 'zds.stats.models'
-        obj = __import__(module, globals(), locals(), [class_name])
-        cls = getattr(obj, class_name)
-        data_existants = cls.objects.values_list(field_in_class, flat=True)
-        data_for_save = list(set(list_of_datas) - set(data_existants))
-
-        for my_data in data_for_save:
-            create_arg = {field_in_class: my_data}
-            cls.objects.create(**create_arg)
-
     @transaction.atomic
     def flush_data_in_database(self):
-        my_sources = []
-        my_os = []
-        my_browsers = []
-        my_devices = []
-        my_cities = []
-        my_countries = []
         new_logs = []
         keys = ['id_zds', 'content_type', 'remote_addr', 'hash_code', 'body_bytes_sent', 'timestamp',
-                'dns_referal', 'os_family', 'os_version', 'browser_family', 'browser_version',
-                'device_family', 'request_time', 'country', 'city']
+                'os_version', 'browser_version', 'request_time']
         for data in self.datas:
+            source, created_source = Source.objects.get_or_create(code=data['dns_referal'])
+            os, created_os = OS.objects.get_or_create(code=data['os_family'])
+            device, created_device = Device.objects.get_or_create(code=data['device_family'])
+            country, created_country = Country.objects.get_or_create(code=data['country'])
+            city, created_city = City.objects.get_or_create(code=data['city'])
+            browser, created_browser = Browser.objects.get_or_create(code=data['browser_family'])
+
             existant = Log.objects.filter(hash_code=data['hash_code'],
                                           timestamp=data['timestamp'],
                                           content_type=data['content_type']).first()
             log_data = {key: data[key] for key in keys}
-            if existant is None:
-                new_log = Log(**log_data)
-                logger.debug(u'Traitement de la log du {} de type {}'.format(data['timestamp'], data['content_type']))
-                new_logs.append(new_log)
-            else:
-                logger.debug(u'Mise à jour de la log du {} de type {}'.format(data['timestamp'], data['content_type']))
-                existant = Log(**log_data)
-                existant.save()
-            my_sources.append(data['dns_referal'])
-            my_os.append(data['os_family'])
-            my_cities.append(data['city'])
-            my_countries.append(data['country'])
-            my_devices.append(data['device_family'])
-            my_browsers.append(data['browser_family'])
 
-        if new_logs:
+            if existant is None:
+                log_instance = Log(**log_data)
+            else:
+                log_instance = Log(pk=existant.pk, **log_data)
+
+            log_instance.dns_referal = source
+            log_instance.os_family = os
+            log_instance.device_family = device
+            log_instance.country = country
+            log_instance.city = city
+            log_instance.browser_family = browser
+
+            if existant is None:
+                logger.debug(u'Ajout de la log du {} de type {}.'
+                             .format(str(data['timestamp']), str(data['content_type'])))
+                new_logs.append(log_instance)
+            else:
+                logger.debug(u'Mise à jour de la log du {} de type {}.'
+                             .format(str(data['timestamp']), str(data['content_type'])))
+                existant = Log(pk=existant.pk, **log_data)
+                log_instance.save()
+
+        if len(new_logs) > 0:
+            logger.debug(u'Enregistrement de {} logs'.format(len(new_logs)))
             Log.objects.bulk_create(new_logs)
-        self.flush_denormalize('Source', 'code', 'dns_referal', my_sources)
-        self.flush_denormalize('OS', 'code', 'os_family', my_os)
-        self.flush_denormalize('Device', 'code', 'device_family', my_devices)
-        self.flush_denormalize('Country', 'code', 'country', my_countries)
-        self.flush_denormalize('City', 'code', 'city', my_cities)
-        self.flush_denormalize('Browser', 'code', 'browser_family', my_browsers)
+        logger.debug(u'Taille de logs dans la base {} enregistrements '.format(Log.objects.all().count()))
 
     def handle(self, *args, **options):
         if len(args) != 1:

@@ -59,17 +59,17 @@ class Loggable(Dimension):
 
     def get_sources(self):
         return list(Log.objects.filter(id_zds=self.pk)
-                    .values('dns_referal')
+                    .values('dns_referal__code')
                     .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
     def get_countries(self):
         return list(Log.objects.filter(id_zds=self.pk)
-                    .values('country')
+                    .values('country__code')
                     .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
     def get_cities(self):
         return list(Log.objects.filter(id_zds=self.pk)
-                    .values('city')
+                    .values('city__code')
                     .annotate(total_visits=Count('pk'), unique_visits=Count('remote_addr')))
 
 
@@ -82,11 +82,11 @@ class Source(models.Model, Dimension):
         verbose_name_plural = 'Stats Sources'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = 'dns_referal'
+        self.code_name = 'dns_referal__code'
         super(Source, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
-    code = models.CharField(u'Source', max_length=80, null=True)
+    code = models.CharField(u'Source', max_length=80, null=True, unique=True)
 
 
 class Country(models.Model, Dimension):
@@ -98,11 +98,11 @@ class Country(models.Model, Dimension):
         verbose_name_plural = 'Stats Pays'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = 'country'
+        self.code_name = 'country__code'
         super(Country, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
-    code = models.CharField(u'Pays', max_length=80, null=True)
+    code = models.CharField(u'Pays', max_length=80, null=True, unique=True)
 
 
 class City(models.Model, Dimension):
@@ -114,11 +114,11 @@ class City(models.Model, Dimension):
         verbose_name_plural = 'Stats Villes'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = 'city'
+        self.code_name = 'city__code'
         super(City, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
-    code = models.CharField(u'Ville', max_length=80, null=True)
+    code = models.CharField(u'Ville', max_length=80, null=True, unique=True)
 
 
 class OS(models.Model, Dimension):
@@ -129,11 +129,11 @@ class OS(models.Model, Dimension):
         verbose_name = 'Stats OS'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = 'os_family'
+        self.code_name = 'os_family__code'
         super(OS, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
-    code = models.CharField(u'Système d\'exploitaiton', max_length=80, null=True)
+    code = models.CharField(u'Système d\'exploitaiton', max_length=80, null=True, unique=True)
 
 
 class Browser(models.Model, Dimension):
@@ -144,11 +144,11 @@ class Browser(models.Model, Dimension):
         verbose_name = 'Stats navigateur'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = 'browser_family'
+        self.code_name = 'browser_family__code'
         super(Browser, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
-    code = models.CharField(u'Navigateur', max_length=80, null=True)
+    code = models.CharField(u'Navigateur', max_length=80, null=True, unique=True)
 
 
 class Device(models.Model, Dimension):
@@ -159,11 +159,11 @@ class Device(models.Model, Dimension):
         verbose_name = 'Stats Device'
 
     def __init__(self, *args, **kwargs):
-        self.code_name = 'device_family'
+        self.code_name = 'device_family__code'
         super(Device, self).__init__(*args, **kwargs)
         self.code_value = self.code
 
-    code = models.CharField(u'Device', max_length=80, null=True)
+    code = models.CharField(u'Device', max_length=80, null=True, unique=True)
 
 
 @python_2_unicode_compatible
@@ -174,22 +174,25 @@ class Log(models.Model):
     class Meta:
         verbose_name = 'Log web'
         verbose_name_plural = 'Logs web'
+        index_together = [
+            ("hash_code", "content_type", "timestamp"),
+        ]
 
     id_zds = models.IntegerField('Identifiant sur ZdS', db_index=True)
-    content_type = models.CharField('Type de contenu', max_length=80, db_index=True)
-    hash_code = models.CharField('Hash code de la ligne de log', max_length=80, null=True, db_index=True)
+    content_type = models.CharField('Type de contenu', max_length=10, db_index=True)
+    hash_code = models.CharField('Hash code de la ligne de log', max_length=32, null=True, db_index=True)
     timestamp = models.DateTimeField('Timestamp', db_index=True)
     remote_addr = models.CharField('Adresse IP', max_length=39, null=True, db_index=True)
     body_bytes_sent = models.IntegerField('Taille de la page')
-    dns_referal = models.CharField('Source', max_length=80, null=True, db_index=True)
-    os_family = models.CharField('Famille de systeme d\'exploitation', max_length=40, null=True, db_index=True)
+    dns_referal = models.ForeignKey(Source, verbose_name='Source', null=True)
+    os_family = models.ForeignKey(OS, verbose_name='Famille de systeme d\'exploitation', null=True)
     os_version = models.CharField('Version du systeme d\'exploitation', max_length=15, null=True)
-    browser_family = models.CharField('Famille du navigateur', max_length=40, null=True, db_index=True)
+    browser_family = models.ForeignKey(Browser, verbose_name='Famille du navigateur', null=True)
     browser_version = models.CharField('Version du navigateur', max_length=15, null=True)
-    device_family = models.CharField('Famille de device', max_length=20, null=True, db_index=True)
+    device_family = models.ForeignKey(Device, verbose_name='Famille de device', null=True)
     request_time = models.IntegerField('Temps de chargement de la page')
-    country = models.CharField('Pays', max_length=80, null=True, db_index=True)
-    city = models.CharField('Ville', max_length=80, null=True, db_index=True)
+    country = models.ForeignKey(Country, verbose_name='Pays', null=True)
+    city = models.ForeignKey(City, verbose_name='Ville', null=True)
 
     def __str__(self):
         return '{}-{}|{}'.format(self.id_zds, self.content_type, self.hash_code)

@@ -144,12 +144,12 @@ class StatSubListAPI(ListAPIView):
         content_type = self.kwargs.get('content_type')
         app_name = get_app_from_content_type(content_type)
         app_id = self.kwargs.get('content_id')
+        params = {"content_type": app_name, self.map_attr + "__isnull": False}
 
         if app_id:
-            type_logs = Log.objects.filter(content_type=app_name, id_zds=app_id).values_list(self.map_attr, flat=True)
-        else:
-            type_logs = Log.objects.filter(content_type=app_name).values_list(self.map_attr, flat=True)
+            params["id_zds"] = app_id
 
+        type_logs = Log.objects.filter(**params).values_list(self.map_attr + "__code", flat=True)
         return self.map_query_set.filter(code__in=type_logs)
 
     @etag(list_key_func)
