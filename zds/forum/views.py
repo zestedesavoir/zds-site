@@ -488,6 +488,9 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
                 u'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
 
+        if self.object.is_visible = False and not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
+
         form = self.create_form(self.form_class, **{
             'text': self.object.text
         })
