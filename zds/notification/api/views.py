@@ -79,7 +79,7 @@ class NotificationListAPI(ListAPIView):
         return self.list(request, *args, **kwargs)
 
     def get_queryset(self):
-        queryset = Notification.objects.get_unread_notifications_of(self.request.user)
+        queryset = Notification.objects.get_notifications_of(self.request.user)
         subscription_type = self.request.query_params.get('subscription_type', None)
         if subscription_type:
             queryset = queryset.filter(subscription__content_type__model=subscription_type)
