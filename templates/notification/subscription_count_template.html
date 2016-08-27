@@ -1,3 +1,9 @@
 {% load i18n %}
 
-<span class="disabled mobile-menu-link">{% blocktrans %}Il y a {{ subscriber_count }} abonné{{ subscriber_count|pluralize }}{% endblocktrans %}</span>
+<span class="disabled mobile-menu-link">
+  {% blocktrans count subscriber_count=subscriber_count %}
+    Il y a {{ subscriber_count }} abonné
+  {% plural %}
+    Il y a {{ subscriber_count }} abonnés
+  {% endblocktrans %}
+</span>
