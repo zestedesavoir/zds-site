@@ -1,172 +1,327 @@
--   fields: {description: Informatique, position: 0, slug: informatique, title: Informatique}
+-   fields:
+        description: Informatique
+        position: 0
+        slug: informatique
+        title: Informatique
     model: utils.category
     pk: 1
--   fields: {description: Sciences de la nature, position: 1, slug: sciences-de-la-nature,
-        title: Sciences de la nature}
+-   fields:
+        description: Sciences de la nature
+        position: 1
+        slug: sciences-de-la-nature
+        title: Sciences de la nature
     model: utils.category
     pk: 2
--   fields: {description: Sciences humaines et sociales, position: 2, slug: sciences-humaines-et-sociales,
-        title: Sciences humaines et sociales}
+-   fields:
+        description: Sciences humaines et sociales
+        position: 2
+        slug: sciences-humaines-et-sociales
+        title: Sciences humaines et sociales
     model: utils.category
     pk: 3
--   fields: {description: Autres, position: 3, slug: autres, title: Autres}
+-   fields:
+        description: Autres
+        position: 3
+        slug: autres
+        title: Autres
     model: utils.category
     pk: 4
--   fields: {image: '', slug: bureautique-et-redaction, subtitle: 'Excel, LaTeX, Powerpoint,
-            Word', title: "Bureautique et r\xE9daction"}
+-   fields:
+        image: ''
+        slug: bureautique-et-redaction
+        subtitle: 'Excel, LaTeX, Powerpoint, Word'
+        title: "Bureautique et r\xE9daction"
     model: utils.subcategory
     pk: 1
--   fields: {image: '', slug: materiel-et-electronique, subtitle: "Arduino, Disque
-            dur, DIY, Electronique*, M\xE9moires, Ordinateur", title: "Mat\xE9riel
-            et \xE9lectronique"}
+-   fields:
+        image: ''
+        slug: materiel-et-electronique
+        subtitle: "Arduino, Disque dur, DIY, Electronique*, M\xE9moires, Ordinateur"
+        title: "Mat\xE9riel et \xE9lectronique"
     model: utils.subcategory
     pk: 2
--   fields: {image: '', slug: programmation-et-algorithmique, subtitle: ".NET, Ada,
-            Algorithmique, C, C#, C++, Cobol, Fonctionnel, G\xE9nie logiciel, Haskell,
-            Java, Julia, Lisp, Ocaml, Orient\xE9 objet, Python, Ruby, Versioning",
-        title: Programmation et algorithmique}
+-   fields:
+        image: ''
+        slug: programmation-et-algorithmique
+        subtitle: ".NET, Ada, Algorithmique, C, C#, C++, Cobol, Fonctionnel, G\xE9nie logiciel, Haskell, Java, Julia, Lisp, Ocaml, Orient\xE9 objet, Python, Ruby, Versioning"
+        title: Programmation et algorithmique
     model: utils.subcategory
     pk: 3
--   fields: {image: '', slug: site-web, subtitle: "Accessibilit\xE9, Actionscript,
-            Angular JS, CakePHP, Django, HTML/CSS, Java EE, JavaScript, Nginx, Node.js,
-            Oxygen, PHP, Ruby On Rails, SEO/R\xE9ferencement*, Symfony, Websocket",
-        title: Site web}
+-   fields:
+        image: ''
+        slug: site-web
+        subtitle: "Accessibilit\xE9, Actionscript, Angular JS, CakePHP, Django, HTML/CSS, Java EE, JavaScript, Nginx, Node.js, Oxygen, PHP, Ruby On Rails, SEO/R\xE9ferencement*, Symfony, Websocket"
+        title: Site web
     model: utils.subcategory
     pk: 4
--   fields: {image: '', slug: systemes-dexploitation, subtitle: 'Android, GNU/Linux,
-            iOS, MAC OS, Windows, Windows Phone', title: "Syst\xE8mes d'exploitation"}
+-   fields:
+        image: ''
+        slug: systemes-dexploitation
+        subtitle: 'Android, GNU/Linux, iOS, MAC OS, Windows, Windows Phone'
+        title: "Syst\xE8mes d'exploitation"
     model: utils.subcategory
     pk: 5
--   fields: {image: '', slug: autres-informatique, subtitle: "API, Base de donn\xE9es,
-            FTP, Jeux vid\xE9os, MySQL, Oracle, Protocole, S\xE9curit\xE9, TCP/IP",
-        title: Autres (informatique)}
+-   fields:
+        image: ''
+        slug: autres-informatique
+        subtitle: "API, Base de donn\xE9es, FTP, Jeux vid\xE9os, MySQL, Oracle, Protocole, S\xE9curit\xE9, TCP/IP"
+        title: Autres (informatique)
     model: utils.subcategory
     pk: 6
--   fields: {image: '', slug: astronomie, subtitle: Astronomie, title: Astronomie}
+-   fields:
+        image: ''
+        slug: astronomie
+        subtitle: Astronomie
+        title: Astronomie
     model: utils.subcategory
     pk: 7
--   fields: {image: '', slug: geologie-et-geographie-physique, subtitle: "G\xE9ologie",
-        title: "G\xE9ologie et g\xE9ographie physique"}
+-   fields:
+        image: ''
+        slug: geologie-et-geographie-physique
+        subtitle: "G\xE9ologie"
+        title: "G\xE9ologie et g\xE9ographie physique"
     model: utils.subcategory
     pk: 8
--   fields: {image: '', slug: biologie, subtitle: Biologie, title: Biologie}
+-   fields:
+        image: ''
+        slug: biologie
+        subtitle: Biologie
+        title: Biologie
     model: utils.subcategory
     pk: 9
--   fields: {image: '', slug: physique, subtitle: Physique, title: Physique}
+-   fields:
+        image: ''
+        slug: physique
+        subtitle: Physique
+        title: Physique
     model: utils.subcategory
     pk: 10
--   fields: {image: '', slug: chimie, subtitle: Chimie, title: Chimie}
+-   fields:
+        image: ''
+        slug: chimie
+        subtitle: Chimie
+        title: Chimie
     model: utils.subcategory
     pk: 11
--   fields: {image: '', slug: mathematiques, subtitle: "Math\xE9matiques", title: "Math\xE9matiques"}
+-   fields:
+        image: ''
+        slug: mathematiques
+        subtitle: "Math\xE9matiques"
+        title: "Math\xE9matiques"
     model: utils.subcategory
     pk: 12
--   fields: {image: '', slug: autres-sciences-de-la-nature, subtitle: Autres sciences
-            de la nature, title: Autres (sciences de la nature)}
+-   fields:
+        image: ''
+        slug: autres-sciences-de-la-nature
+        subtitle: Autres science de la nature
+        title: Autres (sciences de la nature)
     model: utils.subcategory
     pk: 13
--   fields: {image: '', slug: droit, subtitle: Droit, title: Droit}
+-   fields:
+        image: ''
+        slug: droit
+        subtitle: Droit
+        title: Droit
     model: utils.subcategory
     pk: 14
--   fields: {image: '', slug: histoire, subtitle: Histoire, title: Histoire}
+-   fields:
+        image: ''
+        slug: histoire
+        subtitle: Histoire
+        title: Histoire
     model: utils.subcategory
     pk: 15
--   fields: {image: '', slug: langues, subtitle: Langues, title: Langues}
+-   fields:
+        image: ''
+        slug: langues
+        subtitle: Langues
+        title: Langues
     model: utils.subcategory
     pk: 16
--   fields: {image: '', slug: psychologie, subtitle: "Psychologie, P\xE9dagogie",
-        title: Psychologie}
+-   fields:
+        image: ''
+        slug: psychologie
+        subtitle: "Psychologie, P\xE9dagogie"
+        title: Psychologie
     model: utils.subcategory
     pk: 17
--   fields: {image: '', slug: economie, subtitle: "\xC9conomie", title: "\xC9conomie"}
+-   fields:
+        image: ''
+        slug: economie
+        subtitle: "\xC9conomie"
+        title: "\xC9conomie"
     model: utils.subcategory
     pk: 18
--   fields: {image: '', slug: autres-sciences-humaines-et-sociales, subtitle: "Autres
-            sciences humaines et sociales comme la g\xE9ographie", title: Autres (sciences
-            humaines et sociales)}
+-   fields:
+        image: ''
+        slug: autres-sciences-humaines-et-sociales
+        subtitle: "Autre sciences humaines et sociales comme la g\xE9ographie"
+        title: Autres (sciences humaines et sociales)
     model: utils.subcategory
     pk: 19
--   fields: {image: '', slug: arts-graphisme-et-multimedia, subtitle: 'Graphisme 2D,
-            Graphisme 3D, Musique, Son', title: "Arts, graphisme et multim\xE9dia"}
+-   fields:
+        image: ''
+        slug: arts-graphisme-et-multimedia
+        subtitle: 'Graphisme 2D, Graphisme 3D, Musique, Son'
+        title: "Arts, graphisme et multim\xE9dia"
     model: utils.subcategory
     pk: 20
--   fields: {image: '', slug: communication-et-management, subtitle: Monde du travail,
-        title: Communication et management}
+-   fields:
+        image: ''
+        slug: communication-et-management
+        subtitle: Monde du travail
+        title: Communication et management
     model: utils.subcategory
     pk: 21
--   fields: {image: '', slug: zeste-de-savoir, subtitle: Zeste de Savoir, title: Zeste
-            de Savoir}
+-   fields:
+        image: ''
+        slug: zeste-de-savoir
+        subtitle: Zeste de Savoir
+        title: Zeste de Savoir
     model: utils.subcategory
     pk: 22
--   fields: {image: '', slug: autres, subtitle: "Litt\xE9rature, Interview", title: Autres}
+-   fields:
+        image: ''
+        slug: autres
+        subtitle: "Litt\xE9rature, Interview"
+        title: Autres
     model: utils.subcategory
     pk: 23
--   fields: {category: 1, is_main: true, subcategory: 1}
+-   fields:
+        category: 1
+        is_main: true
+        subcategory: 1
     model: utils.categorysubcategory
     pk: 1
--   fields: {category: 1, is_main: true, subcategory: 2}
+-   fields:
+        category: 1
+        is_main: true
+        subcategory: 2
     model: utils.categorysubcategory
     pk: 2
--   fields: {category: 1, is_main: true, subcategory: 3}
+-   fields:
+        category: 1
+        is_main: true
+        subcategory: 3
     model: utils.categorysubcategory
     pk: 3
--   fields: {category: 1, is_main: true, subcategory: 4}
+-   fields:
+        category: 1
+        is_main: true
+        subcategory: 4
     model: utils.categorysubcategory
     pk: 4
--   fields: {category: 1, is_main: true, subcategory: 5}
+-   fields:
+        category: 1
+        is_main: true
+        subcategory: 5
     model: utils.categorysubcategory
     pk: 5
--   fields: {category: 1, is_main: true, subcategory: 6}
+-   fields:
+        category: 1
+        is_main: true
+        subcategory: 6
     model: utils.categorysubcategory
     pk: 6
--   fields: {category: 2, is_main: true, subcategory: 7}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 7
     model: utils.categorysubcategory
     pk: 7
--   fields: {category: 2, is_main: true, subcategory: 8}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 8
     model: utils.categorysubcategory
     pk: 8
--   fields: {category: 2, is_main: true, subcategory: 9}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 9
     model: utils.categorysubcategory
     pk: 9
--   fields: {category: 2, is_main: true, subcategory: 10}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 10
     model: utils.categorysubcategory
     pk: 10
--   fields: {category: 2, is_main: true, subcategory: 11}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 11
     model: utils.categorysubcategory
     pk: 11
--   fields: {category: 2, is_main: true, subcategory: 12}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 12
     model: utils.categorysubcategory
     pk: 12
--   fields: {category: 2, is_main: true, subcategory: 13}
+-   fields:
+        category: 2
+        is_main: true
+        subcategory: 13
     model: utils.categorysubcategory
     pk: 13
--   fields: {category: 3, is_main: true, subcategory: 14}
+-   fields:
+        category: 3
+        is_main: true
+        subcategory: 14
     model: utils.categorysubcategory
     pk: 14
--   fields: {category: 3, is_main: true, subcategory: 15}
+-   fields:
+        category: 3
+        is_main: true
+        subcategory: 15
     model: utils.categorysubcategory
     pk: 15
--   fields: {category: 3, is_main: true, subcategory: 16}
+-   fields:
+        category: 3
+        is_main: true
+        subcategory: 16
     model: utils.categorysubcategory
     pk: 16
--   fields: {category: 3, is_main: true, subcategory: 17}
+-   fields:
+        category: 3
+        is_main: true
+        subcategory: 17
     model: utils.categorysubcategory
     pk: 17
--   fields: {category: 3, is_main: true, subcategory: 18}
+-   fields:
+        category: 3
+        is_main: true
+        subcategory: 18
     model: utils.categorysubcategory
     pk: 18
--   fields: {category: 3, is_main: true, subcategory: 19}
+-   fields:
+        category: 3
+        is_main: true
+        subcategory: 19
     model: utils.categorysubcategory
     pk: 19
--   fields: {category: 4, is_main: true, subcategory: 20}
+-   fields:
+        category: 4
+        is_main: true
+        subcategory: 20
     model: utils.categorysubcategory
     pk: 20
--   fields: {category: 4, is_main: true, subcategory: 21}
+-   fields:
+        category: 4
+        is_main: true
+        subcategory: 21
     model: utils.categorysubcategory
     pk: 21
--   fields: {category: 4, is_main: true, subcategory: 22}
+-   fields:
+        category: 4
+        is_main: true
+        subcategory: 22
     model: utils.categorysubcategory
     pk: 22
--   fields: {category: 4, is_main: true, subcategory: 23}
+-   fields:
+        category: 4
+        is_main: true
+        subcategory: 23
     model: utils.categorysubcategory
     pk: 23

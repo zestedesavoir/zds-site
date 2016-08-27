@@ -28,7 +28,14 @@ def top_categories(user):
 
     cats = defaultdict(list)
     for forum in forums:
-        cats[forum.category.title].append(forum)
+        cats[forum.category.position].append(forum)
+
+    topbar_cats = []
+    sorted_cats = sorted(cats)
+    for cat in sorted_cats:
+        forums = cats[cat]
+        title = forums[0].category.title
+        topbar_cats.append((title, forums))
 
     tags_by_popularity = list(
         Topic.objects
@@ -45,7 +52,7 @@ def top_categories(user):
     tags = Tag.objects.filter(pk__in=tags_not_excluded)
     tags = sorted(tags, key=lambda tag: tags_not_excluded.index(tag.pk))
 
-    return {'tags': tags, 'categories': dict(cats)}
+    return {'tags': tags, 'categories': topbar_cats}
 
 
 @register.filter('top_categories_content')

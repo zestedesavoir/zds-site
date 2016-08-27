@@ -61,7 +61,7 @@ class TopBarTests(TestCase):
 
         # Admin should see theirs specifics tags
         top_tags_for_staff = top_categories(self.staff1.user).get('tags')
-        self.assertEqual(top_tags_for_staff[2].title, 'stafftag')
+        self.assertIn([tag.title for tag in top_tags_for_staff], 'stafftag')
 
         # Now we want to exclude a tag
         settings.ZDS_APP['forum']['top_tag_exclu'] = {'php'}
