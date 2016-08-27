@@ -43,7 +43,7 @@
             <ul class="message-actions">
                 {% if message.is_visible != False %}
                     {% if edit_link %}
-                        {% if can_unread %}
+                        {% if can_unread == True %}
                             <li>
                                 <a class="ico-after unread" href="{{ unread_link|safe }}">
                                     {% trans "Non-lu" %}
@@ -51,7 +51,7 @@
                             </li>
                         {% endif %}
                         {% if message.pk in user_can_modify %}
-                            {% if can_hide %}
+                            {% if can_hide != False %}
                                 <li>
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         {% trans "Masquer" %}
