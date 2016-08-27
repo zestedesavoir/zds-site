@@ -45,7 +45,7 @@ def top_categories(user):
     tags = Tag.objects.filter(pk__in=tags_not_excluded)
     tags = sorted(tags, key=lambda tag: tags_not_excluded.index(tag.pk))
 
-    return {'tags': tags, 'categories': cats}
+    return {'tags': tags, 'categories': dict(cats)}
 
 
 @register.filter('top_categories_content')
