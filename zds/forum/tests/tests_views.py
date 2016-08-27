@@ -224,6 +224,16 @@ class TopicPostsListViewTest(TestCase):
         self.assertIsNotNone(response.context['form'])
         self.assertIsNotNone(response.context['form_move'])
 
+    def test_subscriber_count_of_a_topic(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, response.context['subscriber_count'])
+
 
 class TopicNewTest(TestCase):
     def test_failure_create_topic_with_a_post_with_client_unauthenticated(self):
