@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans with title=content.title|safe type_content=content.textual_type|safe message=message|safe user_name=target_name|safe modo_name=modo_name|safe alert_text=alert_text|safe %}
+{% blocktrans with title=content.title|safe type_content=content.textual_type|safe message=message|safe user_name=target_name|safe modo_name=modo_name|safe name=name|safe alert_text=alert_text|safe %}
 
 Bonjour {{ name }},
 
