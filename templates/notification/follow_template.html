@@ -9,5 +9,6 @@
             type="submit" data-ajax-input="follow-topic"
             data-content-on-click="{{ data_onclick }}">
         {{ button_text }}
+        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
     </button>
 </form>
