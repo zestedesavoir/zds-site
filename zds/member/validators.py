@@ -27,10 +27,10 @@ class ZdSEmailValidator(EmailValidator):
     """
     Based on https://docs.djangoproject.com/en/1.8/_modules/django/core/validators/#EmailValidator
     Changed :
-      - check if provider is not if blacklist
+      - check if provider is not if blacklisted
       - check if email is not used by another user
       - remove whitelist check
-      - add custom erros and translate them into French
+      - add custom errors and translate them into French
     """
     message = _(u'Utilisez une adresse de courriel valide.')
     check_dont_exists = True
@@ -107,7 +107,8 @@ def validate_zds_password(value):
         raise ValidationError(_(u'Le mot de passe ne peut pas contenir des caractères utf8mb4'))
 
 
-def validate_passwords(cleaned_data, password_label='password', password_confirm_label='password_confirm'):
+def validate_passwords(cleaned_data, password_label='password', password_confirm_label='password_confirm',
+                       username=None):
     """
     Chek if cleaned_data['password'] == cleaned_data['password_confirm'] and password is not username.
     :param cleaned_data:
@@ -120,6 +121,9 @@ def validate_passwords(cleaned_data, password_label='password', password_confirm
     password_confirm = cleaned_data.get(password_confirm_label)
     msg = None
 
+    if username is None:
+        username = cleaned_data.get('username')
+
     if not password_confirm == password:
         msg = _(u'Les mots de passe sont différents')
 
@@ -129,7 +133,6 @@ def validate_passwords(cleaned_data, password_label='password', password_confirm
         if password_confirm_label in cleaned_data:
             del cleaned_data[password_confirm_label]
 
-    username = cleaned_data.get('username')
     if username is not None:
         # Check that password != username
         if password == username:

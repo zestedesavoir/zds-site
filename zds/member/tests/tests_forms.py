@@ -366,14 +366,14 @@ class ChangePasswordFormTest(TestCase):
 
     def setUp(self):
         self.user1 = ProfileFactory()
-        self.oldpassword = "hostel77"
-        self.newpassword = "TheNewPassword"
+        self.old_password = 'hostel77'
+        self.new_password = 'TheNewPassword'
 
     def test_valid_change_password_form(self):
         data = {
-            'password_old': self.oldpassword,
-            'password_new': self.newpassword,
-            'password_confirm': self.newpassword
+            'password_old': self.old_password,
+            'password_new': self.new_password,
+            'password_confirm': self.new_password
         }
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertTrue(form.is_valid())
@@ -381,34 +381,34 @@ class ChangePasswordFormTest(TestCase):
     def test_old_wrong_change_password_form(self):
         data = {
             'password_old': 'Wronnnng',
-            'password_new': self.newpassword,
-            'password_confirm': self.newpassword
+            'password_new': self.new_password,
+            'password_confirm': self.new_password
         }
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_not_matching_change_password_form(self):
         data = {
-            'password_old': self.oldpassword,
-            'password_new': self.newpassword,
+            'password_old': self.old_password,
+            'password_new': self.new_password,
             'password_confirm': 'Wronnnng'
         }
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_too_short_change_password_form(self):
-        tooshort = "short"
+        too_short = 'short'
         data = {
-            'password_old': self.oldpassword,
-            'password_new': tooshort,
-            'password_confirm': tooshort
+            'password_old': self.old_password,
+            'password_new': too_short,
+            'password_confirm': too_short
         }
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_too_long_change_password_form(self):
         data = {
-            'password_old': self.oldpassword,
+            'password_old': self.old_password,
             'password_new': stringof77chars,
             'password_confirm': stringof77chars
         }
@@ -416,9 +416,9 @@ class ChangePasswordFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_match_username_change_password_form(self):
-        self.user1.user.username = "LongName"
+        self.user1.user.username = 'LongName'
         data = {
-            'password_old': self.oldpassword,
+            'password_old': self.old_password,
             'password_new': self.user1.user.username,
             'password_confirm': self.user1.user.username
         }
@@ -507,7 +507,7 @@ class NewPasswordFormTest(TestCase):
 
     def setUp(self):
         self.user1 = ProfileFactory()
-        self.newpassword = "TheNewPassword"
+        self.newpassword = 'TheNewPassword'
 
     def test_valid_new_password_form(self):
         data = {
@@ -520,7 +520,7 @@ class NewPasswordFormTest(TestCase):
     def test_not_matching_new_password_form(self):
         data = {
             'password': self.newpassword,
-            'password_confirm': "Wronnngggg"
+            'password_confirm': 'Wronnngggg'
         }
         form = NewPasswordForm(data=data, identifier=self.user1.user.username)
         self.assertFalse(form.is_valid())
@@ -534,10 +534,10 @@ class NewPasswordFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_password_too_short_new_password_form(self):
-        tooshort = "short"
+        too_short = 'short'
         data = {
-            'password': tooshort,
-            'password_confirm': tooshort
+            'password': too_short,
+            'password_confirm': too_short
         }
         form = NewPasswordForm(data=data, identifier=self.user1.user.username)
         self.assertFalse(form.is_valid())

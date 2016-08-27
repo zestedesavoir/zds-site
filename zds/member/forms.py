@@ -379,7 +379,7 @@ class ChangePasswordForm(forms.Form):
                 if 'password_old' in cleaned_data:
                     del cleaned_data['password_old']
 
-        return validate_passwords(cleaned_data, password_label='password_new')
+        return validate_passwords(cleaned_data, password_label='password_new', username=self.user.username)
 
 
 class UsernameAndEmailForm(forms.Form):
@@ -503,7 +503,7 @@ class NewPasswordForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(NewPasswordForm, self).clean()
-        return validate_passwords(cleaned_data)
+        return validate_passwords(cleaned_data, username=self.username)
 
 
 class PromoteMemberForm(forms.Form):
