@@ -139,7 +139,7 @@
     <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
-    {% if topic.author.pk == user.pk or is_staff %}
+    {% if (topic.author.pk == user.pk and topic.first_post.is_visible) or is_staff %}
     <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
         {% trans "Éditer le sujet" %}
     </a>
