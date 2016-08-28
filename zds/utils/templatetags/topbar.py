@@ -27,7 +27,9 @@ def top_categories(user):
         forums = list(forums_pub)
 
     cats = defaultdict(list)
+    forums_pk = []
     for forum in forums:
+        forums_pk.append(forum.pk)
         cats[forum.category.position].append(forum)
 
     topbar_cats = []
@@ -41,7 +43,7 @@ def top_categories(user):
         Topic.objects
         .values('tags__pk', 'tags__title')
         .distinct()
-        .filter(forum__in=forums, tags__isnull=False)
+        .filter(tags__isnull=False, forum__in=forums_pk)
         .annotate(nb_tags=Count('tags'))
         .order_by('-nb_tags')
         [:max_tags + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
