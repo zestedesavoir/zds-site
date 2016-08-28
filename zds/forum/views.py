@@ -164,6 +164,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
         context['isantispam'] = self.object.antispam()
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        context['first_post_is_visible'] = self.object.first_post().is_visible
         if hasattr(self.request.user, 'profile'):
             context['is_dev'] = self.request.user.profile.is_dev()
             context['tags'] = settings.ZDS_APP['site']['repository']['tags']
@@ -261,6 +262,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             return redirect(reverse('cats-forums-list'))
         if ('text' in request.POST or request.method == 'GET') \
                 and self.object.author != request.user and not request.user.has_perm('forum.change_topic'):
+            raise PermissionDenied
+        if self.object.first_post().is_visible == False and not request.user_has_perm('forum.change_topic'):
             raise PermissionDenied
         if 'page' in request.POST:
             try:
@@ -480,6 +483,8 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if self.object.author != request.user and not request.user.has_perm(
                 'forum.change_post') and 'signal_message' not in request.POST:
             raise PermissionDenied
+        if self.object.is_visible == False and not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
         return super(PostEdit, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -487,9 +492,6 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
             messages.warning(request, _(
                 u'Vous éditez ce message en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
-
-        if self.object.is_visible = False and not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
 
         form = self.create_form(self.form_class, **{
             'text': self.object.text
