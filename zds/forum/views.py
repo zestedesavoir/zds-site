@@ -164,7 +164,6 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context["is_staff"] = self.request.user.has_perm('forum.change_topic')
         context['isantispam'] = self.object.antispam()
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
-        context['first_post_is_visible'] = self.object.first_post().is_visible
         if hasattr(self.request.user, 'profile'):
             context['is_dev'] = self.request.user.profile.is_dev()
             context['tags'] = settings.ZDS_APP['site']['repository']['tags']
