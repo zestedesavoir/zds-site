@@ -24,8 +24,8 @@
             padding-left: 80px;
 
             &:after {
-                width: 80px;
-                height: 40px;
+                @include sprite-width($articles);
+                @include sprite-height($articles);
                 margin-left: 21px;
             }
         }

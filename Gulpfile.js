@@ -1,214 +1,137 @@
-var gulp = require("gulp"),
-    $ = require("gulp-load-plugins")(),
-    sprite = require("sprity"),
-    path = require("path"),
-    del = require("del");
+const path = require('path');
+const livereload = require('gulp-livereload');
+const concat = require('gulp-concat');
+const del = require('del');
+const gulp = require('gulp');
+const imagemin = require('gulp-imagemin');
+const postcss = require('gulp-postcss');
+const rename = require('gulp-rename');
+const sass = require('gulp-sass');
+const sourcemaps = require('gulp-sourcemaps');
+const spritesmith = require('gulp.spritesmith');
+const uglify = require('gulp-uglify');
+const jshint = require('gulp-jshint');
 
-var autoprefixer = require("autoprefixer"),
-    cssnano = require("cssnano");
+const autoprefixer = require('autoprefixer');
+const cssnano = require('cssnano');
 
-var postcssProcessors = [
-  require("autoprefixer")({ browsers: ["last 1 version", "> 1%", "ff >= 20", "ie >= 8", "opera >= 12", "Android >= 2.2"] }),
-  require("cssnano")()
+// PostCSS plugins used
+const postcssPlugins = [
+    autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] }),
+    cssnano(),
 ];
 
-var sourceDir = "assets",
-    destDir = "dist",
-    errorsDir = "errors",
-    sassDir = "scss",
-    imagesDir = "images",
-    scriptsDir = "js",
-    vendorsDir = "vendors",
-    spriteDir = "sprite",
-    stylesFiles = ["main.scss"],
-    vendorsCSS = ["node_modules/normalize.css/normalize.css"],
-    vendorsJS = ["node_modules/jquery/dist/jquery.js", "node_modules/cookies-eu-banner/dist/cookies-eu-banner.js"],
-    imageminConfig = { optimizationLevel: 3, progressive: true, interlaced: true };
+// Deletes the generated files
+gulp.task('clean', () => del([
+    'dist/',
+    'assets/scss/_sprite.scss',
+    'assets/*/vendors/',
+    'assets/images/sprite*.png',
+]));
 
-/**
- * Cleans up the workspace, deletes the build
- */
-gulp.task("clean", function() {
-  return del([
-    destDir,
-    path.join(sourceDir, "{" + scriptsDir + "," + sassDir + "}", vendorsDir),
-    path.join(sourceDir, "bower_components/"),
-    path.join(sourceDir, sassDir, "_sprite.scss")
-   ]);
+// Lint the js source files
+gulp.task('js:lint', () =>
+    gulp.src([
+        'assets/js/*.js',
+        '!assets/js/_custom.modernizr.js',
+        '!assets/js/editor.js', // We'll fix that later
+    ])
+        .pipe(jshint())
+        .pipe(jshint.reporter('jshint-stylish'))
+        .pipe(jshint.reporter('fail')));
+
+// Concat and minify all the js files
+gulp.task('js', () =>
+    gulp.src([
+        require.resolve('jquery'),
+        require.resolve('cookies-eu-banner'),
+
+        // Used by other scripts, must be first
+        'assets/js/modal.js',
+        'assets/js/tooltips.js',
+
+        'assets/js/accessibility-links.js',
+        'assets/js/accordeon.js',
+        'assets/js/ajax-actions.js',
+        'assets/js/autocompletion.js',
+        'assets/js/close-alert-box.js',
+        'assets/js/compare-commits.js',
+        'assets/js/data-click.js',
+        'assets/js/dropdown-menu.js',
+        'assets/js/editor.js',
+        'assets/js/featured-resource-preview.js',
+        'assets/js/find-solved-topics.js',
+        'assets/js/form-email-username.js',
+        'assets/js/gallery.js',
+        'assets/js/jquery-tabbable.js',
+        'assets/js/karma.js',
+        'assets/js/keyboard-navigation.js',
+        'assets/js/markdown-help.js',
+        'assets/js/message-hidden.js',
+        'assets/js/message-signature.js',
+        'assets/js/mobile-menu.js',
+        'assets/js/select-autosubmit.js',
+        'assets/js/snow.js',
+        'assets/js/spoiler.js',
+        'assets/js/submit-dbclick.js',
+        'assets/js/tab-modalize.js',
+        'assets/js/zen-mode.js',
+    ], { base: '.' })
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(concat('script.js', { newline: ';\r\n' }))
+        //.pipe(uglify())
+        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
+        .pipe(gulp.dest('dist/js/')));
+
+
+// Copy normalize.css into the vendors directory
+gulp.task('css:vendors', () =>
+    gulp.src(require.resolve('normalize.css'))
+        .pipe(rename({ prefix: '_', extname: '.scss' }))
+        .pipe(gulp.dest('assets/scss/vendors/')));
+
+// Compiles the SCSS files to CSS
+gulp.task('css', ['css:sprite', 'css:vendors'], () =>
+    gulp.src('assets/scss/main.scss')
+        .pipe(sourcemaps.init())
+        .pipe(sass({ sourceMapContents: true }))
+        .pipe(postcss(postcssPlugins))
+        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
+        .pipe(gulp.dest('dist/css/')));
+
+// Generates a sprite
+gulp.task('css:sprite', () =>
+    gulp.src('assets/images/sprite/*.png')
+        .pipe(spritesmith({
+            cssTemplate: 'assets/scss/_sprite.scss.hbs',
+            cssName: 'scss/_sprite.scss',
+            imgName: 'images/sprite.png',
+            retinaImgName: 'images/sprite@2x.png',
+            retinaSrcFilter: 'assets/images/sprite/*@2x.png',
+        }))
+        .pipe(gulp.dest('assets/')));
+
+// Optimizes the images
+gulp.task('images', ['css:sprite'], () =>
+    gulp.src('assets/{images,smileys}/*')
+        .pipe(imagemin())
+        .pipe(gulp.dest('dist/')));
+
+// Watch for file changes
+gulp.task('watch', ['build'], () => {
+    gulp.watch('assets/js/*.js', ['js']);
+    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], ['images']);
+    gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], ['css']);
+
+    gulp.watch('dist/**/*', file =>
+         livereload.changed(
+            path.join('static/', path.relative(path.join(__dirname, 'dist/'), file.path))
+        )
+    );
+
+    livereload.listen();
 });
 
-/**
- * Clean error-pages files
- */
-gulp.task("clean-errors", function() {
-  return del(["errors/css/*"]);
-});
-
-/**
- * Copy vendors style files (i.e. normalize.css)
- */
-gulp.task("vendors-css", function() {
-  return gulp.src(vendorsCSS)
-    .pipe($.rename({ prefix: "_", extname: ".scss" }))
-    .pipe(gulp.dest(path.join(sourceDir, sassDir, vendorsDir)));
-});
-
-/**
- * Copy vendors script fules (i.e. jquery.js)
- */
-gulp.task("vendors-js", function() {
-  return gulp.src(vendorsJS)
-    .pipe(gulp.dest(path.join(sourceDir, scriptsDir, vendorsDir)));
-});
-
-/**
- * Copy, concat and minify vendors files
- */
-gulp.task("vendors", ["vendors-js", "vendors-css"], function() {
-  return gulp.src(path.join(sourceDir, scriptsDir, vendorsDir, "*.js"))
-    .pipe($.sourcemaps.init())
-      .pipe($.concat("vendors.js"))
-      .pipe($.uglify().on('error', $.notify.onError({
-        title: "Javascript error",
-        message: "<%= error.message %>"
-      })))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", vendorsDir) }))
-    .pipe($.size({ title: "Scripts (vendors)" }))
-    .pipe(gulp.dest(path.join(destDir, scriptsDir)));
-});
-
-/**
- * Compiles SASS files
- */
-gulp.task("stylesheet", ["sprite", "vendors"], function() {
-  var files = stylesFiles.map(function(filename) {
-    return path.join(sourceDir, sassDir, filename);
-  });
-
-  return gulp.src(files)
-    .pipe($.sourcemaps.init())
-      .pipe($.sass({ sourceMapContents: true }))
-      .on("error", $.notify.onError({
-        title: "SASS Error",
-        message: "<%= error.message %>"
-      }))
-      .pipe($.postcss(postcssProcessors))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, sassDir) }))
-    .on("error", function() { this.emit("end"); })
-    .pipe($.size({ title: "Stylesheet" }))
-    .pipe(gulp.dest(path.join(destDir, "css/")));
-});
-
-/**
- * Error-pages stylesheet
- */
-gulp.task("errors", ["clean-errors"], function() {
-  return gulp.src(path.join(errorsDir, sassDir, "main.scss"))
-    .pipe($.sourcemaps.init())
-      .pipe($.sass({
-        includePaths: [path.join(sourceDir, sassDir)]
-      }))
-      .pipe($.postcss(postcssProcessors))
-    .pipe($.sourcemaps.write(".", { includeContent: true }))
-    .pipe(gulp.dest(path.join(errorsDir, "css/")));
-});
-
-/**
- * Generates Sprite files (SASS + image)
- */
-gulp.task("sprite", function() {
-  return sprite.src({
-      cssPath: "../" + imagesDir + "/",
-      dimension: [{ ratio: 1, dpi: 72 },
-                  { ratio: 2, dpi: 192 }],
-      margin: 0,
-      src: path.join(sourceDir, imagesDir, spriteDir, "*"),
-      style: "_sprite.scss",
-      template: path.join(sourceDir, sassDir, "sprite-template.hbs")
-    })
-    .pipe($.if("*.png", $.imagemin(imageminConfig)))
-    .pipe($.if("*.png", gulp.dest(path.join(destDir, imagesDir)), gulp.dest(path.join(sourceDir, sassDir))));
-});
-
-/**
- * Process images files
- */
-gulp.task("images",  ["stylesheet"], function() {
-  return gulp.src(path.join(sourceDir, "{" + imagesDir + ",smileys}", "*.{jpg,png,gif}"))
-    .pipe($.imagemin(imageminConfig))
-    .pipe($.size({ title: "Images" }))
-    .pipe(gulp.dest(destDir));
-});
-
-/**
- * Scripts concat and minify
- */
-gulp.task("scripts", function() {
-  return gulp.src(path.join(sourceDir, scriptsDir, "*.js"))
-    .pipe($.sourcemaps.init())
-      .pipe($.concat("main.js", { newLine: "\r\n\r\n" }))
-      .pipe($.uglify().on('error', $.notify.onError({
-        title: "Javascript error",
-        message: "<%= error.message %>"
-      })))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))
-    .pipe($.size({ title: "Scripts" }))
-    .pipe(gulp.dest(path.join(destDir, scriptsDir)));
-});
-
-/**
- * Check JS code style and syntax using JSHint
- */
-gulp.task("jshint", function() {
-  return gulp.src([path.join(sourceDir, scriptsDir, "*.js"), "!" + path.join(sourceDir, scriptsDir, "_custom.modernizr.js")])
-    .pipe($.jshint())
-    .pipe($.jshint.reporter("jshint-stylish"));
-});
-
-/**
- * Merge vendors and app scripts
- */
-gulp.task("merge-scripts", ["vendors", "scripts"], function() {
-  return gulp.src([path.join(destDir, scriptsDir, "vendors.js"), path.join(destDir, scriptsDir, "main.js")])
-    .pipe($.sourcemaps.init({ loadMaps: true }))
-      .pipe($.concat("all.js"))
-    .pipe($.sourcemaps.write(".", { includeContent: true, sourceRoot: path.join("../../", sourceDir, scriptsDir) }))
-    .pipe($.size({ title: "Scripts (all)" }))
-    .pipe(gulp.dest(path.join(destDir, scriptsDir)));
-});
-
-/**
- * Watch for files changes, then recompiles and livereloads
- */
-gulp.task("watch", function() {
-  gulp.watch(path.join(sourceDir, scriptsDir, "*.js"), ["jshint", "merge-scripts"]);
-  gulp.watch([path.join(sourceDir, imagesDir, "*.png"), path.join(sourceDir, "smileys/*")], ["images"]);
-  gulp.watch([path.join(sourceDir, sassDir, "**/*.scss"), "!" + path.join(sourceDir, sassDir, "_sprite.scss")], ["stylesheet"]);
-
-  gulp.watch("dist/*/**", function(file) {
-    var filePath = path.join("static/", path.relative(path.join(__dirname, "dist/"), file.path)); // Pour que le chemin ressemble à static/.../...
-    $.livereload.changed(filePath);
-  });
-
-  $.livereload.listen();
-});
-
-/**
- * Tests
- */
-gulp.task("lint", ["jshint"]);
-
-/**
- * CI builds
- */
-gulp.task("travis", ["lint", "build"]);
-
-/**
- * Build all the things!
- */
-gulp.task("build", ["images", "sprite", "stylesheet", "merge-scripts"]);
-
-/**
- * Default task: build and watch
- */
-gulp.task("default", ["build", "watch"]);
+gulp.task('test', ['js:lint']);
+gulp.task('build', ['css', 'js', 'images']);
+gulp.task('default', ['watch', 'test']);

@@ -6,8 +6,8 @@
 
 (function($, undefined){
     "use strict";
-    
-    $("#content [href^=#show-message-hidden]").on("click", function(e){
+
+    $("#content [href^='#show-message-hidden']").on("click", function(e){
         $(this).parents(".message:first").find(".message-hidden-content").toggle();
 		e.preventDefault();
     });
