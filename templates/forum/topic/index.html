@@ -131,7 +131,7 @@
     <a href="{{ topic.forum.get_absolute_url }}" class="new-btn ico-after arrow-left blue">
         {% trans "Retour à la liste des sujets" %}
     </a>
-{% endblock %}    
+{% endblock %}
 
 
 
@@ -179,9 +179,6 @@
         </li>
     {% endif %}
 
-    <li class="inactive">
-        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
-    </li>
     <li>
         {% with topic_is_followed=topic|is_followed %}
             {% url 'topic-edit' as link_follow_without_parameter %}
@@ -194,7 +191,7 @@
                         {% trans "Suivre ce sujet" as button_text %}
                         {% trans "Ne plus suivre ce sujet" as data_onclick %}
                     {% endif %}
-                    {% include 'notification/follow_template.html' with link=link_follow is_followed=topic_is_followed data_onclick=data_onclick button_text=button_text %}
+                    {% include 'notification/follow_template.html' with link=link_follow is_followed=topic_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
                 {% endwith %}
             {% endwith %}
         {% endwith %}

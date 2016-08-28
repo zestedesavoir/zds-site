@@ -1,9 +1,21 @@
 {% load i18n %}
 
-<span class="disabled mobile-menu-link">
+{% if own_profile %}
     {% blocktrans count subscriber_count=subscriber_count %}
-        Il y a {{ subscriber_count }} abonné
+        Vous avez {{ subscriber_count }} abonné
     {% plural %}
-        Il y a {{ subscriber_count }} abonnés
+        Vous avez {{ subscriber_count }} abonnés
     {% endblocktrans %}
-</span>
+{% elif own_profile == False %}
+    {% blocktrans count subscriber_count=subscriber_count %}
+        {{ subscriber_count }} abonné
+    {% plural %}
+        {{ subscriber_count }} abonnés
+    {% endblocktrans %}
+{% else %}
+    {% blocktrans count subscriber_count=subscriber_count %}
+        ({{ subscriber_count }} abonné)
+    {% plural %}
+        ({{ subscriber_count }} abonnés)
+    {% endblocktrans %}
+{% endif %}
