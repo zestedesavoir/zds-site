@@ -1249,9 +1249,9 @@ class PostEditTest(TestCase):
         post = Post.objects.get(pk=topic.last_message.pk)
         self.assertEqual(1, len(post.alerts.all()))
         self.assertEqual(text_expected, post.alerts.all()[0].text)
-    
+
     def test_failure_edit_post_hidden_message_by_non_staff(self):
-        """Test that a non staff cannot access to the page to edit a hidden message"""
+        """Test that a non staff cannot access the page to edit a hidden message"""
 
         profile = ProfileFactory()
         category, forum = create_category()
