@@ -8,7 +8,7 @@
   "scripts": {
     "gulp": "gulp",
     "lint": "gulp js:lint",
-    "travis": "gulp test",
+    "travis": "gulp test && gulp build",
     "test": "gulp test",
     "build": "gulp build",
     "clean": "gulp clean"
