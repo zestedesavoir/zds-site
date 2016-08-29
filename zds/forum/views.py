@@ -262,6 +262,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         if ('text' in request.POST or request.method == 'GET') \
                 and self.object.author != request.user and not request.user.has_perm('forum.change_topic'):
             raise PermissionDenied
+        if not self.object.first_post().is_visible and not request.user.has_perm('forum.change_topic'):
+            raise PermissionDenied
         if 'page' in request.POST:
             try:
                 self.page = int(request.POST.get('page'))
@@ -479,6 +481,8 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
             raise PermissionDenied
         if self.object.author != request.user and not request.user.has_perm(
                 'forum.change_post') and 'signal_message' not in request.POST:
+            raise PermissionDenied
+        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
             raise PermissionDenied
         return super(PostEdit, self).dispatch(request, *args, **kwargs)
 
