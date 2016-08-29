@@ -75,6 +75,31 @@ class NotificationListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 2)
 
+    def test_invalid_cache_when_update_a_notification(self):
+        """
+        When a notification is updated, the cache should be invalidated.
+        """
+        another_profile = ProfileFactory()
+        topic = self.create_notification_for_pm(another_profile.user, self.profile.user)
+
+        response = self.client.get(reverse('api:notification:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 1)
+
+        notification_from_response = response.data.get('results')[0]
+        self.assertFalse(notification_from_response.get('is_read'))
+
+        notification = Notification.objects.get(object_id=topic.last_message.pk, is_read=False)
+        notification.is_read = True
+        notification.save()
+
+        response = self.client.get(reverse('api:notification:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 1)
+
+        notification_from_response = response.data.get('results')[0]
+        self.assertTrue(notification_from_response.get('is_read'))
+
     def create_notification_for_pm(self, sender, target):
         topic = PrivateTopicFactory(author=sender)
         topic.participants.add(target)

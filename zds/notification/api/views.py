@@ -1,4 +1,8 @@
 # coding: utf-8
+import datetime
+from django.core.cache import cache
+from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework.generics import ListAPIView
@@ -8,7 +12,7 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
-from zds.api.bits import DJRF3xPaginationKeyBit
+from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.notification.api.serializers import NotificationSerializer
 from zds.notification.models import Notification
 
@@ -19,6 +23,15 @@ class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
+    updated_at = UpdatedAtKeyBit('api_updated_notification')
+
+
+def change_api_notification_updated_at(sender=None, instance=None, *args, **kwargs):
+    cache.set('api_updated_notification', datetime.datetime.utcnow())
+
+
+post_save.connect(receiver=change_api_notification_updated_at, sender=Notification)
+post_delete.connect(receiver=change_api_notification_updated_at, sender=Notification)
 
 
 class NotificationListAPI(ListAPIView):
