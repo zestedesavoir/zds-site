@@ -321,7 +321,7 @@ LOGGING = {
         },
         'zds': {
             'handlers': ['log_to_stdout'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
     }

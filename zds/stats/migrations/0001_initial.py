@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name='Browser',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=80, unique=True, null=True, verbose_name='Navigateur')),
+                ('code', models.CharField(max_length=80, null=True, verbose_name='Navigateur', db_index=True)),
             ],
             options={
                 'verbose_name': 'Stats navigateur',
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
             name='City',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=80, unique=True, null=True, verbose_name='Ville')),
+                ('code', models.CharField(max_length=80, null=True, verbose_name='Ville', db_index=True)),
             ],
             options={
                 'verbose_name': 'Stats Ville',
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             name='Country',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=80, unique=True, null=True, verbose_name='Pays')),
+                ('code', models.CharField(max_length=80, null=True, verbose_name='Pays', db_index=True)),
             ],
             options={
                 'verbose_name': 'Stats Pays',
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
             name='Device',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=80, unique=True, null=True, verbose_name='Device')),
+                ('code', models.CharField(max_length=80, null=True, verbose_name='Device', db_index=True)),
             ],
             options={
                 'verbose_name': 'Stats Device',
@@ -57,18 +57,20 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('id_zds', models.IntegerField(verbose_name=b'Identifiant sur ZdS', db_index=True)),
-                ('content_type', models.CharField(max_length=10, verbose_name=b'Type de contenu', db_index=True)),
-                ('hash_code', models.CharField(max_length=32, null=True, verbose_name=b'Hash code de la ligne de log', db_index=True)),
-                ('timestamp', models.DateTimeField(verbose_name=b'Timestamp', db_index=True)),
+                ('content_type', models.CharField(max_length=80, verbose_name=b'Type de contenu', db_index=True)),
+                ('hash_code', models.CharField(max_length=32, null=True, verbose_name=b'Hash code de la ligne de log')),
+                ('timestamp', models.DateTimeField(verbose_name=b'Timestamp')),
                 ('remote_addr', models.CharField(max_length=39, null=True, verbose_name=b'Adresse IP', db_index=True)),
                 ('body_bytes_sent', models.IntegerField(verbose_name=b'Taille de la page')),
+                ('dns_referal', models.CharField(max_length=80, null=True, verbose_name=b'Source', db_index=True)),
+                ('os_family', models.CharField(max_length=30, null=True, verbose_name=b"Famille de systeme d'exploitation", db_index=True)),
                 ('os_version', models.CharField(max_length=15, null=True, verbose_name=b"Version du systeme d'exploitation")),
+                ('browser_family', models.CharField(max_length=20, null=True, verbose_name=b'Famille du navigateur', db_index=True)),
                 ('browser_version', models.CharField(max_length=15, null=True, verbose_name=b'Version du navigateur')),
+                ('device_family', models.CharField(max_length=20, null=True, verbose_name=b'Famille de device', db_index=True)),
                 ('request_time', models.IntegerField(verbose_name=b'Temps de chargement de la page')),
-                ('browser_family', models.ForeignKey(verbose_name=b'Famille du navigateur', to='stats.Browser', null=True)),
-                ('city', models.ForeignKey(verbose_name=b'Ville', to='stats.City', null=True)),
-                ('country', models.ForeignKey(verbose_name=b'Pays', to='stats.Country', null=True)),
-                ('device_family', models.ForeignKey(verbose_name=b'Famille de device', to='stats.Device', null=True)),
+                ('country', models.CharField(max_length=40, null=True, verbose_name=b'Pays', db_index=True)),
+                ('city', models.CharField(max_length=40, null=True, verbose_name=b'Ville', db_index=True)),
             ],
             options={
                 'verbose_name': 'Log web',
@@ -79,7 +81,7 @@ class Migration(migrations.Migration):
             name='OS',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=80, unique=True, null=True, verbose_name="Syst\xe8me d'exploitaiton")),
+                ('code', models.CharField(max_length=80, null=True, verbose_name="Syst\xe8me d'exploitaiton", db_index=True)),
             ],
             options={
                 'verbose_name': 'Stats OS',
@@ -89,22 +91,12 @@ class Migration(migrations.Migration):
             name='Source',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('code', models.CharField(max_length=80, unique=True, null=True, verbose_name='Source')),
+                ('code', models.CharField(max_length=80, null=True, verbose_name='Source', db_index=True)),
             ],
             options={
                 'verbose_name': 'Stats Source',
                 'verbose_name_plural': 'Stats Sources',
             },
-        ),
-        migrations.AddField(
-            model_name='log',
-            name='dns_referal',
-            field=models.ForeignKey(verbose_name=b'Source', to='stats.Source', null=True),
-        ),
-        migrations.AddField(
-            model_name='log',
-            name='os_family',
-            field=models.ForeignKey(verbose_name=b"Famille de systeme d'exploitation", to='stats.OS', null=True),
         ),
         migrations.AlterIndexTogether(
             name='log',

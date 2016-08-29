@@ -11,7 +11,7 @@ import logging
 from django.db import transaction
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from zds.stats.models import Log, Source, Device, OS, Country, City, Browser
+from zds.stats.models import Log
 
 logger = logging.getLogger('zds')
 
@@ -65,9 +65,7 @@ class ContentParsing(object):
 class Command(BaseCommand):
     args = 'path'
     help = 'Parse, filter and save logs into database'
-    datas = []
-    verbs = ['GET']
-    content_paths = ['/articles', '/tutoriels']
+    data_set = []
 
     def get_geo_details(self, ip_adress):
         if len(ip_adress) <= 16:
@@ -80,32 +78,43 @@ class Command(BaseCommand):
 
         return None, None
 
-    def is_treatable(self, dict_result):
-        if dict_result['verb'] not in self.verbs or dict_result['status'] != 200:
-            return False
+    def check_verb(self, verb):
+        return verb == "GET"
 
-        if dict_result['is_bot']:
-            return False
+    def check_status(self, status):
+        return status == "200"
 
-        for content_path in self.content_paths:
-            if dict_result['path'].startswith(content_path):
-                return True
+    def check_user_agent(self, user_agent):
+        return not user_agent.is_bot
 
-        return False
+    def flush_denormalize(self, class_name, field_in_class, field_in_log, list_of_datas):
+        module = 'zds.stats.models'
+        obj = __import__(module, globals(), locals(), [class_name])
+        cls = getattr(obj, class_name)
+        data_existants = cls.objects.values_list(field_in_class, flat=True)
+        data_for_save = set(set(list_of_datas) - set(data_existants))
+
+        data_set_ready = []
+        for my_data in data_for_save:
+            ins = {field_in_class: my_data}
+            data_set_ready.append(cls(**ins))
+
+        cls.objects.bulk_create(data_set_ready)
 
     @transaction.atomic
     def flush_data_in_database(self):
+        my_sources = []
+        my_os = []
+        my_browsers = []
+        my_devices = []
+        my_cities = []
+        my_countries = []
         new_logs = []
         keys = ['id_zds', 'content_type', 'remote_addr', 'hash_code', 'body_bytes_sent', 'timestamp',
-                'os_version', 'browser_version', 'request_time']
-        for data in self.datas:
-            source, created_source = Source.objects.get_or_create(code=data['dns_referal'])
-            os, created_os = OS.objects.get_or_create(code=data['os_family'])
-            device, created_device = Device.objects.get_or_create(code=data['device_family'])
-            country, created_country = Country.objects.get_or_create(code=data['country'])
-            city, created_city = City.objects.get_or_create(code=data['city'])
-            browser, created_browser = Browser.objects.get_or_create(code=data['browser_family'])
+                'dns_referal', 'os_family', 'os_version', 'browser_family', 'browser_version',
+                'device_family', 'request_time', 'country', 'city']
 
+        for data in self.data_set:
             existant = Log.objects.filter(hash_code=data['hash_code'],
                                           timestamp=data['timestamp'],
                                           content_type=data['content_type']).first()
@@ -113,17 +122,6 @@ class Command(BaseCommand):
 
             if existant is None:
                 log_instance = Log(**log_data)
-            else:
-                log_instance = Log(pk=existant.pk, **log_data)
-
-            log_instance.dns_referal = source
-            log_instance.os_family = os
-            log_instance.device_family = device
-            log_instance.country = country
-            log_instance.city = city
-            log_instance.browser_family = browser
-
-            if existant is None:
                 logger.debug(u'Ajout de la log du {} de type {}.'
                              .format(str(data['timestamp']), str(data['content_type'])))
                 new_logs.append(log_instance)
@@ -131,11 +129,25 @@ class Command(BaseCommand):
                 logger.debug(u'Mise à jour de la log du {} de type {}.'
                              .format(str(data['timestamp']), str(data['content_type'])))
                 existant = Log(pk=existant.pk, **log_data)
-                log_instance.save()
+                existant.save()
+
+            my_sources.append(data['dns_referal'])
+            my_os.append(data['os_family'])
+            my_cities.append(data['city'])
+            my_countries.append(data['country'])
+            my_devices.append(data['device_family'])
+            my_browsers.append(data['browser_family'])
 
         if len(new_logs) > 0:
             logger.debug(u'Enregistrement de {} logs'.format(len(new_logs)))
             Log.objects.bulk_create(new_logs)
+        self.flush_denormalize('Source', 'code', 'dns_referal', my_sources)
+        self.flush_denormalize('OS', 'code', 'os_family', my_os)
+        self.flush_denormalize('Device', 'code', 'device_family', my_devices)
+        self.flush_denormalize('Country', 'code', 'country', my_countries)
+        self.flush_denormalize('City', 'code', 'city', my_cities)
+        self.flush_denormalize('Browser', 'code', 'browser_family', my_browsers)
+
         logger.debug(u'Taille de logs dans la base {} enregistrements '.format(Log.objects.all().count()))
 
     def handle(self, *args, **options):
@@ -170,38 +182,38 @@ class Command(BaseCommand):
 
         with codecs.open(args[0], "r", "utf-8") as source:
             pattern_log = re.compile(regx, re.VERBOSE)
-            content_parsing = []
 
-            reg_tuto = [
-                {
-                    'regxp': '^\/tutoriels\/(?P<id_tuto>\d+)\/(?P<label_tuto>[\S][^\/]+)\/',
-                    'unique_group': 'id_tuto',
-                    'type_content': 'tutorial'
-                }
-            ]
-            reg_article = [
-                {
-                    'regxp': '^\/articles\/(?P<id_article>\d+)\/(?P<label_article>[\S][^\/]+)\/',
-                    'unique_group': 'id_article',
-                    'type_content': 'article'
-                }
-            ]
+            reg_content = '^\/(articles|tutoriels)\/(?P<id>\d+)\/(?P<label>[\S][^\/]+)'
+            pattern_path = re.compile(reg_content)
 
-            content_parsing.append(ContentParsing(reg_tuto))
-            content_parsing.append(ContentParsing(reg_article))
             for line in source:
                 match = pattern_log.match(line)
                 if match is not None:
+                    if not self.check_verb(match.group('verb')):
+                        continue
+
+                    if not self.check_status(match.group('status')):
+                        continue
+
                     user_agent = parse(match.group('http_user_agent'))
+                    if not self.check_user_agent(user_agent):
+                        continue
                     res = {}
+
+                    path = match.group('path')
+                    match_path = pattern_path.match(path)
+                    if match_path is not None:
+                        res['id_zds'] = match_path.group('id')
+                        if(path.startswith("/articles")):
+                            res['content_type'] = "article"
+                        elif (path.startswith("/tutoriels")):
+                            res['content_type'] = "tutorial"
+
                     res['hash_code'] = md5(line.encode('utf-8')).hexdigest()
                     res['remote_addr'] = match.group('remote_addr')
                     (res['city'], res['country']) = self.get_geo_details(res['remote_addr'])
                     res['remote_user'] = match.group('remote_user')
                     res['timestamp'] = datetime.strptime(match.group('timestamp'), '%d/%b/%Y:%H:%M:%S')
-                    res['verb'] = match.group('verb')
-                    res['path'] = match.group('path')
-                    res['status'] = int(match.group('status'))
                     res['body_bytes_sent'] = int(match.group('body_bytes_sent'))
                     res['dns_referal'] = urlparse(match.group('http_referer')).netloc
                     res['os_family'] = user_agent.os.family
@@ -209,18 +221,13 @@ class Command(BaseCommand):
                     res['browser_family'] = user_agent.browser.family
                     res['browser_version'] = user_agent.browser.version_string
                     res['device_family'] = user_agent.device.family
-                    res['is_bot'] = user_agent.is_bot
                     request_time_result = match.group('request_time')
                     if(request_time_result is not None):
                         res['request_time'] = float(request_time_result)
-                    if self.is_treatable(res):
-                        for p_content in content_parsing:
-                            id_zds = p_content.get_real_id_of_content(res['path'])
-                            if id_zds is not None:
-                                res_content = res.copy()
-                                res_content['content_type'] = p_content.type_content
-                                res_content['id_zds'] = id_zds
-                                self.datas.append(res_content)
-            logger.info(u'Nombre de logs traitées : {}'.format(len(self.datas)))
+
+                    self.data_set.append(res)
+
+            logger.info(u'Nombre de logs a traiter : {}'.format(len(self.data_set)))
             source.close()
             self.flush_data_in_database()
+            logger.info(u'Fin du parsing du fichier réalisé avec succes')

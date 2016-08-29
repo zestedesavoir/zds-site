@@ -149,7 +149,7 @@ class StatSubListAPI(ListAPIView):
         if app_id:
             params["id_zds"] = app_id
 
-        type_logs = Log.objects.filter(**params).values_list(self.map_attr + "__code", flat=True)
+        type_logs = Log.objects.filter(**params).values_list(self.map_attr, flat=True)
         return self.map_query_set.filter(code__in=type_logs)
 
     @etag(list_key_func)
