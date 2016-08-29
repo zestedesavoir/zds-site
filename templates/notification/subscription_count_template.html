@@ -1,21 +1,16 @@
 {% load i18n %}
+{% load pluralize_fr %}
 
 {% if own_profile %}
-    {% blocktrans count subscriber_count=subscriber_count %}
-        Vous avez {{ subscriber_count }} abonné
-    {% plural %}
-        Vous avez {{ subscriber_count }} abonnés
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        Vous avez {{ subscriber_count }} abonné{{ plural }}
     {% endblocktrans %}
 {% elif own_profile == False %}
-    {% blocktrans count subscriber_count=subscriber_count %}
-        {{ subscriber_count }} abonné
-    {% plural %}
-        {{ subscriber_count }} abonnés
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        {{ subscriber_count }} abonné{{ plural }}
     {% endblocktrans %}
 {% else %}
-    {% blocktrans count subscriber_count=subscriber_count %}
-        ({{ subscriber_count }} abonné)
-    {% plural %}
-        ({{ subscriber_count }} abonnés)
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        ({{ subscriber_count }} abonné{{ plural }})
     {% endblocktrans %}
 {% endif %}

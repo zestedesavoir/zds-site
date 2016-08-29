@@ -3,6 +3,7 @@
 {% load date %}
 {% load set %}
 {% load i18n %}
+{% load pluralize_fr %}
 
 
 {% if topic.author == message.author and helpful_link %}
@@ -265,7 +266,7 @@
                         {% if user.is_authenticated and user != message.author %}
                             <button
                                 value="{% if message.pk in user_like %}neutral{% else %}like{% endif %}"
-                                title="Ce message est utile {% if message.like > 0 %}({{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile){% endif %}"
+                                title="{% trans "Ce message est utile" %} {% if message.like > 0 %}{% blocktrans with like_count=message.like plural=message.like|pluralize_fr plural_word=message.like|pluralize_fr:"a,ont" %}({{ like_count }} personne{{ plural }} {{ plural_word }} trouvé ce message utile){% endblocktrans %}{% endif %}"
                                 class="upvote
                                        ico-after
                                        {% if message.like > message.dislike %}more-voted{% endif %}
@@ -277,7 +278,7 @@
 
                             <button
                                 value="{% if message.pk in user_dislike %}neutral{% else %}dislike{% endif %}"
-                                title="Ce message n'est pas utile {% if message.dislike > 0 %}({{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile){% endif %}"
+                                title="{% trans "Ce message n'est pas utile" %}{% if message.dislike > 0 %}{% blocktrans with dislike_count=message.dislike plural=message.dislike|pluralize_fr plural_word=message.dislike|pluralize_fr:"a,ont" %}({{ dislike_count }} personne{{ plural }} n'{{ plural_word }} pas trouvé ce message utile){% endblocktrans %}{% endif %}"
                                 class="downvote
                                        ico-after
                                        {% if message.like < message.dislike %}more-voted{% endif %}
@@ -293,7 +294,7 @@
                                        {% if message.like > message.dislike %}more-voted{% endif %}
                                        {% if message.like > 0 %}has-vote{% endif %}"
                                 {% if message.like > 0 %}
-                                    title="{{ message.like }} personne{{ message.like|pluralize }} {% if message.like > 1 %}ont{% else %}a{% endif %} trouvé ce message utile"
+                                    title="{% blocktrans with like_count=message.like plural=message.like|pluralize_fr plural_word=message.like|pluralize_fr:"a,ont" %}{{ like_count }} personne{{ plural }} {{ plural_word }} trouvé ce message utile{% endblocktrans %}"
                                 {% endif %}
                             >
                                 +{{ message.like }}
@@ -304,7 +305,7 @@
                                        {% if message.like < message.dislike %}more-voted{% endif %}
                                        {% if message.dislike > 0 %}has-vote{% endif %}"
                                 {% if message.dislike > 0 %}
-                                    title="{{ message.dislike }} personne{{ message.dislike|pluralize }} n'{% if message.dislike > 1 %}ont{% else %}a{% endif %} pas trouvé ce message utile"
+                                    title="{% blocktrans with dislike_count=message.dislike plural=message.dislike|pluralize_fr plural_word=message.dislike|pluralize_fr:"a,ont" %}{{ dislike_count }} personne{{ plural }} n'{{ plural_word }} pas trouvé ce message utile{% endblocktrans %}"
                                 {% endif %}
                             >
                                 -{{ message.dislike }}
