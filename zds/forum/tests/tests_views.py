@@ -1260,6 +1260,28 @@ class PostEditTest(TestCase):
         self.assertEqual(1, len(post.alerts.all()))
         self.assertEqual(text_expected, post.alerts.all()[0].text)
 
+    def test_failure_edit_post_hidden_message_by_non_staff(self):
+        """Test that a non staff cannot access the page to edit a hidden message"""
+
+        profile = ProfileFactory()
+        category, forum = create_category()
+        topic = add_topic_in_a_forum(forum, profile)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'delete_message': ''
+        }
+
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+
+        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
+        self.assertEqual(403, response.status_code)
+
+        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+        self.assertEqual(403, response.status_code)
+
 
 class PostUsefulTest(TestCase):
     def test_failure_post_useful_require_method_post(self):
