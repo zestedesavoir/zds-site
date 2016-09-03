@@ -10,8 +10,8 @@ Chimie
 Cobol
 Django
 Droit
-Economie
-Electronique
+Économie
+Électronique
 Géologie
 Graphisme
 Haskell
