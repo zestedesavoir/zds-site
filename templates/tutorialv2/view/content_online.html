@@ -7,6 +7,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load interventions %}
+{% load pluralize_fr %}
 
 
 {% block title %}
@@ -172,7 +173,7 @@
             <span itemprop="commentCount">
                 {{ content.get_note_count }}
             </span>
-            {% trans "commentaire" %}{{ content.get_note_count|pluralize }}
+            {% trans "commentaire" %}{{ content.get_note_count|pluralize_fr }}
         {% else %}
             {% trans "Aucun commentaire" %}
         {% endif %}

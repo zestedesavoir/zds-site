@@ -2,6 +2,7 @@
 {% load date %}
 {% load profile %}
 {% load i18n %}
+{% load pluralize_fr %}
 
 
 
@@ -39,7 +40,11 @@
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
+                            <span class="topic-members-label">
+                                {% blocktrans with plural=topic.participants.all|length|pluralize_fr %}
+                                    Participant{{ plural }} :
+                                {% endblocktrans %}
+                            </span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                             </em>{% spaceless %}
@@ -50,11 +55,13 @@
                         </p>
                     </div>
                 {% endwith %}
-                <p class="topic-answers {% if topic.get_post_count <= 1 %}topic-no-answer{% endif %}">
-                    {% if topic.get_post_count > 1 %}
-                        {{ topic.get_post_count|add:"-1" }} {% trans "réponse" %}{{ topic.get_post_count|add:"-1"|pluralize }}
-                    {% endif %}
-                </p>
+                {% with post_count=opic.get_post_count %}
+                    <p class="topic-answers {% if post_count <= 1 %}topic-no-answer{% endif %}">
+                        {% blocktrans with plural=post_count|pluralize_fr %}
+                            réponse{{ plural }}
+                        {% endblocktrans %}
+                    </p>
+                {% endwith %}
                 <p class="topic-last-answer">
                     {% with answer=topic.get_last_answer %}
                         {% if answer %}
