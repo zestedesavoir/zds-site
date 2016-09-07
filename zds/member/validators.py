@@ -19,7 +19,7 @@ def validate_not_empty(value):
     :param value: value to validate (str or None)
     :return:
     """
-    if value is None or value == '' or value.strip() == '':
+    if value is None or value.strip() == '':
         raise ValidationError(_(u'Le champs ne peut être vide'))
 
 
@@ -33,9 +33,8 @@ class ZdSEmailValidator(EmailValidator):
       - add custom errors and translate them into French
     """
     message = _(u'Utilisez une adresse de courriel valide.')
-    check_dont_exists = True
 
-    def __call__(self, value, check_dont_exists=True):
+    def __call__(self, value, check_username_available=True):
         value = force_text(value)
 
         if not value or '@' not in value:
@@ -54,10 +53,10 @@ class ZdSEmailValidator(EmailValidator):
 
         # check if email is used by another user
         user_count = User.objects.filter(email=value).count()
-        if self.check_dont_exists and user_count > 0:
+        if check_username_available and user_count > 0:
             raise ValidationError(_(u'Cette adresse courriel est déjà utilisée'), code=self.code)
         # check if email exists in database
-        elif not self.check_dont_exists and user_count == 0:
+        elif not check_username_available and user_count == 0:
             raise ValidationError(_(u'Cette adresse courriel n\'existe pas'), code=self.code)
 
         if domain_part and not self.validate_domain_part(domain_part):
@@ -74,7 +73,7 @@ class ZdSEmailValidator(EmailValidator):
 validate_zds_email = ZdSEmailValidator()
 
 
-def validate_zds_username(value, check_dont_exists=True):
+def validate_zds_username(value, check_username_available=True):
     """
     Check if username is used by another user
 
@@ -89,9 +88,9 @@ def validate_zds_username(value, check_dont_exists=True):
         msg = _(u'Le nom d\'utilisateur ne peut commencer ou finir par des espaces')
     elif contains_utf8mb4(value):
         msg = _(u'Le nom d\'utilisateur ne peut pas contenir des caractères utf8mb4')
-    elif check_dont_exists and user_count > 0:
+    elif check_username_available and user_count > 0:
         msg = _(u'Ce nom d\'utilisateur est déjà utilisé')
-    elif not check_dont_exists and user_count == 0:
+    elif not check_username_available and user_count == 0:
         msg = _(u'Ce nom d\'utilisateur n\'existe pas')
     if msg is not None:
         raise ValidationError(msg)

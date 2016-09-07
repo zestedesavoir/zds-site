@@ -422,10 +422,9 @@ class UsernameAndEmailForm(forms.Form):
         # Clean data
         username = cleaned_data.get('username')
         email = cleaned_data.get('email')
-        print(username, email)
 
         if username and email:
-            self._errors['username'] = self.error_class([_(u'Les deux champs ne doivent pas être rempli. Remplissez soi'
+            self._errors['username'] = self.error_class([_(u'Seul un des deux champ doit être rempli. Remplissez soi'
                                                            u't l\'adresse de courriel soit le nom d\'utilisateur')])
         elif not username and not email:
             self._errors['username'] = self.error_class([_(u'Il vous faut remplir au moins un des deux champs')])
@@ -434,7 +433,7 @@ class UsernameAndEmailForm(forms.Form):
             if username:
                 validate_not_empty(username)
                 validate_zds_username(username)
-            else:
+            if email:
                 validate_not_empty(email)
                 validate_zds_email(email)
 
@@ -459,10 +458,10 @@ class ForgotPasswordForm(UsernameAndEmailForm):
             # run validators
             if username:
                 validate_not_empty(username)
-                validate_zds_username(username, check_dont_exists=False)
+                validate_zds_username(username, check_username_available=False)
             else:
                 validate_not_empty(email)
-                validate_zds_email(email, check_dont_exists=False)
+                validate_zds_email(email, check_username_available=False)
 
         return cleaned_data
 
