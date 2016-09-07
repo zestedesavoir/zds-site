@@ -12,8 +12,8 @@ map $http_host $robots_tag_header {
 server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
-	listen 443 ssl spdy default_server;
-	listen [::]:443 ssl spdy default_server;
+	listen 443 ssl http2 default_server;
+	listen [::]:443 ssl http2 default_server;
 
 	server_name zestedesavoir.com;
 
