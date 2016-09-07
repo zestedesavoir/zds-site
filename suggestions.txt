@@ -32,6 +32,5 @@ Psychologie
 Python
 Ruby
 Symfony
-UDK
 Windows
 Word
