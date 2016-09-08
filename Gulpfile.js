@@ -132,6 +132,15 @@ gulp.task('watch', ['build'], () => {
     livereload.listen();
 });
 
+// Compiles errors' CSS
+gulp.task('errors', () =>
+    gulp.src('errors/scss/main.scss')
+        .pipe(sourcemaps.init())
+        .pipe(sass({ sourceMapContents: true, includePaths: 'assets/scss/' }))
+        .pipe(postcss(postcssPlugins))
+        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
+        .pipe(gulp.dest('errors/css/')));
+
 gulp.task('test', ['js:lint']);
 gulp.task('build', ['css', 'js', 'images']);
 gulp.task('default', ['watch', 'test']);
