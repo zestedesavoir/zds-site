@@ -89,6 +89,16 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
+    def test_utf8mb4_username_register_form(self):
+        data = {
+            'email': 'test@gmail.com',
+            'username': '🐙',
+            'password': 'ZePassword',
+            'password_confirm': 'ZePassword'
+        }
+        form = RegisterForm(data=data)
+        self.assertFalse(form.is_valid())
+
     def test_empty_spaces_username_register_form(self):
         data = {
             'email': 'test@gmail.com',
