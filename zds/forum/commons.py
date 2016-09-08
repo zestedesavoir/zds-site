@@ -11,7 +11,6 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
-from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert
 
 
@@ -88,8 +87,7 @@ class TopicEditMixin(object):
 
     @staticmethod
     def perform_edit_info(topic, data, editor):
-        (tags, title) = get_tag_by_title(data.get('title'))
-        topic.title = title
+        topic.title = data.get('title')
         topic.subtitle = data.get('subtitle')
         topic.save()
 
@@ -97,7 +95,8 @@ class TopicEditMixin(object):
 
         # add tags
         topic.tags.clear()
-        topic.add_tags(tags)
+        if data.get('tags'):
+            topic.add_tags(data.get('tags').split(','))
         return topic
 
 

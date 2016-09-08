@@ -283,7 +283,8 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!',
+            'tags': ''
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -291,7 +292,8 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!',
+            'tags': ''
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -350,7 +352,8 @@ class TopicNewTest(TestCase):
         data = {
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            'text': 'A new post!',
+            'tags': ''
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 

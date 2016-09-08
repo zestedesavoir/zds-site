@@ -240,7 +240,7 @@ class TopicNew(CreateView, SingleObjectMixin):
             form.data['title'],
             form.data['subtitle'],
             form.data['text'],
-            None
+            tags=form.data['tags']
         )
         return redirect(topic.get_absolute_url())
 
@@ -275,18 +275,13 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             messages.warning(request, _(
                 u'Vous éditez un topic en tant que modérateur (auteur : {}). Soyez encore plus '
                 u'prudent lors de l\'édition de celui-ci !').format(self.object.author.username))
-        prefix = ''
-        for tag in self.object.tags.all():
-            prefix += u'[{0}]'.format(tag.title)
-
         form = self.create_form(self.form_class, **{
-            'title': u'{0} {1}'.format(prefix, self.object.title).strip(),
+            'title': self.object.title,
             'subtitle': self.object.subtitle,
-            'text': self.object.first_post().text
+            'text': self.object.first_post().text,
+            'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
-        return render(request,
-                      self.template_name,
-                      {'topic': self.object, 'form': form, 'is_staff': is_staff})
+        return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
 
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:
@@ -300,7 +295,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                     form = self.create_form(self.form_class, **{
                         'title': request.POST.get('title'),
                         'subtitle': request.POST.get('subtitle'),
-                        'text': request.POST.get('text')
+                        'text': request.POST.get('text'),
+                        'tags': request.POST.get('tags')
                     })
             elif form.is_valid():
                 return self.form_valid(form)

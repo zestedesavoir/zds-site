@@ -3,6 +3,7 @@
 import os
 import string
 import uuid
+import logging
 from datetime import datetime, timedelta
 from math import ceil
 
@@ -10,7 +11,6 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils.encoding import smart_text
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
@@ -270,13 +270,12 @@ class Topic(models.Model):
         :param tag_collection: A collection of tags.
         """
         for tag in tag_collection:
-            tag_title = smart_text(tag.strip().lower())
-            current_tag = Tag.objects.filter(title=tag_title).first()
-            if current_tag is None:
-                current_tag = Tag(title=tag_title)
-                current_tag.save()
+            try:
+                current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
+                self.tags.add(current_tag)
+            except ValueError as e:
+                logging.getLogger("zds.forum").warn(e)
 
-            self.tags.add(current_tag)
         self.save()
 
     def last_read_post(self):
