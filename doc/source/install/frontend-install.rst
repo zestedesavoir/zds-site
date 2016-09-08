@@ -8,80 +8,9 @@ Vous voulez nous aider au développement du frontend ? Installez Node.js et npm 
 Installation de Node.js et npm
 ==============================
 
-Zeste de Savoir utilise actuellement la v4 de Node.js.
+Le frontend de Zeste de Savoir repose sur la version supportée à long terme actuelle de Node.js, la version 4.
 
-Windows
--------
-
-.. Attention::
-
-    Cette partie de la documentation n'est probablement pas à jour faute de contributeur utilisant Windows. Il se peut que l'installation fonctionne correctement, partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir demander de l'aide sur le `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
-
-Node.js propose un installeur (*.msi*) pour Windows, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Sélectionnez les versions stables (beaucoup plus à jour que les versions LTS), Choisissez *Windows Installer*, avec l'architecture 32 ou 64 bits, et installez Node.js en ouvrant le fichier téléchargé.
-
-Vérifiez de posséder la version 2.5.0 de npm (et non la version 1.4.X que peut installer l'installeur), pour connaitre votre version : ``npm -v``. Pour le mettre à jour, il suffit d'appeler la commande ``npm install npm@latest``
-
-Veillez à respecter `ces conditions <https://github.com/TooTallNate/node-gyp#installation>`_, avant de faire  ``npm install`` (dans l'ordre d'installation) :
-
-- `Visual C++ 2010 Express <https://www.microsoft.com/fr-fr/download/details.aspx?id=23691>`_.
-- `Windows 7 64-bit SDK <http://www.microsoft.com/en-us/download/details.aspx?id=8279>`_, si vous êtes en 64bits et sous Windows 7.
-
-  En cas de problème, avec l'installation du SDK, suivez `ces instructions <http://www.mathworks.com/matlabcentral/answers/95039#answer_104391>`_ :
-   - Désinstallez : **Microsoft Visual C++ 2010 redistributable packages (x86 et x64)**, *dans le panneau de configuration*.
-   - Relancez **Windows 7 64-bit SDK**, décochez "**Visual C++ Compilers**" et "**Microsoft Visual C++ 2010**".
-   - Appliquez ce patch : `SDK 7.1 <http://www.microsoft.com/en-us/download/details.aspx?id=4422>`_.
-   - Réinstallez (ils se sont peut-être déjà réinstallés tous seuls) `Microsoft Visual C++ 2010 redistributable x64 <http://www.microsoft.com/en-us/download/details.aspx?id=14632>`_ et `Microsoft Visual C++ 2010 redistributable x86 <http://www.microsoft.com/en-us/download/details.aspx?id=5555>`_.
-
-Une fois les conditions précédemment listées satisfaites, placez-vous dans le dossier ``C:\Program Files (x86)\nodejs\node_modules\npm``.
-- Vous devez posséder `Visual Studio Express 2013 pour Windows Desktop <https://app.vssps.visualstudio.com/profile/review?download=true&family=VisualStudioExpressDesktop>`_, la version 2012 ne suffit pas, forcez l'utilisation de vs 2013 comme ceci : ``npm install --msvs_version=2013``, il est même conseillé de faire ``npm config set msvs_version 2013``, pour les futurs installations/commandes.
-
-Vous pouvez alors faire ``npm install``.
-
-Mac OS X
---------
-
-Node.js est présent dans Homebrew: ``brew install node``. Si vous souhaitez vous passer de Homebrew, Node.js propose un installeur (*.pkg*) pour Mac OS X, disponible à `cette adresse <https://nodejs.org/en/download/>`_. Choisissez *Mac OS X Installer*, et installez Node.js en ouvrant le fichier téléchargé.
-
-Linux
------
-
-Pour être sûr d'avoir la dernière version de Node.js, il faut passer par les dépôts de la Fondation Node.js. Pour cela, elle met à disposition un script (en fonction de votre *package manager*) qu'il suffit de lancer. S'il n'y a pas d'instructions pour votre distribution sur cette page, il y en a sûrement dans `la documentation officielle (en anglais) <https://nodejs.org/en/download/package-manager/>`_.
-
-Si vous ne voulez pas utiliser cette méthode, `des fichiers binaires ainsi que le code source sont disponibles <https://nodejs.org/en/download/>`_.
-
-Debian et ses dérivés (tels que Ubuntu, Linux Mint)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Comme indiqué `ici <https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions>`_, il faut lancer ces commandes :
-
-.. sourcecode:: bash
-
-    curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-
-Fedora / CentOS / RHEL
-~~~~~~~~~~~~~~~~~~~~~~
-
-Comme indiqué `ici <https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora>`_, il faut lancer ces commandes :
-
-.. sourcecode:: bash
-
-    curl --silent --location https://rpm.nodesource.com/setup_4.x | bash -
-    # Puis, en root
-    yum -y install nodejs
-
-Arch Linux
-~~~~~~~~~~
-
-Comme indiqué `ici <https://nodejs.org/en/download/package-manager/#arch-linux>`_, il faut lancer cette commande :
-
-.. sourcecode:: bash
-
-    pacman -S nodejs npm
-
-Il existe aussi `une documentation relative à Node.js spécialement pour Arch Linux <https://wiki.archlinux.org/index.php/Node.js>`_.
-
------
+L'installation de ``node`` est détaillée sur le site de Node.js, soit par `téléchargement direct <https://nodejs.org/en/download/>`_, soit via un `gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_. Zeste de Savoir requiert la version 4, mais marche également avec la version 6.
 
 Vérifier que les bonnes versions sont installées
 ------------------------------------------------
@@ -92,6 +21,7 @@ Pour vérifier que Node.js et npm sont installés (et que vous avez les bonnes v
 
     node -v
     v4.x.x
+    npm -v
     2.14.12 # n'importe quelle version plus grande que 1.x
 
 **Vous devez avoir une version de Node.js v4.x et de npm 2 ou supérieure.** Si votre version de npm est 1.x.x, vous devez le mettre à jour (voir juste en dessous).
@@ -151,8 +81,9 @@ Saisissez la commande suivante (elle vous permet de générer les fichiers Web d
 
 .. sourcecode:: bash
 
-    make build-front # ou la commande suivante, à choix :
-    npm run gulp build # A faire dans le répertoire du clone de votre fork, crée le répertoire "dist" - Ne PAS être sudo, activation de l'environnement Python requise
+    # Au choix, en fonction de votre environnement :
+    make build-front
+    npm run build
 
 ``build`` permet de :
 
@@ -185,10 +116,10 @@ respecte pas ces règles, le script va sortir une liste d'erreurs (*errors*) et/
 que vous devez corriger.
 
 .. note::
-   L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque
-   *pull request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini,
-   il est plus pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front` ou ``npm run gulp -- test``
-   (ou ``npm test``).
+   L'outil d'intégration continue que nous utilisons, Travis CI, fait cette vérification à la création de chaque *pull
+   request* et sortira la liste des erreurs et des avertissements. Pour éviter d'attendre qu'il ait fini, il est plus
+   pratique pour vous (et nous) que vous lanciez cette commande en amont avec ``make lint-front` ou ``npm run test`` (ou
+   ``npm test``).
 
 Coder plus simplement avec ``watch``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

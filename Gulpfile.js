@@ -79,7 +79,7 @@ gulp.task('js', () =>
     ], { base: '.' })
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('script.js', { newline: ';\r\n' }))
-        //.pipe(uglify())
+        .pipe(uglify())
         .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
         .pipe(gulp.dest('dist/js/')));
 

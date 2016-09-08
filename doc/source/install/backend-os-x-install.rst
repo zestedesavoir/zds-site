@@ -1,8 +1,8 @@
-=================================
-Installation du backend sous OS X
-=================================
+==================================
+Installation du backend sous macOS
+==================================
 
-Pour installer une version locale de ZdS sur OS X, veuillez suivre les instructions suivantes.
+Pour installer une version locale de ZdS sur macOS, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
 Avant de vous lancez dans l'installation de l'environnement de zds, il faut quelques pré-requis :
@@ -50,6 +50,8 @@ Installation des outils front-end
 =================================
 
 Il vous faut installer les outils du front-end. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
+
+Sur macOS, ``brew install node`` suffit pour installer Node.js
 
 Installation de toutes les dépendances
 ======================================
