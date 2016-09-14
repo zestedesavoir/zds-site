@@ -10,11 +10,21 @@ server {
 		postfix.zestedesavoir.com
 		smtp.zestedesavoir.com
 		uploads.zestedesavoir.com
-		utils.zestedesavoir.com
 	;
 
 	access_log /var/log/zds/nginx-redirect-access.log;
 	error_log /var/log/zds/nginx-redirect-error.log;
 
+	server_tokens off;
+	ssl_certificate /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/zestedesavoir.com/privkey.pem;
+
+
+
+        root /var/www/html/;
+
+        location ~ /.well-known {
+                allow all;
+        }
 	rewrite ^(.*) $scheme://zestedesavoir.com$1 permanent;
 }
