@@ -217,6 +217,26 @@ class TopicViewTest(TestCase):
                                                    }) + '?page=42')
         self.assertEqual(response.status_code, 404)
 
+    def test_available_actions(self):
+        """we should be able to cite, but not hide or alert"""
+
+        login_check = self.client.login(
+            username=self.profile1.user.username,
+            password='hostel77'
+        )
+        self.assertTrue(login_check)
+
+        response = self.client.get(reverse('private-posts-list',
+                                           kwargs={'pk': self.topic1.pk,
+                                                   'topic_slug': self.topic1.slug,
+                                                   }))
+        # Citation button
+        self.assertContains(response, 'Citer')
+        # no Alert button
+        self.assertNotContains(response, 'Signaler')
+        # no Hide button
+        self.assertNotContains(response, 'Masquer')
+
     def test_more_than_one_message(self):
         """ test get second page """
 

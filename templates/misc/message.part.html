@@ -116,6 +116,7 @@
                         </form>
                     </li>
                 {% endif %}
+                {% if not is_mp %}
                 <li>
                     <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                         {% trans "Signaler" %}
@@ -132,6 +133,7 @@
                         </button>
                     </form>
                 </li>
+                {% endif %}
             </ul>
         {% endif %}
 
