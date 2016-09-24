@@ -219,7 +219,7 @@ class ContentForm(ContainerForm):
         label=_(u"Pour m'aider, je cherche un..."),
         queryset=HelpWriting.objects.all(),
         required=False,
-        widget=forms.SelectMultiple()
+        widget=forms.CheckboxSelectMultiple()
     )
 
     def __init__(self, *args, **kwargs):
@@ -245,7 +245,7 @@ class ContentForm(ContainerForm):
                    u"et votre contenu apparaîtra alors sur <a href="
                    u"\"{% url \"content:helps\" %}\" "
                    u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
-            Field('helps'),
+            Field('helps', template='crispy/checkboxselectmultiple.html'),
             Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
