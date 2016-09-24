@@ -314,6 +314,9 @@
     .checkbox-new-content {
         padding: 0;
     }
+    #div_id_helps .checkbox {
+      padding: 0;
+    }
 }
 
 @media only screen and #{$media-wide} {
