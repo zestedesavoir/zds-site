@@ -245,7 +245,7 @@ class ContentForm(ContainerForm):
                    u"et votre contenu apparaîtra alors sur <a href="
                    u"\"{% url \"content:helps\" %}\" "
                    u"alt=\"aider les auteurs\">la page d'aide</a>.</p>")),
-            Field('helps', template='crispy/checkboxselectmultiple.html'),
+            Field('helps'),
             Field('msg_commit'),
             ButtonHolder(
                 StrictButton('Valider', type='submit'),
