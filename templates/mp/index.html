@@ -55,7 +55,7 @@
                         </p>
                     </div>
                 {% endwith %}
-                {% with post_count=opic.get_post_count %}
+                {% with post_count=topic.get_post_count %}
                     <p class="topic-answers {% if post_count <= 1 %}topic-no-answer{% endif %}">
                         {% blocktrans with plural=post_count|pluralize_fr %}
                             réponse{{ plural }}
