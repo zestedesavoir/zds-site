@@ -37,6 +37,7 @@
                     </a>
                 </div>
                 <p class="notification-last-answer">
+                    <span class="notification-last-answer-short-date">{{ notification.pubdate|format_date:True|capfirst }}</span>
                     <span class="notification-last-answer-long-date">{{ notification.pubdate|format_date|capfirst }}</span>
                     <span class="notification-last-answer-author">
                         {% trans "par" %}
