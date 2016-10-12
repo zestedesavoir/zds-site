@@ -12,7 +12,8 @@ install-fedora:
 	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox
 
 install-osx:
-	brew install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox node
+	brew install gettext cairo --without-x11 py2cairo node && \ 
+	pip install virtualenv virtualenvwrapper 
 
 # dev back
 ## django
