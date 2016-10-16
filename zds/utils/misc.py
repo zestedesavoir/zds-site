@@ -48,9 +48,7 @@ def convert_camel_to_underscore(camel_case):
 
 
 def contains_utf8mb4(s):
-    """
-    This string contains at least one character of more than 3 bytes
-    """
     if not isinstance(s, unicode):
         s = unicode(s, 'utf-8')
-    return not all(len(c.encode('utf-8')) <= 3 for c in s)
+    re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+    return s != re_pattern.sub(u'\uFFFD', s)
