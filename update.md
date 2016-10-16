@@ -779,6 +779,21 @@ Relancer nginx : `sudo service nginx restart``
 
 Vérifier que zds fonctionne comme il faut en HTTP et HTTPS.
 
+Polices pour les exports de contenus
+------------------------------------
+
+Utilisateur `zds`:
+
+1. `cp -r export-assets/fonts/* ~/.fonts/truetype`
+1. `fc-cache -f -v > update-fonts-cache.log`
+1. Vérifier dans les logs que les nouvelles polices ont été chargées.
+1. Mettre à jour `settings_prod.py` :
+
+    ```diff
+    -                    "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
+    +                    "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
+    ```
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
