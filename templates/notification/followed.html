@@ -22,7 +22,7 @@
 
 
 {% block content %}
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
     <div class="notification-list navigable-list">
         {% for notification in notifications %}
@@ -48,5 +48,5 @@
         {% endfor %}
     </div>
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
