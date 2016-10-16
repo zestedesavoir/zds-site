@@ -1,7 +1,6 @@
 #!/bin/bash
-export RESOURCES_URL="http://www.googledrive.com/host/0BzabS14KitJgfmV2ekdWSktmVEpieU93TG11RFNkWlZqS0JwZk93ZGhMR1lCWVg5NzFVc00"
 
-if [[ -f "$HOME/.fonts/truetype/Andale-Mono.ttf" ]]; then
+if [[ -f "$HOME/.fonts/truetype/SourceCodePro/SourceCodePro-Regular.ttf" ]]; then
   echo "Using cached fonts"
 else
   # force cache upload after successful build
@@ -9,11 +8,8 @@ else
   echo "Installing fonts"
   rm -rf $HOME/.fonts
   mkdir -p $HOME/.fonts/truetype
-  wget -P $HOME/.fonts/truetype $RESOURCES_URL/Andale-Mono.ttf
-  wget -P $HOME/.fonts/truetype $RESOURCES_URL/Merriweather.zip
-  unzip -u $HOME/.fonts/truetype/Merriweather.zip -d $HOME/.fonts/truetype/Merriweather/
-  chmod a+r $HOME/.fonts/truetype/Merriweather/*.ttf
-  chmod a+r $HOME/.fonts/truetype/Andale-Mono.ttf
+  cp -r export-assets/fonts/* $HOME/.fonts/truetype
+  chmod a+r -R $HOME/.fonts/truetype/*
   echo "Installation complete !"
 fi
 # always refresh font cache because $HOME/.fonts has been added either here or via the cache
@@ -28,9 +24,9 @@ else
   rm -rf $HOME/.cabal $HOME/.pandoc
   mkdir -p $HOME/.cabal/bin
   mkdir -p $HOME/.pandoc
-  wget -P $HOME/.cabal/bin $RESOURCES_URL/pandoc
-  wget -P $HOME/.pandoc/templates $RESOURCES_URL/default.epub
-  wget -P $HOME/.pandoc/templates $RESOURCES_URL/default.html
+  unzip -u export-assets/pandoc/pandoc.zip -d $HOME/.cabal/bin
+  mkdir -p $HOME/.pandoc/templates
+  cp export-assets/pandoc/default.* $HOME/.pandoc/templates
   ln -sf $HOME/.cabal/bin/pandoc $HOME/bin/
   echo "Installation complete !"
 fi
