@@ -1,7 +1,6 @@
 #############
 ## Zeste de Savoir
 #############
-settings.py
 base.db
 .sass-cache/
 /static
