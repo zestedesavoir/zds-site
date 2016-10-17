@@ -1,7 +1,11 @@
 # coding: utf-8
 
+from datetime import datetime
 import os
 import shutil
+
+from oauth2_provider.models import AccessToken, Application
+
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
@@ -412,6 +416,25 @@ class MemberTests(TestCase):
         private_topic.save()
         PrivatePostFactory(author=user.user, privatetopic=private_topic, position_in_topic=1)
 
+        # add API key
+        self.assertEqual(Application.objects.count(), 0)
+        self.assertEqual(AccessToken.objects.count(), 0)
+        api_application = Application()
+        api_application.client_id = 'foobar'
+        api_application.user = user.user
+        api_application.client_type = 'confidential'
+        api_application.authorization_grant_type = 'password'
+        api_application.client_secret = '42'
+        api_application.save()
+        token = AccessToken()
+        token.user = user.user
+        token.token = 'r@d0m'
+        token.application = api_application
+        token.expires = datetime.now()
+        token.save()
+        self.assertEqual(Application.objects.count(), 1)
+        self.assertEqual(AccessToken.objects.count(), 1)
+
         # login and unregister:
         login_check = self.client.login(
             username=user.user.username,
@@ -510,6 +533,10 @@ class MemberTests(TestCase):
         self.assertIsNotNone(PublishedContent.objects.filter(content__pk=published_tutorial_2.pk).first())
         self.assertTrue(Topic.objects.get(pk=beta_content.beta_topic.pk).is_locked)
         self.assertFalse(Topic.objects.get(pk=beta_content_2.beta_topic.pk).is_locked)
+
+        # check API
+        self.assertEqual(Application.objects.count(), 0)
+        self.assertEqual(AccessToken.objects.count(), 0)
 
     def test_forgot_password(self):
         """To test nominal scenario of a lost password."""
