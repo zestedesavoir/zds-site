@@ -1886,7 +1886,7 @@ class ContentTests(TestCase):
         self.assertEqual(validation.version, self.tuto_draft.current_version)
         self.assertEqual(validation.status, 'PENDING')
 
-        # ensure that author cannot publish himself
+        # ensure that author (not staff) cannot access to the validation.
         result = self.client.post(
             reverse('validation:reserve', kwargs={'pk': validation.pk}),
             {
@@ -2235,6 +2235,45 @@ class ContentTests(TestCase):
 
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_staff).count(), 6)
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received another PM
+
+    def test_auto_validation(self):
+        """Test that a staff can validate himself"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.authors.add(self.user_staff)
+        tuto.save()
+
+        self.assertEqual(self.client.login(username=self.user_staff.username, password='hostel77'), True)
+        self.assertEqual(Validation.objects.count(), 0)
+
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
+            {
+                'text': u'Valide moi ce truc, s\'il te plait',
+                'version': self.tuto_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Validation.objects.count(), 1)
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertIsNotNone(validation)
+
+        self.assertTrue(self.user_staff in tuto.authors.all())
+        self.assertEqual(0, PrivateTopic.objects.filter(author=self.user_staff, participants=self.user_staff).count())
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(self.user_staff in tuto.authors.all())
+        self.assertEqual(0, PrivateTopic.objects.filter(author=self.user_staff, participants=self.user_staff).count())
+
+        validation = Validation.objects.filter(content=tuto).last()
+        self.assertEqual(validation.status, 'PENDING_V')
+        self.assertEqual(validation.validator, self.user_staff)
 
     def test_delete_while_validating(self):
         """this test ensure that the validator is warned if the content he is validing is removed"""
