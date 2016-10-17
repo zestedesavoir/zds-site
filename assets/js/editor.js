@@ -173,8 +173,11 @@
 
             this.addEvent(document.getElementById("content"), "DOMNodeInserted", (function(_this){
                 return function(e) {
-                    if (/md.editor/.test(e.target.className)) {
-                        _this.setup(e.target.id);
+                    var element = e.target;
+                    if (/md.editor/.test(element.className)) {
+                        if(element.previousElementSibling.indexOf("zform-toolbar") > -1) {
+                            _this.setup(element.id);
+                        }
                     }
                 };
             }) (this));
