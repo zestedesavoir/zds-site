@@ -1,6 +1,9 @@
 # coding: utf-8
 
 from datetime import datetime
+
+from zds.tutorialv2.models.managers import VerbCastManager
+
 try:
     import ujson as json_reader
 except ImportError:
@@ -952,3 +955,23 @@ class Validation(models.Model):
         :rtype: bool
         """
         return self.status == 'CANCEL'
+
+
+class Verb(models.Model):
+    class Meta:
+        verbose_name = 'Verb'
+        verbose_name_plural = 'Verbs'
+
+    label = models.CharField('The verb by itself',
+                             blank=False, null=False, max_length=100, db_index=True)
+    sentence_label = models.CharField('The integration inside the research sentence',
+                                      blank=False, null=False, max_length=100, db_index=True)
+
+
+class VerbVote(models.Model):
+    verb = models.ForeignKey(Verb,
+                             db_index=True, verbose_name="voted verb", null=False)
+    caster = models.ForeignKey(User, db_index=True, verbose_name="caster", null=False, on_delete=models.CASCADE)
+    content = models.ForeignKey(PublishableContent, db_index=True, verbose_name="voted content", null=False,
+                                on_delete=models.CASCADE)
+    objects = VerbCastManager()
