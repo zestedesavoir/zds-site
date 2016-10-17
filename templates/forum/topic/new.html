@@ -18,6 +18,7 @@
 
 
 {% block breadcrumb %}
+    {% if forum %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
         <a href="{{ forum.category.get_absolute_url }}" itemprop="url">
             <span itemprop="title">{{ forum.category.title }}</span>
@@ -28,6 +29,7 @@
             <span itemprop="title">{{ forum.title }}</span>
         </a>
     </li>
+    {% endif %}
     <li>{% trans "Nouveau sujet" %}</li>
 {% endblock %}
 
