@@ -7,7 +7,10 @@ from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from captcha.fields import ReCaptchaField
+try:
+    from captcha.fields import ReCaptchaField
+except ImportError:
+    pass
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, \
