@@ -30,10 +30,14 @@ class TopicForm(forms.Form):
         required=False,
     )
 
-    section = forms.ModelChoiceField(
-        label=_("Categorie"),
-        queryset=Forum.objects.all(),
-        required=True,
+    forum = forms.ModelChoiceField(
+        label=_(u'Catégorie'),
+        queryset=None,
+        widget=forms.Select(
+            attrs={
+                'required': 'required',
+            }
+        )
     )
 
     tags = forms.CharField(
@@ -58,7 +62,12 @@ class TopicForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.get('user')
+
         super(TopicForm, self).__init__(*args, **kwargs)
+
+        self.fields['forum'].queryset = Forum.objects.exclude(group__in=Group.objects.filter(user=self.user).all())
+
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
@@ -67,14 +76,16 @@ class TopicForm(forms.Form):
             Field('title', autocomplete='off'),
             Field('subtitle', autocomplete='off'),
             Field('tags'),
-            Field('section'),
+            Field('forum'),
             CommonLayoutEditor(),
         )
+
 
     def clean(self):
         cleaned_data = super(TopicForm, self).clean()
 
         title = cleaned_data.get('title')
+        section = cleaned_data.get('section')
         text = cleaned_data.get('text')
         tags = cleaned_data.get('tags')
 

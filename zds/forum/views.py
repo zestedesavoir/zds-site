@@ -312,7 +312,6 @@ class TopicNew(CreateView, SingleObjectMixin):
         return form_class(self.request.POST)
 
     def form_valid(self, form):
-        print("lalalalal ", get_object_or_404(Forum, pk=form.data['section']))
         topic = create_topic(
             self.request,
             self.request.user,
