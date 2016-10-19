@@ -46,7 +46,8 @@ class NotificationForumTest(TestCase):
                 'title': u'Super sujet',
                 'subtitle': u'Pour tester les notifs',
                 'text': u'En tout cas l\'un abonnement',
-                'tags': ''
+                'tags': '',
+                'section': self.forum12.pk
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
