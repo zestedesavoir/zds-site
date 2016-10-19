@@ -177,8 +177,7 @@ class ForumMemberTests(TestCase):
         # With another missing parameter
         result = self.client.post(
             reverse('topic-new'),
-            {
-             'subtitle': u'Encore ces lombards en plein ete',
+            {'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
              },
             follow=False)

@@ -196,6 +196,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
     def get_queryset(self):
         return Post.objects.get_messages_of_a_topic(self.object.pk)
 
+
 class TopicNew(CreateView, SingleObjectMixin):
 
     template_name = 'forum/topic/new.html'
@@ -210,7 +211,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         if self.object is not None and not self.object.can_read(request.user):
             raise PermissionDenied
         return super(TopicNew, self).dispatch(request, *args, **kwargs)
-    
+
     def get_object(self, queryset=None):
         try:
             forum_pk = self.request.GET.get('forum')
@@ -221,17 +222,17 @@ class TopicNew(CreateView, SingleObjectMixin):
             raise Http404
         except Forum.DoesNotExist:
             return None
-    
+
     def get(self, request, *args, **kwargs):
         if self.object is None:
             self.object = self.get_object()
         if self.object is not None:
-            return render(request, self.template_name, {'forum': self.object, 'form': self.form_class(initial={'section': self.object.pk})})
+            return render(request, self.template_name, {'forum': self.object,
+                                                        'form': self.form_class(initial={'section': self.object.pk})})
         return render(request, self.template_name, {'form': self.form_class()})
-    
+
     def post(self, request, *args, **kwargs):
         form = self.get_form(self.form_class)
-
         if "preview" in request.POST:
             if request.is_ajax():
                 content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
@@ -240,7 +241,7 @@ class TopicNew(CreateView, SingleObjectMixin):
                 initial = {
                     "title": request.POST["title"],
                     "subtitle": request.POST["subtitle"],
-                    "section" : request.POST["section"],
+                    "section": request.POST["section"],
                     "text": request.POST["text"]
                 }
                 form = self.form_class(initial=initial)
@@ -265,6 +266,7 @@ class TopicNew(CreateView, SingleObjectMixin):
             tags=form.data['tags']
         )
         return redirect(topic.get_absolute_url())
+
 
 class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 
@@ -301,7 +303,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
             'subtitle': self.object.subtitle,
-            'section' : self.object.forum,
+            'section': self.object.forum,
             'text': self.object.first_post().text,
             'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
@@ -319,7 +321,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                     form = self.create_form(self.form_class, **{
                         'title': request.POST.get('title'),
                         'subtitle': request.POST.get('subtitle'),
-                        'section' : request.POST.get('section'),
+                        'section': request.POST.get('section'),
                         'text': request.POST.get('text'),
                         'tags': request.POST.get('tags')
                     })
