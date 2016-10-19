@@ -1,7 +1,7 @@
 (function($, undefined){
     var VerbCast = function(cast){
         this.cast = cast;
-        if(!this.message.is(".verb-cast")) throw new Error("Target is not a .verb-cast");
+        if(!this.cast.is(".verb-cast")) throw new Error("Target is not a .verb-cast");
         this.init();
 
     };
@@ -11,7 +11,7 @@
          * Initialize the karma
          */
         init: function() {
-            this.elements = this.message.children(".verb");
+            this.elements = this.cast.children(".verb");
             this.activeElement = this.elements[0];
             this.uiFeelBack();
         },
@@ -22,7 +22,14 @@
             this.activeElement.addClass("active");
         },
         castVote: function(){
-
+            var dataToSend = {
+                content: this.cast.attr("data-content-pk"),
+                verb: this.activeElement.attr("data-verb-label")
+            };
+            var currentCast = this;
+            $.ajax("/api/contenus/casting", {method:"POST", data:JSON.stringify(dataToSend),  dataType:"JSON"}).success(function () {
+               currentCast.cast.style("display", "none"); // quick and dirty
+            });
         },
         switchVote: function (e) {
             this.activeElement = $(e.target);
