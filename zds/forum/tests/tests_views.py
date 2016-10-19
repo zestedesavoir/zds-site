@@ -294,7 +294,7 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'section': forum.pk
+            'section': forum.pk,
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -304,7 +304,7 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'section': forum.pk
+            'section': forum.pk,
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -350,7 +350,7 @@ class TopicNewTest(TestCase):
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
-            'section': forum.pk
+            'section': forum.pk,
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
@@ -366,7 +366,7 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'section': forum.pk
+            'section': forum.pk,
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
@@ -730,7 +730,7 @@ class TopicEditTest(TestCase):
             'title': 'New title',
             'subtitle': 'New subtitle',
             'text': 'A new post!',
-            'section': forum.pk
+            'section': forum.pk,
         }
         response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
@@ -749,7 +749,7 @@ class TopicEditTest(TestCase):
             'title': 'New title',
             'subtitle': 'New subtitle',
             'text': 'A new post!',
-            'section': forum.pk
+            'section': forum.pk,
         }
         response = self.client.post(
             reverse('topic-edit') + '?topic={}'.format(topic.pk),
@@ -770,7 +770,7 @@ class TopicEditTest(TestCase):
             'title': 'New title',
             'subtitle': 'New subtitle',
             'text': 'A new post!',
-            'section': forum.pk
+            'section': forum.pk,
         }
         response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
