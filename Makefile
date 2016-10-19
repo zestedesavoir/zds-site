@@ -74,13 +74,15 @@ doc:
 	cd doc && \
 	make html
 
+.PHONY: fixtures
 fixtures:
-	python manage.py loaddata fixtures/*.yaml.
+	python manage.py loaddata fixtures/*.yaml
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  build-front       to build frontend code"
 	@echo "  doc               to generate the html documentation"
+	@echo "  fixtures          to load every fixtures"
 	@echo "  generate-pdf      to regenerate all PDFs"
 	@echo "  help              to get this help"
 	@echo "  install-back      to install backend dependencies"
