@@ -568,9 +568,9 @@ class ForumMemberTests(TestCase):
 
         # useful the first post
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post1.pk), follow=False)
-        self.assertEqual(result.status_code, 403)
+        self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
@@ -581,10 +581,10 @@ class ForumMemberTests(TestCase):
 
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post5.pk), follow=False)
 
-        self.assertEqual(result.status_code, 403)
+        self.assertEqual(result.status_code, 302)
 
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
-        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
         # useful if you are staff
         StaffProfileFactory().user
@@ -595,7 +595,7 @@ class ForumMemberTests(TestCase):
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post4.pk), follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
-        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
     def test_failing_useful_post(self):
         """To test some failing cases when a member mark a post is useful."""

@@ -235,30 +235,28 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
-                        {% if user.is_authenticated and helpful_link and not is_author %}
-                            {% if message.author != user or perms_change %}
-                                {% if topic.author == user or perms_change %}
-                                    <form action="{{ helpful_link }}" method="post">
-                                        {% csrf_token %}
-                                        <button
-                                            type="submit"
-                                            class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                            data-ajax-input="mark-message-as-useful"
-                                            data-content-on-click="
-                                                {% if message.is_useful %}
-                                                    {% trans "Cette réponse m'a aidé" %}
-                                                {% else %}
-                                                    {% trans "Cette réponse ne m'a pas aidé" %}
-                                                {% endif %}"
-                                        >
+                        {% if user.is_authenticated and helpful_link %}
+                            {% if topic.author == user or perms_change %}
+                                <form action="{{ helpful_link }}" method="post">
+                                  {% csrf_token %}
+                                    <button
+                                        type="submit"
+                                        class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                        data-ajax-input="mark-message-as-useful"
+                                        data-content-on-click="
                                             {% if message.is_useful %}
-                                                {% trans "Cette réponse ne m'a pas aidé" %}
-                                            {% else %}
                                                 {% trans "Cette réponse m'a aidé" %}
-                                            {% endif %}
-                                        </button>
-                                    </form>
-                                {% endif %}
+                                            {% else %}
+                                                {% trans "Cette réponse ne m'a pas aidé" %}
+                                            {% endif %}"
+                                    >
+                                        {% if message.is_useful %}
+                                            {% trans "Cette réponse ne m'a pas aidé" %}
+                                        {% else %}
+                                            {% trans "Cette réponse m'a aidé" %}
+                                        {% endif %}
+                                    </button>
+                                </form>
                             {% endif %}
                         {% endif %}
 

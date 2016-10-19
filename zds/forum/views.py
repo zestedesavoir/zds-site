@@ -549,7 +549,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.object = self.get_object()
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        if self.object.author == request.user or self.object.topic.author != request.user:
+        if self.object.topic.author != request.user:
             if not request.user.has_perm("forum.change_post"):
                 raise PermissionDenied
         return super(PostUseful, self).dispatch(request, *args, **kwargs)
