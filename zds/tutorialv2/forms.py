@@ -219,7 +219,7 @@ class ContentForm(ContainerForm):
         label=_(u"Pour m'aider, je cherche un..."),
         queryset=HelpWriting.objects.all(),
         required=False,
-        widget=forms.SelectMultiple()
+        widget=forms.CheckboxSelectMultiple()
     )
 
     def __init__(self, *args, **kwargs):
