@@ -196,7 +196,6 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
     def get_queryset(self):
         return Post.objects.get_messages_of_a_topic(self.object.pk)
 
-"""
 class TopicNew(CreateView, SingleObjectMixin):
 
     template_name = 'forum/topic/new.html'
@@ -208,64 +207,8 @@ class TopicNew(CreateView, SingleObjectMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.can_read(request.user):
+        if self.object is not None and not self.object.can_read(request.user):
             raise PermissionDenied
-        return super(TopicNew, self).dispatch(request, *args, **kwargs)
-
-    def get_object(self, queryset=None):
-        try:
-            forum_pk = int(self.request.GET.get('forum'))
-        except (KeyError, ValueError, TypeError):
-            raise Http404
-        return get_object_or_404(Forum, pk=forum_pk)
-
-    def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'forum': self.object, 'form': self.form_class()})
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(self.form_class)
-
-        if "preview" in request.POST:
-            if request.is_ajax():
-                content = render_to_response('misc/previsualization.part.html', {'text': request.POST['text']})
-                return StreamingHttpResponse(content)
-            else:
-                initial = {
-                    "title": request.POST["title"],
-                    "subtitle": request.POST["subtitle"],
-                    "text": request.POST["text"]
-                }
-                form = self.form_class(initial=initial)
-        elif form.is_valid():
-            return self.form_valid(form)
-        return render(request, self.template_name, {'forum': self.object, 'form': form})
-
-    def get_form(self, form_class=TopicForm):
-        return form_class(self.request.POST)
-
-    def form_valid(self, form):
-        topic = create_topic(
-            self.request,
-            self.request.user,
-            self.object,
-            form.data['title'],
-            form.data['subtitle'],
-            form.data['text'],
-            None
-        )
-        return redirect(topic.get_absolute_url())
-"""
-class TopicNew(CreateView, SingleObjectMixin):
-
-    template_name = 'forum/topic/new.html'
-    form_class = TopicForm
-    object = None
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    @method_decorator(transaction.atomic)
-    def dispatch(self, request, *args, **kwargs):
-        
         return super(TopicNew, self).dispatch(request, *args, **kwargs)
     
     def get_object(self, queryset=None):
@@ -273,7 +216,6 @@ class TopicNew(CreateView, SingleObjectMixin):
             forum_pk = self.request.GET.get('forum')
             if forum_pk is None:
                 return None
-            #forum_pk = int(forum_pk)
             return Forum.objects.get(pk=int(forum_pk))
         except (KeyError, ValueError, TypeError):
             raise Http404
@@ -281,7 +223,8 @@ class TopicNew(CreateView, SingleObjectMixin):
             return None
     
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        if self.object is None:
+            self.object = self.get_object()
         if self.object is not None:
             return render(request, self.template_name, {'forum': self.object, 'form': self.form_class(initial={'section': self.object.pk})})
         return render(request, self.template_name, {'form': self.form_class()})
@@ -322,7 +265,6 @@ class TopicNew(CreateView, SingleObjectMixin):
             tags=form.data['tags']
         )
         return redirect(topic.get_absolute_url())
-
 
 class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
 

@@ -103,7 +103,8 @@ class ForumMemberTests(TestCase):
                 'title': u'Un autre sujet',
                 'subtitle': u'Encore ces lombards en plein ete',
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-                'tags': ''
+                'tags': '',
+                'section': self.forum12.pk
             }, follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -146,7 +147,8 @@ class ForumMemberTests(TestCase):
             reverse('topic-new') + '?forum=' + 'abc',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+             'section': 'abc'
              },
             follow=False)
         self.assertEqual(result.status_code, 404)
@@ -156,7 +158,8 @@ class ForumMemberTests(TestCase):
             reverse('topic-new') + '?forum=',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+             'section': 'abc'
              },
             follow=False)
         self.assertEqual(result.status_code, 404)
@@ -166,10 +169,20 @@ class ForumMemberTests(TestCase):
             reverse('topic-new'),
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
-             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
              },
             follow=False)
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 200)
+
+        # With another missing parameter
+        result = self.client.post(
+            reverse('topic-new'),
+            {
+             'subtitle': u'Encore ces lombards en plein ete',
+             'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
+             },
+            follow=False)
+        self.assertEqual(result.status_code, 200)
 
     def test_answer(self):
         """To test all aspects of answer."""
@@ -305,7 +318,8 @@ class ForumMemberTests(TestCase):
                 'title': expected_title,
                 'subtitle': expected_subtitle,
                 'text': expected_text,
-                'tags': ''
+                'tags': '',
+                'section': self.forum11.pk
             },
             follow=False)
 
@@ -368,7 +382,7 @@ class ForumMemberTests(TestCase):
 
         # check if topic is valid (valid title)
         result = self.client.post(
-            reverse('topic-edit') + '?topic={0}'.format(topic2.pk),
+            reverse('topic-edit') + '?topic={0}'.format(topic1.pk),
             {
                 'title': expected_title,
                 'subtitle': expected_subtitle,
@@ -376,7 +390,7 @@ class ForumMemberTests(TestCase):
                 'tags': ''
             },
             follow=False)
-        self.assertEqual(expected_title, Topic.objects.get(pk=topic2.pk).title)
+        self.assertEqual(expected_title, Topic.objects.get(pk=topic1.pk).title)
 
     def test_edit_post(self):
         """To test all aspects of the edition of simple post by member."""
@@ -767,7 +781,8 @@ class ForumMemberTests(TestCase):
                 'title': u'Un autre sujet',
                 'subtitle': u'Encore ces lombards en plein ete',
                 'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-                'tags': u'C#'
+                'tags': u'C#',
+                'section': self.forum12.pk
             }, follow=False)
         self.assertEqual(result.status_code, 302)
 
