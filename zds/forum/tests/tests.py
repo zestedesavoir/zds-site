@@ -148,23 +148,25 @@ class ForumMemberTests(TestCase):
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-             'forum': 'abc',
              },
             follow=False)
         self.assertEqual(result.status_code, 404)
 
         # With a missing pk
+        # If the pk parameter in GET is empty, the user has
+        # the choice to select a forum from the forum(categorie) field
         result = self.client.post(
             reverse('topic-new') + '?forum=',
             {'title': u'Un autre sujet',
              'subtitle': u'Encore ces lombards en plein ete',
              'text': u'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-             'forum': 'abc',
              },
             follow=False)
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 200)
 
         # With a missing parameter
+        # If there is no pk, the user has the choice
+        # to select a forum from the forum(categorie) field
         result = self.client.post(
             reverse('topic-new'),
             {'title': u'Un autre sujet',
@@ -175,6 +177,9 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 200)
 
         # With another missing parameter
+        # With a missing parameter
+        # If there is no pk, the user has the choice
+        # to select a forum from the forum(categorie) field
         result = self.client.post(
             reverse('topic-new'),
             {'subtitle': u'Encore ces lombards en plein ete',
