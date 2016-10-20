@@ -212,6 +212,11 @@ class TopicNew(CreateView, SingleObjectMixin):
             raise PermissionDenied
         return super(TopicNew, self).dispatch(request, *args, **kwargs)
 
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(TopicNew, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_object(self, queryset=None):
         try:
             forum_pk = self.request.GET.get('forum')
@@ -228,7 +233,7 @@ class TopicNew(CreateView, SingleObjectMixin):
             self.object = self.get_object()
         if self.object is not None:
             return render(request, self.template_name, {'forum': self.object,
-                                                        'form': self.form_class(initial={'section': self.object.pk})})
+                                                        'form': self.form_class(initial={'forum': self.object.pk})})
         return render(request, self.template_name, {'form': self.form_class()})
 
     def post(self, request, *args, **kwargs):
@@ -241,12 +246,12 @@ class TopicNew(CreateView, SingleObjectMixin):
                 initial = {
                     "title": request.POST["title"],
                     "subtitle": request.POST["subtitle"],
-                    "section": request.POST["section"],
+                    "forum": request.POST["forum"],
                     "text": request.POST["text"]
                 }
                 form = self.form_class(initial=initial)
         elif form.is_valid():
-            self.object = get_object_or_404(Forum, pk=form.data['section'])
+            self.object = get_object_or_404(Forum, pk=form.data['forum'])
             if not self.object.can_read(request.user):
                 raise PermissionDenied
             return self.form_valid(form)
@@ -303,7 +308,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         form = self.create_form(self.form_class, **{
             'title': self.object.title,
             'subtitle': self.object.subtitle,
-            'section': self.object.forum,
+            'forum': self.object.forum,
             'text': self.object.first_post().text,
             'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         })
@@ -321,7 +326,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
                     form = self.create_form(self.form_class, **{
                         'title': request.POST.get('title'),
                         'subtitle': request.POST.get('subtitle'),
-                        'section': request.POST.get('section'),
+                        'forum': request.POST.get('forum'),
                         'text': request.POST.get('text'),
                         'tags': request.POST.get('tags')
                     })
