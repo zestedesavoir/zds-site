@@ -61,8 +61,7 @@ class TagsTests(TestCase):
         self.assertIn('another-tag', all_slugs)
 
     def test_validator(self):
-        validator = TagValidator()
         tag = Tag(title="a test")
         tag.save()
-        self.assertEqual(validator.validate_raw_string(None), [])
-        self.assertEqual(validator.validate_raw_string(tag.title), [tag])
+        self.assertEqual(TagValidator.validate_raw_string(None), True)
+        self.assertEqual(TagValidator.validate_raw_string(tag.title), True)

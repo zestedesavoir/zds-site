@@ -74,7 +74,7 @@ class TagValidator(object):
     @staticmethod
     def validate_raw_string(raw_string):
         if raw_string is None or not isinstance(raw_string, basestring):
-            return []
+            return TagValidator.validate_string_list([])
         return TagValidator.validate_string_list(raw_string.split(","))
 
     @staticmethod
