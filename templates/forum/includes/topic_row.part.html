@@ -58,7 +58,7 @@
     {% with nb_post=topic.get_post_count %}
         <p class="topic-answers {% if nb_post <= 1 %}topic-no-answer{% endif %}">
             {% blocktrans with plural=nb_post|pluralize_fr %}
-                réponse{{ plural }}
+                {{ nb_post }} réponse{{ plural }}
             {% endblocktrans %}
         </p>
     {% endwith %}
