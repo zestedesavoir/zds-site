@@ -26,24 +26,19 @@ def top_categories(user):
     else:
         forums = list(forums_pub)
 
-    cats = defaultdict(list)
+    cats = {}
     for forum in forums:
+        if forum.category.title not in cats:
+            cats[forum.category.title] = []
         cats[forum.category.title].append(forum)
 
     tags_by_popularity = list(
-        Topic.objects
-        .values('tags__pk', 'tags__title')
-        .distinct()
-        .filter(forum__in=forums, tags__isnull=False)
-        .annotate(nb_tags=Count('tags'))
-        .order_by('-nb_tags')
+        Tag.objects
+        .annotate(count_topic=Count('topic__pk'))
+        .order_by('-count_topic')
         [:max_tags + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
 
-    tags_not_excluded = [tag['tags__pk'] for tag in tags_by_popularity
-                         if tag['tags__title'] not in settings.ZDS_APP['forum']['top_tag_exclu']][:max_tags]
-
-    tags = Tag.objects.filter(pk__in=tags_not_excluded)
-    tags = sorted(tags, key=lambda tag: tags_not_excluded.index(tag.pk))
+    tags = [tag for tag in tags_by_popularity if tag.title not in settings.ZDS_APP['forum']['top_tag_exclu']][:max_tags]
 
     return {'tags': tags, 'categories': cats}
 
