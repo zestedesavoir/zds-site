@@ -4,9 +4,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from rest_framework.generics import ListAPIView, CreateAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.serializers import ModelSerializer
-from rest_framework import filters
-from rest_framework_extensions.etag.decorators import etag
-from rest_framework_extensions.cache.decorators import cache_response
+
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
 from zds.member.api.views import PagingSearchListKeyConstructor
 from zds.utils import get_current_user
