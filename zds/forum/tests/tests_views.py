@@ -243,6 +243,14 @@ class TopicNewTest(TestCase):
 
         self.assertEqual(302, response.status_code)
 
+    # By me,
+    def test_failure_create_topic_with_a_post_with_client_unauthenticated_no_getmethod_forum(self):
+        category, forum = create_category()
+
+        response = self.client.post(reverse('topic-new'))
+
+        self.assertEqual(302, response.status_code)
+
     def test_failure_create_topic_with_a_post_with_sanctioned_user(self):
         profile = ProfileFactory()
         profile.can_read = False
@@ -252,6 +260,19 @@ class TopicNewTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+
+        self.assertEqual(403, response.status_code)
+
+    # By me,
+    def test_failure_create_topic_with_a_post_with_sanctioned_user_no_get_forum(self):
+        profile = ProfileFactory()
+        profile.can_read = False
+        profile.can_write = False
+        profile.save()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('topic-new'))
 
         self.assertEqual(403, response.status_code)
 
@@ -265,12 +286,41 @@ class TopicNewTest(TestCase):
 
         self.assertEqual(403, response.status_code)
 
+    """
+    # By me,
+    # TO DO : Filter forum by users
+    def test_failure_create_topics_with_a_post_in_a_forum_we_cannot_read_no_get_method_only_post_method(self):
+        group = Group.objects.create(name="DummyGroup_1")
+        profile = ProfileFactory()
+        category, forum = create_category(group)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'title': 'Title of the topic',
+            'subtitle': 'Subtitle of the topic',
+            'text': 'A new post!',
+            'tags': '',
+            'forum': forum.pk,
+        }
+        response = self.client.post(reverse('topic-new'), data, follow=False)
+        self.assertEqual(403, response.status_code)
+    """
+      
     def test_failure_create_topics_with_a_post_with_wrong_forum(self):
         profile = ProfileFactory()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
         response = self.client.post(reverse('topic-new') + '?forum=x')
         self.assertEqual(404, response.status_code)
+
+    # By me,
+    def test_success_create_topic_with_a_post_with_non_existing_but_valide_int_forum_pk_in_get_method(self):
+        profile = ProfileFactory()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-new') + '?forum={}'.format(178903))
+
+        self.assertEqual(200, response.status_code)
 
     def test_success_create_topic_with_a_post_in_get_method(self):
         profile = ProfileFactory()
@@ -294,7 +344,7 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -304,7 +354,7 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
         self.client.logout()
@@ -350,7 +400,7 @@ class TopicNewTest(TestCase):
             'title': 'Title of the topic',
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
 
@@ -366,9 +416,26 @@ class TopicNewTest(TestCase):
             'subtitle': 'Subtitle of the topic',
             'text': 'A new post!',
             'tags': '',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+
+        self.assertEqual(302, response.status_code)
+
+    # By me,
+    def test_success_create_topic_with_post_using_post_method(self):
+        profile = ProfileFactory()
+        category, forum = create_category()
+
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        data = {
+            'title': 'Title of the topic',
+            'subtitle': 'Subtitle of the topic',
+            'text': 'A new post!',
+            'tags': '',
+            'forum': forum.pk,
+        }
+        response = self.client.post(reverse('topic-new'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
 
@@ -730,7 +797,7 @@ class TopicEditTest(TestCase):
             'title': 'New title',
             'subtitle': 'New subtitle',
             'text': 'A new post!',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
@@ -749,7 +816,7 @@ class TopicEditTest(TestCase):
             'title': 'New title',
             'subtitle': 'New subtitle',
             'text': 'A new post!',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         response = self.client.post(
             reverse('topic-edit') + '?topic={}'.format(topic.pk),
@@ -770,7 +837,7 @@ class TopicEditTest(TestCase):
             'title': 'New title',
             'subtitle': 'New subtitle',
             'text': 'A new post!',
-            'section': forum.pk,
+            'forum': forum.pk,
         }
         response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
 
