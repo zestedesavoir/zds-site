@@ -220,7 +220,7 @@ class TopicNew(CreateView, SingleObjectMixin):
     def get_object(self, queryset=None):
         try:
             forum_pk = self.request.GET.get('forum')
-            if forum_pk is None:
+            if forum_pk is None or forum_pk.strip() == '':
                 return None
             return Forum.objects.get(pk=int(forum_pk))
         except (KeyError, ValueError, TypeError):
