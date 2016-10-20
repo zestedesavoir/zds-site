@@ -431,12 +431,11 @@ class TopicNewTest(TestCase):
             'tags': '',
             'forum': forum.pk,
         }
-        post_count = Topic.objects.all().count() + 1
-
         response = self.client.post(reverse('topic-new'), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertEqual(Topic.objects.all().count(), post_count)
+        self.assertEqual(Topic.objects.all().count(), 1)
+
 
 class TopicEditTest(TestCase):
     def test_failure_edit_topic_with_client_unauthenticated(self):
