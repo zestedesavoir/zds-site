@@ -1,5 +1,5 @@
 {% extends "forum/base.html" %}
-
+{% load i18n %}
 
 
 {% block title %}
@@ -24,6 +24,12 @@
 	<div class="content-wrapper topic-list topic-list-small forum-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
 	    {% include "forum/includes/forums.part.html" %}
 	</div>
+{% endblock %}
+
+{% block new_btn %}
+    <a href="{% url 'topic-new' %}" class="new-btn ico-after more blue">
+        {% trans "Nouveau sujet" %}
+    </a>
 {% endblock %}
 
 {% block feeds_rss %}
