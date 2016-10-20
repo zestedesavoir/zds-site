@@ -10,6 +10,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
+from zds.utils.misc import contains_utf8mb4
 from zds.utils.mixins import QuoteMixin
 from zds.utils.models import CommentVote
 
@@ -33,8 +34,8 @@ def get_tag_by_title(title):
     tags = []
     continue_parsing_tags = True
     original_title = title
-    for char in title:
 
+    for char in title:
         if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
         elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
@@ -52,10 +53,13 @@ def get_tag_by_title(title):
         elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
+
     title = current_title
     # if we did not succed in parsing the tags
     if nb_bracket != 0:
         return [], original_title
+
+    tags = filter(lambda tag: not contains_utf8mb4(tag), tags)
 
     return tags, title.strip()
 
