@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.db import IntegrityError, transaction
 
+from zds.utils.forms import TagValidator
 from zds.utils.models import Tag
 
 
@@ -58,3 +59,10 @@ class TagsTests(TestCase):
         self.assertIn('azerty', all_slugs)
         self.assertIn('qwerty', all_slugs)
         self.assertIn('another-tag', all_slugs)
+
+    def test_validator(self):
+        validator = TagValidator()
+        tag = Tag(title="a test")
+        tag.save()
+        self.assertEqual(validator.validate_raw_string(None), [])
+        self.assertEqual(validator.validate_raw_string(tag.title), [tag])

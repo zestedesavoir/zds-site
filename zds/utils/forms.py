@@ -4,6 +4,11 @@ from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
 from django.utils.translation import ugettext_lazy as _
 from zds.utils.models import Tag
+# for compat with py3
+try:
+    assert isinstance("", basestring)
+except (NameError, AssertionError):
+    basestring = str
 
 
 class CommonLayoutEditor(Layout):
@@ -68,6 +73,8 @@ class TagValidator(object):
 
     @staticmethod
     def validate_raw_string(raw_string):
+        if raw_string is None or not isinstance(raw_string, basestring):
+            return []
         return TagValidator.validate_string_list(raw_string.split(","))
 
     @staticmethod
