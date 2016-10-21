@@ -75,6 +75,7 @@ class TagValidator(object):
     def __init__(self):
         self.__errors = []
         self.logger = logging.getLogger("zds.utils.forms")
+        self.__clean = []
 
     def validate_raw_string(self, raw_string):
         if raw_string is None or not isinstance(raw_string, basestring):
@@ -82,20 +83,21 @@ class TagValidator(object):
         return self.validate_string_list(raw_string.split(","))
 
     def validate_length(self, raw_string):
-        if len(_) <= Tag._meta.get_field("title").max_length:
-            self.errors.append(_(u"Le tag est trop long"))
+        if len(raw_string) <= Tag._meta.get_field("title").max_length:
+            self.errors.append(_(u"Le tag {} est trop long".format(raw_string)))
             self.logger.debug("%s est trop long expected=%d got=%d", raw_string,
                               Tag._meta.get_field("title").max_length, len(raw_string))
             return False
         return True
 
     def validate_string_list(self, string_list):
-        results = map(self.validate_length, string_list) + map(self.validate_utf8mb4, string_list)
-        return all(results)
+        self.__clean = list(filter(self.validate_length, string_list))
+        self.__clean = list(filter(self.validate_utf8mb4, self.__clean))
+        return len(string_list) == len(self.__clean)
 
     def validate_utf8mb4(self, raw_string):
         if contains_utf8mb4(raw_string):
-            self.errors.append(_(u"Le tag contient des caractères utf8mb4"))
+            self.errors.append(_(u"Le tag {} contient des caractères utf8mb4").format(raw_string))
             self.logger.warn("%s contains utf8mb4 char", raw_string)
             return False
         return True
