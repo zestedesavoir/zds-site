@@ -14,6 +14,7 @@ Sommaire
 .. toctree::
    :maxdepth: 2
 
+   contributing
    install
    workflow
    back-end
