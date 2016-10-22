@@ -83,7 +83,7 @@ class TagValidator(object):
         return self.validate_string_list(raw_string.split(","))
 
     def validate_length(self, raw_string):
-        if len(raw_string) <= Tag._meta.get_field("title").max_length:
+        if len(raw_string) > Tag._meta.get_field("title").max_length:
             self.errors.append(_(u"Le tag {} est trop long".format(raw_string)))
             self.logger.debug("%s est trop long expected=%d got=%d", raw_string,
                               Tag._meta.get_field("title").max_length, len(raw_string))
