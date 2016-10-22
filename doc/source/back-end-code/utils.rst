@@ -45,6 +45,13 @@ La doc de Django explique le principe des *context_processors* comme suit :
 .. automodule:: zds.utils.context_processor
     :members:
 
+Utilitaires pour formulaires (``forms.py``)
+===========================================
+
+.. automodule:: zds.utils.forms
+    :members:
+
+
 Autres (``misc.py``)
 ====================
 
