@@ -27,14 +27,14 @@
 {% block content %}
     <div class="topic-list navigable-list">
         {% for topic in privatetopics %}
-            <div class="topic {% if topic.never_read %}unread{% endif %} navigable-elem">
+            <div class="topic {% if topic.is_unread %}unread{% endif %} navigable-elem">
                 <div class="topic-infos">
                     <input name="items" type="checkbox" value="{{ topic.pk }}" form="delete-conversations">
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
                         <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
-                            {% if topic.never_read %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
+                            {% if topic.is_unread %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         {% endspaceless %}</a>

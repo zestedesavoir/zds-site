@@ -43,7 +43,7 @@
                 {% for topic in topics %}
                 <tr>
                     <td>
-                        <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.never_read %} unread {% endif %} {% endif %}">
+                        <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.is_unread %} unread {% endif %} {% endif %}">
                         <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
                             {% if topic.subtitle %} <p> {{ topic.subtitle }} </p> {% endif %}
                         </div>
