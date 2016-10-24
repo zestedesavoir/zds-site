@@ -155,7 +155,7 @@ class PrivateTopic(models.Model):
         """
         return self.participants.count() == 0
 
-    def never_read(self, user=None):
+    def is_unread(self, user=None):
         """
         Check if an user has never read the current PrivateTopic.
 
@@ -168,7 +168,7 @@ class PrivateTopic(models.Model):
         if user is None:
             user = get_current_user()
 
-        return never_privateread(self, user)
+        return is_privatetopic_unread(self, user)
 
     def is_author(self, user):
         """
@@ -307,7 +307,7 @@ class PrivateTopicRead(models.Model):
         return u'<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
 
 
-def never_privateread(privatetopic, user=None):
+def is_privatetopic_unread(privatetopic, user=None):
     """
     Check if a private topic has been read by an user since it last post was added.
 
