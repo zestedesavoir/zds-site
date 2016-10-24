@@ -1,15 +1,18 @@
 # coding: utf-8
+from django.db.models.aggregates import Count
 from django.http.response import Http404
 from dry_rest_permissions.generics import DRYPermissions
-from rest_framework.generics import ListAPIView, CreateAPIView, GenericAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.serializers import ModelSerializer
+from rest_framework.response import Response
 
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
 from zds.member.api.views import PagingSearchListKeyConstructor
 from zds.utils import get_current_user
 from zds.utils.api.views import KarmaView
 from zds.tutorialv2.models.models_database import ContentReaction, VerbVote, Verb, PublishableContent
+from django.template.loader import render_to_string
 
 
 class ContentReactionKarmaView(KarmaView):
@@ -52,13 +55,26 @@ class ContentSerializer(ModelSerializer):
         permission_classes = DRYPermissions
 
 
-class ContentListFilteringView(ListAPIView):
+class VerbListFilteringView(ListAPIView):
+    category = None
+
+    def get_queryset(self):
+        if self.category:
+            return VerbVote.objects.get_verb_label_for_category()
+        return Verb.objects.values_list("label", flat=True)
+
+    def get(self, request, *args, **kwargs):
+        self.category = request.GET.get("category", None)
+        return super(VerbListFilteringView, self).get(request, *args, **kwargs)
+
+
+class ContentListFilteringView(ListAPIView):  # just learn to use DRF and go back generic use of it
     """
     filter content by category, subcategory, tag and verb
     """
     # no auth is needed
     verb = None
-    sub_category = None
+    category = None
     tags = []
 
     def get_queryset(self):
@@ -68,20 +84,27 @@ class ContentListFilteringView(ListAPIView):
         :rtype: iterable[PublishableContent]
         """
         filters = {}
-        if self.sub_category:
-            filters["subcategory__label"] = self.sub_category
+        if self.category:
+            filters["content__subcategory__category__label"] = self.category
         if self.tags:
-            filters["tags__slug__in"] = self.tags
+            filters["content__tags__slug__in"] = self.tags
         if self.verb:
             filters["pk__in"] = VerbVote.objects.filter(verb__label=self.verb)\
                 .prefetch_related("content")\
+                .aggregate(nb_vote=Count("verb__label"))\
+                .order_by('nb_vote')\
                 .values_list("content__pk", flat=True)
-        return PublishableContent.objects.filter(**filters)
+        return PublishableContent.objects.filter(**filters)[:10]
 
     def get(self, request, *args, **kwargs):
         self.verb = request.GET.get("verb", None)
         self.tags = request.GET.get("tags", "").split(",")
-        self.sub_category = request.GET.get("subcategory", None)
-        if not any(self.verb, self.tags, self.sub_category):
+        self.category = request.GET.get("category", None)
+        if not any(self.verb, self.tags, self.category):
             raise Http404("Pas de bras, pas de chocolat.")
-        return super(ContentListFilteringView, self).__get__()
+        query_set = self.get_queryset()
+        data = [self._render_content(c) for c in query_set]
+        return Response(data)
+
+    def _render_content(self, content):
+        render_to_string("tutorialv2/includes/content_item.part.html", {"public_content": content})
