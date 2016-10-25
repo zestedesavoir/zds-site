@@ -29,7 +29,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
     - External/external: le compte pour accueillir les cours externes des auteurs ne voulant pas devenir membre ou quittant le site
     - decal/decal: le compte qui possède un identifiant ``Profile`` différent de l'identifiant ``user`` pour permettre de tester des cas ou ces id sont différents
 
-De ce fait, le moyen le plus simple de charger l'ensemble des données de base est ``python manage.py loaddata fixtures/*.yaml`` ou, avec make, ``make fixtures``.
+De ce fait, le moyen le plus simple de charger l'ensemble des données de base est la commande ``make fixtures``.
 
 Les données complexes voire les scénarios
 -----------------------------------------
