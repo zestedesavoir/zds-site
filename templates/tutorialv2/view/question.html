@@ -1,0 +1,23 @@
+{% extends "tutorialv2/index_online.html" %}
+
+{% block content_out %}
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        <header class="nav">
+            <div>
+                <label for="categorySelect">{% trans "Dans le domaine" %}</label>
+                <select id="categorySelect">
+                    <option value=""></option>
+                    {% for category in categories %}
+                        <option value="{{ category.title }}">{{ category.title }}</option>
+                    {% endfor %}
+                </select>
+                <label for="verbSelect">{% trans "Je voudrais " %}</label>
+                <select id="verbSelect"></select>
+
+            </div>
+        </header>
+        <div id="contentList">
+
+        </div>
+    </section>
+{% endblock %}
