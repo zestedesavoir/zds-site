@@ -1,3 +1,5 @@
+.PHONY: fixtures
+
 all: help
 
 # install
@@ -74,7 +76,6 @@ doc:
 	cd doc && \
 	make html
 
-.PHONY: fixtures
 fixtures:
 	python manage.py loaddata fixtures/*.yaml
 
