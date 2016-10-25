@@ -1,15 +1,17 @@
+.PHONY: fixtures
+
 all: help
 
 # install
 ## linux
 install-debian:
-	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt-dev libz-dev python-sqlparse libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox build-essential
 
 install-ubuntu:
-	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt1-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox
+	sudo apt-get install git python-dev python-setuptools libxml2-dev python-lxml libxslt1-dev libz-dev python-sqlparse libjpeg8 libjpeg8-dev libfreetype6 libfreetype6-dev libffi-dev python-pip python-tox build-essential
 
 install-fedora:
-	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox
+	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox gcc redhat-rpm-config
 
 install-osx:
 	brew install virtualenv_select py27-virtualenv py27-virtualenvwrapper py27-tox node
@@ -75,12 +77,13 @@ doc:
 	make html
 
 fixtures:
-	python manage.py loaddata fixtures/*.yaml.
+	python manage.py loaddata fixtures/*.yaml
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  build-front       to build frontend code"
 	@echo "  doc               to generate the html documentation"
+	@echo "  fixtures          to load every fixtures"
 	@echo "  generate-pdf      to regenerate all PDFs"
 	@echo "  help              to get this help"
 	@echo "  install-back      to install backend dependencies"
