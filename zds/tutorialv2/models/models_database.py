@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from datetime import datetime
+
 try:
     import ujson as json_reader
 except ImportError:

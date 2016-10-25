@@ -26,9 +26,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Do the Query
-        query_set = PublishedContent.objects.exclude(sha_public__isnull=True) \
-                                            .exclude(sha_public__exact='') \
-                                            .exclude(must_redirect=True)\
+        query_set = PublishedContent.objects.published()\
                                             .prefetch_related('content')\
                                             .prefetch_related('content__subcategory')\
                                             .prefetch_related('content__authors')\
