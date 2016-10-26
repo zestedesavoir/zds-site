@@ -1,7 +1,7 @@
 (function($, undefined){
     var categorySelect = $("#categorySelect");
     var verbSelect = $("#verbSelect");
-    var tagSelect = $("#tagSelect");
+    //var tagSelect = $("#tagSelect");
     var url = "/api/contenus/verbs/";
     var itemUrl = "/api/contenus/items/";
     var listOfContentContainer = $("#contentList");
@@ -29,23 +29,23 @@
         });
     };
     var getFresherContentList = function () {
-        $.ajax(appendVerb(appendCategory(itemUrl)), {dataType:"json", method:"GET"}).success(function (data) {
+        $.ajax(appendVerb(appendCategory(itemUrl)), {dataType:"json", method:"GET"}).done(function (data) {
             updateListOfContentContainer(data);
         });
     };
     var updateVerbSelect = function (listOfVerb) {
         verbSelect.html("");
         $.each(listOfVerb, function () {
-            $("<option/>").val(this).text(this).appendTo(verbSelect);
+            $("<option/>").val(this.label).text(this.sentence_label).appendTo(verbSelect);
         });
     };
     categorySelect.on("change", function () {
-        var url = appendCategory("/api/contenus/verbs/");
-        $.ajax(url, {
+        var searchUrl = appendCategory(url);
+        $.ajax(searchUrl, {
             dataType:"json",
             "method": "get"
-        }).success(function (data) {
-            updateVerbSelect(data);
+        }).done(function (data) {
+            updateVerbSelect(data.results);
 
         });
 

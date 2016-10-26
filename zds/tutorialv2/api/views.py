@@ -55,13 +55,21 @@ class ContentSerializer(ModelSerializer):
         permission_classes = DRYPermissions
 
 
+class VerbSerializer(ModelSerializer):
+    class Meta:
+        model = Verb
+        fields = ("label", "sentence_label")
+        permission_classes = DRYPermissions
+
+
 class VerbListFilteringView(ListAPIView):
     category = None
+    serializer_class = VerbSerializer
 
     def get_queryset(self):
         if self.category:
-            return VerbVote.objects.get_verb_label_for_category()
-        return Verb.objects.values_list("label", flat=True)
+            return VerbVote.objects.get_verb_for_category(self.category)
+        return Verb.objects.all()
 
     def get(self, request, *args, **kwargs):
         self.category = request.GET.get("category", None)

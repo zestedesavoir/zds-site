@@ -146,4 +146,5 @@ urlpatterns = [
     url(r'^tags/$', TagsListView.as_view(), name='tags'),
 
     url(r'^$', ListOnlineContents.as_view(), name='list'),
+    url(r'^question/$', ListOnlineContents.as_view(template_name = 'tutorialv2/view/question.html'), name='question'),
 ]
