@@ -45,6 +45,7 @@ class PublishedContentManager(models.Manager):
         :rtype: int
         """
         return self.filter(must_redirect=False)\
+                   .filter(publication_date__lte=datetime.now())\
                    .count()
 
     def get_top_tags(self, displayed_types, limit=-1):
@@ -78,6 +79,7 @@ class PublishableContentManager(models.Manager):
         home_number = settings.ZDS_APP['tutorial']['home_number']
         all_contents = self.filter(type="TUTORIAL")\
                            .filter(public_version__isnull=False)\
+                           .filter(public_version__publication_date__lte=datetime.now())\
                            .prefetch_related("authors")\
                            .prefetch_related("authors__profile")\
                            .select_related("last_note")\
@@ -108,6 +110,7 @@ class PublishableContentManager(models.Manager):
         home_number = settings.ZDS_APP['article']['home_number']
         all_contents = self.filter(type="ARTICLE")\
                            .filter(public_version__isnull=False)\
+                           .filter(public_version__publication_date__lte=datetime.now())\
                            .prefetch_related("authors")\
                            .prefetch_related("authors__profile")\
                            .select_related("last_note")\
