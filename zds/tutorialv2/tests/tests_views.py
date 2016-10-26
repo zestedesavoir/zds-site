@@ -2612,9 +2612,9 @@ class ContentTests(TestCase):
         tutoriel_2.save()
 
         response = self.client.get(
-                    reverse('content:helps'),
-                    follow=False
-                )
+            reverse('content:helps'),
+            follow=False
+        )
         self.assertEqual(200, response.status_code)
         contents = response.context['contents']
         self.assertEqual(contents[0], tutoriel_2)
@@ -2626,14 +2626,14 @@ class ContentTests(TestCase):
         tutoriel_2.save()
 
         response = self.client.get(
-                    reverse('content:helps'),
-                    follow=False
-                )
+            reverse('content:helps'),
+            follow=False
+        )        
         self.assertEqual(200, response.status_code)
         contents = response.context['contents']
         self.assertEqual(contents[0], tutoriel_1)
         self.assertEqual(contents[1], tutoriel_2)
-        
+
     def test_add_author(self):
         self.assertEqual(
             self.client.login(
