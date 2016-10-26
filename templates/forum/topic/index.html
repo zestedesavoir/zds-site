@@ -73,7 +73,11 @@
 
     {% for message in posts %}
         {% captureas edit_link %}
-            {% url 'post-edit' %}?message={{ message.pk }}
+            {% if message.pk == topic.first_post.pk %}
+                {% url 'topic-edit' %}?topic={{ topic.pk }}
+            {% else %}
+                {% url 'post-edit' %}?message={{ message.pk }}
+            {% endif %}
         {% endcaptureas %}
 
         {% captureas hide_link %}{{ edit_link }}{% endcaptureas %}
