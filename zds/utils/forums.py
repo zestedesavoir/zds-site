@@ -10,8 +10,58 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
+from zds.utils.misc import contains_utf8mb4
 from zds.utils.mixins import QuoteMixin
 from zds.utils.models import CommentVote
+
+
+def get_tag_by_title(title):
+    """
+    Extract tags from title.
+    In a title, tags can be set this way:
+    > [Tag 1][Tag 2] There is the real title
+    Rules to detect tags:
+    - Tags are enclosed in square brackets. This allows multi-word tags instead of hashtags.
+    - Tags can embed square brackets: [Tag] is a valid tag and must be written [[Tag]] in the raw title
+    - All tags must be declared at the beginning of the title. Example: _"Title [tag]"_ will not create a tag.
+    - Tags and title correctness (example: empty tag/title detection) is **not** checked here
+    :param title: The raw title
+    :return: A tuple: (the tag list, the title without the tags).
+    """
+    nb_bracket = 0
+    current_tag = u""
+    current_title = u""
+    tags = []
+    continue_parsing_tags = True
+    original_title = title
+
+    for char in title:
+        if char == u"[" and nb_bracket == 0 and continue_parsing_tags:
+            nb_bracket += 1
+        elif nb_bracket > 0 and char != u"]" and continue_parsing_tags:
+            current_tag = current_tag + char
+            if char == u"[":
+                nb_bracket += 1
+        elif char == u"]" and nb_bracket > 0 and continue_parsing_tags:
+            nb_bracket -= 1
+            if nb_bracket == 0 and current_tag.strip() != u"":
+                tags.append(current_tag.strip())
+                current_tag = u""
+            elif current_tag.strip() != u"" and nb_bracket > 0:
+                current_tag = current_tag + char
+
+        elif (char != u"[" and char.strip() != "") or not continue_parsing_tags:
+            continue_parsing_tags = False
+            current_title = current_title + char
+
+    title = current_title
+    # if we did not succed in parsing the tags
+    if nb_bracket != 0:
+        return [], original_title
+
+    tags = filter(lambda tag: not contains_utf8mb4(tag), tags)
+
+    return tags, title.strip()
 
 
 def create_topic(

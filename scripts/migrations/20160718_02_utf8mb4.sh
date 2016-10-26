@@ -33,7 +33,7 @@ mysql -u zds -p zdsdb << EOF
     ALTER TABLE \`auth_group\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`auth_group_permissions\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`auth_permission\` ROW_FORMAT=DYNAMIC;
-    # auth_user # this one stays
+    ALTER TABLE \`auth_user\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`auth_user_groups\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`auth_user_user_permissions\` ROW_FORMAT=DYNAMIC;
     ALTER TABLE \`corsheaders_corsmodel\` ROW_FORMAT=DYNAMIC;
@@ -124,7 +124,7 @@ mysql -u zds -p zdsdb << EOF
     ALTER TABLE \`auth_group\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`auth_group_permissions\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`auth_permission\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    # auth_user # this one stays in utf8_bin
+    ALTER TABLE \`auth_user\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`auth_user_groups\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`auth_user_user_permissions\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ALTER TABLE \`corsheaders_corsmodel\` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -234,7 +234,12 @@ mysql -u zds -p zdsdb << EOF
     ALTER TABLE \`auth_permission\` CHANGE name name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
     ALTER TABLE \`auth_permission\` CHANGE codename codename VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
 
-    # auth_user # this one stays in utf8_bin
+    # auth_user
+    ALTER TABLE \`auth_user\` CHANGE password password VARCHAR(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+    ALTER TABLE \`auth_user\` CHANGE username username VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+    ALTER TABLE \`auth_user\` CHANGE first_name first_name VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+    ALTER TABLE \`auth_user\` CHANGE last_name last_name VARCHAR(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+    ALTER TABLE \`auth_user\` CHANGE email email VARCHAR(254) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
 
     # corsheaders_corsmodel
     ALTER TABLE \`corsheaders_corsmodel\` CHANGE cors cors VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;

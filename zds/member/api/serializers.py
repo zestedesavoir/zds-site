@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from zds.member.commons import ProfileCreate
 from zds.member.models import Profile
-from zds.member.validators import ProfileUsernameValidator, ProfileEmailValidator
+from zds.member.validators import validate_not_empty, validate_zds_username, validate_zds_email
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -42,15 +42,14 @@ class ProfileListSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'html_url', 'is_active', 'date_joined', 'avatar_url', 'permissions')
 
 
-class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate, ProfileUsernameValidator,
-                              ProfileEmailValidator):
+class ProfileCreateSerializer(serializers.ModelSerializer, ProfileCreate):
     """
     Serializers of a user object to create one.
     """
 
     id = serializers.ReadOnlyField(source='user.id')
-    username = serializers.CharField(source='user.username')
-    email = serializers.EmailField(source='user.email')
+    username = serializers.CharField(source='user.username', validators=[validate_not_empty, validate_zds_username])
+    email = serializers.EmailField(source='user.email', validators=[validate_not_empty, validate_zds_email])
     password = serializers.CharField(source='user.password')
     permissions = DRYPermissionsField(additional_actions=['ban'])
 
@@ -103,14 +102,16 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
             self.fields.pop('email')
 
 
-class ProfileValidatorSerializer(serializers.ModelSerializer, ProfileUsernameValidator, ProfileEmailValidator):
+class ProfileValidatorSerializer(serializers.ModelSerializer):
     """
     Serializers of a profile object used to update a member.
     """
 
     id = serializers.ReadOnlyField(source='user.id')
-    username = serializers.CharField(source='user.username', required=False, allow_blank=True)
-    email = serializers.EmailField(source='user.email', required=False, allow_blank=True)
+    username = serializers.CharField(source='user.username', required=False, allow_blank=True,
+                                     validators=[validate_not_empty, validate_zds_username])
+    email = serializers.EmailField(source='user.email', required=False, allow_blank=True,
+                                   validators=[validate_not_empty, validate_zds_email])
     is_active = serializers.BooleanField(source='user.is_active', required=False)
     date_joined = serializers.DateTimeField(source='user.date_joined', required=False)
     permissions = DRYPermissionsField(additional_actions=['ban'])
