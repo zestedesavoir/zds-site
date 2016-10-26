@@ -5,6 +5,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import Serializer
 from rest_framework.response import Response
 
 from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
@@ -92,27 +93,34 @@ class ContentListFilteringView(ListAPIView):  # just learn to use DRF and go bac
         :rtype: iterable[PublishableContent]
         """
         filters = {}
+
         if self.category:
-            filters["content__subcategory__category__label"] = self.category
+            prop_filter = lambda c: len([cat.category.title for cat in c.subcategory.all() if cat.category.title == self.category]) > 0
+        else:
+            prop_filter = None
         if self.tags:
-            filters["content__tags__slug__in"] = self.tags
+            filters["tags__slug__in"] = self.tags
         if self.verb:
             filters["pk__in"] = VerbVote.objects.filter(verb__label=self.verb)\
-                .prefetch_related("content")\
-                .aggregate(nb_vote=Count("verb__label"))\
+                .annotate(nb_vote=Count("verb__label"))\
                 .order_by('nb_vote')\
                 .values_list("content__pk", flat=True)
-        return PublishableContent.objects.filter(**filters)[:10]
+        print(filters)
+        # i'm forced to use a python filter as subcategory__catecory is a property, not a field
+        filtered = filter(prop_filter, PublishableContent.objects.prefetch_related("tags").filter(**filters))
+        return filtered[:10]
 
     def get(self, request, *args, **kwargs):
         self.verb = request.GET.get("verb", None)
         self.tags = request.GET.get("tags", "").split(",")
+        if self.tags[0] == "":
+            self.tags = []
         self.category = request.GET.get("category", None)
-        if not any(self.verb, self.tags, self.category):
+        if not any([self.verb, self.tags, self.category]):
             raise Http404("Pas de bras, pas de chocolat.")
         query_set = self.get_queryset()
         data = [self._render_content(c) for c in query_set]
-        return Response(data)
+        return Response({"results": data})
 
     def _render_content(self, content):
-        render_to_string("tutorialv2/includes/content_item.part.html", {"public_content": content})
+        return render_to_string("tutorialv2/includes/content_item.part.html", {"public_content": content.public_version})

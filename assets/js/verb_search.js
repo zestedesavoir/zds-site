@@ -23,14 +23,18 @@
     };
     var updateListOfContentContainer = function (listOfContent) {
         listOfContentContainer.html("");
-        $.each(listOfContent, function () {
-            var content = this; // just because I always get messy with js this.
+
+        listOfContent.forEach(function (cell, i) {
+            console.log(i);
+
+            var content = cell; // just because I always get messy with js this.
             listOfContentContainer.append($(content));
         });
     };
     var getFresherContentList = function () {
         $.ajax(appendVerb(appendCategory(itemUrl)), {dataType:"json", method:"GET"}).done(function (data) {
-            updateListOfContentContainer(data);
+
+            updateListOfContentContainer(data.results);
         });
     };
     var updateVerbSelect = function (listOfVerb) {
