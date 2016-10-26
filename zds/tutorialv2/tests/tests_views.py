@@ -2593,6 +2593,47 @@ class ContentTests(TestCase):
         )
         self.assertEqual(404, response.status_code)
 
+    def test_help_tutoriels_are_sorted_by_update_date(self):
+        """This test checks that on the help page, the tutoriels are sorted by update date"""
+        an_help = HelpWritingFactory()
+        an_help.save()
+
+        temps_1 = datetime.datetime.now()
+        temps_2 = temps_1 + datetime.timedelta(0, 1)
+
+        tutoriel_1 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_1.update_date = temps_1
+        tutoriel_1.helps.add(an_help)
+        tutoriel_1.save()
+
+        tutoriel_2 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_2.update_date = temps_2
+        tutoriel_2.helps.add(an_help)
+        tutoriel_2.save()
+
+        response = self.client.get(
+                    reverse('content:helps'),
+                    follow=False
+                )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(contents[0], tutoriel_2)
+        self.assertEqual(contents[1], tutoriel_1)
+
+        tutoriel_1.update_date = temps_2
+        tutoriel_2.update_date = temps_1
+        tutoriel_1.save()
+        tutoriel_2.save()
+
+        response = self.client.get(
+                    reverse('content:helps'),
+                    follow=False
+                )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(contents[0], tutoriel_1)
+        self.assertEqual(contents[1], tutoriel_2)
+        
     def test_add_author(self):
         self.assertEqual(
             self.client.login(
