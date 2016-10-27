@@ -59,6 +59,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         """Show the given tutorial if exists."""
         context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
 
+        context['current_moment'] = datetime.now()
+
         if context['is_staff']:
             context['formRevokeValidation'] = RevokeValidationForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
