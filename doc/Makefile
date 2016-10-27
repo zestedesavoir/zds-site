@@ -191,6 +191,7 @@ update-configs:
 	scp zestedesavoir.com:/etc/systemd/system/zds.socket source/install/configs/
 	scp zestedesavoir.com:/etc/systemd/system/solr.service source/install/configs/
 	scp zestedesavoir.com:/etc/mysql/my.cnf source/install/configs/
+	scp -r zestedesavoir.com:/etc/mysql/conf.d source/install/configs/
 	# clean all secrets
 	ssh zestedesavoir.com 'cat /opt/zds/zds-site/zds/settings_prod.py' | \
 	gsed "s/'PASSWORD':\(.*\),/'PASSWORD':\ 'to-fill',/" | \
