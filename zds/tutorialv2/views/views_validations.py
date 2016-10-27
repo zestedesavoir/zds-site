@@ -282,7 +282,8 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     msg,
                     True,
                     leave=False,
-                    direct=False
+                    direct=False,
+                    mark_as_read=True
                 )
 
             messages.info(request, _(u"Ce contenu a bien été réservé par {0}.").format(request.user.username))

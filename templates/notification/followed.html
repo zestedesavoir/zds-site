@@ -22,7 +22,7 @@
 
 
 {% block content %}
-    {% include "misc/pagination.part.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
     <div class="notification-list navigable-list">
         {% for notification in notifications %}
@@ -37,6 +37,7 @@
                     </a>
                 </div>
                 <p class="notification-last-answer">
+                    <span class="notification-last-answer-short-date">{{ notification.pubdate|format_date:True|capfirst }}</span>
                     <span class="notification-last-answer-long-date">{{ notification.pubdate|format_date|capfirst }}</span>
                     <span class="notification-last-answer-author">
                         {% trans "par" %}
@@ -47,5 +48,5 @@
         {% endfor %}
     </div>
 
-    {% include "misc/pagination.part.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}

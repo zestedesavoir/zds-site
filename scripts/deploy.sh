@@ -61,6 +61,9 @@ deactivate
 # Restart zds
 sudo systemctl restart zds.{service,socket}
 
+# clean the cache by restarting it
+sudo service memcached restart
+
 # Exit maintenance mode
 sudo rm $ENV_PATH/webroot/maintenance.html
 

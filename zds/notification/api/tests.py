@@ -10,6 +10,7 @@ from rest_framework_extensions.settings import extensions_api_settings
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory
+from zds.notification.models import Notification
 from zds.utils.mps import send_message_mp
 
 
@@ -38,7 +39,6 @@ class NotificationListAPITest(APITestCase):
         """
         self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
         response = self.client.get(reverse('api:notification:list'))
-        print response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 1)
 
@@ -60,7 +60,48 @@ class NotificationListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('count'), 0)
 
+    def test_list_of_all_notifications(self):
+        """
+        Gets list of read and unread notifications.
+        """
+        topic1 = self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
+        self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
+
+        notification = Notification.objects.get(object_id=topic1.last_message.pk, is_read=False)
+        notification.is_read = True
+        notification.save()
+
+        response = self.client.get(reverse('api:notification:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 2)
+
+    def test_invalid_cache_when_update_a_notification(self):
+        """
+        When a notification is updated, the cache should be invalidated.
+        """
+        another_profile = ProfileFactory()
+        topic = self.create_notification_for_pm(another_profile.user, self.profile.user)
+
+        response = self.client.get(reverse('api:notification:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 1)
+
+        notification_from_response = response.data.get('results')[0]
+        self.assertFalse(notification_from_response.get('is_read'))
+
+        notification = Notification.objects.get(object_id=topic.last_message.pk, is_read=False)
+        notification.is_read = True
+        notification.save()
+
+        response = self.client.get(reverse('api:notification:list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('count'), 1)
+
+        notification_from_response = response.data.get('results')[0]
+        self.assertTrue(notification_from_response.get('is_read'))
+
     def create_notification_for_pm(self, sender, target):
         topic = PrivateTopicFactory(author=sender)
         topic.participants.add(target)
         send_message_mp(author=sender, n_topic=topic, text='Testing')
+        return topic

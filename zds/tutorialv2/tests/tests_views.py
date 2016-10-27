@@ -18,7 +18,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.mp.models import PrivateTopic
+from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewPublicationSubscription, Notification
 from zds.settings import BASE_DIR
@@ -5371,6 +5371,11 @@ class PublishedContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        # Check that the staff user doesn't have a notification for their reservation and their private topic is read.
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user_staff)))
+        last_pm = PrivateTopic.objects.get_private_topics_of_user(self.user_staff.pk).last()
+        self.assertFalse(is_privatetopic_unread(last_pm, self.user_staff))
 
         # publish the article
         result = self.client.post(

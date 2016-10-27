@@ -50,7 +50,7 @@ class Category(models.Model):
         ordering = ['position', 'title']
 
     title = models.CharField('Titre', max_length=80)
-    position = models.IntegerField('Position', null=True, blank=True)
+    position = models.IntegerField('Position', default=0)
     # Some category slugs are forbidden due to path collisions: Category path is `/forums/<slug>` but some actions on
     # forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py` module.
     # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.

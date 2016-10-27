@@ -756,6 +756,44 @@ Issue 3762
 
 (Ne pas oublier de lancer les migrations en terminant cette MEP !)
 
+HTTP/2
+------
+
+Installer une version plus récente de nginx qui supporte HTTP/2 et vérifier la configuration de nginx :
+
+```
+sudo apt-get update && apt-get -t jessie-backports install nginx openssl
+sudo nginx -t
+```
+
+Pour chaque fichier dans `/etc/nginx/sites-enabled/`, remplacer spdy par http2:
+
+```diff
+-        listen 443 ssl spdy default_server;
+-        listen [::]:443 ssl spdy default_server;
++        listen 443 ssl http2 default_server;
++        listen [::]:443 ssl http2 default_server;
+```
+
+Relancer nginx : `sudo service nginx restart``
+
+Vérifier que zds fonctionne comme il faut en HTTP et HTTPS.
+
+Polices pour les exports de contenus
+------------------------------------
+
+Utilisateur `zds`:
+
+1. `cp -r export-assets/fonts/* ~/.fonts/truetype`
+1. `fc-cache -f -v > update-fonts-cache.log`
+1. Vérifier dans les logs que les nouvelles polices ont été chargées.
+1. Mettre à jour `settings_prod.py` :
+
+    ```diff
+    -                    "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
+    +                    "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
+    ```
+
 ---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**

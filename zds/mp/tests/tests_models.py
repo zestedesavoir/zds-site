@@ -6,7 +6,7 @@ from math import ceil
 
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import mark_read, never_privateread, PrivateTopicRead
+from zds.mp.models import mark_read, is_privatetopic_unread, PrivateTopicRead
 from zds import settings
 
 # by moment, i wrote the scenario to be simpler
@@ -120,13 +120,13 @@ class PrivateTopicTest(TestCase):
         # scenario - topic1 :
         # post1 - user1 - unread
         # post2 - user2 - unread
-        self.assertTrue(self.topic1.never_read(self.profile1.user))
+        self.assertTrue(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         mark_read(self.topic1, self.profile1.user)
-        self.assertFalse(self.topic1.never_read(self.profile1.user))
+        self.assertFalse(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
         # post1 - user1 - read
@@ -137,7 +137,7 @@ class PrivateTopicTest(TestCase):
             author=self.profile2.user,
             position_in_topic=3)
 
-        self.assertTrue(self.topic1.never_read(self.profile1.user))
+        self.assertTrue(self.topic1.is_unread(self.profile1.user))
 
     def test_topic_never_read_get_last_read(self):
         """ Trying to read last message of a never read Private Topic
@@ -242,18 +242,18 @@ class FunctionTest(TestCase):
             position_in_topic=2)
 
     def test_never_privateread(self):
-        self.assertTrue(never_privateread(self.topic1, self.profile1.user))
+        self.assertTrue(is_privatetopic_unread(self.topic1, self.profile1.user))
         mark_read(self.topic1, self.profile1.user)
-        self.assertFalse(never_privateread(self.topic1, self.profile1.user))
+        self.assertFalse(is_privatetopic_unread(self.topic1, self.profile1.user))
 
     def test_mark_read(self):
-        self.assertTrue(self.topic1.never_read(self.profile1.user))
+        self.assertTrue(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         mark_read(self.topic1, self.profile1.user)
-        self.assertFalse(self.topic1.never_read(self.profile1.user))
+        self.assertFalse(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
         # post1 - user1 - read
@@ -263,4 +263,4 @@ class FunctionTest(TestCase):
             privatetopic=self.topic1,
             author=self.profile2.user,
             position_in_topic=3)
-        self.assertTrue(self.topic1.never_read(self.profile1.user))
+        self.assertTrue(self.topic1.is_unread(self.profile1.user))

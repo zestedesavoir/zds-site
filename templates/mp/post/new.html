@@ -62,7 +62,7 @@
                 {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
-            {% include "misc/message.part.html" with can_hide=False %}
+            {% include "misc/message.part.html" with can_hide=False is_mp=True %}
         {% endfor %}
     </div>
 {% endblock %}
