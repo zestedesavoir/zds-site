@@ -5,7 +5,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden, Div, MultiField
+from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden, Div
 from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
@@ -719,13 +719,18 @@ class AcceptValidationForm(forms.Form):
             cleaned_data['pubdate'] = datetime.now()
         else:
             if 'pubtime' not in cleaned_data or not cleaned_data['pubtime']:
-                self._errors['pubtime'] = self.error_class(
-                    [_(u'Vous devez fournir une heure de publication')])
+                self._errors['pubtime'] = self.error_class([_(u'Vous devez fournir une heure de publication')])
+                del cleaned_data['pubdate']
             else:
                 date = cleaned_data["pubdate"]
                 time = cleaned_data['pubtime']
-                cleaned_data['pubdate'] = max(
-                    datetime.now(), datetime(date.year, date.month, date.day, time.hour, time.minute))
+                publication_time = datetime(date.year, date.month, date.day, time.hour, time.minute)
+
+                if publication_time < datetime.now():
+                    self._errors['pubdate'] = self.error_class([_(u'Vous ne pouvez pas publier dans le passé !')])
+                    del cleaned_data['pubdate']
+                else:
+                    cleaned_data['pubdate'] = publication_time
 
         text = cleaned_data.get('text')
 

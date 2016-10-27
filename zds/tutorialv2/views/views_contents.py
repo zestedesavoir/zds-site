@@ -1813,7 +1813,9 @@ class ContentOfAuthor(ZdSPagingListView):
     model = PublishableContent
 
     authorized_filters = {
-        'public': [lambda q: q.filter(sha_public__isnull=False), _(u'Publiés'), True, 'tick green'],
+        'public': [
+            lambda q: q.filter(sha_public__isnull=False).filter(public_version__publication_date__lte=datetime.now()),
+            _(u'Publiés'), True, 'tick green'],
         'validation': [lambda q: q.filter(sha_validation__isnull=False), _(u'En validation'), False, 'tick'],
         'beta': [lambda q: q.filter(sha_beta__isnull=False), _(u'En bêta'), True, 'beta'],
         'redaction': [

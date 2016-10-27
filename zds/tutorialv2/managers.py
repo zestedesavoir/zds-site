@@ -70,6 +70,9 @@ class PublishedContentManager(models.Manager):
 class PublishableContentManager(models.Manager):
     """..."""
 
+    def published(self):
+        return self.filter(sha_public__isnull=False).filter(public_version__publication_date__lte=datetime.now())
+
     def get_last_tutorials(self):
         """
         This depends on settings.ZDS_APP['tutorial']['home_number'] parameter
