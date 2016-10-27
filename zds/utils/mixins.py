@@ -45,7 +45,7 @@ class FilterMixin(object):
 class QuoteMixin(object):
     model_quote = None
 
-    def build_quote(self, post_pk):
+    def build_quote(self, post_pk, user):
         assert self.model_quote is not None, ('Model for the quote cannot be None.')
 
         try:
@@ -55,6 +55,9 @@ class QuoteMixin(object):
         post_cite = get_object_or_404(self.model_quote, pk=post_pk)
 
         if isinstance(post_cite, Comment) and not post_cite.is_visible:
+            raise PermissionDenied
+
+        if hasattr(post_cite, 'topic') and not post_cite.topic.forum.can_read(user):
             raise PermissionDenied
 
         text = ''
