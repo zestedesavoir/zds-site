@@ -137,7 +137,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
 
         # Using the quote button
         if "cite" in request.GET:
-            text = self.build_quote(request.GET.get('cite'))
+            text = self.build_quote(request.GET.get('cite'), request.user)
 
             if request.is_ajax():
                 return HttpResponse(json.dumps({'text': text}), content_type='application/json')
