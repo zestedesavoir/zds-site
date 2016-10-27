@@ -2628,7 +2628,7 @@ class ContentTests(TestCase):
         response = self.client.get(
             reverse('content:helps'),
             follow=False
-        )        
+        )
         self.assertEqual(200, response.status_code)
         contents = response.context['contents']
         self.assertEqual(contents[0], tutoriel_1)
