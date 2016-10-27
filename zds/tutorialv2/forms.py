@@ -5,7 +5,7 @@ from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
+from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden, Div, MultiField
 from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
@@ -646,12 +646,21 @@ class AcceptValidationForm(forms.Form):
         initial=True
     )
     pubdate = forms.DateField(
-        label=_(u'Date de publication (Laissez vide pour maintenant.)'),
+        label='',
         widget=forms.DateInput(attrs={
-            "class": "date_picker_field"
+            "class": "date_picker_field",
+            'placeholder': _(u'Laissez vide pour publier immédiatement')
         }),
         required=False
     )
+
+    pubtime = forms.TimeField(
+        label='',
+        required=False,
+        widget=forms.TimeInput(format='%H:%M'),
+        initial='09:00'
+    )
+
     source = forms.CharField(
         label='',
         required=False,
@@ -693,8 +702,13 @@ class AcceptValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             CommonLayoutModalText(),
-            Field('pubdate'),
             Field('source'),
+            Div(HTML(_(u'<label for="id_pubtime" class="control-label">Date de publication</label>'))),
+            Div(
+                Div('pubtime', style='width:15%; float:right'),
+                Div(HTML(_(u'à')), style='width:5%; padding-top: 5px; text-align: center; float:right'),
+                Div('pubdate', style='width:80%')
+            ),
             Field('is_major'),
             StrictButton(_(u'Publier'), type='submit')
         )
@@ -704,8 +718,14 @@ class AcceptValidationForm(forms.Form):
         if "pubdate" not in cleaned_data or not cleaned_data["pubdate"]:
             cleaned_data['pubdate'] = datetime.now()
         else:
-            date = cleaned_data["pubdate"]
-            cleaned_data['pubdate'] = max(datetime.now(), datetime(date.year, date.month, date.day))
+            if 'pubtime' not in cleaned_data or not cleaned_data['pubtime']:
+                self._errors['pubtime'] = self.error_class(
+                    [_(u'Vous devez fournir une heure de publication')])
+            else:
+                date = cleaned_data["pubdate"]
+                time = cleaned_data['pubtime']
+                cleaned_data['pubdate'] = max(
+                    datetime.now(), datetime(date.year, date.month, date.day, time.hour, time.minute))
 
         text = cleaned_data.get('text')
 
