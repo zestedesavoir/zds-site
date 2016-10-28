@@ -626,11 +626,11 @@
                     {% endif %}
                     {% if app.site.social.googleplus %}
                         <li><a href="{{app.site.social.googleplus}}" title="Retrouvez-nous sur Google+" class="btn ico-after google-plus light btn-google-plus btn-holder"></a></li>
-		    {% endif %}
+                    {% endif %}
                 </ul>
 
                 <ul class="links">
-                    <li><a href="{% url "api:docs:django.swagger.base.view" %}">{% trans "API" %}</a></li>
+                    <li><a href="{% url "api:docs" %}">{% trans "API" %}</a></li>
                     <li><a href="{% url "pages-eula" %}">{% trans "CGU" %}</a></li>
                     <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
                     {% if app.site.association %}

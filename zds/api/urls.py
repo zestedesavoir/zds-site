@@ -5,7 +5,7 @@ from rest_framework_swagger.views import get_swagger_view
 schema_view = get_swagger_view(title='Zeste de Savoir API')
 
 urlpatterns = [
-    url(r'^', schema_view),
+    url(r'^', schema_view, name="docs"),
     url(r'^contenus/', include('zds.tutorialv2.api.urls', namespace='content')),
     url(r'^forums/', include('zds.forum.api.urls', namespace='forum')),
     url(r'^membres/', include('zds.member.api.urls', namespace='member')),
