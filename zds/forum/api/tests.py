@@ -1,13 +1,12 @@
 # coding: utf-8
 
 from django.conf import settings
-from django.core.cache import caches
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import Group
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.forum.factories import PostFactory
 from zds.forum.tests.tests_views import create_category, add_topic_in_a_forum
@@ -18,7 +17,7 @@ from zds.utils.models import CommentVote
 class ForumPostKarmaAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_failure_post_karma_with_client_unauthenticated(self):
         profile = ProfileFactory()

@@ -1,11 +1,10 @@
 # coding: utf-8
 
-from django.core.cache import caches
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.factories import ProfileFactory
@@ -20,7 +19,7 @@ class NotificationListAPITest(APITestCase):
         self.client = APIClient()
         client_oauth2 = create_oauth2_client(self.profile.user)
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_list_of_notifications_empty(self):
         """
