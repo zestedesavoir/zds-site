@@ -70,7 +70,7 @@
             </button>
 
             <div class="gallery topic-list list-view clearfix navigable-list">
-                {% for img in gallery.get_images %}
+                {% for img in images %}
                     <div class="topic gallery-item navigable-elem">
                         <div class="topic-infos">
                             <input name="items" type="checkbox" value="{{ img.pk }}">
@@ -91,14 +91,6 @@
 
                 <a href="{% url "gallery-image-new" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
             </div>
-
-            {% if gallery_mode.can_write %}
-                <button class="btn btn-cancel" name="delete_multi" tabindex="-1">{% trans "Supprimer la sélection" %}</button>
-            {% endif %}
-
-            <button class="toggle-gallery-view btn btn-grey" type="button" tabindex="-1">
-                {% trans "Vue grille" %}
-            </button>
         {% else %}
             <p>
                 {% trans "Aucune image" %}. <br>
@@ -111,6 +103,8 @@
                 {% endif %}
             </p>
         {% endif %}
+
+        {% include "misc/paginator.html" with position="bottom" %}
     </form>
 {% endblock %}
 
