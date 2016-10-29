@@ -13,6 +13,9 @@ install-ubuntu:
 install-fedora:
 	sudo dnf install git python-devel python-setuptools libxml2-devel python-lxml libxslt-devel zlib-devel python-sqlparse libjpeg-turbo-devel libjpeg-turbo-devel freetype freetype-devel libffi-devel python-pip python-tox gcc redhat-rpm-config
 
+install-archlinux:
+	sudo pacman -Sy git python2 python2-setuptools python2-pip libxml2 python2-lxml libxslt zlib python2-sqlparse libffi libjpeg-turbo freetype2 python2-tox base-devel
+
 install-osx:
 	brew install gettext cairo --without-x11 py2cairo node && \ 
 	pip install virtualenv virtualenvwrapper 
@@ -92,6 +95,7 @@ help:
 	@echo "  install-debian    to install debian dependencies"
 	@echo "  install-ubuntu    to install ubuntu dependencies"
 	@echo "  install-fedora    to install fedora dependencies"
+	@echo "  install-archlinux to install archlinux dependencies"
 	@echo "  install-osx       to install os x dependencies"
 	@echo "  lint-back         to lint backend code (flake8)"
 	@echo "  lint-front        to lint frontend code (jshint)"
