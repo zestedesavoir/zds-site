@@ -82,6 +82,8 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
+            response['count'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
+            print(response['count'])
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user)
 
@@ -307,6 +309,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         response = {}
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user).is_active
+            response['count'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user).is_active
         elif 'solved' in request.POST:
