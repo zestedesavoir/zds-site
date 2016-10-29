@@ -83,7 +83,6 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         if 'follow' in request.POST:
             response['follow'] = self.perform_follow(self.object, request.user)
             response['count'] = NewTopicSubscription.objects.get_subscriptions(self.object).count()
-            print(response['count'])
         elif 'email' in request.POST:
             response['email'] = self.perform_follow_by_email(self.object, request.user)
 
