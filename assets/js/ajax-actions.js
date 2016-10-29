@@ -33,7 +33,10 @@
     $(".sidebar").on("click", "[data-ajax-input='follow-topic']", function(e){
         var $act = $(this),
             $form = $(this).parents("form:first"),
-            $email = $(this).parents("li:first").next().find("[data-ajax-input='follow-topic-by-email']");
+            $email = $(this).parents("li:first").next().find("[data-ajax-input='follow-topic-by-email']"),
+            $followText = $act.find("span#follow_text"),
+            $count = $form.find("span#subscriber_count"),
+            $plural = $act.find("span#subscriber_plural");
 
         $email.prop("disabled", true);
 
@@ -66,7 +69,9 @@
                     $form.find("input[name=follow]").val(0);
                 }
 
-                $act.toggleText("content-on-click");
+                $followText.toggleText("content-on-click");
+                $count.text(data.count);
+                $plural.text(data.count > 1 ? "s" : "");
                 $act.toggleClass("blue yellow");
 
                 synchText();
