@@ -464,22 +464,6 @@ class TopicRead(models.Model):
                                                         self.post.pk)
 
 
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
-
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
-
-
 def is_read(topic, user=None):
     """
     Checks if the user has read the **last post** of the topic.
