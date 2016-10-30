@@ -303,7 +303,7 @@ class Topic(models.Model):
         """
         user = get_current_user()
         if user is None or not user.is_authenticated():
-            return self.resolve_first_post_url()
+            return self.first_unread_post().get_absolute_url()
         else:
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
@@ -313,7 +313,7 @@ class Topic(models.Model):
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
-                return self.resolve_first_post_url()
+                return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
