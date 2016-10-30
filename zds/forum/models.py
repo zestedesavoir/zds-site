@@ -335,20 +335,6 @@ class Topic(models.Model):
             .order_by('position')\
             .values('pk', "position").first().values()
 
-    def resolve_first_post_url(self):
-        """resolve the url that leads to this topic first post
-
-        :return: the url
-        """
-        pk = Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk').first()
-
-        return '{0}?page=1#p{1}'.format(
-            self.get_absolute_url(),
-            pk['pk'])
-
     def first_unread_post(self, user=None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
@@ -357,7 +343,6 @@ class Topic(models.Model):
 
         :return: The first unread post for this topic and this user.
         """
-        # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
             if user is None:
                 user = get_current_user()
