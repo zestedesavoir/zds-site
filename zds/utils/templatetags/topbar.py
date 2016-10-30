@@ -32,18 +32,19 @@ def top_categories(user):
         forums_pk.append(forum.pk)
         cats[forum.category.position].append(forum)
 
+    tags_by_popularity = list(
+        Tag.objects
+        .filter(topic__forum__in=forums)
+        .annotate(count_topic=Count('topic'))
+        .order_by('-count_topic')
+    )
+
     topbar_cats = []
     sorted_cats = sorted(cats)
     for cat in sorted_cats:
         forums = cats[cat]
         title = forums[0].category.title
         topbar_cats.append((title, forums))
-
-    tags_by_popularity = list(
-        Tag.objects
-        .annotate(count_topic=Count('topic__pk'))
-        .order_by('-count_topic')
-    )
 
     tags = [tag for tag in tags_by_popularity if tag.title not in settings.ZDS_APP['forum']['top_tag_exclu']][:max_tags]
 
