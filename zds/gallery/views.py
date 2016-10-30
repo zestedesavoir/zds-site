@@ -30,7 +30,7 @@ import shutil
 import os
 from django.utils.translation import ugettext_lazy as _
 
-from django.views.generic import DetailView, CreateView, UpdateView, DeleteView, FormView
+from django.views.generic import CreateView, UpdateView, DeleteView, FormView
 from django.utils.decorators import method_decorator
 from zds.tutorialv2.models.models_database import PublishableContent
 
@@ -138,7 +138,8 @@ class GalleryDetails(ZdSPagingListView):
 
     def get_queryset(self):
         self.pkey = self.kwargs.pop('pk', None)
-        self.gallery = Gallery.objects.get(pk=self.pkey)
+        self.slug = self.kwargs.pop('slug', None)
+        self.gallery = get_object_or_404(Gallery, pk=self.pkey, slug=self.slug)
         self.user_access = ensure_user_access(self.gallery, self.request.user, can_write=True)
         return self.gallery.get_images().order_by('title')
 
