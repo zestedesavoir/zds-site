@@ -2604,12 +2604,12 @@ class ContentTests(TestCase):
         tutoriel_1 = PublishableContentFactory(type="TUTORIAL")
         tutoriel_1.update_date = temps_1
         tutoriel_1.helps.add(a_help)
-        tutoriel_1.save()
+        tutoriel_1.save(update_date=False)
 
         tutoriel_2 = PublishableContentFactory(type="TUTORIAL")
         tutoriel_2.update_date = temps_2
         tutoriel_2.helps.add(a_help)
-        tutoriel_2.save()
+        tutoriel_2.save(update_date=False)
 
         response = self.client.get(
             reverse('content:helps'),
@@ -2622,8 +2622,8 @@ class ContentTests(TestCase):
 
         tutoriel_1.update_date = temps_2
         tutoriel_2.update_date = temps_1
-        tutoriel_1.save()
-        tutoriel_2.save()
+        tutoriel_1.save(update_date=False)
+        tutoriel_2.save(update_date=False)
 
         response = self.client.get(
             reverse('content:helps'),
