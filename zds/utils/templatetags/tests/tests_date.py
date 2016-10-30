@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 from django.test import TestCase
 from django.template import Context, Template
-from django.utils import timezone
 
 
 class DateFormatterTest(TestCase):
@@ -109,10 +108,4 @@ class DateFormatterTest(TestCase):
                       "{{ date_epoch | humane_time }}"
                       ).render(self.context)
 
-        # Since ZdS is in Europe/Paris, hours can be 0 or 1
-        paris = timezone.pytz.timezone('Europe/Paris')
-        is_dst = paris.localize(datetime.now()).dst() == timedelta(0, 3600)
-
-        hour = 1 if is_dst else 0
-
-        self.assertEqual(tr, u"jeudi 01 janvier 1970 à 0{}h00".format(hour))
+        self.assertEqual(tr, u"jeudi 01 janvier 1970 à 01h00")
