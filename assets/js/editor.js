@@ -218,7 +218,7 @@
             this.modals.abbr = new window.Modal({
                 "title": this.titles.abbr,
                 "body": "<div>" +
-                            "<label for=zform-modal-abbr-abbr>Abbréviation :</label>" +
+                            "<label for=zform-modal-abbr-abbr>Abréviation :</label>" +
                             "<input type=text id=zform-modal-abbr-abbr />" +
                         "</div><div>" +
                             "<label for=zform-modal-abbr-text>Texte :</label>" +
@@ -622,8 +622,6 @@
                             document.getElementById("zform-modal-abbr-abbr").value = "";
                             document.getElementById("zform-modal-abbr-abbr").focus();
                         }
-
-                        return true;
                     }
                     break;
 
