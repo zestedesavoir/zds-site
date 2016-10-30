@@ -342,7 +342,7 @@ PANDOC_LOC = ''
 PANDOC_PDF_PARAM = ("--latex-engine=xelatex "
                     "--template={} -s -S -N "
                     "--toc -V documentclass=scrbook -V lang=francais "
-                    "-V mainfont=Merriweather -V monofont=\"Andale Mono\" "
+                    "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
                     "-V fontsize=12pt -V geometry:margin=1in ".format(join("..", "..", "..",
                                                                            "assets", "tex", "template.tex")))
 # LOG PATH FOR PANDOC LOGGING

@@ -2,6 +2,7 @@
 {% load date %}
 {% load profile %}
 {% load i18n %}
+{% load pluralize_fr %}
 
 
 
@@ -26,20 +27,24 @@
 {% block content %}
     <div class="topic-list navigable-list">
         {% for topic in privatetopics %}
-            <div class="topic {% if topic.never_read %}unread{% endif %} navigable-elem">
+            <div class="topic {% if topic.is_unread %}unread{% endif %} navigable-elem">
                 <div class="topic-infos">
                     <input name="items" type="checkbox" value="{{ topic.pk }}" form="delete-conversations">
                 </div>
                 {% with profile=topic.author|profile %}
                     <div class="topic-description">
                         <a href="{{ topic.get_absolute_url }}" class="topic-title-link navigable-link">{% spaceless %}
-                            {% if topic.never_read %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
+                            {% if topic.is_unread %}<span class="a11y">{% trans "Non-lu" %} :</span>{% endif %}
                             <span class="topic-title">{{ topic.title }}</span>
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         {% endspaceless %}</a>
 
                         <p class="topic-members">
-                            <span class="topic-members-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} :</span>
+                            <span class="topic-members-label">
+                                {% blocktrans with plural=topic.participants.all|length|pluralize_fr %}
+                                    Participant{{ plural }} :
+                                {% endblocktrans %}
+                            </span>
                             <em>
                                 {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
                             </em>{% spaceless %}
@@ -50,11 +55,13 @@
                         </p>
                     </div>
                 {% endwith %}
-                <p class="topic-answers {% if topic.get_post_count <= 1 %}topic-no-answer{% endif %}">
-                    {% if topic.get_post_count > 1 %}
-                        {{ topic.get_post_count|add:"-1" }} {% trans "réponse" %}{{ topic.get_post_count|add:"-1"|pluralize }}
-                    {% endif %}
-                </p>
+                {% with post_count=topic.get_post_count %}
+                    <p class="topic-answers {% if post_count <= 1 %}topic-no-answer{% endif %}">
+                        {% blocktrans with plural=post_count|pluralize_fr %}
+                           {{ post_count }} réponse{{ plural }}
+                        {% endblocktrans %}
+                    </p>
+                {% endwith %}
                 <p class="topic-last-answer">
                     {% with answer=topic.get_last_answer %}
                         {% if answer %}

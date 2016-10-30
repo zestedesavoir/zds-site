@@ -106,7 +106,8 @@ class TopicForm(forms.Form):
                 [_(u'Ce message est trop long, il ne doit pas dépasser {0} '
                    u'caractères').format(settings.ZDS_APP['forum']['max_post_length'])])
 
-        if not TagValidator.validate_raw_string(cleaned_data.get("tags")):
+        validator = TagValidator()
+        if not validator.validate_raw_string(cleaned_data.get("tags")):
             self._errors['tags'] = self.error_class([_(u'Vous avez entré un tag trop long.')])
         return cleaned_data
 

@@ -50,7 +50,7 @@ class Category(models.Model):
         ordering = ['position', 'title']
 
     title = models.CharField('Titre', max_length=80)
-    position = models.IntegerField('Position', null=True, blank=True)
+    position = models.IntegerField('Position', default=0)
     # Some category slugs are forbidden due to path collisions: Category path is `/forums/<slug>` but some actions on
     # forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py` module.
     # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
@@ -462,22 +462,6 @@ class TopicRead(models.Model):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
-
-
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
-
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
 
 
 def is_read(topic, user=None):

@@ -73,7 +73,11 @@
 
     {% for message in posts %}
         {% captureas edit_link %}
-            {% url 'post-edit' %}?message={{ message.pk }}
+            {% if message.pk == topic.first_post.pk %}
+                {% url 'topic-edit' %}?topic={{ topic.pk }}
+            {% else %}
+                {% url 'post-edit' %}?message={{ message.pk }}
+            {% endif %}
         {% endcaptureas %}
 
         {% captureas hide_link %}{{ edit_link }}{% endcaptureas %}
@@ -129,9 +133,9 @@
 
 {% block return_btn %}
     <a href="{{ topic.forum.get_absolute_url }}" class="new-btn ico-after arrow-left blue">
-        {% trans "Retour à la liste des sujets" %}
+        {% trans "Retour" %} <span class="wide">{% trans "à la liste des sujets" %}</span>
     </a>
-{% endblock %}    
+{% endblock %}
 
 
 
@@ -139,7 +143,7 @@
     <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
         {% trans "Nouveau sujet" %}
     </a>
-    {% if topic.author.pk == user.pk or is_staff %}
+    {% if topic.author.pk == user.pk and topic.first_post.is_visible or is_staff %}
     <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
         {% trans "Éditer le sujet" %}
     </a>
@@ -179,9 +183,6 @@
         </li>
     {% endif %}
 
-    <li class="inactive">
-        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
-    </li>
     <li>
         {% with topic_is_followed=topic|is_followed %}
             {% url 'topic-edit' as link_follow_without_parameter %}
@@ -194,7 +195,7 @@
                         {% trans "Suivre ce sujet" as button_text %}
                         {% trans "Ne plus suivre ce sujet" as data_onclick %}
                     {% endif %}
-                    {% include 'notification/follow_template.html' with link=link_follow is_followed=topic_is_followed data_onclick=data_onclick button_text=button_text %}
+                    {% include 'notification/follow_template.html' with link=link_follow is_followed=topic_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
                 {% endwith %}
             {% endwith %}
         {% endwith %}

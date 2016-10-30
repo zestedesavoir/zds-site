@@ -1,6 +1,7 @@
 {% load date %}
 {% load profile %}
 {% load i18n %}
+{% load pluralize_fr %}
 
 
 
@@ -56,9 +57,9 @@
     {% endwith %}
     {% with nb_post=topic.get_post_count %}
         <p class="topic-answers {% if nb_post <= 1 %}topic-no-answer{% endif %}">
-            {% if nb_post > 1 %}
-                {{ nb_post|add:"-1" }} {% trans "réponse" %}{{ nb_post|add:"-1"|pluralize }}
-            {% endif %}
+            {% blocktrans with plural=nb_post|pluralize_fr %}
+                {{ nb_post }} réponse{{ plural }}
+            {% endblocktrans %}
         </p>
     {% endwith %}
     <p class="topic-last-answer">

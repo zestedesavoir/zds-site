@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans %}
+{% blocktrans with username=username|safe %}
 
 Bonjour **{{ username }}**,
 

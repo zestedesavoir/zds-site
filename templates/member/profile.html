@@ -203,6 +203,18 @@
                 {% endif %}
             </div>
         {% endif %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Informations" %}'>
+            <h3>{% trans "Informations" %}</h3>
+            <ul>
+                <li class="inactive">
+                    {% if profile.user == user %}
+                        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=True %}
+                    {% else %}
+                        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count own_profile=False %}
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
         {% if perms.member.change_profile or usr != user %}
             <div class="mobile-menu-bloc mobile-all-links" data-title='{% trans "Actions" %}'>
                 <h3>{% trans "Actions" %}</h3>
@@ -214,9 +226,6 @@
                             </a>
                         </li>
                     {% endif %}
-                        <li class="inactive">
-                            {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
-                        </li>
                     {% if usr != user and not profile.is_private %}
                         <li>
                             {% with content_is_followed=usr|is_new_publication_followed %}
@@ -245,7 +254,7 @@
                             {% endwith %}
                         </li>
                     {% endif %}
-                    {% if profile.is_private and not perms.member.change_profile %}
+                    {% if usr == user or not perms.member.change_profile and profile.is_private %}
                         <li class="inactive mobile-menu-link">
                             <span>{% trans "Aucune action possible" %}</span>
                         </li>

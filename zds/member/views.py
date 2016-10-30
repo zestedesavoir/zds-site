@@ -3,6 +3,8 @@
 import uuid
 from datetime import datetime, timedelta
 
+from oauth2_provider.models import AccessToken
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -32,7 +34,7 @@ from zds.member.commons import ProfileCreate, TemporaryReadingOnlySanction, Read
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import LoginForm, MiniProfileForm, ProfileForm, RegisterForm, \
     ChangePasswordForm, ChangeUserForm, NewPasswordForm, \
-    PromoteMemberForm, KarmaForm, UsernameAndEmailForm
+    PromoteMemberForm, KarmaForm, UsernameAndEmailForm, ForgotPasswordForm
 from zds.member.models import Profile, TokenForgotPassword, TokenRegister, KarmaNote
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
@@ -433,6 +435,10 @@ def unregister(request):
             anonymous_gallery.save()
         gallery.delete()
 
+    # remove API access (tokens + applications)
+    for token in AccessToken.objects.filter(user=current):
+        token.revoke()
+
     logout(request)
     User.objects.filter(pk=current.pk).delete()
     return redirect(reverse("homepage"))
@@ -707,7 +713,7 @@ def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
     if request.method == "POST":
-        form = UsernameAndEmailForm(request.POST)
+        form = ForgotPasswordForm(request.POST)
         if form.is_valid():
 
             # Get data from form
@@ -715,7 +721,7 @@ def forgot_password(request):
             username = data["username"]
             email = data["email"]
 
-            # Fetch the user, we need his email adress
+            # Fetch the user, we need his email address
             usr = None
             if username:
                 usr = get_object_or_404(User, Q(username=username))
@@ -751,7 +757,7 @@ def forgot_password(request):
         else:
             return render(request, "member/forgot_password/index.html",
                           {"form": form})
-    form = UsernameAndEmailForm()
+    form = ForgotPasswordForm()
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 

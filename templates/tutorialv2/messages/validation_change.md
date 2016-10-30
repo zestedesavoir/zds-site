@@ -5,7 +5,7 @@
     {% url "validation:list" %}
 {% endcaptureas %}
 
-{% blocktrans with title=content.title|safe %}
+{% blocktrans with title=content.title|safe validator=validator|safe %}
 
 Ça pulpe {{ validator }} ?
 

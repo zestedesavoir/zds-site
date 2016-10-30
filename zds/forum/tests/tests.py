@@ -14,6 +14,7 @@ from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import slugify
+from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, Tag
 from zds import settings as zds_settings
 
@@ -568,9 +569,9 @@ class ForumMemberTests(TestCase):
 
         # useful the first post
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post1.pk), follow=False)
-        self.assertEqual(result.status_code, 403)
+        self.assertEqual(result.status_code, 302)
 
-        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post2.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
@@ -581,10 +582,10 @@ class ForumMemberTests(TestCase):
 
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post5.pk), follow=False)
 
-        self.assertEqual(result.status_code, 403)
+        self.assertEqual(result.status_code, 302)
 
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, False)
-        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
         # useful if you are staff
         StaffProfileFactory().user
@@ -595,7 +596,7 @@ class ForumMemberTests(TestCase):
         result = self.client.post(reverse('post-useful') + '?message={0}'.format(post4.pk), follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
-        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, False)
+        self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
     def test_failing_useful_post(self):
         """To test some failing cases when a member mark a post is useful."""
@@ -744,7 +745,6 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 302)
 
         # test the topic is added to the good tag
-
         self.assertEqual(Topic.objects.filter(
             tags__in=[tag_c_sharp])
             .order_by("-last_message__pubdate").prefetch_related(
@@ -752,6 +752,27 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Topic.objects.filter(tags__in=[tag_c])
                          .order_by("-last_message__pubdate").prefetch_related(
             "tags").count(), 0)
+
+        topic_with_conflict_tags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topic_with_conflict_tags.title = u"[C][c][ c][C ]name"
+        (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
+        topic_with_conflict_tags.add_tags(tags)
+        self.assertEqual(topic_with_conflict_tags.tags.all().count(), 1)
+
+        topic_with_conflict_tags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topic_with_conflict_tags.title = u"[][ ][   ]name"
+        (tags, title) = get_tag_by_title(topic_with_conflict_tags.title)
+        topic_with_conflict_tags.add_tags(tags)
+        self.assertEqual(topic_with_conflict_tags.tags.all().count(), 0)
+
+        topic_with_utf8mb4_tags = TopicFactory(
+            forum=self.forum11, author=self.user)
+        topic_with_utf8mb4_tags.title = u"[🍆][tag987][🐙]name"
+        (tags, title) = get_tag_by_title(topic_with_utf8mb4_tags.title)
+        topic_with_utf8mb4_tags.add_tags(tags)
+        self.assertEqual(topic_with_utf8mb4_tags.tags.all().count(), 1)
 
     def test_mandatory_fields_on_new(self):
         """Test handeling of mandatory fields on new topic creation."""

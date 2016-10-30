@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans with title=content.title|safe type=type|safe %}
+{% blocktrans with title=content.title|safe type=type|safe user=user|safe %}
 Bonjour {{ user }},
 
 Le contenu « {{ title }} » a été passé en bêta. La communauté pourra 

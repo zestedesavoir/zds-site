@@ -45,3 +45,13 @@ def convert_camel_to_underscore(camel_case):
     """
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', camel_case)
     return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def contains_utf8mb4(s):
+    """
+    This string contains at least one character of more than 3 bytes
+    """
+    if not isinstance(s, unicode):
+        s = unicode(s, 'utf-8')
+    re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+    return s != re_pattern.sub(u'\uFFFD', s)
