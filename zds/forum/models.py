@@ -1,8 +1,5 @@
 # coding: utf-8
 
-import os
-import string
-import uuid
 import logging
 from datetime import datetime, timedelta
 from math import ceil
