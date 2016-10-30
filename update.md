@@ -794,12 +794,12 @@ Utilisateur `zds`:
     +                    "-V mainfont=Merriweather -V monofont=\"SourceCodePro-Regular\" "
     ```
 
----
-
 Actions à faire pour mettre activer le thème d'Halloween
 ========================================================
 
 Ajouter `ZDS_APP['visual_changes'] = ['clem-halloween']` à `settings_prod.py`.
+
+---
 
 **Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
 
