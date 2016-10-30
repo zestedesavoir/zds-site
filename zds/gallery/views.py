@@ -148,8 +148,8 @@ class GalleryDetails(ZdSPagingListView):
         context['gallery_mode'] = self.user_access
         context['form'] = UserGalleryForm
         context['gallery'] = self.gallery
-
         return context
+
 
 class EditGallery(UpdateView):
     """Update gallery information"""
