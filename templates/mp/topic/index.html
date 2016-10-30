@@ -72,7 +72,7 @@
                 {% set False as can_edit %}
             {% endif %}
 
-            {% include "misc/message.part.html" with can_hide=False %}
+            {% include "misc/message.part.html" with can_hide=False is_mp=True %}
         {% endfor %}
     </div>
 

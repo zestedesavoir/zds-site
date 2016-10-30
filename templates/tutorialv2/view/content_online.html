@@ -7,6 +7,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load interventions %}
+{% load pluralize_fr %}
 
 
 {% block title %}
@@ -106,9 +107,6 @@
 {% endblock %}
 
 {% block sidebar_actions %}
-    <li class="inactive">
-        {% include 'notification/subscription_count_template.html' with subscriber_count=subscriber_count %}
-    </li>
     {% if user.is_authenticated %}
     <li>
     {% with content_is_followed=object|is_content_followed %}
@@ -120,7 +118,7 @@
             {% trans "Suivre ce contenu" as button_text %}
             {% trans "Ne plus suivre ce contenu" as data_onclick %}
         {% endif %}
-        {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+        {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
     {% endwith %}
     </li>
     {% if not user in content.authors.all %}
@@ -175,7 +173,7 @@
             <span itemprop="commentCount">
                 {{ content.get_note_count }}
             </span>
-            {% trans "commentaire" %}{{ content.get_note_count|pluralize }}
+            {% trans "commentaire" %}{{ content.get_note_count|pluralize_fr }}
         {% else %}
             {% trans "Aucun commentaire" %}
         {% endif %}
