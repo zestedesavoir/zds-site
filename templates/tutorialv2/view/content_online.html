@@ -237,4 +237,9 @@
     {% endif %}
 
     {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
+    {% if not has_vote %}
+        {% cache 500 user.username %}
+            {% include "include/verb_cast.part.html" %}
+        {% endcache %}
+    {% endif %}
 {% endblock %}
