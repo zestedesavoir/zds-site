@@ -1,4 +1,7 @@
 # coding: utf-8
+import json
+import logging
+
 from django.db.models.aggregates import Count
 from django.http.response import Http404
 from dry_rest_permissions.generics import DRYPermissions
@@ -24,29 +27,34 @@ class ContentReactionKarmaView(KarmaView):
 class VerbCastSerializer(ModelSerializer):
     class Meta:
         model = VerbVote
-        fields = ('verb', 'content__title')
+        fields = ('verb', 'content')
         permissions_classes = DRYPermissions
 
 
 class ContentCast(CreateAPIView):
     permission_classes = (IsAuthenticated, )  # TODO : ban banned user
-    list_key_func = PagingSearchListKeyConstructor()
     serializer_class = VerbCastSerializer
 
     def post(self, request, *args, **kwargs):
         try:
-            verb = Verb.objects.filter(label=request.POST.get("verb")).first()
+            post = json.loads(request.body)
+            print(post)
+            verb = Verb.objects.filter(label=post.get("verb")).first()
+            logging.warn("%s cast", verb)
             if verb is None:
                 raise Http404("No such verb")
-            content = PublishableContent.objects.filter(content__pk=request.POST.get("content")).first()
+            content = PublishableContent.objects.filter(pk=int(post.get("content__pk"))).first()
+            logging.warn("%s cast", content)
             if content is None:
                 raise Http404("No such content")
             vote = VerbVote(caster=get_current_user(), verb=verb, content=content)
             vote.save()
 
-        except KeyError as e:
+        except (KeyError, ValueError) as e:
             self.response.status_code = 400
             self.response.write(str(e))
+            logging.warn("error %s", e)
+        return Response({"result": "ok"})
 
 
 class ContentSerializer(ModelSerializer):

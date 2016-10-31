@@ -975,3 +975,10 @@ class VerbVote(models.Model):
     content = models.ForeignKey(PublishableContent, db_index=True, verbose_name="voted content", null=False,
                                 on_delete=models.CASCADE)
     objects = VerbCastManager()
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        other = self.objects.first(content=self.content, user=self.user)
+        if other:
+            return
+        super(VerbVote, self).save(force_insert, force_update, using, update_fields)

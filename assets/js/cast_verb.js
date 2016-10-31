@@ -28,7 +28,7 @@
                             .addClass("verb")
                             .text(verb[sentenceLabel]));
                     $list.append(element);
-                    this.elements.push(element)
+                    this.elements.push(element);
                 }.bind(this));
                 this.$activeElement = this.elements[0];
                 this.uiFeelBack();
@@ -43,12 +43,16 @@
         },
         castVote: function(){
             var dataToSend = {
-                content: this.$cast.attr("data-content-pk"),
+                content__pk: this.$cast.attr("data-content-pk"),
                 verb: this.$activeElement.attr("data-verb-label"),
-                csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val()
             };
             var currentCast = this;
-            $.ajax("/api/contenus/casting/", {method:"POST", data:JSON.stringify(dataToSend),  dataType:"JSON"}).success(function () {
+            $.ajax("/api/contenus/casting/", {method:"POST",
+                headers:{"X-CSRFToken": $("input[name='csrfmiddlewaretoken']").val()},
+                data:JSON.stringify(dataToSend),
+                dataType:"JSON",
+                contentType:"application/json"
+            }).done(function () {
                currentCast.$cast.style("display", "none"); // quick and dirty
             });
         },
