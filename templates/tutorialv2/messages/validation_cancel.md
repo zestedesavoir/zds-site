@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load captureas %}
 
-{% blocktrans with title=content.title|safe user_url=user.get_absolute_url user_name=user.username|safe message=message|safe %}
+{% blocktrans with title=content.title|safe user_url=user.get_absolute_url user_name=user.username|safe message=message|safe validator=validator|safe %}
 
 Bonjour {{ validator }},
 

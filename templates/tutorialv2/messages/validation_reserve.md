@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans with title=content.title %}
+{% blocktrans with title=content.title|safe %}
 
 Salut !
 

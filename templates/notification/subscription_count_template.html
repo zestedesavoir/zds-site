@@ -1,3 +1,16 @@
 {% load i18n %}
+{% load pluralize_fr %}
 
-<span class="disabled mobile-menu-link">{% blocktrans %}Il y a {{ subscriber_count }} abonné{{ subscriber_count|pluralize }}{% endblocktrans %}</span>
+{% if own_profile %}
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        Vous avez {{ subscriber_count }} abonné{{ plural }}
+    {% endblocktrans %}
+{% elif own_profile == False %}
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        {{ subscriber_count }} abonné{{ plural }}
+    {% endblocktrans %}
+{% else %}
+    {% blocktrans with plural=subscriber_count|pluralize_fr %}
+        ({{ subscriber_count }} abonné{{ plural }})
+    {% endblocktrans %}
+{% endif %}
