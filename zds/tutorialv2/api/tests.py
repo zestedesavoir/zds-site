@@ -3,13 +3,12 @@ import os
 import shutil
 
 from django.conf import settings
-from django.core.cache import caches
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
-from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.member.factories import ProfileFactory
 from zds.settings import BASE_DIR
@@ -28,7 +27,7 @@ overrided_zds_app['content']['build_pdf_when_published'] = False
 class ContentReactionKarmaAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
         self.content = PublishedContentFactory()
         self.content.save()
 

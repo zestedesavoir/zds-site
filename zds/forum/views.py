@@ -64,6 +64,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
     context_object_name = 'topics'
     paginate_by = settings.ZDS_APP['forum']['topics_per_page']
     template_name = 'forum/category/forum.html'
+    fields = '__all__'
     filter_url_kwarg = 'filter'
     default_filter_param = 'all'
     object = None

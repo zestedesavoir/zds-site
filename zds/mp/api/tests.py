@@ -1,12 +1,11 @@
 # coding: utf-8
 from collections import OrderedDict
 from django.contrib.auth.models import Group
-from django.core.cache import caches
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
-from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.api.tests import create_oauth2_client, authenticate_client
@@ -27,7 +26,7 @@ class PrivateTopicListAPITest(APITestCase):
         self.bot_group.name = ZDS_APP["member"]["bot_group"]
         self.bot_group.save()
 
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_list_mp_with_client_unauthenticated(self):
         """
@@ -405,7 +404,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.bot_group.name = ZDS_APP["member"]["bot_group"]
         self.bot_group.save()
 
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_detail_mp_with_client_unauthenticated(self):
         """
@@ -646,7 +645,7 @@ class PrivatePostListAPI(APITestCase):
         self.private_topic = PrivateTopicFactory(author=self.profile.user)
         self.private_topic.participants.add(ProfileFactory().user)
 
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_list_mp_with_client_unauthenticated(self):
         """
@@ -894,7 +893,7 @@ class PrivatePostDetailAPI(APITestCase):
         client_oauth2 = create_oauth2_client(self.profile.user)
         authenticate_client(self.client, client_oauth2, self.profile.user.username, 'hostel77')
 
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_detail_private_post_with_client_unauthenticated(self):
         """
@@ -1043,7 +1042,7 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         self.bot_group.name = ZDS_APP["member"]["bot_group"]
         self.bot_group.save()
 
-        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+        cache.clear()
 
     def test_list_mp_unread_with_client_unauthenticated(self):
         """
