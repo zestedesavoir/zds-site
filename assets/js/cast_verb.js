@@ -1,9 +1,9 @@
 (function($, undefined){
     var VerbCast = function(cast){
         this.$cast = cast;
-        if(!this.$cast.is(".verb-$cast")) throw new Error("Target is not a .verb-$cast");
+        if(!this.$cast.is(".verb-cast")) throw new Error("Target is not a .verb-cast");
         this.init();
-        this.$sender = this.$cast.find(".submitbutton");
+
     };
     VerbCast.prototype = {
 
@@ -11,43 +11,49 @@
          * Initialize the verbs
          */
         init: function() {
-            this.feed_verbs();
+            this.$sender = this.$cast.find(".submitbutton");
+            this.feedVerbs();
             this.$sender.on("click", this.castVote.bind(this));
+            this.$cast.on("click", "li button", this.switchVote.bind(this));
         },
-        feed_verbs: function(){
+        feedVerbs: function(){
             this.elements = [];
-            var $list = this.$sender.find("ul");
+            var $list = this.$cast.find("ul");
             $.ajax("/api/contenus/verbs/", {method: "GET", dataType: "JSON"}).done(function(data){
                 data.results.forEach(function(verb){
-                    $list.append($("<li/>").append(
+                    var sentenceLabel = "sentence_label";
+                    var element = $("<li/>").append(
                         $("<button/>").attr("type", "button")
                             .attr("data-verb-label", verb.label)
                             .addClass("verb")
-                            .text(verb.sentence_label)))
-                });
+                            .text(verb[sentenceLabel]));
+                    $list.append(element);
+                    this.elements.push(element)
+                }.bind(this));
                 this.$activeElement = this.elements[0];
                 this.uiFeelBack();
             }.bind(this));
 
         },
         uiFeelBack: function () {
-            this.elements.each(function () {
-               $(this).removeClass("active");
+            this.elements.forEach(function (element) {
+               element.removeClass("active");
             });
-            this.activeElement.addClass("active");
+            this.$activeElement.addClass("active");
         },
         castVote: function(){
             var dataToSend = {
                 content: this.$cast.attr("data-content-pk"),
-                verb: this.activeElement.attr("data-verb-label")
+                verb: this.$activeElement.attr("data-verb-label"),
+                csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val()
             };
             var currentCast = this;
-            $.ajax("/api/contenus/casting", {method:"POST", data:JSON.stringify(dataToSend),  dataType:"JSON"}).success(function () {
+            $.ajax("/api/contenus/casting/", {method:"POST", data:JSON.stringify(dataToSend),  dataType:"JSON"}).success(function () {
                currentCast.$cast.style("display", "none"); // quick and dirty
             });
         },
         switchVote: function (e) {
-            this.activeElement = $(e.target);
+            this.$activeElement = $(e.target);
             this.uiFeelBack();
         }
     };

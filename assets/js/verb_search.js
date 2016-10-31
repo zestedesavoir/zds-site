@@ -40,7 +40,8 @@
     var updateVerbSelect = function (listOfVerb) {
         verbSelect.html("");
         $.each(listOfVerb, function () {
-            $("<option/>").val(this.label).text(this.sentence_label).appendTo(verbSelect);
+            var sentenceLabel = "sentence_label";
+            $("<option/>").val(this.label).text(this[sentenceLabel]).appendTo(verbSelect);
         });
     };
     categorySelect.on("change", function () {
