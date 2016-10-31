@@ -1,8 +1,5 @@
 # coding: utf-8
 
-import os
-import string
-import uuid
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -24,19 +21,6 @@ def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
     return u"{0}".format(start + end)
-
-
-def image_path_forum(instance, filename):
-    """
-    Return path to an image.
-    TODO: what is the usage of this function?
-    :param instance:
-    :param filename:
-    :return:
-    """
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('forum/normal', str(instance.pk), filename)
 
 
 class Category(models.Model):
@@ -101,8 +85,6 @@ class Forum(models.Model):
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
         blank=True)
-    # TODO: A forum defines an image, but it doesn't seems to be used...
-    image = models.ImageField(upload_to=image_path_forum)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',

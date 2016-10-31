@@ -35,7 +35,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=80, verbose_name=b'Titre')),
                 ('subtitle', models.CharField(max_length=200, verbose_name=b'Sous-titre')),
-                ('image', models.ImageField(upload_to=zds.forum.models.image_path_forum)),
                 ('position_in_category', models.IntegerField(db_index=True, null=True, verbose_name=b'Position dans la cat\xc3\xa9gorie', blank=True)),
                 ('slug', models.SlugField(unique=True, max_length=80)),
                 ('category', models.ForeignKey(verbose_name=b'Cat\xc3\xa9gorie', to='forum.Category')),
