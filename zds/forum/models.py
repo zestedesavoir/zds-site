@@ -1,8 +1,5 @@
 # coding: utf-8
 
-import os
-import string
-import uuid
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -24,19 +21,6 @@ def sub_tag(tag):
     start = tag.group('start')
     end = tag.group('end')
     return u"{0}".format(start + end)
-
-
-def image_path_forum(instance, filename):
-    """
-    Return path to an image.
-    TODO: what is the usage of this function?
-    :param instance:
-    :param filename:
-    :return:
-    """
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('forum/normal', str(instance.pk), filename)
 
 
 class Category(models.Model):
@@ -101,8 +85,6 @@ class Forum(models.Model):
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
         blank=True)
-    # TODO: A forum defines an image, but it doesn't seems to be used...
-    image = models.ImageField(upload_to=image_path_forum)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
@@ -303,7 +285,7 @@ class Topic(models.Model):
         """
         user = get_current_user()
         if user is None or not user.is_authenticated():
-            return self.resolve_first_post_url()
+            return self.first_unread_post().get_absolute_url()
         else:
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
@@ -313,7 +295,7 @@ class Topic(models.Model):
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
-                return self.resolve_first_post_url()
+                return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
@@ -335,20 +317,6 @@ class Topic(models.Model):
             .order_by('position')\
             .values('pk', "position").first().values()
 
-    def resolve_first_post_url(self):
-        """resolve the url that leads to this topic first post
-
-        :return: the url
-        """
-        pk = Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk').first()
-
-        return '{0}?page=1#p{1}'.format(
-            self.get_absolute_url(),
-            pk['pk'])
-
     def first_unread_post(self, user=None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
@@ -357,7 +325,6 @@ class Topic(models.Model):
 
         :return: The first unread post for this topic and this user.
         """
-        # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
             if user is None:
                 user = get_current_user()
