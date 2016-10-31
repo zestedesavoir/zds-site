@@ -1,19 +1,34 @@
 (function($, undefined){
     var VerbCast = function(cast){
-        this.cast = cast;
-        if(!this.cast.is(".verb-cast")) throw new Error("Target is not a .verb-cast");
+        this.$cast = cast;
+        if(!this.$cast.is(".verb-$cast")) throw new Error("Target is not a .verb-$cast");
         this.init();
-
+        this.$sender = this.$cast.find(".submitbutton");
     };
     VerbCast.prototype = {
 
         /**
-         * Initialize the karma
+         * Initialize the verbs
          */
         init: function() {
-            this.elements = this.cast.children(".verb");
-            this.activeElement = this.elements[0];
-            this.uiFeelBack();
+            this.feed_verbs();
+            this.$sender.on("click", this.castVote.bind(this));
+        },
+        feed_verbs: function(){
+            this.elements = [];
+            var $list = this.$sender.find("ul");
+            $.ajax("/api/contenus/verbs/", {method: "GET", dataType: "JSON"}).done(function(data){
+                data.results.forEach(function(verb){
+                    $list.append($("<li/>").append(
+                        $("<button/>").attr("type", "button")
+                            .attr("data-verb-label", verb.label)
+                            .addClass("verb")
+                            .text(verb.sentence_label)))
+                });
+                this.$activeElement = this.elements[0];
+                this.uiFeelBack();
+            }.bind(this));
+
         },
         uiFeelBack: function () {
             this.elements.each(function () {
@@ -23,12 +38,12 @@
         },
         castVote: function(){
             var dataToSend = {
-                content: this.cast.attr("data-content-pk"),
+                content: this.$cast.attr("data-content-pk"),
                 verb: this.activeElement.attr("data-verb-label")
             };
             var currentCast = this;
             $.ajax("/api/contenus/casting", {method:"POST", data:JSON.stringify(dataToSend),  dataType:"JSON"}).success(function () {
-               currentCast.cast.style("display", "none"); // quick and dirty
+               currentCast.$cast.style("display", "none"); // quick and dirty
             });
         },
         switchVote: function (e) {
@@ -39,20 +54,20 @@
     $.fn.verbCast = function() {
         if(this.length !== 1) {
             return $(this).map(function(index, elem) {
-                $(elem).karma();
+                $(elem).verbCast();
             });
         } else {
-            var message;
+            var $cast;
             if($(this).is(".verb-cast")) {
-                message = $(this);
+                $cast = $(this);
             } else {
-                message = $(this).parents(".verb-cast");
+                $cast = $(this).parents(".verb-cast");
             }
-            return new VerbCast(message);
+            return new VerbCast($cast);
         }
     };
 
     $(document).ready(function() {
-        $(".topic-message").has(".verb-cast").verbCast();
+        $(".verb-cast").verbCast();
     });
 })(jQuery);
