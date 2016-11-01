@@ -133,7 +133,7 @@
             },
             2: {
                 smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "https://zestedesavoir.com/static/smileys/ninja.png" },
-                smiley_gd: { title: ">_<",  start: ">_<",  end: "", image: "https://zestedesavoir.com/static/smileys/pinch.png" },
+                smiley_gd: { title: ">_<",        start: ">_<",        end: "", image: "https://zestedesavoir.com/static/smileys/pinch.png" },
                 smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "https://zestedesavoir.com/static/smileys/pirate.png" },
                 smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "https://zestedesavoir.com/static/smileys/pleure.png" },
                 smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "https://zestedesavoir.com/static/smileys/rouge.png" },
