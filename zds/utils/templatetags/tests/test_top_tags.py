@@ -73,6 +73,7 @@ class TopBarTests(TestCase):
 
         # Admin should see theirs specifics tags
         top_tags = top_categories(self.staff1.user).get('tags')
+
         # tag-X-Y : Y should be decreasing
         self.assertEqual(top_tags[0].title, 'tag-3-5')
         self.assertEqual(top_tags[1].title, 'tag-4-4')

@@ -4,7 +4,7 @@ from collections import defaultdict, OrderedDict
 from django import template
 from django.conf import settings
 
-from zds.forum.models import Forum, Topic
+from zds.forum.models import Forum
 from zds.tutorialv2.models.models_database import PublishedContent
 from zds.utils.models import CategorySubCategory, Tag
 from django.db.models import Count
@@ -32,6 +32,13 @@ def top_categories(user):
         forums_pk.append(forum.pk)
         cats[forum.category.position].append(forum)
 
+    tags_by_popularity = list(
+        Tag.objects
+        .filter(topic__forum__in=forums)
+        .annotate(count_topic=Count('topic'))
+        .order_by('-count_topic')
+    )
+
     topbar_cats = []
     sorted_cats = sorted(cats)
     for cat in sorted_cats:
@@ -39,20 +46,7 @@ def top_categories(user):
         title = forums[0].category.title
         topbar_cats.append((title, forums))
 
-    tags_by_popularity = list(
-        Topic.objects
-        .values('tags__pk', 'tags__title')
-        .distinct()
-        .filter(tags__isnull=False, forum__in=forums_pk)
-        .annotate(nb_tags=Count('tags'))
-        .order_by('-nb_tags')
-        [:max_tags + len(settings.ZDS_APP['forum']['top_tag_exclu'])])
-
-    tags_not_excluded = [tag['tags__pk'] for tag in tags_by_popularity
-                         if tag['tags__title'] not in settings.ZDS_APP['forum']['top_tag_exclu']][:max_tags]
-
-    tags = Tag.objects.filter(pk__in=tags_not_excluded)
-    tags = sorted(tags, key=lambda tag: tags_not_excluded.index(tag.pk))
+    tags = [tag for tag in tags_by_popularity if tag.title not in settings.ZDS_APP['forum']['top_tag_exclu']][:max_tags]
 
     return {'tags': tags, 'categories': topbar_cats}
 
