@@ -128,7 +128,9 @@ class ContentListFilteringView(ListAPIView):  # just learn to use DRF and go bac
             raise Http404("Pas de bras, pas de chocolat.")
         query_set = self.get_queryset()
         data = [self._render_content(c) for c in query_set]
-        return Response({"results": data})
+        tags = set()
+        map(lambda c: tags.update(list(c.tags.all())), query_set)
+        return Response({"results": data, "tags": [t.label for t in tags]})
 
     def _render_content(self, content):
         return render_to_string("tutorialv2/includes/content_item.part.html", {"public_content": content.public_version})

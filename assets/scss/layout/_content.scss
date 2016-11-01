@@ -465,4 +465,14 @@
         float: none;
         text-align: center;
     }
+    button.verb.active{
+        font-weight: bolder;
+        border: solid black 1px;
+    }
+    button.verb{
+        background-color: $color-header-hover;
+    }
+    .verbs{
+        display: flex;
+    }
 }
