@@ -202,5 +202,5 @@ update-configs:
 	gsed "s/RECAPTCHA_[^U]\(.*\)=\(.*\)/RECAPTCHA_\1= 'to-fill'/" | \
 	gsed "s/ZDS_APP\['site'\]\['google\(.*\)=\(.*\)/ZDS_APP\['site'\]\['google\1= 'to-fill'/" \
 	> source/install/configs/settings_prod.py
-	echo "Vérifiez manuellement les fichiers avec `git add --all --patch`"
-	echo "pour vous assurer qu'aucun 'secret' ne sera commité!"
+	echo "Vérifiez manuellement les fichiers avec \`git add --all --patch\`"
+	echo "pour vous assurer qu'aucun 'secret' ne sera commité\!"
