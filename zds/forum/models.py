@@ -191,11 +191,6 @@ class Topic(models.Model):
         blank=True,
         db_index=True)
 
-    # This attribute is the link between beta of tutorials and topic of these beta.
-    # In Tuto logic we can found something like this: `Topic.objet.get(key=tutorial.pk)`
-    # TODO: 1. Use a better name, 2. maybe there can be a cleaner way to do this
-    key = models.IntegerField('cle', null=True, blank=True)
-
     objects = TopicManager()
 
     def __unicode__(self):
@@ -237,8 +232,8 @@ class Topic(models.Model):
         """
         :return: the first post of a topic, written by topic's author.
         """
-        # TODO: Force relation with author here is strange. Probably linked with the `get_last_answer` function that
-        # should compare PK and not objects
+        # we need the author prefetching as this method is widely used in templating directly or with
+        # all the mess arround last_answer and last_read message
         return Post.objects\
             .filter(topic=self)\
             .select_related("author")\
@@ -418,8 +413,8 @@ class TopicRead(models.Model):
     class Meta:
         verbose_name = 'Sujet lu'
         verbose_name_plural = 'Sujets lus'
+        unique_together = ("topic", "user")
 
-    # TODO: ça a l'air d'être OK en base, mais ne devrait-il pas y avoir une contrainte unique sur (topic, user) ?
     topic = models.ForeignKey(Topic, db_index=True)
     post = models.ForeignKey(Post, db_index=True)
     user = models.ForeignKey(User, related_name='topics_read', db_index=True)
@@ -456,7 +451,6 @@ def mark_read(topic, user=None):
         user = get_current_user()
 
     if user and user.is_authenticated():
-        # TODO: voilà entre autres pourquoi il devrait y avoir une contrainte unique sur (topic, user) sur TopicRead.
         current_topic_read = TopicRead.objects.filter(topic=topic, user=user).first()
         if current_topic_read is None:
             current_topic_read = TopicRead(post=topic.last_message, topic=topic, user=user)
