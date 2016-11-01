@@ -641,22 +641,22 @@ def complete_topic(request):
     if not request.GET.get('q', None):
         return HttpResponse("{}", content_type='application/json')
 
-    # TODO: WTF "sqs" ?!
-    sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
+    similar_contents = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))) \
+                                       .order_by('-pubdate').all()
 
     suggestions = {}
 
-    cpt = 0
-    for result in sqs:
-        if cpt > 5:
+    counter = 0
+    for result in similar_contents:
+        if counter > 5:
             break
         if 'Topic' in str(result.model) and result.object.is_solved:
             suggestions[str(result.object.pk)] = (result.title, result.author, result.object.get_absolute_url())
-            cpt += 1
+            counter += 1
 
-    the_data = json.dumps(suggestions)
+    data = json.dumps(suggestions)
 
-    return HttpResponse(the_data, content_type='application/json')
+    return HttpResponse(data, content_type='application/json')
 
 
 class CreateGitHubIssue(UpdateView):
