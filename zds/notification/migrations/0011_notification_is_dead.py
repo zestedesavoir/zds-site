@@ -11,8 +11,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='subscription',
-            unique_together=set([('user', 'content_type', 'object_id')]),
+        migrations.AddField(
+            model_name='notification',
+            name='is_dead',
+            field=models.BooleanField(default=False, verbose_name='Morte'),
         ),
     ]
