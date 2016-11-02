@@ -1,7 +1,6 @@
 {% load date %}
 {% load profile %}
 {% load i18n %}
-{% load interventions %}
 
 <div class="topic navigable-elem
     {% if user.is_authenticated and topic.pk not in topic_read %}
@@ -17,7 +16,7 @@
         {% if topic.is_locked %}
             <span class="ico-after lock blue">[{% trans "Fermé" %}]</span>
         {% endif %}
-        {% if topic|is_followed %}
+        {% if topic.is_followed %}
             <span class="ico-after star blue">[{% trans "Suivi" %}]</span>
         {% endif %}
     </div>

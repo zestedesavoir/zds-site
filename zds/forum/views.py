@@ -25,7 +25,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
-from zds.notification.models import NewTopicSubscription, ContentReactionAnswerSubscription
+from zds.notification.models import NewTopicSubscription, ContentReactionAnswerSubscription, TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -105,6 +105,11 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
             'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'] + sticky),
             'subscriber_count': NewTopicSubscription.objects.get_subscriptions(self.object).count(),
         })
+        # Add a topic.is_followed attribute
+        followedQuerySet = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user)
+        followedTopics = list(set(followedQuerySet) & set(context['topics']))
+        for topic in followedTopics:
+            topic.is_followed = True
         return context
 
     def get_object(self, queryset=None):
