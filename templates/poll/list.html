@@ -1,0 +1,63 @@
+{% extends "poll/base.html" %}
+
+{% load i18n %}
+{% load date %}
+
+
+{% block title %}
+    {% trans "Mes sondages" %}
+{% endblock %}
+
+
+{% block headline %}
+    {% trans "Mes sondages" %}
+{% endblock %}
+
+
+{% block content %}
+    {% include "misc/pagination.part.html" with position="top" %}
+    {% if polls %}
+        <meta itemprop="itemListOrder" content="Unordered">
+        {% for poll in polls %}
+            <article class="tutorial-help-item">
+                <div class="tutorial-infos no-illu">
+                    <h3 class="tutorial-title" itemprop="itemListElement" title="{{ poll.title }}">
+                        <a href="{{ poll.get_absolute_url }}">{{ poll.title }}</a>
+                    </h3>
+
+                    <p class="tutorial-authors">
+                        {% trans "Par" %}
+                        <strong>
+                            <a href="{{ poll.author.get_absolute_url }}" title="{% trans "Profil de" %} {{ poll.author.username }}">
+                                {{ poll.author.username }}
+                            </a>
+                        </strong>
+                        -
+                        <time class="content-pubdate" pubdate="{{ poll.pubdate|date:"c" }}">
+                            {{ poll.pubdate|format_date|capfirst }}
+                        </time>
+                        -
+                        {% trans "Statut" %}
+                        <strong>
+                            {% if poll.is_open %}
+                                {% trans "Ouvert" %}
+                            {% else %}
+                                {% trans "Fermé" %}
+                            {% endif %}
+                        </strong>
+                        {% if poll.end_date %}
+                            -
+                            {% trans "Date de clôture : " %}
+                            {{ poll.end_date }}
+                        {% endif %}
+
+                    </p>
+                </div>
+            </article>
+        {% endfor %}
+    {% else %}
+        <p>{% trans "Aucun sondage." %}</p>
+    {% endif %}
+
+    {% include "misc/pagination.part.html" with position="bottom" %}
+{% endblock %}

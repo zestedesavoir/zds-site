@@ -1,0 +1,34 @@
+{% extends "poll/detail.html" %}
+
+{% load crispy_forms_tags %}
+{% load profile %}
+{% load captureas %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {{ poll.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ poll.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ poll.title }}
+{% endblock %}
+
+
+
+{% block content %}
+    <form action="" class="clearfix" method="post">{% csrf_token %}
+        <p>{% blocktrans %}Êtes-vous sûr de vouloir supprimer {{ poll }} ? {% endblocktrans %}</p>
+        <button  type="submit" class="btn btn-cancel">{% trans "Supprimer" %}</button>
+        <a href="{% url "poll-details" poll.pk %}" class="btn btn-grey">{% trans "Annuler" %}</a>
+    </form>
+{% endblock %}

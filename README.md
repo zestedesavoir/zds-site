@@ -24,6 +24,7 @@ Site internet communautaire codé à l'aide du framework [Django](https://www.dj
 - Messages privés
 - Galeries d'images
 - Recherche
+- Sondages
 
 
 ## Fonctionnalités à venir
@@ -80,6 +81,9 @@ Cela va créer plusieurs entitées :
 * 3 catégories et 2 sous-catégories
 * 4 aides pour l'écriture des tutoriels
 * 5 unes mises en avant sur la page d'accueil
+* 2 sondages :
+	* l'un au vote unique avec deux choix, et 7 votes enregistrés ;
+	* un deuxième au vote multiple avec trois choix, et 11 votes enregistrés ;
 
 Pour en savoir plus sur cette commande, [consulter la documentation](http://zds-site.readthedocs.org/fr/latest/utils/fixture_loaders.html).
 

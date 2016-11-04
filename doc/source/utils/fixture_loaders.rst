@@ -20,6 +20,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
 - ``licences.yaml`` : contient le chargement de 2 licences dont la licence par défaut (tous droit réservés)
 - ``mps.yaml`` : **nécessite le chargement des users**, contient la création d'un MP d'un membre à un admin
 - ``topics.yaml``: **nécessite le chargement des users**, contient la création de plusieurs topics dans les forums dont un résolu
+- ``polls.yaml``: **nécessite le chargement des users**, contient la création de deux sondages (l'un au vote multiple, l'autre au vote unique), avec leur choix respectifs, et des votes pré-enregistrés.
 - ``users.yaml``: Crée 6 utilisateurs:
     - admin/admin avec les droits d'administration
     - staff/admin faisant partie du groupe staff

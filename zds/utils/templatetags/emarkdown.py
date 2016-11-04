@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from markdown import Markdown
 from markdown.extensions.zds import ZdsExtension
 
+from zds.utils.markdown_extensions.poll_extension import PollExtension
 from zds.utils.templatetags.smileysDef import smileys
 
 register = template.Library()
@@ -29,9 +30,10 @@ def get_markdown_instance(inline=False, js_support=False):
     :return: A ZMarkdown parser.
     """
     zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support)
+    pollext = PollExtension(configs={})
     # Generate parser
     markdown = Markdown(
-        extensions=(zdsext,),
+        extensions=(zdsext, pollext),
         safe_mode='escape',       # Protect use of html by escape it
         inline=inline,            # Parse only inline content.
         enable_attributes=False,  # Disable the conversion of attributes.

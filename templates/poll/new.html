@@ -1,0 +1,55 @@
+{% extends "poll/base.html" %}
+
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Nouveau sondage" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Nouveau" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Nouveau sondage" %}
+{% endblock %}
+
+
+
+{% block content %}
+
+    <form class="clearix" method="post" action="{% url 'poll-new' %}">
+        {% csrf_token %}
+        {% crispy form %}
+        <div id="forms-choice">
+            {% crispy formset helper %}
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">{% trans "Créer" %}</button>
+            <button id="add-form-choice" type="button" class="btn btn-grey">{% trans "Ajouter un choix" %}</button>
+        </div>
+    </form>
+
+    <script type="text/html" id="form-choice-template">
+        <div id="item-__suffix___">
+            {% crispy formset.empty_form helper %}
+        </div>
+    </script>
+{% endblock %}
+
+
+
+{% block extra_js %}
+    <script type="text/html" id="form-choice-template">
+        <div id="item-__prefix__">
+            {% crispy formset.empty_form helper %}
+        </div>
+    </script>
+{% endblock %}

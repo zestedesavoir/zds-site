@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url "poll-list" %}">{% trans "Mes sondages" %}</a></li>
+{% endblock %}
+
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        <a href="{% url "poll-new" %}" class="new-btn ico-after more blue">
+            {% trans "Créer un sondage" %}
+        </a>
+        {% block sidebar_actions %}{% endblock %}
+        {% block new_btn %}{% endblock %}
+    </aside>
+{% endblock %}

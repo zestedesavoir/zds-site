@@ -1,0 +1,63 @@
+{% extends "poll/base.html" %}
+
+{% load crispy_forms_tags %}
+{% load profile %}
+{% load captureas %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {{ poll.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{{ poll.title }}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {{ poll.title }}
+{% endblock %}
+
+
+
+{% block content %}
+    {{ poll.title }} ({{ poll.get_count_user }} {% blocktrans with plural=poll.get_count_user|pluralize %} participant{{ plural }} {% endblocktrans %})
+
+    <ul>
+        {% for choice in poll.choices.all %}
+            <li>{{ choice }} ({{ choice.get_count_votes }} {% blocktrans with plural=choice.get_count_votes|pluralize %} vote{{ plural }} {% endblocktrans %})</li>
+        {% endfor %}
+    </ul>
+
+    {% if not poll.is_open %}
+        {% trans "Sondage fermé." %}
+    {% endif %}
+
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    {% if user == poll.author %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title={% trans "Actions" %}>
+            <h3>{% trans "Actions" %}</h3>
+            <ul>
+                <li>
+                    <a href="{% url 'poll-update' poll.pk %}" class="ico-after pen">
+                        {% trans "Éditer le sondage" %}
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'poll-delete' poll.pk %}" class="ico-after cross red">
+                        {% trans "Supprimer le sondage" %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
