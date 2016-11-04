@@ -65,6 +65,7 @@ def top_categories_content(_type):
     # get subcategories from PublishedContent
     if _type:
         subcategories_contents = PublishedContent.objects\
+            .published()\
             .filter(content_type=_type)\
             .values('content__subcategory').all()
     else:

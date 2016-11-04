@@ -7,8 +7,8 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load interventions %}
+{% load date %}
 {% load pluralize_fr %}
-
 
 {% block title %}
     {{ content.title }}
@@ -65,6 +65,15 @@
     {% endif %}
 
     {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
+
+    {% if is_staff or is_author %}
+        {% if public_object.publication_date > current_moment %}
+            <p class="content-wrapper alert-box warning">
+                <strong>{%  trans "Atttention, ce contenu est publié en différé" %}</strong>.
+                {% trans "Il sera visible au public le " %}{{ public_object.publication_date|date:"d M Y" }} {% trans "à" %} {{ public_object.publication_date|time:"H:i" }}.
+            </p>
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 

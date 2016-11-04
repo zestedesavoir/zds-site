@@ -2,7 +2,6 @@
 
 import os
 import shutil
-
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings

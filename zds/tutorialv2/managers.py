@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from django.conf import settings
 from django.db import models
 from zds.utils.models import Tag
@@ -24,7 +26,7 @@ class PublishedContentManager(models.Manager):
             .prefetch_related('content__authors')\
             .prefetch_related('content__subcategory')\
             .filter(content__authors__in=[author])\
-            .filter(must_redirect=False)
+            .filter(must_redirect=False, publication_date__lte=datetime.now())
 
         if _type:
             queryset = queryset.filter(content_type=_type)
@@ -43,6 +45,7 @@ class PublishedContentManager(models.Manager):
         :rtype: int
         """
         return self.filter(must_redirect=False)\
+                   .filter(publication_date__lte=datetime.now())\
                    .count()
 
     def get_top_tags(self, displayed_types, limit=-1):
@@ -59,9 +62,16 @@ class PublishedContentManager(models.Manager):
             queryset = queryset[:limit]
         return queryset
 
+    def published(self):
+        return self.filter(publication_date__lte=datetime.now(), must_redirect=False, sha_public__isnull=False)\
+            .exclude(sha_public__exact='')
+
 
 class PublishableContentManager(models.Manager):
     """..."""
+
+    def published(self):
+        return self.filter(sha_public__isnull=False).filter(public_version__publication_date__lte=datetime.now())
 
     def get_last_tutorials(self):
         """
@@ -72,6 +82,7 @@ class PublishableContentManager(models.Manager):
         home_number = settings.ZDS_APP['tutorial']['home_number']
         all_contents = self.filter(type="TUTORIAL")\
                            .filter(public_version__isnull=False)\
+                           .filter(public_version__publication_date__lte=datetime.now())\
                            .prefetch_related("authors")\
                            .prefetch_related("authors__profile")\
                            .select_related("last_note")\
@@ -102,6 +113,7 @@ class PublishableContentManager(models.Manager):
         home_number = settings.ZDS_APP['article']['home_number']
         all_contents = self.filter(type="ARTICLE")\
                            .filter(public_version__isnull=False)\
+                           .filter(public_version__publication_date__lte=datetime.now())\
                            .prefetch_related("authors")\
                            .prefetch_related("authors__profile")\
                            .select_related("last_note")\

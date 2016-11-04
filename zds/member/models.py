@@ -188,7 +188,7 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents with this user as author.
         """
-        queryset = PublishedContent.objects.filter(authors__in=[self.user])
+        queryset = PublishedContent.objects.published().filter(authors__in=[self.user])
 
         if _type:
             queryset = queryset.filter(content_type=_type)

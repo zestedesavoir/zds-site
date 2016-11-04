@@ -1,10 +1,11 @@
 # coding: utf-8
+from datetime import datetime
 from django import forms
 from django.conf import settings
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
+from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden, Div
 from django.core.urlresolvers import reverse
 
 from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
@@ -645,6 +646,21 @@ class AcceptValidationForm(forms.Form):
         required=False,
         initial=True
     )
+    pubdate = forms.DateField(
+        label='',
+        widget=forms.DateInput(attrs={
+            "class": "date_picker_field",
+            'placeholder': _(u'Laissez vide pour publier immédiatement')
+        }),
+        required=False
+    )
+
+    pubtime = forms.TimeField(
+        label='',
+        required=False,
+        widget=forms.TimeInput(format='%H:%M'),
+        initial='09:00'
+    )
 
     source = forms.CharField(
         label='',
@@ -688,12 +704,34 @@ class AcceptValidationForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
+            Div(HTML(_(u'<label for="id_pubtime" class="control-label">Date de publication</label>'))),
+            Div(
+                Div('pubtime', style='width:15%; float:right'),
+                Div(HTML(_(u'à')), style='width:5%; padding-top: 5px; text-align: center; float:right'),
+                Div('pubdate', style='width:80%')
+            ),
             Field('is_major'),
             StrictButton(_(u'Publier'), type='submit')
         )
 
     def clean(self):
         cleaned_data = super(AcceptValidationForm, self).clean()
+        if "pubdate" not in cleaned_data or not cleaned_data["pubdate"]:
+            cleaned_data['pubdate'] = datetime.now()
+        else:
+            if 'pubtime' not in cleaned_data or not cleaned_data['pubtime']:
+                self._errors['pubtime'] = self.error_class([_(u'Vous devez fournir une heure de publication')])
+                del cleaned_data['pubdate']
+            else:
+                date = cleaned_data["pubdate"]
+                time = cleaned_data['pubtime']
+                publication_time = datetime(date.year, date.month, date.day, time.hour, time.minute)
+
+                if publication_time < datetime.now():
+                    self._errors['pubdate'] = self.error_class([_(u'Vous ne pouvez pas publier dans le passé !')])
+                    del cleaned_data['pubdate']
+                else:
+                    cleaned_data['pubdate'] = publication_time
 
         text = cleaned_data.get('text')
 
