@@ -14,7 +14,6 @@ def force_uniticy(schema, schema_editor):
             to_be_remove.remove()
 
 
-
 class Migration(migrations.Migration):
 
     dependencies = [
