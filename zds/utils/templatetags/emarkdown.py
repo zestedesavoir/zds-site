@@ -21,14 +21,14 @@ Markdown related filters.
 __MD_ERROR_PARSING = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
-def get_markdown_instance(inline=False, js_support=False):
+def get_markdown_instance(inline=False, js_support=False, is_pingeable=None):
     """
     Provide a pre-configured markdown parser.
 
     :param bool inline: If `True`, configure parser to parse only inline content.
     :return: A ZMarkdown parser.
     """
-    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support)
+    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, is_pingeable=is_pingeable)
     # Generate parser
     markdown = Markdown(
         extensions=(zdsext,),
@@ -45,7 +45,7 @@ def get_markdown_instance(inline=False, js_support=False):
     return markdown
 
 
-def render_markdown(text, inline=False, js_support=False):
+def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
     """
     Render a markdown text to html.
 
@@ -55,7 +55,7 @@ def render_markdown(text, inline=False, js_support=False):
     :return: Equivalent html string.
     :rtype: str
     """
-    return get_markdown_instance(inline=inline, js_support=js_support).convert(text).encode('utf-8').strip()
+    return get_markdown_instance(inline=inline, js_support=js_support, is_pingeable=is_pingeable).convert(text).encode('utf-8').strip()
 
 
 @register.filter(needs_autoescape=False)
@@ -68,8 +68,9 @@ def emarkdown(text, use_jsfiddle=''):
     :rtype: str
     """
     is_js = (use_jsfiddle == 'js')
+    is_pingeable = None
     try:
-        return mark_safe(render_markdown(text, inline=False, js_support=is_js))
+        return mark_safe(render_markdown(text, inline=False, js_support=is_js, is_pingeable=is_pingeable))
     except:
         return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
@@ -85,45 +86,6 @@ def emarkdown_inline(text):
     """
 
     try:
-        return mark_safe(render_markdown(text, inline=True))
+        return mark_safe(render_markdown(text, inline=True, is_pingeable=None))
     except:
         return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
-
-
-def sub_hd(match, count):
-    """Replace header shifted."""
-    subt = match.group(1)
-    lvl = match.group('level')
-    header = match.group('header')
-    end = match.group(4)
-
-    new_content = subt + '#' * count + lvl + header + end
-
-    return new_content
-
-
-def decale_header(text, count):
-    """
-    Shift header in markdown document.
-
-    :param str text: Text to filter.
-    :param int count:
-    :return: Filtered text.
-    :rtype: str
-    """
-    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text.encode('utf-8'))
-
-
-@register.filter('decale_header_1')
-def decale_header_1(text):
-    return decale_header(text, 1)
-
-
-@register.filter('decale_header_2')
-def decale_header_2(text):
-    return decale_header(text, 2)
-
-
-@register.filter('decale_header_3')
-def decale_header_3(text):
-    return decale_header(text, 3)
