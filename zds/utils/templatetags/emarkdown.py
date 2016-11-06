@@ -98,3 +98,42 @@ def emarkdown_inline(text):
         return mark_safe(render_markdown(text, inline=True, is_pingeable=None))
     except:
         return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+
+    
+def sub_hd(match, count):
+    """Replace header shifted."""
+    subt = match.group(1)
+    lvl = match.group('level')
+    header = match.group('header')
+    end = match.group(4)
+
+    new_content = subt + '#' * count + lvl + header + end
+
+    return new_content
+
+
+def decale_header(text, count):
+    """
+    Shift header in markdown document.
+
+    :param str text: Text to filter.
+    :param int count:
+    :return: Filtered text.
+    :rtype: str
+    """
+    return re.sub(r'(^|\n)(?P<level>#{1,4})(?P<header>.*?)#*(\n|$)', lambda t: sub_hd(t, count), text.encode('utf-8'))
+
+
+@register.filter('decale_header_1')
+def decale_header_1(text):
+    return decale_header(text, 1)
+
+
+@register.filter('decale_header_2')
+def decale_header_2(text):
+    return decale_header(text, 2)
+
+
+@register.filter('decale_header_3')
+def decale_header_3(text):
+    return decale_header(text, 3)
