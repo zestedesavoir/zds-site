@@ -63,7 +63,7 @@ def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
     """
     md = get_markdown_instance(inline=inline, js_support=js_support, is_pingeable=is_pingeable)
     content = md.convert(text).encode('utf-8').strip()
-    process_pings(md.metadata["ping"])
+    process_pings(md.metadata.get("ping", []))
     return content
 
 
