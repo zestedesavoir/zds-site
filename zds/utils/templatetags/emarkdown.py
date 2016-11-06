@@ -45,6 +45,12 @@ def get_markdown_instance(inline=False, js_support=False, is_pingeable=None):
     return markdown
 
 
+def process_pings(pings):
+    """Process all pseudos found in markdown document"""
+    for pseudo in pings:
+        pass
+
+    
 def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
     """
     Render a markdown text to html.
@@ -55,7 +61,10 @@ def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
     :return: Equivalent html string.
     :rtype: str
     """
-    return get_markdown_instance(inline=inline, js_support=js_support, is_pingeable=is_pingeable).convert(text).encode('utf-8').strip()
+    md = get_markdown_instance(inline=inline, js_support=js_support, is_pingeable=is_pingeable)
+    content = md.convert(text).encode('utf-8').strip()
+    process_pings(md.metadata["ping"])
+    return content
 
 
 @register.filter(needs_autoescape=False)
