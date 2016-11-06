@@ -17,7 +17,7 @@ def force_uniticy(schema, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0007_auto_20160827_2035'),
+        ('forum', '0008_remove_forum_image'),
     ]
 
     operations = [
