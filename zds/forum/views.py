@@ -99,17 +99,19 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
                 context['filter']))
         # we need to load it in memory because later we will get the
         # "already read topic" set out of this list and MySQL does not support that type of subquery
+
+        # Add a topic.is_followed attribute
+        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_query_set) & set(context['topics']))
+        for topic in followed_topics:
+            topic.is_followed = True
+
         context.update({
             'forum': self.object,
             'sticky_topics': sticky,
             'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'] + sticky),
             'subscriber_count': NewTopicSubscription.objects.get_subscriptions(self.object).count(),
         })
-        # Add a topic.is_followed attribute
-        followedQuerySet = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user)
-        followedTopics = list(set(followedQuerySet) & set(context['topics']))
-        for topic in followedTopics:
-            topic.is_followed = True
         return context
 
     def get_object(self, queryset=None):
