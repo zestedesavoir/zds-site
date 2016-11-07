@@ -4,6 +4,7 @@
 {% load date %}
 {% load i18n %}
 {% load captureas %}
+{% load pluralize_fr %}
 
 
 {% block title %}
@@ -29,7 +30,11 @@
                 <div class="content-tag">
                     <a href="{% url 'content:list' %}?tag={{ tag.title|urlencode }}">
                         <div class="tag-title">{{ tag }}</div>
-                        <div class="tag-count">{{ tag.num_content }} {% trans "contenu" %}{{ tag.num_content|pluralize }}</div>
+                        <div class="tag-count">
+                            {%  blocktrans with tag_count=tag.num_content plural=tag.num_content|pluralize_fr %}
+                                {{ tag_count }} contenu{{ plural }}
+                            {%  endblocktrans %}
+                        </div>
                     </a>
                 </div>
             {% empty %}

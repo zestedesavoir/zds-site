@@ -25,7 +25,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
-from zds.notification.models import NewTopicSubscription, ContentReactionAnswerSubscription, TopicAnswerSubscription
+from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -155,7 +155,7 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
-        form.helper.form_action = reverse('post-new') + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
 
         context.update({
             'topic': self.object,
@@ -166,20 +166,20 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         })
 
         votes = CommentVote.objects.filter(user_id=self.request.user.pk, comment__in=context['posts']).all()
-        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
-        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
-        context["is_staff"] = self.request.user.has_perm('forum.change_topic')
+        context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
+        context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
+        context['is_staff'] = self.request.user.has_perm('forum.change_topic')
         context['isantispam'] = self.object.antispam()
-        context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        context['subscriber_count'] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, 'profile'):
             context['is_dev'] = self.request.user.profile.is_dev()
             context['tags'] = settings.ZDS_APP['site']['repository']['tags']
             context['has_token'] = self.request.user.profile.github_token != ''
 
         if self.request.user.has_perm('forum.change_topic'):
-            context["user_can_modify"] = [post.pk for post in context['posts']]
+            context['user_can_modify'] = [post.pk for post in context['posts']]
         else:
-            context["user_can_modify"] = [post.pk for post in context['posts'] if post.author == self.request.user]
+            context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
         if self.request.user.is_authenticated():
             if not is_read(self.object):
@@ -268,6 +268,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             return redirect(reverse('cats-forums-list'))
         if ('text' in request.POST or request.method == 'GET') \
                 and self.object.author != request.user and not request.user.has_perm('forum.change_topic'):
+            raise PermissionDenied
+        if not self.object.first_post().is_visible and not request.user.has_perm('forum.change_topic'):
             raise PermissionDenied
         if 'page' in request.POST:
             try:
@@ -483,6 +485,8 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if self.object.author != request.user and not request.user.has_perm(
                 'forum.change_post') and 'signal_message' not in request.POST:
             raise PermissionDenied
+        if not self.object.is_visible and not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
         return super(PostEdit, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -644,22 +648,22 @@ def complete_topic(request):
     if not request.GET.get('q', None):
         return HttpResponse("{}", content_type='application/json')
 
-    # TODO: WTF "sqs" ?!
-    sqs = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))).order_by('-pubdate').all()
+    similar_contents = SearchQuerySet().filter(content=AutoQuery(request.GET.get('q'))) \
+                                       .order_by('-pubdate').all()
 
     suggestions = {}
 
-    cpt = 0
-    for result in sqs:
-        if cpt > 5:
+    counter = 0
+    for result in similar_contents:
+        if counter > 5:
             break
         if 'Topic' in str(result.model) and result.object.is_solved:
             suggestions[str(result.object.pk)] = (result.title, result.author, result.object.get_absolute_url())
-            cpt += 1
+            counter += 1
 
-    the_data = json.dumps(suggestions)
+    data = json.dumps(suggestions)
 
-    return HttpResponse(the_data, content_type='application/json')
+    return HttpResponse(data, content_type='application/json')
 
 
 class CreateGitHubIssue(UpdateView):

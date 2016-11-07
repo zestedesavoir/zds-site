@@ -236,7 +236,7 @@
                 $(data).insertAfter($form);
 
                 /* global MathJax */
-                if ($(data).find("$").length > 0)
+                if (data.indexOf("$") > 0)
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
             }
         });

@@ -18,7 +18,7 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.mp.models import PrivateTopic
+from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     NewPublicationSubscription, Notification
 from zds.settings import BASE_DIR
@@ -2592,6 +2592,47 @@ class ContentTests(TestCase):
             follow=False
         )
         self.assertEqual(404, response.status_code)
+
+    def test_help_tutorials_are_sorted_by_update_date(self):
+        """This test checks that on the help page, the tutorials are sorted by update date"""
+        a_help = HelpWritingFactory()
+        a_help.save()
+
+        temps_1 = datetime.datetime.now()
+        temps_2 = temps_1 + datetime.timedelta(0, 1)
+
+        tutoriel_1 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_1.update_date = temps_1
+        tutoriel_1.helps.add(a_help)
+        tutoriel_1.save(update_date=False)
+
+        tutoriel_2 = PublishableContentFactory(type="TUTORIAL")
+        tutoriel_2.update_date = temps_2
+        tutoriel_2.helps.add(a_help)
+        tutoriel_2.save(update_date=False)
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(contents[0], tutoriel_2)
+        self.assertEqual(contents[1], tutoriel_1)
+
+        tutoriel_1.update_date = temps_2
+        tutoriel_2.update_date = temps_1
+        tutoriel_1.save(update_date=False)
+        tutoriel_2.save(update_date=False)
+
+        response = self.client.get(
+            reverse('content:helps'),
+            follow=False
+        )
+        self.assertEqual(200, response.status_code)
+        contents = response.context['contents']
+        self.assertEqual(contents[0], tutoriel_1)
+        self.assertEqual(contents[1], tutoriel_2)
 
     def test_add_author(self):
         self.assertEqual(
@@ -5325,6 +5366,11 @@ class PublishedContentTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
+
+        # Check that the staff user doesn't have a notification for their reservation and their private topic is read.
+        self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user_staff)))
+        last_pm = PrivateTopic.objects.get_private_topics_of_user(self.user_staff.pk).last()
+        self.assertFalse(is_privatetopic_unread(last_pm, self.user_staff))
 
         # publish the article
         result = self.client.post(

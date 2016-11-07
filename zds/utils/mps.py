@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
-from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.notification import signals
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -19,7 +19,8 @@ def send_mp(
         text,
         send_by_mail=True,
         leave=True,
-        direct=False):
+        direct=False,
+        mark_as_read=False):
     """
     Send MP at members.
     Most of the param are obvious, excepted :
@@ -41,6 +42,8 @@ def send_mp(
         n_topic.participants.add(part)
 
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct)
+    if mark_as_read:
+        mark_read(topic, author)
 
     if leave:
         move = topic.participants.first()

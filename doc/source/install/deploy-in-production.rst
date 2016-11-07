@@ -105,7 +105,11 @@ Gunicorn
 Nginx
 ~~~~~
 
-Installer nginx. La configuration nginx de Zeste de Savoir est séparée en plusieurs fichiers, en plus des quelques fichiers de configuration par défaut de nginx:
+Installer nginx.
+
+Une version récente de nginx est nécessaire pour utiliser HTTP/2. Si la version installée est inférieure à la version 1.9.5 il faut la mettre à jour avec celle du dépot backports : ``sudo apt-get -t jessie-backports install nginx openssl``. Toutefois, HTTP/2 n'est pas nécessaire au bon fonctionnement de Zeste de Savoir, pensez juste à adapter ``sites-available/zestedesavoir``.
+
+La configuration nginx de Zeste de Savoir est séparée en plusieurs fichiers, en plus des quelques fichiers de configuration par défaut de nginx:
 
 .. code:: text
 

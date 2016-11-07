@@ -7,12 +7,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0010_newpublicationsubscription'),
+        ('forum', '0007_auto_20160827_2035'),
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='subscription',
-            unique_together=set([('user', 'content_type', 'object_id')]),
+        migrations.RemoveField(
+            model_name='forum',
+            name='image',
         ),
     ]

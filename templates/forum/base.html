@@ -40,11 +40,11 @@
         {% captureas returnbtn %}
             {% block return_btn %}{% endblock %}
         {% endcaptureas %}
-        
+
         {% if returnbtn %}
             {{ returnbtn|safe }}
         {% endif %}
-    
+
         {% if user.is_authenticated %}
             {% captureas newbtn %}
                 {% block new_btn %}{% endblock %}
@@ -85,7 +85,7 @@
                                         <input type="hidden" name="follow" value="1">
                                         {% csrf_token %}
 
-                                        <button class="ico-after cross red stop-follow action-hover" 
+                                        <button class="ico-after cross red stop-follow action-hover"
                                                 data-title="Ne plus suivre">
                                             {% trans "Ne plus suivre" %}
                                         </button>

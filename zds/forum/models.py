@@ -1,8 +1,5 @@
 # coding: utf-8
 
-import os
-import string
-import uuid
 import logging
 from datetime import datetime, timedelta
 from math import ceil
@@ -26,19 +23,6 @@ def sub_tag(tag):
     return u"{0}".format(start + end)
 
 
-def image_path_forum(instance, filename):
-    """
-    Return path to an image.
-    TODO: what is the usage of this function?
-    :param instance:
-    :param filename:
-    :return:
-    """
-    ext = filename.split('.')[-1]
-    filename = u'{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('forum/normal', str(instance.pk), filename)
-
-
 class Category(models.Model):
     """
     A Category is a simple container for Forums.
@@ -50,7 +34,7 @@ class Category(models.Model):
         ordering = ['position', 'title']
 
     title = models.CharField('Titre', max_length=80)
-    position = models.IntegerField('Position', null=True, blank=True)
+    position = models.IntegerField('Position', default=0)
     # Some category slugs are forbidden due to path collisions: Category path is `/forums/<slug>` but some actions on
     # forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py` module.
     # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
@@ -101,8 +85,6 @@ class Forum(models.Model):
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
         blank=True)
-    # TODO: A forum defines an image, but it doesn't seems to be used...
-    image = models.ImageField(upload_to=image_path_forum)
 
     category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie')
     position_in_category = models.IntegerField('Position dans la catégorie',
@@ -303,7 +285,7 @@ class Topic(models.Model):
         """
         user = get_current_user()
         if user is None or not user.is_authenticated():
-            return self.resolve_first_post_url()
+            return self.first_unread_post().get_absolute_url()
         else:
             try:
                 pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
@@ -313,7 +295,7 @@ class Topic(models.Model):
                 return '{}?page={}#p{}'.format(
                     self.get_absolute_url(), page_nb, pk)
             except TopicRead.DoesNotExist:
-                return self.resolve_first_post_url()
+                return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
@@ -335,20 +317,6 @@ class Topic(models.Model):
             .order_by('position')\
             .values('pk', "position").first().values()
 
-    def resolve_first_post_url(self):
-        """resolve the url that leads to this topic first post
-
-        :return: the url
-        """
-        pk = Post.objects\
-            .filter(topic__pk=self.pk)\
-            .order_by('position')\
-            .values('pk').first()
-
-        return '{0}?page=1#p{1}'.format(
-            self.get_absolute_url(),
-            pk['pk'])
-
     def first_unread_post(self, user=None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
@@ -357,7 +325,6 @@ class Topic(models.Model):
 
         :return: The first unread post for this topic and this user.
         """
-        # TODO: Why 2 nearly-identical functions? What is the functional need of these 2 things?
         try:
             if user is None:
                 user = get_current_user()
@@ -462,22 +429,6 @@ class TopicRead(models.Model):
         return u'<Sujet "{0}" lu par {1}, #{2}>'.format(self.topic,
                                                         self.user,
                                                         self.post.pk)
-
-
-def get_last_topics(user):
-    """Returns the 5 very last topics."""
-    # TODO semble inutilisé (et peu efficace dans la manière de faire)
-    topics = Topic.objects.all().order_by('-last_message__pubdate')
-
-    tops = []
-    cpt = 1
-    for topic in topics:
-        if topic.forum.can_read(user):
-            tops.append(topic)
-            cpt += 1
-        if cpt > 5:
-            break
-    return tops
 
 
 def is_read(topic, user=None):

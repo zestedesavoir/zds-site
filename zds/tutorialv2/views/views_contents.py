@@ -1525,6 +1525,7 @@ class ContentsWithHelps(ZdSPagingListView):
         query_set = PublishableContent.objects \
             .annotate(total=Count('helps'), shasize=Count('sha_beta')) \
             .filter((Q(sha_beta__isnull=False) & Q(shasize__gt=0)) | Q(total__gt=0)) \
+            .order_by('-update_date') \
             .all()
         if 'need' in self.request.GET:
             self.specific_need = self.request.GET.get('need')
