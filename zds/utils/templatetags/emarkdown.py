@@ -50,7 +50,7 @@ def process_pings(pings):
     for pseudo in pings:
         pass
 
-    
+
 def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
     """
     Render a markdown text to html.
@@ -99,7 +99,7 @@ def emarkdown_inline(text):
     except:
         return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
 
-    
+
 def sub_hd(match, count):
     """Replace header shifted."""
     subt = match.group(1)
