@@ -36,6 +36,7 @@ from zds.utils.tutorials import get_blob
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES
 from zds.tutorialv2.models.models_versioned import NotAPublicVersion
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+from zds.stats.models import Loggable
 import logging
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip']
@@ -545,7 +546,7 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-class PublishedContent(models.Model):
+class PublishedContent(models.Model, Loggable):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -557,8 +558,12 @@ class PublishedContent(models.Model):
         verbose_name = 'Contenu publié'
         verbose_name_plural = 'Contenus publiés'
 
-    content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
+    def __init__(self, *args, **kwargs):
+        self.code_name = "id_zds"
+        super(PublishedContent, self).__init__(*args, **kwargs)
+        self.code_value = self.pk
 
+    content = models.ForeignKey(PublishableContent, verbose_name='Contenu')
     content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
     content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
     content_pk = models.IntegerField('Pk du contenu publié', db_index=True)

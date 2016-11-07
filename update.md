@@ -756,6 +756,7 @@ Issue 3762
 
 (Ne pas oublier de lancer les migrations en terminant cette MEP !)
 
+<<<<<<< HEAD
 HTTP/2
 ------
 
@@ -798,6 +799,114 @@ Actions à faire pour activer le thème d'Halloween
 =================================================
 
 Ajouter `ZDS_APP['visual_changes'] = ['clem-halloween']` à `settings_prod.py`.
+
+---
+
+**Notes auxquelles penser lors de l'édition de ce fichier (à laisser en bas) :**
+
+Le déploiement doit être autonome. Ce qui implique que :
+
+1. La mise à jour de dépendances est automatique et systématique,
+2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
+3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+
+=======
+>>>>>>> Quote fix, relecture doc
+ZEP-11
+------
+
+Les tâches suivantes sont à exécuter après la MEP (idéalement avant de lever la maintenance).
+
+### Modification du format de log nginx
+
+Ajouter la ligne ci-dessous dans le fichier `nginx.conf` pour modifier le format des logs:
+
+    http {
+        log_format combined '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" $request_time $upstream_response_time $pipe';
+
+        ...
+    }
+
+Redémarrez ensuite le service nginx `service nginx restart`
+
+### Mise en place de rotation des logs
+
+Modifier la configuration logrotate nginx existante de manière à donner les droits de lecture des logs à l'utilisateur zds.
+
+Le contenu du fichier `/etc/logrotate.d/nginx-zds` doit être le suivant :
+
+```bash
+/var/log/zds/nginx-*.log {
+        daily
+        dateext
+        missingok
+        rotate 30
+        compress
+        delaycompress
+        notifempty
+        create 0644 www-data adm
+        sharedscripts
+        prerotate
+            if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+                run-parts /etc/logrotate.d/httpd-prerotate; \
+            fi \
+        endscript
+        postrotate
+            invoke-rc.d nginx rotate >/dev/null 2>&1
+        endscript
+}
+```
+
+Cette configuration permet d'effectuer une rotation tous les jours des accèss log de nginx, avec 90 jours de rétention. Les logs >= 2 jours seront compressés, ce qui permet au batch zds-stats de s'exécuter sur les logs non compressés d'il y'a un jour.
+
+Redémarrez ensuite le service logrotate `service logrotate restart`
+
+
+### Mise en place de l'ordonnancement de batchs
+
+On peut ordonnancer les batch via l'un des systèmes ci-dessous :
+
+#### via systemd
+
+Pour ça, il faut (avec des droits root) créer deux fichiers:
+
+un fichier `/etc/systemd/system/zds-stats.timer`
+
+```bash
+[Unit]
+Description=ZdS Stats Timer
+
+[Timer]
+OnCalendar=00:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+un fichier `/etc/systemd/system/zds-stats.service`
+
+```bash
+[Unit]
+Description=ZdS Stats Service
+
+[Service]
+Type=oneshot
+User=zds
+Group=zds
+ExecStart=/opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/zds/nginx-access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+```
+
+#### via crontab
+
+Rajouter cette ligne dans la crontab
+
+```bash
+    15 0 * * * /opt/zds/zdsenv/bin/python2 /opt/zds/zds-site/manage.py parse_logs /var/log/zds/nginx-access.log.1 >> /var/log/zds/zds-stats.log 2>> /var/log/zds/zds-stats-error.log
+```
+
+Le batch sera donc lancé tous les soirs à 00h15
 
 ---
 

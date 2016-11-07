@@ -2,6 +2,7 @@
 pysolr==3.4.0
 pygments==2.1.3
 python-social-auth==0.2.19
+user_agents==1.0.1
 
 # Explicit dependencies (references in code)
 Django==1.8.15

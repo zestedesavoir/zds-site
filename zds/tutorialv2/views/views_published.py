@@ -127,6 +127,7 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['isantispam'] = self.object.antispam()
         context['pm_link'] = self.object.get_absolute_contact_url(_(u'À propos de'))
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
+        context['count_views'] = PublishedContent.objects.get_contents_count_views(self.object.pk)
 
         if self.request.user.is_authenticated():
             signals.content_read.send(
