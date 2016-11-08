@@ -58,11 +58,11 @@ class TopicManager(models.Manager):
         :param user: Request user.
         :return: List of topics.
         """
-        return self.filter(author=author) \
-                   .filter(self.visibility_check_query(user))\
-                   .prefetch_related("author") \
-                   .order_by("-pubdate") \
-                   .all()[:settings.ZDS_APP['forum']['home_number']]
+        queryset = self.filter(author=author) \
+                   .prefetch_related("author")
+        if user.is_authenticated():
+             queryset = queryset.filter(self.visibility_check_query(user))
+        return queryset.order_by("-pubdate").all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
@@ -74,7 +74,7 @@ class TopicManager(models.Manager):
         :return:
         :rtype: django.models.Queryset
         """
-        return self.filter( is_locked=False, forum__group__isnull=True) \
+        return self.filter(is_locked=False, forum__group__isnull=True) \
                    .select_related('forum', 'author', 'last_message') \
                    .prefetch_related('tags').order_by('-pubdate') \
                    .all()[:settings.ZDS_APP['topic']['home_number']]
@@ -86,17 +86,18 @@ class TopicManager(models.Manager):
             .prefetch_related('last_message', 'tags').all()
 
     def get_all_topics_of_a_user(self, current, target):
-        return self.filter(author=target)\
-                   .prefetch_related("author")\
-                   .filter(self.visibility_check_query(current))\
-                   .order_by("-pubdate").all()
+        queryset = self.filter(author=target)\
+                   .prefetch_related("author")
+        if current.is_authenticated():
+            queryset = queryset.filter(self.visibility_check_query(current))
+        return queryset.order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
-        return self.filter(tags__in=[tag])\
-            .order_by("-last_message__pubdate")\
-            .prefetch_related('author', 'last_message', 'tags')\
-            .filter(self.visibility_check_query(user))\
-            .all()
+        queryset = self.filter(tags__in=[tag])\
+                       .prefetch_related('author', 'last_message', 'tags')
+        if user.is_authenticated():
+            queryset = queryset.filter(self.visibility_check_query(user))
+        return queryset.order_by("-last_message__pubdate")
 
 
 class PostManager(InheritanceManager):
@@ -121,16 +122,13 @@ class PostManager(InheritanceManager):
             .order_by("position").all()
 
     def get_all_messages_of_a_user(self, current, target):
-        if current.has_perm("forum.change_post"):
-            return self.filter(author=target)\
-                .filter(self.visibility_check_query(current))\
-                .prefetch_related("author")\
-                .order_by("-pubdate").all()
-        return self.filter(author=target)\
-            .filter(is_visible=True)\
-            .filter(self.visibility_check_query(current))\
-            .prefetch_related("author")\
-            .order_by("-pubdate").all()
+        queryset = self.filter(author=target)\
+                .prefetch_related("author")
+        if not current.has_perm("forum.change_post"):
+            queryset = queryset.filter(is_visible=True)
+        if current.is_authenticated():
+            queryset = queryset.filter(self.visibility_check_query(current))
+        return queryset.order_by("-pubdate").all()
 
 
 class TopicReadManager(models.Manager):
