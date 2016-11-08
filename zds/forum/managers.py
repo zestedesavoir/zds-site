@@ -66,11 +66,10 @@ class TopicManager(models.Manager):
         :return:
         :rtype: django.models.Queryset
         """
-        return self.order_by('-pubdate') \
-                   .exclude(Q(forum__group__isnull=False)) \
-                   .exclude(is_locked=True) \
+        return self.filter( is_locked=False, forum__group__isnull=True) \
                    .select_related('forum', 'author', 'last_message') \
-                   .prefetch_related('tags').all()[:settings.ZDS_APP['topic']['home_number']]
+                   .prefetch_related('tags').order_by('-pubdate') \
+                   .all()[:settings.ZDS_APP['topic']['home_number']]
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
@@ -80,7 +79,7 @@ class TopicManager(models.Manager):
 
     def get_all_topics_of_a_user(self, current, target):
         return self.filter(author=target)\
-            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=current.groups.all()))\
+            .exclude(F(forum__group__isnull=False) | ~Q(forum__group__in=current.groups.all()))\
             .prefetch_related("author")\
             .order_by("-pubdate").all()
 
@@ -88,7 +87,7 @@ class TopicManager(models.Manager):
         return self.filter(tags__in=[tag])\
             .order_by("-last_message__pubdate")\
             .prefetch_related('author', 'last_message', 'tags')\
-            .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=user.groups.all()))\
+            .filter(F(forum__group__isnull=False) | Q(forum__group__in=user.groups.all()))\
             .all()
 
 
@@ -108,12 +107,12 @@ class PostManager(InheritanceManager):
     def get_all_messages_of_a_user(self, current, target):
         if current.has_perm("forum.change_post"):
             return self.filter(author=target)\
-                .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
+                .exclude(F(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
                 .prefetch_related("author")\
                 .order_by("-pubdate").all()
         return self.filter(author=target)\
             .filter(is_visible=True)\
-            .exclude(Q(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
+            .exclude(F(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
             .prefetch_related("author")\
             .order_by("-pubdate").all()
 
