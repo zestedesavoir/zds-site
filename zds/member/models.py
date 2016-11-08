@@ -98,6 +98,7 @@ class Profile(models.Model):
 
     objects = ProfileManager()
     _permissions = {}
+    _groups = None
 
     def __unicode__(self):
         return self.user.username
@@ -391,6 +392,12 @@ class Profile(models.Model):
 
     def has_object_ban_permission(self, request):
         return request.user and request.user.has_perm("member.change_profile")
+
+    @property
+    def group_pks(self):
+        if self._groups is None:
+            self._groups = list(self.user.groups.all())
+        return [g.pk for g in self._groups]
 
 
 @receiver(models.signals.post_delete, sender=User)

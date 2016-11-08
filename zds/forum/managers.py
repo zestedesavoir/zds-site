@@ -42,6 +42,14 @@ class TopicManager(models.Manager):
     Custom topic manager.
     """
 
+    def visibility_check_query(self, current_user):
+        """
+        Build a subquery that checks if a topic is readable by current user
+        :param current_user:
+        :return:
+        """
+        return Q(forum__group__isnull=False) | ~Q(forum__group__pk__in=current_user.profile.group_pks)
+
     def last_topics_of_a_member(self, author, user):
         """
         Gets last topics of a member but exclude all topics not accessible
@@ -51,7 +59,7 @@ class TopicManager(models.Manager):
         :return: List of topics.
         """
         return self.filter(author=author) \
-                   .exclude(Q(forum__group__isnull=False) & ~Q(forum__group__in=user.groups.all())) \
+                   .filter(self.visibility_check_query(user))\
                    .prefetch_related("author") \
                    .order_by("-pubdate") \
                    .all()[:settings.ZDS_APP['forum']['home_number']]
@@ -79,15 +87,15 @@ class TopicManager(models.Manager):
 
     def get_all_topics_of_a_user(self, current, target):
         return self.filter(author=target)\
-            .exclude(F(forum__group__isnull=False) | ~Q(forum__group__in=current.groups.all()))\
-            .prefetch_related("author")\
-            .order_by("-pubdate").all()
+                   .prefetch_related("author")\
+                   .filter(self.visibility_check_query(current))\
+                   .order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
         return self.filter(tags__in=[tag])\
             .order_by("-last_message__pubdate")\
             .prefetch_related('author', 'last_message', 'tags')\
-            .filter(F(forum__group__isnull=False) | Q(forum__group__in=user.groups.all()))\
+            .filter(self.visibility_check_query(user))\
             .all()
 
 
@@ -95,6 +103,14 @@ class PostManager(InheritanceManager):
     """
     Custom post manager.
     """
+
+    def visibility_check_query(self, current_user):
+        """
+        Build a subquery that checks if a post is readable by current user
+        :param current_user:
+        :return:
+        """
+        return Q(topic__forum__group__isnull=False) | ~Q(topic__forum__group__pk__in=current_user.profile.group_pks)
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
@@ -107,12 +123,12 @@ class PostManager(InheritanceManager):
     def get_all_messages_of_a_user(self, current, target):
         if current.has_perm("forum.change_post"):
             return self.filter(author=target)\
-                .exclude(F(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
+                .filter(self.visibility_check_query(current))\
                 .prefetch_related("author")\
                 .order_by("-pubdate").all()
         return self.filter(author=target)\
             .filter(is_visible=True)\
-            .exclude(F(topic__forum__group__isnull=False) & ~Q(topic__forum__group__in=current.groups.all()))\
+            .filter(self.visibility_check_query(current))\
             .prefetch_related("author")\
             .order_by("-pubdate").all()
 
