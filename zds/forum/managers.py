@@ -59,9 +59,9 @@ class TopicManager(models.Manager):
         :return: List of topics.
         """
         queryset = self.filter(author=author) \
-                   .prefetch_related("author")
+                       .prefetch_related("author")
         if user.is_authenticated():
-             queryset = queryset.filter(self.visibility_check_query(user))
+            queryset = queryset.filter(self.visibility_check_query(user))
         return queryset.order_by("-pubdate").all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
@@ -81,13 +81,13 @@ class TopicManager(models.Manager):
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
-            .order_by('-last_message__pubdate')\
-            .select_related('author__profile')\
-            .prefetch_related('last_message', 'tags').all()
+                   .order_by('-last_message__pubdate')\
+                   .select_related('author__profile')\
+                   .prefetch_related('last_message', 'tags').all()
 
     def get_all_topics_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
-                   .prefetch_related("author")
+                       .prefetch_related("author")
         if current.is_authenticated():
             queryset = queryset.filter(self.visibility_check_query(current))
         return queryset.order_by("-pubdate").all()
@@ -115,15 +115,15 @@ class PostManager(InheritanceManager):
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
-            .select_related("author__profile")\
-            .prefetch_related('alerts')\
-            .prefetch_related('alerts__author')\
-            .prefetch_related('alerts__author__profile')\
-            .order_by("position").all()
+                   .select_related("author__profile")\
+                   .prefetch_related('alerts')\
+                   .prefetch_related('alerts__author')\
+                   .prefetch_related('alerts__author__profile')\
+                   .order_by("position").all()
 
     def get_all_messages_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
-                .prefetch_related("author")
+                       .prefetch_related("author")
         if not current.has_perm("forum.change_post"):
             queryset = queryset.filter(is_visible=True)
         if current.is_authenticated():
