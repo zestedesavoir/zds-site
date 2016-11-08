@@ -48,7 +48,10 @@ class TopicManager(models.Manager):
         :param current_user:
         :return:
         """
-        return Q(forum__group__isnull=False) | ~Q(forum__group__pk__in=current_user.profile.group_pks)
+        if current_user.is_authenticated():
+            return Q(forum__group__isnull=True) | Q(forum__group__pk__in=current_user.profile.group_pks)
+        else:
+            return Q(forum__group__isnull=True)
 
     def last_topics_of_a_member(self, author, user):
         """
@@ -60,8 +63,8 @@ class TopicManager(models.Manager):
         """
         queryset = self.filter(author=author) \
                        .prefetch_related("author")
-        if user.is_authenticated():
-            queryset = queryset.filter(self.visibility_check_query(user))
+        queryset = queryset.filter(self.visibility_check_query(user))
+
         return queryset.order_by("-pubdate").all()[:settings.ZDS_APP['forum']['home_number']]
 
     def get_beta_topic_of(self, tutorial):
@@ -88,15 +91,13 @@ class TopicManager(models.Manager):
     def get_all_topics_of_a_user(self, current, target):
         queryset = self.filter(author=target)\
                        .prefetch_related("author")
-        if current.is_authenticated():
-            queryset = queryset.filter(self.visibility_check_query(current))
+        queryset = queryset.filter(self.visibility_check_query(current))
         return queryset.order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
         queryset = self.filter(tags__in=[tag])\
                        .prefetch_related('author', 'last_message', 'tags')
-        if user.is_authenticated():
-            queryset = queryset.filter(self.visibility_check_query(user))
+        queryset = queryset.filter(self.visibility_check_query(user))
         return queryset.order_by("-last_message__pubdate")
 
 
@@ -111,7 +112,9 @@ class PostManager(InheritanceManager):
         :param current_user:
         :return:
         """
-        return Q(topic__forum__group__isnull=False) | ~Q(topic__forum__group__pk__in=current_user.profile.group_pks)
+        if current_user.is_authenticated():
+            return Q(forum__group__isnull=True) | Q(topic__forum__group__pk__in=current_user.profile.group_pks)
+        return Q(forum__group__isnull=True)
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
@@ -126,8 +129,7 @@ class PostManager(InheritanceManager):
                        .prefetch_related("author")
         if not current.has_perm("forum.change_post"):
             queryset = queryset.filter(is_visible=True)
-        if current.is_authenticated():
-            queryset = queryset.filter(self.visibility_check_query(current))
+        queryset = queryset.filter(self.visibility_check_query(current))
         return queryset.order_by("-pubdate").all()
 
 
