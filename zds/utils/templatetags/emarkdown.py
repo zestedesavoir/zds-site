@@ -21,14 +21,14 @@ Markdown related filters.
 __MD_ERROR_PARSING = _(u'Une erreur est survenue dans la génération de texte Markdown. Veuillez rapporter le bug.')
 
 
-def get_markdown_instance(inline=False, js_support=False, is_pingeable=None):
+def get_markdown_instance(inline=False, js_support=False, ping_url=None):
     """
     Provide a pre-configured markdown parser.
 
     :param bool inline: If `True`, configure parser to parse only inline content.
     :return: A ZMarkdown parser.
     """
-    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, is_pingeable=is_pingeable)
+    zdsext = ZdsExtension(inline=inline, emoticons=smileys, js_support=js_support, ping_url=ping_url)
     # Generate parser
     markdown = Markdown(
         extensions=(zdsext,),
@@ -51,7 +51,8 @@ def process_pings(pings):
         pass
 
 
-def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
+
+def render_markdown(text, inline=False, js_support=False, ping_url=ping_url):
     """
     Render a markdown text to html.
 
@@ -61,7 +62,7 @@ def render_markdown(text, inline=False, js_support=False, is_pingeable=None):
     :return: Equivalent html string.
     :rtype: str
     """
-    md = get_markdown_instance(inline=inline, js_support=js_support, is_pingeable=is_pingeable)
+    md = get_markdown_instance(inline=inline, js_support=js_support, ping_url=ping_url)
     content = md.convert(text).encode('utf-8').strip()
     process_pings(md.metadata.get("ping", []))
     return content
@@ -77,9 +78,9 @@ def emarkdown(text, use_jsfiddle=''):
     :rtype: str
     """
     is_js = (use_jsfiddle == 'js')
-    is_pingeable = None
+    ping_url = None
     try:
-        return mark_safe(render_markdown(text, inline=False, js_support=is_js, is_pingeable=is_pingeable))
+        return mark_safe(render_markdown(text, inline=False, js_support=is_js, ping_url=ping_url))
     except:
         return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
@@ -95,7 +96,7 @@ def emarkdown_inline(text):
     """
 
     try:
-        return mark_safe(render_markdown(text, inline=True, is_pingeable=None))
+        return mark_safe(render_markdown(text, inline=True, ping_url=None))
     except:
         return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
 
