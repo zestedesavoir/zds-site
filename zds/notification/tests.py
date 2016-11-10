@@ -516,8 +516,7 @@ class NotificationPublishableContentTest(TestCase):
         signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
 
         subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
-        subscription2 = copy.deepcopy(subscription1)
-        subscription2.pk = 0
+        subscription2 = copy.copy(subscription1)
         subscription2.save()
         subscription.mark_notification_read(self.tuto)
         subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()

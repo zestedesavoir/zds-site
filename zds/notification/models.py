@@ -335,6 +335,12 @@ class Notification(models.Model):
         return _(u'Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
             .format(self.subscription.user, self.content_type, self.content_object.pk, self.subscription)
 
+    def __copy__(self):
+        return Notification(subscription=self.subscription, pubdate=self.pubdate, content_type=self.content_type,
+                            object_id=self.object_id, content_object=self.content_object,
+                            is_read=self.is_read, is_dead=self.is_dead,
+                            url=self.url, sender=self.sender, title=self.title)
+
     @staticmethod
     def has_read_permission(request):
         return request.user.is_authenticated()
