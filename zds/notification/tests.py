@@ -520,7 +520,7 @@ class NotificationPublishableContentTest(TestCase):
         subscription2.save()
         subscription.mark_notification_read(self.tuto)
         subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
-        self.assertTrue(subscription1.is_read)
+        self.assertIsNone(subscription1)
         self.assertEqual(1, Notification.objects.count(subscription=subscription, is_read=False))
 
 class NotificationPrivateTopicTest(TestCase):
