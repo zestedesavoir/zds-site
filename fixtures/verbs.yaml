@@ -1,0 +1,30 @@
+- fields: {label: "d\xE9couvrir", sentence_label: "d\xE9couvrir"}
+  model: tutorialv2.verb
+  pk: 1
+- fields: {label: savoir faire, sentence_label: "acqu\xE9rir un savoir faire"}
+  model: tutorialv2.verb
+  pk: 2
+- fields: {label: me questionner, sentence_label: "me questionner \xE0 ce propos"}
+  model: tutorialv2.verb
+  pk: 3
+- fields: {label: approfondir, sentence_label: approfondir la notion}
+  model: tutorialv2.verb
+  pk: 4
+- fields: {caster: 1, content: 2, verb: 1}
+  model: tutorialv2.verbvote
+  pk: 1
+- fields: {caster: 1, content: 5, verb: 2}
+  model: tutorialv2.verbvote
+  pk: 2
+- fields: {caster: 1, content: 6, verb: 3}
+  model: tutorialv2.verbvote
+  pk: 3
+- fields: {caster: 1, content: 7, verb: 4}
+  model: tutorialv2.verbvote
+  pk: 4
+- fields: {caster: 1, content: 8, verb: 1}
+  model: tutorialv2.verbvote
+  pk: 5
+- fields: {caster: 1, content: 11, verb: 2}
+  model: tutorialv2.verbvote
+  pk: 6

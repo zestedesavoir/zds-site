@@ -8,7 +8,7 @@
 {% load crispy_forms_tags %}
 {% load interventions %}
 {% load pluralize_fr %}
-
+{% load cache %}
 
 {% block title %}
     {{ content.title }}
@@ -235,4 +235,9 @@
     {% endif %}
 
     {% include "misc/message_form.html" with member=user topic=content isantispam=isantispam %}
+    {% if not has_vote %}
+        {% cache 500 user.username %}
+            {% include "tutorialv2/includes/verb_cast.part.html" %}
+        {% endcache %}
+    {% endif %}
 {% endblock %}

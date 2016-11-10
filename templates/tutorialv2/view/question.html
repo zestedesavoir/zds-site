@@ -1,0 +1,32 @@
+{% extends "tutorialv2/index_online.html" %}
+{% load topbar %}
+{% load i18n %}
+
+{% block content_out %}
+    <section class="full-content-wrapper" itemscope itemtype="http://schema.org/ItemList">
+        <header class="nav">
+            <div>
+                <label for="categorySelect">{% trans "Dans le domaine" %}</label>
+                <select id="categorySelect">
+                    <option value=""></option>
+                    {% with categories=None|top_categories_content %}
+                        {%  for title, _ in categories.categories.items %}
+                            <option value="{{ title }}">{{ title }}</option>
+                        {% endfor %}
+                    {% endwith %}
+                </select>
+                <label for="verbSelect">{% trans "Je voudrais " %}</label>
+                <select id="verbSelect"></select>
+                <div>
+                    Et plus précisément dans la catégorie :
+                    <ul id="tagSelect" class="verbs">
+
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div id="contentList">
+
+        </div>
+    </section>
+{% endblock %}

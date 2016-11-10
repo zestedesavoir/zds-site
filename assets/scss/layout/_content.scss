@@ -465,4 +465,20 @@
         float: none;
         text-align: center;
     }
+
+}
+button.active{
+    font-weight: bolder;
+    border: solid black 1px;
+}
+button.verb{
+    background-color: $color-header-hover;
+}
+button.submitbutton{
+    background-color: $color-success;
+    text: $color-keyboard;
+}
+.verbs{
+    display: flex;
+    list-style: none;
 }

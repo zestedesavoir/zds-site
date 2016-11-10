@@ -79,6 +79,10 @@ class SubCategory(models.Model):
         url = url + '?tag={}'.format(self.slug)
         return url
 
+    @property
+    def category(self):
+        return self.get_parent_category()
+
     def get_parent_category(self):
         """
         Get the parent of the category.
