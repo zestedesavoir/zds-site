@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-s
+import logging
 from smtplib import SMTPException
 
 from django.contrib.auth.models import User
@@ -206,15 +207,20 @@ class MultipleNotificationsMixin(object):
             raise Exception('Object content of notification must be defined')
 
         content_notification_type = ContentType.objects.get_for_model(content)
-        try:
-            notification = Notification.objects.get(subscription=self,
-                                                    content_type__pk=content_notification_type.pk,
-                                                    object_id=content.pk, is_read=False)
-            if notification is not None:
-                notification.is_read = True
-                notification.save()
-        except Notification.DoesNotExist:
-            pass
+        notifications = list(Notification.objects.filter(subscription=self,
+                                                         content_type__pk=content_notification_type.pk,
+                                                         object_id=content.pk, is_read=False))
+        # for some reason, it appears that some notification can be subscribed twice.
+        if len(notifications) == 0:
+            logging.debug("nothing to mark as read")
+        elif len(notifications) > 1:
+            logging.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
+            for notif in notifications[1:]:
+                notif.delete()
+        else:
+            notification = notifications[0]
+            notification.is_read = True
+            notification.save()
 
 
 class AnswerSubscription(Subscription):
