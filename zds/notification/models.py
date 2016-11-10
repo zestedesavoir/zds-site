@@ -217,10 +217,10 @@ class MultipleNotificationsMixin(object):
             logging.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
             for notif in notifications[1:]:
                 notif.delete()
-        else:
-            notification = notifications[0]
-            notification.is_read = True
-            notification.save()
+
+        notification = notifications[0]
+        notification.is_read = True
+        notification.save()
 
 
 class AnswerSubscription(Subscription):
