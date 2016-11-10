@@ -524,7 +524,7 @@ class NotificationPublishableContentTest(TestCase):
         self.assertEqual(1, Notification.objects.filter(subscription=subscription,
                                                         is_read=True).count())
 
-        
+
 class NotificationPrivateTopicTest(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user
