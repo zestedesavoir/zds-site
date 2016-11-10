@@ -18,7 +18,7 @@ from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
-    SubCategoryFactory, PublishedContentFactory
+    SubCategoryFactory
 from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
@@ -521,8 +521,10 @@ class NotificationPublishableContentTest(TestCase):
         subscription.mark_notification_read(self.tuto)
         subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
         self.assertIsNone(subscription1)
-        self.assertEqual(1, Notification.objects.count(subscription=subscription, is_read=False))
+        self.assertEqual(1, Notification.objects.filter(subscription=subscription,
+                                                        is_read=True).count())
 
+        
 class NotificationPrivateTopicTest(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user
