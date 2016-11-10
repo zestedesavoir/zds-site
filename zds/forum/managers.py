@@ -113,8 +113,8 @@ class PostManager(InheritanceManager):
         :return:
         """
         if current_user.is_authenticated():
-            return Q(forum__group__isnull=True) | Q(topic__forum__group__pk__in=current_user.profile.group_pks)
-        return Q(forum__group__isnull=True)
+            return Q(topic__forum__group__isnull=True) | Q(topic__forum__group__pk__in=current_user.profile.group_pks)
+        return Q(topic__forum__group__isnull=True)
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
