@@ -23,16 +23,16 @@
         }
     };
     var getTagQueryString = function(){
-        var $tagList = verbSelect.find(".active");
+        var $tagList = tagSelect.find(".active");
         var labelList = [];
         $tagList.each(function(){
             labelList.push($(this).attr("data-tag-label"));
         });
         return labelList.join(",");
 
-    }
+    };
     var appendTags = function(url){
-        var $tagList = verbSelect.find(".active");
+        var $tagList = tagSelect.find(".active");
         var labelList = [];
         $tagList.each(function(){
             labelList.push($(this).attr("data-tag-label"));
@@ -42,7 +42,7 @@
             return url;
         }
         return (url.indexOf("?") > -1? url + "&tags=":url + "?tags=") + queryString;
-    }
+    };
     var updateListOfContentContainer = function (listOfContent) {
         listOfContentContainer.html("");
 
@@ -54,7 +54,7 @@
         });
     };
     var getFresherContentList = function () {
-        $.ajax(appendVerb(appendCategory(itemUrl)), {dataType:"json", method:"GET"}).done(function (data) {
+        $.ajax(appendTags(appendVerb(appendCategory(itemUrl))), {dataType:"json", method:"GET"}).done(function (data) {
 
             updateListOfContentContainer(data.results);
             updateTagsSelect(data.tags);
@@ -71,14 +71,15 @@
         var oldQueryString = getTagQueryString();
         tagSelect.html("");
         listOfTags.forEach(function(label) {
-                var isActive = oldQueryString .indexOf(label + ",") > -1 || oldQueryString .endswith("," + label);
+                var isActive = oldQueryString .indexOf(label + ",") > -1 || oldQueryString.substr(-label.length) === label;
                 $("<li/>").append($("<button/>").attr("data-tag-label", label)
                     .attr("type", "button")
-                    .addClass(isActive||oldQueryString === ""? "active":"")
-                    .text(label)).appendTo(tagSelect);
+                    .addClass("verb")
+                    .addClass(isActive? "active":"")
+                    .text(label)).addClass("tag-button").appendTo(tagSelect);
             }
         );
-    }
+    };
     categorySelect.on("change", function () {
         var searchUrl = appendCategory(url);
         $.ajax(searchUrl, {
@@ -94,7 +95,7 @@
 
     });
     tagSelect.on("click", "button", function(){
-        if($(this).has(".active")){
+        if($(this).hasClass("active")){
             $(this).removeClass("active");
         }else {
             $(this).addClass("active");

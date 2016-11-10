@@ -10,7 +10,7 @@ from django.views.generic import DetailView, FormView
 from django.views.generic import View
 
 from zds.forum.models import Topic
-from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead
+from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentRead, VerbVote
 from zds.tutorialv2.utils import mark_read
 
 
@@ -431,6 +431,8 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context['isantispam'] = self.object.antispam(self.request.user)
         context['is_staff'] = self.is_staff
         context['is_author'] = self.is_author
+        context['has_vote'] = VerbVote.objects\
+            .filter(caster=self.request.user, content=self.public_content_object.content).exists()
         return context
 
 

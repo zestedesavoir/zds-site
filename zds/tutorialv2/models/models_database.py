@@ -978,7 +978,7 @@ class VerbVote(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
-        other = self.objects.first(content=self.content, user=self.user)
+        other = VerbVote.objects.filter(content=self.content, caster=self.caster).first()
         if other:
             return
         super(VerbVote, self).save(force_insert, force_update, using, update_fields)

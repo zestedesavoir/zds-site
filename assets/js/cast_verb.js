@@ -37,13 +37,13 @@
         },
         uiFeelBack: function () {
             this.elements.forEach(function (element) {
-               element.removeClass("active");
+               $(element).find("button").removeClass("active");
             });
             this.$activeElement.addClass("active");
         },
         castVote: function(){
             var dataToSend = {
-                content__pk: this.$cast.attr("data-content-pk"),
+                "content__pk": this.$cast.attr("data-content-pk"),
                 verb: this.$activeElement.attr("data-verb-label"),
             };
             var currentCast = this;
