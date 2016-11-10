@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import copy
 from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
@@ -18,7 +18,7 @@ from zds.notification import signals
 from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
-    SubCategoryFactory
+    SubCategoryFactory, PublishedContentFactory
 from zds.tutorialv2.models.models_database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
@@ -510,6 +510,19 @@ class NotificationPublishableContentTest(TestCase):
         notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
+    def test_no_error_on_multiple_subscription(self):
+        subscription = NewPublicationSubscription.objects.toggle_follow(self.user1, self.user2)
+
+        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+
+        subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
+        subscription2 = copy.deepcopy(subscription1)
+        subscription2.pk = 0
+        subscription2.save()
+        subscription.mark_notification_read(self.tuto)
+        subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
+        self.assertTrue(subscription1.is_read)
+        self.assertEqual(1, Notification.objects.count(subscription=subscription, is_read=False))
 
 class NotificationPrivateTopicTest(TestCase):
     def setUp(self):
