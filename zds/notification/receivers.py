@@ -14,7 +14,7 @@ from zds.forum.models import Topic, Post
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription
-from zds.notification.signals import answer_unread, content_read, new_content, edit_content
+from zds.notification.signals import answer_unread, content_read, new_content, edit_content, visibility_changed
 from zds.tutorialv2.models.models_database import PublishableContent, ContentReaction
 
 
@@ -326,3 +326,14 @@ def delete_notifications(sender, instance, **kwargs):
     """
     Subscription.objects.filter(user=instance).delete()
     Notification.objects.filter(sender=instance).delete()
+
+
+@receiver(visibility_changed, sender=Topic)
+@receiver(visibility_changed, sender=Post)
+def clean_notification_on_restriction(sender, instance, old_forum, **_kwargs):
+    content_type = ContentType.objects.get_for_model(instance.subscribed_object.__class__, for_concrete_model=True)
+    for subscription in Subscription.objects.filter(object_id=instance.subscribed_object.pk, content_type=content_type):
+        old_was_visible = old_forum.is_visible_for(subscription.user, instance)
+        if old_was_visible and not sender.objects.is_visible_for(instance, subscription.user):
+            subscription.deactivate_email()
+            subscription.deactivate()

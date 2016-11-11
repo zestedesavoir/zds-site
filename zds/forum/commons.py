@@ -73,11 +73,12 @@ class TopicEditMixin(object):
             except (KeyError, ValueError, TypeError):
                 raise Http404
             forum = get_object_or_404(Forum, pk=forum_pk)
+            old_forum = topic.forum
             topic.forum = forum
 
             # Save topic to update update_index_date
             topic.save()
-
+            signals.visibility_changed.send(topic.__class__, instance=topic, old_forum=old_forum)
             signals.edit_content.send(sender=topic.__class__, instance=topic, action='move')
 
             messages.success(request,
@@ -115,6 +116,7 @@ class PostEditMixin(object):
             messages.success(request, _(u'Le message est désormais masqué.'))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
                 signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
+                signals.visibility_changed.send(post.__class__, instance=post, old_forum=post.topic.forum)
         else:
             raise PermissionDenied
 

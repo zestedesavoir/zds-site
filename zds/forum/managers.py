@@ -42,6 +42,10 @@ class TopicManager(models.Manager):
     Custom topic manager.
     """
 
+    def is_visible_for(self, topic, user):
+        return self.filter(Q(forum__group__isnull=False) & ~Q(forum__group__in=list(user.groups.all())),
+                           pk=topic.pk).exists()
+
     def last_topics_of_a_member(self, author, user):
         """
         Gets last topics of a member but exclude all topics not accessible
@@ -96,6 +100,17 @@ class PostManager(InheritanceManager):
     """
     Custom post manager.
     """
+    def is_visible_for(self, post, user):
+        """
+        checks if a post is visible for a given user. It means it is not hidden and in a visible topic. \
+        This is included inside a manager because we process queries to check that.
+
+        :param user:
+        :param post:
+        :return:
+        """
+        from zds.forum.models import Topic
+        return Topic.objects.is_visible_for(post.topic, user) and post.is_visible
 
     def get_messages_of_a_topic(self, topic_pk):
         return self.filter(topic__pk=topic_pk)\
