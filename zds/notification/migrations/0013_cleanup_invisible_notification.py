@@ -16,7 +16,7 @@ def cleanup(apps, *_):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0008_remove_forum_image'),
+        ('notification', '0012_auto_20160703_2255'),
     ]
 
     operations = [
