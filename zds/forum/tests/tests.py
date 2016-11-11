@@ -8,6 +8,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
+from zds.forum.commons import PostEditMixin
 from zds.forum.factories import CategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
@@ -1266,3 +1267,15 @@ class ManagerTests(TestCase):
             self.assertFalse(is_read(topic, author.user))
             self.assertTrue(is_read(topic, self.staff.user))
             self.assertFalse(is_read(topic, reader.user))
+
+
+class TestMixins(TestCase):
+    def test_double_unread_is_handled(self):
+        author = ProfileFactory()
+        viewer = ProfileFactory()
+        topic = TopicFactory(author=author, forum=ForumFactory(category=CategoryFactory(), position_in_category=1))
+        post = PostFactory(topic=topic)
+        TopicRead(topic=topic, post=post, user=viewer).save()
+        PostEditMixin.perform_unread_message(post, viewer)
+        PostEditMixin.perform_unread_message(post, viewer)
+        self.assertEqual(0, TopicRead.objects.count())
