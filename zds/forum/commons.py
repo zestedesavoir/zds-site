@@ -152,7 +152,7 @@ class PostEditMixin(object):
         topic_read = TopicRead.objects.filter(topic=post.topic, user=user).first()
         # issue 3227 proves that you can have post.position==1 AND topic_read to None
         # it can happen whether on double click (the event "mark as not read" is therefore sent twice)
-        # or if you have too tabs in your browser.
+        # or if you have two tabs in your browser.
         if topic_read is None and post.position > 1:
             unread = Post.objects.filter(topic=post.topic, position=(post.position - 1)).first()
             topic_read = TopicRead(post=unread, topic=unread.topic, user=user)

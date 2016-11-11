@@ -1271,10 +1271,10 @@ class ManagerTests(TestCase):
 
 class TestMixins(TestCase):
     def test_double_unread_is_handled(self):
-        author = ProfileFactory()
-        viewer = ProfileFactory()
+        author = ProfileFactory().user
+        viewer = ProfileFactory().user
         topic = TopicFactory(author=author, forum=ForumFactory(category=CategoryFactory(), position_in_category=1))
-        post = PostFactory(topic=topic)
+        post = PostFactory(topic=topic, author=author, position=1)
         TopicRead(topic=topic, post=post, user=viewer).save()
         PostEditMixin.perform_unread_message(post, viewer)
         PostEditMixin.perform_unread_message(post, viewer)
