@@ -59,9 +59,51 @@ class PublishedContentManager(models.Manager):
             queryset = queryset[:limit]
         return queryset
 
+    def transfert_paternity(self, unsubscribed_user, external):
+        for published in self.filter(authors__in=[unsubscribed_user]):
+            if published.authors.count() == 1:
+                published.authors.add(external)
+            published.authors.remove(unsubscribed_user)
+            published.save()
+
 
 class PublishableContentManager(models.Manager):
     """..."""
+
+    def transfert_paternity(self, unsubscribed_user, external, gallery_class):
+        for content in unsubscribed_user.profile.get_contents():
+            # we delete content only if not published with only one author
+            if not content.in_public() and content.authors.count() == 1:
+                if content.in_beta() and content.beta_topic:
+                    beta_topic = content.beta_topic
+                    beta_topic.is_locked = True
+                    beta_topic.save()
+                    first_post = beta_topic.first_post()
+                    first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
+                    first_post.save()
+                content.delete()
+            else:
+                if content.authors.count() == 1:
+                    content.authors.add(external)
+                    external_gallery = gallery_class()
+                    external_gallery.user = external
+                    external_gallery.gallery = content.gallery
+                    external_gallery.mode = 'W'
+                    external_gallery.save()
+                    gallery_class.objects.filter(user=unsubscribed_user).filter(gallery=content.gallery).delete()
+
+                    content.authors.remove(unsubscribed_user)
+                    # we say in introduction that the content was written by a former member.
+                    versioned = content.load_version()
+                    title = versioned.title
+                    introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.'\
+                        .format(unsubscribed_user.username) + versioned.get_introduction()
+                    conclusion = versioned.get_conclusion()
+                    sha = versioned.repo_update(self, title, introduction, conclusion,
+                                                commit_message='Author unsubscribed',
+                                                do_commit=True, update_slug=True)
+                    content.sha_draft = sha
+                    content.save()
 
     def get_last_tutorials(self):
         """

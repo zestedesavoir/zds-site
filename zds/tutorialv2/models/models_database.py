@@ -28,7 +28,7 @@ import os
 from uuslug import uuslug
 
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery
+from zds.gallery.models import Image, Gallery, UserGallery
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
@@ -952,3 +952,15 @@ class Validation(models.Model):
         :rtype: bool
         """
         return self.status == 'CANCEL'
+
+
+@receiver(models.signals.pre_delete, sender=User)
+def transfert_paternity_receiver(sender, instance, **kwargs):
+    """transfert paternity to external user on user deletion
+
+    :return: nothing
+    :rtype: None
+    """
+    external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
+    PublishableContent.objects.transfert_paternity(instance, external, UserGallery)
+    PublishedContent.objects.transfert_paternity(instance, external)
