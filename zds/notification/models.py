@@ -211,8 +211,9 @@ class MultipleNotificationsMixin(object):
                                                          content_type__pk=content_notification_type.pk,
                                                          object_id=content.pk, is_read=False))
         # for some reason, it appears that some notification can be subscribed twice.
-        if len(notifications) == 0:
+        if not notifications:
             logging.debug("nothing to mark as read")
+            return
         elif len(notifications) > 1:
             logging.warning("%s notifications were find for %s/%s", len(notifications), content.type, content.title)
             for notif in notifications[1:]:
