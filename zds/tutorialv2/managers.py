@@ -100,7 +100,7 @@ class PublishableContentManager(models.Manager):
                     introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.'\
                         .format(unsubscribed_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
-                    sha = versioned.repo_pdate(title, introduction, conclusion,
+                    sha = versioned.repo_update(title, introduction, conclusion,
                                                commit_message='Author unsubscribed',
                                                do_commit=True, update_slug=True)
                     content.sha_draft = sha
