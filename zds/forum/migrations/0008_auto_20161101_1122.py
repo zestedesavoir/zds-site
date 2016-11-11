@@ -6,8 +6,8 @@ from django.db.migrations import migration
 from django.db.models.aggregates import Count
 
 
-def force_uniticy(schema, schema_editor):
-    model_before_migration = schema.get_model('zds.forum', 'topicread')
+def force_uniticy(schema, *_):
+    model_before_migration = schema.get_model('forum', 'topicread')
     for t_read in model_before_migration.objects.annotate(nb_key=Count('topic', 'user')).filter(nb_key__gt=1):
         for to_be_remove in model_before_migration.objects.filter(topic__pk=t_read.topic.pk,
                                                                   user__pk=t_read.user.pk)[1:]:
