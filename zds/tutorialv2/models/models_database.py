@@ -955,11 +955,9 @@ class Validation(models.Model):
 
 
 @receiver(models.signals.pre_delete, sender=User)
-def transfert_paternity_receiver(sender, instance, **kwargs):
-    """transfert paternity to external user on user deletion
-
-    :return: nothing
-    :rtype: None
+def transfer_paternity_receiver(sender, instance, **kwargs):
+    """
+    transfer paternity to external user on user deletion
     """
     external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
