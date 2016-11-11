@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from zds.utils.models import Tag
 from django.db.models import Count
+from django.utils.translation import ugettext_lazy as _
 
 
 class PublishedContentManager(models.Manager):
@@ -99,9 +100,9 @@ class PublishableContentManager(models.Manager):
                     introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.'\
                         .format(unsubscribed_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
-                    sha = versioned.repo_update(self, title, introduction, conclusion,
-                                                commit_message='Author unsubscribed',
-                                                do_commit=True, update_slug=True)
+                    sha = versioned.repo_pdate(title, introduction, conclusion,
+                                               commit_message='Author unsubscribed',
+                                               do_commit=True, update_slug=True)
                     content.sha_draft = sha
                     content.save()
 
