@@ -3,13 +3,12 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.dispatch.dispatcher import Signal
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import SingleObjectMixin
 
-from zds.forum.models import Forum, Post, TopicRead, Topic
+from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
 from zds.utils.models import Alert
@@ -79,7 +78,7 @@ class TopicEditMixin(object):
 
             # Save topic to update update_index_date
             topic.save()
-            signals.visibility_changed(Topic, instance=topic, old_forum=old_forum)
+            signals.visibility_changed.send(topic.__class__, instance=topic, old_forum=old_forum)
             signals.edit_content.send(sender=topic.__class__, instance=topic, action='move')
 
             messages.success(request,
@@ -117,7 +116,7 @@ class PostEditMixin(object):
             messages.success(request, _(u'Le message est désormais masqué.'))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
                 signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
-                signals.visibility_changed(post.__class__, instance=post, old_forum=post.topic.forum)
+                signals.visibility_changed.send(post.__class__, instance=post, old_forum=post.topic.forum)
         else:
             raise PermissionDenied
 
