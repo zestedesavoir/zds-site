@@ -331,7 +331,8 @@ def delete_notifications(sender, instance, **kwargs):
 @receiver(visibility_changed, sender=Topic)
 @receiver(visibility_changed, sender=Post)
 def clean_notification_on_restriction(sender, instance, old_forum, **_kwargs):
-    for subscription in Subscription.objects.filter(content_object=instance.subscribed_object):
+    content_type = ContentType.objects.get_for_model(instance.subscribed_object.__class__, for_concrete_model=True)
+    for subscription in Subscription.objects.filter(object_id=instance.subscribed_object.pk, content_type=content_type):
         old_was_visible = old_forum.is_visible_for(subscription.user, instance)
         if old_was_visible and not sender.objects.is_visible_for(instance, subscription.user):
             subscription.deactivate_email()
