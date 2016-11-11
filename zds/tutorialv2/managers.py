@@ -101,8 +101,8 @@ class PublishableContentManager(models.Manager):
                         .format(unsubscribed_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,
-                                               commit_message='Author unsubscribed',
-                                               do_commit=True, update_slug=True)
+                                                commit_message='Author unsubscribed',
+                                                do_commit=True, update_slug=True)
                     content.sha_draft = sha
                     content.save()
 
