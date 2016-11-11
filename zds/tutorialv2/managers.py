@@ -60,10 +60,16 @@ class PublishedContentManager(models.Manager):
             queryset = queryset[:limit]
         return queryset
 
-    def transfert_paternity(self, unsubscribed_user, external):
+    def transfer_paternity(self, unsubscribed_user, replacement_author):
+        """
+        erase or transfer the paternity of all published content owned by a user.
+        if a content has more than one author, the unregistering author just leave its redaction\
+        else just mark ``replacement_author`` as the new author
+
+        """
         for published in self.filter(authors__in=[unsubscribed_user]):
             if published.authors.count() == 1:
-                published.authors.add(external)
+                published.authors.add(replacement_author)
             published.authors.remove(unsubscribed_user)
             published.save()
 
@@ -71,8 +77,18 @@ class PublishedContentManager(models.Manager):
 class PublishableContentManager(models.Manager):
     """..."""
 
-    def transfert_paternity(self, unsubscribed_user, external, gallery_class):
-        for content in unsubscribed_user.profile.get_contents():
+    def transfer_paternity(self, unregistered_user, replacement_author, gallery_class):
+        """
+        erase or transfer the paternity of all publishable content owned by a user. \
+        if a content has more than one author, the unregistering author just leave its redaction\
+        else if a content is published it is sent to ``replacement_author``\
+        else the content is removed and its beta topic if so is closed.
+
+        :param unregistered_user: the user to be unregistered
+        :param replacement_author: the new author
+        :param gallery_class: the class to link tutorial with gallery (perhaps overkill :p)
+        """
+        for content in self.filter(authors__in=[unregistered_user]):
             # we delete content only if not published with only one author
             if not content.in_public() and content.authors.count() == 1:
                 if content.in_beta() and content.beta_topic:
@@ -85,20 +101,20 @@ class PublishableContentManager(models.Manager):
                 content.delete()
             else:
                 if content.authors.count() == 1:
-                    content.authors.add(external)
+                    content.authors.add(replacement_author)
                     external_gallery = gallery_class()
-                    external_gallery.user = external
+                    external_gallery.user = replacement_author
                     external_gallery.gallery = content.gallery
                     external_gallery.mode = 'W'
                     external_gallery.save()
-                    gallery_class.objects.filter(user=unsubscribed_user).filter(gallery=content.gallery).delete()
+                    gallery_class.objects.filter(user=unregistered_user).filter(gallery=content.gallery).delete()
 
-                    content.authors.remove(unsubscribed_user)
+                    content.authors.remove(unregistered_user)
                     # we say in introduction that the content was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
                     introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.'\
-                        .format(unsubscribed_user.username) + versioned.get_introduction()
+                        .format(unregistered_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,
                                                 commit_message='Author unsubscribed',

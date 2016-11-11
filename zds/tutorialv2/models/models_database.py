@@ -962,5 +962,5 @@ def transfert_paternity_receiver(sender, instance, **kwargs):
     :rtype: None
     """
     external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
-    PublishableContent.objects.transfert_paternity(instance, external, UserGallery)
-    PublishedContent.objects.transfert_paternity(instance, external)
+    PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
+    PublishedContent.objects.transfer_paternity(instance, external)
