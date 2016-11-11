@@ -382,6 +382,10 @@ class Topic(models.Model):
 
         return False
 
+    @property
+    def subscribed_object(self):
+        return self
+
 
 class Post(Comment):
     """
@@ -408,6 +412,10 @@ class Post(Comment):
             self.topic.get_absolute_url(),
             page,
             self.pk)
+
+    @property
+    def subscribed_object(self):
+        return self.topic.subscribed_object
 
 
 class TopicRead(models.Model):
