@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from zds.utils.models import Tag
 from django.db.models import Count
+from django.utils.translation import ugettext_lazy as _
 
 
 class PublishedContentManager(models.Manager):
@@ -59,9 +60,67 @@ class PublishedContentManager(models.Manager):
             queryset = queryset[:limit]
         return queryset
 
+    def transfer_paternity(self, unsubscribed_user, replacement_author):
+        """
+        erase or transfer the paternity of all published content owned by a user.
+        if a content has more than one author, the unregistering author just leave its redaction\
+        else just mark ``replacement_author`` as the new author
+
+        """
+        for published in self.filter(authors__in=[unsubscribed_user]):
+            if published.authors.count() == 1:
+                published.authors.add(replacement_author)
+            published.authors.remove(unsubscribed_user)
+            published.save()
+
 
 class PublishableContentManager(models.Manager):
     """..."""
+
+    def transfer_paternity(self, unregistered_user, replacement_author, gallery_class):
+        """
+        erase or transfer the paternity of all publishable content owned by a user. \
+        if a content has more than one author, the unregistering author just leave its redaction\
+        else if a content is published it is sent to ``replacement_author``\
+        else the content is removed and its beta topic if so is closed.
+
+        :param unregistered_user: the user to be unregistered
+        :param replacement_author: the new author
+        :param gallery_class: the class to link tutorial with gallery (perhaps overkill :p)
+        """
+        for content in self.filter(authors__in=[unregistered_user]):
+            # we delete content only if not published with only one author
+            if not content.in_public() and content.authors.count() == 1:
+                if content.in_beta() and content.beta_topic:
+                    beta_topic = content.beta_topic
+                    beta_topic.is_locked = True
+                    beta_topic.save()
+                    first_post = beta_topic.first_post()
+                    first_post.update_content(_(u'# Le tutoriel présenté par ce topic n\'existe plus.'))
+                    first_post.save()
+                content.delete()
+            else:
+                if content.authors.count() == 1:
+                    content.authors.add(replacement_author)
+                    external_gallery = gallery_class()
+                    external_gallery.user = replacement_author
+                    external_gallery.gallery = content.gallery
+                    external_gallery.mode = 'W'
+                    external_gallery.save()
+                    gallery_class.objects.filter(user=unregistered_user).filter(gallery=content.gallery).delete()
+
+                    content.authors.remove(unregistered_user)
+                    # we say in introduction that the content was written by a former member.
+                    versioned = content.load_version()
+                    title = versioned.title
+                    introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n'\
+                        .format(unregistered_user.username) + versioned.get_introduction()
+                    conclusion = versioned.get_conclusion()
+                    sha = versioned.repo_update(title, introduction, conclusion,
+                                                commit_message='Author unsubscribed',
+                                                do_commit=True, update_slug=True)
+                    content.sha_draft = sha
+                    content.save()
 
     def get_last_tutorials(self):
         """

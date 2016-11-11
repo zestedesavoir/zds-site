@@ -359,29 +359,7 @@ def unregister(request):
     anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
     external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
     current = request.user
-    for content in request.user.profile.get_contents():
-        # we delete article only if not published with only one author
-        if not content.in_public() and content.authors.count() == 1:
-            if content.in_beta() and content.beta_topic:
-                beta_topic = content.beta_topic
-                beta_topic.is_locked = True
-                beta_topic.save()
-                first_post = beta_topic.first_post()
-                first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
-                first_post.save()
-            content.delete()
-        else:
-            if content.authors.count() == 1:
-                content.authors.add(external)
-                external_gallery = UserGallery()
-                external_gallery.user = external
-                external_gallery.gallery = content.gallery
-                external_gallery.mode = 'W'
-                external_gallery.save()
-                UserGallery.objects.filter(user=current).filter(gallery=content.gallery).delete()
-
-            content.authors.remove(current)
-            content.save()
+    # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.models_database
     # comments likes / dislikes
     for vote in CommentVote.objects.filter(user=current):
         if vote.positive:
