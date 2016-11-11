@@ -102,7 +102,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
         # Add a topic.is_followed attribute
         followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
-        followed_topics = list(set(followed_query_set) & set(context['topics']))
+        followed_topics = list(set(followed_query_set) & set(context['topics'] + sticky))
         for topic in followed_topics:
             topic.is_followed = True
 
