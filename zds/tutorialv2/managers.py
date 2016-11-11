@@ -96,7 +96,7 @@ class PublishableContentManager(models.Manager):
                     beta_topic.is_locked = True
                     beta_topic.save()
                     first_post = beta_topic.first_post()
-                    first_post.update_content(_(u"# Le tutoriel présenté par ce topic n\'existe plus."))
+                    first_post.update_content(_(u'# Le tutoriel présenté par ce topic n\'existe plus.'))
                     first_post.save()
                 content.delete()
             else:
@@ -113,7 +113,7 @@ class PublishableContentManager(models.Manager):
                     # we say in introduction that the content was written by a former member.
                     versioned = content.load_version()
                     title = versioned.title
-                    introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.'\
+                    introduction = u'[[i]]\n|Ce contenu a été rédigé par {} qui a quitté le site.\n\n'\
                         .format(unregistered_user.username) + versioned.get_introduction()
                     conclusion = versioned.get_conclusion()
                     sha = versioned.repo_update(title, introduction, conclusion,
