@@ -4,8 +4,11 @@ from collections import OrderedDict
 from datetime import datetime
 from urllib import urlretrieve
 from urlparse import urlparse
+try:
+    import cairosvg
+except ImportError:
+    print("no cairo imported")
 
-import cairosvg
 import os
 from PIL import Image as ImagePIL
 from django.contrib.auth.models import User
