@@ -5396,7 +5396,6 @@ class PublishedContentTests(TestCase):
             True)
 
         # ask validation
-        self.assertEqual(Validation.objects.count(), 0)
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
             {
