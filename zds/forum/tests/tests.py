@@ -469,10 +469,10 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_signal_post(self):
-        """To test when a member signal a post."""
+        """To test when a member signals a post."""
         user1 = ProfileFactory().user
         topic1 = TopicFactory(forum=self.forum11, author=self.user)
-        PostFactory(topic=topic1, author=self.user, position=1)
+        post1 = PostFactory(topic=topic1, author=self.user, position=1)
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
@@ -485,9 +485,22 @@ class ForumMemberTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 1)
-        self.assertEqual(Alert.objects.filter(author=self.user).count(), 1)
-        self.assertEqual(Alert.objects.get(author=self.user).text, u'Troll')
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 1)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 1)
+        self.assertEqual(Alert.objects.get(author=self.user, solved=False).text, u'Troll')
+
+        result = self.client.post(
+            reverse('post-edit') + '?message={0}'.format(post1.pk),
+            {
+                'signal_text': u'Bad title',
+                'signal_message': 'confirmer'
+            },
+            follow=False)
+
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 2)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 2)
+        self.assertEqual(list(Alert.objects.filter(author=self.user, solved=False))[1].text, u'Bad title')
 
         # and test that staff can solve but not user
         alert = Alert.objects.get(comment=post2.pk)
@@ -507,15 +520,20 @@ class ForumMemberTests(TestCase):
                 password='hostel77'),
             True)
         # try again as staff
+        resolve_reason = u'Everything is Ok kid'
         result = self.client.post(
             reverse('forum-solve-alert'),
             {
                 'alert_pk': alert.pk,
-                'text': u'Everything is Ok kid'
+                'text': resolve_reason
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 0)
+        alert = Alert.objects.get(pk=alert.pk)
+        self.assertEqual(alert.resolve_reason, resolve_reason)
+        self.assertTrue(alert.solved)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 1)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=True).count(), 1)
 
     def test_signal_and_solve_alert_empty_message(self):
         """To test when a member signal a post and staff solve it."""
@@ -549,7 +567,7 @@ class ForumMemberTests(TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 0)
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 0)
 
     def test_useful_post(self):
         """To test when a member mark a post is usefull."""
@@ -1044,8 +1062,8 @@ class ForumGuestTests(TestCase):
             follow=False)
 
         self.assertEqual(result.status_code, 302)
-        self.assertEqual(Alert.objects.all().count(), 0)
-        self.assertEqual(Alert.objects.filter(author=self.user).count(), 0)
+        self.assertEqual(Alert.objects.filter(solved=False).count(), 0)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 0)
 
     def test_useful_post(self):
         """To test when a guest mark a post is usefull."""

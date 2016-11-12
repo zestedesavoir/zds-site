@@ -1,19 +1,22 @@
 # coding: utf-8
 from datetime import datetime
 import json as json_writer
+import os
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, HttpResponsePermanentRedirect, StreamingHttpResponse, HttpResponse
+from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import RedirectView, FormView, ListView
-import os
+
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
@@ -24,10 +27,8 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnli
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent, ContentReaction
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
 from zds.utils.models import CommentVote, SubCategory, Alert, Tag
-from zds.utils.mps import send_mp
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import top_categories_content
-from django.db.models import F
 
 
 class RedirectContentSEO(RedirectView):
@@ -452,9 +453,9 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
         # also treat alerts if editor is a moderator
         if self.request.user != self.reaction.author and not is_new:
-            alerts = Alert.objects.filter(comment__pk=self.reaction.pk).all()
+            alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             for alert in alerts:
-                SolveNoteAlert.solve(alert, self.reaction, self.request.user)
+                alert.solve(self.reaction, self.request.user, _(u'Résolu par édition.'))
 
         self.reaction.update_content(form.cleaned_data["text"])
         self.reaction.ip_address = get_client_ip(self.request)
@@ -501,8 +502,8 @@ class UpdateNoteView(SendNoteFormView):
                 .format(self.reaction.author.username))
 
             # show alert, if any
-            alerts = Alert.objects.filter(comment__pk=self.reaction.pk).all()
-            if alerts.count() != 0:
+            alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
+            if alerts.count():
                 msg_alert = _(u'Attention, en éditant ce message, vous résolvez également les alertes suivantes : {}')\
                     .format(', '.join([u'« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]))
                 messages.warning(self.request, msg_alert)
@@ -512,8 +513,8 @@ class UpdateNoteView(SendNoteFormView):
     def form_valid(self, form):
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
             self.reaction = ContentReaction.objects\
-                .prefetch_related("author")\
                 .filter(pk=int(self.request.GET["message"]))\
+                .prefetch_related("author")\
                 .first()
             if self.reaction is None:
                 raise Http404(u"Il n'y a aucun commentaire.")
@@ -535,7 +536,6 @@ class HideReaction(FormView, LoginRequiredMixin):
         return super(HideReaction, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-
         try:
             pk = int(self.kwargs["pk"])
             text = ''
@@ -604,43 +604,6 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
     def dispatch(self, *args, **kwargs):
         return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
 
-    @staticmethod
-    def solve(alert, note, user, text_solve=''):
-        """Solve alert (delete it) and send a PM if a explanation is given
-
-        :param alert: the alert to solve
-        :type alert: Alert
-        :param note: the note on which the alert has been raised
-        :type note: ContentReaction
-        :param text_solve: explanation
-        :type text_solve: str
-        """
-
-        if text_solve:
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            msg = render_to_string(
-                'tutorialv2/messages/resolve_alert.md',
-                {
-                    'content': note.related_content,
-                    'url': note.related_content.get_absolute_url_online(),
-                    'name': alert.author.username,
-                    'target_name': note.author.username,
-                    'modo_name': user.username,
-                    'message': '\n'.join(['> ' + line for line in text_solve.split('\n')]),
-                    'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
-                })
-
-            send_mp(
-                bot,
-                [alert.author],
-                _(u"Résolution d'alerte"),
-                note.related_content.title,
-                msg,
-                False,
-            )
-
-        alert.delete()
-
     def post(self, request, *args, **kwargs):
         if not request.user.has_perm("tutorialv2.change_contentreaction"):
             raise PermissionDenied
@@ -650,11 +613,23 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         except (KeyError, ValueError):
             raise Http404(u"L'alerte n'existe pas.")
 
-        text = ''
+        resolve_reason = ''
+        msg_title = ''
+        msg_content = ''
         if "text" in request.POST and request.POST["text"] != "":
-            text = request.POST['text']
-
-        SolveNoteAlert.solve(alert, note, self.request.user, text)
+            resolve_reason = request.POST['text']
+            msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title),
+            msg_content = render_to_string(
+                'tutorialv2/messages/resolve_alert.md', {
+                    'content': note.related_content,
+                    'url': note.related_content.get_absolute_url_online(),
+                    'name': alert.author.username,
+                    'target_name': note.author.username,
+                    'modo_name': request.user.username,
+                    'message': '\n'.join(['> ' + line for line in resolve_reason.split('\n')]),
+                    'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
+                })
+        alert.solve(note, request.user, resolve_reason, msg_title, msg_content)
 
         messages.success(self.request, _(u"L'alerte a bien été résolue."))
         return redirect(note.get_absolute_url())

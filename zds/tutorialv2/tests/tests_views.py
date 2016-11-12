@@ -4476,7 +4476,8 @@ class PublishedContentTests(TestCase):
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        self.assertIsNone(Alert.objects.filter(
+            author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first())
         reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
 
         # test that edition of a comment with an alert by an admin also solve the alert
@@ -4492,7 +4493,8 @@ class PublishedContentTests(TestCase):
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertIsNotNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        self.assertIsNotNone(Alert.objects.filter(
+            author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first())
 
         self.assertEqual(
             self.client.login(
@@ -4506,7 +4508,8 @@ class PublishedContentTests(TestCase):
             }, follow=False
         )
         self.assertEqual(result.status_code, 302)
-        self.assertIsNone(Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk).first())
+        self.assertIsNone(Alert.objects.filter(
+            author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first())
 
     def test_warn_typo_without_accessible_author(self):
 

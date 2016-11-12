@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from datetime import datetime
 import os
 import string
 import uuid
@@ -9,9 +10,14 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 from django.db import models
+from django.shortcuts import get_object_or_404
+
+from easy_thumbnails.fields import ThumbnailerImageField
+
+from zds.mp.models import PrivateTopic
+from zds.utils.mps import send_mp
 from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import emarkdown
-from easy_thumbnails.fields import ThumbnailerImageField
 
 from model_utils.managers import InheritanceManager
 
@@ -230,9 +236,7 @@ class Comment(models.Model):
 
 
 class Alert(models.Model):
-
     """Alerts on all kinds of Comments."""
-
     ARTICLE = 'A'
     FORUM = 'F'
     TUTORIAL = 'T'
@@ -253,7 +257,54 @@ class Alert(models.Model):
                                 db_index=True)
     scope = models.CharField(max_length=1, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField('Texte d\'alerte')
-    pubdate = models.DateTimeField('Date de publication', db_index=True)
+    pubdate = models.DateTimeField('Date de création', db_index=True)
+    solved = models.BooleanField("Est résolue", default=False)
+    moderator = models.ForeignKey(User,
+                                  verbose_name='Modérateur',
+                                  related_name='solved_alerts',
+                                  db_index=True,
+                                  null=True,
+                                  blank=True)
+    # sent to the alert creator
+    resolve_reason = models.TextField('Texte de résolution',
+                                      null=True,
+                                      blank=True)
+    # PrivateTopic sending the resolve_reason to the alert creator
+    privatetopic = models.ForeignKey(PrivateTopic,
+                                     verbose_name=u'Message privé',
+                                     db_index=True,
+                                     null=True,
+                                     blank=True)
+    solved_date = models.DateTimeField('Date de résolution',
+                                       db_index=True,
+                                       null=True,
+                                       blank=True)
+
+    def solve(self, note, moderator, resolve_reason='', msg_title='', msg_content=''):
+        """Solve alert and send a PrivateTopic if a reason is given
+
+        :param note: the note on which the alert has been raised
+        :type note: ContentReaction
+        :param resolve_reason: reason
+        :type resolve_reason: str
+        """
+        self.resolve_reason = resolve_reason or None
+        if msg_title and msg_content:
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            privatetopic = send_mp(
+                bot,
+                [self.author],
+                msg_title,
+                '',
+                msg_content,
+                True,
+            )
+            self.privatetopic = privatetopic
+
+        self.solved = True
+        self.moderator = moderator
+        self.solved_date = datetime.now()
+        self.save()
 
     def get_comment(self):
         return Comment.objects.get(id=self.comment.id)
