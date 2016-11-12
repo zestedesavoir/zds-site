@@ -5386,7 +5386,7 @@ class PublishedContentTests(TestCase):
         self.assertIsNotNone(beta_topic)
         self.assertTrue(beta_topic.is_locked)
         last_message = beta_topic.last_message
-        self.assertIsNone(last_message)
+        self.assertIsNotNone(last_message)
 
         # login with author to ensure that the beta is not closed if it was already closed (at a second validation).
         self.assertEqual(
