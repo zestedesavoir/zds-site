@@ -5385,3 +5385,56 @@ class PublishedContentTests(TestCase):
         beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
         self.assertIsNotNone(beta_topic)
         self.assertTrue(beta_topic.is_locked)
+        last_message = beta_topic.last_message()
+        self.assertIsNone(last_message)
+
+        # login with author to ensure that the beta is not closed if it was already closed (at a second validation).
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+
+        # ask validation
+        self.assertEqual(Validation.objects.count(), 0)
+        result = self.client.post(
+            reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
+            {
+                'text': text_validation,
+                'source': '',
+                'version': article_draft.current_version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # login with staff
+        self.assertEqual(
+            self.client.login(
+                username=self.user_staff.username,
+                password='hostel77'),
+            True)
+
+        # reserve the article
+        validation = Validation.objects.filter(content=article).last()
+        result = self.client.post(
+            reverse('validation:reserve', kwargs={'pk': validation.pk}),
+            {
+                'version': validation.version
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # publish the article
+        result = self.client.post(
+            reverse('validation:accept', kwargs={'pk': validation.pk}),
+            {
+                'text': text_publication,
+                'is_major': True,
+                'source': u''
+            },
+            follow=False)
+        self.assertEqual(result.status_code, 302)
+        beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
+        self.assertIsNotNone(beta_topic)
+        self.assertTrue(beta_topic.is_locked)
+        self.assertEqual(beta_topic.last_message, last_message)
