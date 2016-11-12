@@ -86,6 +86,10 @@ class MemberDetail(DetailView):
         profile = usr.profile
         context['profile'] = profile
         context['topics'] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user))
+        followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
+        followed_topics = list(set(followed_query_set) & set(context['topics']))
+        for topic in context['topics']:
+            topic.is_followed = topic in followed_topics
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
         context['karmanotes'] = KarmaNote.objects.filter(user=usr).order_by('-create_at')
