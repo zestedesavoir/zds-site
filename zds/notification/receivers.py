@@ -123,7 +123,7 @@ def mark_pm_reactions_read(sender, **kwargs):
 
 
 @receiver(edit_content, sender=Topic)
-def edit_topic_event(sender, **kwargs):
+def edit_topic_event(_, **kwargs):
     """
     :param kwargs: contains
         - instance: the topic edited.

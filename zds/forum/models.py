@@ -81,6 +81,7 @@ class Forum(models.Model):
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     # Groups authorized to read this forum. If no group is defined, the forum is public (and anyone can read it).
+    # TODO: rename as groups because this is a M2M field.
     group = models.ManyToManyField(
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
@@ -130,21 +131,23 @@ class Forum(models.Model):
         except IndexError:
             return None
 
-    def can_read(self, user):
+    def can_read(self, user, force_authenticated=True):
         """
         Checks if an user can read current forum.
         The forum can be read if:
         - The forum has no access restriction (= no group), or
-        - The user is authenticated and he has access to groups defined for this forum.
+        - the user is in our database and is part of the restricted group which is needed to access this forum
         :param user: the user to check the rights
+        :param force_authenticated: if ``True`` this needs the current user to be authenticated to test the forum.
         :return: `True` if the user can read this forum, `False` otherwise.
         """
 
         if self.group.count() == 0:
             return True
         else:
-            if user is not None and user.is_authenticated():
-                groups = Group.objects.filter(user=user).all()
+            # authentication is the best way to be sure groups are available in the user object
+            if user is not None and (not force_authenticated or user.is_authenticated()):
+                groups = list(user.groups())
                 return Forum.objects.filter(
                     group__in=groups,
                     pk=self.pk).exists()

@@ -159,7 +159,8 @@ class NotificationForumTest(TestCase):
         topic = TopicFactory(forum=self.forum11, author=self.user1)
         PostFactory(topic=topic, author=self.user1, position=1)
         PostFactory(topic=topic, author=ProfileFactory().user, position=2)
-
+        other_user = ProfileFactory().user
+        TopicAnswerSubscription.objects.toggle_follow(topic, other_user)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user1, topic, is_active=True))
         self.assertIsNotNone(Notification.objects.get(subscription__user=self.user1, is_read=False))
 
@@ -177,6 +178,8 @@ class NotificationForumTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user1, topic, is_active=False))
         self.assertIsNotNone(Notification.objects.get(subscription__user=self.user1, is_read=True))
+        self.assertFalse(TopicAnswerSubscription.objects.get_existing(other_user, topic).is_active)
+        self.assertIsNotNone(Notification.objects.get(subscription__user=other_user, is_read=True))
 
     def test_post_unread(self):
         """
