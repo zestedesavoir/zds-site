@@ -133,6 +133,8 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
             signals.content_read.send(
                 sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         # handle reactions:
+        for reaction in context['reactions']:
+            signals.content_read.send(sender=reaction.__class__, instance=reaction, user=self.request.user)
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
 

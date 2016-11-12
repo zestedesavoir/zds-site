@@ -45,12 +45,6 @@ def get_markdown_instance(inline=False, js_support=False, ping_url=None):
     return markdown
 
 
-def process_pings(pings):
-    """Process all pseudos found in markdown document"""
-    for pseudo in pings:
-        pass
-
-
 def render_markdown(markdown, text, inline=False):
     """
     Render a markdown text to html.

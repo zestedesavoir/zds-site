@@ -14,11 +14,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
+from zds.notification import signals
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.mps import send_mp
 from zds.utils import slugify
-from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.templatetags.emarkdown import get_markdown_instance, render_markdown
 
 from model_utils.managers import InheritanceManager
 
@@ -177,8 +178,15 @@ class Comment(models.Model):
         default='')
 
     def update_content(self, text):
+        from zds.notification.models import ping_url
+
         self.text = text
-        self.text_html = emarkdown(self.text)
+        md_instance = get_markdown_instance(ping_url=ping_url)
+        self.text_html = render_markdown(md_instance, self.text)
+        self.save()
+        for username in md_instance.metadata.get("ping", []):
+            signals.new_content.send(
+                sender=self.__class__, instance=self, user=User.objects.get(username=username), by_email=False)
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it

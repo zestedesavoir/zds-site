@@ -25,6 +25,7 @@ from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMix
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
+from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
@@ -148,9 +149,11 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse('post-new') + '?sujet=' + str(self.object.pk)
+
+        posts = self.build_list_with_previous_item(context['object_list'])
         context.update({
             'topic': self.object,
-            'posts': self.build_list_with_previous_item(context['object_list']),
+            'posts': posts,
             'last_post_pk': self.object.last_message.pk,
             'form': form,
             'form_move': MoveTopicForm(topic=self.object),
@@ -172,6 +175,8 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         else:
             context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
 
+        for post in posts:
+            signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
         if self.request.user.is_authenticated():
             if not is_read(self.object):
                 mark_read(self.object)
