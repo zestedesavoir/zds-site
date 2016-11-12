@@ -51,24 +51,27 @@ def process_pings(pings):
         pass
 
 
-def render_markdown(text, inline=False, js_support=False, ping_url=None):
+def render_markdown(markdown, text, inline=False):
     """
     Render a markdown text to html.
 
+    :param markdown: Python-ZMarkdown object.
     :param str text: Text to render.
     :param bool inline: If `True`, parse only inline content.
-    :param bool js_support: Enable JS in generated html.
     :return: Equivalent html string.
     :rtype: str
     """
-    md = get_markdown_instance(inline=inline, js_support=js_support, ping_url=ping_url)
-    content = md.convert(text).encode('utf-8').strip()
-    process_pings(md.metadata.get("ping", []))
-    return content
+    try:
+        return mark_safe(markdown.convert(text).encode('utf-8').strip())
+    except:
+        if inline:
+            return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+        else:
+            return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
 
 
 @register.filter(needs_autoescape=False)
-def emarkdown(text, use_jsfiddle=''):
+def emarkdown(text, use_jsfiddle='', inline=False):
     """
     Filter markdown text and render it to html.
 
@@ -76,12 +79,8 @@ def emarkdown(text, use_jsfiddle=''):
     :return: Equivalent html string.
     :rtype: str
     """
-    is_js = (use_jsfiddle == 'js')
-    ping_url = None
-    try:
-        return mark_safe(render_markdown(text, inline=False, js_support=is_js, ping_url=ping_url))
-    except:
-        return mark_safe(u'<div class="error ico-after"><p>{}</p></div>'.format(__MD_ERROR_PARSING))
+    md_instance = get_markdown_instance(inline=inline, js_support=(use_jsfiddle == 'js'), ping_url=None)
+    return render_markdown(md_instance, text, inline=inline)
 
 
 @register.filter(needs_autoescape=False)
@@ -93,11 +92,7 @@ def emarkdown_inline(text):
     :return: Equivalent html string.
     :rtype: str
     """
-
-    try:
-        return mark_safe(render_markdown(text, inline=True, ping_url=None))
-    except:
-        return mark_safe(u'<p>{}</p>'.format(__MD_ERROR_PARSING))
+    return emarkdown(text, inline=True)
 
 
 def sub_hd(match, count):
