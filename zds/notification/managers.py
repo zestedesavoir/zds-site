@@ -185,7 +185,7 @@ class TopicAnswerSubscriptionManager(SubscriptionManager):
         """
         subscriptions = self.get_subscriptions(topic)
         for subscription in subscriptions:
-            if not topic.forum.can_read(subscription.user, force_authenticated=False):
+            if not topic.forum.can_read(subscription.user):
                 subscription.deactivate()
                 subscription.mark_notification_read()
 
