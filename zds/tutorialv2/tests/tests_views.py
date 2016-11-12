@@ -5385,7 +5385,7 @@ class PublishedContentTests(TestCase):
         beta_topic = PublishableContent.objects.get(pk=article.pk).beta_topic
         self.assertIsNotNone(beta_topic)
         self.assertTrue(beta_topic.is_locked)
-        last_message = beta_topic.last_message()
+        last_message = beta_topic.last_message
         self.assertIsNone(last_message)
 
         # login with author to ensure that the beta is not closed if it was already closed (at a second validation).
