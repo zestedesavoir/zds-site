@@ -430,7 +430,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             if db_object.type == 'ARTICLE':
                 db_object.sha_beta = None
                 topic = db_object.beta_topic
-                if topic is not None:
+                if topic is not None and not topic.is_locked:
                     msg_post = render_to_string(
                         'tutorialv2/messages/beta_desactivate.md', {'content': versioned}
                     )
