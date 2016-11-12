@@ -8,7 +8,7 @@ from zds.notification.models import TopicAnswerSubscription
 
 def cleanup(apps, *_):
     topic_class = apps.get_model("forum", "Topic")
-    for topic in topic_class.objects.filter(group__isnull=False).all():
+    for topic in topic_class.objects.filter(forum__group__isnull=False).all():
         TopicAnswerSubscription.objects.unfollow_and_mark_read_everybody_at(topic)
 
 
