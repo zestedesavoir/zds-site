@@ -165,7 +165,7 @@ class Topic(models.Model):
         verbose_name = 'Sujet'
         verbose_name_plural = 'Sujets'
 
-    title = models.CharField('Titre', max_length=80)
+    title = models.CharField('Titre', max_length=160)
     subtitle = models.CharField('Sous-titre', max_length=200, null=True,
                                 blank=True)
 
