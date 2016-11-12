@@ -3165,6 +3165,7 @@ class ContentTests(TestCase):
         self.assertEqual(result.status_code, 403)  # get 403 since you're not author
 
         publishable = PublishedContentFactory(author_list=[self.user_author])
+        old_date = publishable.update_date
         self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),
             {
@@ -3172,6 +3173,7 @@ class ContentTests(TestCase):
                 'last_note': '0'
             }, follow=False)
         publishable = PublishableContent.objects.get(pk=publishable.pk)
+        self.assertEqual(old_date, publishable.update_date, "Erreur, le commentaire a entraîné une MAJ de la date!")
         # test antispam
         result = self.client.post(
             reverse("content:add-reaction") + u'?pk={}'.format(publishable.pk),

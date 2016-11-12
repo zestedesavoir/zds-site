@@ -462,7 +462,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
         if is_new:  # we first need to save the reaction
             self.object.last_note = self.reaction
-            self.object.save()
+            self.object.save(update_date=False)
 
         self.success_url = self.reaction.get_absolute_url()
         return super(SendNoteFormView, self).form_valid(form)
