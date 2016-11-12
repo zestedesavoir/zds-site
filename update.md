@@ -808,3 +808,12 @@ Le déploiement doit être autonome. Ce qui implique que :
 1. La mise à jour de dépendances est automatique et systématique,
 2. La personne qui déploie ne doit pas réfléchir (parce que c'est source d'erreur),
 3. La personne qui déploie ne doit pas avoir connaissance de ce qui est déployé (techniquement et fonctionnellement).
+
+
+Actions à faire pour l'upgrade v21
+==================================
+
+Actions à faire pour masquer la barre de recherche
+--------------------------------------------------
+
+Ajouter `ZDS_APP['display_search_bar'] = False` à `settings_prod.py`
