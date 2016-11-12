@@ -51,8 +51,7 @@ def process_pings(pings):
         pass
 
 
-
-def render_markdown(text, inline=False, js_support=False, ping_url=ping_url):
+def render_markdown(text, inline=False, js_support=False, ping_url=None):
     """
     Render a markdown text to html.
 
