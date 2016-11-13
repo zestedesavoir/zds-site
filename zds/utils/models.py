@@ -1,20 +1,21 @@
 # coding: utf-8
-
 from datetime import datetime
 import os
 import string
 import uuid
-
 from django.conf import settings
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_text
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
 from zds.mp.models import PrivateTopic
+from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.mps import send_mp
 from zds.utils import slugify
 from zds.utils.templatetags.emarkdown import emarkdown
@@ -237,15 +238,11 @@ class Comment(models.Model):
 
 class Alert(models.Model):
     """Alerts on all kinds of Comments."""
-    ARTICLE = 'A'
-    FORUM = 'F'
-    TUTORIAL = 'T'
-    CONTENT = 'C'
     SCOPE_CHOICES = (
-        (ARTICLE, 'Commentaire d\'article'),
-        (FORUM, 'Forum'),
-        (TUTORIAL, 'Commentaire de tuto'),
-    )
+        ('FORUM', _(u'Forum')),
+    ) + TYPE_CHOICES
+
+    SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
 
     author = models.ForeignKey(User,
                                verbose_name='Auteur',
@@ -255,7 +252,7 @@ class Alert(models.Model):
                                 verbose_name='Commentaire',
                                 related_name='alerts',
                                 db_index=True)
-    scope = models.CharField(max_length=1, choices=SCOPE_CHOICES, db_index=True)
+    scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField('Texte d\'alerte')
     pubdate = models.DateTimeField('Date de création', db_index=True)
     solved = models.BooleanField("Est résolue", default=False)

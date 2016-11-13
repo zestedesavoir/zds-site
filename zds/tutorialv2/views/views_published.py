@@ -574,7 +574,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
-    http_method_names = ["post"]
+    http_method_names = ['post']
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
@@ -582,19 +582,19 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
 
     def post(self, request, *args, **kwargs):
         try:
-            note_pk = int(self.kwargs["pk"])
+            note_pk = int(self.kwargs['pk'])
         except (KeyError, ValueError):
             raise Http404(u"Impossible de convertir l'identifiant en entier.")
         note = get_object_or_404(ContentReaction, pk=note_pk)
         alert = Alert()
         alert.author = request.user
         alert.comment = note
-        alert.scope = Alert.CONTENT
-        alert.text = request.POST["signal_text"]
+        alert.scope = Alert.SCOPE_CHOICES_DICT[note.related_content.type]
+        alert.text = request.POST['signal_text']
         alert.pubdate = datetime.now()
         alert.save()
 
-        messages.success(self.request, _(u"Ce commentaire a bien été signalé aux modérateurs."))
+        messages.success(self.request, _(u'Ce commentaire a bien été signalé aux modérateurs.'))
         return redirect(note.get_absolute_url())
 
 
@@ -605,10 +605,10 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.has_perm("tutorialv2.change_contentreaction"):
+        if not request.user.has_perm('tutorialv2.change_contentreaction'):
             raise PermissionDenied
         try:
-            alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
+            alert = get_object_or_404(Alert, pk=int(request.POST['alert_pk']))
             note = ContentReaction.objects.get(pk=alert.comment.id)
         except (KeyError, ValueError):
             raise Http404(u"L'alerte n'existe pas.")
@@ -616,7 +616,7 @@ class SolveNoteAlert(FormView, LoginRequiredMixin):
         resolve_reason = ''
         msg_title = ''
         msg_content = ''
-        if "text" in request.POST and request.POST["text"] != "":
+        if 'text' in request.POST and request.POST['text']:
             resolve_reason = request.POST['text']
             msg_title = _(u"Résolution d'alerte : {0}").format(note.related_content.title),
             msg_content = render_to_string(

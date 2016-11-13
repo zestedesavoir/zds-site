@@ -132,7 +132,7 @@ class PostEditMixin(object):
         alert = Alert()
         alert.author = user
         alert.comment = post
-        alert.scope = Alert.FORUM
+        alert.scope = 'FORUM'
         alert.text = alert_text
         alert.pubdate = datetime.now()
         alert.save()

@@ -159,14 +159,14 @@ def alerts_list(user):
     alerts = Alert.objects.filter(solved=False).select_related('author', 'comment').order_by('-pubdate')[:10]
     nb_alerts = Alert.objects.filter(solved=False).count()
     for alert in alerts:
-        if alert.scope == Alert.FORUM:
+        if alert.scope == 'FORUM':
             post = Post.objects.select_related('topic').get(pk=alert.comment.pk)
             total.append({'title': post.topic.title,
                           'url': post.get_absolute_url(),
                           'pubdate': alert.pubdate,
                           'author': alert.author,
                           'text': alert.text})
-        if alert.scope == Alert.CONTENT:
+        else:
             note = ContentReaction.objects.select_related('related_content').get(pk=alert.comment.pk)
             total.append({'title': note.related_content.title,
                           'url': note.get_absolute_url(),
