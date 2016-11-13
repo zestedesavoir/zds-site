@@ -127,7 +127,7 @@ class AlertsTest(TestCase):
         for i in range(20):
             alert = Alert(author=self.dummy_author.user,
                           comment=self.post,
-                          scope='F',
+                          scope='FORUM',
                           text=u'pouet-{}'.format(i),
                           pubdate=(datetime.now() + timedelta(minutes=i)))
             alert.save()
