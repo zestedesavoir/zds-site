@@ -252,10 +252,20 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
                 context['has_pagination'] = True
                 context['previous'] = None
                 context['next'] = None
+                if position == 0:
+                    context['previous'] = container.parent
                 if position > 0:
-                    context['previous'] = chapters[position - 1]
+                    previous_chapter = chapters[position - 1]
+                    if previous_chapter.parent == container.parent:
+                        context['previous'] = previous_chapter
+                    else:
+                        context['previous'] = container.parent
                 if position < len(chapters) - 1:
-                    context['next'] = chapters[position + 1]
+                    next_chapter = chapters[position + 1]
+                    if next_chapter.parent == container.parent:
+                        context['next'] = next_chapter
+                    else:
+                        context['next'] = next_chapter.parent
 
         return context
 
