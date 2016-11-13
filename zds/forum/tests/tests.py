@@ -514,13 +514,9 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 403)
         # login as staff
         staff1 = StaffProfileFactory().user
-        self.assertEqual(
-            self.client.login(
-                username=staff1.username,
-                password='hostel77'),
-            True)
+        self.assertTrue(self.client.login(username=staff1.username, password='hostel77'))
         # try again as staff
-        resolve_reason = u'Everything is Ok kid'
+        resolve_reason = u'Everything is OK kid'
         result = self.client.post(
             reverse('forum-solve-alert'),
             {
@@ -534,6 +530,18 @@ class ForumMemberTests(TestCase):
         self.assertTrue(alert.solved)
         self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 1)
         self.assertEqual(Alert.objects.filter(author=self.user, solved=True).count(), 1)
+
+        # staff hides a message
+        data = {
+            'delete_message': '',
+            'text_hidden': u'Bad guy!',
+        }
+        response = self.client.post(
+            reverse('post-edit') + '?message={}'.format(post1.pk), data, follow=False)
+        self.assertEqual(302, response.status_code)
+        # alerts automatically solved
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 0)
+        self.assertEqual(Alert.objects.filter(author=self.user, solved=True).count(), 2)
 
     def test_signal_and_solve_alert_empty_message(self):
         """To test when a member signal a post and staff solve it."""
