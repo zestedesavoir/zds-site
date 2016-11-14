@@ -333,7 +333,7 @@ class Profile(models.Model):
         """
         :return: The number of currently active alerts created by this user.
         """
-        return Alert.objects.filter(author=self.user).count()
+        return Alert.objects.filter(author=self.user, solved=False).count()
 
     def can_read_now(self):
         if self.user.is_authenticated:

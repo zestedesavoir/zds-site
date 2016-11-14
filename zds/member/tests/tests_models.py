@@ -256,7 +256,7 @@ class MemberModelsTest(TestCase):
         self.assertEqual(self.user1.get_alerts_posts_count(), 0)
         # Post and Alert it !
         post = PostFactory(topic=self.forumtopic, author=self.user1.user, position=1)
-        Alert.objects.create(author=self.user1.user, comment=post, scope=Alert.FORUM, pubdate=datetime.now())
+        Alert.objects.create(author=self.user1.user, comment=post, scope='FORUM', pubdate=datetime.now())
         # Should be 1
         self.assertEqual(self.user1.get_alerts_posts_count(), 1)
 

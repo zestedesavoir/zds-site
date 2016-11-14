@@ -139,10 +139,12 @@ def alerts(request):
     if not request.user.has_perm('forum.change_post'):
         raise PermissionDenied
 
-    all_alerts = Alert.objects.all().order_by('-pubdate')
+    outstanding = Alert.objects.filter(solved=False).order_by('-pubdate')
+    solved = Alert.objects.filter(solved=True).order_by('-pubdate')[:15]
 
     return render(request, 'pages/alerts.html', {
-        'alerts': all_alerts,
+        'alerts': outstanding,
+        'solved': solved,
     })
 
 

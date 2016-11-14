@@ -105,7 +105,8 @@ class PostEditMixin(object):
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')
         if post.author == user or is_staff:
-            post.alerts.all().delete()
+            for alert in post.alerts.all():
+                alert.solve(post, user, _(u'Résolu par masquage.'))
             post.is_visible = False
             post.editor = user
 
@@ -131,7 +132,7 @@ class PostEditMixin(object):
         alert = Alert()
         alert.author = user
         alert.comment = post
-        alert.scope = Alert.FORUM
+        alert.scope = 'FORUM'
         alert.text = alert_text
         alert.pubdate = datetime.now()
         alert.save()
