@@ -81,7 +81,6 @@ class Forum(models.Model):
     subtitle = models.CharField('Sous-titre', max_length=200)
 
     # Groups authorized to read this forum. If no group is defined, the forum is public (and anyone can read it).
-    # TODO: rename as groups because this is a M2M field.
     group = models.ManyToManyField(
         Group,
         verbose_name='Groupe autorisés (Aucun = public)',
