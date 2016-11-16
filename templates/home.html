@@ -29,56 +29,56 @@
 
     <section class="home-header">
         <div class="home-wrapper">
-        {% if user.is_authenticated %}
-            <section class="home-description connected">
-                <blockquote><span>{{ quote }}</span></blockquote>
+            {% if user.is_authenticated %}
+                <section class="home-description connected">
+                    <blockquote><span>{{ quote }}</span></blockquote>
 
-                {% if featured_message %}
-                    {% include "featured/includes/featured_message.part.html" %}
-                {% endif %}
-            </section>
-        {% else %}
-            <section class="home-description short" id="description">
-                <blockquote><span>{% trans "Zeste de Savoir, la connaissance" %}</span> <span>{% trans "pour tous et sans pépins" %}</span></blockquote>
-                <a class="home-description-button" href="#description">
-                    {% trans "En savoir plus" %}
-                </a>
-                <a href="#" class="home-description-button close-description">
-                    {% trans "Fermer" %}
-                </a>
-            </section>
-            <section class="home-description">
-                <div class="column">
-                    <h2>{% trans "La connaissance pour tous" %}</h2>
-                    {% blocktrans with site_name=app.site.litteral_name %}
-                        <p>{{site_name}}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
-                            <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:</p>
-                        <ul>
-                            <li>des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>&nbsp;;</li>
-                            <li>des <a href='{{url_articles}}'>articles</a>&nbsp;;</li>
-                            <li>et des <a href='{{url_forums}}'>forums d'entraide</a>.</li>
-                        </ul>
-                        <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
-                    {% endblocktrans %}
-                </div>
-                <div class="column">
-                    <h2>{% trans "Partagez vos savoirs…" %}</h2>
-                    {% blocktrans %}
-                        <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des contenus</strong>.</p>
-                        <p>Pour assurer la qualité, l'équipe du site valide chaque tutoriel et article.</p>
-                    {% endblocktrans %}
-                    <h2>{% trans "… sur une plate-forme libre" %}</h2>
-                        {% blocktrans %}
-                            <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
+                    {% if featured_message %}
+                        {% include "featured/includes/featured_message.part.html" %}
+                    {% endif %}
+                </section>
+            {% else %}
+                <section class="home-description short" id="description">
+                    <blockquote><span>{% trans "Zeste de Savoir, la connaissance" %}</span> <span>{% trans "pour tous et sans pépins" %}</span></blockquote>
+                    <a class="home-description-button" href="#description">
+                        {% trans "En savoir plus" %}
+                    </a>
+                    <a href="#" class="home-description-button close-description">
+                        {% trans "Fermer" %}
+                    </a>
+                </section>
+                <section class="home-description">
+                    <div class="column">
+                        <h2>{% trans "La connaissance pour tous" %}</h2>
+                        {% blocktrans with site_name=app.site.litteral_name %}
+                            <p>{{site_name}}&nbsp;: un site de <strong>partage de connaissances</strong> où vous trouverez,
+                                <strong>gratuitement</strong> et <strong>sans publicité</strong>&nbsp;:</p>
+                            <ul>
+                                <li>des <a href="{{url_tutorials}}">tutoriels de tous niveaux</a>&nbsp;;</li>
+                                <li>des <a href='{{url_articles}}'>articles</a>&nbsp;;</li>
+                                <li>et des <a href='{{url_forums}}'>forums d'entraide</a>.</li>
+                            </ul>
+                            <p>Tout est animé par la communauté, tous les sujets sont abordés&nbsp;!</p>
                         {% endblocktrans %}
-                        {% if app.site.contribute_link %}
-                            {% blocktrans with contribute_link=app.site.contribute_link %}
-                                <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
+                    </div>
+                    <div class="column">
+                        <h2>{% trans "Partagez vos savoirs…" %}</h2>
+                        {% blocktrans %}
+                            <p><strong>Tous les membres</strong> peuvent écrire et <strong>publier des contenus</strong>.</p>
+                            <p>Pour assurer la qualité, l'équipe du site valide chaque tutoriel et article.</p>
+                        {% endblocktrans %}
+                        <h2>{% trans "… sur une plate-forme libre" %}</h2>
+                            {% blocktrans %}
+                                <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
                             {% endblocktrans %}
-                        {% endif %}
-                </div>
-            </section>
-        {% endif %}
+                            {% if app.site.contribute_link %}
+                                {% blocktrans with contribute_link=app.site.contribute_link %}
+                                    <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
+                                {% endblocktrans %}
+                            {% endif %}
+                    </div>
+                </section>
+            {% endif %}
             {% if app.display_search_bar %}
                  <section class="home-search-box">
                     <form action='{% url "haystack_search" %}' id="search-home">
