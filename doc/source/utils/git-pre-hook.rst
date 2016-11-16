@@ -18,7 +18,7 @@ restera propre et lisible au cours du temps !
 
     #!/bin/sh
 
-    cd $GIT_DIR/
+    cd $GIT_DIR/../
 
     make lint-back
 
