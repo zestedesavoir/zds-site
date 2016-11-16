@@ -4,9 +4,6 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from hashlib import md5
-from django.http import HttpRequest
-from django.contrib.sessions.models import Session
-from django.contrib.auth import logout
 import os
 
 from django.contrib.auth.models import User
@@ -18,7 +15,6 @@ from zds.forum.models import Post, Topic
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.models_database import PublishableContent, PublishedContent
 from zds.utils.models import Alert
-from importlib import import_module
 
 
 class Profile(models.Model):
@@ -512,23 +508,3 @@ class KarmaNote(models.Model):
 
     def __unicode__(self):
         return u"{0} - note : {1} ({2}) ".format(self.user.username, self.comment, self.create_at)
-
-
-def logout_user(username):
-    """
-    Logout the member.
-    :param username: the name of the user to logout.
-    """
-    now = datetime.now()
-    request = HttpRequest()
-
-    sessions = Session.objects.filter(expire_date__gt=now)
-    user = User.objects.get(username=username)
-
-    for session in sessions:
-        user_id = session.get_decoded().get('_auth_user_id')
-        if user.id == user_id:
-            engine = import_module(settings.SESSION_ENGINE)
-            request.session = engine.SessionStore(session.session_key)
-            logout(request)
-            break

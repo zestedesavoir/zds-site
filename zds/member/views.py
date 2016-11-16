@@ -783,9 +783,8 @@ def new_password(request):
 
 
 @https_required
-def active_account(request):
+def activate_account(request):
     """Active token for a user."""
-
     try:
         token = request.GET["token"]
     except KeyError:
@@ -793,24 +792,21 @@ def active_account(request):
     token = get_object_or_404(TokenRegister, token=token)
     usr = token.user
 
-    # User can't confirm his request if he is already activated.
-
+    # User can't confirm their request if their account is already active
     if usr.is_active:
         return render(request, "member/register/token_already_used.html")
 
-    # User can't confirm his request if it is too late.
-
+    # User can't confirm their request if it is too late.
     if datetime.now() > token.date_end:
         return render(request, "member/register/token_failed.html",
                       {"token": token})
     usr.is_active = True
     usr.save()
 
-    # send register message
-
+    # send welcome message
     bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
     msg = render_to_string(
-        'member/messages/active_account.md',
+        'member/messages/account_activated.md',
         {
             'username': usr.username,
             'tutorials_url': settings.ZDS_APP['site']['url'] + reverse("tutorial:list"),
