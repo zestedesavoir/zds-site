@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from math import ceil
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, User, AnonymousUser
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -135,7 +135,7 @@ class Forum(models.Model):
         Checks if an user can read current forum.
         The forum can be read if:
         - The forum has no access restriction (= no group), or
-        - The user is authenticated and he has access to groups defined for this forum.
+        - the user is in our database and is part of the restricted group which is needed to access this forum
         :param user: the user to check the rights
         :return: `True` if the user can read this forum, `False` otherwise.
         """
@@ -143,8 +143,9 @@ class Forum(models.Model):
         if self.group.count() == 0:
             return True
         else:
-            if user is not None and user.is_authenticated():
-                groups = Group.objects.filter(user=user).all()
+            # authentication is the best way to be sure groups are available in the user object
+            if user is not None:
+                groups = list(user.groups.all()) if not isinstance(user, AnonymousUser) else []
                 return Forum.objects.filter(
                     group__in=groups,
                     pk=self.pk).exists()
