@@ -42,7 +42,7 @@ install-back:
 	pip install --upgrade -r requirements.txt -r requirements-dev.txt
 
 lint-back:
-	flake8 --exclude=migrations --max-line-length=120 zds
+	flake8 --exclude=.tox,.venv,build,dist,doc,migrations,settings_prod.py,settings_test.py,settings_test_local.py,settings_test_travis.py --max-line-length=120 zds
 
 report-release-back:
 	python scripts/release_generator.py
