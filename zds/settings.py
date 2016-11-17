@@ -113,7 +113,6 @@ MIDDLEWARE_CLASSES = (
     'zds.utils.ThreadLocals',
     'zds.middlewares.SetLastVisitMiddleware.SetLastVisitMiddleware',
     'zds.middlewares.profile.ProfileMiddleware',
-    'zds.middlewares.ForceHttpsMembersMiddleware.ForceHttpsMembersMiddleware',
 )
 
 ROOT_URLCONF = 'zds.urls'
