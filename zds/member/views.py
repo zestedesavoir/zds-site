@@ -40,7 +40,6 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.models_database import PublishableContent
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.models_database import PublishedContent
-from zds.utils.decorators import https_required
 from zds.utils.models import Comment, CommentVote
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
@@ -256,7 +255,6 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     form_class = RegisterForm
     template_name = 'member/register/index.html'
 
-    @method_decorator(https_required)
     def dispatch(self, *args, **kwargs):
         return super(RegisterView, self).dispatch(*args, **kwargs)
 
@@ -612,7 +610,6 @@ def settings_mini_profile(request, user_name):
         return render(request, "member/settings/profile.html", data)
 
 
-@https_required
 def login_view(request):
     """Log in user."""
 
@@ -685,7 +682,6 @@ def logout_view(request):
     return redirect(reverse("homepage"))
 
 
-@https_required
 def forgot_password(request):
     """If the user forgot his password, he can have a new one."""
 
@@ -738,7 +734,6 @@ def forgot_password(request):
     return render(request, "member/forgot_password/index.html", {"form": form})
 
 
-@https_required
 def new_password(request):
     """Create a new password for a user."""
 
@@ -766,7 +761,6 @@ def new_password(request):
     return render(request, "member/new_password/index.html", {"form": form})
 
 
-@https_required
 def active_account(request):
     """Active token for a user."""
 
@@ -818,7 +812,6 @@ def active_account(request):
     return render(request, "member/register/token_success.html", {"usr": usr, "form": form})
 
 
-@https_required
 def generate_token_account(request):
     """Generate token for account."""
 
