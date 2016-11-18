@@ -88,14 +88,9 @@
 {% block content %}
 
     {% if content.is_opinion %}
-        {% if content.sha_public != content.sha_approved %}
-            <div class="alert-box warning">
-                {% trans "Ce billet n'a pas encore été validé par l'équipe du site." %}
-            </div>
-        {% endif %}
         {% if content.promotion_content %}
             <div class="alert-box info">
-                {%  if content.promotion_content.get_absolute_url_online %}
+                {% if content.promotion_content.get_absolute_url_online %}
                     {% blocktrans with url_article=content.promotion_content.get_absolute_url_online %}
                         Ce billet a été promu en <a href="{{ url_article }}">article</a>.
                     {% endblocktrans %}
@@ -209,24 +204,24 @@
                     </a>
                 </li>
                 {% if is_staff %}
-                    <li>
-                        <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                            {% trans "Historique validation" %}
-                        </a>
-                    </li>
-                    <li>
-                        <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="ico-after alert blue">
-                                {% if is_obsolete %}
-                                    {% trans "Marquer comme non obsolète" %}
-                                {% else %}
-                                    {% trans "Marquer comme obsolète" %}
-                                {% endif %}
-                            </button>
-                        </form>
-                    </li>
                     {% if content.required_validation_before %}
+                        <li>
+                            <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
+                                {% trans "Historique validation" %}
+                            </a>
+                        </li>
+                        <li>
+                            <form action="{% url 'validation:mark-obsolete' content.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="ico-after alert blue">
+                                    {% if is_obsolete %}
+                                        {% trans "Marquer comme non obsolète" %}
+                                    {% else %}
+                                        {% trans "Marquer comme obsolète" %}
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </li>
                         <li>
                             <a href="#unpublish" class="ico-after open-modal cross blue">
                                 {% trans "Dépublier" %}

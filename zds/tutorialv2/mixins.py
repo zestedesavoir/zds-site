@@ -544,6 +544,17 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
         return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
 
 
+class ValidationBeforeViewMixin(SingleContentDetailViewMixin):
+    """
+    Ensure the content require validation before publication.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if not self.get_object().required_validation_before():
+            raise PermissionDenied
+        return super(ValidationBeforeViewMixin, self).get(request, *args, **kwargs)
+
+
 class NoValidationBeforeFormViewMixin(SingleContentFormViewMixin):
     """
     Ensure the content do not require validation before publication.
