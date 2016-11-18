@@ -1066,6 +1066,7 @@ class PublicationForm(forms.Form):
         self.helper.layout = Layout(
             CommonLayoutModalText(),
             Field('source'),
+            HTML("<p>Ce billet sera publié directement et n'engage que vous.</p>"),
             StrictButton(_(u'Publier'), type='submit')
         )
 
@@ -1123,7 +1124,8 @@ class OpinionValidationForm(forms.Form):
         self.helper.form_id = 'valid-opinion'
 
         self.helper.layout = Layout(
-            HTML("<p>Êtes-vous certain(e) de vouloir valider ce billet ?</p>"),
+            HTML("<p>Êtes-vous certain(e) de vouloir valider ce billet ? Il pourra maintenant être présent sur la page "
+                 "d'accueil.</p>"),
             CommonLayoutModalText(),
             Field('version'),
             StrictButton(
