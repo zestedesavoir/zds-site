@@ -1,4 +1,5 @@
 # coding: utf-8
+
 import logging
 from datetime import datetime
 
@@ -19,11 +20,11 @@ from zds.gallery.models import UserGallery
 from zds.notification import signals
 from zds.tutorialv2.forms import AskValidationForm, RejectValidationForm, AcceptValidationForm, RevokeValidationForm, \
     CancelValidationForm, PublicationForm, OpinionValidationForm, PromoteOpinionToArticleForm
-from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleContentDetailViewMixin, ModalFormView, \
-    SingleOnlineContentFormViewMixin, NoValidationBeforeFormViewMixin
+from zds.tutorialv2.mixins import SingleContentFormViewMixin, ModalFormView, \
+    SingleOnlineContentFormViewMixin, ValidationBeforeViewMixin, NoValidationBeforeFormViewMixin
 from zds.tutorialv2.models.models_database import Validation, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content, FailureDuringPublication, unpublish_content
-from zds.tutorialv2.utils import init_new_repo
+from zds.tutorialv2.utils import clone_repo
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.models import SubCategory
 from zds.utils.mps import send_mp
@@ -310,7 +311,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             )
 
 
-class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, SingleContentDetailViewMixin):
+class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, ValidationBeforeViewMixin):
 
     model = PublishableContent
     permissions = ['tutorialv2.change_validation']
@@ -322,7 +323,8 @@ class HistoryOfValidationDisplay(LoginRequiredMixin, PermissionRequiredMixin, Si
         context['validations'] = Validation.objects\
             .prefetch_related('validator')\
             .filter(content__pk=self.object.pk)\
-            .order_by('date_proposition').all()
+            .order_by('date_proposition')\
+            .all()
 
         return context
 
@@ -575,6 +577,9 @@ class Publish(LoggedWithReadWriteHability, NoValidationBeforeFormViewMixin):
             db_object.public_version = published
             db_object.save()
 
+            # Follow
+            signals.new_content.send(sender=db_object.__class__, instance=db_object, by_email=False)
+
             messages.success(self.request, _(u'Le contenu a bien été publié.'))
             self.success_url = published.get_absolute_url_online()
 
@@ -605,6 +610,7 @@ class Unpublish(LoginRequiredMixin, SingleOnlineContentFormViewMixin, NoValidati
         unpublish_content(self.object)
 
         self.object.sha_public = None
+        self.object.sha_approved = None
         self.object.pubdate = None
         self.object.save()
 
@@ -672,7 +678,7 @@ class ValidPublication(PermissionRequiredMixin, NoValidationBeforeFormViewMixin)
         send_mp(
             bot,
             versioned.authors.all(),
-            _(u"Billet approuvé"),
+            _(u'Billet approuvé'),
             versioned.title,
             msg,
             True,
@@ -712,10 +718,10 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
 
     modal_form = True
     prefetch_all = False
-    permissions = ["tutorialv2.change_validation"]
+    permissions = ['tutorialv2.change_validation']
 
     def get(self, request, *args, **kwargs):
-        raise Http404(_(u"Promouvoir un billet n'est pas possible avec la méthode « GET »."))
+        raise Http404(_(u"Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
         kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
@@ -726,6 +732,9 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         # get database representation and validated version
         db_object = self.object
         versioned = self.versioned_object
+
+        # get initial git path
+        old_git_path = db_object.get_repo_path()
 
         # store data for later
         authors = db_object.authors.all()
@@ -756,11 +765,8 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         for tag in tags:
             db_object.tags.add(tag)
 
-        # create the repo
-        init_new_repo(db_object,
-                      versioned.get_introduction(),
-                      versioned.get_conclusion(),
-                      u'Promotion du billet en article')
+        # clone the repo
+        clone_repo(old_git_path, db_object.get_repo_path())
 
         # ask for validation
         validation = Validation()
@@ -786,13 +792,15 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         for author in authors:
             userg = UserGallery()
             userg.gallery = gal
-            userg.mode = "W"  # write mode
+            userg.mode = 'W'  # write mode
             userg.user = author
             userg.save()
         db_object.gal = gal
 
         # save updates
         db_object.save()
+
+        # copy git repo
 
         # send message to user
         msg = render_to_string(
@@ -806,7 +814,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, NoValidationBeforeFormVie
         send_mp(
             bot,
             db_object.authors.all(),
-            _(u"Billet promu en article"),
+            _(u'Billet promu en article'),
             versioned.title,
             msg,
             True,
