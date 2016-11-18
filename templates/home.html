@@ -68,14 +68,14 @@
                             <p>Pour assurer la qualité, l'équipe du site valide chaque tutoriel et article.</p>
                         {% endblocktrans %}
                         <h2>{% trans "… sur une plate-forme libre" %}</h2>
-                            {% blocktrans %}
-                                <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
+                        {% blocktrans %}
+                            <p>Le site est géré et financé par une <a href="{{url_association}}">association</a> à but non lucratif.</p>
+                        {% endblocktrans %}
+                        {% if app.site.contribute_link %}
+                            {% blocktrans with contribute_link=app.site.contribute_link %}
+                                <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
                             {% endblocktrans %}
-                            {% if app.site.contribute_link %}
-                                {% blocktrans with contribute_link=app.site.contribute_link %}
-                                    <p>Chacun peut <a href="{{contribute_link}}">contribuer au code source</a> de la plate-forme, qui est ouvert.</p>
-                                {% endblocktrans %}
-                            {% endif %}
+                        {% endif %}
                     </div>
                 </section>
             {% endif %}
